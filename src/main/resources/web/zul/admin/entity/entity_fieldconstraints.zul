@@ -1,0 +1,190 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout>
+	<north border="0">
+		<toolbar width="100%">
+			<toolbarbutton label="${labels.admin.entity.newconstraint}" 
+						   iconSclass="z-icon-file-o alpha-icon-lg" 
+					   	   onClick="@command('newConstraint')"/>
+			<toolbarbutton label="${labels.admin.entity.removeconstraint}" 
+						   iconSclass="z-icon-remove alpha-icon-lg" 
+					   	   onClick="@command('removeConstraint',elem=self)"
+					   	   visible="@load(not empty vm.fieldConstraint)"/>
+		</toolbar>	
+	</north>
+	<center border="0">
+		<listbox mold="paging" autopaging="true" 
+				 model="@load(vm.object.fieldConstraints)" 
+		         selectedItem="@bind(vm.fieldConstraint)"
+		         onSelect="@command('selectFieldConstraint')"
+		         visible="@load(!empty vm.object.fieldConstraints)"
+		         class="alpha-noborder"
+		         hflex="1" vflex="1">
+			<listhead sizable="true">
+	            <listheader label="${labels.label.field}" hflex="3"
+	            			sort="auto(field.name)"/>
+	            <listheader label="${labels.label.fieldgroup}" hflex="3"
+	            			sort="auto(fieldGroup.name)"
+	            			visible="@load(!empty vm.object.allFieldGroups)"/>
+	            <listheader label="${labels.label.status}" hflex="2"
+	            			visible="@load(vm.object.hasStatus())"
+	            			sort="auto(status.numberAndName)"/>
+		        <listheader label="${labels.label.usergroup}" hflex="2"
+		        			if="${vm.existUserGroups()}"
+		        			sort="auto(userGroup.name)"/>
+		        <listheader label="${labels.label.access}" hflex="1"/>
+		        <listheader label="${labels.label.mandatory}" hflex="min"
+		        			sort="auto(mandatory)"/>
+	        </listhead>
+	        <template name="model" var="constraint">
+	            <listitem attributes.item="@load(constraint)" 
+	            		  draggable="true" droppable="true" 
+	            		  onDrop="@command('swapConstraints',item=event.dragged.attributes.item,base=constraint)">
+	            	<listcell iconSclass="@load(empty constraint.field.type ? '' : constraint.field.type.isReference() ? 'z-icon-share alpha-icon-lg' : 'z-icon-font alpha-icon-lg')">
+	            		<label value="@load(vm.getFieldName(constraint.field))" 
+	            			   style="margin-left:3px"/>
+	            	</listcell>
+	            	<listcell>
+	            		<label value="@load(constraint.fieldGroup.name)"/>
+	            	</listcell>
+	            	<listcell>
+	            		<label value="@load(constraint.status.numberAndName)"/>
+	            	</listcell>
+	            	<listcell iconSclass="z-icon-users alpha-icon-lg"
+	            			  if="${vm.existUserGroups()}"
+	            			  visible="@load(!empty constraint.userGroup)">
+	            		<label value="@load(constraint.userGroup.name)" />
+	            	</listcell>
+	            	<listcell if="${vm.existUserGroups()}"
+	            			  visible="@load(empty constraint.userGroup)"/>
+	            	<listcell>
+	            		<label value="@load(vm.getEnumLabel(constraint.access))" />
+	            	</listcell>
+	            	<listcell>
+	            		<checkbox checked="@load(constraint.mandatory)"
+	            				  disabled="true" />
+	            	</listcell>
+	            </listitem>
+		    </template> 
+		</listbox>
+	</center>
+	<east title="${labels.label.properties}" 
+		  visible="@load(not empty vm.fieldConstraint)"
+		  width="275px" collapsible="true" border="0"
+		  class="alpha-properties">
+		<vlayout class="alpha-properties-content">
+			<vlayout visible="@load(!empty vm.object.nesteds)">
+				<label value="${labels.label.nested}:"/>
+				<combobox model="@load(vm.object.nesteds) @template(empty each.name ? 'empty' : 'nested')"
+						  selectedItem="@bind(vm.constraintNested)"
+						  value="@load(vm.constraintNested.name)"
+						  onSelect="@command('selectConstraintNested')"
+						  hflex="1">
+					<template name="empty">
+	                	<comboitem/>
+	              	</template>
+					<template name="nested" var="nested">
+	                	<comboitem label="@init(nested.name)"
+	                			   iconSclass="z-icon-table z-icon-fw alpha-icon-lg"/>
+	              	</template>
+				</combobox>
+			</vlayout>
+			<label value="${labels.label.field}:"/>
+			<combobox model="@load(vm.getConstraintFields(vm.constraintNested)) @template(empty each.name ? 'empty' : each.type.isReference() ? 'reference' : 'field')"
+        		 	  selectedItem="@bind(vm.fieldConstraint.field)"
+        		 	  onSelect="@command('selectConstraintField')"
+        		 	  disabled="@load(!empty vm.fieldConstraint.fieldGroup)"
+        		 	  value="@load(vm.fieldConstraint.field.name)"
+        		 	  hflex="1">
+        		<template name="empty">
+                	<comboitem/>
+              	</template>
+              	<template name="field" var="field">
+                	<comboitem label="@load(field.name)"
+                			   iconSclass="z-icon-font z-icon-fw alpha-icon-lg"/>
+              	</template>
+              	<template name="reference" var="field">
+                	<comboitem label="@load(field.name)"
+                			   iconSclass="z-icon-share z-icon-fw alpha-icon-lg"/>
+              	</template>
+        	</combobox>
+        	<vlayout visible="@load(!empty vm.object.allFieldGroups)">
+        		<label value="${labels.label.fieldgroup}:"/>
+        		<combobox model="@load(vm.object.allFieldGroups)"
+						  selectedItem="@bind(vm.fieldConstraint.fieldGroup)"
+						  value="@load(vm.fieldConstraint.fieldGroup.name)"
+						  onSelect="@command('selectConstraintFieldGroup')"
+						  disabled="@load(!empty vm.fieldConstraint.field)"
+						  hflex="1">
+	                <template name="model" var="fieldGroup">
+	                    <comboitem label="@load(fieldGroup.name)"/>
+	                </template>
+	            </combobox>	
+        	</vlayout>
+        	<vlayout visible="@load(vm.object.hasStatus())">
+	        	<label value="${labels.label.status}:"/>
+				<combobox model="@load(vm.object.statusList)"
+	        		 	  selectedItem="@bind(vm.fieldConstraint.status)"
+	        		 	  onSelect="@command('flagDirty')"
+	        		 	  value="@load(vm.fieldConstraint.status.numberAndName)"
+	        		 	  hflex="1">
+	        		<template name="model" var="status">
+	                	<comboitem label="@init(status.numberAndName)"/>
+	              	</template>
+	            </combobox>
+	    	</vlayout>
+	    	<vlayout if="${vm.existUserGroups()}">
+	        	<label value="${labels.label.usergroup}:"/>
+				<combobox model="@init(vm.userGroups) @template(empty each.name ? 'empty' : 'group')"
+	        		 	  selectedItem="@bind(vm.fieldConstraint.userGroup)"
+	        		 	  onSelect="@command('flagDirty')"
+	        		 	  value="@load(vm.fieldConstraint.userGroup.name)"
+	        		 	  hflex="1">
+	        		<template name="empty">
+	                	<comboitem/>
+	              	</template>
+	        		<template name="group" var="group">
+	                	<comboitem label="@init(group.name)"
+	                			   iconSclass="z-icon-users alpha-icon-lg"/>
+	              	</template>
+	        	</combobox>
+	    	</vlayout>
+	    	<label value="${labels.label.access}:"/>
+			<combobox model="@init(vm.fieldAccesses)"
+					  mandatory="true"
+        		 	  selectedItem="@bind(vm.fieldConstraint.access)"
+        		 	  onSelect="@command('flagDirty')"
+        		 	  value="@load(vm.getEnumLabel(vm.fieldConstraint.access))"
+        		 	  hflex="1">
+        		<template name="model" var="access">
+                	<comboitem label="@init(vm.getEnumLabel(access))"/>
+              	</template>
+            </combobox>
+            <space/>
+       		<label value="${labels.label.options}:"/>	 
+       		<hlayout>
+        		<checkbox checked="@bind(vm.fieldConstraint.mandatory)" 
+        				  onCheck="@command('flagDirty')"/>
+        		<label value="${labels.label.mandatoryfield}"/>
+       		</hlayout>
+		</vlayout>
+	</east>
+</borderlayout>

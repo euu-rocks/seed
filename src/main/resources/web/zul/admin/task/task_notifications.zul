@@ -1,0 +1,91 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout>
+	<north border="0">
+		<toolbar width="100%">
+			<toolbarbutton label="${labels.admin.task.newnotification}" 
+						   iconSclass="z-icon-file-o alpha-icon-lg" 
+					   	   onClick="@command('newNotification')"/>
+			<toolbarbutton label="${labels.admin.task.removenotification}" 
+						   iconSclass="z-icon-remove alpha-icon-lg" 
+					   	   onClick="@command('removeNotification',elem=self)"
+					   	   visible="@load(not empty vm.notification)"/>
+		</toolbar>
+	</north>
+	<center border="0">
+		<listbox mold="paging" autopaging="true" 
+				 model="@load(vm.object.notifications)" 
+		         selectedItem="@bind(vm.notification)"
+		         visible="@load(!empty vm.object.notifications)"
+		         class="alpha-noborder"
+		         hflex="1" vflex="1">
+			<listhead sizable="true">
+	            <listheader label="${labels.label.username}" 
+	            			sort="auto(name)" hflex="1"/>
+	            <listheader label="${labels.label.result}" hflex="1"/>
+	        </listhead> 
+	        <template name="model" var="notification">
+	            <listitem>
+	            	<listcell iconSclass="@load(empty notification.user.name ? '' : 'z-icon-user alpha-icon-lg')">
+	            		<label value="@load(notification.user.name)" 
+	            			   style="margin-left:3px"/>
+	            	</listcell>
+	            	<listcell>
+	            		<label value="@load(vm.getEnumLabel(notification.result))"/>
+	            	</listcell>
+	            </listitem>
+		    </template> 
+		</listbox>
+	</center>
+	<east title="${labels.label.properties}" 
+		  visible="@load(!empty vm.notification)"
+		  width="275px" border="0" collapsible="true" 
+		  class="alpha-properties">
+		<vlayout class="alpha-properties-content">
+			<label value="${labels.label.user}:"/>
+			<combobox model="@load(vm.users) @template(empty each.name ? 'empty' : 'user')"
+					  selectedItem="@bind(vm.notification.user)"
+					  value="@load(vm.notification.user.name)"
+					  onSelect="@command('flagDirty')"
+					  mandatory="true"
+					  hflex="1">
+				<template name="empty">
+                    <comboitem label="@load(user.name)"/>
+                </template>
+                <template name="user" var="user">
+                    <comboitem label="@load(user.name)"
+                    		   iconSclass="z-icon-user z-icon-fw alpha-icon-lg"/>
+                </template>
+            </combobox>
+            <label value="${labels.label.result}:"/>
+            <combobox model="@load(vm.taskResults)"
+					  selectedItem="@bind(vm.notification.result)"
+					  value="@load(vm.getEnumLabel(vm.notification.result))"
+					  onSelect="@command('flagDirty')"
+					  mandatory="true"
+					  hflex="1">
+                <template name="model" var="taskResult">
+                    <comboitem label="@load(vm.getEnumLabel(taskResult))"/>
+                </template>
+            </combobox> 
+		</vlayout>
+	</east>
+</borderlayout>

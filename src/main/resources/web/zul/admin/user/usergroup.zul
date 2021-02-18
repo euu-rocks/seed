@@ -1,0 +1,87 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<?component name="usergroup-users" macroURI="~./zul/admin/user/usergroup_users.zul" inline="true"?>
+<?component name="usergroup-authorisations" macroURI="~./zul/admin/user/usergroup_authorisations.zul" inline="true"?>
+<borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminUserGroupViewModel')">
+	<north border="0">
+		<toolbar>
+			<toolbarbutton iconSclass="z-icon-arrow-left alpha-icon-lg" 
+						   label="${labels.button.back}" 
+						   onClick="@command('back')"/>
+			<toolbarbutton iconSclass="z-icon-save alpha-icon-lg" 
+						   label="${labels.button.save}" 
+						   onClick="@command('saveUserGroup',elem=self)"
+						   disabled="@load(!vm.isDirty())"/>
+			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+						   label="${labels.button.refresh}" 
+						   onClick="@command('refreshUserGroup',elem=self)"
+						   visible="@load(!vm.object.isNew())"/>
+			<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
+						   label="${labels.button.newobject}" 
+						   onClick="@command('newUserGroup')"/>
+			<toolbarbutton iconSclass="z-icon-remove alpha-icon-lg" 
+						   label="${labels.button.delete}" 
+						   onClick="@command('deleteUserGroup', elem=self)"
+						   visible="@load(!vm.object.isNew() and !vm.object.systemGroup)"/>
+		</toolbar>
+	</north>
+	<center border="0">
+		<vlayout hflex="1" vflex="1">
+			<grid hflex="1" class="alpha-noborder">
+				<columns>
+	            	<column hflex="min"/>
+	              	<column hflex="max"/>
+	              	<column hflex="min"/>
+	              	<column hflex="max"/>
+	            </columns>
+				<rows>
+					<row>
+						<cell style="padding: 4px 10px" align="right">
+							<label value="${labels.label.name}:"/>
+						</cell>
+						<cell style="padding: 4px 4px">
+							<textbox value="@bind(vm.object.name)"
+									 mandatory="true"
+									 readonly="@load(vm.object.systemGroup)"
+									 onChange="@command('flagDirty')"
+									 hflex="1"/> 
+						</cell>
+					</row>
+				</rows>
+			</grid>
+			<tabbox id="mainTabbox" hflex="1" vflex="1" class="alpha-tabbox">
+				<tabs>
+					<tab label="${labels.label.user}"/>
+					<tab id="tabAuthorisations" 
+						 label="${labels.label.permissions}"/>
+				</tabs>
+				<tabpanels> 
+					<tabpanel>
+						<usergroup-users/>
+					</tabpanel>
+					<tabpanel fulfill="tabAuthorisations.onSelect">
+						<usergroup-authorisations/>
+					</tabpanel>
+				</tabpanels>
+			</tabbox>
+		</vlayout>
+	</center>
+</borderlayout>

@@ -1,0 +1,159 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<?component name="task-runs" macroURI="~./zul/admin/task/task_runs.zul" inline="true"?>
+<?component name="task-params" macroURI="~./zul/admin/task/task_params.zul" inline="true"?>
+<?component name="task-notifications" macroURI="~./zul/admin/task/task_notifications.zul" inline="true"?>
+<?component name="task-permissions" macroURI="~./zul/admin/task/task_permissions.zul" inline="true"?>
+<borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminTaskViewModel')">
+	<north border="0">
+		<toolbar>
+			<toolbarbutton iconSclass="z-icon-arrow-left alpha-icon-lg" 
+						   label="${labels.button.back}" 
+						   onClick="@command('back')"/>
+			<toolbarbutton iconSclass="z-icon-save alpha-icon-lg" 
+						   label="${labels.button.save}" 
+						   onClick="@command('saveTask',elem=self)"
+						   disabled="@load(!vm.isDirty())"/>
+			<toolbarbutton iconSclass="z-icon-play alpha-icon-lg" 
+						   label="${labels.button.start}" 
+						   onClick="@command('startTask')"
+						   visible="@load(!vm.object.isNew())"
+						   disabled="@load(vm.isDirty())"/>
+			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+						   label="${labels.button.refresh}" 
+						   onClick="@command('refreshTask',elem=self)"
+						   visible="@load(!vm.object.isNew())"/>
+			<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
+						   label="${labels.button.newobject}" 
+						   onClick="@command('newTask')"/>
+			<toolbarbutton iconSclass="z-icon-remove alpha-icon-lg" 
+						   label="${labels.button.delete}" 
+						   onClick="@command('deleteTask', elem=self)"
+						   visible="@load(!vm.object.isNew())"/>
+			<toolbarbutton iconSclass="z-icon-code alpha-icon-lg" 
+						   label="${labels.button.editcode}"
+						   onClick="@command('editCode')"
+						   disabled="@load(empty vm.object.name)"/> 
+		</toolbar>
+	</north>
+	<center border="0">
+		<vlayout hflex="1" vflex="1">
+			<grid hflex="1" class="alpha-noborder">
+				<columns>
+	            	<column hflex="min"/>
+	              	<column hflex="max"/>
+	              	<column hflex="min"/>
+	              	<column hflex="max"/>
+	            </columns>
+				<rows>
+					<row>
+						<cell style="padding: 4px 10px" align="right">
+							<label value="${labels.label.name}:"/>
+						</cell>
+						<cell style="padding: 4px 4px">
+							<textbox value="@bind(vm.object.name)"
+									 mandatory="true"
+									 onChange="@command('flagDirty',notifyObject='internalName')"
+									 hflex="1"/> 
+						</cell>
+						<cell style="padding: 4px 10px" align="right">
+							<label value="${labels.label.internalname}:"/>
+						</cell>
+						<cell style="padding: 4px 4px">
+							<textbox value="@load(vm.object.internalName)" 
+									 hflex="1" readonly="true"/>
+						</cell>
+					</row>
+					<row>
+						<cell style="padding: 4px 10px" align="right">
+							<label value="${labels.label.starttime}:"/>
+						</cell>
+						<cell style="padding: 4px 4px">
+							<datebox value="@bind(vm.object.startTime)"
+									 format="long+medium"
+									 onChange="@command('flagDirty')"
+									 hflex="1"/> 
+						</cell>
+						<cell style="padding: 4px 10px" align="right">
+							<label value="${labels.label.interval}:"/>
+						</cell>
+						<cell style="padding: 4px 4px">
+							<inputgroup hflex="1">
+								<intbox value="@bind(vm.object.repeatInterval)"
+										onChange="@command('flagDirty')"
+										hflex="1"/>
+								<combobox model="@load(vm.intervalUnits)"
+										  selectedItem="@bind(vm.object.repeatIntervalUnit)"
+										  value="@load(vm.getEnumLabel(vm.object.repeatIntervalUnit))"
+										  onSelect="@command('flagDirty')"
+										  hflex="1">
+					                <template name="model" var="intervalUnit">
+					                    <comboitem label="@load(vm.getEnumLabel(intervalUnit))" />
+					                </template>
+					            </combobox> 
+							</inputgroup>
+						</cell>
+					</row>
+					<row>
+						<cell style="padding: 4px 10px" align="right">
+							<label value="${labels.label.cronexpression}:"/>
+						</cell>
+						<cell style="padding: 4px 4px">
+							<textbox value="@bind(vm.object.cronExpression) @converter(vm.stringConverter)"
+									 onChange="@command('flagDirty')"
+									 hflex="1"/> 
+						</cell>
+						<cell style="padding: 4px 10px" align="right">
+							<label value="${labels.label.active}:"/>
+						</cell>
+						<cell style="padding: 4px 4px">
+							<checkbox checked="@bind(vm.object.active)"
+	            				  onCheck="@command('flagDirty')"/>
+						</cell>
+					</row>
+				</rows>
+			</grid>
+			<tabbox id="mainTabbox" hflex="1" vflex="1" class="alpha-tabbox">
+				<tabs>
+					<tab label="${labels.label.jobruns}"/>
+					<tab id="tabParams" label="${labels.label.parameter}"/>
+					<tab id="tabNotifications" label="${labels.label.notifications}"/>
+					<tab id="tabPermissions" label="${labels.label.permissions}"
+						 visible="@init(vm.existUserGroups())"/>
+				</tabs>
+				<tabpanels> 
+					<tabpanel>
+						<task-runs/>
+					</tabpanel>
+					<tabpanel fulfill="tabParams.onSelect">
+						<task-params/>
+					</tabpanel>
+					<tabpanel fulfill="tabNotifications.onSelect">
+						<task-notifications/>
+					</tabpanel>
+					<tabpanel fulfill="tabPermissions.onSelect">
+						<task-permissions/>
+					</tabpanel>
+				</tabpanels>
+			</tabbox>
+		</vlayout>
+	</center>
+</borderlayout>

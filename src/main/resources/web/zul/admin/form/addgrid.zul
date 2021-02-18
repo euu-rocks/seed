@@ -1,0 +1,72 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<?page contentType="text/html;charset=UTF-8"?>
+<window id="layoutDialogWin" width="250px" title="@init(vm.title)"
+		viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.LayoutDialogViewModel')" 
+		mode="modal" closable="true">
+	<div class="alpha-dialog">
+		<grid class="alpha-noborder">
+            <columns>
+                <column/>
+                <column/>
+            </columns>
+            <rows>
+            	<row>
+            		<cell align="right">
+                		<label value="${labels.label.frametitle}:"/>
+                	</cell>
+                	<cell>
+	                	<textbox value="@bind(vm.text)" hflex="1"/>
+		            </cell>
+                </row>
+            	<row>
+            		<cell align="right">
+                		<label value="${labels.label.columns}:"/>
+                	</cell>
+                	<cell>
+	                	<intbox value="@bind(vm.gridColumns)"
+	                			mandatory="true"
+	                			cols="2" maxlength="2"/>
+		            </cell>
+                </row>
+                <row>
+            		<cell align="right">
+                		<label value="${labels.label.rows}:"/>
+                	</cell>
+                	<cell>
+	                	<intbox value="@bind(vm.gridRows)"
+	                			mandatory="true"
+	                			cols="2" maxlength="2"/>
+		            </cell>
+                </row>
+            </rows>
+  		</grid>
+  		<div class="alpha-dialog-footer">
+			<button iconSclass="z-icon-check"
+					label="${labels.button.add}" 
+					onClick="@command('addGrid',elem=self)"/>
+			<space/>
+			<button iconSclass="z-icon-close" 
+					label="${labels.button.cancel}" 
+					onClick="@command('cancel')"/>
+		</div>
+  	</div>		
+</window>

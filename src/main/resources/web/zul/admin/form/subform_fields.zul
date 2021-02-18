@@ -1,0 +1,143 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout>
+	<west width="30%" border="0" style="padding:5px">
+		<groupbox hflex="1" vflex="1">
+			<caption label="${labels.label.fieldsavailable}"/>
+			<listbox mold="paging" autopaging="true"
+					 model="@load(vm.getListManagerList('fields',0))"
+					 droppable="true" 
+					 onDrop="@command('dropToFieldList',item=event.dragged.attributes.item,list=0)"
+					 hflex="1" vflex="1"
+					 class="alpha-noborder alpha-nobg"
+					 oddRowSclass="non-odd">
+				<template name="model" var="field">
+					<listitem attributes.item="@init(field)" 
+							  draggable="true" droppable="true" 
+	 						  onDrop="@command('insertToFieldList',item=event.dragged.attributes.item,base=field,list=0)">
+						<listcell label="@init(field.entityField.name)"
+								  iconSclass="@load(field.entityField.type.isReference() ? 'z-icon-share-square-o alpha-icon-lg' : 'z-icon-edit alpha-icon-lg')"/>
+					</listitem>
+				</template>
+			</listbox>
+		</groupbox>
+	</west>	
+	<center border="0" style="padding:5px">
+		<groupbox  vflex="1">
+			<caption label="${labels.label.fieldsselected}"/>
+			<listbox mold="paging" autopaging="true" 
+					 model="@load(vm.getListManagerList('fields',1))"
+					 selectedItem="@bind(vm.subFormColumn)" 
+					 droppable="true" 
+					 onDrop="@command('dropToFieldList',item=event.dragged.attributes.item,list=1)"
+					 class="alpha-noborder alpha-nobg"
+					 hflex="1" vflex="1"
+					 oddRowSclass="non-odd">
+				<template name="model" var="field">
+					<listitem attributes.item="@init(field)" 
+							  draggable="true" droppable="true" 
+							  onDrop="@command('insertToFieldList',item=event.dragged.attributes.item,base=field,list=1)">
+						<listcell label="@init(field.entityField.name)"
+								  iconSclass="@load(field.entityField.type.isReference() ? 'z-icon-share-square-o alpha-icon-lg' : 'z-icon-edit alpha-icon-lg')"/>
+					</listitem>
+				</template>
+			</listbox>
+		</groupbox>
+	</center>
+	<east title="${labels.label.properties}" 
+	  	  visible="@load(!empty vm.subFormColumn)" 
+	  	  width="250px" collapsible="true" border="0"
+	  	  class="alpha-properties">
+		<vlayout class="alpha-properties-content">
+			<label value="${labels.label.field}:"/>
+	        <textbox value="@load(vm.subFormColumn.entityField.name)" 
+	        	     readonly="true" hflex="1"/>
+	        <label value="${labels.label.label}:"/>
+	        <textbox value="@bind(vm.subFormColumn.label)
+	        				@converter(vm.stringConverter)"
+	        		 placeholder="@load(vm.subFormColumn.entityField.name)"
+	        		 instant="true" hflex="1"/>
+	        <vlayout visible="@load(!vm.subFormColumn.entityField.type.isBinary())">
+		        <label value="${labels.label.style}:"/>
+		        <textbox value="@bind(vm.subFormColumn.style)"
+		        		 hflex="1"/>
+	        </vlayout>
+	        <vlayout visible="@load(!vm.subFormColumn.entityField.type.isFile())">
+		        <label value="${labels.label.labelstyle}:"/>
+		        <textbox value="@bind(vm.subFormColumn.labelStyle)" 
+		        		 hflex="1"/>
+	        </vlayout>
+	        <vlayout visible="@load(vm.subFormColumn.entityField.type.isBinary())">
+		        <label value="${labels.label.width}:"/>
+		        <textbox value="@bind(vm.subFormColumn.width)"
+		        		 hflex="1"/>
+		        <label value="${labels.label.height}:"/>
+		        <textbox value="@bind(vm.subFormColumn.height)"
+		        		 hflex="1"/>
+	        </vlayout>		 
+	        <vlayout visible="@load(!empty vm.getAvailableFilters(vm.subFormColumn))">
+	        	<label value="${labels.label.filter}:"/>
+	        	<combobox model="@load(vm.getAvailableFilters(vm.subFormColumn))"
+					  	  selectedItem="@bind(vm.subFormColumn.filter)"
+					  	  value="@load(vm.subFormColumn.filter.name)"
+					  	  hflex="1">
+					<template name="model" var="filter">
+	                    <comboitem label="@load(filter.name)"
+	                    		   iconSclass="@load(empty filter.name ? '' : 'z-icon-filter z-icon-fw alpha-icon-lg')"/>
+	                </template>
+				</combobox>
+	        </vlayout>		 
+	        <vlayout visible="@load(!empty vm.getAvailableTransformers(vm.subFormColumn))">
+	        	<label value="${labels.label.transformer}:"/>
+	        	<combobox model="@load(vm.getAvailableTransformers(vm.subFormColumn))"
+					  	  selectedItem="@bind(vm.subFormColumn.transformer)"
+					  	  value="@load(vm.subFormColumn.transformer.name)"
+					  	  hflex="1">
+					<template name="model" var="transformer">
+	                    <comboitem label="@load(transformer.name)"
+	                    		   iconSclass="@load(empty transformer.name ? '' : 'z-icon-random z-icon-fw alpha-icon-lg')"/>
+	                </template>
+				</combobox>
+	        </vlayout>
+	        <vlayout visible="@load(vm.subFormColumn.entityField.type.isReference() and !empty vm.getDetailForms(vm.subFormColumn.entityField.referenceEntity))">
+	        	<label value="${labels.label.detailform}:"/>
+	        	<combobox model="@load(vm.getDetailForms(vm.subFormColumn.entityField.referenceEntity))"
+			  	  		  selectedItem="@bind(vm.subFormColumn.detailForm)"
+			  	  		  value="@load(vm.subFormColumn.detailForm.name)"
+			  	  		  hflex="1">
+					<template name="model" var="form">
+	                    <comboitem label="@load(form.name)"
+	                    		   iconSclass="@load(empty form.name ? '' : 'z-icon-list-alt z-icon-fw alpha-icon-lg')"/>
+	                </template>
+				</combobox>
+	        </vlayout>
+	        <space/>
+	       	<hlayout>
+	        	<checkbox checked="@bind(vm.subFormColumn.readonly)"/>
+	        	<label value="${labels.label.readonly}:"/>	
+	        </hlayout>
+	        <!-- <hlayout visible="@load(vm.subFormColumn.entityField.type.isReference())">
+	        	<checkbox checked="@bind(vm.subFormColumn.bandbox)"/>
+	        	<label value="${labels.label.bandbox}:"/>	
+	        </hlayout> -->
+		</vlayout>
+	</east>
+</borderlayout>	

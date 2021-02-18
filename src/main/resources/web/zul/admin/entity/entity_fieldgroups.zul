@@ -1,0 +1,67 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout>
+	<north border="0">
+		<toolbar width="100%">
+			<toolbarbutton label="${labels.admin.entity.newfieldgroup}" 
+						   iconSclass="z-icon-file-o alpha-icon-lg" 
+					   	   onClick="@command('newFieldGroup')"/>
+			<toolbarbutton label="${labels.admin.entity.removefieldgroup}" 
+						   iconSclass="z-icon-remove alpha-icon-lg" 
+					   	   onClick="@command('removeFieldGroup',elem=self)"
+					   	   visible="@load(not empty vm.fieldGroup)"/>
+		</toolbar>
+	</north>
+	<center border="0">
+		<listbox mold="paging" autopaging="true" 
+				 model="@load(vm.object.fieldGroups)" 
+		         selectedItem="@bind(vm.fieldGroup)"
+		         visible="@load(!empty vm.object.fieldGroups)"
+		         class="alpha-noborder"
+		         hflex="1" vflex="1">
+			<listhead sizable="true">
+	            <listheader label="${labels.label.fieldgroup}" hflex="1"/>
+	        </listhead> 
+	        <template name="model" var="group">
+	            <listitem attributes.item="@load(group)" 
+	            		  draggable="true" droppable="true" 
+	            		  onDrop="@command('swapFieldGroups',item=event.dragged.attributes.item,base=group)">
+	            	<listcell>
+	            		<label value="@load(group.name)" 
+	            			   style="margin-left:3px"/>
+	            	</listcell>
+	            </listitem>
+		    </template> 
+		</listbox>
+	</center>
+	<east title="${labels.label.properties}" 
+		  visible="@load(!empty vm.fieldGroup)"
+		  width="275px" border="0" collapsible="true" 
+		  class="alpha-properties">
+		<vlayout class="alpha-properties-content">
+        	<label value="${labels.label.name}:"/>
+            <textbox hflex="1"
+            		 value="@bind(vm.fieldGroup.name) @converter(vm.stringConverter)"
+            		 mandatory="true"
+            		 onChange="@command('flagDirty')"/>
+        </vlayout>
+    </east>
+</borderlayout>

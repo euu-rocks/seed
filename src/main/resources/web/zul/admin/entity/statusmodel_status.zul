@@ -1,0 +1,85 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout>
+	<north border="0">
+		<toolbar width="100%">
+			<toolbarbutton label="${labels.admin.entity.newstatus}" 
+						   iconSclass="z-icon-file-o alpha-icon-lg" 
+					   	   onClick="@command('newStatus')"/>
+			<toolbarbutton label="${labels.admin.entity.removestatus}" 
+						   iconSclass="z-icon-remove alpha-icon-lg" 
+					   	   onClick="@command('removeStatus',elem=self)"
+					   	   visible="@load(not empty vm.status)"/>
+		</toolbar>
+	</north>
+	<center border="0">
+		<listbox mold="paging" autopaging="true"
+				 model="@load(vm.object.statusList)" 
+		         selectedItem="@bind(vm.status)"
+		         visible="@load(not empty vm.object.statusList)"
+		         hflex="1" vflex="1" 
+		         class="alpha-noborder">
+			<listhead sizable="true">
+				<listheader hflex="min" label="${labels.label.statusnumber}"
+							sort="auto(statusNumber)"/>
+	            <listheader hflex="max" label="${labels.label.statusname}"
+	            			sort="auto(name)"/>
+	        </listhead>
+	        <template name="model" var="status">
+	            <listitem attributes.item="@load(status)" 
+	            		  draggable="true" droppable="true" 
+	            		  onDrop="@command('swapStatus',item=event.dragged.attributes.item,base=status)">
+	            	<listcell>
+	            		<label value="@load(status.statusNumber)" 
+	            			   style="margin-left:3px"/>
+	            	</listcell>
+	            	<listcell>
+	            		<label value="@load(status.name)"/>
+	            	</listcell>
+	            </listitem>
+		    </template> 
+		</listbox>
+	</center>
+	<east title="${labels.label.properties}"
+		  visible="@load(not empty vm.status)" 
+		  width="275px" border="0" collapsible="true"
+		  class="alpha-properties">
+		<vlayout class="alpha-properties-content">
+        	<label value="${labels.label.statusname}:"/>
+            <textbox mandatory="true" hflex="1"
+               		 value="@bind(vm.status.name)"
+               		 onChange="@command('flagDirty')"/>
+            <label value="${labels.label.statusnumber}:"/>
+			<intbox mandatory="true" cols="4"
+               		value="@bind(vm.status.statusNumber)"
+               		onChange="@command('flagDirty')"/>
+            <hlayout style="margin-top:8px;margin-bottom:8px">
+	            <checkbox checked="@bind(vm.status.initial)" 
+		        		  onCheck="@command('flagDirty')"/>
+		        <label value="${labels.label.initialstate}:"/>
+	        </hlayout>
+	        <label value="${labels.label.description}:"/>
+            <textbox hflex="1" rows="5"
+               		 value="@bind(vm.status.description)"
+               		 onChanging="@command('flagDirty')"/>
+       	</vlayout>
+	</east>
+</borderlayout>

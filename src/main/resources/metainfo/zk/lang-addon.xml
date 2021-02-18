@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<language-addon>
+	<addon-name>seed</addon-name>
+	<language-name>xul/html</language-name>
+	<depends>zkbind</depends>
+	<component>
+		 <component-name>bandbox</component-name>
+	     <extends>bandbox</extends>
+	     <component-class>org.seed.ui.zk.component.MandatoryBandbox</component-class>
+	</component>
+	<component>
+		 <component-name>combobox</component-name>
+	     <extends>combobox</extends>
+	     <component-class>org.seed.ui.zk.component.NullableCombobox</component-class>
+	</component>
+	<component>
+		 <component-name>datebox</component-name>
+	     <extends>datebox</extends>
+	     <component-class>org.seed.ui.zk.component.MandatoryDatebox</component-class>
+	</component>
+	<component>
+		 <component-name>decimalbox</component-name>
+	     <extends>decimalbox</extends>
+	     <component-class>org.seed.ui.zk.component.MandatoryDecimalbox</component-class>
+	</component>
+	<component>
+		 <component-name>doublebox</component-name>
+	     <extends>doublebox</extends>
+	     <component-class>org.seed.ui.zk.component.MandatoryDoublebox</component-class>
+	</component>
+	<component>
+		 <component-name>intbox</component-name>
+	     <extends>intbox</extends>
+	     <component-class>org.seed.ui.zk.component.MandatoryIntbox</component-class>
+	</component>
+	<component>
+		 <component-name>longbox</component-name>
+	     <extends>longbox</extends>
+	     <component-class>org.seed.ui.zk.component.MandatoryLongbox</component-class>
+	</component>
+	<component>
+		 <component-name>textbox</component-name>
+	     <extends>textbox</extends>
+	     <component-class>org.seed.ui.zk.component.MandatoryTextbox</component-class>
+	</component>
+	<component>
+		 <component-name>filebox</component-name>
+	     <extends>inputgroup</extends>
+	     <component-class>org.seed.ui.zk.component.Filebox</component-class>
+	</component>
+	<component>
+		 <component-name>taskstatus</component-name>
+	     <extends>a</extends>
+	     <component-class>org.seed.ui.zk.component.TaskStatus</component-class>
+	</component>
+	<component>
+		 <component-name>helpinfo</component-name>
+	     <extends>div</extends>
+	     <component-class>org.seed.ui.zk.component.HelpInfo</component-class>
+	</component>
+	<component>
+		 <component-name>toolbar</component-name>
+	     <extends>toolbar</extends>
+	     <component-class>org.seed.ui.zk.component.OverflowToolbar</component-class>
+	</component>
+</language-addon>

@@ -1,0 +1,87 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.DetailFormViewModel')">
+	<north border="0">
+		<toolbar children="@init(vm.detailActions)
+						   @template(empty each.type.detailTemplate ? 'default' : each.type.detailTemplate)" 
+				 vflex="1">
+			<template name="default" var="action">
+				<toolbarbutton label="@init(vm.getActionLabel(action))"
+							   enable="@init(vm.isActionEnabled(action))"
+						   	   onClick="@command('callAction',action=action,elem=self)"
+						   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"/>
+			</template>
+			<template name="dirty" var="action">
+				<toolbarbutton label="@init(vm.getActionLabel(action))"
+							   enable="@init(vm.isActionEnabled(action))"
+						   	   onClick="@command('callAction',action=action,elem=self)"
+						   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
+						   	   disabled="@load(!vm.isDirty())"/>
+			</template>
+			<template name="notnew" var="action">
+				<toolbarbutton label="@init(vm.getActionLabel(action))"
+							   enable="@init(vm.isActionEnabled(action))"
+						   	   onClick="@command('callAction',action=action,elem=self)"
+						   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
+						   	   visible="@load(!vm.object.isNew())"/>
+			</template>
+			<template name="print" var="action">
+				<toolbarbutton label="@init(vm.getActionLabel(action))"
+							   enable="@init(vm.isActionEnabled(action))"
+						   	   onClick="@command('callAction',action=action,elem=self)"
+						   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
+						   	   visible="@load(vm.form.hasPrintouts())"/>
+			</template>
+			<template name="status" var="action">
+				<combobox model="@load(vm.availableStatusList)"
+						  selectedItem="@bind(vm.status)"
+						  onSelect="@command('changeStatus',action=action,elem=self)"
+						  value="@load(vm.status.numberAndName)"
+						  disabled="@load(vm.isDirty())"
+						  style="padding-left:10px"
+						  nullable="false" readonly="true">
+					<template name="model" var="status">
+	                    <comboitem label="@init(status.numberAndName)"/>
+	                </template>
+				</combobox>
+			</template>
+			<template name="transform" var="action">
+				<combobox visible="@load(!vm.object.isNew() and !empty vm.transformers)"
+						  model="@load(vm.transformers)"
+						  selectedItem="@bind(vm.transformer)"
+						  onSelect="@command('callAction',action=action,elem=self)"
+						  value="@load(vm.transformer.name)"
+						  disabled="@load(vm.isDirty())"
+						  style="padding-left:10px"
+						  placeholder="${labels.label.transformobject}"
+						  nullable="false" readonly="true">
+					<template name="model" var="transformer">
+	                    <comboitem label="@init(transformer.name)"/>
+	                </template>
+				</combobox>
+			</template>
+		</toolbar>
+	</north>
+	<center border="0">
+		<include id="incLayout"
+				 src="@load(vm.layoutInclude)"/>
+	</center>
+</borderlayout>

@@ -1,0 +1,127 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<?page contentType="text/html;charset=UTF-8"?>
+<window id="newEntityWin" width="400px" title="${labels.admin.create.entity}"
+		viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminEntityViewModel')" 
+		mode="modal" closable="true">
+	<div class="alpha-dialog">
+		<grid class="alpha-noborder">
+            <columns>
+                <column width="30%"/>
+                <column/>
+            </columns>
+            <rows>
+            	<row>
+            		<cell align="right">
+                		<label value="${labels.label.name}:"/>
+                	</cell>
+                	<cell>
+                		<textbox value="@bind(vm.object.name)"
+								 mandatory="true"
+								 hflex="1"/> 
+                	</cell>
+            	</row>
+            	<row if="${vm.existGenericEntities()}">
+                	<cell align="right">
+                		<label value="${labels.label.basedon}:"/>
+                	</cell>
+                	<cell>
+	                	<combobox model="@init(vm.genericEntities) @template(empty each.name ? 'empty' : 'entity')" 
+	                			  selectedItem="@bind(vm.object.genericEntity)"
+	                			  mandatory="true"
+	                			  hflex="1">
+	                		<template name="empty">
+			                    <comboitem/>
+			                </template>
+			                <template name="entity" var="entity">
+			                    <comboitem label="@init(entity.name)" 
+			                    		   iconSclass="z-icon-table alpha-icon-lg"/>
+			                </template>
+		                </combobox>
+		            </cell>
+                </row>
+                <row visible="@load(!empty vm.modules)"> 
+                	<cell align="right">
+                		<label value="${labels.label.module}:"/>
+                	</cell>
+                	<cell>
+	                	<combobox model="@init(vm.modules) @template(empty each.name ? 'empty' : 'module')" 
+	                			  selectedItem="@bind(vm.object.module)"
+	                			  hflex="1">
+			                <template name="empty">
+			                    <comboitem/>
+			                </template>
+			                <template name="module" var="module">
+			                    <comboitem label="@init(module.name)" 
+			                    		   iconSclass="z-icon-cube z-icon-fw alpha-icon-lg" />
+			                </template>
+		                </combobox>
+		            </cell>
+                </row>
+                <row>
+                	<cell/>
+                	<cell>
+                		<checkbox checked="@bind(vm.object.generic)"
+                				  disabled="@load(vm.object.options.autoLayout)"/>
+                		<label value="${labels.label.genericentity}"
+                			   style="margin-left: 5px"/>
+                	</cell>
+                </row>
+                <row>
+                	<cell/>
+                	<cell>
+                		<checkbox checked="@bind(vm.object.options.autoLayout)"
+                				  disabled="@load(vm.object.generic)"/>
+                		<label value="${labels.label.autoform}"
+                			   style="margin-left: 5px"/>
+                	</cell>
+                </row>
+                <row visible="@load(vm.object.options.autoLayout and !empty vm.menus)"> 
+                	<cell align="right">
+                		<label value="${labels.label.menuentry}:"/>
+                	</cell>
+                	<cell>
+	                	<combobox model="@init(vm.menus) @template(empty each.name ? 'empty' : 'menu')" 
+	                			  selectedItem="@bind(vm.object.options.menu)"
+	                			  hflex="1">
+			                <template name="empty">
+			                    <comboitem/>
+			                </template>
+			                <template name="menu" var="menu">
+			                    <comboitem label="@init(menu.name)" 
+			                    		   iconSclass="z-icon-navicon z-icon-fw alpha-icon-lg" />
+			                </template>
+		                </combobox>
+		            </cell>	
+                </row>
+            </rows>
+		</grid>
+		<div class="alpha-dialog-footer">
+			<button iconSclass="z-icon-check" 
+					label="${labels.button.create}" 
+					onClick="@command('createEntity',elem=self)"/>
+			<space/>
+			<button iconSclass="z-icon-close" 
+					label="${labels.button.cancel}" 
+					onClick="@command('cancel')"/>
+		</div>
+	</div>		
+</window>

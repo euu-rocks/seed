@@ -1,0 +1,164 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout>
+	<north border="0">
+		<toolbar width="100%">
+			<toolbarbutton label="${labels.admin.filter.newcriterion}" 
+						   iconSclass="z-icon-file-o alpha-icon-lg" 
+					   	   onClick="@command('newCriterion')"/>
+			<toolbarbutton label="${labels.admin.filter.removecriterion}" 
+						   iconSclass="z-icon-remove alpha-icon-lg" 
+					   	   onClick="@command('removeCriterion',elem=self)"
+					   	   visible="@load(not empty vm.criterion)"/>
+		</toolbar>
+	</north>
+	<center border="0">
+		<listbox mold="paging" autopaging="true" 
+				 model="@load(vm.object.criteria)" 
+		         selectedItem="@bind(vm.criterion)"
+		         onSelect="@command('selectCriterion')"
+		         visible="@load(!empty vm.object.criteria)"
+		         class="alpha-noborder"
+		         hflex="1" vflex="1">
+			<listhead sizable="true">
+	            <listheader label="${labels.label.field}" hflex="1"/>
+	            <listheader label="${labels.label.operator}" hflex="1"/>
+	            <listheader label="${labels.label.value}" hflex="1"/>
+	        </listhead> 
+	        <template name="model" var="criterion">
+	            <listitem>
+	            	<listcell iconSclass="@load(criterion.element.reference ? 'z-icon-share alpha-icon-lg' : criterion.element.field ? 'z-icon-font alpha-icon-lg' : '')">
+	            		<label value="@load(vm.getFieldName(criterion.element))" 
+	            			   style="margin-left:3px"/>
+	            	</listcell>
+	            	<listcell>
+	            		<label value="@load(vm.getEnumLabel(criterion.operator))"/>
+	            	</listcell>
+	            	<listcell>
+	            		<label visible="@load(!criterion.element.reference)"
+	            		       value="@load(criterion.value)
+	            					  @converter(vm.valueConverter)"/>
+	            		<label visible="@load(criterion.element.reference)"
+	            			   value="@load(vm.getReferenceValue(criterion))"/>
+	            	</listcell>
+	            </listitem>
+		    </template> 
+		</listbox>
+	</center>
+	<east title="${labels.label.properties}" 
+		  visible="@load(!empty vm.criterion)"
+		  width="275px" border="0" collapsible="true" 
+		  class="alpha-properties">
+		<vlayout class="alpha-properties-content">
+			<vlayout visible="@load(!empty vm.object.entity.nesteds)">
+				<label value="${labels.label.nested}:"/>
+				<combobox model="@load(vm.object.entity.nesteds) @template(empty each.name ? 'empty' : 'nested')"
+						  selectedItem="@bind(vm.nested)"
+						  value="@load(vm.nested.name)"
+						  onSelect="@command('selectNested')"
+						  hflex="1">
+					<template name="empty">
+	                	<comboitem/>
+	              	</template>
+					<template name="nested" var="nested">
+	                	<comboitem label="@init(nested.name)"
+	                			   iconSclass="z-icon-table z-icon-fw alpha-icon-lg"/>
+	              	</template>
+				</combobox>
+			</vlayout>
+			<label value="${labels.label.field}:"/>
+			<combobox model="@load(vm.getFilterElements(vm.nested)) @template(each.reference ? 'reference' : each.field ? 'field' : 'empty')" 
+           			  selectedItem="@bind(vm.criterion.element)"
+           			  value="@load(vm.getElementName(vm.criterion.element))"
+           			  onSelect="@command('flagDirty')"
+           			  mandatory="true"
+           			  hflex="1">
+           		<template name="empty">
+                	<comboitem/>
+             	</template>
+             	<template name="field" var="element">
+                	<comboitem label="@load(vm.getElementName(element))"
+                			   iconSclass="z-icon-font z-icon-fw alpha-icon-lg"/>
+             	</template>
+             	<template name="reference" var="element">
+                	<comboitem label="@load(vm.getElementName(element))"
+                			   iconSclass="z-icon-share z-icon-fw alpha-icon-lg"/>
+             	</template>
+			</combobox>
+			<label value="${labels.label.operator}:"/>
+			<combobox model="@load(vm.getOperators(vm.criterion.element))" 
+           			  selectedItem="@bind(vm.criterion.operator)"
+           			  value="@load(vm.getEnumLabel(vm.criterion.operator))"
+           			  onSelect="@command('flagDirty',notify='criterion')"
+           			  mandatory="true"
+           			  hflex="1">
+           		<template name="model" var="operator">
+                	<comboitem label="@init(vm.getEnumLabel(operator))"/>
+             	</template>
+			</combobox>
+			<vlayout visible="@load(!empty vm.criterion.element and vm.criterion.needsValue())">
+				<label value="${labels.label.value}:"/>
+				<textbox visible="@load(vm.criterion.element.type.isText() or vm.criterion.element.type.isTextLong())"
+	    				 value="@bind(vm.criterion.stringValue)"
+	    				 onChange="@command('flagDirty',notify='criterion')"
+	    				 mandatory="true" hflex="1"/>
+	    		<checkbox visible="@load(vm.criterion.element.type.isBoolean())"
+	    				  checked="@bind(vm.criterion.booleanValue)"
+	    				  onCheck="@command('flagDirty',notify='criterion')"/>		 
+	    		<intbox visible="@load(vm.criterion.element.type.isInteger())"
+	    				value="@bind(vm.criterion.integerValue)"
+	    				onChange="@command('flagDirty',notify='criterion')"
+	    				mandatory="true" hflex="1"/>
+	    		<longbox visible="@load(vm.criterion.element.type.isLong())"
+	    				 value="@bind(vm.criterion.longValue)"
+	    				 onChange="@command('flagDirty',notify='criterion')"
+	    				 mandatory="true" hflex="1"/>
+	    		<datebox visible="@load(vm.criterion.element.type.isDate())"
+	    				 value="@bind(vm.criterion.dateValue)"
+	    				 onChange="@command('flagDirty',notify='criterion')"
+	    				 mandatory="true" hflex="1"/>
+	    		<datebox visible="@load(vm.criterion.element.type.isDateTime())"
+	    				 value="@bind(vm.criterion.dateValue)"
+	    				 onChange="@command('flagDirty',notify='criterion')"
+	    				 format="long+medium"
+	    				 mandatory="true" hflex="1"/>		 
+	    		<decimalbox visible="@load(vm.criterion.element.type.isDecimal())"
+	    					value="@bind(vm.criterion.decimalValue)"
+	    					onChange="@command('flagDirty',notify='criterion')"
+	    					mandatory="true" hflex="1"/>		 
+	    		<doublebox visible="@load(vm.criterion.element.type.isDouble())"
+	    				   value="@bind(vm.criterion.doubleValue)"
+	    				   onChange="@command('flagDirty',notify='criterion')"
+	    				   mandatory="true" hflex="1"/>		 
+	    		<combobox visible="@load(vm.criterion.element.type.isReference())"
+	    				  model="@load(vm.getReferenceValues(vm.criterion.element))"
+	    				  selectedItem="@bind(vm.criterion.reference)"
+	    				  value="@load(vm.getReferenceValue(vm.criterion))"
+	    				  onSelect="@command('flagDirty',notify='getReferenceValue')"
+	    				  mandatory="true" hflex="1">
+	    			<template name="model" var="obj">
+	    				<comboitem label="@load(vm.getReferenceValue(obj, vm.criterion.element))"/>
+	    			</template>
+	    		</combobox>
+	    	</vlayout>
+		</vlayout>
+	</east>
+</borderlayout>

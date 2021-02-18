@@ -1,0 +1,126 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<?page contentType="text/html;charset=UTF-8"?>
+<window id="transferDialogWin" width="500px" height="350px"
+		viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.TransferDialogViewModel')" 
+		title="${labels.admin.transfer.importresult}"
+		mode="modal" closable="true" sizable="true">
+	<borderlayout>
+		<center border="0">
+			<tabbox id="mainTabbox" hflex="1" vflex="1" class="alpha-tabbox">
+				<tabs>
+					<tab label="${labels.label.overview}"/>
+					<tab label="${labels.label.errors}"
+						 id="tabErrors"
+						 visible="@init(vm.transferResult.hasErrors())"/>
+				</tabs>
+				<tabpanels> 
+					<tabpanel>
+						<grid class="alpha-noborder">
+							<columns>
+				            	<column hflex="min"/>
+				              	<column hflex="max"/>
+				            </columns>
+				            <rows>
+				            	<row>
+				            		<cell align="right">
+				            			<a iconSclass="z-icon-check" style="color:green"
+				            			   visible="@init(vm.resultSuccess)"/>
+				            			<a iconSclass="z-icon-close" style="color:red"
+				            			   visible="@init(vm.resultFail)"/>
+				            		</cell>
+				            		<cell>
+										<label value="@init(vm.resultText)"
+											   style="font-weight:bold"/>
+									</cell>
+				            	</row>
+				            	<row>
+									<cell align="right">
+										<label value="${labels.admin.transfer.createdobjects}:"/>
+									</cell>
+									<cell>
+										<label value="@init(vm.transferResult.createdObjects)"/>
+									</cell>
+								</row>
+								<row>
+									<cell align="right">
+										<label value="${labels.admin.transfer.updatedobjects}:"/>
+									</cell>
+									<cell>
+										<label value="@init(vm.transferResult.updatedObjects)"/>
+									</cell>
+								</row>
+								<row>
+									<cell align="right">
+										<label value="${labels.admin.transfer.successfultransfers}:"
+											   style="@init(vm.transferResult.successfulTransfers > 0 ? 'color:green' : null)"/>
+									</cell>
+									<cell>
+										<label value="@init(vm.transferResult.successfulTransfers)"
+											   style="@init(vm.transferResult.successfulTransfers > 0 ? 'color:green' : null)"/>
+									</cell>
+								</row>
+								<row>
+									<cell align="right">
+										<label value="${labels.admin.transfer.failedtransfers}:"
+											   style="@init(vm.transferResult.failedTransfers > 0 ? 'color:red' : null)"/>
+									</cell>
+									<cell>
+										<label value="@init(vm.transferResult.failedTransfers)"
+											   style="@init(vm.transferResult.failedTransfers > 0 ? 'color:red' : null)"/>
+									</cell>
+								</row>
+							</rows>
+				        </grid>
+					</tabpanel>
+					<tabpanel fulfill="tabErrors.onSelect">
+						<listbox mold="paging" autopaging="true" 
+				 				 model="@init(vm.transferResult.errors)"
+				 				 class="alpha-noborder"
+		         				 hflex="1" vflex="1">
+		         			<listhead sizable="true">
+					            <listheader label="${labels.label.type}" hflex="min"/>
+					            <listheader label="${labels.label.details}" hflex="max"/>
+					        </listhead>
+					        <template name="model" var="errorobj">
+					        	<listitem>
+					        		<listcell>
+					            		<label value="@init(vm.getEnumLabel(errorobj.type))"
+					            			   style="font-weight:bold"/>
+					            	</listcell>
+					        		<listcell>
+					        			<label value="@init(vm.getErrorDetail(errorobj))"/>
+					        		</listcell>	
+					        	</listitem>
+					        </template>
+				 		</listbox> 
+					</tabpanel>
+				</tabpanels>
+			</tabbox>
+		</center>
+		<south border="0">
+			<div align="center" style="padding:5px;background-color:#F8F8F8">
+				<button label="${labels.button.close}" 
+						onClick="@command('cancel')"/>
+			</div>
+		</south>
+	</borderlayout>
+</window>

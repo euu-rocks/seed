@@ -1,0 +1,115 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout>
+	<north border="0">
+		<toolbar width="100%">
+			<toolbarbutton label="${labels.admin.entity.newnested}" 
+						   iconSclass="z-icon-file-o alpha-icon-lg" 
+					   	   onClick="@command('newNested')"/>
+			<toolbarbutton label="${labels.admin.entity.removenested}" 
+						   iconSclass="z-icon-remove alpha-icon-lg" 
+					   	   onClick="@command('removeNested',elem=self)"
+					   	   visible="@load(not empty vm.nested)"/>
+		</toolbar>
+	</north>
+	<center border="0">
+		<listbox mold="paging" autopaging="true" 
+				 model="@load(vm.object.nesteds)" 
+		         selectedItem="@bind(vm.nested)"
+		         visible="@load(!empty vm.object.nesteds)"
+		         class="alpha-noborder"
+		         hflex="1" vflex="1">
+			<listhead sizable="true">
+				<listheader label="${labels.label.name}" hflex="1"
+	            			sort="auto(name)"/>
+	            <listheader label="${labels.label.nested}" hflex="1"/>
+	            <listheader label="${labels.label.reffield}" hflex="1"/>
+	        </listhead>
+	        <template name="model" var="nested">
+	            <listitem attributes.item="@load(nested)" 
+	            		  draggable="true" droppable="true" 
+	            		  onDrop="@command('swapNesteds',item=event.dragged.attributes.item,base=nested)">
+	            	<listcell>
+	            		<label value="@load(nested.name)" 
+	            			   style="margin-left:3px"/>
+	            	</listcell>
+	            	<listcell iconSclass="@load(empty nested.nestedEntity ? '' : 'z-icon-table alpha-icon-lg')">
+	            		<label value="@load(nested.nestedEntity.name)"/>
+	            	</listcell>
+	            	<listcell iconSclass="@load(empty nested.referenceField.type ? '' : nested.referenceField.type.isReference() ? 'z-icon-share alpha-icon-lg' : 'z-icon-font alpha-icon-lg')">
+	            		<label value="@load(nested.referenceField.name)" />
+	            	</listcell>
+	            </listitem>
+		    </template>
+		</listbox>
+	</center>
+	<east title="${labels.label.properties}" 
+		  visible="@load(!empty vm.nested)"
+		  width="275px" border="0" collapsible="true" 
+		  class="alpha-properties">
+		<vlayout class="alpha-properties-content">
+			<label value="${labels.label.name}:"/>
+            <textbox hflex="1"
+            		 value="@bind(vm.nested.name)"
+            		 mandatory="true"
+            		 onChange="@command('flagDirty',notify='nested')"/>
+            <label value="${labels.label.internalname}:"/>
+            <textbox readonly="true" hflex="1"
+               		 value="@load(vm.nested.internalName)"/>
+        	<label value="${labels.label.nested}:"/>
+            <combobox model="@load(vm.availableNesteds) @template(empty each.name ? 'empty' : 'nested')"
+           			  mandatory="true"
+           			  selectedItem="@bind(vm.nested.nestedEntity)"
+           			  value="@load(vm.nested.nestedEntity.name)"
+           			  onSelect="@command('selectNestedEntity')"
+				  	  hflex="1">
+           		<template name="empty">
+                   	<comboitem/>
+               	</template>	
+               	<template name="nested" var="nestedEntity">
+                   	<comboitem label="@init(nestedEntity.name)"
+                   			   iconSclass="z-icon-table z-icon-fw alpha-icon-lg"/>
+               	</template>	
+           	</combobox>
+           	<vlayout visible="@load(!empty vm.nested.nestedEntity)">
+           		<label value="${labels.label.reffield}:"/>
+           		<combobox model="@load(vm.nested.nestedEntity.getReferenceFields(vm.object)) @template(empty each.name ? 'empty' : each.type.isReference() ? 'reference' : 'field')"
+           				  mandatory="true"
+           			  	  selectedItem="@bind(vm.nested.referenceField)"
+           			  	  value="@load(vm.nested.referenceField.name)"
+           			  	  onSelect="@command('flagDirty')"
+				  	  	  hflex="1">
+            		<template name="empty">
+                    	<comboitem/>
+                	</template>
+                	<template name="field" var="refNestedField">
+                    	<comboitem label="@init(refNestedField.name)"
+                    			   iconSclass="z-icon-font z-icon-fw alpha-icon-lg"/>
+                	</template>
+                	<template name="reference" var="refNestedField">
+                    	<comboitem label="@init(refNestedField.name)"
+                    			   iconSclass="z-icon-share z-icon-fw alpha-icon-lg"/>
+                	</template>
+           		</combobox>
+           	</vlayout>
+		</vlayout>
+	</east>
+</borderlayout>

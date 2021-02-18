@@ -1,0 +1,96 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout>
+	<west width="30%" border="0" style="padding:5px">
+		<groupbox hflex="1" vflex="1">
+			<caption label="${labels.label.transformersavailable}"/>
+			<listbox mold="paging" autopaging="true" 
+					 model="@load(vm.getListManagerList('transformers',0))"
+					 droppable="true" onDrop="@command('dropToTransformerList',item=event.dragged.attributes.item,list=0)"
+					 class="alpha-noborder" oddRowSclass="non-odd" hflex="1" vflex="1">
+				<template name="model" var="transformer">
+					<listitem attributes.item="@init(transformer)" 
+							  draggable="true" droppable="true" 
+	 						  onDrop="@command('insertToTransformerList',item=event.dragged.attributes.item,base=transformer,list=0)">
+						<listcell label="@load(transformer.label)"
+								  visible="@load(!empty transformer.label)"
+								  iconSclass="z-icon-random z-icon-fw alpha-icon-lg"/>
+						<listcell label="@init(transformer.transformer.name)"
+								  visible="@load(empty transformer.label)"
+								  iconSclass="z-icon-random z-icon-fw alpha-icon-lg"/>
+					</listitem>
+				</template>
+			</listbox>
+		</groupbox>
+	</west>
+	<center border="0" style="padding:5px">
+		<groupbox  vflex="1">
+			<caption label="${labels.label.transformersselected}"/>
+			<listbox mold="paging" autopaging="true" 
+					 model="@load(vm.getListManagerList('transformers',1))" 
+					 droppable="true" onDrop="@command('dropToTransformerList',item=event.dragged.attributes.item,list=1)"
+					 selectedItem="@bind(vm.transformer)"
+					 class="alpha-noborder" oddRowSclass="non-odd" hflex="1" vflex="1">
+				<template name="model" var="transformer">
+					<listitem attributes.item="@init(transformer)" 
+							  draggable="true" droppable="true" 
+							  onDrop="@command('insertToTransformerList',item=event.dragged.attributes.item,base=transformer,list=1)">
+						<listcell label="@load(transformer.label)"
+								  visible="@load(!empty transformer.label)"
+								  iconSclass="z-icon-random z-icon-fw alpha-icon-lg"/>
+						<listcell label="@init(transformer.transformer.name)"
+								  visible="@load(empty transformer.label)"
+								  iconSclass="z-icon-random z-icon-fw alpha-icon-lg"/>
+					</listitem>
+				</template>
+			</listbox>
+		</groupbox>
+	</center>
+	<east title="${labels.label.properties}" 
+		  visible="@load(not empty vm.transformer)"
+		  width="275px" collapsible="true" border="0"
+		  class="alpha-properties">
+		<vlayout class="alpha-properties-content">
+			<label value="${labels.label.transformer}:"/>
+	        <textbox value="@load(vm.transformer.transformer.name)"
+	        		 readonly="true" hflex="1"/> 
+			<label value="${labels.label.label}:"/>
+	        <textbox value="@bind(vm.transformer.label)
+	        				@converter(vm.stringConverter)"
+	        		 placeholder="@load(vm.transformer.transformer.name)"
+	        		 onChanging="@command('flagDirty')" 
+	        		 instant="true" hflex="1"/>
+	        <label value="${labels.label.targetform}:"/>
+	        <combobox model="@load(vm.getTargetForms(vm.transformer)) @template(empty each.name ? 'empty' : 'form')"
+	        		  selectedItem="@bind(vm.transformer.targetForm)"
+	        		  onSelect="@command('flagDirty')"
+	        		  mandatory="true" hflex="1">
+	        	<template name="empty">
+    				<comboitem/>
+    			</template>	
+	        	<template name="form" var="form">
+    				<comboitem label="@load(form.name)"
+    						   iconSclass="z-icon-list-alt z-icon-fw alpha-icon-lg"/>
+    			</template>		  
+	        </combobox>
+	    </vlayout>
+	</east>
+</borderlayout>

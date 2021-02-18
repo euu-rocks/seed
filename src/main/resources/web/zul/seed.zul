@@ -1,0 +1,98 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<?page contentType="text/html;charset=UTF-8"?>
+<zk>
+	<style src="/css/style.css"/>
+	<borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.MainViewModel')">
+		<north visible="@load(vm.isMenuMode('PULLDOWN'))"
+			   border="0">
+			<menubar children="@load(vm.menuList) @template(empty each.children ? 'menuitem' : 'menu')">
+			    <template name="menu" var="node">
+			        <menu label="@load(node.label)" iconSclass="@init(node.iconClass)">
+			            <menupopup children="@load(node.top ? node.children : node.childrenWithParent) @template(empty each.children ? 'menuitem' : 'menu')"/>
+			        </menu>
+			    </template>
+			    <template name="menuitem" var="node">
+			        <menuitem label="@load(node.label)"
+			        		  onClick="@command('menuClicked',node=node)"
+			        		  iconSclass="@init(node.iconClass)"/>
+			    </template>
+			</menubar>
+		</north>
+		<west visible="@load(vm.isMenuMode('NAVIGATION'))"
+			  title="@load(vm.applicationName)" size="20%" 
+			  splittable="true" collapsible="true" border="0">
+			<tree model="@load(vm.menuTree)" 
+				  selectedItem="@bind(vm.selectedNode)"
+				  onClick="@command('nodeClicked')"
+				  vflex="1">
+				<treecols>
+			 		<treecol/>
+			 	</treecols>
+			 	<template name="model" var="node">
+			 		<treeitem open="@load(vm.isNodeOpen(node))"
+			 				  onOpen="@command('openMenu',node=node)">
+			 			<treerow>
+			 				<treecell label="@load(node.label)"
+			 						  iconSclass="@init(node.iconClass)"/>
+			 			</treerow>
+			 		</treeitem>
+				</template>
+			</tree>
+		</west>
+		<center border="0">
+			<tabbox hflex="1" vflex="1">
+				<tabs children="@load(vm.tabs)">
+					<template name="children" var="tab">
+						<tab label="@load(tab.name)" context="popupTab" closable="true"
+							 draggable="true" droppable="true"
+							 iconSclass="@init(tab.iconClass)"
+							 selected="@load(tab.equals(vm.selectedTab))"
+							 onSelect="@command('selectTab',tab=tab)"
+							 onClose="@command('closeTab',tab=tab)"
+							 onDrop="@command('dropTab')"/>
+					</template>
+				</tabs>
+				<tabpanels children="@load(vm.tabs)">
+					<template name="children" var="tab">
+						<tabpanel>
+							<include param="@load(tab.parameter)" 
+					 			 	 src="@load(tab.path)"/>
+						</tabpanel>
+					</template>
+				</tabpanels>
+			</tabbox>
+		</center>
+		<south border="0">
+			<menupopup id="popupTab" onOpen="@command('openTabPopup')">
+				<menuitem label="${labels.label.close}"
+						  iconSclass="z-icon-remove alpha-icon-lg"
+						  onClick="@command('closePopupTab')"/>
+				<menuitem label="${labels.label.closeother}"
+						  iconSclass="z-icon-remove alpha-icon-lg"
+						  onClick="@command('closeOtherTabs')"/>
+				<menuitem label="${labels.label.closeall}"
+						  iconSclass="z-icon-remove alpha-icon-lg"
+						  onClick="@command('closeAllTabs')"/>
+			</menupopup>
+		</south>
+	</borderlayout>
+</zk>

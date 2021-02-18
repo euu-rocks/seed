@@ -1,0 +1,113 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout>
+	<north border="0" 
+		   visible="@load(!empty vm.nestedEntity.nestedEntity.userActionFunctions)">
+		<toolbar width="100%">
+			<toolbarbutton label="${labels.admin.form.newcustomaction}" 
+						   iconSclass="z-icon-file-o alpha-icon-lg" 
+					   	   onClick="@command('newCustomAction')"/>
+		</toolbar>
+	</north>
+	<west width="30%" border="0" style="padding:5px">
+		<groupbox hflex="1" vflex="1">
+			<caption label="${labels.label.actionsavailable}"/>
+			<listbox mold="paging" autopaging="true" 
+					 model="@load(vm.getListManagerList('actions',0))"
+					 droppable="true" onDrop="@command('dropToActionList',item=event.dragged.attributes.item,list=0)"
+					 class="alpha-noborder alpha-nobg" 
+					 oddRowSclass="non-odd" 
+					 hflex="1" vflex="1">
+				<template name="model" var="action">
+					<listitem attributes.item="@init(action)" 
+							  draggable="true" droppable="true" 
+	 						  onDrop="@command('insertToActionList',item=event.dragged.attributes.item,base=action,list=0)">
+						<listcell label="@load(action.label)"
+								  visible="@load(!empty action.label)"
+								  iconSclass="@init(action.type.icon)"/>
+						<listcell label="@load(vm.getActionLabel(action))"
+								  visible="@load(empty action.label)"
+								  iconSclass="@init(action.type.icon)"/>
+					</listitem>
+				</template>
+			</listbox>
+		</groupbox>
+	</west>
+	<center border="0" style="padding:5px">
+		<groupbox  vflex="1">
+			<caption label="${labels.label.actionsselected}"/>
+			<listbox mold="paging" autopaging="true" 
+					 model="@load(vm.getListManagerList('actions',1))" 
+					 droppable="true" onDrop="@command('dropToActionList',item=event.dragged.attributes.item,list=1)"
+					 selectedItem="@bind(vm.subFormAction)"
+					 class="alpha-noborder alpha-nobg" 
+					 oddRowSclass="non-odd" 
+					 hflex="1" vflex="1">
+				<template name="model" var="action">
+					<listitem attributes.item="@init(action)" 
+							  draggable="true" droppable="true" 
+							  onDrop="@command('insertToActionList',item=event.dragged.attributes.item,base=action,list=1)">
+						<listcell label="@load(action.label)"
+								  visible="@load(!empty action.label)"
+								  iconSclass="@init(action.type.icon)"/>
+						<listcell label="@load(vm.getActionLabel(action))"
+								  visible="@load(empty action.label)"
+								  iconSclass="@init(action.type.icon)"/>
+					</listitem>
+				</template>
+			</listbox>
+		</groupbox>
+	</center>
+	<east title="${labels.label.properties}" 
+		  visible="@load(not empty vm.subFormAction)"
+		  width="250px" collapsible="true" border="0"
+		  class="alpha-properties">
+		<vlayout class="alpha-properties-content">
+			<vlayout visible="@load(!vm.subFormAction.custom)">
+				<label value="${labels.label.action}:"/>
+		        <textbox value="@load(vm.getActionLabel(vm.subFormAction))"
+		        		 readonly="true" hflex="1"/>
+		    </vlayout>
+			<vlayout visible="@load(vm.subFormAction.custom)">
+				<label value="${labels.label.function}:"/>
+		        <combobox model="@load(vm.nestedEntity.nestedEntity.userActionFunctions) @template(empty each.name ? 'empty' : 'function')"
+            			  mandatory="true"
+            			  selectedItem="@bind(vm.subFormAction.entityFunction)"
+            			  value="@load(vm.subFormAction.entityFunction.name)"
+            			  onSelect="@command('selectEntityFunction')"
+            			  hflex="1">
+					<template name="empty">
+                    	<comboitem/>
+                	</template>	
+            		<template name="function" var="function">
+                    	<comboitem label="@init(function.name)"/>
+                	</template>	
+            	</combobox>
+			</vlayout>
+			<label value="${labels.label.label}:"/>
+	        <textbox value="@bind(vm.subFormAction.label)
+	        				@converter(vm.stringConverter)"
+	        		 placeholder="@load(vm.getActionLabel(vm.subFormAction))"
+	        		 onChanging="@command('flagDirty')" 
+	        		 instant="true" hflex="1"/>
+	    </vlayout>
+	</east>
+</borderlayout>

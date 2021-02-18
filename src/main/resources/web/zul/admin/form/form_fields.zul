@@ -1,0 +1,110 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout>
+	<west width="30%" border="0" style="padding:5px">
+		<groupbox hflex="1" vflex="1">
+			<caption label="${labels.label.fieldsavailable}"/>
+			<listbox mold="paging" autopaging="true"
+					 model="@load(vm.getListManagerList('fields',0))"
+					 droppable="true" 
+					 onDrop="@command('dropToFieldList',item=event.dragged.attributes.item,list=0)"
+					 hflex="1" vflex="1"
+					 class="alpha-noborder alpha-nobg"
+					 oddRowSclass="non-odd">
+				<template name="model" var="field">
+					<listitem attributes.item="@init(field)" 
+							  draggable="true" droppable="true" 
+	 						  onDrop="@command('insertToFieldList',item=event.dragged.attributes.item,base=field,list=0)">
+						<listcell label="@init(field.name)"
+								  iconSclass="@load(field.entityField.type.isReference() ? 'z-icon-share-square-o alpha-icon-lg' : 'z-icon-edit alpha-icon-lg')"/>
+					</listitem>
+				</template>
+			</listbox>
+		</groupbox>
+	</west>
+	<center border="0" style="padding:5px">
+		<groupbox  vflex="1">
+			<caption label="${labels.label.fieldsselected}"/>
+			<listbox mold="paging" autopaging="true" 
+					 model="@load(vm.getListManagerList('fields',1))"
+					 selectedItem="@bind(vm.field)" 
+					 droppable="true" 
+					 onDrop="@command('dropToFieldList',item=event.dragged.attributes.item,list=1)"
+					 class="alpha-noborder alpha-nobg" 
+					 hflex="1" vflex="1"
+					 oddRowSclass="non-odd">
+				<template name="model" var="field">
+					<listitem attributes.item="@init(field)" 
+							  draggable="true" droppable="true" 
+							  onDrop="@command('insertToFieldList',item=event.dragged.attributes.item,base=field,list=1)">
+						<listcell label="@init(field.name)"
+								  iconSclass="@load(field.entityField.type.isReference() ? 'z-icon-share-square-o alpha-icon-lg' : 'z-icon-edit alpha-icon-lg')"/>
+					</listitem>
+				</template>
+			</listbox>
+		</groupbox>
+	</center>
+	<east title="${labels.label.properties}" 
+		  visible="@load(not empty vm.field)" 
+		  width="275px" collapsible="true" border="0"
+		  class="alpha-properties">
+		<vlayout class="alpha-properties-content">
+			<label value="${labels.label.field}:"/>
+	        <textbox value="@load(vm.field.system ? vm.getEnumLabel(vm.field.systemField) : vm.field.entityField.name)" 
+	        	     readonly="true" hflex="1"/>
+	        <label value="${labels.label.label}:"/>
+	        <textbox value="@bind(vm.field.label)
+	        				@converter(vm.stringConverter)"
+	        		 onChanging="@command('flagDirty')"
+	        		 placeholder="@load(vm.field.system ? vm.getEnumLabel(vm.field.systemField) : vm.field.entityField.name)"
+	        		 instant="true" hflex="1"/>
+	        <vlayout visible="@load(!vm.field.entityField.type.isBinary())">
+		        <label value="${labels.label.style}:"/>
+		        <textbox value="@bind(vm.field.style)
+		        				@converter(vm.stringConverter)"
+		        		 onChanging="@command('flagDirty')"
+		        		 hflex="1"/>
+	        </vlayout>
+	        <label value="${labels.label.labelstyle}:"/>
+	        <textbox value="@bind(vm.field.labelStyle)
+	        				@converter(vm.stringConverter)" 
+	        		 onChanging="@command('flagDirty')"
+	        		 hflex="1"/>
+	        <label value="${labels.label.width}:"/>
+	        <textbox value="@bind(vm.field.width)
+	        				@converter(vm.stringConverter)" 
+	        		 onChanging="@command('flagDirty')"
+	        		 hflex="1"/>
+	        <label value="${labels.label.hflex}:"/>
+	        <textbox value="@bind(vm.field.hflex)
+	        				@converter(vm.stringConverter)" 
+	        		 onChanging="@command('flagDirty')"
+	        		 placeholder="1"
+	        		 hflex="1"/>		 
+	        <vlayout visible="@load(vm.field.entityField.type.isBinary())">
+		        <label value="${labels.label.thumbnailwidth}:"/>
+		        <intbox value="@bind(vm.field.thumbnailWidth)"
+		        		onChanging="@command('flagDirty')"
+		        		hflex="1"/>
+	        </vlayout>
+		</vlayout>
+	</east>
+</borderlayout>

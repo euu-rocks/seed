@@ -1,0 +1,99 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout>
+	<north border="0">
+		<toolbar width="100%">
+			<toolbarbutton label="${labels.admin.datasource.newparam}" 
+						   iconSclass="z-icon-file-o alpha-icon-lg" 
+					   	   onClick="@command('newParameter')"/>
+			<toolbarbutton label="${labels.admin.datasource.removeparam}" 
+						   iconSclass="z-icon-remove alpha-icon-lg" 
+					   	   onClick="@command('removeParameter',elem=self)"
+					   	   visible="@load(not empty vm.parameter)"/>
+		</toolbar>
+	</north>
+	<center border="0">
+		<listbox mold="paging" autopaging="true" 
+				 model="@load(vm.object.parameters)" 
+		         selectedItem="@bind(vm.parameter)"
+		         visible="@load(!empty vm.object.parameters)"
+		         class="alpha-noborder"
+		         hflex="1" vflex="1">
+			<listhead sizable="true">
+	            <listheader label="${labels.label.name}" 
+	            			sort="auto(name)" hflex="1"/>
+	            <listheader label="${labels.label.type}" hflex="1"/>
+	        </listhead> 
+	        <template name="model" var="parameter">
+	            <listitem>
+	            	<listcell>
+	            		<label value="@load(parameter.name)" 
+	            			   style="margin-left:3px"/>
+	            	</listcell>
+	            	<listcell>
+	            		<label value="@load(vm.getEnumLabel(parameter.type))"/>
+	            	</listcell>
+	            </listitem>
+		    </template> 
+		</listbox>
+	</center>
+	<east title="${labels.label.properties}" 
+		  visible="@load(!empty vm.parameter)"
+		  width="275px" border="0" collapsible="true" 
+		  class="alpha-properties">
+		<vlayout class="alpha-properties-content">
+        	<label value="${labels.label.name}:"/>
+            <textbox hflex="1"
+            		 value="@bind(vm.parameter.name)"
+            		 mandatory="true"
+            		 onChange="@command('flagDirty')"/>
+            <label value="${labels.label.datatype}:"/>
+			<combobox model="@load(vm.parameterTypes)"
+					  mandatory="true"
+					  selectedItem="@bind(vm.parameter.type)"
+					  value="@load(vm.getEnumLabel(vm.parameter.type))"
+					  onSelect="@command('flagDirty')"
+					  hflex="1">
+                <template name="model" var="paramType">
+                    <comboitem label="@load(vm.getEnumLabel(paramType))"/>
+                </template>
+            </combobox>
+            <vlayout visible="@load(vm.parameter.type.isReference())">
+            	<label value="${labels.label.refentity}:"/>
+            	<combobox model="@load(vm.entities) @template(empty each.name ? 'empty' : 'entity')"
+            			  mandatory="true"
+            			  nullable="@load(vm.parameter.isNew())"
+            			  selectedItem="@bind(vm.parameter.referenceEntity)"
+            			  value="@load(vm.parameter.referenceEntity.name)"
+            			  onSelect="@command('flagDirty')"
+            			  hflex="1">
+					<template name="empty">
+                    	<comboitem/>
+                	</template>	
+            		<template name="entity" var="refEntity">
+                    	<comboitem label="@init(refEntity.name)"
+                    			   iconSclass="z-icon-table z-icon-fw alpha-icon-lg"/>
+                	</template>	
+            	</combobox>
+            </vlayout>
+        </vlayout>
+    </east>
+</borderlayout>

@@ -1,0 +1,87 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout>
+	<north border="0">
+		<toolbar width="100%">
+			<toolbarbutton label="${labels.admin.entity.newstatustransition}" 
+						   iconSclass="z-icon-plus alpha-icon-lg" 
+					   	   onClick="@command('newStatusTransition')"/>
+			<toolbarbutton label="${labels.admin.entity.removestatustransition}" 
+						   iconSclass="z-icon-remove alpha-icon-lg" 
+					   	   onClick="@command('removeStatusTransition')"
+					   	   visible="@load(not empty vm.statusTransition)"/>
+		</toolbar>
+	</north>
+	<center border="0">
+		<listbox mold="paging" autopaging="true"
+				 model="@load(vm.object.statusTransitions)" 
+		         selectedItem="@bind(vm.statusTransition)"
+		         visible="@load(not empty vm.object.statusTransitions)"
+		         hflex="1" vflex="1" 
+		         class="alpha-noborder">
+			<listhead sizable="true">
+				<listheader hflex="1" label="${labels.label.sourcestatus}"/>
+	            <listheader hflex="1" label="${labels.label.targetstatus}"/>
+	        </listhead>      
+		    <template name="model" var="transition">
+	            <listitem attributes.item="@load(transition)" 
+	            		  draggable="true" droppable="true" 
+	            		  onDrop="@command('swapStatusTransition',item=event.dragged.attributes.item,base=transition)">
+	            	<listcell>
+	            		<label value="@load(transition.sourceStatus.numberAndName)"/>
+	            	</listcell>
+	            	<listcell>
+	            		<label value="@load(transition.targetStatus.numberAndName)"/>
+	            	</listcell>
+	            </listitem>
+		    </template>          
+		</listbox>
+	</center>
+	<east title="${labels.label.properties}"
+		  visible="@load(!empty vm.statusTransition)" 
+		  width="275px" border="0" collapsible="true"
+		  class="alpha-properties">
+		<vlayout class="alpha-properties-content">
+			<label value="${labels.label.sourcestatus}:"/>
+			<combobox model="@load(vm.object.statusList)" 
+	             	  mandatory="true"
+	             	  selectedItem="@bind(vm.statusTransition.sourceStatus)"
+	             	  onSelect="@command('flagDirty')"
+	             	  value="@load(vm.statusTransition.sourceStatus.numberAndName)"
+	             	  hflex="1">
+	        	<template name="model" var="status">
+	            	<comboitem label="@load(status.numberAndName)"/>
+	            </template>
+	     	</combobox>
+	     	<label value="${labels.label.targetstatus}:"/>
+			<combobox model="@load(vm.object.statusList)" 
+					  mandatory="true"
+	             	  selectedItem="@bind(vm.statusTransition.targetStatus)"
+	             	  onSelect="@command('flagDirty')"
+	             	  value="@load(vm.statusTransition.targetStatus.numberAndName)"
+	             	  hflex="1">
+	        	<template name="model" var="status">
+	            	<comboitem label="@load(status.numberAndName)"/>
+	            </template>
+	     	</combobox>
+    	</vlayout>
+	</east>
+</borderlayout>

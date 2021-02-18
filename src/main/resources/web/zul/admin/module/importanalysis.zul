@@ -1,0 +1,371 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<?page contentType="text/html;charset=UTF-8"?>
+<window id="transferDialogWin" width="500px" height="350px"
+		viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.TransferDialogViewModel')" 
+		title="${labels.admin.module.importpreview}"
+		mode="modal" closable="true" sizable="true">
+	<borderlayout>
+		<center border="0">
+			<tabbox id="mainTabbox" hflex="1" vflex="1" class="alpha-tabbox">
+				<tabs>
+					<tab label="${labels.label.overview}"/>
+					<tab label="${labels.label.entities}"
+						 visible="@init(!empty vm.importAnalysis.entityChanges)"/>
+					<tab label="${labels.label.filter}"
+						 visible="@init(!empty vm.importAnalysis.filterChanges)"/>
+					<tab label="${labels.label.transformer}"
+						 visible="@init(!empty vm.importAnalysis.transformerChanges)"/>
+					<tab label="${labels.label.transfer}"
+						 visible="@init(!empty vm.importAnalysis.transferChanges)"/>
+					<tab label="${labels.label.forms}"
+						 visible="@init(!empty vm.importAnalysis.formChanges)"/>
+					<tab label="${labels.label.menus}"
+						 visible="@init(!empty vm.importAnalysis.menuChanges)"/>
+					<tab label="${labels.label.jobs}"
+						 visible="@init(!empty vm.importAnalysis.taskChanges)"/>
+					<tab label="${labels.label.dbobjects}"
+						 visible="@init(!empty vm.importAnalysis.DBObjectChanges)"/>
+					<tab label="${labels.label.datasources}"
+						 visible="@init(!empty vm.importAnalysis.dataSourceChanges)"/>
+					<tab label="${labels.label.reports}"
+						 visible="@init(!empty vm.importAnalysis.reportChanges)"/>
+					<tab label="${labels.label.customcode}"
+						 visible="@init(!empty vm.importAnalysis.customCodeChanges)"/>
+					<tab label="${labels.label.usergroups}"
+						 visible="@init(!empty vm.importAnalysis.userGroupChanges)"/>
+				</tabs>
+				<tabpanels> 
+					<tabpanel>
+						<grid class="alpha-noborder">
+							<columns>
+				            	<column hflex="1"/>
+				              	<column hflex="1"/>
+				            </columns>
+				            <rows>
+				            	<row>
+				            		<cell colspan="2"/>
+				            	</row>
+				            	<row>
+				            		<cell colspan="2" align="center">
+				            			<label value="@init(vm.moduleImportResult)"
+				            				   style="font-weight:bold"/>
+				            		</cell>
+				            	</row>
+				            	<row>
+				            		<cell colspan="2"/>
+				            	</row>
+				            	<row>
+									<cell align="right">
+										<label value="${labels.admin.transfer.createdobjects}:"/>
+									</cell>
+									<cell>
+										<label value="@init(vm.importAnalysis.numNewChanges)"/>
+									</cell>
+								</row>
+								<row>
+									<cell align="right">
+										<label value="${labels.admin.transfer.updatedobjects}:"/>
+									</cell>
+									<cell>
+										<label value="@init(vm.importAnalysis.numModifyChanges)"/>
+									</cell>
+								</row>
+								<row>
+									<cell align="right">
+										<label value="${labels.admin.transfer.deletedobjects}:"/>
+									</cell>
+									<cell>
+										<label value="@init(vm.importAnalysis.numDeleteChanges)"/>
+									</cell>
+								</row>
+				            </rows>
+				        </grid>
+				    </tabpanel>
+					<tabpanel>
+						<listbox mold="paging" autopaging="true" 
+				 				 model="@init(vm.importAnalysis.entityChanges)"
+				 				 class="alpha-noborder"
+		         				 hflex="1" vflex="1">
+		         			<listhead sizable="true">
+					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.entity}" hflex="max"/>
+					        </listhead>
+					        <template name="model" var="change">
+					        	<listitem>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(vm.getEnumLabel(change.type))"/>
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.entity.name)"/>
+					        		</listcell>
+					        	</listitem>
+					        </template>
+		         		</listbox>
+					</tabpanel>
+					<tabpanel>
+						<listbox mold="paging" autopaging="true" 
+				 				 model="@init(vm.importAnalysis.filterChanges)"
+				 				 class="alpha-noborder"
+		         				 hflex="1" vflex="1">
+		         			<listhead sizable="true">
+					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.filter}" hflex="max"/>
+					        </listhead>
+					        <template name="model" var="change">
+					        	<listitem>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(vm.getEnumLabel(change.type))"/>
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.entity.name)"/>
+					        		</listcell>
+					        	</listitem>
+					        </template>
+		         		</listbox>
+					</tabpanel>
+					<tabpanel>
+						<listbox mold="paging" autopaging="true" 
+				 				 model="@init(vm.importAnalysis.transformerChanges)"
+				 				 class="alpha-noborder"
+		         				 hflex="1" vflex="1">
+		         			<listhead sizable="true">
+					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.transformer}" hflex="max"/>
+					        </listhead>
+					        <template name="model" var="change">
+					        	<listitem>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(vm.getEnumLabel(change.type))"/>
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.entity.name)"/>
+					        		</listcell>
+					        	</listitem>
+					        </template>
+		         		</listbox>
+					</tabpanel>
+					<tabpanel>
+						<listbox mold="paging" autopaging="true" 
+				 				 model="@init(vm.importAnalysis.transferChanges)"
+				 				 class="alpha-noborder"
+		         				 hflex="1" vflex="1">
+		         			<listhead sizable="true">
+					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.transfer}" hflex="max"/>
+					        </listhead>
+					        <template name="model" var="change">
+					        	<listitem>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(vm.getEnumLabel(change.type))"/>
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.entity.name)"/>
+					        		</listcell>
+					        	</listitem>
+					        </template>
+		         		</listbox>
+					</tabpanel>
+					<tabpanel>
+						<listbox mold="paging" autopaging="true" 
+				 				 model="@init(vm.importAnalysis.formChanges)"
+				 				 class="alpha-noborder"
+		         				 hflex="1" vflex="1">
+		         			<listhead sizable="true">
+					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.form}" hflex="max"/>
+					        </listhead>
+					        <template name="model" var="change">
+					        	<listitem>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(vm.getEnumLabel(change.type))"/>
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.entity.name)"/>
+					        		</listcell>
+					        	</listitem>
+					        </template>
+		         		</listbox>
+					</tabpanel>
+					<tabpanel>
+						<listbox mold="paging" autopaging="true" 
+				 				 model="@init(vm.importAnalysis.menuChanges)"
+				 				 class="alpha-noborder"
+		         				 hflex="1" vflex="1">
+		         			<listhead sizable="true">
+					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.menu}" hflex="max"/>
+					        </listhead>
+					        <template name="model" var="change">
+					        	<listitem>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(vm.getEnumLabel(change.type))" />
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.entity.name)"/>
+					        		</listcell>
+					        	</listitem>
+					        </template>
+		         		</listbox>
+					</tabpanel>
+					<tabpanel>
+						<listbox mold="paging" autopaging="true" 
+				 				 model="@init(vm.importAnalysis.taskChanges)"
+				 				 class="alpha-noborder"
+		         				 hflex="1" vflex="1">
+		         			<listhead sizable="true">
+					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.task}" hflex="max"/>
+					        </listhead>
+					        <template name="model" var="change">
+					        	<listitem>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(vm.getEnumLabel(change.type))" />
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.entity.name)"/>
+					        		</listcell>
+					        	</listitem>
+					        </template>
+		         		</listbox>
+					</tabpanel>
+					<tabpanel>
+						<listbox mold="paging" autopaging="true" 
+				 				 model="@init(vm.importAnalysis.DBObjectChanges)"
+				 				 class="alpha-noborder"
+		         				 hflex="1" vflex="1">
+		         			<listhead sizable="true">
+					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.task}" hflex="max"/>
+					        </listhead>
+					        <template name="model" var="change">
+					        	<listitem>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(vm.getEnumLabel(change.type))" />
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.entity.name)"/>
+					        		</listcell>
+					        	</listitem>
+					        </template>
+		         		</listbox>
+					</tabpanel>
+					<tabpanel>
+						<listbox mold="paging" autopaging="true" 
+				 				 model="@init(vm.importAnalysis.dataSourceChanges)"
+				 				 class="alpha-noborder"
+		         				 hflex="1" vflex="1">
+		         			<listhead sizable="true">
+					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.task}" hflex="max"/>
+					        </listhead>
+					        <template name="model" var="change">
+					        	<listitem>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(vm.getEnumLabel(change.type))" />
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.entity.name)"/>
+					        		</listcell>
+					        	</listitem>
+					        </template>
+		         		</listbox>
+					</tabpanel>
+					<tabpanel>
+						<listbox mold="paging" autopaging="true" 
+				 				 model="@init(vm.importAnalysis.reportChanges)"
+				 				 class="alpha-noborder"
+		         				 hflex="1" vflex="1">
+		         			<listhead sizable="true">
+					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.report}" hflex="max"/>
+					        </listhead>
+					        <template name="model" var="change">
+					        	<listitem>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(vm.getEnumLabel(change.type))" />
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.entity.name)"/>
+					        		</listcell>
+					        	</listitem>
+					        </template>
+		         		</listbox>
+					</tabpanel>
+					<tabpanel>
+						<listbox mold="paging" autopaging="true" 
+				 				 model="@init(vm.importAnalysis.customCodeChanges)"
+				 				 class="alpha-noborder"
+		         				 hflex="1" vflex="1">
+		         			<listhead sizable="true">
+					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.customcode}" hflex="max"/>
+					        </listhead>
+					        <template name="model" var="change">
+					        	<listitem>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(vm.getEnumLabel(change.type))" />
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.entity.name)"/>
+					        		</listcell>
+					        	</listitem>
+					        </template>
+		         		</listbox>
+					</tabpanel>
+					<tabpanel>
+						<listbox mold="paging" autopaging="true" 
+				 				 model="@init(vm.importAnalysis.userGroupChanges)"
+				 				 class="alpha-noborder"
+		         				 hflex="1" vflex="1">
+		         			<listhead sizable="true">
+					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.usergroup}" hflex="max"/>
+					        </listhead>
+					        <template name="model" var="change">
+					        	<listitem>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(vm.getEnumLabel(change.type))" />
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.entity.name)"/>
+					        		</listcell>
+					        	</listitem>
+					        </template>
+		         		</listbox>
+					</tabpanel>
+				</tabpanels>
+			</tabbox>
+		</center>
+		<south border="0">
+			<div align="center" style="padding:5px;">
+				<button iconSclass="z-icon-check"
+						label="${labels.button.importing}" 
+						onClick="@command('importModule',elem=self)"
+						disabled="@init(!vm.importAnalysis.hasChanges())"/>
+				<space/>
+				<button iconSclass="z-icon-close" 
+						label="${labels.button.cancel}" 
+						onClick="@command('cancel')"/>
+			</div>
+		</south>	
+	</borderlayout>	
+</window>

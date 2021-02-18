@@ -1,0 +1,83 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout>
+	<north border="0">
+		<toolbar width="100%">
+			<toolbarbutton label="${labels.admin.transformer.newfunction}" 
+						   iconSclass="z-icon-file-o alpha-icon-lg" 
+					   	   onClick="@command('newFunction')"/>
+			<toolbarbutton label="${labels.admin.transformer.removefunction}" 
+						   iconSclass="z-icon-remove alpha-icon-lg" 
+					   	   onClick="@command('removeFunction',elem=self)"
+					   	   visible="@load(not empty vm.function)"/>
+		</toolbar>
+	</north>
+	<center border="0">
+		<listbox mold="paging" autopaging="true" 
+				 model="@load(vm.object.functions)" 
+		         selectedItem="@bind(vm.function)"
+		         visible="@load(!empty vm.object.functions)"
+		         class="alpha-noborder"
+		         hflex="1" vflex="1">
+			<listhead sizable="true">
+	            <listheader label="${labels.label.function}" hflex="1"/>
+	        </listhead> 
+	        <template name="model" var="function">
+	            <listitem attributes.item="@load(function)" 
+	            		  draggable="true" droppable="true"
+	            		  onDoubleClick="@command('editFunction')" 
+	            		  onDrop="@command('swapFunctions',item=event.dragged.attributes.item,base=function)">
+	            	<listcell iconSclass="z-icon-puzzle-piece alpha-icon-lg">
+	            		<label value="@load(function.name)" 
+	            			   style="margin-left:3px"/>
+	            	</listcell>
+	            </listitem>
+		    </template> 
+		</listbox>
+	</center>
+	<east title="${labels.label.properties}" 
+		  visible="@load(!empty vm.function)"
+		  width="275px" border="0" collapsible="true" 
+		  class="alpha-properties">
+		<vlayout class="alpha-properties-content" hflex="1">
+			<label value="${labels.label.functionname}:"/>
+            <textbox hflex="1"
+            		 value="@bind(vm.function.name)"
+            		 mandatory="true"
+            		 onChange="@command('flagDirty')"/>
+            <button label="${labels.admin.transformer.editsource}..."
+            		onClick="@command('editFunction',elem=self)"
+            		disabled="@load(empty vm.function.name)"
+            		style="margin-top:8px;margin-bottom:8px"/>
+            <label value="${labels.admin.transformer.functiontrigger}:"/>
+	        <hlayout>
+        		<checkbox checked="@bind(vm.function.activeBeforeTransformation)" 
+        				  onCheck="@command('flagDirty')"/>
+        		<label value="${labels.trigger.beforetransformation}"/>
+       		</hlayout>
+       		<hlayout>
+        		<checkbox checked="@bind(vm.function.activeAfterTransformation)" 
+        				  onCheck="@command('flagDirty')"/>
+        		<label value="${labels.trigger.aftertransformation}"/>
+       		</hlayout>
+       	</vlayout>
+    </east>
+</borderlayout>

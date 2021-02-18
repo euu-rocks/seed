@@ -1,0 +1,98 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<?page contentType="text/html;charset=UTF-8"?>
+<window id="layoutDialogWin" width="350px" title="@init(vm.title)"
+		viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.LayoutDialogViewModel')" 
+		mode="modal" closable="true">
+	<div class="alpha-dialog">
+		<grid class="alpha-noborder">
+            <columns>
+                <column hflex="min"/>
+                <column/>
+            </columns>
+            <rows>
+            	<row>
+            		<cell align="right" valign="top">
+                		<label value="${labels.label.area}:"/>
+                	</cell>
+                	<cell>
+	                	<textbox value="@init(vm.getEnumLabel(vm.layoutAreaProperties.layoutArea))" 
+	                			 readonly="true" hflex="1"/>
+		            </cell>
+		        </row>
+		        <row>
+            		<cell align="right" valign="top">
+                		<label value="${labels.label.caption}:"/>
+                	</cell>
+                	<cell>
+	                	<textbox value="@bind(vm.layoutAreaProperties.title)" hflex="1"/>
+		            </cell>
+                </row>
+                <row if="${!vm.layoutAreaProperties.layoutArea.isCenter()}">
+            		<cell align="right" valign="top">
+                		<label value="${labels.label.size}:"/>
+                	</cell>
+                	<cell>
+	                	<textbox value="@bind(vm.layoutAreaProperties.size)"/>
+		            </cell>
+                </row>
+                <row if="${!vm.layoutAreaProperties.layoutArea.isCenter()}">
+            		<cell align="right" valign="top">
+                		<label value="${labels.label.maxsize}:"/>
+                	</cell>
+                	<cell>
+	                	<intbox value="@bind(vm.layoutAreaProperties.maxsize)"/>
+		            </cell>
+                </row>
+                <row>
+            		<cell align="right" valign="top">
+                		<label value="${labels.label.options}:"/>
+                	</cell>
+                	<cell>
+	                	<vlayout>
+	                		<hlayout if="${!vm.layoutAreaProperties.layoutArea.isCenter()}">
+				        		<checkbox checked="@bind(vm.layoutAreaProperties.splittable)"/>
+				        		<label value="${labels.label.resizable}"/>
+				       		</hlayout>
+				            <hlayout if="${!vm.layoutAreaProperties.layoutArea.isCenter()}">
+				        		<checkbox checked="@bind(vm.layoutAreaProperties.collapsible)"/>
+				        		<label value="${labels.label.collapsible}"/>
+				       		</hlayout>
+				       		<hlayout if="${vm.layoutAreaProperties.layoutArea.isCenter()}">
+				        		<checkbox checked="@bind(vm.layoutAreaProperties.autoscroll)"/>
+				        		<label value="${labels.label.autoscroll}"/>
+				       		</hlayout>
+	                	</vlayout>
+		            </cell>
+                </row>
+            </rows>
+        </grid>
+        <div class="alpha-dialog-footer">
+			<button iconSclass="z-icon-check"
+					label="${labels.button.apply}" 
+					onClick="@command('applyBorderLayoutAreaProperties',elem=self)"/>
+			<space/>
+			<button iconSclass="z-icon-close" 
+					label="${labels.button.cancel}" 
+					onClick="@command('cancel')"/>
+		</div>
+    </div>
+</window>

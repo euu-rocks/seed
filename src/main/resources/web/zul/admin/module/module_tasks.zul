@@ -1,0 +1,62 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout>
+	<west width="50%" border="0" style="padding:5px">
+		<groupbox hflex="1" vflex="1">
+			<caption label="${labels.label.jobsavailable}"/>
+			<listbox mold="paging" autopaging="true"
+					 model="@load(vm.getListManagerList('tasks',0))"
+					 droppable="true" onDrop="@command('dropToList',key='tasks',item=event.dragged.attributes.item,list=0)"
+					 hflex="1" vflex="1"
+					 class="alpha-noborder alpha-nobg" 
+					 oddRowSclass="non-odd">
+				<template name="model" var="task">
+					<listitem attributes.item="@init(task)" 
+							  draggable="true" droppable="true" 
+	 						  onDrop="@command('insertToList',key='tasks',item=event.dragged.attributes.item,base=task,list=0)">
+						<listcell label="@init(task.name)" 
+								  iconSclass="z-icon-cog alpha-icon-lg"/>
+					</listitem>
+				</template>
+			</listbox>
+		</groupbox>
+	</west>
+	<center border="0" style="padding:5px">
+		<groupbox  vflex="1">
+			<caption label="${labels.label.jobsselected}"/>
+			<listbox mold="paging" autopaging="true" 
+					 model="@load(vm.getListManagerList('tasks',1))"
+					 droppable="true" onDrop="@command('dropToList',key='tasks',item=event.dragged.attributes.item,list=1)"
+					 class="alpha-noborder alpha-nobg"
+					 hflex="1" vflex="1"
+					 oddRowSclass="non-odd">
+				<template name="model" var="task">
+					<listitem attributes.item="@init(task)" 
+							  draggable="true" droppable="true" 
+							  onDrop="@command('insertToList',key='tasks',item=event.dragged.attributes.item,base=task,list=1)">
+						<listcell label="@init(task.name)" 
+								  iconSclass="z-icon-cog alpha-icon-lg"/>
+					</listitem>
+				</template>
+			</listbox>
+		</groupbox>
+	</center>
+</borderlayout>

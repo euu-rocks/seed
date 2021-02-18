@@ -1,0 +1,165 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<?component name="module-dbobjects" macroURI="~./zul/admin/module/module_dbobjects.zul" inline="true"?>
+<?component name="module-datasources" macroURI="~./zul/admin/module/module_datasources.zul" inline="true"?>
+<?component name="module-entities" macroURI="~./zul/admin/module/module_entities.zul" inline="true"?>
+<?component name="module-filters" macroURI="~./zul/admin/module/module_filters.zul" inline="true"?>
+<?component name="module-transformers" macroURI="~./zul/admin/module/module_transformers.zul" inline="true"?>
+<?component name="module-transfers" macroURI="~./zul/admin/module/module_transfers.zul" inline="true"?>
+<?component name="module-forms" macroURI="~./zul/admin/module/module_forms.zul" inline="true"?>
+<?component name="module-menus" macroURI="~./zul/admin/module/module_menus.zul" inline="true"?>
+<?component name="module-params" macroURI="~./zul/admin/module/module_params.zul" inline="true"?>
+<?component name="module-tasks" macroURI="~./zul/admin/module/module_tasks.zul" inline="true"?>
+<?component name="module-reports" macroURI="~./zul/admin/module/module_reports.zul" inline="true"?>
+<?component name="module-customcodes" macroURI="~./zul/admin/module/module_customcodes.zul" inline="true"?>
+<?component name="module-usergroups" macroURI="~./zul/admin/module/module_usergroups.zul" inline="true"?>
+<borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminModuleViewModel')">
+	<north border="0">
+		<toolbar>
+			<toolbarbutton iconSclass="z-icon-arrow-left alpha-icon-lg" 
+						   label="${labels.button.back}" 
+						   onClick="@command('back')"/>
+			<toolbarbutton iconSclass="z-icon-save alpha-icon-lg" 
+						   label="${labels.button.save}" 
+						   onClick="@command('saveModule',elem=self)"
+						   disabled="@load(!vm.isDirty())"/>
+			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+						   label="${labels.button.refresh}" 
+						   onClick="@command('refreshModule',elem=self)"
+						   visible="@load(!vm.object.isNew())"/>
+			<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
+						   label="${labels.button.newobject}" 
+						   onClick="@command('newModule')"/>
+			<toolbarbutton iconSclass="z-icon-remove alpha-icon-lg" 
+						   label="${labels.button.delete}" 
+						   onClick="@command('deleteModule', elem=self)"
+						   visible="@load(!vm.object.isNew())"/>
+			<toolbarbutton iconSclass="z-icon-arrow-down alpha-icon-lg" 
+						   label="${labels.button.importing}"
+						   upload="true"
+						   onUpload="@command('analyzeModule', elem=self, upload=event)"
+						   visible="@load(!vm.object.isNew())"
+						   disabled="@load(vm.isDirty())"/>			   
+			<toolbarbutton iconSclass="z-icon-arrow-up alpha-icon-lg" 
+						   label="${labels.button.export}" 
+						   onClick="@command('exportModule', elem=self)"
+						   visible="@load(!vm.object.isNew())"
+						   disabled="@load(vm.isDirty())"/>
+		</toolbar>
+	</north>
+	<center border="0">
+		<vlayout hflex="1" vflex="1">
+			<grid hflex="1" class="alpha-noborder">
+				<columns>
+	            	<column hflex="min"/>
+	              	<column hflex="max"/>
+	              	<column hflex="min"/>
+	              	<column hflex="max"/>
+	            </columns>
+				<rows>
+					<row>
+						<cell style="padding: 4px 10px" align="right">
+							<label value="${labels.label.name}:"/>
+						</cell>
+						<cell style="padding: 4px 4px">
+							<textbox value="@bind(vm.object.name)"
+									 mandatory="true"
+									 onChange="@command('flagDirty')"
+									 hflex="1"/> 
+						</cell>
+						<cell/>
+						<cell/>
+					</row>
+				</rows>
+			</grid>
+			<tabbox id="mainTabbox" hflex="1" vflex="1" class="alpha-tabbox">
+				<tabs>
+					<tab label="${labels.label.parameter}"/>
+					<tab id="tabEntities" label="${labels.label.entities}"
+						 visible="@load(vm.existEntities())"/>
+					<tab id="tabFilters" label="${labels.label.filter}"
+						 visible="@load(vm.existFilters())"/>
+					<tab id="tabTransformers" label="${labels.label.transformers}"
+						 visible="@load(vm.existTransformers())"/>
+					<tab id="tabTransfers" label="${labels.label.transfers}"
+						 visible="@load(vm.existTransfers())"/>
+					<tab id="tabForms" label="${labels.label.forms}"
+						 visible="@load(vm.existForms())"/>
+					<tab id="tabMenus" label="${labels.label.menus}"
+						 visible="@load(vm.existMenus())"/>
+					<tab id="tabJobs" label="${labels.label.jobs}"
+						 visible="@load(vm.existTasks())"/>
+					<tab id="tabDBObjects" label="${labels.label.dbobjects}"
+						 visible="@load(vm.existDBObjects())"/>
+					<tab id="tabDataSources" label="${labels.label.datasources}"
+						 visible="@load(vm.existDataSources())"/>
+					<tab id="tabReports" label="${labels.label.reports}"
+						 visible="@load(vm.existReports())"/>
+					<tab id="tabCustomCodes" label="${labels.label.customcode}"
+						 visible="@load(vm.existCustomCodes())"/>
+					<tab id="tabGroups" label="${labels.label.usergroups}"
+						 visible="@load(vm.existNonSystemUserGroups())"/>
+				</tabs>
+				<tabpanels>
+					<tabpanel>
+						<module-params/>
+					</tabpanel>
+					<tabpanel fulfill="tabEntities.onSelect">
+						<module-entities/>
+					</tabpanel>
+					<tabpanel fulfill="tabFilters.onSelect">
+						<module-filters/>
+					</tabpanel>
+					<tabpanel fulfill="tabTransformers.onSelect">
+						<module-transformers/>
+					</tabpanel>
+					<tabpanel fulfill="tabTransfers.onSelect">
+						<module-transfers/>
+					</tabpanel>
+					<tabpanel fulfill="tabForms.onSelect">
+						<module-forms/>
+					</tabpanel>
+					<tabpanel fulfill="tabMenus.onSelect">
+						<module-menus/>
+					</tabpanel>
+					<tabpanel fulfill="tabJobs.onSelect">
+						<module-tasks/>
+					</tabpanel>
+					<tabpanel fulfill="tabDBObjects.onSelect">
+						<module-dbobjects/>
+					</tabpanel>
+					<tabpanel fulfill="tabDataSources.onSelect">
+						<module-datasources/>
+					</tabpanel>
+					<tabpanel fulfill="tabReports.onSelect">
+						<module-reports/>
+					</tabpanel>
+					<tabpanel fulfill="tabCustomCodes.onSelect">
+						<module-customcodes/>
+					</tabpanel>
+					<tabpanel fulfill="tabGroups.onSelect">
+						<module-usergroups/>
+					</tabpanel>
+				</tabpanels>
+			</tabbox>
+		</vlayout>
+	</center>
+</borderlayout>

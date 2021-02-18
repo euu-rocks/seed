@@ -1,0 +1,104 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout>
+	<north border="0">
+		<toolbar width="100%">
+			<toolbarbutton label="${labels.admin.transformer.newelement}" 
+						   iconSclass="z-icon-file-o alpha-icon-lg" 
+					   	   onClick="@command('newElement')"/>
+			<toolbarbutton label="${labels.admin.transformer.removeelement}" 
+						   iconSclass="z-icon-remove alpha-icon-lg" 
+					   	   onClick="@command('removeElement',elem=self)"
+					   	   visible="@load(not empty vm.element)"/>
+			<toolbarbutton label="${labels.admin.transformer.automatch}"
+						   iconSclass="z-icon-magic alpha-icon-lg"    	   
+					   	   onClick="@command('autoMatchFields',elem=self)"/>
+		</toolbar>
+	</north>
+	<center border="0">
+		<listbox mold="paging" autopaging="true" 
+				 model="@load(vm.elements)" 
+		         selectedItem="@bind(vm.element)"
+		         visible="@load(!empty vm.elements)"
+		         class="alpha-noborder"
+		         hflex="1" vflex="1">
+			<listhead sizable="true">
+	            <listheader label="${labels.label.sourcefield}" hflex="1"/>
+	            <listheader label="${labels.label.targetfield}" hflex="1"/>
+	        </listhead> 
+	        <template name="model" var="element">
+	            <listitem>
+	            	<listcell iconSclass="@load(empty element.sourceField.type ? '' : element.sourceField.type.isReference() ? 'z-icon-share alpha-icon-lg' : 'z-icon-font alpha-icon-lg')">
+	            		<label value="@load(element.sourceField.name)" 
+	            			   style="margin-left:3px"/>
+	            	</listcell>
+	            	<listcell iconSclass="@load(empty element.targetField.type ? '' : element.targetField.type.isReference() ? 'z-icon-share alpha-icon-lg' : 'z-icon-font alpha-icon-lg')">
+	            		<label value="@load(element.targetField.name)" />
+	            	</listcell>
+	            </listitem>
+		    </template> 
+		</listbox>
+	</center>
+	<east title="${labels.label.properties}" 
+		  visible="@load(!empty vm.element)"
+		  width="275px" border="0" collapsible="true" 
+		  class="alpha-properties">
+		<vlayout class="alpha-properties-content">
+			<label value="${labels.label.sourcefield}:"/>
+			<combobox model="@init(vm.object.sourceEntity.fields) @template(empty each.name ? 'empty' : each.type.isReference() ? 'reference' : 'field')" 
+           			  selectedItem="@bind(vm.element.sourceField)"
+           			  onSelect="@command('flagDirty',notify='availableTargetFields')"
+           			  mandatory="true"
+           			  hflex="1">
+           		<template name="empty">
+                	<comboitem/>
+             	</template>
+             	<template name="field" var="field">
+                	<comboitem label="@init(field.name)"
+                			   iconSclass="z-icon-font z-icon-fw alpha-icon-lg"/>
+             	</template>
+             	<template name="reference" var="field">
+                	<comboitem label="@init(field.name)"
+                			   iconSclass="z-icon-share z-icon-fw alpha-icon-lg"/>
+             	</template>
+			</combobox>
+			<label value="${labels.label.targetfield}:"/>
+			<combobox model="@load(vm.availableTargetFields) @template(empty each.name ? 'empty' : each.type.isReference() ? 'reference' : 'field')" 
+           			  selectedItem="@bind(vm.element.targetField)"
+           			  value="@load(vm.element.targetField.name)"
+           			  onSelect="@command('flagDirty')"
+           			  mandatory="true"
+           			  hflex="1">
+           		<template name="empty">
+                	<comboitem/>
+             	</template>
+             	<template name="field" var="field">
+                	<comboitem label="@init(field.name)"
+                			   iconSclass="z-icon-font z-icon-fw alpha-icon-lg"/>
+             	</template>
+             	<template name="reference" var="field">
+                	<comboitem label="@init(field.name)"
+                			   iconSclass="z-icon-share z-icon-fw alpha-icon-lg"/>
+             	</template>
+			</combobox>
+		</vlayout>
+	</east>
+</borderlayout>

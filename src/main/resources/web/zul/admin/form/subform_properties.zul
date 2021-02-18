@@ -1,0 +1,76 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<?page contentType="text/html;charset=UTF-8"?>
+<?component name="subform-fields" macroURI="~./zul/admin/form/subform_fields.zul" inline="true"?>
+<?component name="subform-actions" macroURI="~./zul/admin/form/subform_actions.zul" inline="true"?>
+<window id="layoutDialogWin" width="700px" height="550px" title="@init(vm.title)"
+		viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.LayoutDialogViewModel')" 
+		mode="modal" closable="true">
+	<borderlayout>
+		<north border="0">
+			<grid hflex="1" class="alpha-noborder">
+				<columns>
+	            	<column hflex="min"/>
+	              	<column hflex="max"/>
+	            </columns>
+	            <rows>
+					<row>
+						<cell style="padding: 5px" align="right">
+							<label value="${labels.label.nested}:"/>
+						</cell>
+						<cell style="padding: 5px">
+							<textbox value="@init(vm.nestedEntityName)"
+									 readonly="true" hflex="1"/>
+						</cell>
+					</row>
+				</rows>
+	        </grid>
+		</north>
+		<center border="0">
+			<tabbox hflex="1" vflex="1" class="alpha-tabbox">
+				<tabs>
+					<tab label="${labels.label.fields}"/>
+					<tab id="tabActions"
+						 label="${labels.label.actions}"/>
+				</tabs>
+				<tabpanels> 
+					<tabpanel>
+						<subform-fields/>
+					</tabpanel>
+					<tabpanel fulfill="tabActions.onSelect">
+						<subform-actions/>
+					</tabpanel>
+				</tabpanels>
+			</tabbox>
+		</center>
+		<south border="0">
+			<div align="center" style="padding:5px;">
+				<button iconSclass="z-icon-check"
+						label="${labels.button.apply}" 
+						onClick="@command('applySubFormProperties',elem=self)"/>
+				<space/>
+				<button iconSclass="z-icon-close" 
+						label="${labels.button.cancel}" 
+						onClick="@command('cancel')"/>
+			</div>
+		</south>
+	</borderlayout>	
+</window>

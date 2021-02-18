@@ -1,0 +1,87 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<?page contentType="text/html;charset=UTF-8"?>
+<window id="layoutDialogWin" width="350px" height="350px" title="@init(vm.title)"
+		viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.LayoutDialogViewModel')" 
+		mode="modal" closable="true">
+	<borderlayout hflex="1" vflex="1">
+		<north>
+			<grid class="alpha-noborder">
+	            <columns>
+	                <column hflex="min"/>
+	                <column/>
+	            </columns>
+	            <rows>
+	            	<row>
+	            		<cell align="right" valign="top">
+	                		<label value="${labels.label.frametitle}:"/>
+	                	</cell>
+	                	<cell>
+		                	<textbox value="@bind(vm.text)" hflex="1"/>
+			            </cell>
+	                </row>
+	            </rows>
+	        </grid>
+		</north>
+		<center>
+			<listbox mold="paging" autopaging="true" 
+				 model="@load(vm.columnProperties)" 
+		         selectedItem="@bind(vm.selectedColumn)"
+		         class="alpha-noborder"
+		         hflex="1" vflex="1">
+		    	<listhead sizable="true">
+		            <listheader label="${labels.label.column}" hflex="1"/>
+		        </listhead>
+		        <template name="model" var="column">
+		            <listitem>
+		            	<listcell>
+		            		<label value="@init(vm.columnProperties.indexOf(column) + 1)" 
+		            			   style="margin-left:3px"/>
+		            	</listcell>
+		            </listitem>
+			    </template>    
+			</listbox>
+		</center>
+		<east title="${labels.label.properties}" 
+		  	  width="250px" border="0"
+		  	  class="alpha-properties">
+			<vlayout class="alpha-properties-content">
+	        	<label value="${labels.label.caption}:"/>
+	            <textbox value="@bind(vm.selectedColumn.label)" instant="true" hflex="1"/>
+	            <label value="${labels.label.width}:"/>
+	            <textbox value="@bind(vm.selectedColumn.width)"/>
+	            <label value="${labels.label.hflex}:"/>
+	            <textbox value="@bind(vm.selectedColumn.hflex)"/>
+            </vlayout>  
+		</east>
+		<south>
+			<div align="center" style="padding:5px;">
+				<button iconSclass="z-icon-check"
+						label="${labels.button.apply}" 
+						onClick="@command('applyGridProperties',elem=self)"/>
+				<space/>
+				<button iconSclass="z-icon-close" 
+						label="${labels.button.cancel}" 
+						onClick="@command('cancel')"/>
+			</div>
+		</south>
+	</borderlayout>		
+</window>

@@ -1,0 +1,81 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<?page contentType="text/html;charset=UTF-8"?>
+<window id="newReportWin" width="350px" title="${labels.admin.create.report}"
+		viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminReportViewModel')" 
+		mode="modal" closable="true">
+	<div class="alpha-dialog">
+		<grid class="alpha-noborder">
+            <columns>
+                <column width="20%"/>
+                <column/>
+            </columns>
+            <rows>
+            	<row>
+                	<cell align="right">
+                		<label value="${labels.label.datasource}:"/>
+                	</cell>
+                	<cell>
+	                	<combobox model="@init(vm.dataSources) @template(empty each.name ? 'empty' : 'datasource')" 
+	                			  selectedItem="@bind(vm.object.dataSource)"
+	                			  mandatory="true"
+	                			  hflex="1">
+	                		<template name="empty">
+			                    <comboitem/>
+			                </template>
+			                <template name="datasource" var="datasource">
+			                    <comboitem label="@init(datasource.name)" 
+			                    		   iconSclass="z-icon-share-alt alpha-icon-lg"/>
+			                </template>
+		                </combobox>
+		            </cell>
+                </row>
+                <row visible="@load(!empty vm.modules)"> 
+                	<cell align="right">
+                		<label value="${labels.label.module}:"/>
+                	</cell>
+                	<cell>
+	                	<combobox model="@init(vm.modules) @template(empty each.name ? 'empty' : 'module')" 
+	                			  selectedItem="@bind(vm.object.module)"
+	                			  hflex="1">
+			                <template name="empty">
+			                    <comboitem/>
+			                </template>
+			                <template name="module" var="module">
+			                    <comboitem label="@init(module.name)" 
+			                    		   iconSclass="z-icon-cube z-icon-fw alpha-icon-lg" />
+			                </template>
+		                </combobox>
+		            </cell>
+                </row>
+			</rows>
+		</grid>
+		<div class="alpha-dialog-footer">
+			<button iconSclass="z-icon-check" 
+					label="${labels.button.create}" 
+					onClick="@command('createReport',elem=self)"/>
+			<space/>
+			<button iconSclass="z-icon-close" 
+					label="${labels.button.cancel}" 
+					onClick="@command('cancel')"/>
+		</div>
+	</div>		
+</window>

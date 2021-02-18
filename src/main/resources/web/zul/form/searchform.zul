@@ -1,0 +1,35 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.SearchFormViewModel')">
+	<north border="0">
+		<toolbar>
+			<toolbarbutton iconSclass="z-icon-search alpha-icon-lg" 
+						   label="${labels.button.searching}" 
+						   onClick="@command('search')"/>
+			<toolbarbutton iconSclass="z-icon-eraser alpha-icon-lg" 
+						   label="${labels.button.clearsearch}" 
+						   onClick="@command('clearSearch')"/>
+		</toolbar>
+	</north>
+	<center border="0">
+		<include src="@load(vm.layoutInclude)"/>
+	</center>
+</borderlayout>

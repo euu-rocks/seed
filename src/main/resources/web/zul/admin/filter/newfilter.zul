@@ -1,0 +1,90 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<?page contentType="text/html;charset=UTF-8"?>
+<window id="newFilterWin" width="350px" title="${labels.admin.create.filter}"
+		viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminFilterViewModel')" 
+		mode="modal" closable="true">
+	<div class="alpha-dialog">
+		<grid class="alpha-noborder">
+            <columns>
+                <column width="20%"/>
+                <column/>
+            </columns>
+            <rows>
+            	<row>
+                	<cell align="right">
+                		<label value="${labels.label.entity}:"/>
+                	</cell>
+                	<cell>
+	                	<combobox model="@init(vm.entities) @template(empty each.name ? 'empty' : 'entity')" 
+	                			  selectedItem="@bind(vm.object.entity)"
+	                			  mandatory="true"
+	                			  hflex="1">
+	                		<template name="empty">
+			                    <comboitem label="@init(entity.name)"/>
+			                </template>
+			                <template name="entity" var="entity">
+			                    <comboitem label="@init(entity.name)" 
+			                    		   iconSclass="z-icon-table alpha-icon-lg"/>
+			                </template>
+		                </combobox>
+		            </cell>
+                </row>
+                <row visible="@load(!empty vm.modules)"> 
+                	<cell align="right">
+                		<label value="${labels.label.module}:"/>
+                	</cell>
+                	<cell>
+	                	<combobox model="@init(vm.modules) @template(empty each.name ? 'empty' : 'module')" 
+	                			  selectedItem="@bind(vm.object.module)"
+	                			  hflex="1">
+			                <template name="empty">
+			                    <comboitem/>
+			                </template>
+			                <template name="module" var="module">
+			                    <comboitem label="@init(module.name)" 
+			                    		   iconSclass="z-icon-cube z-icon-fw alpha-icon-lg" />
+			                </template>
+		                </combobox>
+		            </cell>
+                </row>
+                <row>
+                	<cell align="right"/>
+                	<cell>
+                		<hlayout>
+	                		<checkbox checked="@bind(vm.hqlInput)"/>
+	                		<label value=" ${labels.label.hqlinput}"/>
+                		</hlayout>
+                	</cell>
+                </row>
+			</rows>
+		</grid>
+		<div class="alpha-dialog-footer">
+			<button iconSclass="z-icon-check" 
+					label="${labels.button.create}" 
+					onClick="@command('createFilter',elem=self)"/>
+			<space/>
+			<button iconSclass="z-icon-close" 
+					label="${labels.button.cancel}" 
+					onClick="@command('cancel')"/>
+		</div>
+	</div>		
+</window>

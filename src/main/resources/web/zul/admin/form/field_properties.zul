@@ -1,0 +1,209 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<?page contentType="text/html;charset=UTF-8"?>
+<window id="layoutDialogWin" width="400px" title="@init(vm.title)"
+		viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.LayoutDialogViewModel')" 
+		mode="modal" closable="true">
+	<div class="alpha-dialog">
+		<grid class="alpha-noborder">
+            <columns>
+                <column hflex="min"/>
+                <column/>
+            </columns>
+            <rows>
+            	<row>
+            		<cell align="right">
+                		<label value="${labels.label.field}:"/>
+                	</cell>
+                	<cell>
+	                	<textbox value="@init(vm.entityField.name)"
+	                			 readonly="true" hflex="1"/>
+		            </cell>
+                </row>
+                <row visible="@init(!(vm.entityField.type.reference or vm.entityField.type.binary or vm.entityField.type.file))">
+            		<cell align="right">
+                		<label value="${labels.label.columns}:"/>
+                	</cell>
+                	<cell>
+	                	<intbox value="@bind(vm.properties.columns)"
+	                			cols="2" maxlength="2"/>
+		            </cell>
+                </row>
+                <row visible="@init(vm.entityField.type.text or vm.entityField.type.textLong)">
+            		<cell align="right">
+                		<label value="${labels.label.rows}:"/>
+                	</cell>
+                	<cell>
+	                	<intbox value="@bind(vm.properties.rows)"
+	                			cols="2" maxlength="2"/>
+		            </cell>
+                </row>
+                <row visible="@init(!(vm.entityField.type.reference or vm.entityField.type.binary or vm.entityField.type.file))">
+            		<cell align="right">
+                		<label value="${labels.label.maxlength}:"/>
+                	</cell>
+                	<cell>
+	                	<intbox value="@bind(vm.properties.maxlength)"
+	                			cols="3" maxlength="3"/>
+		            </cell>
+                </row>
+                <row visible="@init(vm.entityField.type.text or vm.entityField.type.textLong)">
+            		<cell align="right">
+                		<label value="${labels.label.placeholder}:"/>
+                	</cell>
+                	<cell>
+	                	<textbox value="@bind(vm.properties.placeholder) @converter(vm.stringConverter)"
+	                			 hflex="1"/>
+		            </cell>
+                </row>
+                <row visible="@init(!(vm.entityField.type.binary or vm.entityField.type.file))">
+            		<cell align="right">
+                		<label value="${labels.label.hflex}:"/>
+                	</cell>
+                	<cell>
+	                	<textbox value="@bind(vm.properties.hflex) @converter(vm.stringConverter)"
+	                			 cols="3"/>
+		            </cell>
+                </row>
+                <row visible="@init(!(vm.entityField.type.binary or vm.entityField.type.file))">
+            		<cell align="right">
+                		<label value="${labels.label.style}:"/>
+                	</cell>
+                	<cell>
+	                	<textbox value="@bind(vm.properties.style) @converter(vm.stringConverter)"
+	                			 hflex="1"/>
+		            </cell>
+                </row>
+                <row visible="@init(vm.entityField.type.binary)">
+            		<cell align="right">
+                		<label value="${labels.label.width}:"/>
+                	</cell>
+                	<cell>
+	                	<textbox value="@bind(vm.properties.width) @converter(vm.stringConverter)"
+	                			 mandatory="true"
+	                			 cols="3"/>
+		            </cell>
+                </row>
+                <row visible="@init(vm.entityField.type.binary)">
+            		<cell align="right">
+                		<label value="${labels.label.height}:"/>
+                	</cell>
+                	<cell>
+	                	<textbox value="@bind(vm.properties.height) @converter(vm.stringConverter)"
+	                			 mandatory="true"
+	                			 cols="3"/>
+		            </cell>
+                </row>
+                <row visible="@init(vm.entityField.type.text or vm.entityField.type.textLong)">
+            		<cell align="right">
+                		<label value="${labels.label.type}:"/>
+                	</cell>
+                	<cell>
+	                	<combobox model="@init(vm.textfieldTypes)"
+								  selectedItem="@bind(vm.properties.type)">
+			                <template name="model" var="textfieldType">
+			                    <comboitem label="@init(vm.getEnumLabel(textfieldType))" />
+			                </template>
+			            </combobox> 
+		            </cell>
+                </row>
+                <row visible="@init(!empty vm.getAvailableFilters(vm.entityField))">
+                	<cell align="right">
+                		<label value="${labels.label.filter}:"/>
+                	</cell>	
+                	<cell>
+                		<combobox model="@init(vm.getAvailableFilters(vm.entityField))"
+					  	  		  selectedItem="@bind(vm.filter)"
+					  	  		  hflex="1">
+							<template name="model" var="filter">
+			                    <comboitem label="@load(filter.name)"
+			                    		   iconSclass="@load(empty filter.name ? '' : 'z-icon-filter z-icon-fw alpha-icon-lg')"/>
+			                </template>
+						</combobox>
+                	</cell>
+                </row>
+                <row visible="@init(!empty vm.getAvailableTransformers(vm.entityField))">
+                	<cell align="right">
+                		<label value="${labels.label.transformer}:"/>
+                	</cell>	
+                	<cell>
+                		<combobox model="@init(vm.getAvailableTransformers(vm.entityField))"
+					  	  		  selectedItem="@bind(vm.transformer)"
+					  	  		  hflex="1">
+							<template name="model" var="transformer">
+			                    <comboitem label="@load(transformer.name)"
+			                    		   iconSclass="@load(empty transformer.name ? '' : 'z-icon-random z-icon-fw alpha-icon-lg')"/>
+			                </template>
+						</combobox>
+                	</cell>
+                </row>
+                <row visible="@init(vm.entityField.type.isReference() and !empty vm.getDetailForms(vm.entityField.referenceEntity))">
+                	<cell align="right">
+                		<label value="${labels.label.detailform}:"/>
+                	</cell>
+                	<cell>
+                		<combobox model="@init(vm.getDetailForms(vm.entityField.referenceEntity))"
+					  	  		  selectedItem="@bind(vm.detailForm)"
+					  	  		  hflex="1">
+							<template name="model" var="form">
+			                    <comboitem label="@load(form.name)"
+			                    		   iconSclass="@load(empty form.name ? '' : 'z-icon-list-alt z-icon-fw alpha-icon-lg')"/>
+			                </template>
+						</combobox>
+                	</cell>
+                </row>
+                <row>
+            		<cell align="right" valign="top">
+                		<label value="${labels.label.options}:"/>
+                	</cell>
+                	<cell>
+                		<vlayout>
+		                	<hlayout>
+		                		<checkbox checked="true" disabled="true"
+		                				  visible="@init(vm.entityField.type.autonum)"/>
+		                		<checkbox checked="@bind(vm.readonly)"
+		                				  visible="@init(!vm.entityField.type.autonum)"/>
+		                		<label value="${labels.label.readonly}"/>
+		                	</hlayout>
+		                	<hlayout visible="@init(!(vm.entityField.type.binary or vm.entityField.type.file))">
+		                		<checkbox checked="@bind(vm.properties.inplace)"/>
+		                		<label value="${labels.label.inplace}"/>
+		                	</hlayout>
+		                	<!-- <hlayout visible="@init(vm.bandbox or vm.element.is('combobox'))">
+		                		<checkbox checked="@bind(vm.bandbox)"/>
+		                		<label value="${labels.label.bandbox}"/>
+		                	</hlayout> -->
+	                	</vlayout>
+		            </cell>
+                </row>
+            </rows>
+        </grid>
+        <div class="alpha-dialog-footer">
+			<button iconSclass="z-icon-check"
+					label="${labels.button.apply}" 
+					onClick="@command('applyProperties',elem=self)"/>
+			<space/>
+			<button iconSclass="z-icon-close" 
+					label="${labels.button.cancel}" 
+					onClick="@command('cancel')"/>
+		</div>
+    </div>		
+</window>

@@ -1,0 +1,118 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminTransformerViewModel')">
+	<north border="0">
+		<toolbar hflex="1">
+			<toolbarbutton mode="toggle" 
+						   iconSclass="z-icon-filter alpha-icon-lg" 
+						   tooltiptext="${labels.label.togglefilter}"
+						   checked="@bind(vm.listViewFilterGroup.visible)" 
+						   visible="@load(vm.listViewFilterGroup.visible or vm.existObjects())"/>
+			<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
+						   label="${labels.admin.transformer.create}" 
+						   onClick="@command('newTransformer')"/>
+			<toolbarbutton iconSclass="z-icon-wrench alpha-icon-lg" 
+						   label="${labels.admin.transformer.edit}" 
+						   onClick="@command('editTransformer')"
+						   visible="@load(!empty vm.object)"/>
+			<toolbarbutton iconSclass="z-icon-remove alpha-icon-lg" 
+						   label="${labels.admin.transformer.delete}" 
+						   onClick="@command('deleteTransformer', elem=self)"
+						   visible="@load(!empty vm.object)"/>
+		</toolbar>
+	</north>
+	<center border="0">
+		<listbox style="margin:5px" mold="paging" autopaging="true" vflex="true"
+				 model="@load(vm.objectList)" 
+		         selectedItem="@bind(vm.object)" 
+		         visible="@load(vm.existObjects())">
+			<listhead sizable="true">
+	            <listheader hflex="2" label="${labels.label.transformer}" 
+	            			sort="auto(name)" onCreate="self.sort(true)"/>
+	            <listheader hflex="2" label="${labels.label.sourceentity}"/>
+	            <listheader hflex="2" label="${labels.label.targetentity}"/>
+	            <listheader hflex="1" label="${labels.label.module}"
+	            			visible="@load(vm.existModules())"/>
+		    </listhead> 
+		    <auxhead visible="@load(vm.listViewFilterGroup.visible)">
+		    	<auxheader>
+		            <textbox value="@bind(vm.getFilter('list','name').value)" 
+		            		 instant="true" hflex="1"/>
+		        </auxheader>
+		        <auxheader>
+		        	<combobox model="@load(vm.getFilter('list','sourceentity').values) @template(empty each ? 'empty' : 'entity')"
+		            		  selectedItem="@bind(vm.getFilter('list','sourceentity').value)"
+		            		  hflex="1">
+		            	<template name="empty">
+		                    <comboitem/>
+		                </template>
+		           		<template name="entity" var="entityname">
+		                    <comboitem label="@load(entityname)" 
+		                    		   iconSclass="z-icon-table alpha-icon-lg"/>
+		                </template>
+					</combobox>
+		        </auxheader>
+		        <auxheader>
+		        	<combobox model="@load(vm.getFilter('list','targetentity').values) @template(empty each ? 'empty' : 'entity')"
+		            		  selectedItem="@bind(vm.getFilter('list','targetentity').value)"
+		            		  hflex="1">
+		            	<template name="empty">
+		                    <comboitem/>
+		                </template>
+		           		<template name="entity" var="entityname">
+		                    <comboitem label="@load(entityname)" 
+		                    		   iconSclass="z-icon-table alpha-icon-lg"/>
+		                </template>
+					</combobox>
+		        </auxheader>
+		        <auxheader>
+		        	<combobox model="@load(vm.getFilter('list','module').values) @template(empty each ? 'empty' : 'module')"
+		            		  selectedItem="@bind(vm.getFilter('list','module').value)"
+		            		  hflex="1">
+		                <template name="empty">
+		                    <comboitem/>
+		                </template>
+		           		<template name="module" var="modulename">
+		                    <comboitem label="@load(modulename)" 
+		                    		   iconSclass="z-icon-cube alpha-icon-lg"/>
+		                </template>
+					</combobox>
+		        </auxheader>
+		    </auxhead>
+		    <template name="model" var="transformer">
+	            <listitem onDoubleClick="@command('editTransformer')">
+	            	<listcell iconSclass="z-icon-random z-icon-fw alpha-icon-lg">
+	            		<label value="@init(transformer.name)" style="margin-left:3px"/>
+	            	</listcell>
+	            	<listcell iconSclass="z-icon-table z-icon-fw alpha-icon-lg">
+	            		<label value="@init(transformer.sourceEntity.name)"/>
+	            	</listcell>
+	            	<listcell iconSclass="z-icon-table z-icon-fw alpha-icon-lg">
+	            		<label value="@init(transformer.targetEntity.name)"/>
+	            	</listcell>
+	            	<listcell iconSclass="@load(empty transformer.module ? '' : 'z-icon-cube alpha-icon-lg')">
+	            		<label value="@init(transformer.module.name)" style="margin-left:3px"/>
+	            	</listcell>
+	            </listitem>
+		    </template>        
+		</listbox>
+	</center>
+</borderlayout>

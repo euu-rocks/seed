@@ -1,0 +1,98 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<?page contentType="text/html;charset=UTF-8"?>
+<window id="transferDialogWin" width="400px" 
+		viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.TransferDialogViewModel')" 
+		title="${labels.admin.transfer.importing}"
+		mode="modal" closable="true">
+	<div class="alpha-dialog">
+		<grid class="alpha-noborder">
+			<columns>
+            	<column hflex="min"/>
+              	<column hflex="max"/>
+            </columns>
+            <rows>
+            	<row>
+					<cell style="padding: 4px 10px" align="right">
+						<label value="${labels.label.file}:"/>
+					</cell>
+					<cell style="padding: 4px 4px">
+						<filebox content="@bind(vm.importFile.content)"
+            		 			 contentType="@bind(vm.importFile.contentType)"
+            		 			 fileName="@bind(vm.importFile.name)"
+            		 			 mandatory="true" hflex="1"/>
+					</cell>
+				</row>
+				<row>
+					<cell colspan="2"/>
+				</row>
+				<row visible="@load(!vm.hasIdentifier())">
+					<cell colspan="2">
+						<hlayout>
+							<label value="${labels.admin.transfer.noidentifier}"
+								   style="padding-left:20px;color:red"/>
+							<helpinfo key="help.transfer.noidentifier"/>
+						</hlayout>
+					</cell>
+				</row>
+				<row>
+					<cell style="padding: 4px 10px" 
+						  align="right" valign="top">
+						<label value="${labels.label.options}:"/>
+					</cell>
+					<cell style="padding: 4px 4px">
+						<vlayout>
+							<hlayout>
+				        		<checkbox checked="@bind(vm.options.allOrNothing)"/>
+				        		<label value="${labels.admin.transfer.importallornothing}"/>
+				        		<helpinfo key="help.transfer.importallornothing"/>
+				       		</hlayout>
+				       		<hlayout>
+				        		<checkbox checked="@bind(vm.options.createIfNew)"/>
+				        		<label value="${labels.admin.transfer.importcreateifnew}"/>
+				        	</hlayout>
+				       		<hlayout>
+				        		<checkbox checked="@bind(vm.options.modifyExisting)"
+				        				  disabled="@load(!vm.hasIdentifier())"/>
+				        		<label value="${labels.admin.transfer.importmodifyexisting}"
+				        			   style="@load(vm.hasIdentifier() ? null : 'color:grey')"/>
+				        	</hlayout>
+				       		<hlayout>
+				        		<checkbox checked="@bind(vm.options.executeCallbacks)"/>
+				        		<label value="${labels.admin.transfer.executecallbacks}"/>
+				        	</hlayout>
+				       	</vlayout>
+					</cell>
+				</row>
+			</rows>
+    	</grid>
+    	<div class="alpha-dialog-footer">
+			<button iconSclass="z-icon-download alpha-icon-lg"
+					label="${labels.button.importing}" 
+					onClick="@command('importTransfer',elem=self)"
+					disabled="@load(!(vm.options.createIfNew or vm.options.modifyExisting))"/>
+			<space/>
+			<button iconSclass="z-icon-close" 
+					label="${labels.button.cancel}" 
+					onClick="@command('cancel')"/>
+		</div>
+    </div>
+</window>

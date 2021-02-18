@@ -1,0 +1,247 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout>
+	<north border="0">
+		<toolbar width="100%">
+			<toolbarbutton label="${labels.admin.entity.newfield}" 
+						   iconSclass="z-icon-file-o alpha-icon-lg" 
+					   	   onClick="@command('newField')"/>
+			<toolbarbutton label="${labels.admin.entity.removefield}" 
+						   iconSclass="z-icon-remove alpha-icon-lg" 
+					   	   onClick="@command('removeField',elem=self)"
+					   	   visible="@load(not empty vm.field)"/>
+		</toolbar>
+	</north>
+	<center border="0">
+		<listbox mold="paging" autopaging="true" 
+				 model="@load(vm.object.fields)" 
+		         selectedItem="@bind(vm.field)"
+		         onSelect="@command('selectField')"
+		         visible="@load(!empty vm.object.fields)"
+		         class="alpha-noborder"
+		         hflex="1" vflex="1">
+			<listhead sizable="true">
+	            <listheader label="${labels.label.field}" hflex="1"/>
+	            <listheader label="${labels.label.fieldgroup}" hflex="1"
+	            			visible="@load(!empty vm.object.allFieldGroups)"/>
+	            <listheader label="${labels.label.datatype}" hflex="1"/>
+	            <listheader label="${labels.label.mandatory}" hflex="min"/>
+	        </listhead> 
+	        <template name="model" var="field">
+	            <listitem attributes.item="@load(field)" 
+	            		  draggable="true" droppable="true" 
+	            		  onDrop="@command('swapFields',item=event.dragged.attributes.item,base=field)">
+	            	<listcell iconSclass="@load(empty field.type ? '' : field.type.isReference() ? 'z-icon-share alpha-icon-lg' : 'z-icon-font alpha-icon-lg')">
+	            		<label value="@load(field.name)" 
+	            			   style="margin-left:3px"/>
+	            	</listcell>
+	            	<listcell>
+	            		<label value="@load(field.fieldGroup.name)"/>
+	            	</listcell>
+	            	<listcell>
+	            		<label value="@load(vm.getEnumLabel(field.type))"/>
+	            	</listcell>
+	            	<listcell>
+	            		<div align="center">
+	            			<checkbox checked="@load(field.mandatory)" disabled="true"/>
+	            		</div>
+	            	</listcell>
+	            </listitem>
+		    </template> 
+		</listbox>
+	</center>
+	<east title="${labels.label.properties}" 
+		  visible="@load(!empty vm.field)"
+		  width="275px" border="0" collapsible="true" 
+		  class="alpha-properties">
+		<vlayout class="alpha-properties-content">
+        	<label value="${labels.label.fieldname}:"/>
+            <textbox hflex="1"
+            		 value="@bind(vm.field.name)"
+            		 mandatory="true"
+            		 onChange="@command('flagDirty',notify='field')"/>
+            <label value="${labels.label.internalname}:"/>
+            <textbox readonly="true" hflex="1"
+               		 value="@load(vm.field.internalName)"/>
+            <label value="${labels.label.columnname}:"/>   		 
+            <textbox hflex="1"
+            		 value="@bind(vm.field.columnName)"
+            		 placeholder="@load(vm.field.internalName)"
+            		 onChange="@command('flagDirty')"/>
+            <vlayout visible="@load(!empty vm.object.allFieldGroups)">
+	            <label value="${labels.label.fieldgroup}:"/>
+	            <combobox model="@load(vm.object.allFieldGroups)"
+						  selectedItem="@bind(vm.field.fieldGroup)"
+						  value="@load(vm.field.fieldGroup.name)"
+						  onSelect="@command('flagDirty')"
+						  hflex="1">
+	                <template name="model" var="fieldGroup">
+	                    <comboitem label="@load(fieldGroup.name)"/>
+	                </template>
+	            </combobox>
+	        </vlayout> 		 
+            <label value="${labels.label.datatype}:"/>
+			<combobox model="@load(vm.fieldTypes)"
+					  mandatory="true"
+					  nullable="@load(vm.field.isNew() or !vm.field.type.isReference())"
+					  selectedItem="@bind(vm.field.type)"
+					  value="@load(vm.getEnumLabel(vm.field.type))"
+					  onSelect="@command('selectFieldType')"
+					  hflex="1">
+                <template name="model" var="fieldType">
+                    <comboitem label="@load(vm.getEnumLabel(fieldType))"/>
+                </template>
+            </combobox> 
+            <vlayout visible="@load(vm.field.type.isText())">
+            	<label value="${labels.label.length}:"/>
+            	<intbox value="@bind(vm.field.length)"
+            			onChange="@command('flagDirty')"
+            			placeholder="@init(vm.maxFieldLength)"/>	
+            </vlayout>
+            <vlayout visible="@load(vm.field.type.isAutonum())">
+            	<hlayout>
+            		<label value="${labels.label.pattern}:"/>
+            		<helpinfo key="help.autonum.pattern"/>
+            	</hlayout>
+            	<textbox hflex="1"
+            		 	 value="@bind(vm.field.autonumPattern)"
+            		 	 onChanging="@command('flagDirty')"/>
+            	<label value="${labels.label.startvalue}:"/>
+            	<longbox hflex="1"
+            		 	 value="@bind(vm.field.autonumStart)"
+            		 	 onChange="@command('flagDirty')"
+            		 	 placeholder="1"/>
+            </vlayout>
+            <vlayout visible="@load(vm.field.type.isReference())">
+            	<label value="${labels.label.refentity}:"/>
+            	<combobox model="@load(vm.referenceEntities) @template(empty each.name ? 'empty' : 'entity')"
+            			  mandatory="true"
+            			  nullable="@load(vm.field.isNew())"
+            			  selectedItem="@bind(vm.field.referenceEntity)"
+            			  value="@load(vm.field.referenceEntity.name)"
+            			  onSelect="@command('selectReferencedEntity')"
+					  	  hflex="1">
+					<template name="empty">
+                    	<comboitem/>
+                	</template>	
+            		<template name="entity" var="refEntity">
+                    	<comboitem label="@init(refEntity.name)"
+                    			   iconSclass="z-icon-table z-icon-fw alpha-icon-lg"/>
+                	</template>	
+            	</combobox>
+            	<vlayout visible="@load(!empty vm.field.referenceEntity)">
+            		<label value="${labels.label.reffield}:"/>
+            		<combobox model="@load(vm.field.referenceEntity.fields) @template(empty each.name ? 'empty' : each.type.isReference() ? 'reference' : 'field')"
+            				  mandatory="true"
+            			  	  selectedItem="@bind(vm.field.referenceEntityField)"
+            			  	  value="@load(vm.field.referenceEntityField.name)"
+            			  	  onSelect="@command('flagDirty',notify='field')"
+					  	  	  hflex="1">
+					  	<template name="empty">
+	                    	<comboitem/>
+	                	</template>
+	            		<template name="field" var="refEntityField">
+	                    	<comboitem label="@init(refEntityField.name)"
+	                    			   iconSclass="z-icon-font z-icon-fw alpha-icon-lg"/>
+	                	</template>
+	                	<template name="reference" var="refEntityField">
+	                    	<comboitem label="@init(refEntityField.name)"
+	                    			   iconSclass="z-icon-share z-icon-fw alpha-icon-lg"/>
+	                	</template>
+            		</combobox>
+            	</vlayout>
+            </vlayout>
+            <vlayout visible="@load(!empty vm.field.type and !vm.field.type.isBoolean())">
+            	<space/>
+	       		<label value="${labels.label.options}:"/>	 
+	       		<hlayout visible="@load(!vm.field.calculated)">
+	        		<checkbox checked="@bind(vm.field.mandatory)"
+	        				  onCheck="@command('flagDirty')"
+	        				  disabled="@load(vm.field.type.isAutonum())"/>
+	        		<label value="${labels.label.mandatoryfield}"/>
+	       		</hlayout>
+	       		<hlayout visible="@load(!vm.field.type.isAutonum() and vm.field.mandatory and vm.existValueObjects() and !vm.isAlreadyMandatory(vm.field))">
+	       			<space/>
+		       		<vlayout hflex="1">
+		       			<label value="${labels.label.defaultvalue}:"/>
+		       			<textbox visible="@load(vm.field.type.isText() or vm.field.type.isTextLong())"
+		       					 value="@bind(vm.field.defaultString)"
+		       					 mandatory="true" hflex="1"/>
+		       		    <intbox visible="@load(vm.field.type.isInteger())"
+		       					value="@bind(vm.field.defaultNumber)"
+		       					mandatory="true" hflex="1"/>
+		       			<longbox visible="@load(vm.field.type.isLong())"
+		       					 value="@bind(vm.field.defaultNumber)"
+		       					 mandatory="true" hflex="1"/>
+		       			<datebox visible="@load(vm.field.type.isDate())"
+		       					 value="@bind(vm.field.defaultDate)"
+		       					 mandatory="true" hflex="1"/>
+		       			<datebox visible="@load(vm.field.type.isDateTime())"
+		       					 value="@bind(vm.field.defaultDate)"
+		       					 format="long+medium"
+		       					 mandatory="true" hflex="1"/>		 
+		       			<decimalbox visible="@load(vm.field.type.isDecimal())"
+		       					    value="@bind(vm.field.defaultNumber)"
+		       					    mandatory="true" hflex="1"/>		 
+		       			<doublebox visible="@load(vm.field.type.isDouble())"
+		       					   value="@bind(vm.field.defaultNumber)"
+		       					   mandatory="true" hflex="1"/>		 
+		       			<combobox visible="@load(vm.field.type.isReference())"
+		       					  model="@load(vm.getReferenceValues(vm.field))"
+		       					  selectedItem="@bind(vm.field.defaultObject)"
+		       					  mandatory="true" hflex="1">
+		       				<template name="model" var="obj">
+		       					<comboitem label="@load(vm.getReferenceValue(obj,vm.field))"/>
+		       				</template>
+		       			</combobox>		 
+		       			<space/>
+		       		</vlayout>
+	       		</hlayout>
+	       		<hlayout visible="@load(!(vm.field.calculated or vm.field.type.isBinary() or vm.field.type.isFile()))">
+	        		<checkbox checked="@bind(vm.field.unique)" 
+	        				  onCheck="@command('flagDirty')"
+	        				  disabled="@load(vm.field.type.isAutonum())"/>
+	        		<label value="${labels.label.unique}"/>
+	       		</hlayout>
+	       		<hlayout visible="@load(!(vm.field.calculated or vm.field.type.isBinary() or vm.field.type.isFile()))">
+	        		<checkbox checked="@bind(vm.field.indexed)" 
+	        				  onCheck="@command('flagDirty')"/>
+	        		<label value="${labels.label.index}"/>
+	       		</hlayout>
+	       		<hlayout visible="@load(!(vm.field.type.isAutonum() or vm.field.type.isReference() or vm.field.type.isFile() or vm.field.mandatory or vm.field.unique or vm.field.indexed))">
+	        		<checkbox checked="@bind(vm.field.calculated)" 
+	        				  onCheck="@command('flagDirty')"
+	        				  disabled="@load(!vm.field.isNew())"/>
+	        		<label value="${labels.label.calculated}"/>
+	       		</hlayout>
+	       		<hlayout visible="@load(vm.field.calculated)">
+	       			<vlayout hflex="1">
+	       				<space/>
+		       			<label value="${labels.label.calculationformula}:"/>
+		       			<textbox value="@bind(vm.field.formula)"
+		       					 mandatory="true" 
+		       					 hflex="1" rows="3"/>
+		       		</vlayout>
+	       		</hlayout>
+	       	</vlayout>
+        </vlayout>
+	</east>
+</borderlayout>

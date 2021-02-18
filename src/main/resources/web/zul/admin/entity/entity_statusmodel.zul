@@ -1,0 +1,55 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<?component name="statusmodel-status" macroURI="~./zul/admin/entity/statusmodel_status.zul" inline="true"?>
+<?component name="statusmodel-transitions" macroURI="~./zul/admin/entity/statusmodel_transitions.zul" inline="true"?>
+<?component name="statusmodel-functions" macroURI="~./zul/admin/entity/statusmodel_functions.zul" inline="true"?>
+<?component name="statusmodel-permissions" macroURI="~./zul/admin/entity/statusmodel_permissions.zul" inline="true"?>
+<borderlayout>
+	<center border="0" style="padding:5px">
+		<tabbox hflex="1" vflex="1">
+			<tabs>
+				<tab label="${labels.label.statuslist}"/>
+				<tab id="tabTransitions" label="${labels.label.statustransitions}"
+					 visible="@load(vm.object.statusList.size() > 1)"/>
+				<tab id="tabTransitionFunctions" label="${labels.label.functions}"	 
+					 visible="@load(!empty vm.object.statusTransitions and !vm.object.isNew())"
+					 onSelect="@command('selectTransitionDependent')"/>
+				<tab id="tabTransitionPermissions" label="${labels.label.permissions}"
+					 visible="@load(!empty vm.object.statusTransitions and vm.existUserGroups())"
+					 onSelect="@command('selectTransitionDependent')"/>
+			</tabs>
+			<tabpanels> 
+				<tabpanel>
+					<statusmodel-status/>
+				</tabpanel>
+				<tabpanel fulfill="tabTransitions.onSelect">
+					<statusmodel-transitions/>
+				</tabpanel>
+				<tabpanel fulfill="tabTransitionFunctions.onSelect">
+					<statusmodel-functions/>
+				</tabpanel>
+				<tabpanel fulfill="tabTransitionPermissions.onSelect">
+					<statusmodel-permissions/>
+				</tabpanel>
+			</tabpanels>
+		</tabbox>
+	</center>
+</borderlayout>

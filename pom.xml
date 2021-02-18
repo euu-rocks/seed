@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.seed</groupId>
+	<artifactId>seed</artifactId>
+	<version>0.9.18-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<name>seed</name>
+	<description>Seed project</description>
+	
+	<repositories>
+		<repository>
+			<id>ZK CE</id>
+			<name>ZK CE Repository</name>
+			<url>http://mavensync.zkoss.org/maven2</url>
+		</repository>
+	</repositories>
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>github</id>
+			<name>GitHub EUU ROCKS Apache Maven Snapshot Packages</name>
+			<url>https://maven.pkg.github.com/euu-rocks/seed</url>
+		</snapshotRepository>
+		<repository>
+			<id>github</id>
+			<name>GitHub EUU ROCKS Apache Maven Packages</name>
+			<url>https://maven.pkg.github.com/euu-rocks/seed</url>
+		</repository>
+	</distributionManagement>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>11</java.version>
+		<zk.version>9.5.0.2</zk.version>
+		<poi.version>4.1.2</poi.version>
+		<itext.version>5.5.13.2</itext.version>
+		<opencsv.version>5.3</opencsv.version>
+		<mycila-license-version>3.0</mycila-license-version>
+	</properties>
+	
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.4.2</version>
+		<relativePath/>
+	</parent>
+
+	<dependencies>
+		<!-- spring boot starter -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		
+		<!-- javax.annotation API -->
+		<dependency>
+		    <groupId>com.google.code.findbugs</groupId>
+		    <artifactId>jsr305</artifactId>
+		    <version>3.0.2</version>
+		</dependency>
+		
+		<!-- DB driver -->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		
+		<!-- liquibase -->
+		<dependency>
+    		<groupId>org.liquibase</groupId>
+     		<artifactId>liquibase-core</artifactId>
+      	</dependency>
+		
+		<!-- hibernate -->
+		<dependency>
+		    <groupId>org.hibernate</groupId>
+		    <artifactId>hibernate-core</artifactId>
+		</dependency>
+		<dependency>
+    		<groupId>org.hibernate</groupId>
+    		<artifactId>hibernate-jcache</artifactId>
+    	</dependency>
+    	<dependency>
+      		<groupId>org.hibernate</groupId>
+	      	<artifactId>hibernate-hikaricp</artifactId>
+		</dependency>
+    	<dependency>
+      		<groupId>org.ehcache</groupId>
+      		<artifactId>ehcache</artifactId>
+	    </dependency>
+	    
+	    <!-- OXM -->
+	    <dependency>
+  			<groupId>javax.xml.bind</groupId>
+  			<artifactId>jaxb-api</artifactId>
+		</dependency>
+		<dependency>
+  			<groupId>org.springframework</groupId>
+  			<artifactId>spring-oxm</artifactId>
+  		</dependency>
+  		
+  		<!-- quartz -->
+	    <dependency>
+		    <groupId>org.quartz-scheduler</groupId>
+		    <artifactId>quartz</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>org.springframework</groupId>
+		    <artifactId>spring-context-support</artifactId>
+		</dependency>
+  		
+  		<!-- POI -->
+  		<dependency>
+		    <groupId>org.apache.poi</groupId>
+		    <artifactId>poi-ooxml</artifactId>
+		    <version>${poi.version}</version>
+		</dependency>
+		
+		<!-- itext -->
+  		<dependency>
+		    <groupId>com.itextpdf</groupId>
+		    <artifactId>itextpdf</artifactId>
+		    <version>${itext.version}</version>
+		</dependency>
+		
+		<!-- opencsv -->
+		<dependency>
+		    <groupId>com.opencsv</groupId>
+		    <artifactId>opencsv</artifactId>
+		    <version>${opencsv.version}</version>
+		</dependency>
+		
+		<!-- ZK -->
+		<dependency>
+			<groupId>org.zkoss.zk</groupId>
+			<artifactId>zkbind</artifactId>
+			<version>${zk.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.zkoss.zk</groupId>
+			<artifactId>zkplus</artifactId>
+			<version>${zk.version}</version>
+		</dependency>
+		<dependency>
+	    	<groupId>org.zkoss.zk</groupId>
+			<artifactId>zul</artifactId>
+	  		<version>${zk.version}</version>
+	    </dependency>
+	    <dependency>
+		    <groupId>org.zkoss.theme</groupId>
+		    <artifactId>breeze</artifactId>
+		    <version>${zk.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.sinnlabs</groupId>
+			<artifactId>zk-codemirror</artifactId>
+			<version>0.5</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>versions-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>com.mycila</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<version>${mycila-license-version}</version>
+				<configuration>
+					<header>src/main/resources/licenses/agpl3-header.txt</header>
+					<includes>
+						<include>src/**/*.java</include>
+						<include>src/**/*.xml</include>
+						<include>src/**/*.zul</include>
+					</includes>
+					<excludes>
+						<exclude>KEYS</exclude>
+						<exclude>**/NOTICE</exclude>
+						<exclude>**/LICENSE</exclude>
+						<exclude>**/NOTICE.txt</exclude>
+						<exclude>**/LICENSE.txt</exclude>
+						<exclude>doap.rdf</exclude>
+						<exclude>**/README</exclude>
+						<exclude>**/*.adoc</exclude>
+						<exclude>**/node_modules/**</exclude>
+						<exclude>**/cacerts</exclude>
+						<exclude>**/*.p12</exclude>
+						<exclude>**/*.txt</exclude>
+						<exclude>**/*.mp3</exclude>
+						<exclude>**/*.mp4</exclude>
+						<exclude>.mvn/**</exclude>
+						<exclude>mvnw*</exclude>
+						<exclude>**/META-INF/persistence*.xsd</exclude>
+					</excludes>
+					<mapping>
+						<zul>XML_STYLE</zul>
+					</mapping>
+				</configuration>
+				<executions>
+					<execution>
+						<id>check-licenses</id>
+						<!-- fail as early as possible -->
+						<phase>initialize</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

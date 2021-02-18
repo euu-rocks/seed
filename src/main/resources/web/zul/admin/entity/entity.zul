@@ -1,0 +1,154 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<?component name="entity-fields" macroURI="~./zul/admin/entity/entity_fields.zul" inline="true"?>
+<?component name="entity-fieldgroups" macroURI="~./zul/admin/entity/entity_fieldgroups.zul" inline="true"?>
+<?component name="entity-nesteds" macroURI="~./zul/admin/entity/entity_nesteds.zul" inline="true"?>
+<?component name="entity-statusmodel" macroURI="~./zul/admin/entity/entity_statusmodel.zul" inline="true"?>
+<?component name="entity-permissions" macroURI="~./zul/admin/entity/entity_permissions.zul" inline="true"?>
+<?component name="entity-fieldconstraints" macroURI="~./zul/admin/entity/entity_fieldconstraints.zul" inline="true"?>
+<?component name="entity-functions" macroURI="~./zul/admin/entity/entity_functions.zul" inline="true"?>
+<?component name="entity-callbackfunctions" macroURI="~./zul/admin/entity/entity_callbackfunctions.zul" inline="true"?>
+<borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminEntityViewModel')">
+	<north border="0">
+		<toolbar>
+			<toolbarbutton iconSclass="z-icon-arrow-left alpha-icon-lg" 
+						   label="${labels.button.back}" 
+						   onClick="@command('back')"/>
+			<toolbarbutton iconSclass="z-icon-save alpha-icon-lg" 
+						   label="${labels.button.save}" 
+						   onClick="@command('saveEntity',elem=self)"
+						   disabled="@load(!vm.isDirty())"/>
+			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+						   label="${labels.button.refresh}" 
+						   onClick="@command('refreshEntity',elem=self)"
+						   visible="@load(!vm.object.isNew())"/>
+			<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
+						   label="${labels.button.newobject}" 
+						   onClick="@command('newEntity')"/>
+			<toolbarbutton iconSclass="z-icon-remove alpha-icon-lg" 
+						   label="${labels.button.delete}" 
+						   onClick="@command('deleteEntity', elem=self)"
+						   visible="@load(!vm.object.isNew())"/>
+		</toolbar>
+	</north>
+	<center border="0">
+		<vlayout hflex="1" vflex="1">
+			<grid hflex="1" class="alpha-noborder">
+				<columns>
+	            	<column hflex="min"/>
+	              	<column hflex="max"/>
+	              	<column hflex="min"/>
+	              	<column hflex="max"/>
+	            </columns>
+				<rows>
+					<row>
+						<cell style="padding: 4px 10px" align="right">
+							<label value="${labels.label.name}:"/>
+						</cell>
+						<cell style="padding: 4px 4px">
+							<textbox value="@bind(vm.object.name)"
+									 mandatory="true"
+									 onChange="@command('flagDirty',notifyObject='internalName')"
+									 hflex="1"/> 
+						</cell>
+						<cell style="padding: 4px 10px" align="right">
+							<label value="${labels.label.internalname}:"/>
+						</cell>
+						<cell style="padding: 4px 4px">
+							<textbox value="@load(vm.object.internalName)" 
+									 hflex="1" readonly="true"/>
+						</cell>
+					</row>
+					<row>
+						<cell style="padding: 4px 10px" align="right">
+							<label value="${labels.label.basedon}:"/>
+						</cell>
+						<cell style="padding: 4px 4px">
+							<textbox value="@load(vm.object.genericEntity.name)" 
+									 hflex="1" readonly="true"/>
+						</cell>
+						<cell style="padding: 4px 10px" align="right">
+							<label value="${labels.label.tablename}:"
+								   visible="@load(!vm.object.generic)"/>
+							<label value="${labels.label.generic}:"
+								   visible="@load(vm.object.generic)"/>
+						</cell>
+						<cell>
+							<textbox value="@bind(vm.object.tableName) @converter(vm.stringConverter)"
+									 placeholder="@load(vm.object.internalName.toLowerCase())"
+									 visible="@load(!vm.object.generic)"
+									 onChange="@command('flagDirty')"
+									 hflex="1"/>
+							<checkbox checked="@load(vm.object.generic)"
+									  visible="@load(vm.object.generic)"
+									  disabled="true"/>   
+						</cell>
+					</row>
+				</rows>
+			</grid>
+			<tabbox id="mainTabbox" hflex="1" vflex="1" class="alpha-tabbox">
+				<tabs>
+					<tab label="${labels.label.fields}"
+						 onSelect="@command('selectFieldTab')"/>
+					<tab id="tabFieldGroups" label="${labels.label.fieldgroups}"/>
+					<tab id="tabFunctions" label="${labels.label.functions}"/>
+					<tab id="tabNesteds" label="${labels.label.nesteds}"
+						 visible="@load(not empty vm.availableNesteds)"/>
+					<tab id="tabFieldConstraints" label="${labels.label.fieldconstraints}"
+						 visible="@load(!empty vm.object.fields and (vm.existUserGroups() or !empty vm.object.statusList))"
+						 onSelect="@command('selectConstraintTab')"/>
+					<tab id="tabStatusmodel" label="${labels.label.statusmodel}"
+						 visible="@load(!vm.object.isGeneric())"/>
+					<tab id="tabCallbackFunctions" label="${labels.label.callbackfunctions}"
+						 visible="@load(!(vm.object.isNew() or vm.object.isGeneric()))"/>
+					<tab id="tabPermissions" label="${labels.label.permissions}"
+						 visible="@init(vm.existUserGroups() and !vm.object.isGeneric())"/>
+				</tabs>
+				<tabpanels> 
+					<tabpanel>
+						<entity-fields/>
+					</tabpanel>
+					<tabpanel fulfill="tabFieldGroups.onSelect">
+						<entity-fieldgroups/>
+					</tabpanel>
+					<tabpanel fulfill="tabFunctions.onSelect">
+						<entity-functions/>
+					</tabpanel>
+					<tabpanel fulfill="tabNesteds.onSelect">
+						<entity-nesteds/>
+					</tabpanel>
+					<tabpanel fulfill="tabFieldConstraints.onSelect">
+						<entity-fieldconstraints/>
+					</tabpanel>
+					<tabpanel fulfill="tabStatusmodel.onSelect">
+						<entity-statusmodel/>
+					</tabpanel>
+					<tabpanel fulfill="tabCallbackFunctions.onSelect">
+						<entity-callbackfunctions/>
+					</tabpanel>
+					<tabpanel fulfill="tabPermissions.onSelect">
+						<entity-permissions/>
+					</tabpanel>
+				</tabpanels>
+			</tabbox>
+		</vlayout>
+	</center>
+</borderlayout>

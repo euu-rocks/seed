@@ -1,0 +1,49 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<?page contentType="text/html;charset=UTF-8"?>
+<window id="editImageWin" width="300px" title="${labels.label.editimage}"
+		viewModel="@id('vm') @init('org.seed.ui.zk.vm.EditImageViewModel')" 
+		mode="modal" closable="true">
+	<div align="center">
+		<image content="@load(vm.image) @converter(vm.imageConverter)"/>	
+	</div>		
+	<div class="alpha-dialog">
+		<div align="center">
+			<button iconSclass="z-icon-arrow-up"
+					label="${labels.label.uploadimage}" 
+					upload="true"
+					onUpload="@command('uploadImage',elem=self)"/>
+			<button iconSclass="z-icon-remove"
+					label="${labels.label.deleteimage}"
+					onClick="@command('removeImage',elem=self)"
+					visible="@load(not empty vm.image)"/>
+		</div>
+		<div class="alpha-dialog-footer">
+			<button iconSclass="z-icon-check"
+					label="${labels.button.apply}" 
+					onClick="@command('apply',elem=self)"/>
+			<space/>
+			<button iconSclass="z-icon-close" 
+					label="${labels.button.cancel}" 
+					onClick="@command('cancel')"/>
+		</div>
+	</div>		
+</window>

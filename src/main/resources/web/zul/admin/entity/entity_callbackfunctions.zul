@@ -1,0 +1,128 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout>
+	<north border="0">
+		<toolbar width="100%">
+			<toolbarbutton label="${labels.admin.entity.newfunction}" 
+						   iconSclass="z-icon-file-o alpha-icon-lg" 
+					   	   onClick="@command('newCallbackFunction')"/>
+			<toolbarbutton label="${labels.admin.entity.removefunction}" 
+						   iconSclass="z-icon-remove alpha-icon-lg" 
+					   	   onClick="@command('removeCallbackFunction',elem=self)"
+					   	   visible="@load(not empty vm.callbackFunction)"/>
+		</toolbar>
+	</north>
+	<center border="0">
+		<listbox mold="paging" autopaging="true" 
+				 model="@load(vm.object.callbackFunctions)" 
+		         selectedItem="@bind(vm.callbackFunction)"
+		         visible="@load(!empty vm.object.callbackFunctions)"
+		         class="alpha-noborder"
+		         hflex="1" vflex="1">
+			<listhead sizable="true">
+	            <listheader label="${labels.label.function}" hflex="8"/>
+	            <listheader label="${labels.label.active}" hflex="1"/>
+	        </listhead> 
+	        <template name="model" var="function">
+	            <listitem attributes.item="@load(function)" 
+	            		  draggable="true" droppable="true"
+	            		  onDoubleClick="@command('editCallbackFunction')" 
+	            		  onDrop="@command('swapCallbackFunctions',item=event.dragged.attributes.item,base=function)">
+	            	<listcell iconSclass="z-icon-puzzle-piece alpha-icon-lg">
+	            		<label value="@load(function.name)" 
+	            			   style="margin-left:3px"/>
+	            	</listcell>
+	            	<listcell>
+	            		<checkbox checked="@bind(function.active)"
+	            				  onCheck="@command('flagDirty')"/>
+	            	</listcell>
+	            </listitem>
+		    </template> 
+		</listbox>
+	</center>
+	<east title="${labels.label.properties}" 
+		  visible="@load(!empty vm.callbackFunction)"
+		  width="275px" border="0" collapsible="true" 
+		  class="alpha-properties">
+		<vlayout class="alpha-properties-content" hflex="1">
+			<label value="${labels.label.functionname}:"/>
+            <textbox hflex="1"
+            		 value="@bind(vm.callbackFunction.name)"
+            		 mandatory="true"
+            		 onChange="@command('flagDirty')"/>
+            <button label="${labels.admin.entity.editsource}..."
+            		onClick="@command('editCallbackFunction',elem=self)"
+            		disabled="@load(empty vm.callbackFunction.name)"
+            		style="margin-top:8px;margin-bottom:8px"/>
+            <label value="${labels.admin.entity.functiontrigger}:"/>
+	        <hlayout>
+        		<checkbox checked="@bind(vm.callbackFunction.activeOnCreate)" 
+        				  onCheck="@command('flagDirty')"/>
+        		<label value="${labels.trigger.oncreate}"/>
+       		</hlayout>
+       		<hlayout>
+        		<checkbox checked="@bind(vm.callbackFunction.activeOnModify)" 
+        				  onCheck="@command('flagDirty')"/>
+        		<label value="${labels.trigger.onmodify}"/>
+       		</hlayout>
+       		<hlayout>
+        		<checkbox checked="@bind(vm.callbackFunction.activeOnStatusTransition)" 
+        				  onCheck="@command('flagDirty')"/>
+        		<label value="${labels.trigger.onstatustransition}"/>
+       		</hlayout>
+       	    <hlayout>
+        		<checkbox checked="@bind(vm.callbackFunction.activeBeforeInsert)" 
+        				  onCheck="@command('flagDirty')"/>
+        		<label value="${labels.trigger.beforeinsert}"/>
+       		</hlayout>
+       		<hlayout>
+        		<checkbox checked="@bind(vm.callbackFunction.activeAfterInsert)" 
+        				  onCheck="@command('flagDirty')"/>
+        		<label value="${labels.trigger.afterinsert}"/>
+       		</hlayout>
+       		<hlayout>
+        		<checkbox checked="@bind(vm.callbackFunction.activeBeforeUpdate)" 
+        				  onCheck="@command('flagDirty')"/>
+        		<label value="${labels.trigger.beforeupdate}"/>
+       		</hlayout>
+       		<hlayout>
+        		<checkbox checked="@bind(vm.callbackFunction.activeAfterUpdate)" 
+        				  onCheck="@command('flagDirty')"/>
+        		<label value="${labels.trigger.afterupdate}"/>
+       		</hlayout>
+       		<hlayout>
+        		<checkbox checked="@bind(vm.callbackFunction.activeBeforeDelete)" 
+        				  onCheck="@command('flagDirty')"/>
+        		<label value="${labels.trigger.beforedelete}"/>
+       		</hlayout>
+       		<hlayout>
+        		<checkbox checked="@bind(vm.callbackFunction.activeAfterDelete)" 
+        				  onCheck="@command('flagDirty')"/>
+        		<label value="${labels.trigger.afterdelete}"/>
+       		</hlayout>
+       		<hlayout>
+        		<checkbox checked="@bind(vm.callbackFunction.activeOnUserAction)" 
+        				  onCheck="@command('flagDirty')"/>
+        		<label value="${labels.trigger.useraction}"/>
+       		</hlayout>	
+        </vlayout>
+    </east>
+</borderlayout>
