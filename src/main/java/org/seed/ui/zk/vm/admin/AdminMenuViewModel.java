@@ -19,8 +19,9 @@ package org.seed.ui.zk.vm.admin;
 
 import java.util.List;
 
-import org.seed.core.data.SystemEntityService;
 import org.seed.core.data.SystemObject;
+import org.seed.core.form.Form;
+import org.seed.core.form.FormService;
 import org.seed.core.form.navigation.Menu;
 import org.seed.core.form.navigation.MenuMetadata;
 import org.seed.core.form.navigation.MenuService;
@@ -43,6 +44,9 @@ public class AdminMenuViewModel extends AbstractAdminViewModel<Menu> {
 	@WireVariable(value="menuServiceImpl")
 	private MenuService menuService;
 	
+	@WireVariable(value="formServiceImpl")
+	private FormService formService;
+	
 	private Menu subMenu;
 	
 	public AdminMenuViewModel() {
@@ -57,7 +61,7 @@ public class AdminMenuViewModel extends AbstractAdminViewModel<Menu> {
 	}
 	
 	@Override
-	protected SystemEntityService<Menu> getObjectService() {
+	protected MenuService getObjectService() {
 		return menuService;
 	}
 	
@@ -72,6 +76,10 @@ public class AdminMenuViewModel extends AbstractAdminViewModel<Menu> {
 
 	public void setSubMenu(Menu subMenu) {
 		this.subMenu = subMenu;
+	}
+	
+	public List<Form> getForms() {
+		return formService.findAllObjects();
 	}
 
 	@Command
@@ -97,7 +105,6 @@ public class AdminMenuViewModel extends AbstractAdminViewModel<Menu> {
 	@Command
 	public void deleteMenu(@BindingParam("elem") Component component) {
 		cmdDeleteObject(component);
-		refreshMenu();
 	}
 	
 	@Command

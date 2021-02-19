@@ -38,8 +38,9 @@
 		         class="alpha-noborder"
 		         hflex="1" vflex="1">
 			<listhead sizable="true">
-	            <listheader label="${labels.label.entry}" hflex="1"
+	            <listheader label="${labels.label.name}" hflex="1"
 	            			sort="auto(name)"/>
+	            <listheader label="${labels.label.form}" hflex="1"/>
 	        </listhead> 
 	        <template name="model" var="submenu">
 	            <listitem attributes.item="@load(submenu)" 
@@ -49,8 +50,39 @@
 	            		<label value="@load(submenu.name)" 
 	            			   style="margin-left:3px"/>
 	            	</listcell>
+	            	<listcell iconSclass="@load(empty submenu.form ? '' : 'z-icon-list-alt alpha-icon-lg')">
+	            		<label value="@load(submenu.form.name)"/>
+	            	</listcell>
 	            </listitem>
 		    </template> 
 		</listbox>
 	</center>
+	<east title="${labels.label.properties}" 
+		  visible="@load(!empty vm.subMenu)"
+		  width="275px" border="0" collapsible="true" 
+		  class="alpha-properties">
+		<vlayout class="alpha-properties-content">
+        	<label value="${labels.label.name}:"/>
+            <textbox hflex="1"
+            		 value="@bind(vm.subMenu.name)"
+            		 mandatory="true"
+            		 onChange="@command('flagDirty')"/>
+            		 
+   			<label value="${labels.label.form}:"/>
+            <combobox model="@load(vm.forms) @template(empty each.name ? 'empty' : 'form')"
+					  selectedItem="@bind(vm.subMenu.form)"
+					  value="@load(vm.subMenu.form.name)"
+					  onSelect="@command('flagDirty')"
+					  mandatory="true"
+					  hflex="1">
+				<template name="empty">
+                    <comboitem/>
+                </template>
+                <template name="form" var="form">
+                    <comboitem label="@load(form.name)"
+                    		   iconSclass="z-icon-list-alt alpha-icon-lg"/>
+                </template>
+            </combobox>
+        </vlayout>
+	</east>
 </borderlayout>

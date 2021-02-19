@@ -45,6 +45,19 @@ public class MenuValidator extends AbstractSystemEntityValidator<Menu> {
 			errors.add(new ValidationError("val.toolong.fieldvalue", "label.icon", 
 					   					   String.valueOf(getLimit("entity.stringfield.length"))));
 		}
+		if (menu.hasSubMenus()) {
+			for (Menu subMenu : menu.getSubMenus()) {
+				if (isEmpty(subMenu.getName())) {
+					errors.add(new ValidationError("val.empty.menufield", "label.name"));
+				}
+				else if (!isNameLengthAllowed(subMenu.getName())) {
+					errors.add(new ValidationError("val.toolong.name", String.valueOf(getMaxNameLength())));
+				}
+				if (isEmpty(subMenu.getForm())) {
+					errors.add(new ValidationError("val.empty.menufield", "label.form"));
+				}
+			}
+		}
 		validate(errors);
 	}
 	

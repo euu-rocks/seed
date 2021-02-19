@@ -157,6 +157,11 @@ public class MenuMetadata extends AbstractApplicationEntity implements Menu {
 	}
 	
 	@Override
+	public void removeNewObjects() {
+		removeNewObjects(getChildren());
+	}
+	
+	@Override
 	public boolean isEqual(Object other) {
 		if (other == null || !Menu.class.isAssignableFrom(other.getClass())) {
 			return false;
