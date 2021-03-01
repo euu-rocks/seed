@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.seed.core.config.Limits;
 import org.seed.core.data.FieldAccess;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.SystemObject;
@@ -91,9 +90,6 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	
 	@WireVariable(value="valueObjectServiceImpl")
 	private ValueObjectService valueObjectService;
-	
-	@WireVariable(value="limits")
-	private Limits limits;
 	
 	private EntityField field;
 	
@@ -199,7 +195,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	public String getMaxFieldLength() {
-		return String.valueOf(limits.getLimit("entity.stringfield.length"));
+		return String.valueOf(getLimit("entity.stringfield.length"));
 	}
 	
 	@Override

@@ -17,7 +17,6 @@
  */
 package org.seed.core.util;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import javax.el.MethodNotFoundException;
@@ -42,7 +41,7 @@ public abstract class ObjectAccess {
 				}
 			}
 		} 
-		catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+		catch (Exception ex) {
 			throw new RuntimeException(ex);
 		}
 		throw new MethodNotFoundException(object.getClass().getName() + '.' + methodName);

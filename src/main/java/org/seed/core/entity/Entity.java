@@ -39,6 +39,8 @@ public interface Entity
 	
 	boolean hasAllFields(); // includes generic fields
 	
+	boolean hasFullTextSearchFields();
+	
 	boolean hasFieldGroups();
 	
 	boolean hasNesteds();
@@ -63,7 +65,9 @@ public interface Entity
 	
 	List<EntityField> getAllFieldsByType(FieldType fieldType);
 	
-	List<EntityField> getGroupFields(EntityFieldGroup fieldGroup);
+	List<EntityField> getAllFieldsByGroup(EntityFieldGroup fieldGroup);
+	
+	List<EntityField> getFullTextSearchFields();
 	
 	EntityFieldGroup getFieldGroupByUid(String uid);
 	

@@ -51,6 +51,7 @@ import org.seed.core.entity.transform.Transformer;
 import org.seed.core.entity.value.event.ValueObjectEvent;
 import org.seed.core.entity.value.event.ValueObjectEventHandler;
 import org.seed.core.entity.value.event.ValueObjectFunctionContext;
+import org.seed.core.util.Tupel;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -86,6 +87,9 @@ public class ValueObjectServiceImpl
 	
 	@Autowired
 	private ValueObjectValidator validator;
+	
+	@Autowired
+	private FullTextSearch fullTextSearch;
 	
 	@Override
 	public ValueObject createInstance(Entity entity, Session session, ValueObjectFunctionContext functionContext) {
@@ -140,6 +144,15 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
+	public Cursor createFullTextSearchCursor(Entity entity, String fullTextQueryString) {
+		Assert.notNull(entity, "entity is null");
+		Assert.notNull(fullTextQueryString, "fullTextQueryString is null");
+		
+		final List<Tupel<Long,Long>> fullTextSearchResult = fullTextSearch.query(entity, fullTextQueryString);
+		return new Cursor(fullTextSearchResult, fullTextSearchResult.size(), CHUNK_SIZE);
+	}
+	
+	@Override
 	@SuppressWarnings("rawtypes")
 	public Cursor createCursor(Entity entity, @Nullable Filter filter, Sort ...sort) {
 		Assert.notNull(entity, "entity is null");
@@ -176,6 +189,9 @@ public class ValueObjectServiceImpl
 	public List<ValueObject> loadChunk(Cursor cursor) {
 		Assert.notNull(cursor, "cursor is null");
 		
+		if (cursor.getFullTextResult() != null) {
+			return loadFullTextChunk(cursor);
+		}
 		try (Session session = repository.getSession()) {
 			final Query query = cursor.getHqlQuery() != null
 								? session.createQuery(cursor.getHqlQuery())
@@ -191,7 +207,7 @@ public class ValueObjectServiceImpl
 		Assert.notNull(object, "object is null");
 		
 		final List<FileObject> fileObjects = new ArrayList<>();
-		final Entity entity = entityService.getObject(object.getEntityId());
+		final Entity entity = repository.getEntity(object);
 		collectFileObjects(object, entity, fileObjects);
 		if (entity.hasAllNesteds()) {
 			for (NestedEntity nested : entity.getAllNesteds()) {
@@ -337,6 +353,7 @@ public class ValueObjectServiceImpl
 	public void saveObject(ValueObject object) throws ValidationException {
 		validator.validateSave(object);
 		repository.save(object);
+		fullTextSearch.index(object);
 	}
 	
 	@Override
@@ -352,6 +369,7 @@ public class ValueObjectServiceImpl
 					deletedFiles.forEach(file -> session.delete(file));
 				}
 				tx.commit();
+				fullTextSearch.index(object);
 			}
 			catch (Exception ex) {
 				if (tx != null) {
@@ -367,6 +385,7 @@ public class ValueObjectServiceImpl
 			throws ValidationException {
 		validator.validateSave(object);
 		repository.save(object, session, functionContext);
+		fullTextSearch.index(object);
 	}
 	
 	@Override
@@ -448,7 +467,7 @@ public class ValueObjectServiceImpl
 	@Override
 	public List<? extends Entity> findUsage(ValueObject object) {
 		final List<Entity> result = new ArrayList<>();
-		final Entity entity = entityService.getObject(object.getEntityId());
+		final Entity entity = repository.getEntity(object);
 		for (Entity otherEntity : entityService.findAllObjects()) {
 			if (otherEntity.isGeneric() || entity.equals(otherEntity)) {
 				continue;
@@ -460,6 +479,24 @@ public class ValueObjectServiceImpl
 					break;
 				}
 			}
+		}
+		return result;
+	}
+	
+	private List<ValueObject> loadFullTextChunk(Cursor cursor) {
+		final List<Tupel<Long, Long>> fullTextResult = cursor.getFullTextResult();
+		final List<ValueObject> result = new ArrayList<>(CHUNK_SIZE);
+		final int startIdx = cursor.getStartIndex();
+		
+		Entity entity = null;
+		for (int i = startIdx; i < Math.min(startIdx + CHUNK_SIZE, fullTextResult.size()); i++) {
+			final Tupel<Long, Long> fullTextResultRecord = fullTextResult.get(i);
+			if (entity == null || !entity.getId().equals(fullTextResultRecord.x)) {
+				entity = repository.getEntity(fullTextResultRecord.x);
+			}
+			final ValueObject object = repository.get(entity, fullTextResultRecord.y);
+			Assert.state(object != null, "value object is not available. id:" + fullTextResultRecord.y);
+			result.add(object);
 		}
 		return result;
 	}
@@ -480,7 +517,7 @@ public class ValueObjectServiceImpl
 	private void setFileObjects(ValueObject object, boolean createObject) {
 		Assert.notNull(object, "object is null");
 		
-		final Entity entity = entityService.getObject(object.getEntityId());
+		final Entity entity = repository.getEntity(object);
 		setFileFields(object, entity, createObject);
 		if (entity.hasAllNesteds()) {
 			for (NestedEntity nested : entity.getAllNesteds()) {

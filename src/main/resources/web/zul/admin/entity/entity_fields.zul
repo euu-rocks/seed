@@ -226,6 +226,11 @@
 	        				  onCheck="@command('flagDirty')"/>
 	        		<label value="${labels.label.index}"/>
 	       		</hlayout>
+	       		<hlayout visible="@load(vm.fullTextSearchAvailable and (vm.field.type.isText() or vm.field.type.isTextLong()))">
+	        		<checkbox checked="@bind(vm.field.fullTextSearch)" 
+	        				  onCheck="@command('flagDirty')"/>
+	        		<label value="${labels.label.fulltextsearch}"/>
+	       		</hlayout>
 	       		<hlayout visible="@load(!(vm.field.type.isAutonum() or vm.field.type.isReference() or vm.field.type.isFile() or vm.field.mandatory or vm.field.unique or vm.field.indexed))">
 	        		<checkbox checked="@bind(vm.field.calculated)" 
 	        				  onCheck="@command('flagDirty')"

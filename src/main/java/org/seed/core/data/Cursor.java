@@ -17,11 +17,17 @@
  */
 package org.seed.core.data;
 
+import java.util.List;
+
 import javax.persistence.criteria.CriteriaQuery;
+
+import org.seed.core.util.Tupel;
 
 import org.springframework.util.Assert;
 
 public final class Cursor {
+	
+	private final List<Tupel<Long,Long>> fullTextResult;
 	
 	private final CriteriaQuery<?> query;
 	
@@ -33,11 +39,23 @@ public final class Cursor {
 	
 	private int startIndex;
 	
+	public Cursor(List<Tupel<Long, Long>> fullTextResult, int totalCount, int chunkSize) {
+		Assert.notNull(fullTextResult, "fullTextResult is null");
+		Assert.state(chunkSize > 0, "illegal chunk size " + chunkSize);
+		
+		this.query = null;
+		this.hqlQuery = null;
+		this.fullTextResult = fullTextResult;
+		this.totalCount = totalCount;
+		this.chunkSize = chunkSize;
+	}
+
 	public Cursor(String hqlQuery, int totalCount, int chunkSize) {
 		Assert.notNull(hqlQuery, "hqlQuery is null");
 		Assert.state(chunkSize > 0, "illegal chunk size " + chunkSize);
 		
 		this.query = null;
+		this.fullTextResult = null;
 		this.hqlQuery = hqlQuery;
 		this.totalCount = totalCount;
 		this.chunkSize = chunkSize;
@@ -48,9 +66,14 @@ public final class Cursor {
 		Assert.state(chunkSize > 0, "illegal chunk size " + chunkSize);
 		
 		this.hqlQuery = null;
+		this.fullTextResult = null;
 		this.query = query;
 		this.totalCount = totalCount;
 		this.chunkSize = chunkSize;
+	}
+
+	public List<Tupel<Long, Long>> getFullTextResult() {
+		return fullTextResult;
 	}
 
 	public CriteriaQuery<?> getQuery() {

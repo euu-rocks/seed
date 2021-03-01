@@ -87,12 +87,6 @@ public class ValueObjectRepository {
 	@Autowired
 	private CodeManager codeManager;
 	
-	public Entity getEntity(ValueObject object) {
-		Assert.notNull(object, "object is null");
-		
-		return entityRepository.get(object.getEntityId());
-	}
-	
 	public ValueObject get(Entity entity, Long id) {
 		Assert.notNull(entity, "entity is null");
 		Assert.state(!entity.isGeneric(), "entity is generic");
@@ -520,8 +514,7 @@ public class ValueObjectRepository {
 		Assert.state(!(session == null && functionContext == null), "no session or functionContext provided");
 		Assert.state(!(session != null && functionContext != null), "only session or functionContext allowed");
 		
-		final Entity entity = getEntity(object);
-		final EntityStatusTransition statusTransition = entity.getStatusTransition(object.getEntityStatus(), targetStatus);
+		final EntityStatusTransition statusTransition = getEntity(object).getStatusTransition(object.getEntityStatus(), targetStatus);
 		if (statusTransition != null) {
 			// fire before-event
 			fireEvent(ValueObjectEventType.BEFORETRANSITION, object, statusTransition, session, functionContext);
@@ -548,6 +541,20 @@ public class ValueObjectRepository {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected <T> T querySingleResult(Session session, CriteriaQuery query) {
 		return (T) session.createQuery(query).getSingleResult();
+	}
+	
+	Entity getEntity(ValueObject object) {
+		Assert.notNull(object, "object is null");
+		
+		return getEntity(object.getEntityId());
+	}
+	
+	Entity getEntity(Long entityId) {
+		Assert.notNull(entityId, "entityId is null");
+		
+		final Entity entity = entityRepository.get(entityId);
+		Assert.state(entity != null, "entity not available id:" + entityId);
+		return entity;
 	}
 	
 	private Class<?> getEntityClass(Entity entity) {

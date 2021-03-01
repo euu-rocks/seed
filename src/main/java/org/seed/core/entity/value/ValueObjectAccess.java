@@ -50,6 +50,17 @@ public class ValueObjectAccess extends ObjectAccess {
 		callSetter(object, field.getInternalName(), value);
 	}
 	
+	public Object getReferenceValue(ValueObject object, EntityField referenceField) {
+		Assert.notNull(object, "object is null");
+		Assert.notNull(referenceField, "referenceField is null");
+		Assert.state(referenceField.getType().isReference(), "field is not a reference field");
+		
+		final ValueObject refrenceObject = (ValueObject) getValue(object, referenceField); 
+		return refrenceObject != null 
+				? getValue(refrenceObject, referenceField.getReferenceEntityField())
+				: null;
+	}
+	
 	public boolean hasNestedObjects(ValueObject object, NestedEntity nested) {
 		return !ObjectUtils.isEmpty(getNestedObjects(object, nested));
 	}

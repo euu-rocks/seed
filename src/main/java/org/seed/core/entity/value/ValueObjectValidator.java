@@ -65,7 +65,7 @@ public class ValueObjectValidator {
 						errors.add(new ValidationError("val.empty.statusfield", constraint.getField().getName()));
 					}
 					else if (constraint.getFieldGroup() != null) {
-						for (EntityField groupField : entity.getGroupFields(constraint.getFieldGroup())) {
+						for (EntityField groupField : entity.getAllFieldsByGroup(constraint.getFieldGroup())) {
 							if (isEmpty(objectAccess.getValue(object, groupField))) {
 								errors.add(new ValidationError("val.empty.statusfield", groupField.getName()));
 							}

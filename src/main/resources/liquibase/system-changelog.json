@@ -1079,6 +1079,15 @@
                        },
                        {
                            "column": {
+                              "name": "isfulltextsearch",
+                              "type": "BOOLEAN",
+                              "constraints": {
+                                  "nullable": "false"
+                              }
+                           }
+                       },
+                       {
+                           "column": {
                               "name": "name",
                               "type": "VARCHAR(<#IDENT_LEN#>)",
                               "constraints": {

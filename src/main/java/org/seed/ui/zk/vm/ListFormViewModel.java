@@ -50,6 +50,10 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	
 	private Sort sort;
 	
+	private String fullTextSearchTerm;
+	
+	private String fullTextQuery;
+	
 	private int version;
 	
 	@Init
@@ -59,11 +63,28 @@ public class ListFormViewModel extends AbstractFormViewModel {
 		editAction = getForm().getActionByType(FormActionType.DETAIL);
 	}
 	
+	public boolean isFullTextSearchAvailable() {
+		return super.isFullTextSearchAvailable() &&
+				getForm().getEntity().hasFullTextSearchFields();
+	}
+	
+	public String getFullTextSearchTerm() {
+		return fullTextSearchTerm;
+	}
+
+	public void setFullTextSearchTerm(String fullTextSearchTerm) {
+		this.fullTextSearchTerm = fullTextSearchTerm;
+	}
+
 	public ListModel<ValueObject> getListModel() {
 		final SearchParameter searchParam = getSessionObject("searchParameter");
 		Cursor cursor;
 		if (isResultList()) {
 			cursor = valueObjectService().createCursor(searchParam.searchObject, searchParam.mapOperators);
+		}
+		else if (fullTextQuery != null) {
+			cursor = valueObjectService().createFullTextSearchCursor(getForm().getEntity(), fullTextQuery);
+			fullTextQuery = null;
 		}
 		else {
 			if (sort != null) {
@@ -123,6 +144,12 @@ public class ListFormViewModel extends AbstractFormViewModel {
 		if (getForm().getEntity().hasStatus()) {
 			setStatus(getObject().getEntityStatus());
 		}
+	}
+	
+	@Command
+	@NotifyChange("listModel")
+	public void searchFullText() {
+		fullTextQuery = fullTextSearchTerm;
 	}
 	
 	@Command

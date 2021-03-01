@@ -51,6 +51,8 @@ public interface ValueObjectService {
 	
 	Cursor createCursor(ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sort);
 	
+	Cursor createFullTextSearchCursor(Entity entity, String fullTextQueryString);
+	
 	List<ValueObject> loadChunk(Cursor cursor);
 	
 	boolean notifyChange(ValueObject object);

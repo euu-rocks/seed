@@ -91,6 +91,8 @@ public class EntityField extends AbstractOrderedSystemObject
 	
 	private boolean isUnique;
 	
+	private boolean isFullTextSearch;
+	
 	@Transient
 	private String fieldGroupUid;
 	
@@ -290,6 +292,15 @@ public class EntityField extends AbstractOrderedSystemObject
 		this.isUnique = isUnique;
 	}
 	
+	@XmlAttribute
+	public boolean isFullTextSearch() {
+		return isFullTextSearch;
+	}
+
+	public void setFullTextSearch(boolean isFullTextSearch) {
+		this.isFullTextSearch = isFullTextSearch;
+	}
+
 	@XmlTransient
 	public String getDefaultString() {
 		return defaultString;
@@ -326,6 +337,10 @@ public class EntityField extends AbstractOrderedSystemObject
 		this.defaultObject = defaultObject;
 	}
 	
+	public boolean isTextField() {
+		return type.isText() || type.isTextLong();
+	}
+	
 	@Override
 	public boolean isEqual(Object other) {
 		if (other == null || !EntityField.class.isAssignableFrom(other.getClass())) {
@@ -350,6 +365,7 @@ public class EntityField extends AbstractOrderedSystemObject
 			.append(isMandatory, otherField.isMandatory)
 			.append(isIndexed, otherField.isIndexed)
 			.append(isUnique, otherField.isUnique)
+			.append(isFullTextSearch, otherField.isFullTextSearch)
 			.isEquals();
 	}
 	

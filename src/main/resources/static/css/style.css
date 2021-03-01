@@ -76,6 +76,10 @@ body {
     padding: 1px 2px;
 }
 
+.z-hbox-separator {
+    display: none
+}
+
 .alpha-icon-lg {
 	font-size: 1.15em
 }

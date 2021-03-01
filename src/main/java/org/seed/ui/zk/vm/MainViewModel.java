@@ -319,7 +319,7 @@ public class MainViewModel extends AbstractApplicationViewModel {
 			else if (REDIRECT_LOGOUT.equals(selectedNode.viewName)) {
 				confirm("question.logout", null, REDIRECT_LOGOUT);
 			}
-			else {
+			else if (selectedNode.viewName != null) {
 				FormParameter param = null;
 				if (selectedNode.formId != null) {
 					final Form form = formService.getObject(selectedNode.formId);

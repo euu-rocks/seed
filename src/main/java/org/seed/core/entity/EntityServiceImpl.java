@@ -979,6 +979,10 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				if (!field.getType().isText()) {
 					field.setLength(null);
 				}
+				// only text fields can be fulltext indexed
+				if (!(field.isTextField())) {
+					field.setFullTextSearch(false);
+				}
 				// only reference fields can have reference entity or field
 				if (!field.getType().isReference()) {
 					field.setReferenceEntity(null);

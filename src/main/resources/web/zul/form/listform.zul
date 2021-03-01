@@ -20,64 +20,81 @@
 <!DOCTYPE xml>
 <borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.ListFormViewModel')">
 	<north border="0">
-		<toolbar children="@init(vm.listActions)
-						   @template(empty each.type.listTemplate ? 'default' : each.type.listTemplate)" 
-				 vflex="1">
-			<template name="default" var="action">
-				<toolbarbutton label="@init(vm.getActionLabel(action))"
-							   enable="@init(vm.isActionEnabled(action))"
-						   	   onClick="@command('callAction',action=action,elem=self)"
-						   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"/>
-			</template>
-			<template name="select" var="action">
-				<toolbarbutton label="@init(vm.getActionLabel(action))"
-							   enable="@init(vm.isActionEnabled(action))"
-						   	   onClick="@command('callAction',action=action,elem=self)"
-						   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
-						   	   visible="@load(!empty vm.object)"/>
-			</template>
-			<template name="search" var="action">
-				<toolbarbutton label="@init(vm.getActionLabel(action))"
-							   enable="@init(vm.isActionEnabled(action))"
-						   	   onClick="@command('callAction',action=action,elem=self)"
-						   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
-						   	   visible="@load(vm.resultList)"/>
-			</template>
-			<template name="print" var="action">
-				<toolbarbutton label="@init(vm.getActionLabel(action))"
-							   enable="@init(vm.isActionEnabled(action))"
-						   	   onClick="@command('callAction',action=action,elem=self)"
-						   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
-						   	   visible="@load(vm.form.hasPrintouts() and !empty vm.object)"/>
-			</template>
-			<template name="status" var="action">
-				<combobox visible="@load(!empty vm.object and vm.hasStatus())"
-						  model="@load(vm.availableStatusList)"
-						  selectedItem="@bind(vm.status)"
-						  onSelect="@command('changeStatus',action=action,elem=self)"
-						  value="@load(vm.status.numberAndName)"
-						  style="padding-left:10px"
-						  nullable="false" readonly="true">
-					<template name="model" var="status">
-	                    <comboitem label="@init(status.numberAndName)"/>
-	                </template>
-				</combobox>
-			</template>
-			<template name="transform" var="action">
-				<combobox visible="@load(!empty vm.object and !empty vm.transformers)"
-						  model="@load(vm.transformers)"
-						  selectedItem="@bind(vm.transformer)"
-						  onSelect="@command('callAction',action=action,elem=self)"
-						  value="@load(vm.transformer.name)"
-						  style="padding-left:10px"
-						  placeholder="${labels.label.transformobject}"
-						  nullable="false" readonly="true">
-					<template name="model" var="transformer">
-	                    <comboitem label="@load(transformer.name)"/>
-	                </template>
-				</combobox>
-			</template>
-		</toolbar>
+		<hbox hflex="1">
+			<toolbar children="@init(vm.listActions)
+							   @template(empty each.type.listTemplate ? 'default' : each.type.listTemplate)" 
+					 overflowPopup="false"
+					 align="start" hflex="2"
+					 vflex="1">
+				<template name="default" var="action">
+					<toolbarbutton label="@init(vm.getActionLabel(action))"
+								   enable="@init(vm.isActionEnabled(action))"
+							   	   onClick="@command('callAction',action=action,elem=self)"
+							   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"/>
+				</template>
+				<template name="select" var="action">
+					<toolbarbutton label="@init(vm.getActionLabel(action))"
+								   enable="@init(vm.isActionEnabled(action))"
+							   	   onClick="@command('callAction',action=action,elem=self)"
+							   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
+							   	   visible="@load(!empty vm.object)"/>
+				</template>
+				<template name="search" var="action">
+					<toolbarbutton label="@init(vm.getActionLabel(action))"
+								   enable="@init(vm.isActionEnabled(action))"
+							   	   onClick="@command('callAction',action=action,elem=self)"
+							   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
+							   	   visible="@load(vm.resultList)"/>
+				</template>
+				<template name="print" var="action">
+					<toolbarbutton label="@init(vm.getActionLabel(action))"
+								   enable="@init(vm.isActionEnabled(action))"
+							   	   onClick="@command('callAction',action=action,elem=self)"
+							   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
+							   	   visible="@load(vm.form.hasPrintouts() and !empty vm.object)"/>
+				</template>
+				<template name="status" var="action">
+					<combobox visible="@load(!empty vm.object and vm.hasStatus())"
+							  model="@load(vm.availableStatusList)"
+							  selectedItem="@bind(vm.status)"
+							  onSelect="@command('changeStatus',action=action,elem=self)"
+							  value="@load(vm.status.numberAndName)"
+							  style="padding-left:10px"
+							  nullable="false" readonly="true">
+						<template name="model" var="status">
+		                    <comboitem label="@init(status.numberAndName)"/>
+		                </template>
+					</combobox>
+				</template>
+				<template name="transform" var="action">
+					<combobox visible="@load(!empty vm.object and !empty vm.transformers)"
+							  model="@load(vm.transformers)"
+							  selectedItem="@bind(vm.transformer)"
+							  onSelect="@command('callAction',action=action,elem=self)"
+							  value="@load(vm.transformer.name)"
+							  style="padding-left:10px"
+							  placeholder="${labels.label.transformobject}"
+							  nullable="false" readonly="true">
+						<template name="model" var="transformer">
+		                    <comboitem label="@load(transformer.name)"/>
+		                </template>
+					</combobox>
+				</template>
+			</toolbar>
+			<toolbar visible="@init(vm.fullTextSearchAvailable)"
+					 overflowPopup="false"
+					 align="end" hflex="1">
+				<hbox hflex="1">
+					<textbox value="@bind(vm.fullTextSearchTerm)"
+							 placeholder="${labels.label.fulltextsearch}"
+							 instant="true" cols="32"/>
+					<toolbarbutton onClick="@command('searchFullText')"
+								   disabled="@load(empty vm.fullTextSearchTerm)"
+								   tooltiptext="${labels.label.fulltextsearch}"
+								   iconSclass="z-icon-search"/>
+				</hbox>
+			</toolbar>
+		</hbox>
 	</north>
 	<center border="0">
 		<include src="@load(vm.layoutInclude)"/>

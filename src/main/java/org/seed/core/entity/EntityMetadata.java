@@ -58,10 +58,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public class EntityMetadata extends AbstractApplicationEntity 
 	implements Entity {
 	
-	private boolean isGeneric;
-	
-	private String tableName;
-	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "generic_entity_id")
 	@JsonSerialize(using = ReferenceJsonSerializer.class)
@@ -127,6 +123,10 @@ public class EntityMetadata extends AbstractApplicationEntity
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private List<EntityFieldConstraint> fieldConstraints;
 	
+	private String tableName;
+	
+	private boolean isGeneric;
+	
 	@Override
 	@XmlAttribute
 	public boolean isGeneric() {
@@ -156,7 +156,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	public void setTableName(String tableName) {
 		this.tableName = tableName;
 	}
-
+	
 	@Override
 	public Date getLastModified() {
 		Date lastModified = super.getLastModified();
@@ -203,18 +203,31 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	// includes generic fields
 	@Override
-	public List<EntityField> getGroupFields(EntityFieldGroup fieldGroup) {
+	public List<EntityField> getAllFieldsByGroup(EntityFieldGroup fieldGroup) {
 		Assert.notNull(fieldGroup, "fieldGroup is null");
 		
-		final List<EntityField> result = new ArrayList<>();
-		if (hasAllFields()) {
-			for (EntityField field : getAllFields()) {
-				if (fieldGroup.equals(field.getFieldGroup())) {
-					result.add(field);
-				}
-			}
-		}
-		return result;
+		return subList(getAllFields(), f -> fieldGroup.equals(f.getFieldGroup()));
+	}
+	
+	@Override
+	public List<EntityField> getAllFieldsByType(FieldType fieldType) {
+		Assert.notNull(fieldType, "fieldType is null");
+		
+		return subList(getAllFields(), f -> f.getType() == fieldType);
+	}
+	
+	// get fields that reference to given entity
+	@Override
+	public List<EntityField> getReferenceFields(Entity entity) {
+		Assert.notNull(entity, "nested is null");
+		
+		return subList(getAllFields(), f -> f.getType().isReference() && 
+											f.getReferenceEntity().equals(entity));
+	}
+	
+	@Override
+	public List<EntityField> getFullTextSearchFields() {
+		return subList(getAllFields(), f -> f.isFullTextSearch());
 	}
 	
 	// includes generic fieldgroups
@@ -342,6 +355,25 @@ public class EntityMetadata extends AbstractApplicationEntity
 			return true;
 		}
 		return hasFields();
+	}
+	
+	@Override
+	public boolean hasFullTextSearchFields() {
+		if (hasAllFields()) {
+			for (EntityField field : getAllFields()) {
+				if (field.isFullTextSearch()) {
+					return true;
+				}
+			}
+		}
+		if (hasAllNesteds()) {
+			for (NestedEntity nested : getAllNesteds()) {
+				if (nested.getNestedEntity().hasFullTextSearchFields()) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	@Override
@@ -908,38 +940,6 @@ public class EntityMetadata extends AbstractApplicationEntity
 				initUids(transition.getPermissions());
 			}
 		}
-	}
-	
-	// get fields that reference to given entity
-	@Override
-	public List<EntityField> getReferenceFields(Entity entity) {
-		Assert.notNull(entity, "nested is null");
-		
-		final List<EntityField> result = new ArrayList<>();
-		if (hasFields()) {
-			for (EntityField field : getFields()) {
-				if (field.getType().isReference() &&
-					field.getReferenceEntity().equals(entity)) {
-					result.add(field);
-				}
-			}
-		}
-		return result;
-	}
-	
-	@Override
-	public List<EntityField> getAllFieldsByType(FieldType fieldType) {
-		Assert.notNull(fieldType, "fieldType is null");
-		
-		final List<EntityField> result = new ArrayList<>();
-		if (hasAllFields()) {
-			for (EntityField field : getAllFields()) {
-				if (field.getType() == fieldType) {
-					result.add(field);
-				}
-			}
-		}
-		return result;
 	}
 	
 	@Override

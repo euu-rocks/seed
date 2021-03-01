@@ -709,7 +709,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 				for (EntityFieldGroup fieldGroup : fieldGroups) {
 					elemMainGrid.getGridCell(col, row)
 								.setValign("top")
-								.addChild(buildFieldGrid(entity.getGroupFields(fieldGroup), fieldGroup.getName()));
+								.addChild(buildFieldGrid(entity.getAllFieldsByGroup(fieldGroup), fieldGroup.getName()));
 					if (++col > 1) {
 						col = 0;
 						row++;

@@ -70,7 +70,7 @@ public class DynamicConfiguration
 	
 	private SessionFactory sessionFactory;	// current sesssion factory
 	
-	private ClassLoader classLoader; 		// current CompilerClassLoader
+	private ClassLoader classLoader;		// current CompilerClassLoader
 	
 	private Dialect dialect;
 	
@@ -194,6 +194,7 @@ public class DynamicConfiguration
 		scanner.addIncludeFilter(new AnnotationTypeFilter(Entity.class));
 		for (BeanDefinition beanDef : scanner.findCandidateComponents("org.seed.core")) {
 			try {
+				log.debug("Register " + beanDef.getBeanClassName());
 				sources.addAnnotatedClass(Class.forName(beanDef.getBeanClassName()));
 			} 
 			catch (Exception ex) {
@@ -208,8 +209,8 @@ public class DynamicConfiguration
 			for (Class<GeneratedCode> entityClass : codeManager.getGeneratedClasses(ValueEntity.class)) {
 				Assert.state(!Modifier.isAbstract(entityClass.getModifiers()), entityClass.getName() + " is abstract");
 				
+				log.debug("Register " + entityClass.getName());
 				metadataSources.addAnnotatedClass(entityClass);
-				log.info("Register " + entityClass.getName());
 			}
 			log.info("Generated entities registered");
 		}
@@ -237,7 +238,7 @@ public class DynamicConfiguration
 	}
 	
 	private Map<String, Object> createSettings(boolean boot) {
-		final Map<String, Object> settings = new HashMap<String, Object>();
+		final Map<String, Object> settings = new HashMap<>();
 		
 		// misc settings
 		settings.put("hibernate.enable_lazy_load_no_trans", "true");

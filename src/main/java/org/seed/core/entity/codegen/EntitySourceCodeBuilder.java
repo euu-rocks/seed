@@ -110,9 +110,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder<Entity> {
 		
 		// status field
 		if (entity.hasStatus()) {
-			addMember("entityStatus", newTypeClass(EntityStatus.class), 
-					  newAnnotation(JoinColumn.class, "name", quote("status_id")),
-					  newAnnotation(ManyToOne.class, "fetch", FetchType.LAZY));
+			buildStatusField();
 		}
 		
 		// fields
@@ -125,9 +123,8 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder<Entity> {
 			buildNesteds();
 		}
 		
-		// getEntityId
-		addMethod(newTypeClass(Long.class), "getEntityId", null, 
-				  "return " + (entity.isNew() ? -1 : entity.getId()) + "L;" + LF);
+		// entityId
+		buildEntityIdGetter();
 		
 		// getters / setters
 		if (entity.hasStatus()) {
@@ -193,6 +190,17 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder<Entity> {
 				}
 			}
 		}
+	}
+	
+	private void buildStatusField() {
+		addMember("entityStatus", newTypeClass(EntityStatus.class), 
+				  newAnnotation(JoinColumn.class, "name", quote("status_id")),
+				  newAnnotation(ManyToOne.class, "fetch", FetchType.LAZY));
+	}
+	
+	private void buildEntityIdGetter() {
+		addMethod(newTypeClass(Long.class), "getEntityId", null, 
+				  "return " + (entity.isNew() ? -1 : entity.getId()) + "L;" + LF);
 	}
 	
 	private void buildFields() {

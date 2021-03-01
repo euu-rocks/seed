@@ -17,6 +17,8 @@
  */
 package org.seed.ui.zk.vm;
 
+import org.seed.core.config.FullTextSearchProvider;
+import org.seed.core.config.Limits;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.form.Form;
@@ -63,7 +65,17 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	@WireVariable(value="userServiceImpl")
 	protected UserService userService;
 	
+	@WireVariable(value="fullTextSearchProvider")
+	protected FullTextSearchProvider fullTextSearch;
+	
+	@WireVariable(value="limits")
+	private Limits limits;
+	
 	private boolean dirty;
+	
+	public final int getLimit(String limitName) {
+		return limits.getLimit(limitName);
+	}
 	
 	public final StringConverter getStringConverter() {
 		return STRING_CONVERTER;
@@ -83,6 +95,10 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	
 	public final FileIconConverter getFileIconConverter() {
 		return FILEICON_CONVERTER;
+	}
+	
+	public boolean isFullTextSearchAvailable() {
+		return fullTextSearch.isFullTextSearchAvailable();
 	}
 	
 	public final boolean isDirty() {
