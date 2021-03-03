@@ -277,23 +277,6 @@ public class ValueObjectRepository {
 		session.refresh(object);
 	}
 	
-	public void delete(ValueObject object) {
-		try (Session session = getSession()) {
-			Transaction tx = null;
-			try {
-				tx = session.beginTransaction();
-				delete(object, session, null);
-				tx.commit();
-			}
-			catch (Exception ex) {
-				if (tx != null) {
-					tx.rollback();
-				}
-				throw ex;
-			}
-		}
-	}
-	
 	public void delete(ValueObject object, Session session, ValueObjectFunctionContext functionContext) {
 		Assert.notNull(object, "object is null");
 		Assert.state(!(session == null && functionContext == null), "no session or functionContext provided");
@@ -316,23 +299,6 @@ public class ValueObjectRepository {
 		
 		// fire after-event
 		fireEvent(ValueObjectEventType.AFTERDELETE, object, session, functionContext);
-	}
-	
-	public void save(ValueObject object) {
-		try (Session session = getSession()) {
-			Transaction tx = null;
-			try {
-				tx = session.beginTransaction();
-				save(object, session, null);
-				tx.commit();
-			}
-			catch (Exception ex) {
-				if (tx != null) {
-					tx.rollback();
-				}
-				throw ex;
-			}
-		}
 	}
 	
 	public void save(ValueObject object, Session session, ValueObjectFunctionContext functionContext) {

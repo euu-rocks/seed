@@ -86,10 +86,13 @@ public class ValueObjectValidator {
 	public void validateDelete(ValueObject object) throws ValidationException {
 		Assert.notNull(object, "object is null");
 		
+		final Entity objectEntity = entityRepository.get(object.getEntityId());
 		final Set<ValidationError> errors = new LinkedHashSet<>();
 		for (ValueObjectDependent dependent : valueObjectDependents) {
 			for (Entity entity : dependent.findUsage(object)) {
-				errors.add(new ValidationError("val.inuse.valueobject", entity.getName()));
+				if (!objectEntity.isNestedEntity(entity)) {
+					errors.add(new ValidationError("val.inuse.valueobject", entity.getName()));
+				}
 			}
 		}
 		if (!errors.isEmpty()) {

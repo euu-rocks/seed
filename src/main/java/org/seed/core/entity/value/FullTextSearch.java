@@ -25,9 +25,11 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
+import org.hibernate.Session;
 
 import org.seed.core.config.FullTextSearchProvider;
 import org.seed.core.entity.Entity;
+import org.seed.core.entity.EntityChangeAware;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.util.Tupel;
@@ -40,7 +42,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 @Component
-public class FullTextSearch {
+public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware {
 	
 	private final static Logger log = LoggerFactory.getLogger(FullTextSearch.class);
 	
@@ -56,6 +58,41 @@ public class FullTextSearch {
 	
 	@Autowired
 	private ValueObjectAccess objectAccess;
+	
+	@Override
+	public void notifyCreate(ValueObject object, Session session) {
+		if (provider.isFullTextSearchAvailable()) {
+			index(object);
+		}
+	}
+
+	@Override
+	public void notifyChange(ValueObject object, Session session) {
+		if (provider.isFullTextSearchAvailable()) {
+			index(object);
+		}
+	}
+
+	@Override
+	public void notifyDelete(ValueObject object, Session session) {
+		if (provider.isFullTextSearchAvailable()) {
+			delete(object);
+		}
+	}
+	
+	public void notifyCreate(Entity object, Session session) {
+		// do nothing
+	}
+	
+	public void notifyChange(Entity object, Session session) {
+		// do nothing
+	}
+	
+	public void notifyDelete(Entity entity, Session session) {
+		if (provider.isFullTextSearchAvailable()) {
+			delete(entity);
+		}
+	}
 	
 	// tupel.x = entityId
 	// tupel.y = valueObjectId
@@ -82,17 +119,58 @@ public class FullTextSearch {
 		}
 	}
 	
-	void index(ValueObject object) {
+	private void index(ValueObject object) {
 		Assert.notNull(object, "object is null");
 		
-		if (!provider.isFullTextSearchAvailable()) {
-			return;
-		}
 		final Entity entity = repository.getEntity(object);
-		if (!entity.hasFullTextSearchFields()) {
-			return;
+		if (entity.hasFullTextSearchFields()) {
+			final SolrClient solrClient = provider.getSolrClient();
+			final SolrInputDocument solrDocument = buildDocument(entity, object);
+			try {
+				solrClient.add(solrDocument);
+				solrClient.commit();
+			} 
+			catch (Exception e) {
+				// only warn
+				log.warn("Error while full-text indexing", e);
+			}
 		}
-		final SolrClient solrClient = provider.getSolrClient();
+	}
+	
+	private void delete(ValueObject object) {
+		Assert.notNull(object, "object is null");
+		
+		final Entity entity = repository.getEntity(object);
+		if (entity.hasFullTextSearchFields()) {
+			final SolrClient solrClient = provider.getSolrClient();
+			try {
+				solrClient.deleteById(String.valueOf(object.getId()));
+				solrClient.commit();
+			} 
+			catch (Exception e) {
+				// only warn
+				log.warn("Error while deleting from full-text index", e);
+			}
+		}
+	}
+	
+	private void delete(Entity entity) {
+		Assert.notNull(entity, "entity is null");
+		
+		if (entity.hasFullTextSearchFields()) {
+			final SolrClient solrClient = provider.getSolrClient();
+			try {
+				solrClient.deleteByQuery(FIELD_ENTITY_ID + ':' + entity.getId());
+				solrClient.commit();
+			} 
+			catch (Exception e) {
+				// only warn
+				log.warn("Error while deleting from full-text index", e);
+			}
+		}
+	}
+	
+	private SolrInputDocument buildDocument(Entity entity, ValueObject object) {
 		final SolrInputDocument solrDoc = new SolrInputDocument();
 		// system fields
 		solrDoc.addField(FIELD_ID, object.getId());
@@ -130,20 +208,19 @@ public class FullTextSearch {
 				solrDoc.addField(nested.getName(), buf.toString());
 			}
 		}
-		// add to solr
-		try {
-			solrClient.add(solrDoc);
-			solrClient.commit();
-		} 
-		catch (Exception e) {
-			log.warn("Error while full-text indexing", e);
-		}
+		return solrDoc;
 	}
 	
 	private static String buildQuery(Entity entity, String queryString) {
 		final StringBuilder buf = new StringBuilder();
+		buf.append(FIELD_ENTITY_ID).append(':').append(entity.getId())
+		   .append(" AND (");
+		boolean first = true;
 		for (EntityField field : entity.getFullTextSearchFields()) {
-			if (buf.length() > 0) {
+			if (first) {
+				first = false;
+			}
+			else {
 				buf.append(" OR ");
 			}
 			buf.append(field.getInternalName()).append(':').append(queryString);
@@ -151,14 +228,17 @@ public class FullTextSearch {
 		if (entity.hasAllNesteds()) {
 			for (NestedEntity nested : entity.getAllNesteds()) {
 				if (nested.getNestedEntity().hasFullTextSearchFields()) {
-					if (buf.length() > 0) {
+					if (first) {
+						first = false;
+					}
+					else {
 						buf.append(" OR ");
 					}
 					buf.append(nested.getName()).append(':').append(queryString);
 				}
 			}
 		}
-		return buf.toString();
+		return buf.append(')').toString();
 	}
 
 }

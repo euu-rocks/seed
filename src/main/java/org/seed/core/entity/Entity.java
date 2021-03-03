@@ -107,6 +107,8 @@ public interface Entity
 	
 	NestedEntity getNestedByEntityField(EntityField field);
 	
+	boolean isNestedEntity(Entity entity);
+	
 	void addNested(NestedEntity nested);
 	
 	void removeNested(NestedEntity nested);

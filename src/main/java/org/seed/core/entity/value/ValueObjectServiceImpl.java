@@ -89,6 +89,9 @@ public class ValueObjectServiceImpl
 	private ValueObjectValidator validator;
 	
 	@Autowired
+	private List<ValueObjectChangeAware> changeAwareObjects;
+	
+	@Autowired
 	private FullTextSearch fullTextSearch;
 	
 	@Override
@@ -337,39 +340,55 @@ public class ValueObjectServiceImpl
 	
 	@Override
 	public void deleteObject(ValueObject object) throws ValidationException {
-		validator.validateDelete(object);
-		clearEmptyFileObjects(object);
-		repository.delete(object);
-	}
-	
-	@Override
-	public void deleteObject(ValueObject object, Session session, ValueObjectFunctionContext functionContext) 
-			throws ValidationException {
-		validator.validateDelete(object);
-		repository.delete(object, session, functionContext);
-	}
-
-	@Override
-	public void saveObject(ValueObject object) throws ValidationException {
-		validator.validateSave(object);
-		repository.save(object);
-		fullTextSearch.index(object);
-	}
-	
-	@Override
-	public void saveObject(ValueObject object, List<FileObject> deletedFiles) throws ValidationException {
-		validator.validateSave(object);
 		clearEmptyFileObjects(object);
 		try (Session session = repository.getSession()) {
 			Transaction tx = null;
 			try {
 				tx = session.beginTransaction();
-				repository.save(object, session, null);
+				deleteObject(object, session, null);
+				tx.commit();
+			}
+			catch (Exception ex) {
+				if (tx != null) {
+					tx.rollback();
+				}
+				throw ex;
+			}
+		}
+	}
+	
+	@Override
+	public void deleteObject(ValueObject object, Session session, ValueObjectFunctionContext functionContext) 
+			throws ValidationException {
+		final Session _session = functionContext != null 
+				? functionContext.getSession() 
+				: session;
+		validator.validateDelete(object);
+		repository.delete(object, session, functionContext);
+		
+		for (ValueObjectChangeAware changeAware : changeAwareObjects) {
+			changeAware.notifyDelete(object, _session);
+		}
+	}
+	
+	@Override
+	public void saveObject(ValueObject object) throws ValidationException {
+		saveObject(object, null);
+	}
+	
+	@Override
+	public void saveObject(ValueObject object, List<FileObject> deletedFiles) throws ValidationException {
+		clearEmptyFileObjects(object);
+		try (Session session = repository.getSession()) {
+			Transaction tx = null;
+			try {
+				tx = session.beginTransaction();
+				saveObject(object, session, null);
+				
 				if (deletedFiles != null) {
 					deletedFiles.forEach(file -> session.delete(file));
 				}
 				tx.commit();
-				fullTextSearch.index(object);
 			}
 			catch (Exception ex) {
 				if (tx != null) {
@@ -383,9 +402,21 @@ public class ValueObjectServiceImpl
 	@Override
 	public void saveObject(ValueObject object, Session session, ValueObjectFunctionContext functionContext) 
 			throws ValidationException {
+		final boolean isInsert = object.isNew();
+		final Session _session = functionContext != null 
+									? functionContext.getSession() 
+									: session;
 		validator.validateSave(object);
 		repository.save(object, session, functionContext);
-		fullTextSearch.index(object);
+		
+		for (ValueObjectChangeAware changeAware : changeAwareObjects) {
+			if (isInsert) {
+				changeAware.notifyCreate(object, _session);
+			}
+			else {
+				changeAware.notifyChange(object, _session);
+			}
+		}
 	}
 	
 	@Override

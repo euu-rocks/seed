@@ -540,6 +540,20 @@ public class EntityMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
+	public boolean isNestedEntity(Entity entity) {
+		Assert.notNull(entity, "entity is null");
+		
+		if (hasAllNesteds()) {
+			for (NestedEntity nested : getAllNesteds()) {
+				if (nested.getNestedEntity().equals(entity)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	@Override
 	public boolean hasStatus() {
 		return !ObjectUtils.isEmpty(getStatusList());
 	}

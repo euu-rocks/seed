@@ -15,16 +15,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.data;
+package org.seed.core.entity.value;
 
 import org.hibernate.Session;
 
-public interface ChangeAware<T extends SystemEntity> {
+public interface ValueObjectChangeAware { 
 
-	void notifyCreate(T object, Session session);
+	void notifyCreate(ValueObject object, Session session);
 	
-	void notifyChange(T object, Session session);
+	void notifyChange(ValueObject object, Session session);
 	
-	void notifyDelete(T object, Session session);
+	void notifyDelete(ValueObject object, Session session);
 	
 }

@@ -17,6 +17,14 @@
  */
 package org.seed.core.application.setting;
 
-import org.seed.core.data.ChangeAware;
+import org.hibernate.Session;
 
-public interface SettingChangeAware extends ChangeAware<ApplicationSetting> { }
+public interface SettingChangeAware { 
+	
+	void notifyCreate(ApplicationSetting setting, Session session);
+	
+	void notifyChange(ApplicationSetting setting, Session session);
+	
+	void notifyDelete(ApplicationSetting setting, Session session);
+	
+}

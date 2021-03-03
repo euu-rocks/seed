@@ -714,7 +714,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		
 		final boolean isInsert = entity.isNew();
 		super.saveObject(entity, session);
-		
+		// notify listeners
 		for (EntityChangeAware changeAware : changeAwareObjects) {
 			if (isInsert) {
 				changeAware.notifyCreate(entity, session);
@@ -755,6 +755,18 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		}
 		
 		configuration.updateConfiguration();
+	}
+	
+	@Override
+	public void deleteObject(Entity entity, Session session) throws ValidationException {
+		Assert.notNull(entity, "entity is null");
+		Assert.notNull(session, "session is null");
+		
+		for (EntityChangeAware changeAware : changeAwareObjects) {
+			changeAware.notifyDelete(entity, session);
+		}
+		
+		super.deleteObject(entity, session);
 	}
 	
 	@Override

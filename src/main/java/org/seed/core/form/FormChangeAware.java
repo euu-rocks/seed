@@ -17,6 +17,14 @@
  */
 package org.seed.core.form;
 
-import org.seed.core.data.ChangeAware;
+import org.hibernate.Session;
 
-public interface FormChangeAware extends ChangeAware<Form> { }
+public interface FormChangeAware { 
+	
+	void notifyCreate(Form form, Session session);
+	
+	void notifyChange(Form form, Session session);
+	
+	void notifyDelete(Form form, Session session);
+	
+}

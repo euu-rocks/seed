@@ -17,6 +17,14 @@
  */
 package org.seed.core.entity;
 
-import org.seed.core.data.ChangeAware;
+import org.hibernate.Session;
 
-public interface EntityChangeAware extends ChangeAware<Entity> { }
+public interface EntityChangeAware {
+	
+	void notifyCreate(Entity entity, Session session);
+	
+	void notifyChange(Entity entity, Session session);
+	
+	void notifyDelete(Entity entity, Session session);
+	
+}

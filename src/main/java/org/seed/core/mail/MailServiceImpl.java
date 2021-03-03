@@ -82,7 +82,9 @@ public class MailServiceImpl implements MailService, SettingChangeAware {
 	}
 	
 	@Override
-	public void notifyCreate(ApplicationSetting setting, Session session) { }
+	public void notifyCreate(ApplicationSetting setting, Session session) { 
+		// do nothing
+	}
 	
 	@Override
 	public void notifyChange(ApplicationSetting setting, Session session) {
@@ -90,7 +92,9 @@ public class MailServiceImpl implements MailService, SettingChangeAware {
 	}
 	
 	@Override
-	public void notifyDelete(ApplicationSetting setting, Session session) { }
+	public void notifyDelete(ApplicationSetting setting, Session session) { 
+		// do nothing
+	}
 	
 	private JavaMailSender getMailSender() {
 		if (mailSender == null) {
