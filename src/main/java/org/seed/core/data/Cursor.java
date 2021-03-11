@@ -27,7 +27,7 @@ import org.springframework.util.Assert;
 
 public final class Cursor {
 	
-	private final List<Tupel<Long,Long>> fullTextResult;
+	private final List<Tupel<Long, Long>> fullTextResult;
 	
 	private final CriteriaQuery<?> query;
 	
@@ -39,14 +39,14 @@ public final class Cursor {
 	
 	private int startIndex;
 	
-	public Cursor(List<Tupel<Long, Long>> fullTextResult, int totalCount, int chunkSize) {
+	public Cursor(List<Tupel<Long, Long>> fullTextResult, int chunkSize) {
 		Assert.notNull(fullTextResult, "fullTextResult is null");
 		Assert.state(chunkSize > 0, "illegal chunk size " + chunkSize);
 		
 		this.query = null;
 		this.hqlQuery = null;
 		this.fullTextResult = fullTextResult;
-		this.totalCount = totalCount;
+		this.totalCount = fullTextResult.size();
 		this.chunkSize = chunkSize;
 	}
 
@@ -71,9 +71,16 @@ public final class Cursor {
 		this.totalCount = totalCount;
 		this.chunkSize = chunkSize;
 	}
-
-	public List<Tupel<Long, Long>> getFullTextResult() {
-		return fullTextResult;
+	
+	public boolean isFullTextSearch() {
+		return fullTextResult != null;
+	}
+	
+	public Tupel<Long, Long> getFullTextResult(int index) {
+		Assert.state(isFullTextSearch(), "not full-text search");
+		Assert.state(index >= 0 && index < fullTextResult.size(), "illegal full-text result index: " + index);
+		
+		return fullTextResult.get(index);
 	}
 
 	public CriteriaQuery<?> getQuery() {

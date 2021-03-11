@@ -17,6 +17,8 @@
  */
 package org.seed.ui;
 
+import org.seed.core.data.Cursor;
+
 import org.springframework.util.Assert;
 import org.zkoss.util.resource.Labels;
 
@@ -34,8 +36,16 @@ public class Tab {
 	
 	private Long objectId;
 	
+	private String fullTextSearchTerm;
+	
+	private Cursor fullTextSearchCursor;
+	
 	public Tab(String name, Object parameter) {
 		this(name, null, null, parameter);
+	}
+	
+	public Tab(String name, String path, String iconClass) {
+		this(name, path, iconClass, null);
 	}
 	
 	public Tab(String name, String path, String iconClass, Object parameter) {
@@ -90,6 +100,22 @@ public class Tab {
 
 	public void setObjectId(Long objectId) {
 		this.objectId = objectId;
+	}
+
+	public String getFullTextSearchTerm() {
+		return fullTextSearchTerm;
+	}
+
+	public void setFullTextSearchTerm(String fullTextSearchTerm) {
+		this.fullTextSearchTerm = fullTextSearchTerm;
+	}
+
+	public Cursor getFullTextSearchCursor() {
+		return fullTextSearchCursor;
+	}
+
+	public void setFullTextSearchCursor(Cursor fullTextSearchCursor) {
+		this.fullTextSearchCursor = fullTextSearchCursor;
 	}
 
 }

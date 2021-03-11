@@ -18,7 +18,6 @@
 package org.seed.core.codegen;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -84,13 +83,12 @@ public abstract class AbstractSourceCodeBuilder<T> implements SourceCodeBuilder<
 			addImport(classMetadata.superClass);
 		}
 		final List<TypeClass> importList = new ArrayList<>(imports);
-		Collections.sort(importList, TypeClass.COMPARATOR);
+		importList.sort(TypeClass.COMPARATOR);
 		importList.forEach(i -> buildImport(buildBuffer, i));
 		buildBuffer.append(LF);
 		
 		// class
 		buildClassDefinition(buildBuffer, isGenerated);
-		
 		// code
 		buildBuffer.append(codeBuffer).append('}').append(LF);
 		

@@ -20,19 +20,19 @@ package org.seed.ui.zk;
 import java.util.List;
 
 import org.seed.core.data.Cursor;
-import org.seed.core.entity.value.ValueObject;
+import org.seed.core.data.SystemObject;
 
 import org.springframework.util.Assert;
 import org.zkoss.zul.AbstractListModel;
 
 @SuppressWarnings("serial")
-public abstract class LoadOnDemandListModel extends AbstractListModel<ValueObject> {
+public abstract class LoadOnDemandListModel extends AbstractListModel<SystemObject> {
 	
 	private final Cursor cursor;
 	
 	private final boolean nullable;
 	
-	private List<ValueObject> chunk;
+	private List<? extends SystemObject> chunk;
 	
 	private int chunkIndex = -1;
 	
@@ -44,7 +44,7 @@ public abstract class LoadOnDemandListModel extends AbstractListModel<ValueObjec
 	}
 	
 	@Override
-	public ValueObject getElementAt(int index) {
+	public SystemObject getElementAt(int index) {
 		if (nullable) {
 			if (index == 0) {
 				return null;
@@ -65,6 +65,6 @@ public abstract class LoadOnDemandListModel extends AbstractListModel<ValueObjec
 		return cursor.getTotalCount() + (nullable ? 1 : 0);
 	}
 	
-	protected abstract List<ValueObject> loadChunk(Cursor cursor);
+	protected abstract List<? extends SystemObject> loadChunk(Cursor cursor);
 
 }

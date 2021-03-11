@@ -26,6 +26,7 @@ import java.util.Map;
 import javax.persistence.OptimisticLockException;
 
 import org.seed.core.data.FileObject;
+import org.seed.core.data.SystemObject;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.NestedEntity;
@@ -50,7 +51,7 @@ import org.zkoss.zul.ListModel;
 
 public class DetailFormViewModel extends AbstractFormViewModel {
 	
-	private final Map<MultiKey, ListModel<ValueObject>> listModelMap = Collections.synchronizedMap(new HashMap<>());
+	private final Map<MultiKey, ListModel<SystemObject>> listModelMap = Collections.synchronizedMap(new HashMap<>());
 	
 	private List<FileObject> fileObjects; // initial file objects
 	
@@ -87,7 +88,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 		return valueObjectService().isEmpty(referenceObject, referenceField);
 	}
 	
-	public ListModel<ValueObject> getReferenceListModel(String referenceFieldUid) {
+	public ListModel<SystemObject> getReferenceListModel(String referenceFieldUid) {
 		Assert.notNull(referenceFieldUid, "referenceFieldUid is null");
 		
 		final MultiKey key = MultiKey.valueOf(0L, referenceFieldUid);
@@ -96,12 +97,12 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 		}
 		final EntityField referenceField = getEntityField(referenceFieldUid);
 		final FormFieldExtra fieldExtra = getForm().getFieldExtra(referenceField);
-		final ListModel<ValueObject> model = createReferenceListModel(referenceField, fieldExtra != null ? fieldExtra.getFilter() : null);
+		final ListModel<SystemObject> model = createReferenceListModel(referenceField, fieldExtra != null ? fieldExtra.getFilter() : null);
 		listModelMap.put(key, model);
 		return model;
 	}
 	
-	public ListModel<ValueObject> getNestedReferenceListModel(String nestedEntityUid, String referenceFieldUid) {
+	public ListModel<SystemObject> getNestedReferenceListModel(String nestedEntityUid, String referenceFieldUid) {
 		Assert.notNull(nestedEntityUid, "nestedEntityUid is null");
 		Assert.notNull(referenceFieldUid, "referenceFieldUid is null");
 		
@@ -114,7 +115,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 		Assert.state(referenceField != null, "referenceField not available " + referenceFieldUid);
 		
 		final SubFormField subFormField = subForm.getFieldByEntityFieldUid(referenceField.getUid());
-		final ListModel<ValueObject> model = createReferenceListModel(referenceField, subFormField.getFilter());
+		final ListModel<SystemObject> model = createReferenceListModel(referenceField, subFormField.getFilter());
 		listModelMap.put(key, model);
 		return model;
 	}

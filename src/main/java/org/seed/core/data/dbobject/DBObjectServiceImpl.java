@@ -18,7 +18,6 @@
 package org.seed.core.data.dbobject;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -131,7 +130,7 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 		Assert.notNull(session, "session ist null");
 		
 		final List<DBObject> newObjects = new ArrayList<>(context.getNewDBObjects());
-		Collections.sort(newObjects, dbObjectComparator);
+		newObjects.sort(dbObjectComparator);
 		for (DBObject dbObject : newObjects) {
 			for (ChangeLog changeLog : new DBObjectChangeLogBuilder()
 											.setNextVersionObject(dbObject)
@@ -141,7 +140,8 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 		}
 		
 		final List<DBObject> existingObjects = new ArrayList<>(context.getExistingDBObjects());
-		Collections.sort(existingObjects, dbObjectComparator);
+		
+		existingObjects.sort(dbObjectComparator);
 		for (DBObject dbObject : existingObjects) {
 			final DBObject currentVersionObject = context.getCurrentVersionDBObject(dbObject.getUid());
 			for (ChangeLog changeLog : new DBObjectChangeLogBuilder()

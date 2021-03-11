@@ -705,7 +705,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 			// field groups
 			if (usedFieldGroups != null) {
 				final List<EntityFieldGroup> fieldGroups = new ArrayList<>(usedFieldGroups);
-				Collections.sort(fieldGroups, Order.COMPARATOR);
+				fieldGroups.sort(Order.COMPARATOR);
 				for (EntityFieldGroup fieldGroup : fieldGroups) {
 					elemMainGrid.getGridCell(col, row)
 								.setValign("top")

@@ -117,7 +117,7 @@ public class ValueObjectValidator {
 				}
 				else if (field.getType().isText()) {
 					final String text = (String) value;
-					if (text != null & text.length() > getMaxFieldLength(field)) {
+					if (text != null && text.length() > getMaxFieldLength(field)) {
 						errors.add(new ValidationError("val.toolong.fieldvalue", field.getName(),
 								   					   String.valueOf(getMaxFieldLength(field))));
 					}

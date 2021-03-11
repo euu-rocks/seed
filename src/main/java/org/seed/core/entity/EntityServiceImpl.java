@@ -645,7 +645,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				changeLogs.add(changeLog);
 			}
 		}
-		Collections.sort(changeLogs, changeLogComparator);
+		changeLogs.sort(changeLogComparator);
 		changeLogs.forEach(changeLog -> session.saveOrUpdate(changeLog));
 	}
 	

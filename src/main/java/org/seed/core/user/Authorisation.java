@@ -32,6 +32,7 @@ public enum Authorisation {
 	ADMIN_SETTINGS,
 	
 	RUN_JOBS,
-	PRINT_REPORTS
+	PRINT_REPORTS,
+	SEARCH_FULLTEXT
 	
 }

@@ -55,6 +55,8 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	
 	private static final String REDIRECT_LOGOUT = "/logout";
 	
+	private static final String URL_FULLTEXTSEARCH = "/form/fulltextsearch.zul";
+	
 	@WireVariable(value="applicationSettingServiceImpl")
 	private ApplicationSettingService settingService;
 	
@@ -224,6 +226,14 @@ public class MainViewModel extends AbstractApplicationViewModel {
 									"z-icon-book z-icon-fw"));
 		}
 		
+		// full-text search
+		if (isFullTextSearchAvailable() &&
+			getUser().isAuthorised(Authorisation.SEARCH_FULLTEXT)) {
+			result.add(new TreeNode(getLabel("label.fulltextsearch"), 
+									URL_FULLTEXTSEARCH, 
+									"z-icon-search z-icon-fw"));
+		}
+		
 		// account
 		final TreeNode nodeAccount = new TreeNode(getUserName(), 
 				 								 null, 
@@ -360,7 +370,13 @@ public class MainViewModel extends AbstractApplicationViewModel {
 		Assert.notNull(name, "name is null");
 		Assert.notNull(view, "view is null");
 		
-		selectedTab = new Tab(name, ZUL_PATH + view, icon, parameter);
+		if (URL_FULLTEXTSEARCH.equals(view)) {
+			selectedTab = new Tab(name, ZUL_PATH + view, icon);
+			selectedTab.setParameter(selectedTab);
+		}
+		else {
+			selectedTab = new Tab(name, ZUL_PATH + view, icon, parameter);
+		}
 		selectedTab.setObjectId(parameter != null ? parameter.getObjectId() : null);
 		tabs.add(selectedTab);
 		notifyChange("tabs", "selectedTab");

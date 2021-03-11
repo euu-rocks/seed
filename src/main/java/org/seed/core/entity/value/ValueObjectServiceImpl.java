@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 import javax.persistence.criteria.CriteriaQuery;
@@ -147,12 +148,16 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public Cursor createFullTextSearchCursor(Entity entity, String fullTextQueryString) {
-		Assert.notNull(entity, "entity is null");
+	public Cursor createFullTextSearchCursor(String fullTextQueryString) {
+		return createFullTextSearchCursor(fullTextQueryString, null);
+	}
+	
+	@Override
+	public Cursor createFullTextSearchCursor(String fullTextQueryString, Entity entity) {
 		Assert.notNull(fullTextQueryString, "fullTextQueryString is null");
 		
-		final List<Tupel<Long,Long>> fullTextSearchResult = fullTextSearch.query(entity, fullTextQueryString);
-		return new Cursor(fullTextSearchResult, fullTextSearchResult.size(), CHUNK_SIZE);
+		final List<Tupel<Long,Long>> fullTextSearchResult = fullTextSearch.query(fullTextQueryString, entity);
+		return new Cursor(fullTextSearchResult, CHUNK_SIZE);
 	}
 	
 	@Override
@@ -192,8 +197,8 @@ public class ValueObjectServiceImpl
 	public List<ValueObject> loadChunk(Cursor cursor) {
 		Assert.notNull(cursor, "cursor is null");
 		
-		if (cursor.getFullTextResult() != null) {
-			return loadFullTextChunk(cursor);
+		if (cursor.isFullTextSearch()) {
+			return loadFullTextObjects(cursor);
 		}
 		try (Session session = repository.getSession()) {
 			final Query query = cursor.getHqlQuery() != null
@@ -203,6 +208,17 @@ public class ValueObjectServiceImpl
 			query.setMaxResults(cursor.getChunkSize());
 			return query.getResultList();
 		}
+	}
+	
+	@Override
+	public List<FullTextResult> loadFullTextChunk(Cursor cursor) {
+		Assert.notNull(cursor, "cursor is null");
+		
+		final List<ValueObject> listObjects = loadFullTextObjects(cursor);
+		final Map<Long, String> mapTexts = fullTextSearch.getTextMap(listObjects);
+		return listObjects.stream()
+						  .map(o -> new FullTextResult(o, mapTexts.get(o.getId())))
+						  .collect(Collectors.toList());
 	}
 	
 	@Override
@@ -222,6 +238,30 @@ public class ValueObjectServiceImpl
 			}
 		}
 		return fileObjects;
+	}
+	
+	@Override
+	public String getFieldText(ValueObject object, List<EntityField> fields, int maxFieldLength) {
+		Assert.notNull(object, "object is null");
+		Assert.notNull(fields, "fields is null");
+		
+		final StringBuilder buf = new StringBuilder();
+		for (EntityField field : fields) {
+			final Object value = objectAccess.getValue(object, field);
+			if (value != null) {
+				if (buf.length() > 0) {
+					buf.append(' ');
+				}
+				String valueStr = value.toString();
+				if (field.getType().isTextLong()) {
+					valueStr = valueStr.length() > maxFieldLength 
+								? valueStr.substring(0, maxFieldLength) + "..."
+								: valueStr;
+				}
+				buf.append(valueStr);
+			}
+		}
+		return buf.toString();
 	}
 	
 	@Override
@@ -514,19 +554,16 @@ public class ValueObjectServiceImpl
 		return result;
 	}
 	
-	private List<ValueObject> loadFullTextChunk(Cursor cursor) {
-		final List<Tupel<Long, Long>> fullTextResult = cursor.getFullTextResult();
+	private List<ValueObject> loadFullTextObjects(Cursor cursor) {
 		final List<ValueObject> result = new ArrayList<>(CHUNK_SIZE);
-		final int startIdx = cursor.getStartIndex();
-		
 		Entity entity = null;
-		for (int i = startIdx; i < Math.min(startIdx + CHUNK_SIZE, fullTextResult.size()); i++) {
-			final Tupel<Long, Long> fullTextResultRecord = fullTextResult.get(i);
-			if (entity == null || !entity.getId().equals(fullTextResultRecord.x)) {
-				entity = repository.getEntity(fullTextResultRecord.x);
+		for (int i = cursor.getStartIndex(); i < Math.min(cursor.getStartIndex() + CHUNK_SIZE, cursor.getTotalCount()); i++) {
+			final Tupel<Long, Long> fullTextResult = cursor.getFullTextResult(i);
+			if (entity == null || !entity.getId().equals(fullTextResult.x)) {
+				entity = repository.getEntity(fullTextResult.x);
 			}
-			final ValueObject object = repository.get(entity, fullTextResultRecord.y);
-			Assert.state(object != null, "value object is not available. id:" + fullTextResultRecord.y);
+			final ValueObject object = repository.get(entity, fullTextResult.y);
+			Assert.state(object != null, "value object is not available. id:" + fullTextResult.y);
 			result.add(object);
 		}
 		return result;

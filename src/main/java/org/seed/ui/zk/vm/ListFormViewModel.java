@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.seed.core.data.Cursor;
 import org.seed.core.data.Sort;
+import org.seed.core.data.SystemObject;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.form.FormAction;
@@ -76,14 +77,14 @@ public class ListFormViewModel extends AbstractFormViewModel {
 		this.fullTextSearchTerm = fullTextSearchTerm;
 	}
 
-	public ListModel<ValueObject> getListModel() {
+	public ListModel<SystemObject> getListModel() {
 		final SearchParameter searchParam = getSessionObject("searchParameter");
 		Cursor cursor;
 		if (isResultList()) {
 			cursor = valueObjectService().createCursor(searchParam.searchObject, searchParam.mapOperators);
 		}
 		else if (fullTextQuery != null) {
-			cursor = valueObjectService().createFullTextSearchCursor(getForm().getEntity(), fullTextQuery);
+			cursor = valueObjectService().createFullTextSearchCursor(fullTextQuery, getForm().getEntity());
 			fullTextQuery = null;
 		}
 		else {
@@ -97,7 +98,8 @@ public class ListFormViewModel extends AbstractFormViewModel {
 		
 		return new LoadOnDemandListModel(cursor, false) {
 			private static final long serialVersionUID = 6122960735585906371L;
-
+			
+			@Override
 			protected List<ValueObject> loadChunk(Cursor cursor) {
 				return valueObjectService().loadChunk(cursor);
 			}

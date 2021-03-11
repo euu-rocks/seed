@@ -51,9 +51,13 @@ public interface ValueObjectService {
 	
 	Cursor createCursor(ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sort);
 	
-	Cursor createFullTextSearchCursor(Entity entity, String fullTextQueryString);
+	Cursor createFullTextSearchCursor(String fullTextQueryString);
+	
+	Cursor createFullTextSearchCursor(String fullTextQueryString, Entity entity);
 	
 	List<ValueObject> loadChunk(Cursor cursor);
+	
+	List<FullTextResult> loadFullTextChunk(Cursor cursor);
 	
 	boolean notifyChange(ValueObject object);
 	
@@ -85,6 +89,8 @@ public interface ValueObjectService {
 	List<FileObject> getFileObjects(ValueObject object);
 	
 	void preallocateFileObjects(ValueObject object);
+	
+	String getFieldText(ValueObject object, List<EntityField> fields, int maxFieldLength);
 	
 	boolean existObjects(Entity entity);
 	

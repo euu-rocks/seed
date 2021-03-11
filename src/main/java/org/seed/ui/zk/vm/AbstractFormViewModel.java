@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.seed.core.api.ApplicationException;
 import org.seed.core.data.Cursor;
+import org.seed.core.data.SystemObject;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityFunction;
@@ -274,10 +275,12 @@ public abstract class AbstractFormViewModel extends AbstractApplicationViewModel
 		return valueObjectService.getAllObjects(referenceField.getReferenceEntity());
 	}
 	
-	@SuppressWarnings("serial")
-	protected ListModel<ValueObject> createReferenceListModel(EntityField referenceField, Filter filter) {
+	protected ListModel<SystemObject> createReferenceListModel(EntityField referenceField, Filter filter) {
 		final Cursor cursor = valueObjectService.createCursor(referenceField.getReferenceEntity(), filter);
 		return new LoadOnDemandListModel(cursor, true) {
+			private static final long serialVersionUID = 6084064046031574238L;
+
+			@Override
 			protected List<ValueObject> loadChunk(Cursor cursor) {
 				return valueObjectService.loadChunk(cursor);
 			}

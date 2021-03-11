@@ -19,12 +19,53 @@ package org.seed.core.codegen;
 
 import java.util.Date;
 
+import org.springframework.util.Assert;
+
 public interface SourceCodeBuilder<T> {
 	
-	public enum BuildMode {
+	enum BuildMode {
 		
 		COMPLETE,
 		TEMPLATE
+	}
+	
+	class MemberMetadata {
+		
+		final TypeClass typeClass;
+		
+		final String name;
+		
+		MemberMetadata(TypeClass typeClass, String name) {
+			Assert.notNull(typeClass, "typeClass is null");
+			Assert.notNull(name, "name is null");
+			
+			this.typeClass = typeClass;
+			this.name = name;
+		}
+		
+	}
+	
+	class ParameterMetadata {
+		
+		final TypeClass typeClass;
+		
+		final AnnotationMetadata annotation;
+		
+		final String name;
+		
+		ParameterMetadata(String name, TypeClass typeClass) {
+			this(name, typeClass, null);
+		}
+		
+		ParameterMetadata(String name, TypeClass typeClass, AnnotationMetadata annotation) {
+			Assert.notNull(name, "name is null");
+			Assert.notNull(typeClass, "typeClass is null");
+			
+			this.name = name;
+			this.typeClass = typeClass;
+			this.annotation = annotation;
+		}
+		
 	}
 	
 	Date getLastModified();
