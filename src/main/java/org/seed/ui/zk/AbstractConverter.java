@@ -15,33 +15,33 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.entity.value;
+package org.seed.ui.zk;
 
-import javax.persistence.Transient;
+import org.seed.core.form.LabelProvider;
 
-import org.seed.core.data.AbstractSystemObject;
-import org.seed.core.entity.EntityStatus;
+import org.springframework.util.Assert;
+import org.zkoss.bind.BindContext;
+import org.zkoss.bind.Converter;
+import org.zkoss.zk.ui.Component;
 
-public abstract class AbstractValueObject extends AbstractSystemObject implements ValueObject {
+abstract class AbstractConverter<U, B, C extends Component> 
+	implements Converter<U, B, C>  {
 	
-	@Transient
-	private Long tmpId; // temporary id, if object is new
+	private LabelProvider labelProvider;
+
+	AbstractConverter(LabelProvider labelProvider) {
+		Assert.notNull(labelProvider, "labelProvider is null");
+		
+		this.labelProvider = labelProvider;
+	}
 	
-	public Long getTmpId() {
-		return tmpId;
+	protected LabelProvider labelProvider() {
+		return labelProvider;
 	}
-
-	void setTmpId(Long tmpId) {
-		this.tmpId = tmpId;
-	}
-
+	
 	@Override
-	public EntityStatus getEntityStatus() {
-		throw new IllegalStateException("entity has no status");
-	}
-	
-	public void setEntityStatus(EntityStatus entityStatus) {
-		throw new IllegalStateException("entity has no status");
+	public B coerceToBean(U u, C c, BindContext ctx) {
+		throw new UnsupportedOperationException("only meant for reading");
 	}
 	
 }

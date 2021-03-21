@@ -805,7 +805,9 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 				}
 				// header
 				final LayoutElement elemListheader = createListHeader(field.getName(), 
-																	  field.getHflex() != null ? field.getHflex() : "1", 
+																	  field.getHflex() != null 
+																	  	? field.getHflex() 
+																	  	: "1", 
 																	  field.getLabelStyle());
 				elemListheader.setAttribute("style", "cursor:pointer");
 				elemListheader.setAttribute("iconSclass", load("vm.getSortIcon(" + field.getId() + ")"));
@@ -814,17 +816,20 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 				// system field
 				if (field.isSystem()) {
 					if (field.getSystemField() == SystemField.ENTITYSTATUS) {
-						elemListitem.addChild(createListCell(load(listPropertyName(field) + ".numberAndName"), null, field.getStyle()));
+						elemListitem.addChild(createListCell(load(listPropertyName(field) + ".numberAndName"), 
+															 null, field.getStyle()));
 					}
 					else {
-						elemListitem.addChild(createListCell(load(listPropertyName(field)), null, field.getStyle()));
+						elemListitem.addChild(createListCell(load(listPropertyName(field)), 
+															 null, field.getStyle()));
 					}
 				}
-				// entity field
+				// reference field
 				else if (field.getEntityField().getType().isReference()) {
-					elemListitem.addChild(createListCell(load(listPropertyName(field) + '.' +
-							field.getEntityField().getReferenceEntityField().getInternalName()), null,  field.getStyle()));
+					elemListitem.addChild(createListCell(load("vm.getIdentifier(" + listPropertyName(field) + ')'), 
+														 null,  field.getStyle()));
 				}
+				// binary field
 				else if (field.getEntityField().getType().isBinary()) {
 					final String converter = field.getThumbnailWidth() != null
 												? "vm.getThumbnailConverter(" + field.getId() + ')'
@@ -832,13 +837,17 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 					elemListitem.addChild(createImageListCell(load(listPropertyName(field)) + ' ' + 
 							  								  converter(converter)));
 				}
+				// every other field
 				else {
 					final String icon = field.getEntityField().getType().isFile() 
 										 ? load(listPropertyName(field) + ".contentType") + ' ' + 
 										   	  converter("vm.fileIconConverter")
 										 : null;
+					final String converter = field.getEntityField().getType().isDateTime()
+												? "vm.dateTimeConverter" 
+												: "vm.valueConverter";
 					elemListitem.addChild(createListCell(load(listPropertyName(field)) + ' ' + 
-												   		 converter("vm.valueConverter"), icon, field.getStyle()));
+												   		 converter(converter), icon, field.getStyle()));
 				}
 			}
 		}

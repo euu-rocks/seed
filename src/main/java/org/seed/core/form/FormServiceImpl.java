@@ -170,27 +170,6 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	@Override
-	public List<EntityField> getListFormFields(Entity entity, int numMax) {
-		Assert.notNull(entity, "entity is null");
-		
-		for (Form form : findForms(entity)) {
-			if (form.hasFields()) {
-				final List<EntityField> result = new ArrayList<>(numMax);
-				for (FormField formField : form.getFields()) {
-					if (result.size() < numMax) {
-						result.add(formField.getEntityField());
-					}
-					else {
-						break;
-					}
-				}
-				return result;
-			}
-		}
-		return Collections.emptyList();
-	}
-	
-	@Override
 	public List<Form> findForms(Entity entity) {
 		Assert.notNull(entity, "entity is null");
 		

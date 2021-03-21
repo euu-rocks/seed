@@ -67,14 +67,18 @@
 							<textbox value="@bind(vm.object.name)"
 									 mandatory="true"
 									 onChange="@command('flagDirty',notifyObject='internalName')"
+									 tooltiptext="@load(vm.object.internalName)"
 									 hflex="1"/> 
 						</cell>
 						<cell style="padding: 4px 10px" align="right">
-							<label value="${labels.label.internalname}:"/>
+							<label value="${labels.label.identifier}:"/>
 						</cell>
 						<cell style="padding: 4px 4px">
-							<textbox value="@load(vm.object.internalName)" 
-									 hflex="1" readonly="true"/>
+							<textbox value="@bind(vm.object.identifierPattern)" 
+									 placeholder="@load(vm.object.defaultIdentifierPattern)"
+									 onChange="@command('flagDirty')"
+									 instant="true"
+									 hflex="1"/>
 						</cell>
 					</row>
 					<row>
@@ -96,6 +100,7 @@
 									 placeholder="@load(vm.object.internalName.toLowerCase())"
 									 visible="@load(!vm.object.generic)"
 									 onChange="@command('flagDirty')"
+									 instant="true"
 									 hflex="1"/>
 							<checkbox checked="@load(vm.object.generic)"
 									  visible="@load(vm.object.generic)"

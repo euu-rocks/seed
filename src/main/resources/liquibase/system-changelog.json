@@ -781,6 +781,12 @@
                               "name": "tablename",
                               "type": "VARCHAR(<#IDENT_LEN#>)"
                            }
+                       },
+                       {
+                           "column": {
+                              "name": "identifierpattern",
+                              "type": "VARCHAR(<#IDENT_LEN#>)"
+                           }
                        }
                      ]
                   }
@@ -1146,12 +1152,6 @@
                        {
                            "column": {
                               "name": "ref_entity_id",
-                              "type": "BIGINT"
-                           }
-                       },
-                       {
-                           "column": {
-                              "name": "ref_entity_field_id",
                               "type": "BIGINT"
                            }
                        }
@@ -5527,20 +5527,6 @@
                      "onUpdate": "NO ACTION",
                      "referencedColumnNames": "id",
                      "referencedTableName": "sys_entity",
-                     "validate": "true"
-                  }
-               },
-               {
-                  "addForeignKeyConstraint": {
-                     "baseColumnNames": "ref_entity_field_id",
-                     "baseTableName": "sys_entity_field",
-                     "constraintName": "fk_sys_entity_field_reffield",
-                     "deferrable": "false",
-                     "initiallyDeferred": "false",
-                     "onDelete": "NO ACTION",
-                     "onUpdate": "NO ACTION",
-                     "referencedColumnNames": "id",
-                     "referencedTableName": "sys_entity_field",
                      "validate": "true"
                   }
                },

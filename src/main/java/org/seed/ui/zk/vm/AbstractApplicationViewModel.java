@@ -31,6 +31,7 @@ import org.seed.core.util.MiscUtils;
 import org.seed.ui.FormParameter;
 import org.seed.ui.TabParameterMap;
 import org.seed.ui.ViewParameterMap;
+import org.seed.ui.zk.DateTimeConverter;
 import org.seed.ui.zk.FileIconConverter;
 import org.seed.ui.zk.ImageConverter;
 import org.seed.ui.zk.StringConverter;
@@ -47,17 +48,19 @@ import org.zkoss.zul.Filedownload;
 
 public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	
-	private static final StringConverter STRING_CONVERTER = new StringConverter();
-	
-	private static final ValueConverter VALUE_CONVERTER = new ValueConverter();
-	
-	private static final TimeConverter TIME_CONVERTER = new TimeConverter();
-	
-	private static final ImageConverter IMAGE_CONVERTER = new ImageConverter();
-	
-	private static final FileIconConverter FILEICON_CONVERTER = new FileIconConverter();
-	
 	protected static final String ZUL_PATH = "~./zul";
+	
+	private static StringConverter stringConverter;
+	
+	private static ValueConverter valueConverter;
+	
+	private static DateTimeConverter dateTimeConverter;
+	
+	private static TimeConverter timeConverter;
+	
+	private static ImageConverter imageConverter;
+	
+	private static FileIconConverter fileIconConverter;
 	
 	@WireVariable(value="reportServiceImpl")
 	protected ReportService reportService;
@@ -66,7 +69,7 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	protected UserService userService;
 	
 	@WireVariable(value="fullTextSearchProvider")
-	protected FullTextSearchProvider fullTextSearch;
+	private FullTextSearchProvider fullTextSearch;
 	
 	@WireVariable(value="limits")
 	private Limits limits;
@@ -78,23 +81,45 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	}
 	
 	public final StringConverter getStringConverter() {
-		return STRING_CONVERTER;
+		if (stringConverter == null) {
+			stringConverter = new StringConverter();
+		}
+		return stringConverter;
 	}
 	
 	public final ValueConverter getValueConverter() {
-		return VALUE_CONVERTER;
+		if (valueConverter == null) {
+			valueConverter = new ValueConverter(getLabelProvider());
+		}
+		return valueConverter;
+	}
+	
+	public final DateTimeConverter getDateTimeConverter() {
+		if (dateTimeConverter == null) {
+			dateTimeConverter = new DateTimeConverter(getLabelProvider());
+		}
+		return dateTimeConverter;
 	}
 	
 	public final TimeConverter getTimeConverter() {
-		return TIME_CONVERTER;
+		if (timeConverter == null) {
+			timeConverter = new TimeConverter(getLabelProvider());
+		}
+		return timeConverter;
 	}
 	
 	public final ImageConverter getImageConverter() {
-		return IMAGE_CONVERTER;
+		if (imageConverter == null) {
+			imageConverter = new ImageConverter();
+		}
+		return imageConverter;
 	}
 	
 	public final FileIconConverter getFileIconConverter() {
-		return FILEICON_CONVERTER;
+		if (fileIconConverter == null) {
+			fileIconConverter = new FileIconConverter();
+		}
+		return fileIconConverter;
 	}
 	
 	public boolean isFullTextSearchAvailable() {

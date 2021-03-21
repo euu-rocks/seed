@@ -90,7 +90,7 @@ public interface ValueObjectService {
 	
 	void preallocateFileObjects(ValueObject object);
 	
-	String getFieldText(ValueObject object, List<EntityField> fields, int maxFieldLength);
+	String getIdentifier(ValueObject object);
 	
 	boolean existObjects(Entity entity);
 	

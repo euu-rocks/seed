@@ -60,6 +60,10 @@ abstract class AbstractViewModel {
 		return labelProvider.getEnumLabel(enm);
 	}
 	
+	protected LabelProvider getLabelProvider() {
+		return labelProvider;
+	}
+	
 	protected final boolean hasSessionObject(String name) {
 		Assert.notNull(name, "name is null");
 		
@@ -238,6 +242,11 @@ abstract class AbstractViewModel {
 	protected final void showErrorMessage(String message) {
 		Messagebox.show(message, getLabel("label.erroroccurred"), 
 						Messagebox.OK, Messagebox.ERROR);
+	}
+	
+	protected final void showWarnMessage(String message) {
+		Messagebox.show(message, getLabel("label.warning"), 
+						Messagebox.OK, Messagebox.EXCLAMATION);
 	}
 	
 	@SuppressWarnings("unchecked")

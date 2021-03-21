@@ -116,6 +116,11 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
+	public String getIdentifier(ValueObject object) {
+		return repository.getIdentifier(object);
+	}
+	
+	@Override
 	public void copyFields(ValueObject sourceObject, 
 						   ValueObject targetObject,
 						   List<EntityField> entityFields) {
@@ -157,7 +162,7 @@ public class ValueObjectServiceImpl
 		Assert.notNull(fullTextQueryString, "fullTextQueryString is null");
 		
 		final List<Tupel<Long,Long>> fullTextSearchResult = fullTextSearch.query(fullTextQueryString, entity);
-		return new Cursor(fullTextSearchResult, CHUNK_SIZE);
+		return new Cursor(fullTextQueryString, fullTextSearchResult, CHUNK_SIZE);
 	}
 	
 	@Override
@@ -215,9 +220,9 @@ public class ValueObjectServiceImpl
 		Assert.notNull(cursor, "cursor is null");
 		
 		final List<ValueObject> listObjects = loadFullTextObjects(cursor);
-		final Map<Long, String> mapTexts = fullTextSearch.getTextMap(listObjects);
+		final Map<Long, String> mapTexts = fullTextSearch.getTextMap(listObjects, cursor.getFullTextQuery());
 		return listObjects.stream()
-						  .map(o -> new FullTextResult(o, mapTexts.get(o.getId())))
+						  .map(obj -> new FullTextResult(obj, getIdentifier(obj), mapTexts.get(obj.getId())))
 						  .collect(Collectors.toList());
 	}
 	
@@ -238,30 +243,6 @@ public class ValueObjectServiceImpl
 			}
 		}
 		return fileObjects;
-	}
-	
-	@Override
-	public String getFieldText(ValueObject object, List<EntityField> fields, int maxFieldLength) {
-		Assert.notNull(object, "object is null");
-		Assert.notNull(fields, "fields is null");
-		
-		final StringBuilder buf = new StringBuilder();
-		for (EntityField field : fields) {
-			final Object value = objectAccess.getValue(object, field);
-			if (value != null) {
-				if (buf.length() > 0) {
-					buf.append(' ');
-				}
-				String valueStr = value.toString();
-				if (field.getType().isTextLong()) {
-					valueStr = valueStr.length() > maxFieldLength 
-								? valueStr.substring(0, maxFieldLength) + "..."
-								: valueStr;
-				}
-				buf.append(valueStr);
-			}
-		}
-		return buf.toString();
 	}
 	
 	@Override
@@ -555,9 +536,9 @@ public class ValueObjectServiceImpl
 	}
 	
 	private List<ValueObject> loadFullTextObjects(Cursor cursor) {
-		final List<ValueObject> result = new ArrayList<>(CHUNK_SIZE);
+		final List<ValueObject> result = new ArrayList<>(cursor.getChunkSize());
 		Entity entity = null;
-		for (int i = cursor.getStartIndex(); i < Math.min(cursor.getStartIndex() + CHUNK_SIZE, cursor.getTotalCount()); i++) {
+		for (int i = cursor.getStartIndex(); i < Math.min(cursor.getStartIndex() + cursor.getChunkSize(), cursor.getTotalCount()); i++) {
 			final Tupel<Long, Long> fullTextResult = cursor.getFullTextResult(i);
 			if (entity == null || !entity.getId().equals(fullTextResult.x)) {
 				entity = repository.getEntity(fullTextResult.x);

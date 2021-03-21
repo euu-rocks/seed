@@ -22,7 +22,6 @@ import java.util.List;
 import org.seed.core.data.Cursor;
 import org.seed.core.data.SystemObject;
 import org.seed.core.entity.Entity;
-import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityService;
 import org.seed.core.entity.value.FullTextResult;
 import org.seed.core.entity.value.ValueObject;
@@ -86,9 +85,7 @@ public class FullTextSearchViewModel extends AbstractApplicationViewModel {
 				
 				@Override
 				protected List<FullTextResult> loadChunk(Cursor cursor) {
-					final List<FullTextResult> result = valueObjectService.loadFullTextChunk(cursor);
-					result.forEach(r -> loadIdentifier(r));
-					return result;
+					return valueObjectService.loadFullTextChunk(cursor);
 				}
 			};
 		}
@@ -106,16 +103,13 @@ public class FullTextSearchViewModel extends AbstractApplicationViewModel {
 							@BindingParam("objectId") Long objectId) {
 		final Entity entity = entityService.getObject(entityId);
 		final ValueObject object = valueObjectService.getObject(entity, objectId);
-		final Form form = formService.findForms(entity).get(0);
-		openTab(form, object);
-	}
-	
-	private void loadIdentifier(FullTextResult result) {
-		final ValueObject object = result.getObject();
-		final Entity entity = entityService.getObject(object.getEntityId());
-		final List<EntityField> listFields = formService.getListFormFields(entity, 3);
-		final String fieldText = valueObjectService.getFieldText(object, listFields, 50);
-		result.setName(entity.getName() + ' ' + fieldText);
+		Assert.state(object != null, "value object not available: " + objectId);
+		// use first available form
+		for (Form form : formService.findForms(entity)) {
+			openTab(form, object);
+			return;
+		}
+		showWarnMessage(getLabel("label.formnotavailable"));
 	}
 	
 }

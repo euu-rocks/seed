@@ -147,27 +147,6 @@
                     			   iconSclass="z-icon-table z-icon-fw alpha-icon-lg"/>
                 	</template>	
             	</combobox>
-            	<vlayout visible="@load(!empty vm.field.referenceEntity)">
-            		<label value="${labels.label.reffield}:"/>
-            		<combobox model="@load(vm.field.referenceEntity.fields) @template(empty each.name ? 'empty' : each.type.isReference() ? 'reference' : 'field')"
-            				  mandatory="true"
-            			  	  selectedItem="@bind(vm.field.referenceEntityField)"
-            			  	  value="@load(vm.field.referenceEntityField.name)"
-            			  	  onSelect="@command('flagDirty',notify='field')"
-					  	  	  hflex="1">
-					  	<template name="empty">
-	                    	<comboitem/>
-	                	</template>
-	            		<template name="field" var="refEntityField">
-	                    	<comboitem label="@init(refEntityField.name)"
-	                    			   iconSclass="z-icon-font z-icon-fw alpha-icon-lg"/>
-	                	</template>
-	                	<template name="reference" var="refEntityField">
-	                    	<comboitem label="@init(refEntityField.name)"
-	                    			   iconSclass="z-icon-share z-icon-fw alpha-icon-lg"/>
-	                	</template>
-            		</combobox>
-            	</vlayout>
             </vlayout>
             <vlayout visible="@load(!empty vm.field.type and !vm.field.type.isBoolean())">
             	<space/>
@@ -209,7 +188,7 @@
 		       					  selectedItem="@bind(vm.field.defaultObject)"
 		       					  mandatory="true" hflex="1">
 		       				<template name="model" var="obj">
-		       					<comboitem label="@load(vm.getReferenceValue(obj,vm.field))"/>
+		       					<comboitem label="@load(vm.getReferenceValue(obj))"/>
 		       				</template>
 		       			</combobox>		 
 		       			<space/>
@@ -226,7 +205,7 @@
 	        				  onCheck="@command('flagDirty')"/>
 	        		<label value="${labels.label.index}"/>
 	       		</hlayout>
-	       		<hlayout visible="@load(vm.fullTextSearchAvailable and (vm.field.type.isText() or vm.field.type.isTextLong()))">
+	       		<hlayout visible="@load(vm.fullTextSearchAvailable and (vm.field.isTextField() or vm.field.type.isAutonum() or vm.field.type.isReference()))">
 	        		<checkbox checked="@bind(vm.field.fullTextSearch)" 
 	        				  onCheck="@command('flagDirty')"/>
 	        		<label value="${labels.label.fulltextsearch}"/>

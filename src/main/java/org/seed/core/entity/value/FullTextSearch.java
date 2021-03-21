@@ -35,6 +35,7 @@ import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityChangeAware;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.NestedEntity;
+import org.seed.core.util.MiscUtils;
 import org.seed.core.util.Tupel;
 
 import org.slf4j.Logger;
@@ -111,7 +112,7 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 		final SolrQuery query = new SolrQuery(queryString);
 		query.setParam(CommonParams.DF, FIELD_TEXT); 
 		if (entity != null) {
-			query.setParam(CommonParams.FQ, FIELD_ENTITY_ID + ':' + entity.getId()); 
+			query.setParam(CommonParams.FQ, createEntityFilter(entity)); 
 		}
 		query.addField(FIELD_ID);
 		query.addField(FIELD_ENTITY_ID);
@@ -126,18 +127,23 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 		}
 	}
 	
-	Map<Long, String> getTextMap(List<ValueObject> objectList) {
+	Map<Long, String> getTextMap(List<ValueObject> objectList, String fullTextQuery) {
 		Assert.notNull(objectList, "objectList is null");
+		Assert.notNull(fullTextQuery, "fullTextQuery is null");
+		// collect object ids
 		final List<String> listIds = objectList.stream()
 											   .map(o -> o.getId().toString())
 											   .collect(Collectors.toList());
+		// remove all non letter or digit chars
+		final String fullTextKey = MiscUtils.filterString(fullTextQuery, Character::isLetterOrDigit);
 		final SolrClient solrClient = provider.getSolrClient();
 		try {
 			return solrClient.getById(listIds).stream()
-							 .collect(Collectors.toMap(doc -> Long.valueOf((String) doc.getFirstValue(FIELD_ID)),	// key: objectId
-													   doc -> (String) doc.getFirstValue(FIELD_TEXT)));				// value: text
+							 .collect(Collectors.toMap(doc -> Long.valueOf((String) doc.getFirstValue(FIELD_ID)),
+													   doc -> decorateResultText((String) doc.getFirstValue(FIELD_TEXT), 
+															   					 fullTextKey)));
 		} 
-		catch (Exception  e) {
+		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -184,7 +190,7 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 		if (entity.hasFullTextSearchFields()) {
 			final SolrClient solrClient = provider.getSolrClient();
 			try {
-				solrClient.deleteByQuery(FIELD_ENTITY_ID + ':' + entity.getId());
+				solrClient.deleteByQuery(createEntityFilter(entity));
 				solrClient.commit();
 			} 
 			catch (Exception e) {
@@ -198,7 +204,10 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 		final StringBuilder buf = new StringBuilder();
 		// fields
 		for (EntityField field : entity.getFullTextSearchFields()) {
-			final Object value = objectAccess.getValue(object, field);
+			Object value = objectAccess.getValue(object, field); 
+			if (field.getType().isReference()) {
+				value = repository.getIdentifier((ValueObject) value);
+			}
 			if (value != null) {
 				buf.append(value).append(' ');
 			}
@@ -216,9 +225,12 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 				for (ValueObject nestedObject : nestedObjects) {
 					buf.append('\n');
 					for (EntityField entityField : nested.getNestedEntity().getFullTextSearchFields()) {
-						final Object nestedFieldObject = objectAccess.getValue(nestedObject, entityField);
-						if (nestedFieldObject != null) {
-							buf.append(nestedFieldObject).append('|');
+						Object nestedFieldValue = objectAccess.getValue(nestedObject, entityField);
+						if (entityField.getType().isReference()) {
+							nestedFieldValue = repository.getIdentifier((ValueObject) nestedFieldValue);
+						}
+						if (nestedFieldValue != null) {
+							buf.append(nestedFieldValue).append('|');
 						}
 					}
 				}
@@ -233,9 +245,17 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 		return solrDoc;
 	}
 	
+	private static String decorateResultText(String text, String fullTextKey) {
+		return MiscUtils.replaceAllIgnoreCase(text, fullTextKey, "<b>" + fullTextKey + "</b>");
+	}
+	
 	private static Tupel<Long,Long> createResultEntry(SolrDocument document) {
 		return new Tupel<>((Long) document.getFirstValue(FIELD_ENTITY_ID), 
 							Long.valueOf((String) document.getFirstValue(FIELD_ID)));
+	}
+	
+	private static String createEntityFilter(Entity entity) {
+		return FIELD_ENTITY_ID + ':' + entity.getId();
 	}
 	
 }

@@ -171,11 +171,10 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 		return menuService.getTopLevelMenus();
 	}
 	
-	public Object getReferenceValue(ValueObject valueObject, EntityField referenceField) {
-		if (valueObject != null && referenceField != null && referenceField.getReferenceEntityField() != null) {
-			return valueObjectService.getValue(valueObject, referenceField.getReferenceEntityField());
-		}
-		return null;
+	public Object getReferenceValue(ValueObject valueObject) {
+		return valueObject != null 
+				? valueObjectService.getIdentifier(valueObject) 
+				: null;
 	}
 	
 	public List<ValueObject> getReferenceValues(EntityField referenceField) {
@@ -693,7 +692,6 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 		if (field.getName() == null) {
 			field.setName(field.getReferenceEntity().getName());
 		}
-		field.setReferenceEntityField(null);
 		flagDirty();
 	}
 	

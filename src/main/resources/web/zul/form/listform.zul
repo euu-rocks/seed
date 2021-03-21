@@ -85,9 +85,10 @@
 					 overflowPopup="false"
 					 align="end" hflex="1">
 				<hbox hflex="1">
-					<textbox value="@bind(vm.fullTextSearchTerm)"
+					<textbox value="@bind(vm.fullTextSearchTerm) @converter(vm.stringConverter)"
+							 onOK="@command('searchFullText')"
 							 placeholder="${labels.label.fulltextsearch}"
-							 instant="true" cols="32"/>
+							 cols="32"/>
 					<toolbarbutton onClick="@command('searchFullText')"
 								   disabled="@load(empty vm.fullTextSearchTerm)"
 								   tooltiptext="${labels.label.fulltextsearch}"

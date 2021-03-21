@@ -23,7 +23,8 @@
 		<div align="center" style="margin-top:16px;margin-bottom:11px">
 			<inputgroup>
 				<textbox value="@bind(vm.searchTerm)" cols="50"
-						 onCreate="self.focus()"/>
+						 onCreate="self.focus()"
+						 onOK="@command('search')"/>
 				<button onClick="@command('search')"
 						iconSclass="z-icon-search"/>
 			</inputgroup>
@@ -39,7 +40,7 @@
 						<vbox>
 							<label value="@load(result.name)"
 								   style="color:blue;font-weight:bold;text-decoration:underline"/>
-							<label value="@load(result.text)"/>
+							<html content="@load(result.text)"/>
 						</vbox>	
 					</listcell>	
 				</listitem>

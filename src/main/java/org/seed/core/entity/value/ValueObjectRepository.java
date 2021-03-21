@@ -523,6 +523,44 @@ public class ValueObjectRepository {
 		return entity;
 	}
 	
+	String getIdentifier(ValueObject object) {
+		Assert.notNull(object, "object is null");
+		
+		final Entity entity = getEntity(object);
+		String pattern = entity.getIdentifierPattern();
+		// replaces pattern keys with actual values 
+		if (pattern != null) {
+			pattern = pattern.replace("{entity}", entity.getName());
+			if (entity.hasAllFields()) {
+				for (EntityField field : entity.getAllFields()) {
+					final String key = '{' + field.getName() + '}';
+					if (pattern.contains(key)) {
+						Object value = objectAccess.getValue(object, field);
+						if (value != null && field.getType().isReference()) {
+							value = getIdentifier((ValueObject) value);
+						}
+						// replace key -> value
+						pattern = pattern.replace(key, value != null ? value.toString() : "");
+					}
+				}
+			}
+			return pattern;
+		}
+		
+		// fallback if no pattern exist
+		final EntityField defaultField = entity.findDefaultIdentifierField();
+		Object value = null;
+		if (defaultField != null) {
+			value = objectAccess.getValue(object, defaultField);
+		}
+		if (value != null) {
+			return entity.getName() + ' ' + value.toString();
+		}
+		else {
+			return entity.getName() + " (" + object.getId() + ')';
+		}
+	}
+	
 	private Class<?> getEntityClass(Entity entity) {
 		Assert.notNull(entity, "entity is null");
 		Assert.state(!entity.isNew(), "entity is new");

@@ -154,6 +154,12 @@ public abstract class AbstractFormViewModel extends AbstractApplicationViewModel
 		return subForm;
 	}
 	
+	public String getIdentifier(ValueObject object) {
+		return object != null 
+				? valueObjectService.getIdentifier(object)
+				: null;
+	}
+	
 	public String getActionLabel(FormAction action) {
 		String label = null;
 		if (action != null) {

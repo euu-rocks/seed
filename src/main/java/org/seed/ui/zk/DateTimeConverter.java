@@ -15,33 +15,24 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.entity.value;
+package org.seed.ui.zk;
 
-import javax.persistence.Transient;
+import java.util.Date;
 
-import org.seed.core.data.AbstractSystemObject;
-import org.seed.core.entity.EntityStatus;
+import org.seed.core.form.LabelProvider;
 
-public abstract class AbstractValueObject extends AbstractSystemObject implements ValueObject {
-	
-	@Transient
-	private Long tmpId; // temporary id, if object is new
-	
-	public Long getTmpId() {
-		return tmpId;
-	}
+import org.zkoss.bind.BindContext;
+import org.zkoss.zk.ui.Component;
 
-	void setTmpId(Long tmpId) {
-		this.tmpId = tmpId;
+public class DateTimeConverter extends AbstractConverter<String, Date, Component> {
+
+	public DateTimeConverter(LabelProvider labelProvider) {
+		super(labelProvider);
 	}
 
 	@Override
-	public EntityStatus getEntityStatus() {
-		throw new IllegalStateException("entity has no status");
+	public String coerceToUi(Date beanProp, Component component, BindContext ctx) {
+		return labelProvider().formatDateTime(beanProp);
 	}
-	
-	public void setEntityStatus(EntityStatus entityStatus) {
-		throw new IllegalStateException("entity has no status");
-	}
-	
+
 }

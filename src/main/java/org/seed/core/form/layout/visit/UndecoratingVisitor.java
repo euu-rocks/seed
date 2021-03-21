@@ -108,16 +108,14 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 				entityField = getEntityField(element);
 				Assert.state(entityField.getType().isReference(), "field is not a reference field");
 				element.setAttribute("model", load("vm.getReferenceValues('" + entityField.getUid() + "')"));
-				element.setAttribute("value", load(propertyName(entityField) + '.' + 
-												   referenceName(entityField)));
+				element.setAttribute("value", load("vm.getIdentifier(" + propertyName(entityField) + ')'));
 				element.setAttribute("visible", load(isVisible(entityField)));
 				element.setAttribute("readonly", load(isReadonly(entityField)));
 				element.setAttribute("mandatory", load(isMandatory(entityField)));
 				element.setAttribute("selectedItem", bind(propertyName(entityField)));
 				element.setAttribute("onSelect", command(onChange(entityField)));
 				element.addChild(createTemplate("model", entityField.getInternalName()))
-					   .addChild(createComboitem(load(entityField.getInternalName() + '.' + 
-							   						  referenceName(entityField))));
+					   .addChild(createComboitem(load("vm.getIdentifier(" + entityField.getInternalName() + ')')));
 				fieldExtra  = getFieldExtra(entityField);
 				if (fieldExtra != null && fieldExtra.getDetailForm() != null) {
 					element.setContext(newContextId());
@@ -128,8 +126,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 			case LayoutElement.BANDBOX:
 				entityField = getEntityField(element);
 				Assert.state(entityField.getType().isReference(), "field is not a reference field");
-				element.setAttribute("value", load(propertyName(entityField) + '.' + 
-												   referenceName(entityField)));
+				element.setAttribute("value", load("vm.getIdentifier(" + propertyName(entityField) + ')'));
 				element.setAttribute("visible", load(isVisible(entityField)));
 				element.setAttribute("readonly", load(isReadonly(entityField)));
 				element.setAttribute("mandatory", load(isMandatory(entityField)));
@@ -148,8 +145,8 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 				   		   .addChild(createListCell('[' + getLabel("label.empty") + ']', null, null));
 				elemListbox.addChild(createTemplate("model", entityField.getReferenceEntity().getInternalName()))
 						   .addChild(createListItem(null))		   
-						   .addChild(createListCell(load(entityField.getReferenceEntity().getInternalName() + '.' + 
-								   						 referenceName(entityField)), null, null));
+						   .addChild(createListCell(load("vm.getIdentifier(" + entityField.getReferenceEntity().getInternalName() + ')')
+								   				   , null, null));
 				fieldExtra = getFieldExtra(entityField);
 				if (fieldExtra != null && fieldExtra.getDetailForm() != null) {
 					element.setContext(newContextId());
@@ -226,8 +223,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 																		.addChild(createBandbox(nestedEntityField));
 							elemField.setContext(subForm.getNestedEntity().getId() + "_" + elemField.getId());
 							elemField.removeAttribute("id");
-							elemField.setAttribute("value", load(subFormPropertyName + '.' + 
-																 referenceName(nestedEntityField))); 
+							elemField.setAttribute("value", load("vm.getIdentifier(" + subFormPropertyName + ')')); 
 							elemField.setAttribute("readonly", load(isReadonly(nestedEntityField)));
 							elemField.setAttribute("mandatory", load(isMandatory(nestedEntityField)));
 							elemField.setAttribute("buttonVisible", load('!'+isReadonly(nestedEntityField)));
@@ -246,8 +242,8 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 									   .addChild(createListCell('[' + getLabel("label.empty") + ']', null, null));
 							elemList.addChild(createTemplate("model", nestedEntityField.getReferenceEntity().getInternalName()))
 								   .addChild(createListItem(null))		   
-								   .addChild(createListCell(load(nestedEntityField.getReferenceEntity().getInternalName() + '.' + 
-										   						 referenceName(nestedEntityField)), null, null));
+								   .addChild(createListCell(load("vm.getIdentifier(" + nestedEntityField.getReferenceEntity().getInternalName() + ')'), 
+										   					null, null));
 							if (subFormField.getDetailForm() != null) {
 								addToRoot(createReferencePopup(elemField.getContext(), nestedEntityField.getUid()));
 							}
@@ -306,13 +302,11 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 																		nestedEntityField.getUid() + "')"));
 								elemField.setAttribute("onSelect", command(onNestedChange(nestedName, nestedEntityField)));
 								elemField.setAttribute("selectedItem", bind(subFormPropertyName));
-								elemField.setAttribute("value", load(subFormPropertyName + '.' + 
-																	 referenceName(nestedEntityField)));
+								elemField.setAttribute("value", load("vm.getIdentifier(" + subFormPropertyName + ')'));
 								elemField.setAttribute("readonly", load(isReadonly(nestedEntityField)));
 								elemField.setAttribute("mandatory", load(isMandatory(nestedEntityField)));
 								elemField.addChild(createTemplate("model", nestedEntityField.getInternalName()))
-					                     .addChild(createComboitem(load(nestedEntityField.getInternalName() + '.' + 
-					                    		 						referenceName(nestedEntityField))));
+										 .addChild(createComboitem(load("vm.getIdentifier(" + nestedEntityField.getInternalName() + ')')));
 					            if (subFormField.getDetailForm() != null) {
 									addToRoot(createReferencePopup(elemField.getContext(), nestedEntityField.getUid()));
 								}
@@ -348,10 +342,6 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 	
 	private static String propertyName(EntityField entityField) {
 		return "vm.object." + entityField.getInternalName();
-	}
-	
-	private static String referenceName(EntityField entityField) {
-		return "getReferenceIdentifier('" + entityField.getReferenceEntityField().getInternalName() + "')";
 	}
 	
 	private static String isReadonly(EntityField entityField) {

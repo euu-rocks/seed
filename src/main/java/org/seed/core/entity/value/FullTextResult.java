@@ -25,12 +25,13 @@ public class FullTextResult implements SystemObject {
 	
 	private final ValueObject object;
 	
+	private final String name;
+	
 	private final String text;
 	
-	private String name;
-
-	FullTextResult(ValueObject object, String text) {
+	FullTextResult(ValueObject object, String name, String text) {
 		this.object = object;
+		this.name = name;
 		this.text = text;
 	}
 
@@ -44,10 +45,6 @@ public class FullTextResult implements SystemObject {
 
 	public String getName() {
 		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	@Override

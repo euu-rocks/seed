@@ -210,28 +210,6 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	@Override
-	public List<Entity> findUsage(EntityField entityField) {
-		Assert.notNull(entityField, "entityField is null");
-		
-		final List<Entity> result = new ArrayList<>();
-		for (Entity entity : findAllObjects()) {
-			if (entity.equals(entityField.getEntity())) {
-				continue;
-			}
-			if (entity.hasFields()) {
-				for (EntityField field : entity.getFields()) {
-					if (field.getType().isReference() &&
-						entityField.equals(field.getReferenceEntityField())) {
-						result.add(entity);
-						break;
-					}
-				}
-			}
-		}
-		return result;
-	}
-	
-	@Override
 	public List<Entity> findUsage(EntityFieldGroup fieldGroup) {
 		Assert.notNull(fieldGroup, "fieldGroup is null");
 		
@@ -262,6 +240,12 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 			}
 		}
 		return result;
+	}
+	
+	@Override
+	public List<Entity> findUsage(EntityField entityField) {
+		return Collections.emptyList();
+		
 	}
 	
 	@Override
@@ -842,7 +826,6 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 			if (field.getType().isReference()) {
 				final Entity reference = findByUid(session, field.getReferenceEntityUid());
 				field.setReferenceEntity(reference);
-				field.setReferenceEntityField(reference.getFieldByUid(field.getReferenceEntityFieldUid()));
 			}
 		}
 	}
@@ -991,14 +974,13 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				if (!field.getType().isText()) {
 					field.setLength(null);
 				}
-				// only text fields can be fulltext indexed
-				if (!(field.isTextField())) {
+				// only some fields can be fulltext indexed
+				if (!(field.isTextField() || field.getType().isAutonum() || field.getType().isReference())) {
 					field.setFullTextSearch(false);
 				}
 				// only reference fields can have reference entity or field
 				if (!field.getType().isReference()) {
 					field.setReferenceEntity(null);
-					field.setReferenceEntityField(null);
 				}
 				// only calculated fields can have formular
 				if (!field.isCalculated()) {

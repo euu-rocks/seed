@@ -30,6 +30,8 @@ public interface LabelProvider {
 	
 	String formatDate(Date date);
 	
+	String formatDateTime(Date date);
+	
 	String formatTime(Date time);
 	
 	String formatBigDecimal(BigDecimal decimal);

@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import javax.annotation.PostConstruct;
 
@@ -34,8 +35,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.zkoss.math.BigDecimals;
 import org.zkoss.text.DateFormats;
-import org.zkoss.util.Locales;
-import org.zkoss.util.TimeZones;
 import org.zkoss.util.resource.Labels;
 
 @Component
@@ -43,11 +42,17 @@ public class ZKLabelProvider implements LabelProvider {
 	
 	private static final String EMPTY = "";
 	
-	private static final Locale LOCALE = Locales.getCurrent();
+	private static final Locale LOCALE = Locale.getDefault();
+	
+	private static final TimeZone TIMEZONE = TimeZone.getDefault();
 	
 	private static final Map<Enum<?>, String> cacheEnumLabel = Collections.synchronizedMap(new HashMap<>());
 	
 	private final DateFormat DATE_FORMAT = new SimpleDateFormat(
+			DateFormats.getDateFormat(DateFormat.DEFAULT, LOCALE, "yyyy/MM/dd"),
+			LOCALE);
+	
+	private final DateFormat DATE_TIME_FORMAT = new SimpleDateFormat(
 			DateFormats.getDateTimeFormat(DateFormat.DEFAULT, DateFormat.DEFAULT, LOCALE, "yyyy/MM/dd HH:mm:ss"),
 			LOCALE);
 	
@@ -57,8 +62,9 @@ public class ZKLabelProvider implements LabelProvider {
 	
 	@PostConstruct
 	private void init() {
-		DATE_FORMAT.setTimeZone(TimeZones.getCurrent());
-		TIME_FORMAT.setTimeZone(TimeZones.getCurrent());
+		DATE_FORMAT.setTimeZone(TIMEZONE);
+		DATE_TIME_FORMAT.setTimeZone(TIMEZONE);
+		TIME_FORMAT.setTimeZone(TIMEZONE);
 	}
 	
 	@Override
@@ -105,6 +111,16 @@ public class ZKLabelProvider implements LabelProvider {
 		}
 		synchronized (DATE_FORMAT) {
 			return DATE_FORMAT.format(date);
+		}
+	}
+	
+	@Override
+	public String formatDateTime(Date date) {
+		if (date == null) {
+			return EMPTY;
+		}
+		synchronized (DATE_TIME_FORMAT) {
+			return DATE_TIME_FORMAT.format(date);
 		}
 	}
 	

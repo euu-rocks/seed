@@ -21,17 +21,19 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import org.seed.core.config.ApplicationContextProvider;
 import org.seed.core.data.FileObject;
 import org.seed.core.form.LabelProvider;
 
 import org.zkoss.bind.BindContext;
-import org.zkoss.bind.Converter;
 import org.zkoss.image.AImage;
 import org.zkoss.zk.ui.Component;
 
-public class ValueConverter implements Converter<Object, Object, Component> {
-
+public class ValueConverter extends AbstractConverter<Object, Object, Component> {
+	
+	public ValueConverter(LabelProvider labelProvider) {
+		super(labelProvider);
+	}
+	
 	@Override
 	public Object coerceToUi(Object beanProp, Component component, BindContext ctx) {
 		if (beanProp != null) {
@@ -39,13 +41,13 @@ public class ValueConverter implements Converter<Object, Object, Component> {
 				return beanProp;
 			}
 			if (beanProp instanceof Date) {
-				return ApplicationContextProvider.getBean(LabelProvider.class).formatDate((Date) beanProp);
+				return labelProvider().formatDate((Date) beanProp);
 			}
 			if (beanProp instanceof BigDecimal) {
-				return ApplicationContextProvider.getBean(LabelProvider.class).formatBigDecimal((BigDecimal) beanProp);
+				return labelProvider().formatBigDecimal((BigDecimal) beanProp);
 			}
 			if (beanProp instanceof Boolean) {
-				return ApplicationContextProvider.getBean(LabelProvider.class).formatBoolean((Boolean) beanProp);
+				return labelProvider().formatBoolean((Boolean) beanProp);
 			}
 			if (beanProp instanceof FileObject) {
 				return ((FileObject) beanProp).getName();
@@ -60,11 +62,6 @@ public class ValueConverter implements Converter<Object, Object, Component> {
 			return beanProp.toString();
 		}
 		return null;
-	}
-
-	@Override
-	public Object coerceToBean(Object compAttr, Component component, BindContext ctx) {
-		throw new UnsupportedOperationException("only meant for reading");
 	}
 
 }

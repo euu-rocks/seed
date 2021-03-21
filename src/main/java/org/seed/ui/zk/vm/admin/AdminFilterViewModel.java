@@ -195,8 +195,7 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 			if (object instanceof EntityStatus) {
 				return ((EntityStatus) object).getNumberAndName();
 			}
-			return valueObjectService.getValue((ValueObject) object, 
-											   element.getEntityField().getReferenceEntityField());
+			return valueObjectService.getIdentifier((ValueObject) object);
 		}
 		return null;
 	}

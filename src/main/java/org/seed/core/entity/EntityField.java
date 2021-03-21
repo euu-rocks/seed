@@ -62,11 +62,6 @@ public class EntityField extends AbstractOrderedSystemObject
 	@JsonSerialize(using = ReferenceJsonSerializer.class)
 	private EntityMetadata referenceEntity;
 	
-	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ref_entity_field_id")
-	@JsonSerialize(using = ReferenceJsonSerializer.class)
-	private EntityField referenceEntityField;
-	
 	private String uid;
 	
 	private String name;
@@ -98,9 +93,6 @@ public class EntityField extends AbstractOrderedSystemObject
 	
 	@Transient
 	private String referenceEntityUid;
-	
-	@Transient
-	private String referenceEntityFieldUid;
 	
 	@Transient
 	private String defaultString;
@@ -200,24 +192,6 @@ public class EntityField extends AbstractOrderedSystemObject
 
 	public void setReferenceEntity(Entity referenceEntity) {
 		this.referenceEntity = (EntityMetadata) referenceEntity;
-	}
-	
-	@XmlTransient
-	public EntityField getReferenceEntityField() {
-		return referenceEntityField;
-	}
-	
-	@XmlAttribute
-	public String getReferenceEntityFieldUid() {
-		return referenceEntityField != null ? referenceEntityField.getUid() : referenceEntityFieldUid;
-	}
-
-	public void setReferenceEntityFieldUid(String referenceEntityFieldUid) {
-		this.referenceEntityFieldUid = referenceEntityFieldUid;
-	}
-
-	public void setReferenceEntityField(EntityField referenceEntityField) {
-		this.referenceEntityField = referenceEntityField;
 	}
 	
 	@XmlAttribute
@@ -338,7 +312,8 @@ public class EntityField extends AbstractOrderedSystemObject
 	}
 	
 	public boolean isTextField() {
-		return type.isText() || type.isTextLong();
+		return type != null && 
+			   (type.isText() || type.isTextLong());
 	}
 	
 	@Override
@@ -353,7 +328,6 @@ public class EntityField extends AbstractOrderedSystemObject
 		return new EqualsBuilder()
 			.append(fieldGroupUid, otherField.getFieldGroupUid())
 			.append(referenceEntityUid, otherField.getReferenceEntityUid())
-			.append(referenceEntityFieldUid, otherField.getReferenceEntityFieldUid())
 			.append(name, otherField.name)
 			.append(columnName, otherField.columnName)
 			.append(type, otherField.type)

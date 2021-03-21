@@ -55,6 +55,10 @@ public interface Entity
 	
 	String getTableName();
 	
+	String getIdentifierPattern();
+	
+	String getDefaultIdentifierPattern();
+	
 	Entity getGenericEntity();
 	
 	List<EntityField> getFields();
@@ -80,6 +84,8 @@ public interface Entity
 	EntityField findFieldByUid(String uid); // search in nestends too
 	
 	EntityField findAutonumField();
+	
+	EntityField findDefaultIdentifierField();
 	
 	List<EntityFieldGroup> getFieldGroups();
 	

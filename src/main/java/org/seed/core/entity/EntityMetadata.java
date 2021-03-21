@@ -125,6 +125,8 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	private String tableName;
 	
+	private String identifierPattern;
+	
 	private boolean isGeneric;
 	
 	@Override
@@ -157,6 +159,16 @@ public class EntityMetadata extends AbstractApplicationEntity
 		this.tableName = tableName;
 	}
 	
+	@Override
+	@XmlAttribute
+	public String getIdentifierPattern() {
+		return identifierPattern;
+	}
+
+	public void setIdentifierPattern(String identifierPattern) {
+		this.identifierPattern = identifierPattern;
+	}
+
 	@Override
 	public Date getLastModified() {
 		Date lastModified = super.getLastModified();
@@ -228,6 +240,35 @@ public class EntityMetadata extends AbstractApplicationEntity
 	@Override
 	public List<EntityField> getFullTextSearchFields() {
 		return subList(getAllFields(), f -> f.isFullTextSearch());
+	}
+	
+	@Override
+	public String getDefaultIdentifierPattern() {
+		final EntityField defaultField = findDefaultIdentifierField();
+		return defaultField != null 
+				? ("{entity} {" + defaultField.getName() + '}') 
+				: null;
+	}
+	
+	@Override
+	public EntityField findDefaultIdentifierField() {
+		// search in all unique fields first
+		if (hasAllFields()) {
+			for (EntityField field : subList(getAllFields(), f -> f.isUnique())) {
+				if (field.getType().isText() || field.getType().isAutonum()) {
+					return field;
+				}
+			}
+		}
+		// fallback: search current fields
+		if (hasFields()) {
+			for (EntityField field : getFields()) {
+				if (field.getType().isText() || field.getType().isAutonum()) {
+					return field;
+				}
+			}
+		}
+		return null;
 	}
 	
 	// includes generic fieldgroups
@@ -357,6 +398,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 		return hasFields();
 	}
 	
+	// includes nested fields
 	@Override
 	public boolean hasFullTextSearchFields() {
 		if (hasAllFields()) {
@@ -432,6 +474,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 		return getObjectByUid(getStatusList(), uid);
 	}
 	
+	// includes nested fields
 	@Override
 	public EntityField findFieldById(Long id) {
 		EntityField field = getFieldById(id);
@@ -446,6 +489,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 		return field;
 	}
 	
+	// includes nested fields
 	@Override
 	public EntityField findFieldByUid(String uid) {
 		EntityField field = getFieldByUid(uid);
@@ -774,6 +818,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 		if (!new EqualsBuilder()
 				.append(getName(), otherEntity.getName())
 				.append(tableName, otherEntity.getTableName())
+				.append(identifierPattern, otherEntity.getIdentifierPattern())
 				.append(isGeneric, otherEntity.isGeneric())
 				.isEquals()) {
 			return false;

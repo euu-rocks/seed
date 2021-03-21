@@ -27,11 +27,13 @@ import org.springframework.util.Assert;
 
 public final class Cursor {
 	
-	private final List<Tupel<Long, Long>> fullTextResult;
-	
 	private final CriteriaQuery<?> query;
 	
 	private final String hqlQuery;
+	
+	private final String fullTextQuery;
+	
+	private final List<Tupel<Long, Long>> fullTextResult;
 	
 	private final int totalCount;
 	
@@ -39,12 +41,14 @@ public final class Cursor {
 	
 	private int startIndex;
 	
-	public Cursor(List<Tupel<Long, Long>> fullTextResult, int chunkSize) {
+	public Cursor(String fullTextQuery, List<Tupel<Long, Long>> fullTextResult, int chunkSize) {
+		Assert.notNull(fullTextQuery, "fullTextQuery is null");
 		Assert.notNull(fullTextResult, "fullTextResult is null");
 		Assert.state(chunkSize > 0, "illegal chunk size " + chunkSize);
 		
 		this.query = null;
 		this.hqlQuery = null;
+		this.fullTextQuery = fullTextQuery;
 		this.fullTextResult = fullTextResult;
 		this.totalCount = fullTextResult.size();
 		this.chunkSize = chunkSize;
@@ -55,6 +59,7 @@ public final class Cursor {
 		Assert.state(chunkSize > 0, "illegal chunk size " + chunkSize);
 		
 		this.query = null;
+		this.fullTextQuery = null;
 		this.fullTextResult = null;
 		this.hqlQuery = hqlQuery;
 		this.totalCount = totalCount;
@@ -66,6 +71,7 @@ public final class Cursor {
 		Assert.state(chunkSize > 0, "illegal chunk size " + chunkSize);
 		
 		this.hqlQuery = null;
+		this.fullTextQuery = null;
 		this.fullTextResult = null;
 		this.query = query;
 		this.totalCount = totalCount;
@@ -89,6 +95,10 @@ public final class Cursor {
 
 	public String getHqlQuery() {
 		return hqlQuery;
+	}
+
+	public String getFullTextQuery() {
+		return fullTextQuery;
 	}
 
 	public int getTotalCount() {

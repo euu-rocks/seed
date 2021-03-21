@@ -22,6 +22,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.springframework.core.io.Resource;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -50,6 +54,19 @@ public abstract class MiscUtils {
 			buf.append(element);
 		}
 		return buf.toString();
+	}
+	
+	public static String filterString(String text, Predicate<Character> predicate) {
+		return text.chars().mapToObj(c -> (char) c)
+				   .filter(predicate)
+				   .map(c -> c.toString())
+				   .collect(Collectors.joining());
+	}
+	
+	public static String replaceAllIgnoreCase(String text, String replaceable, String replacemnet) {
+		return Pattern.compile(replaceable, Pattern.LITERAL | Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE)
+					  .matcher(text)
+					  .replaceAll(Matcher.quoteReplacement(replacemnet));
 	}
 	
 	public static String formatDuration(long startTime) {

@@ -19,24 +19,20 @@ package org.seed.ui.zk;
 
 import java.util.Date;
 
-import org.seed.core.config.ApplicationContextProvider;
 import org.seed.core.form.LabelProvider;
 
 import org.zkoss.bind.BindContext;
-import org.zkoss.bind.Converter;
 import org.zkoss.zk.ui.Component;
 
-public class TimeConverter implements Converter<String, Date, Component> {
-
+public class TimeConverter extends AbstractConverter<String, Date, Component> {
+	
+	public TimeConverter(LabelProvider labelProvider) {
+		super(labelProvider);
+	} 
+	
 	@Override
 	public String coerceToUi(Date beanProp, Component component, BindContext ctx) {
-		return ApplicationContextProvider.getBean(LabelProvider.class)
-										 .formatTime((Date) beanProp);
-	}
-
-	@Override
-	public Date coerceToBean(String compAttr, Component component, BindContext ctx) {
-		throw new UnsupportedOperationException("only meant for reading");
+		return labelProvider().formatTime(beanProp);
 	}
 
 }

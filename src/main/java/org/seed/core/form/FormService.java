@@ -22,7 +22,6 @@ import java.util.List;
 import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
-import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.user.User;
@@ -38,8 +37,6 @@ public interface FormService extends ApplicationEntityService<Form> {
 	List<Form> findForms(Entity entity);
 	
 	List<FormField> getAvailableFields(Form form);
-	
-	List<EntityField> getListFormFields(Entity entity, int numMax);
 	
 	List<FormTransformer> getAvailableTransformers(Form form);
 	

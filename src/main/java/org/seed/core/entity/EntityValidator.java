@@ -42,19 +42,34 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		Assert.notNull(entity, "entity is null");
 		final Set<ValidationError> errors = createErrorList();
 		
-		// name / table name
+		// name
 		if (isEmpty(entity.getName())) {
 			errors.add(new ValidationError("val.empty.field", "label.name"));
 		}
 		else if (!isNameLengthAllowed(entity.getName())) {
 			errors.add(new ValidationError("val.toolong.name", String.valueOf(getMaxNameLength())));
 		}
-		else if (!isNameAllowed(entity.getInternalName())) {
+		else if ((entity.getTableName() == null && entity.getInternalName().toLowerCase().startsWith("sys_")) || 
+				 !isNameAllowed(entity.getInternalName())) {
 			errors.add(new ValidationError("val.illegal.field", "label.name", entity.getName()));
 		}
-		if (entity.getTableName() != null && !isNameLengthAllowed(entity.getTableName())) {
-			errors.add(new ValidationError("val.toolong.fieldvalue", "label.tablename", 
-										   String.valueOf(getMaxNameLength())));
+		
+		// table name
+		if (entity.getTableName() != null) {
+			if (entity.getTableName().toLowerCase().startsWith("sys_")) {
+				errors.add(new ValidationError("val.illegal.field", "label.tablename", entity.getTableName()));
+			}
+			else if (!isNameLengthAllowed(entity.getTableName())) {
+				errors.add(new ValidationError("val.toolong.fieldvalue", "label.tablename", 
+						   String.valueOf(getMaxNameLength())));
+			}
+		}
+		
+		// identifier
+		if (entity.getIdentifierPattern() != null && 
+			!isNameLengthAllowed(entity.getIdentifierPattern())) {
+			errors.add(new ValidationError("val.toolong.fieldvalue", "label.identifier", 
+					   						String.valueOf(getMaxNameLength())));
 		}
 		
 		// field groups
@@ -124,9 +139,6 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 				else if (field.getType().isReference()) {
 					if (isEmpty(field.getReferenceEntity())) {
 						errors.add(new ValidationError("val.empty.field", "label.refentity"));
-					}
-					else if (isEmpty(field.getReferenceEntityField())) {
-						errors.add(new ValidationError("val.empty.field", "label.reffield"));
 					}
 				}
 				if (field.isCalculated() && isEmpty(field.getFormula())) {
