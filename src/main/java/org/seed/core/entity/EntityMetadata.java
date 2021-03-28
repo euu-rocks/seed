@@ -140,11 +140,13 @@ public class EntityMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
+	@JsonIgnore
 	public String getGeneratedPackage() {
 		return PACKAGE_NAME;
 	}
 
 	@Override
+	@JsonIgnore
 	public String getGeneratedClass() {
 		return StringUtils.capitalize(getInternalName());
 	}
@@ -238,11 +240,13 @@ public class EntityMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
+	@JsonIgnore
 	public List<EntityField> getFullTextSearchFields() {
 		return subList(getAllFields(), f -> f.isFullTextSearch());
 	}
 	
 	@Override
+	@JsonIgnore
 	public String getDefaultIdentifierPattern() {
 		final EntityField defaultField = findDefaultIdentifierField();
 		return defaultField != null 
@@ -769,16 +773,19 @@ public class EntityMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
+	@JsonIgnore
 	public List<EntityFunction> getCallbackFunctions() {
 		return subList(getFunctions(), f -> f.isCallback());
 	}
 	
 	@Override
+	@JsonIgnore
 	public List<EntityFunction> getMemberFunctions() {
 		return subList(getFunctions(), f -> !f.isCallback());
 	}
 	
 	@Override
+	@JsonIgnore
 	public List<EntityFunction> getUserActionFunctions() {
 		return subList(getFunctions(), f -> f.isActiveOnUserAction());
 	}

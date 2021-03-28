@@ -60,6 +60,7 @@ public class EntityPermission extends AbstractSystemObject
 	private EntityAccess access;
 	
 	@Transient
+	@JsonIgnore
 	private String userGroupUid;
 	
 	@Override

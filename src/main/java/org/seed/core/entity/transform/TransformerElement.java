@@ -32,6 +32,10 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.seed.core.application.TransferableObject;
 import org.seed.core.data.AbstractSystemObject;
 import org.seed.core.entity.EntityField;
+import org.seed.core.util.ReferenceJsonSerializer;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @javax.persistence.Entity
 @Table(name = "sys_entity_transform_elem")
@@ -41,22 +45,27 @@ public class TransformerElement extends AbstractSystemObject
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "transform_id")
+	@JsonIgnore
 	private TransformerMetadata transformer;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "source_field_id")
+	@JsonSerialize(using = ReferenceJsonSerializer.class)
 	private EntityField sourceField;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "target_field_id")
+	@JsonSerialize(using = ReferenceJsonSerializer.class)
 	private EntityField targetField;
 	
 	private String uid;
 	
 	@Transient
+	@JsonIgnore
 	private String sourceFieldUid;
 	
 	@Transient
+	@JsonIgnore
 	private String targetFieldUid;
 	
 	@Override

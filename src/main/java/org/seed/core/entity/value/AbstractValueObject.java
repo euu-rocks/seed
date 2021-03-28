@@ -22,9 +22,12 @@ import javax.persistence.Transient;
 import org.seed.core.data.AbstractSystemObject;
 import org.seed.core.entity.EntityStatus;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public abstract class AbstractValueObject extends AbstractSystemObject implements ValueObject {
 	
 	@Transient
+	@JsonIgnore
 	private Long tmpId; // temporary id, if object is new
 	
 	public Long getTmpId() {
@@ -37,7 +40,7 @@ public abstract class AbstractValueObject extends AbstractSystemObject implement
 
 	@Override
 	public EntityStatus getEntityStatus() {
-		throw new IllegalStateException("entity has no status");
+		return null;
 	}
 	
 	public void setEntityStatus(EntityStatus entityStatus) {

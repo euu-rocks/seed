@@ -66,9 +66,11 @@ public class NestedEntity extends AbstractOrderedSystemObject
 	private String name;
 	
 	@Transient
+	@JsonIgnore
 	private String nestedEntityUid;
 	
 	@Transient
+	@JsonIgnore
 	private String referenceFieldUid;
 	
 	@Override

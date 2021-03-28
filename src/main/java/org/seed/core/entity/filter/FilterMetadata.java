@@ -39,9 +39,13 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityMetadata;
+import org.seed.core.util.ReferenceJsonSerializer;
 
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @javax.persistence.Entity
 @Table(name = "sys_entity_filter")
@@ -50,6 +54,7 @@ public class FilterMetadata extends AbstractApplicationEntity implements Filter 
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "entity_id")
+	@JsonSerialize(using = ReferenceJsonSerializer.class)
 	private EntityMetadata entity;
 	
 	@OneToMany(mappedBy = "filter",
@@ -96,6 +101,7 @@ public class FilterMetadata extends AbstractApplicationEntity implements Filter 
 	
 	@Override
 	@XmlAttribute
+	@JsonIgnore
 	public String getEntityUid() {
 		return entity != null ? entity.getUid() : entityUid;
 	}

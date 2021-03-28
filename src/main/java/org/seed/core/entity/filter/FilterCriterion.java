@@ -38,9 +38,13 @@ import org.seed.core.data.FieldType;
 import org.seed.core.data.SystemField;
 import org.seed.core.data.SystemObject;
 import org.seed.core.entity.EntityField;
+import org.seed.core.util.ReferenceJsonSerializer;
 
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @javax.persistence.Entity
 @Table(name = "sys_entity_filter_criterion")
@@ -50,10 +54,12 @@ public class FilterCriterion extends AbstractSystemObject
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "filter_id")
+	@JsonIgnore
 	private FilterMetadata filter;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "entity_field_id")
+	@JsonSerialize(using = ReferenceJsonSerializer.class)
 	private EntityField entityField;
 	
 	private String uid;
@@ -81,12 +87,15 @@ public class FilterCriterion extends AbstractSystemObject
 	private Long referenceId;
 	
 	@Transient
+	@JsonIgnore
 	private String entityFieldUid;
 	
 	@Transient
+	@JsonIgnore
 	private FilterElement element;
 	
 	@Transient
+	@JsonIgnore
 	private SystemObject reference;
 	
 	@Override
@@ -288,6 +297,7 @@ public class FilterCriterion extends AbstractSystemObject
 	}
 	
 	@XmlTransient
+	@JsonIgnore
 	public Object getValue() {
 		final FieldType fieldType = fieldType();
 		if (fieldType == null) {

@@ -19,8 +19,10 @@ package org.seed.core.entity.value;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
@@ -148,6 +150,28 @@ public class ValueObjectServiceImpl
 					tx.rollback();
 				}
 				throw ex;
+			}
+		}
+	}
+	
+	@Override
+	public ValueObject createObject(Entity entity, Map<String,Object> valueMap) {
+		try (Session session = repository.getSession()) {
+			Transaction tx = null;
+			try {
+				tx = session.beginTransaction();
+				final ValueObject object = repository.createInstance(entity, session, null);
+				if (setObjectValues(session, entity, object, valueMap)) {
+					saveObject(object, session, null);
+				}
+				tx.commit();
+				return object;
+			}
+			catch (Exception ex) {
+				if (tx != null) {
+					tx.rollback();
+				}
+				throw new RuntimeException(ex);
 			}
 		}
 	}
@@ -314,6 +338,11 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
+	public ValueObject getObject(Session session, Entity entity, Long id) {
+		return repository.get(session, entity, id);
+	}
+	
+	@Override
 	public ValueObject getObject(Session session, Class<?> entityClass, Long id) {
 		return repository.get(session, entityClass, id);
 	}
@@ -389,6 +418,28 @@ public class ValueObjectServiceImpl
 		
 		for (ValueObjectChangeAware changeAware : changeAwareObjects) {
 			changeAware.notifyDelete(object, _session);
+		}
+	}
+	
+	@Override
+	public ValueObject updateObject(Entity entity, Long objectId, Map<String,Object> valueMap) throws ValidationException {
+		try (Session session = repository.getSession()) {
+			Transaction tx = null;
+			try {
+				tx = session.beginTransaction();
+				final ValueObject object = repository.get(session, entity, objectId);
+				if (setObjectValues(session, entity, object, valueMap)) {
+					saveObject(object, session, null);
+				}
+				tx.commit();
+				return object;
+			}
+			catch (Exception ex) {
+				if (tx != null) {
+					tx.rollback();
+				}
+				throw ex;
+			}
 		}
 	}
 	
@@ -548,6 +599,79 @@ public class ValueObjectServiceImpl
 			result.add(object);
 		}
 		return result;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private boolean setObjectValues(Session session, Entity entity, 
+									ValueObject object, Map<String, Object> valueMap) {
+		boolean isModified = false;
+		if (entity.hasAllFields()) {
+			for (EntityField field : entity.getAllFields()) {
+				if (field.isJsonSerializable() && 
+					!field.getType().isAutonum() &&
+					valueMap.containsKey(field.getInternalName())) {
+					
+					Object value = valueMap.get(field.getInternalName());
+					if (value != null && field.getType().isReference()) {
+						Assert.state(value instanceof Map, "value of '" + field.getInternalName() + "' is not a map");
+						final Map<String, Object> objectMap = (Map<String, Object>) value;
+						final Integer referenceId = (Integer) objectMap.get("id");
+						Assert.state(referenceId != null, "reference id of '" + field.getInternalName() + "' is not available");
+						value = getObject(session, field.getReferenceEntity(), referenceId.longValue());
+					}
+					objectAccess.setValue(object, field, value);
+					isModified = true;
+				}
+			}
+		}
+		if (entity.hasAllNesteds()) {
+			for (NestedEntity nested : entity.getAllNesteds()) {
+				// skip if nested entity has no fields
+				if (!nested.getNestedEntity().hasAllFields()) {
+					continue;
+				}
+				// get nested maps
+				final List<Map<String, Object>> listNestedMaps = 
+						(List<Map<String, Object>>) valueMap.get(nested.getInternalName());
+				// skip if no nested maps exist
+				if (listNestedMaps == null || listNestedMaps.isEmpty()) {
+					continue;
+				}
+				
+				// get existing nested value objects as map
+				final Map<Long, ValueObject> nestedObjectMap = 
+						objectAccess.getNestedObjects(object, nested).stream()
+									.collect(Collectors.toMap(obj -> obj.getId(),
+													  		  obj -> obj));
+				// iterate over nested maps
+				final Set<Long> nestedIds = new HashSet<>();
+				for (Map<String, Object> nestedValueMap : listNestedMaps) {
+					final Integer nestedId = (Integer) nestedValueMap.get("id");
+					// update existing nested object
+					if (nestedId != null && nestedObjectMap != null && 
+						nestedObjectMap.containsKey(nestedId.longValue())) {
+						final ValueObject nestedObject = nestedObjectMap.get(nestedId.longValue());
+						if (setObjectValues(session, nested.getNestedEntity(), nestedObject, nestedValueMap)) {
+							isModified = true;
+						}
+						nestedIds.add(nestedId.longValue());
+					}
+					// create new nested object
+					else {
+						final ValueObject nestedObject = objectAccess.addNestedInstance(object, nested);
+						setObjectValues(session, nested.getNestedEntity(), nestedObject, nestedValueMap);
+						isModified = true;
+					}
+				}
+				// remove nested objects 
+				for (Map.Entry<Long, ValueObject> entry : nestedObjectMap.entrySet()) {
+					if (!nestedIds.contains(entry.getKey())) {
+						objectAccess.removeNestedObject(object, nested, entry.getValue());
+					}
+				}
+			}
+		}
+		return isModified;
 	}
 	
 	private void clearEmptyFileObjects(ValueObject object) {

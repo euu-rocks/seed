@@ -77,15 +77,19 @@ public class EntityFieldConstraint extends AbstractSystemObject
 	private boolean isMandatory;
 	
 	@Transient
+	@JsonIgnore
 	private String fieldUid;
 	
 	@Transient
+	@JsonIgnore
 	private String fieldGroupUid;
 	
 	@Transient
+	@JsonIgnore
 	private String statusUid;
 	
 	@Transient
+	@JsonIgnore
 	private String userGroupUid;
 	
 	@Override

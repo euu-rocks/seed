@@ -96,7 +96,15 @@ public class ValueObjectRepository {
 		}
 	}
 	
+	public ValueObject get(Session session, Entity entity, Long id) {
+		Assert.notNull(entity, "entity is null");
+		Assert.state(!entity.isGeneric(), "entity is generic");
+		
+		return get(session, getEntityClass(entity), id);
+	}
+	
 	public ValueObject get(Session session, Class<?> entityClass, Long id) {
+		Assert.notNull(session, "session is null");
 		Assert.notNull(entityClass, "entityClass is null");
 		Assert.notNull(id, "id is null");
 		
@@ -561,7 +569,7 @@ public class ValueObjectRepository {
 		}
 	}
 	
-	private Class<?> getEntityClass(Entity entity) {
+	Class<?> getEntityClass(Entity entity) {
 		Assert.notNull(entity, "entity is null");
 		Assert.state(!entity.isNew(), "entity is new");
 		

@@ -37,6 +37,7 @@ public abstract class AbstractSystemEntity extends AbstractSystemObject
 	private String name;
 	
 	@Transient
+	@JsonIgnore
 	private Options options;
 	
 	@Override
@@ -52,7 +53,7 @@ public abstract class AbstractSystemEntity extends AbstractSystemObject
 	@Override
 	@JsonIgnore
 	public final String getInternalName() {
-		return NameUtils.getInternalName(getName()); // getName() instead of name is necessary
+		return NameUtils.getInternalName(getName());
 	}
 	
 	@Override

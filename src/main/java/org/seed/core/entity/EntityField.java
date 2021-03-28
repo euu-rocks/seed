@@ -89,21 +89,27 @@ public class EntityField extends AbstractOrderedSystemObject
 	private boolean isFullTextSearch;
 	
 	@Transient
+	@JsonIgnore
 	private String fieldGroupUid;
 	
 	@Transient
+	@JsonIgnore
 	private String referenceEntityUid;
 	
 	@Transient
+	@JsonIgnore
 	private String defaultString;
 	
 	@Transient
+	@JsonIgnore
 	private Number defaultNumber;
 	
 	@Transient
+	@JsonIgnore
 	private Date defaultDate;
 	
 	@Transient
+	@JsonIgnore
 	private SystemObject defaultObject;
 	
 	@Override
@@ -311,9 +317,16 @@ public class EntityField extends AbstractOrderedSystemObject
 		this.defaultObject = defaultObject;
 	}
 	
+	@JsonIgnore
 	public boolean isTextField() {
 		return type != null && 
 			   (type.isText() || type.isTextLong());
+	}
+	
+	@JsonIgnore
+	public boolean isJsonSerializable() {
+		return type != null && 
+				!(type.isBinary() || type.isFile());
 	}
 	
 	@Override

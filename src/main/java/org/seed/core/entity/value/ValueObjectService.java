@@ -47,6 +47,8 @@ public interface ValueObjectService {
 	
 	ValueObject createInstance(Entity entity, Session session, ValueObjectFunctionContext functionContext);
 	
+	ValueObject createObject(Entity entity, Map<String,Object> valueMap);
+	
 	Cursor createCursor(Entity entity, @Nullable Filter filter, Sort ...sort);
 	
 	Cursor createCursor(ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sort);
@@ -98,6 +100,8 @@ public interface ValueObjectService {
 	
 	ValueObject getObject(Entity entity, Long objectId);
 	
+	ValueObject getObject(Session session, Entity entity, Long id);
+	
 	ValueObject getObject(Session session, Class<?> entityClass, Long id);
 	
 	List<ValueObject> getAllObjects(Entity entity);
@@ -118,6 +122,8 @@ public interface ValueObjectService {
 	
 	void deleteObject(ValueObject object, Session session, ValueObjectFunctionContext functionContext) 
 			throws ValidationException;
+	
+	ValueObject updateObject(Entity entity, Long objectId, Map<String,Object> valueMap) throws ValidationException;
 	
 	void saveObject(ValueObject object) throws ValidationException;
 	

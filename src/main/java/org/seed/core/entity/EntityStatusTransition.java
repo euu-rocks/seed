@@ -88,9 +88,11 @@ public class EntityStatusTransition extends AbstractSystemObject
 	private String uid;
 	
 	@Transient
+	@JsonIgnore
 	private String sourceStatusUid;
 	
 	@Transient
+	@JsonIgnore
 	private String targetStatusUid;
 	
 	@Override
@@ -209,8 +211,9 @@ public class EntityStatusTransition extends AbstractSystemObject
 					return true;
 				}
 			}
+			return false;
 		}
-		return false;
+		return true;
 	}
 	
 	@JsonIgnore

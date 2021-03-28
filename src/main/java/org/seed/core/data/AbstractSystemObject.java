@@ -43,14 +43,19 @@ public abstract class AbstractSystemObject implements SystemObject {
 	private Long id;
 	
 	@Version
+	@JsonIgnore
 	private int version;
 	
+	@JsonIgnore
 	private Date createdOn;
 	
+	@JsonIgnore
 	private String createdBy;
 	
+	@JsonIgnore
 	private Date modifiedOn;
 	
+	@JsonIgnore
 	private String modifiedBy;
 	
 	@Override

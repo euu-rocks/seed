@@ -49,9 +49,13 @@ import org.seed.core.entity.EntityStatus;
 import org.seed.core.user.User;
 import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupMetadata;
+import org.seed.core.util.ReferenceJsonSerializer;
 
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @javax.persistence.Entity
 @Table(name = "sys_entity_transform")
@@ -61,10 +65,12 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "source_entity_id")
+	@JsonSerialize(using = ReferenceJsonSerializer.class)
 	private EntityMetadata sourceEntity;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "target_entity_id")
+	@JsonSerialize(using = ReferenceJsonSerializer.class)
 	private EntityMetadata targetEntity;
 	
 	@OneToMany(mappedBy = "transformer",
@@ -101,9 +107,11 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	private Set<EntityStatus> status;
 	
 	@Transient
+	@JsonIgnore
 	private String sourceEntityUid;
 	
 	@Transient
+	@JsonIgnore
 	private String targetEntityUid;
 	
 	@Override

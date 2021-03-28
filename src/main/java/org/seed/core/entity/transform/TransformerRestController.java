@@ -15,31 +15,24 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.data;
+package org.seed.core.entity.transform;
 
-import javax.persistence.Column;
-import javax.persistence.MappedSuperclass;
-import javax.xml.bind.annotation.XmlAttribute;
+import org.seed.core.application.AbstractRestController;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@MappedSuperclass
-public abstract class AbstractOrderedSystemObject extends AbstractSystemObject 
-	implements Order {
+@RestController
+@RequestMapping("/rest/transformations")
+public class TransformerRestController extends AbstractRestController<Transformer> {
 	
-	@JsonIgnore
-	@Column(name = "ordernum")
-	private int order;
+	@Autowired
+	private TransformerService transformerService;
 	
 	@Override
-	@XmlAttribute
-	public int getOrder() {
-		return order;
+	protected TransformerService getService() {
+		return transformerService;
 	}
-	
-	@Override
-	public void setOrder(int order) {
-		this.order = order;
-	}
-	
+
 }

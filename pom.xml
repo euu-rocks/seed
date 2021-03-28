@@ -39,14 +39,14 @@
 		<zk.version>9.5.0.2</zk.version>
 		<poi.version>4.1.2</poi.version>
 		<itext.version>5.5.13.2</itext.version>
-		<opencsv.version>5.3</opencsv.version>
+		<opencsv.version>5.4</opencsv.version>
 		<mycila-license-version>3.0</mycila-license-version>
 	</properties>
 	
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.4.3</version>
+		<version>2.4.4</version>
 		<relativePath/>
 	</parent>
 

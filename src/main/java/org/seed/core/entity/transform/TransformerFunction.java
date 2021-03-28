@@ -48,6 +48,7 @@ public class TransformerFunction extends AbstractOrderedSystemObject
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "transform_id")
+	@JsonIgnore
 	private TransformerMetadata transformer;
 	
 	private String uid;

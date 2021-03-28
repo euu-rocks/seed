@@ -15,31 +15,31 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.data;
+package org.seed.core.application;
 
-import javax.persistence.Column;
-import javax.persistence.MappedSuperclass;
-import javax.xml.bind.annotation.XmlAttribute;
+import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.server.ResponseStatusException;
 
-@MappedSuperclass
-public abstract class AbstractOrderedSystemObject extends AbstractSystemObject 
-	implements Order {
+public abstract class AbstractRestController<T extends ApplicationEntity> {
 	
-	@JsonIgnore
-	@Column(name = "ordernum")
-	private int order;
-	
-	@Override
-	@XmlAttribute
-	public int getOrder() {
-		return order;
+	@GetMapping
+	public List<T> findAll() {
+		return getService().findAllObjects();
 	}
 	
-	@Override
-	public void setOrder(int order) {
-		this.order = order;
+	@GetMapping(value = "/{id}")
+	public T get(@PathVariable("id") Long id) {
+		final T object = getService().getObject(id);
+		if (object == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		}
+		return object;
 	}
+	
+	protected abstract ApplicationEntityService<T> getService();
 	
 }

@@ -46,11 +46,13 @@ import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.entity.value.AbstractValueObject;
 import org.seed.core.entity.value.ValueEntity;
+import org.seed.core.util.ReferenceJsonSerializer;
 
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder<Entity> {
 	
@@ -131,7 +133,13 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder<Entity> {
 		}
 		if (entity.hasFields()) {
 			for (EntityField field : entity.getFields()) {
-				addGetterAndSetter(field.getInternalName());
+				if (field.isJsonSerializable()) {
+					addGetterAndSetter(field.getInternalName());
+				}
+				else {
+					addGetterAndSetter(field.getInternalName(), 
+									   newAnnotation(JsonIgnore.class));
+				}
 			}
 		}
 		if (entity.hasNesteds()) {
@@ -192,20 +200,23 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder<Entity> {
 	}
 	
 	private void buildStatusField() {
+		addImport(ReferenceJsonSerializer.class);
 		addMember("entityStatus", newTypeClass(EntityStatus.class), 
 				  newAnnotation(JoinColumn.class, "name", quote("status_id")),
-				  newAnnotation(ManyToOne.class, "fetch", FetchType.LAZY));
+				  newAnnotation(ManyToOne.class, "fetch", FetchType.LAZY),
+				  newAnnotation(JsonSerialize.class, "using", "ReferenceJsonSerializer.class"));
 	}
 	
 	private void buildEntityIdGetter() {
 		addMethod(newTypeClass(Long.class), "getEntityId", null, 
-				  "return " + (entity.isNew() ? -1 : entity.getId()) + "L;" + LF);
+				  "return " + (entity.isNew() ? -1 : entity.getId()) + "L;" + LF,
+				  newAnnotation(JsonIgnore.class));
 	}
 	
 	private void buildFields() {
 		for (EntityField field : entity.getFields()) {
 			TypeClass typeClass = newTypeClass(field.getType().typeClass); 
-			final List<AnnotationMetadata> annotations = new ArrayList<>(4);
+			final List<AnnotationMetadata> annotations = new ArrayList<>(5);
 			if (field.getColumnName() != null) {
 				annotations.add(newAnnotation(Column.class, "name", quote(field.getColumnName().toLowerCase())));
 			}
@@ -213,6 +224,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder<Entity> {
 				annotations.add(newAnnotation(Formula.class, field.getFormula()));
 			}
 			else if (field.getType().isReference() || field.getType().isFile()) {
+				addImport(ReferenceJsonSerializer.class);
 				final Map<String, Object> annotationParamMap = new HashMap<>(4);
 				annotationParamMap.put("fetch", FetchType.LAZY);
 				if (field.getType().isFile()) {
@@ -220,6 +232,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder<Entity> {
 				}
 				annotations.add(newAnnotation(ManyToOne.class, annotationParamMap));
 				annotations.add(newAnnotation(JoinColumn.class, "name", quote(field.getInternalName())));
+				annotations.add(newAnnotation(JsonSerialize.class, "using", "ReferenceJsonSerializer.class"));
 				if (field.getType().isReference()) {
 					typeClass = newTypeClass(field.getReferenceEntity());
 				}
