@@ -791,8 +791,13 @@ public class EntityMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
+	public EntityFunction getFunctionById(Long id) {
+		return getObjectById(getAllFunctions(), id);
+	}
+	
+	@Override
 	public EntityFunction getFunctionByUid(String uid) {
-		return getObjectByUid(getFunctions(), uid);
+		return getObjectByUid(getAllFunctions(), uid);
 	}
 
 	@Override

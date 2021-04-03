@@ -264,6 +264,11 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	}
 	
 	@Override
+	public void saveTaskDirectly(Task task) {
+		getRepository().save(task);
+	}
+	
+	@Override
 	@Secured("ROLE_ADMIN_JOB")
 	public void deleteObject(Task task) throws ValidationException {
 		super.deleteObject(task);

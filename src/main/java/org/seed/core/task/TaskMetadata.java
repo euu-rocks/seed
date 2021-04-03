@@ -45,6 +45,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "sys_task")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -59,6 +61,7 @@ public class TaskMetadata extends AbstractApplicationEntity
 	
 	private String cronExpression;
 	
+	@JsonIgnore
 	private String content;
 	
 	private boolean isActive;
@@ -162,11 +165,13 @@ public class TaskMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
+	@JsonIgnore
 	public String getGeneratedPackage() {
 		return PACKAGE_NAME;
 	}
 
 	@Override
+	@JsonIgnore
 	public String getGeneratedClass() {
 		return StringUtils.capitalize(getInternalName());
 	}
@@ -238,6 +243,7 @@ public class TaskMetadata extends AbstractApplicationEntity
 	
 	@Override
 	@XmlTransient
+	@JsonIgnore
 	public List<TaskNotification> getNotifications() {
 		return notifications;
 	}
@@ -266,6 +272,7 @@ public class TaskMetadata extends AbstractApplicationEntity
 
 	@Override
 	@XmlTransient
+	@JsonIgnore
 	public List<TaskRun> getRuns() {
 		return runs;
 	}

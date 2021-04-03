@@ -22,14 +22,19 @@ import java.util.Map;
 
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
+import org.seed.core.entity.EntityAccess;
+import org.seed.core.entity.EntityFunction;
 import org.seed.core.entity.EntityService;
 import org.seed.core.entity.filter.Filter;
 import org.seed.core.entity.filter.FilterService;
 import org.seed.core.entity.transform.Transformer;
 import org.seed.core.entity.transform.TransformerService;
+import org.seed.core.user.User;
+import org.seed.core.user.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,6 +60,9 @@ public class ValueObjectRestController {
 	@Autowired
 	private ValueObjectService service;
 	
+	@Autowired
+	private UserService userService;
+	
 	@GetMapping(value = "/{name}")
 	public List<ValueObject> getObjects(@PathVariable("name") String name) {
 		return service.getAllObjects(getEntity(name));
@@ -69,21 +77,29 @@ public class ValueObjectRestController {
 	@PostMapping(value = "/{name}")
 	public ValueObject createObject(@PathVariable("name") String name, 
 									@RequestBody Map<String, Object> valueMap) {
-		return service.createObject(getEntity(name), valueMap);
+		final Entity entity = getEntity(name);
+		checkEntityAccess(entity, EntityAccess.CREATE);
+		return service.createObject(entity, valueMap);
 	}
 	
 	@GetMapping(value = "/{name}/{id}")
 	public ValueObject getObject(@PathVariable("name") String name, 
 								 @PathVariable("id") Long id) {
-		return service.getObject(getEntity(name), id);
+		final ValueObject object = service.getObject(getEntity(name), id);
+		if (object == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, name + ' ' + id);
+		}
+		return object;
 	}
 	
 	@PostMapping(value = "/{name}/{id}")
 	public ValueObject updateObject(@PathVariable("name") String name, 
 									@PathVariable("id") Long id,
 									@RequestBody Map<String, Object> valueMap) {
+		final Entity entity = getEntity(name);
+		checkEntityAccess(entity, EntityAccess.WRITE);
 		try {
-			return service.updateObject(getEntity(name), id, valueMap);
+			return service.updateObject(entity, id, valueMap);
 		}
 		catch (ValidationException vex) {
 			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, name + ' ' + id);
@@ -94,11 +110,13 @@ public class ValueObjectRestController {
 	public ValueObject changeStatus(@PathVariable("name") String name, 
 								    @PathVariable("id") Long id,
 								    @PathVariable("statusid") Long statusid) {
+		final Entity entity = getEntity(name);
+		checkEntityAccess(entity, EntityAccess.WRITE);
 		try {
 			service.changeStatus(getObject(name, id), 
-								 getEntity(name).getStatusById(statusid));
+								 entity.getStatusById(statusid));
 			return getObject(name, id);
-		} 
+		}
 		catch (ValidationException vex) {
 			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, name + ' ' + id);
 		}
@@ -108,12 +126,25 @@ public class ValueObjectRestController {
 	public ValueObject transformObject(@PathVariable("name") String name, 
 		    						   @PathVariable("id") Long id,
 		    						   @PathVariable("transformationid") Long transformationid) {
-		return service.transform(getTransformer(transformationid), getObject(name, id));
+		return service.transform(getTransformer(transformationid), 
+								 getObject(name, id));
+		
+	}
+	
+	@PostMapping(value = "/{name}/{id}/function/{functionid}")
+	public ValueObject callFunction(@PathVariable("name") String name, 
+			   						@PathVariable("id") Long id,
+			   						@PathVariable("functionid") Long functionid) {
+		final ValueObject object = getObject(name, id);
+		service.callUserActionFunction(object, getFunction(name, functionid));
+		return object;
 	}
 	
 	@DeleteMapping(value = "/{name}/{id}")
 	public void deleteObject(@PathVariable("name") String name, 
 			 				 @PathVariable("id") Long id) {
+		final Entity entity = getEntity(name);
+		checkEntityAccess(entity, EntityAccess.DELETE);
 		try {
 			service.deleteObject(getObject(name, id));
 		} 
@@ -125,8 +156,9 @@ public class ValueObjectRestController {
 	private Entity getEntity(String name) {
 		final Entity entity = entityService.findByName(name);
 		if (entity == null) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, name);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity:" + name);
 		}
+		checkEntityAccess(entity, EntityAccess.READ);
 		return entity;
 	}
 	
@@ -135,7 +167,18 @@ public class ValueObjectRestController {
 		if (filter == null) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "filter:" + id);
 		}
+		if (!filter.checkPermissions(userService.getCurrentUser(), null)) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "filter:" + id);
+		}
 		return filter;
+	}
+	
+	private EntityFunction getFunction(String name, Long functionId) {
+		final EntityFunction function = getEntity(name).getFunctionById(functionId);
+		if (function == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "function:" + functionId);
+		}
+		return function;
 	}
 	
 	private Transformer getTransformer(Long id) {
@@ -143,7 +186,20 @@ public class ValueObjectRestController {
 		if (transformer == null) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "transformation:" + id);
 		}
+		if (!transformer.checkPermissions(userService.getCurrentUser(), null)) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "transformation:" + id);
+		}
 		return transformer;
+	}
+	
+	private void checkEntityAccess(Entity entity, EntityAccess access) {
+		Assert.notNull(entity, "entity is null");
+		
+		final User user = userService.getCurrentUser();
+		Assert.state(user != null, "user not available");
+		if (!entity.checkPermissions(user, access)) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, access + " " + entity.getName());
+		}
 	}
 	
 }

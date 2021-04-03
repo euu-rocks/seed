@@ -34,6 +34,10 @@ import org.seed.core.application.TransferableObject;
 import org.seed.core.data.AbstractSystemObject;
 import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupMetadata;
+import org.seed.core.util.ReferenceJsonSerializer;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @javax.persistence.Entity
 @Table(name = "sys_task_permission")
@@ -43,10 +47,12 @@ public class TaskPermission extends AbstractSystemObject
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_id")
+	@JsonIgnore
 	private TaskMetadata task;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usergroup_id")
+	@JsonSerialize(using = ReferenceJsonSerializer.class)
 	private UserGroupMetadata userGroup;
 	
 	private String uid;
@@ -87,7 +93,8 @@ public class TaskPermission extends AbstractSystemObject
 	public Enum<?> getAccess() {
 		return null;
 	}
-
+	
+	@JsonIgnore
 	public String getUserGroupUid() {
 		return userGroup != null ? userGroup.getUid() : userGroupUid;
 	}

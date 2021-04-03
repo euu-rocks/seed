@@ -15,44 +15,59 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.entity.filter;
+package org.seed.core.task;
 
 import java.util.List;
 
 import org.seed.core.application.AbstractRestController;
-import org.seed.core.entity.EntityAccess;
+import org.seed.core.config.JobScheduler;
+import org.seed.core.user.Authorisation;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping("/rest/filter")
-public class FilterRestController extends AbstractRestController<Filter> {
+@RequestMapping("/rest/job")
+public class TaskRestController extends AbstractRestController<Task> {
 	
 	@Autowired
-	private FilterService filterService;
+	private TaskService taskService;
+	
+	@Autowired
+	private JobScheduler jobScheduler;
 	
 	@Override
-	protected FilterService getService() {
-		return filterService;
+	protected TaskService getService() {
+		return taskService;
 	}
 	
 	@Override
-	public List<Filter> findAll() {
-		return findAll(f -> checkPermissions(f.getEntity(), EntityAccess.READ));
+	public List<Task> findAll() {
+		return findAll(t -> checkPermissions(t));
 	}
 	
 	@Override
-	public Filter get(@PathVariable("id") Long id) {
-		final Filter filter = super.get(id);
-		if (!checkPermissions(filter.getEntity(), EntityAccess.READ)) {
+	public Task get(@PathVariable("id") Long id) {
+		final Task task = super.get(id);
+		if (!checkPermissions(task)) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN);
 		}
-		return filter;
+		return task;
+	}
+	
+	@PostMapping(value = "/{id}/run")
+	public Task run(@PathVariable("id") Long id) {
+		final Task task = get(id);
+		if (!isAuthorised(Authorisation.RUN_JOBS)) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+		}
+		jobScheduler.startJob(task);
+		return task;
 	}
 
 }

@@ -24,9 +24,9 @@ import javax.annotation.PostConstruct;
 import javax.persistence.Entity;
 
 import org.seed.core.codegen.GeneratedCode;
-import org.seed.core.api.Job;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.entity.value.ValueEntity;
+import org.seed.core.user.UserService;
 import org.seed.core.util.MiscUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +68,9 @@ public class DynamicConfiguration
 	@Autowired
 	private SchemaManager schemaManager;
 	
+	@Autowired
+	private UserService userService;
+	
 	private SessionFactory sessionFactory;	// current sesssion factory
 	
 	private ClassLoader classLoader;		// current CompilerClassLoader
@@ -76,9 +79,12 @@ public class DynamicConfiguration
 	
 	@PostConstruct
 	private void init() {
-		// update schema
+		buildBootSessionFactory();
+		userService.createDefaultUserAndGroup();
+	}
+	
+	private void buildBootSessionFactory() {
 		schemaManager.updateSchema();
-		// build boot session factory
 		sessionFactory = createSessionFactoryBuilder(true).build();
 	}
 	
@@ -112,7 +118,7 @@ public class DynamicConfiguration
 		log.info("Rebuild Configuration...");
 		getSessionFactory().close();
 		jobScheduler.unscheduleAllTasks();
-		init();
+		buildBootSessionFactory();
 		buildConfiguration();
 	}
 	
@@ -126,7 +132,7 @@ public class DynamicConfiguration
 		getSessionFactory().close();
 		// build new session factory now
 		sessionFactory = sessionFactoryBuilder.build();
-		scheduleJobs();
+		jobScheduler.scheduleAllTasks();
 		log.info("Configuration created in " + MiscUtils.formatDuration(startTime));
 	}
 	
@@ -216,18 +222,6 @@ public class DynamicConfiguration
 		}
 		catch (Exception ex) {
 			throw new ConfigurationException("failed to register generated entities", ex);
-		}
-	}
-	
-	private void scheduleJobs() {
-		try {
-			for (Class<GeneratedCode> jobClass : codeManager.getGeneratedClasses(Job.class)) {
-				final Job job = (Job) jobClass.getDeclaredConstructor().newInstance();
-				jobScheduler.scheduleJob(job);
-			}
-		}	
-		catch (Exception ex) {
-			throw new ConfigurationException("failed to schedule jobs", ex);
 		}
 	}
 	

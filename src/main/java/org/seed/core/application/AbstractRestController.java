@@ -18,7 +18,13 @@
 package org.seed.core.application;
 
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
+import org.seed.core.user.Authorisation;
+import org.seed.core.user.UserService;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,9 +32,17 @@ import org.springframework.web.server.ResponseStatusException;
 
 public abstract class AbstractRestController<T extends ApplicationEntity> {
 	
+	@Autowired
+	private UserService userService;
+	
 	@GetMapping
 	public List<T> findAll() {
 		return getService().findAllObjects();
+	}
+	
+	protected List<T> findAll(Predicate<T> filter) {
+		return getService().findAllObjects().stream()
+						   .filter(filter).collect(Collectors.toList());
 	}
 	
 	@GetMapping(value = "/{id}")
@@ -38,6 +52,18 @@ public abstract class AbstractRestController<T extends ApplicationEntity> {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
 		return object;
+	}
+	
+	protected boolean checkPermissions(ApplicationEntity object) {
+		return checkPermissions(object, null);
+	}
+	
+	protected boolean checkPermissions(ApplicationEntity object, Enum<?> access) {
+		return object.checkPermissions(userService.getCurrentUser(), access);
+	}
+	
+	protected boolean isAuthorised(Authorisation authorisation) {
+		return userService.getCurrentUser().isAuthorised(authorisation);
 	}
 	
 	protected abstract ApplicationEntityService<T> getService();

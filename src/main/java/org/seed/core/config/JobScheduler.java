@@ -38,7 +38,7 @@ import org.quartz.TriggerBuilder;
 
 import org.seed.core.api.Job;
 import org.seed.core.codegen.CodeManager;
-import org.seed.core.data.ValidationException;
+import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.task.AbstractJob;
 import org.seed.core.task.DefaultJobContext;
 import org.seed.core.task.LogLevel;
@@ -126,7 +126,7 @@ public class JobScheduler implements JobListener {
 		Assert.state(!isRunning(task), "job is already running");
 		
 		try {
-			getScheduler().scheduleJob(createJobDetail(task), 
+			getScheduler().scheduleJob(createImmediateJobDetail(task), 
 									   createImmediateTrigger(task));
 		} 
 		catch (SchedulerException e) {
@@ -146,7 +146,7 @@ public class JobScheduler implements JobListener {
 		
 		if (!task.isActive() || // deactivated
 			!(task.getCronExpression() != null || // or no cron expression and no interval
-					(task.getRepeatInterval() != null && task.getRepeatIntervalUnit() != null))) {
+			 (task.getRepeatInterval() != null && task.getRepeatIntervalUnit() != null))) {
 			return;
 		}
 		try {
@@ -156,6 +156,18 @@ public class JobScheduler implements JobListener {
 			throw new RuntimeException(e);
 		}
 		log.info("Job for task '" + task.getName() + "' scheduled");
+	}
+	
+	public void scheduleAllTasks() {
+		try {
+			for (Class<GeneratedCode> jobClass : codeManager.getGeneratedClasses(Job.class)) {
+				final Job job = (Job) jobClass.getDeclaredConstructor().newInstance();
+				scheduleJob(job);
+			}
+		}
+		catch (Exception ex) {
+			throw new ConfigurationException("failed to schedule jobs", ex);
+		}
 	}
 	
 	public void unscheduleTask(Task task) {
@@ -169,7 +181,7 @@ public class JobScheduler implements JobListener {
 		}
 		log.info("Job for task '" + task.getName() + "' unscheduled");
 	}
-	
+
 	public void unscheduleAllTasks() {
 		try {
 			getScheduler().clear();
@@ -177,7 +189,7 @@ public class JobScheduler implements JobListener {
 			throw new RuntimeException(e);
 		}
 	}
-
+	
 	@Override
 	public String getName() {
 		return getClass().getSimpleName();
@@ -190,12 +202,7 @@ public class JobScheduler implements JobListener {
 		final TaskRun run = new TaskRun();
 		run.setStartTime(new Date());
 		task.addRun(run);
-		try {
-			taskService.saveObject(task);
-		} 
-		catch (ValidationException e) {
-			throw new RuntimeException(e);
-		}
+		taskService.saveTaskDirectly(task);
 		
 		final Session session = sessionFactoryProvider.getSessionFactory().openSession();
 		context.put(DefaultJobContext.RUN_SESSION, session);
@@ -232,12 +239,8 @@ public class JobScheduler implements JobListener {
 		}
 		run.setEndTime(new Date());
 		run.setResult(TaskResult.getResult(maxLevel));
-		try {
-			taskService.saveObject(task);
-		} 
-		catch (ValidationException e) {
-			throw new RuntimeException(e);
-		}
+		taskService.saveTaskDirectly(task);
+		
 		if (task.hasNotifications()) {
 			taskService.sendNotifications(task, run);
 		}
@@ -261,6 +264,13 @@ public class JobScheduler implements JobListener {
 				 .build();
 	}
 	
+	@SuppressWarnings("unchecked")
+	private JobDetail createImmediateJobDetail(Task task) {
+		return JobBuilder.newJob((Class<? extends org.quartz.Job>) getJobClass(task))
+				 .withIdentity(task.getId().toString(), GROUP)
+				 .build();
+	}
+	
 	private void logError(TaskRun run, Throwable th) {
 		for (String line : ExceptionUtils.stackTraceAsString(th).split("\n")) {
 			if (line.contains(AbstractJob.class.getName())) {
@@ -275,7 +285,7 @@ public class JobScheduler implements JobListener {
 	
 	private static Trigger createImmediateTrigger(Task task) {
 		return TriggerBuilder.newTrigger()
-		   		.withIdentity(task.getUid(), GROUP)
+		   		.withIdentity(task.getId().toString(), GROUP)
 		   		.startNow()
 		   		.build();
 	}

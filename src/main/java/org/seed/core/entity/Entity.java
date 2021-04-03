@@ -171,6 +171,8 @@ public interface Entity
 	
 	List<EntityFunction> getUserActionFunctions();
 	
+	EntityFunction getFunctionById(Long id);
+	
 	EntityFunction getFunctionByUid(String uid);
 	
 	void addFunction(EntityFunction function);

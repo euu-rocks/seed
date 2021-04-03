@@ -30,6 +30,8 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.seed.core.application.TransferableObject;
 import org.seed.core.data.AbstractSystemObject;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "sys_task_param")
 public class TaskParameter extends AbstractSystemObject
@@ -37,6 +39,7 @@ public class TaskParameter extends AbstractSystemObject
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_id")
+	@JsonIgnore
 	private TaskMetadata task;
 	
 	private String uid;

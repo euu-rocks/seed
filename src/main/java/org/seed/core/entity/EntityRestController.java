@@ -17,14 +17,19 @@
  */
 package org.seed.core.entity;
 
+import java.util.List;
+
 import org.seed.core.application.AbstractRestController;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping("/rest/entities")
+@RequestMapping("/rest/entity")
 public class EntityRestController extends AbstractRestController<Entity> {
 	
 	@Autowired
@@ -35,4 +40,18 @@ public class EntityRestController extends AbstractRestController<Entity> {
 		return entityService;
 	}
 	
+	@Override
+	public List<Entity> findAll() {
+		return findAll(e -> checkPermissions(e, EntityAccess.READ));
+	}
+	
+	@Override
+	public Entity get(@PathVariable("id") Long id) {
+		final Entity entity = super.get(id);
+		if (!checkPermissions(entity, EntityAccess.READ)) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+		}
+		return entity;
+	}
+
 }

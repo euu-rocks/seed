@@ -22,7 +22,6 @@ import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Nullable;
-import javax.annotation.PostConstruct;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -66,8 +65,8 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
-	@PostConstruct
-	private void init() {
+	@Override
+	public void createDefaultUserAndGroup() {
 		
 		// if no user exist, create default user und groups
 		if (!repository.exist()) {
@@ -114,8 +113,6 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 		}
 	}
 
-	
-	
 	@Override
 	public User createInstance(@Nullable Options options) {
 		final UserMetadata user = (UserMetadata) super.createInstance(options);
