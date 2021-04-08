@@ -504,7 +504,10 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		Assert.notNull(objectId, "objectId is null");
 		
 		if (viewMode == ViewMode.DETAIL && objectId.equals(object.getId())) {
-			internalRefresh(getObjectService().getObject(object.getId()));
+			final T reloadedObject = getObjectService().getObject(object.getId());
+			if (reloadedObject != null) {
+				internalRefresh(reloadedObject);
+			}
 		}
 	}
 	

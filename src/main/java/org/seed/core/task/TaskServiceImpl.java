@@ -18,6 +18,7 @@
 package org.seed.core.task;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -102,6 +103,16 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 			}
 		}
 		return result;
+	}
+	
+	@Override
+	public TaskRun createRun(Task task) {
+		Assert.notNull(task, "task is null");
+		
+		final TaskRun run = new TaskRun();
+		run.setStartTime(new Date());
+		task.addRun(run);
+		return run;
 	}
 	
 	@Override

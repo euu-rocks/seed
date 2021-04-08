@@ -138,7 +138,7 @@ public class JobScheduler implements JobListener {
 	public void scheduleJob(Job job) {
 		Assert.notNull(job, "job is null");
 		
-		scheduleTask(taskService.getTask(job));
+		scheduleTask(getTask(job));
 	}
 	
 	public void scheduleTask(Task task) {
@@ -194,14 +194,12 @@ public class JobScheduler implements JobListener {
 	public String getName() {
 		return getClass().getSimpleName();
 	}
-
+	
 	@Override
 	public void jobToBeExecuted(JobExecutionContext context) {
-		final AbstractJob job = (AbstractJob) context.getJobInstance();
-		final Task task = taskService.getTask(job);
-		final TaskRun run = new TaskRun();
-		run.setStartTime(new Date());
-		task.addRun(run);
+		final Job job = (Job) context.getJobInstance();
+		final Task task = getTask(job);
+		final TaskRun run = taskService.createRun(task);
 		taskService.saveTaskDirectly(task);
 		
 		final Session session = sessionFactoryProvider.getSessionFactory().openSession();
@@ -222,8 +220,8 @@ public class JobScheduler implements JobListener {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void jobWasExecuted(JobExecutionContext context, JobExecutionException jobException) {
-		final AbstractJob job = (AbstractJob) context.getJobInstance();
-		final Task task = taskService.getTask(job);
+		final Job job = (Job) context.getJobInstance();
+		final Task task = getTask(job);
 		final Long taskRunId = (Long) context.get(DefaultJobContext.RUN_ID);
 		final TaskRun run = task.getRunById(taskRunId);
 		LogLevel maxLevel = LogLevel.INFO;
@@ -249,6 +247,10 @@ public class JobScheduler implements JobListener {
 	
 	private Scheduler getScheduler() {
 		return schedulerFactory.getScheduler();
+	}
+	
+	private Task getTask(Job job) {
+		return taskService.getTask(job);
 	}
 	
 	private Class<?> getJobClass(Task task) {

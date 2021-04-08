@@ -276,6 +276,7 @@ public class EntityStatusTransition extends AbstractSystemObject
 	}
 	
 	void createLists() {
+		functions = new ArrayList<>();
 		permissions = new ArrayList<>();
 	}
 	

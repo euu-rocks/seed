@@ -648,7 +648,8 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	@Command
 	@NotifyChange("field")
 	public void selectFieldType() {
-		if (field.getType().isAutonum()) {
+		if (field.getType() != null && 
+			field.getType().isAutonum()) {
 			if (!field.isUnique()) {
 				resetUnique = true;
 				field.setUnique(true);

@@ -27,6 +27,8 @@ public interface TaskService extends ApplicationEntityService<Task> {
 	
 	TaskParameter createParameter(Task task);
 	
+	TaskRun createRun(Task task);
+	
 	TaskNotification createNotification(Task task);
 	
 	Task getTask(Job job);

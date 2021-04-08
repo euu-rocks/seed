@@ -76,11 +76,9 @@
         	<label value="${labels.label.fieldname}:"/>
             <textbox hflex="1"
             		 value="@bind(vm.field.name)"
+            		 tooltiptext="@load(vm.field.internalName)"
             		 mandatory="true"
             		 onChange="@command('flagDirty',notify='field')"/>
-            <label value="${labels.label.internalname}:"/>
-            <textbox readonly="true" hflex="1"
-               		 value="@load(vm.field.internalName)"/>
             <label value="${labels.label.columnname}:"/>   		 
             <textbox hflex="1"
             		 value="@bind(vm.field.columnName)"
@@ -163,29 +161,37 @@
 		       			<label value="${labels.label.defaultvalue}:"/>
 		       			<textbox visible="@load(vm.field.type.isText() or vm.field.type.isTextLong())"
 		       					 value="@bind(vm.field.defaultString)"
+		       					 onChange="@command('flagDirty')"
 		       					 mandatory="true" hflex="1"/>
 		       		    <intbox visible="@load(vm.field.type.isInteger())"
 		       					value="@bind(vm.field.defaultNumber)"
+		       					onChange="@command('flagDirty')"
 		       					mandatory="true" hflex="1"/>
 		       			<longbox visible="@load(vm.field.type.isLong())"
 		       					 value="@bind(vm.field.defaultNumber)"
+		       					 onChange="@command('flagDirty')"
 		       					 mandatory="true" hflex="1"/>
 		       			<datebox visible="@load(vm.field.type.isDate())"
 		       					 value="@bind(vm.field.defaultDate)"
+		       					 onChange="@command('flagDirty')"
 		       					 mandatory="true" hflex="1"/>
 		       			<datebox visible="@load(vm.field.type.isDateTime())"
 		       					 value="@bind(vm.field.defaultDate)"
+		       					 onChange="@command('flagDirty')"
 		       					 format="long+medium"
 		       					 mandatory="true" hflex="1"/>		 
 		       			<decimalbox visible="@load(vm.field.type.isDecimal())"
 		       					    value="@bind(vm.field.defaultNumber)"
+		       					    onChange="@command('flagDirty')"
 		       					    mandatory="true" hflex="1"/>		 
 		       			<doublebox visible="@load(vm.field.type.isDouble())"
 		       					   value="@bind(vm.field.defaultNumber)"
+		       					   onChange="@command('flagDirty')"
 		       					   mandatory="true" hflex="1"/>		 
 		       			<combobox visible="@load(vm.field.type.isReference())"
 		       					  model="@load(vm.getReferenceValues(vm.field))"
 		       					  selectedItem="@bind(vm.field.defaultObject)"
+		       					  onSelect="@command('flagDirty')"
 		       					  mandatory="true" hflex="1">
 		       				<template name="model" var="obj">
 		       					<comboitem label="@load(vm.getReferenceValue(obj))"/>
@@ -210,18 +216,17 @@
 	        				  onCheck="@command('flagDirty')"/>
 	        		<label value="${labels.label.fulltextsearch}"/>
 	       		</hlayout>
-	       		<hlayout visible="@load(!(vm.field.type.isAutonum() or vm.field.type.isReference() or vm.field.type.isFile() or vm.field.mandatory or vm.field.unique or vm.field.indexed))">
+	       		<hlayout visible="@load(!vm.object.isNew() and !(vm.field.type.isAutonum() or vm.field.type.isReference() or vm.field.type.isFile() or vm.field.mandatory or vm.field.unique or vm.field.indexed))">
 	        		<checkbox checked="@bind(vm.field.calculated)" 
-	        				  onCheck="@command('flagDirty')"
-	        				  disabled="@load(!vm.field.isNew())"/>
+	        				  onCheck="@command('flagDirty')"/>
 	        		<label value="${labels.label.calculated}"/>
 	       		</hlayout>
 	       		<hlayout visible="@load(vm.field.calculated)">
 	       			<vlayout hflex="1">
-	       				<space/>
-		       			<label value="${labels.label.calculationformula}:"/>
+	       				<label value="${labels.label.calculationformula}:"/>
 		       			<textbox value="@bind(vm.field.formula)"
-		       					 mandatory="true" 
+		       					 onChange="@command('flagDirty')"
+		       					 mandatory="true"
 		       					 hflex="1" rows="3"/>
 		       		</vlayout>
 	       		</hlayout>

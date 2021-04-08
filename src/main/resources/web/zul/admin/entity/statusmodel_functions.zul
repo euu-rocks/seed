@@ -39,7 +39,7 @@
 				           		  nullable="false"
 				           		  width="300px">
 				             <template name="model" var="transition">
-				                 <comboitem label="@init(transition.name)" />
+				                 <comboitem label="@init(transition.name)"/>
 				             </template>
 				        </combobox>
 					</cell>
@@ -50,13 +50,18 @@
 	<west width="30%" border="0" style="padding:5px">
 		<groupbox hflex="1" vflex="1">
 			<caption label="${labels.label.functionsavailable}"/>
-			<listbox mold="paging" autopaging="true" hflex="1" vflex="1" style="border:none"
-					 model="@load(vm.getListManagerList('transitionFunctions',0))" droppable="true" oddRowSclass="non-odd"
-					 onDrop="@command('dropToStatusFunctionList',item=event.dragged.attributes.item,list=0)">
+			<listbox model="@load(vm.getListManagerList('transitionFunctions',0))" 
+					 droppable="true" oddRowSclass="non-odd"
+					 onDrop="@command('dropToStatusFunctionList',item=event.dragged.attributes.item,list=0)"
+					 mold="paging" autopaging="true"
+					 class="alpha-noborder alpha-nobg"
+					 hflex="1" vflex="1">
 				<template name="model" var="function">
-					<listitem attributes.item="@init(function)" draggable="true" droppable="true" 
+					<listitem attributes.item="@init(function)" 
+							  draggable="true" droppable="true" 
 	 						  onDrop="@command('insertToStatusFunctionList',item=event.dragged.attributes.item,base=function,list=0)">
-						<listcell label="@init(function.function.name)" iconSclass="z-icon-puzzle-piece alpha-icon-lg"/>
+						<listcell label="@init(function.function.name)" 
+								  iconSclass="z-icon-puzzle-piece alpha-icon-lg"/>
 					</listitem>
 				</template>
 			</listbox>
@@ -65,14 +70,19 @@
 	<center border="0" style="padding:5px">
 		<groupbox  vflex="1">
 			<caption label="${labels.label.functionsselected}"/>
-			<listbox mold="paging" autopaging="true" hflex="1" vflex="1" style="border:none"
-					 model="@load(vm.getListManagerList('transitionFunctions',1))" droppable="true" oddRowSclass="non-odd"
+			<listbox model="@load(vm.getListManagerList('transitionFunctions',1))" 
+					 droppable="true" oddRowSclass="non-odd"
 					 selectedItem="@bind(vm.transitionFunction)" 
-					 onDrop="@command('dropToStatusFunctionList',item=event.dragged.attributes.item,list=1)">
+					 onDrop="@command('dropToStatusFunctionList',item=event.dragged.attributes.item,list=1)"
+					 mold="paging" autopaging="true"
+					 class="alpha-noborder alpha-nobg"
+					 hflex="1" vflex="1">
 				<template name="model" var="function">
-					<listitem attributes.item="@init(function)" draggable="true" droppable="true" 
+					<listitem attributes.item="@init(function)" 
+							  draggable="true" droppable="true" 
 							  onDrop="@command('insertToStatusFunctionList',item=event.dragged.attributes.item,base=function,list=1)">
-						<listcell label="@init(function.function.name)" iconSclass="z-icon-puzzle-piece alpha-icon-lg"/>
+						<listcell label="@init(function.function.name)" 
+								  iconSclass="z-icon-puzzle-piece alpha-icon-lg"/>
 					</listitem>
 				</template>
 			</listbox>

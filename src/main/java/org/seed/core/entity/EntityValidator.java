@@ -20,6 +20,7 @@ package org.seed.core.entity;
 import java.util.List;
 import java.util.Set;
 
+import org.hibernate.Session;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationError;
@@ -32,6 +33,9 @@ import org.springframework.util.ObjectUtils;
 
 @Component
 public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
+	
+	@Autowired
+	private EntityRepository repository;
 	
 	@Autowired
 	private List<EntityDependent> entityDependents;
@@ -114,17 +118,18 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 						errors.add(new ValidationError("val.ambiguous.columnname", field.getColumnName()));
 					}
 				}
-				if (field.getFormula() != null &&
-					field.getFormula().length() > getLimit("entity.stringfield.length")) {
-					errors.add(new ValidationError("val.toolong.objectfieldvalue", "label.calculationformula", "label.field",
-												   String.valueOf(getLimit("entity.stringfield.length"))));
+				if (field.isCalculated()) {
+					if (isEmpty(field.getFormula())) {
+						errors.add(new ValidationError("val.empty.field", "label.calculationformula"));
+					}
+					else if (field.getFormula().length() > getLimit("entity.stringfield.length")) {
+						errors.add(new ValidationError("val.toolong.objectfieldvalue", "label.calculationformula", "label.field",
+								   					   String.valueOf(getLimit("entity.stringfield.length"))));
+					}
+					else if (!testFormula(entity, field.getFormula())) {
+						errors.add(new ValidationError("val.illegal.formula", field.getName()));
+					}
 				}
-				if (field.getAutonumPattern() != null &&
-					field.getAutonumPattern().length() > getLimit("entity.stringfield.length")) {
-					errors.add(new ValidationError("val.toolong.objectfieldvalue", "label.pattern", "label.field",
-												   String.valueOf(getLimit("entity.stringfield.length"))));
-				}
-				
 				if (isEmpty(field.getType())) {
 					errors.add(new ValidationError("val.empty.field", "label.datatype"));
 				}
@@ -334,6 +339,14 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		Assert.notNull(field, "field is null");
 		final Set<ValidationError> errors = createErrorList();
 		
+		// check if field is used in field formula
+		for (EntityField entityField : field.getEntity().getFields()) {
+			if (!entityField.equals(field) && 
+				entityField.getFormula() != null &&
+				entityField.getFormula().contains(EntityChangeLogBuilder.getColumnName(field))) {
+					errors.add(new ValidationError("val.inuse.fieldformula", entityField.getName()));
+			}
+		}
 		for (EntityDependent dependent : entityDependents) {
 			for (SystemEntity systemEntity : dependent.findUsage(field)) {
 				switch (getEntityType(systemEntity)) {
@@ -427,6 +440,21 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		}
 		
 		validate(errors);
+	}
+	
+	private boolean testFormula(Entity entity, String formula) {
+		Assert.notNull(entity, "entity is null");
+		Assert.notNull(formula, "formula is null");
+		
+		try (Session session = repository.getSession()) {
+			session.createSQLQuery("select " + formula + " from " + 
+								   EntityChangeLogBuilder.getTableName(entity))
+					.setMaxResults(0).list();
+			return true;
+		}
+		catch (Exception ex) {
+			return false;
+		}
 	}
 
 }

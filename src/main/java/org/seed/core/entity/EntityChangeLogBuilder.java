@@ -99,6 +99,22 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder {
 		return super.build();
 	}
 	
+	static String getTableName(Entity entity) {
+		Assert.notNull(entity, "entity is null");
+		
+		return entity.getTableName() != null 
+				? entity.getTableName() 
+				: entity.getInternalName().toLowerCase();
+	}
+	
+	static String getColumnName(EntityField entityField) {
+		Assert.notNull(entityField, "entityField is null");
+		
+		return entityField.getColumnName() != null 
+				? entityField.getColumnName()
+				: entityField.getInternalName();
+	}
+	
 	private void addCreateTableChangeSet(Entity entity) {
 		Assert.notNull(entity, "entity is null");
 		
@@ -512,22 +528,6 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder {
 		if (field.isIndexed()) {
 			addCreateIndexChangeSet(entity, field);
 		}
-	}
-	
-	private static String getTableName(Entity entity) {
-		Assert.notNull(entity, "entity is null");
-		
-		return entity.getTableName() != null 
-				? entity.getTableName().toLowerCase() 
-				: entity.getInternalName().toLowerCase();
-	}
-	
-	private static String getColumnName(EntityField entityField) {
-		Assert.notNull(entityField, "entityField is null");
-		
-		return entityField.getColumnName() != null 
-				? entityField.getColumnName().toLowerCase()
-				: entityField.getInternalName();
 	}
 	
 	private static String getPrimaryKeyConstraintName(Entity entity) {
