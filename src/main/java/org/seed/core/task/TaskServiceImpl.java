@@ -24,7 +24,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import org.hibernate.Session;
-
+import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.api.Job;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
@@ -43,11 +44,11 @@ import org.seed.core.mail.MailService;
 import org.seed.core.user.User;
 import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupService;
+import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 @Service
 public class TaskServiceImpl extends AbstractApplicationEntityService<Task> 
@@ -81,7 +82,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	
 	@Override
 	public Task getTask(Job job) {
-		Assert.notNull(job, "job is null");
+		Assert.notNull(job, "job");
 		
 		final String jobName = job.getClass().getSimpleName();
 		for (Task task : findAllObjects()) {
@@ -94,7 +95,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	
 	@Override
 	public List<Task> getTasks(User user) {
-		Assert.notNull(user, "user is null");
+		Assert.notNull(user, C.USER);
 		
 		final List<Task> result = new ArrayList<>();
 		for (Task task : findAllObjects()) {
@@ -107,7 +108,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	
 	@Override
 	public TaskRun createRun(Task task) {
-		Assert.notNull(task, "task is null");
+		Assert.notNull(task, C.TASK);
 		
 		final TaskRun run = new TaskRun();
 		run.setStartTime(new Date());
@@ -118,7 +119,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	@Override
 	@Secured("ROLE_ADMIN_JOB")
 	public TaskParameter createParameter(Task task) {
-		Assert.notNull(task, "task is null");
+		Assert.notNull(task, C.TASK);
 		
 		final TaskParameter param = new TaskParameter();
 		task.addParameter(param);
@@ -128,7 +129,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	@Override
 	@Secured("ROLE_ADMIN_JOB")
 	public TaskNotification createNotification(Task task) {
-		Assert.notNull(task, "task is null");
+		Assert.notNull(task, C.TASK);
 		
 		final TaskNotification notification = new TaskNotification();
 		notification.setResult(TaskResult.SUCCESS);
@@ -138,7 +139,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	
 	@Override
 	public List<TaskPermission> getAvailablePermissions(Task task) {
-		Assert.notNull(task, "task is null");
+		Assert.notNull(task, C.TASK);
 		
 		final List<TaskPermission> result = new ArrayList<>();
 		for (UserGroup group : userGroupService.findAllObjects()) {
@@ -162,9 +163,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	}
 	
 	@Override
-	public void analyzeObjects(ImportAnalysis analysis, Module currentVersionModule) {
-		Assert.notNull(analysis, "analysis is null");
-		
+	protected void analyzeNextVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
 		if (analysis.getModule().getTasks() != null) {
 			for (Task task : analysis.getModule().getTasks()) {
 				if (currentVersionModule == null) {
@@ -182,7 +181,11 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 				}
 			}
 		}
-		if (currentVersionModule != null && currentVersionModule.getTasks() != null) {
+	}
+	
+	@Override
+	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
+		if (currentVersionModule.getTasks() != null) {
 			for (Task currentVersionTask : currentVersionModule.getTasks()) {
 				if (analysis.getModule().getTaskByUid(currentVersionTask.getUid()) == null) {
 					analysis.addChangeDelete(currentVersionTask);
@@ -193,15 +196,14 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public Class<? extends ApplicationEntityService<? extends ApplicationEntity>>[] getImportDependencies() {
-		return (Class<? extends ApplicationEntityService<? extends ApplicationEntity>>[]) 
-				new Class[] { UserGroupService.class };
+	public Class<? extends ApplicationEntityService<ApplicationEntity>>[] getImportDependencies() {
+		return new Class[] { UserGroupService.class };
 	}
 	
 	@Override
 	public void importObjects(TransferContext context, Session session) {
-		Assert.notNull(context, "context is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(context, C.CONTEXT);
+		Assert.notNull(session, C.SESSION);
 		try {
 			if (context.getModule().getTasks() != null) {
 				for (Task task : context.getModule().getTasks()) {
@@ -211,45 +213,57 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 						((TaskMetadata) currentVersionTask).copySystemFieldsTo(task);
 						session.detach(currentVersionTask);
 					}
-					if (task.hasParameters()) {
-						for (TaskParameter parameter : task.getParameters()) {
-							parameter.setTask(task);
-							final TaskParameter currentVersionParameter =
-								currentVersionTask != null 
-									? currentVersionTask.getParameterByUid(parameter.getUid()) 
-									: null;
-							if (currentVersionParameter != null) {
-								currentVersionParameter.copySystemFieldsTo(parameter);
-							}
-						}
-					}
-					if (task.hasPermissions()) {
-						for (TaskPermission permission : task.getPermissions()) {
-							permission.setTask(task);
-							permission.setUserGroup(userGroupService.findByUid(session, permission.getUserGroupUid()));
-							final TaskPermission currentVersionPermission =
-								currentVersionTask != null
-									? currentVersionTask.getPermissionByUid(permission.getUid())
-									: null;
-							if (currentVersionPermission != null) {
-								currentVersionPermission.copySystemFieldsTo(permission);
-							}
-						}
-					}
+					initTask(task, currentVersionTask, session);
 					saveObject(task, session);
 				}
 			}
 		}
 		catch (ValidationException vex) {
-			throw new RuntimeException(vex);
+			throw new InternalException(vex);
+		}
+	}
+	
+	private void initTask(Task task, Task currentVersionTask, Session session) {
+		if (task.hasParameters()) {
+			for (TaskParameter parameter : task.getParameters()) {
+				initTaskParameter(parameter, task, currentVersionTask);
+			}
+		}
+		if (task.hasPermissions()) {
+			for (TaskPermission permission : task.getPermissions()) {
+				initTaskPermission(permission, task, currentVersionTask, session);
+			}
+		}
+	}
+	
+	private void initTaskParameter(TaskParameter parameter, Task task, Task currentVersionTask) {
+		parameter.setTask(task);
+		final TaskParameter currentVersionParameter =
+			currentVersionTask != null 
+				? currentVersionTask.getParameterByUid(parameter.getUid()) 
+				: null;
+		if (currentVersionParameter != null) {
+			currentVersionParameter.copySystemFieldsTo(parameter);
+		}
+	}
+	
+	private void initTaskPermission(TaskPermission permission, Task task, Task currentVersionTask, Session session) {
+		permission.setTask(task);
+		permission.setUserGroup(userGroupService.findByUid(session, permission.getUserGroupUid()));
+		final TaskPermission currentVersionPermission =
+			currentVersionTask != null
+				? currentVersionTask.getPermissionByUid(permission.getUid())
+				: null;
+		if (currentVersionPermission != null) {
+			currentVersionPermission.copySystemFieldsTo(permission);
 		}
 	}
 	
 	@Override
 	public void deleteObjects(Module module, Module currentVersionModule, Session session) {
-		Assert.notNull(module, "module is null");
-		Assert.notNull(currentVersionModule, "currentVersionModule is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(module, C.MODULE);
+		Assert.notNull(currentVersionModule, "currentVersionModule");
+		Assert.notNull(session, C.SESSION);
 		
 		if (currentVersionModule.getTasks() != null) {
 			for (Task currentVersionTask : currentVersionModule.getTasks()) {
@@ -263,7 +277,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	@Override
 	@Secured("ROLE_ADMIN_JOB")
 	public void saveObject(Task task) throws ValidationException {
-		Assert.notNull(task, "task is null");
+		Assert.notNull(task, C.TASK);
 		
 		final boolean isNew = task.isNew();
 		final boolean contentChanged = ((TaskMetadata) task).isContentChanged();
@@ -286,11 +300,11 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	}
 	
 	@Override
-	public boolean processCodeChange(SourceCode<?> sourceCode, Session session) {
-		Assert.notNull(sourceCode, "sourceCode is null");
-		Assert.notNull(session, "session is null");
+	public boolean processCodeChange(SourceCode sourceCode, Session session) {
+		Assert.notNull(sourceCode, "sourceCode");
+		Assert.notNull(session, C.SESSION);
 		
-		if (sourceCode.getPackageName().equals(Task.PACKAGE_NAME)) {
+		if (sourceCode.getPackageName().equals(TaskMetadata.PACKAGE_NAME)) {
 			for (Task task : findAllObjects()) {
 				if (task.getInternalName().equalsIgnoreCase(sourceCode.getClassName())) {
 					if (!task.getContent().equals(sourceCode.getContent())) {
@@ -307,8 +321,8 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	
 	@Override
 	public void sendNotifications(Task task, TaskRun run) {
-		Assert.notNull(task, "task is null");
-		Assert.notNull(run, "run is null");
+		Assert.notNull(task, C.TASK);
+		Assert.notNull(run, "run");
 		Assert.state(task.hasNotifications(), "task has no notifications");
 		Assert.state(run.getResult() != null, "run has no result");
 		

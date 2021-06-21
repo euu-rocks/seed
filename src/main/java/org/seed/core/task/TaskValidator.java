@@ -20,36 +20,34 @@ package org.seed.core.task;
 import java.util.Set;
 
 import org.quartz.CronExpression;
-
+import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.ValidationError;
 import org.seed.core.data.ValidationException;
+import org.seed.core.util.Assert;
 
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 @Component
 public class TaskValidator extends AbstractSystemEntityValidator<Task> {
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public void validateSave(Task task) throws ValidationException {
-		Assert.notNull(task, "task is null");
+		Assert.notNull(task, C.TASK);
 		final Set<ValidationError> errors = createErrorList();
 		
 		if (isEmpty(task.getName())) {
-			errors.add(new ValidationError("val.empty.field", "label.name"));
+			errors.add(ValidationError.emptyName());
 		}
 		else if (!isNameLengthAllowed(task.getName())) {
-			errors.add(new ValidationError("val.toolong.name", String.valueOf(getMaxNameLength())));
+			errors.add(ValidationError.overlongName(getMaxNameLength()));
 		}
 		else if (!isNameAllowed(task.getInternalName())) {
-			errors.add(new ValidationError("val.illegal.field", "label.name", task.getName()));
+			errors.add(ValidationError.illegalField("label.name", task.getName()));
 		}
-		if (task.getCronExpression() != null) {
-			if (task.getCronExpression().length() > getLimit("entity.stringfield.length")) {
-				errors.add(new ValidationError("val.toolong.fieldvalue", "label.cronexpression", 
-						   					   String.valueOf(getLimit("entity.stringfield.length"))));
+		if (!isEmpty(task.getCronExpression())) {
+			if (task.getCronExpression().length() > getMaxStringLength()) {
+				errors.add(ValidationError.overlongField("label.cronexpression", getMaxStringLength()));
 			}
 			else if (!CronExpression.isValidExpression(task.getCronExpression())) {
 				errors.add(new ValidationError("val.illegal.cronexpression"));	
@@ -57,47 +55,61 @@ public class TaskValidator extends AbstractSystemEntityValidator<Task> {
 		}
 		if (task.isActive()) {
 			if (isEmpty(task.getContent())) {
-				errors.add(new ValidationError("val.empty.field", "label.sourcecode"));
+				errors.add(ValidationError.emptyField("label.sourcecode"));
 			}
-			if (!isEmpty(task.getCronExpression()) && 
-					 (!isEmpty(task.getRepeatInterval()) ||
-					  !isEmpty(task.getRepeatIntervalUnit()))) {
-				errors.add(new ValidationError("val.ambiguous.tasktrigger"));
-			}
-			else if (isEmpty(task.getCronExpression())) {
-				if (isEmpty(task.getRepeatInterval()) && !isEmpty(task.getRepeatIntervalUnit())) {
-					errors.add(new ValidationError("val.empty.field", "label.interval"));
-				}
-				if (isEmpty(task.getRepeatIntervalUnit()) && !isEmpty(task.getRepeatInterval())) {
-					errors.add(new ValidationError("val.empty.field", "label.intervalunit"));
-				}
-			}
+			validateTrigger(task, errors);
 		}
 		if (task.hasParameters()) {
-			for (TaskParameter parameter : task.getParameters()) {
-				if (isEmpty(parameter.getName())) {
-					errors.add(new ValidationError("val.empty.field", "label.paramname"));
-				}
-				else if (!isNameUnique(parameter.getName(), task.getParameters())) {
-					errors.add(new ValidationError("val.ambiguous.param", parameter.getName()));
-				}
-			}
+			validateParameters(task, errors);
 		}
 		if (task.hasNotifications()) {
-			for (TaskNotification notification : task.getNotifications()) {
-				if (isEmpty(notification.getUser())) {
-					errors.add(new ValidationError("val.empty.notificationfield", "label.user"));
-				}
-				else if (!isUnique(notification.getUser(), "user", task.getNotifications())) {
-					errors.add(new ValidationError("val.ambiguous.notificationuser", 
-												   notification.getUser().getName()));
-				}
-				if (isEmpty(notification.getResult())) {
-					errors.add(new ValidationError("val.empty.notificationfield", "label.result"));
-				}
-			}
+			validateNotifications(task, errors);
 		}
 		validate(errors);
+	}
+	
+	// check whether a cron expression or interval properties exist but not both
+	private void validateTrigger(Task task, Set<ValidationError> errors) {
+		if (isEmpty(task.getCronExpression())) {
+			if (isEmpty(task.getRepeatInterval()) && !isEmpty(task.getRepeatIntervalUnit())) {
+				errors.add(ValidationError.emptyField("label.interval"));
+			}
+			if (isEmpty(task.getRepeatIntervalUnit()) && !isEmpty(task.getRepeatInterval())) {
+				errors.add(ValidationError.emptyField("label.intervalunit"));
+			}
+		}
+		else if (!isEmpty(task.getRepeatInterval()) ||
+				 !isEmpty(task.getRepeatIntervalUnit())) {
+			errors.add(new ValidationError("val.ambiguous.tasktrigger"));
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void validateParameters(Task task, Set<ValidationError> errors) {
+		for (TaskParameter parameter : task.getParameters()) {
+			if (isEmpty(parameter.getName())) {
+				errors.add(ValidationError.emptyField("label.paramname"));
+			}
+			else if (!isNameUnique(parameter.getName(), task.getParameters())) {
+				errors.add(new ValidationError("val.ambiguous.param", parameter.getName()));
+			}
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void validateNotifications(Task task, Set<ValidationError> errors) {
+		for (TaskNotification notification : task.getNotifications()) {
+			if (isEmpty(notification.getUser())) {
+				errors.add(new ValidationError("val.empty.notificationfield", "label.user"));
+			}
+			else if (!isUnique(notification.getUser(), "user", task.getNotifications())) {
+				errors.add(new ValidationError("val.ambiguous.notificationuser", 
+											   notification.getUser().getName()));
+			}
+			if (isEmpty(notification.getResult())) {
+				errors.add(new ValidationError("val.empty.notificationfield", "label.result"));
+			}
+		}
 	}
 	
 }

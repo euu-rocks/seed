@@ -26,6 +26,7 @@ import org.seed.core.user.User;
 import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserMetadata;
 import org.seed.core.user.UserService;
+import org.seed.core.util.MiscUtils;
 import org.seed.ui.zk.vm.PwdDialogParameter;
 
 import org.zkoss.bind.annotation.BindingParam;
@@ -94,6 +95,7 @@ public class AdminUserViewModel extends AbstractAdminViewModel<User> {
 	}
 	
 	@Command
+	@Override
 	public void flagDirty(@BindingParam("notify") String notify, 
 						  @BindingParam("notifyObject") String notifyObject) {
 		super.flagDirty(notify, notifyObject);
@@ -113,7 +115,7 @@ public class AdminUserViewModel extends AbstractAdminViewModel<User> {
 	}
 	
 	@GlobalCommand
-	public void _refreshObject(@BindingParam("param") Long objectId) {
+	public void globalRefreshObject(@BindingParam("param") Long objectId) {
 		refreshObject(objectId);
 	}
 	
@@ -124,14 +126,14 @@ public class AdminUserViewModel extends AbstractAdminViewModel<User> {
 	}
 
 	@Override
-	protected List<? extends SystemObject> getListManagerSource(String key, int listNum) {
-		switch (key) {
-			case USERGROUPS:
-				return listNum == LIST_AVAILABLE
-						? userService.getAvailableUserGroups(getObject())
-						: new ArrayList<>(getObject().getUserGroups());
-			default:
-				throw new IllegalStateException("unknown list manager key: " + key);
+	protected List<SystemObject> getListManagerSource(String key, int listNum) {
+		if (USERGROUPS.equals(key)) {
+			return MiscUtils.cast(listNum == LIST_AVAILABLE
+					? userService.getAvailableUserGroups(getObject())
+					: new ArrayList<>(getObject().getUserGroups()));
+		}
+		else {
+			throw new IllegalStateException("unknown list manager key: " + key);
 		}
 	}
 

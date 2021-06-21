@@ -15,24 +15,23 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.ui.zk.vm;
+package org.seed.ui;
 
 import java.util.Map;
 
 import org.seed.core.entity.filter.CriterionOperator;
 import org.seed.core.entity.value.ValueObject;
+import org.seed.core.util.Assert;
 
-import org.springframework.util.Assert;
-
-class SearchParameter {
+public class SearchParameter {
 	
 	public final ValueObject searchObject;
 	
 	public final Map<Long, Map<String, CriterionOperator>> mapOperators;
 
-	SearchParameter(ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> mapOperators) {
-		Assert.notNull(searchObject, "searchObject is null");
-		Assert.notNull(mapOperators, "mapOperators is null");
+	public SearchParameter(ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> mapOperators) {
+		Assert.notNull(searchObject, "searchObject");
+		Assert.notNull(mapOperators, "mapOperators");
 		
 		this.searchObject = searchObject;
 		this.mapOperators = mapOperators;

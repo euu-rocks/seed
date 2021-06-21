@@ -22,17 +22,18 @@ import javax.annotation.PostConstruct;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 
+import org.seed.core.util.Assert;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 @Component
 public class FullTextSearchProvider {
 	
-	private final static Logger log = LoggerFactory.getLogger(FullTextSearchProvider.class);
+	private static final Logger log = LoggerFactory.getLogger(FullTextSearchProvider.class);
 	
 	@Autowired
 	private Environment environment;
@@ -50,7 +51,7 @@ public class FullTextSearchProvider {
 			}
 			catch (Exception e) {
 				solrClient = null;
-				log.warn("Solr server not found: " + propSolrUrl);
+				log.warn("Solr server not found: {}", propSolrUrl);
 				log.warn("Full-text search not available");
 			}
 		}

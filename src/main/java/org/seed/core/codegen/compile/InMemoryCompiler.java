@@ -18,7 +18,6 @@
 package org.seed.core.codegen.compile;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -31,14 +30,15 @@ import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
 import javax.tools.JavaCompiler.CompilationTask;
 
+import org.seed.C;
 import org.seed.core.codegen.Compiler;
 import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.codegen.SourceCode;
+import org.seed.core.util.Assert;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 @Component
 public class InMemoryCompiler implements Compiler {
@@ -58,7 +58,7 @@ public class InMemoryCompiler implements Compiler {
 			throw new CompilerException("Java compiler not available. Use JDK instead of JRE");
 		}
 		fileManager = new CompilerFileManager(javaCompiler.getStandardFileManager(null, null, null));
-		log.info("Found Java compiler: " + javaCompiler.getClass());
+		log.info("Found Java compiler: {}", javaCompiler.getClass());
 	}
 	
 	@Override
@@ -73,7 +73,7 @@ public class InMemoryCompiler implements Compiler {
 	
 	@Override
 	public Class<GeneratedCode> getGeneratedClass(String qualifiedName) {
-		Assert.notNull(qualifiedName, "qualifiedName is null");
+		Assert.notNull(qualifiedName, C.QUALIFIEDNAME);
 		Assert.state(!mapClasses.isEmpty(), "no classes available");
 		
 		return mapClasses.get(qualifiedName);
@@ -81,7 +81,7 @@ public class InMemoryCompiler implements Compiler {
 	
 	@Override
 	public List<Class<GeneratedCode>> getGeneratedClasses(Class<?> typeClass) {
-		Assert.notNull(typeClass, "typeClass is null");
+		Assert.notNull(typeClass, C.TYPECLASS);
 		
 		final List<Class<GeneratedCode>> generatedClasses = new ArrayList<>();
 		for (Class<GeneratedCode> generatedClass : mapClasses.values()) {
@@ -93,15 +93,16 @@ public class InMemoryCompiler implements Compiler {
 	}
 	
 	@Override
-	public void compile(List<SourceCode<?>> sourceCodes) {
-		Assert.notNull(sourceCodes, "sourceCodes is null");
+	public void compile(List<SourceCode> sourceCodes) {
+		Assert.notNull(sourceCodes, "sourceCodes");
 		
-		log.info("Compiling: " + Arrays.asList(sourceCodes));
+		log.info("Compiling: {}", sourceCodes);
 		final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
 		final CompilationTask task = javaCompiler.getTask(null, fileManager, diagnostics, null, null, 
 														  fileManager.createSourceFileObjects(sourceCodes));
-		if (!task.call()) {
-			for (SourceCode<?> sourceCode : sourceCodes) {
+		final Boolean result = task.call();
+		if (result == null || !result) {
+			for (SourceCode sourceCode : sourceCodes) {
 				fileManager.removeClassFileObject(sourceCode.getQualifiedName());
 			}
 			throw new CompilerException(diagnostics.getDiagnostics());

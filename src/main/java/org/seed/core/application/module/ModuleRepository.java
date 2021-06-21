@@ -20,9 +20,9 @@ package org.seed.core.application.module;
 import org.hibernate.Session;
 
 import org.seed.core.data.AbstractSystemEntityRepository;
+import org.seed.core.util.Assert;
 
 import org.springframework.stereotype.Repository;
-import org.springframework.util.Assert;
 
 @Repository
 public class ModuleRepository extends AbstractSystemEntityRepository<Module> {
@@ -36,7 +36,7 @@ public class ModuleRepository extends AbstractSystemEntityRepository<Module> {
 	}
 	
 	public Module findByUid(String uid) {
-		Assert.notNull(uid, "uid is null");
+		Assert.notNull(uid, "uid");
 		
 		return findUnique(queryParam("uid", uid));
 	}

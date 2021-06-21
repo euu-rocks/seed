@@ -25,12 +25,13 @@ import java.util.List;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import org.seed.InternalException;
+import org.seed.core.util.Assert;
+
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-
-import org.springframework.util.Assert;
 
 public class MailBuilder {
 	
@@ -126,36 +127,36 @@ public class MailBuilder {
 	private String text;
 
 	MailBuilder(JavaMailSender mailSender, String fromAddress) {
-		Assert.notNull(mailSender, "mailSender is null");
-		Assert.notNull(fromAddress, "fromAddress is null");
+		Assert.notNull(mailSender, "mailSender");
+		Assert.notNull(fromAddress, "fromAddress");
 		
 		this.mailSender = mailSender;
 		this.fromAddress = fromAddress;
 	}
 
 	public MailBuilder setToAddress(String ...toAddress) {
-		Assert.notNull(toAddress, "toAddress is null");
+		Assert.notNull(toAddress, "toAddress");
 		
 		this.toAddress = toAddress;
 		return this;
 	}
 	
 	public MailBuilder setCcAddress(String ...ccAddress) {
-		Assert.notNull(ccAddress, "ccAddress is null");
+		Assert.notNull(ccAddress, "ccAddress");
 		
 		this.ccAddress = ccAddress;
 		return this;
 	}
 	
 	public MailBuilder setSubject(String subject) {
-		Assert.notNull(subject, "subject is null");
+		Assert.notNull(subject, "subject");
 		
 		this.subject = subject;
 		return this;
 	}
 
 	public MailBuilder setText(String text) {
-		Assert.notNull(text, "text is null");
+		Assert.notNull(text, "text");
 		
 		this.text = text;
 		return this;
@@ -163,9 +164,9 @@ public class MailBuilder {
 
 	public MailBuilder addAttachment(String fileName, String contentType, 
 									 final InputStream inputStream) {
-		Assert.notNull(fileName, "fileName is null");
-		Assert.notNull(contentType, "contentType is null");
-		Assert.notNull(inputStream, "inputStream is null");
+		Assert.notNull(fileName, "fileName");
+		Assert.notNull(contentType, "contentType");
+		Assert.notNull(inputStream, "inputStream");
 		
 		final Attachment attachment = new Attachment(fileName, contentType, 
 			new InputStreamSource() {
@@ -184,9 +185,9 @@ public class MailBuilder {
 	}
 	
 	public Mail build() {
-		Assert.state(toAddress != null, "toAddress is null");
-		Assert.state(subject != null, "subject is null");
-		Assert.state(text != null, "text is null");
+		Assert.state(toAddress != null, "toAddress");
+		Assert.state(subject != null, "subject");
+		Assert.state(text != null, "text");
 		try {
 			if (attachments != null) {
 				final MimeMessage message = mailSender.createMimeMessage();
@@ -215,7 +216,7 @@ public class MailBuilder {
 			}
 		}
 		catch (MessagingException mex) {
-			throw new RuntimeException(mex);
+			throw new InternalException(mex);
 		}
 	}
 	

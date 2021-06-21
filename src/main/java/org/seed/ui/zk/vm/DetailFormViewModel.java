@@ -26,7 +26,6 @@ import java.util.Map;
 import javax.persistence.OptimisticLockException;
 
 import org.seed.core.data.FileObject;
-import org.seed.core.data.SystemObject;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.NestedEntity;
@@ -37,10 +36,10 @@ import org.seed.core.form.FormFieldExtra;
 import org.seed.core.form.SubForm;
 import org.seed.core.form.SubFormAction;
 import org.seed.core.form.SubFormField;
+import org.seed.core.util.Assert;
 import org.seed.core.util.MultiKey;
 import org.seed.ui.FormParameter;
 
-import org.springframework.util.Assert;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.ExecutionArgParam;
@@ -51,7 +50,7 @@ import org.zkoss.zul.ListModel;
 
 public class DetailFormViewModel extends AbstractFormViewModel {
 	
-	private final Map<MultiKey, ListModel<SystemObject>> listModelMap = Collections.synchronizedMap(new HashMap<>());
+	private final Map<MultiKey, ListModel<ValueObject>> listModelMap = Collections.synchronizedMap(new HashMap<>());
 	
 	private List<FileObject> fileObjects; // initial file objects
 	
@@ -71,7 +70,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	}
 	
 	public boolean isReferenceEmpty(String referenceFieldUid) {
-		Assert.notNull(referenceFieldUid, "referenceFieldUid is null");
+		Assert.notNull(referenceFieldUid, REFERENCE_FIELD_UID);
 		final EntityField referenceField = getEntityField(referenceFieldUid);
 		final SubFormField subFormField = getForm().getSubFormField(referenceField);
 		ValueObject referenceObject;
@@ -88,8 +87,8 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 		return valueObjectService().isEmpty(referenceObject, referenceField);
 	}
 	
-	public ListModel<SystemObject> getReferenceListModel(String referenceFieldUid) {
-		Assert.notNull(referenceFieldUid, "referenceFieldUid is null");
+	public ListModel<ValueObject> getReferenceListModel(String referenceFieldUid) {
+		Assert.notNull(referenceFieldUid, REFERENCE_FIELD_UID);
 		
 		final MultiKey key = MultiKey.valueOf(0L, referenceFieldUid);
 		if (listModelMap.containsKey(key)) {
@@ -97,14 +96,14 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 		}
 		final EntityField referenceField = getEntityField(referenceFieldUid);
 		final FormFieldExtra fieldExtra = getForm().getFieldExtra(referenceField);
-		final ListModel<SystemObject> model = createReferenceListModel(referenceField, fieldExtra != null ? fieldExtra.getFilter() : null);
+		final ListModel<ValueObject> model = createReferenceListModel(referenceField, fieldExtra != null ? fieldExtra.getFilter() : null);
 		listModelMap.put(key, model);
 		return model;
 	}
 	
-	public ListModel<SystemObject> getNestedReferenceListModel(String nestedEntityUid, String referenceFieldUid) {
-		Assert.notNull(nestedEntityUid, "nestedEntityUid is null");
-		Assert.notNull(referenceFieldUid, "referenceFieldUid is null");
+	public ListModel<ValueObject> getNestedReferenceListModel(String nestedEntityUid, String referenceFieldUid) {
+		Assert.notNull(nestedEntityUid, "nestedEntityUid");
+		Assert.notNull(referenceFieldUid, REFERENCE_FIELD_UID);
 		
 		final MultiKey key = MultiKey.valueOf(nestedEntityUid, referenceFieldUid);
 		if (listModelMap.containsKey(key)) {
@@ -112,19 +111,21 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 		}
 		final SubForm subForm = getSubForm(nestedEntityUid);
 		final EntityField referenceField = subForm.getNestedEntity().getNestedEntity().getFieldByUid(referenceFieldUid);
-		Assert.state(referenceField != null, "referenceField not available " + referenceFieldUid);
+		checkReferenceField(referenceField, referenceFieldUid);
 		
 		final SubFormField subFormField = subForm.getFieldByEntityFieldUid(referenceField.getUid());
-		final ListModel<SystemObject> model = createReferenceListModel(referenceField, subFormField.getFilter());
+		final ListModel<ValueObject> model = createReferenceListModel(referenceField, subFormField.getFilter());
 		listModelMap.put(key, model);
 		return model;
 	}
 	
+	
+	
 	public List<ValueObject> getReferenceValues(String referenceFieldUid) {
-		Assert.notNull(referenceFieldUid, "referenceFieldUid is null");
+		Assert.notNull(referenceFieldUid, REFERENCE_FIELD_UID);
 		
 		final EntityField referenceField = getForm().getEntity().getFieldByUid(referenceFieldUid);
-		Assert.state(referenceField != null, "referenceField not available " + referenceFieldUid);
+		checkReferenceField(referenceField, referenceFieldUid);
 		
 		if (isFieldReadonly(referenceFieldUid)) {
 			return Collections.singletonList((ValueObject) valueObjectService().getValue(getObject(), referenceField));
@@ -134,12 +135,12 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	}
 	
 	public List<ValueObject> getNestedReferenceValues(String nestedEntityUid, String referenceFieldUid) {
-		Assert.notNull(nestedEntityUid, "nestedEntityUid is null");
-		Assert.notNull(referenceFieldUid, "referenceFieldUid is null");
+		Assert.notNull(nestedEntityUid, "nestedEntityUid");
+		Assert.notNull(referenceFieldUid, REFERENCE_FIELD_UID); 
 		
 		final SubForm subForm = getSubForm(nestedEntityUid);
 		final EntityField referenceField = subForm.getNestedEntity().getNestedEntity().getFieldByUid(referenceFieldUid);
-		Assert.state(referenceField != null, "referenceField not available " + referenceFieldUid);
+		checkReferenceField(referenceField, referenceFieldUid);
 		if (isFieldReadonly(referenceFieldUid)) {
 			return Collections.singletonList((ValueObject) valueObjectService().getValue(getObject(), referenceField));
 		}
@@ -148,6 +149,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	}
 	
 	@Init
+	@Override
 	public void init(@ExecutionArgParam("param") FormParameter param) {
 		super.init(param);
 		
@@ -318,13 +320,16 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	
 	@Command
 	@NotifyChange({"getSubForm", "isReferenceEmpty"})
-	public void selectSubFormObject() {}
+	public void selectSubFormObject() {
+		// do nothing, just notify
+	}
 	
 	@Override
 	protected String getLayoutPath() {
 		return "/detail";
 	}
 	
+	@Override
 	protected void confirmed(boolean confirmed, Component component, Object confirmParam) {
 		final FormAction action = (FormAction) confirmParam;
 		switch (action.getType()) {

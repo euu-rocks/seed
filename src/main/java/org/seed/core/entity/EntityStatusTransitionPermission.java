@@ -21,48 +21,22 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import org.seed.core.application.TransferableObject;
-import org.seed.core.data.AbstractSystemObject;
-import org.seed.core.user.UserGroup;
-import org.seed.core.user.UserGroupMetadata;
+import org.seed.core.application.AbstractPermissionObject;
 
 @javax.persistence.Entity
 @Table(name = "sys_entity_statustran_perm")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class EntityStatusTransitionPermission extends AbstractSystemObject
-	implements TransferableObject {
+public class EntityStatusTransitionPermission extends AbstractPermissionObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "transition_id")
 	private EntityStatusTransition statusTransition;
-	
-	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usergroup_id")
-	private UserGroupMetadata userGroup;
-	
-	private String uid;
-	
-	@Transient
-	private String userGroupUid;
-	
-	@Override
-	@XmlAttribute
-	public String getUid() {
-		return uid;
-	}
-	
-	@Override
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
 	
 	@XmlTransient
 	public EntityStatusTransition getStatusTransition() {
@@ -71,24 +45,6 @@ public class EntityStatusTransitionPermission extends AbstractSystemObject
 	
 	public void setStatusTransition(EntityStatusTransition statusTransition) {
 		this.statusTransition = statusTransition;
-	}
-	
-	@XmlTransient
-	public UserGroup getUserGroup() {
-		return userGroup;
-	}
-	
-	@XmlAttribute
-	public String getUserGroupUid() {
-		return userGroup != null ? userGroup.getUid() : userGroupUid;
-	}
-
-	public void setUserGroupUid(String userGroupUid) {
-		this.userGroupUid = userGroupUid;
-	}
-
-	public void setUserGroup(UserGroup userGroup) {
-		this.userGroup = (UserGroupMetadata) userGroup;
 	}
 	
 	@Override
@@ -101,7 +57,7 @@ public class EntityStatusTransitionPermission extends AbstractSystemObject
 		}
 		final EntityStatusTransitionPermission otherPermission = (EntityStatusTransitionPermission) other;
 		return new EqualsBuilder()
-			.append(userGroupUid, otherPermission.getUserGroupUid())
+			.append(getUserGroupUid(), otherPermission.getUserGroupUid())
 			.isEquals();
 	}
 

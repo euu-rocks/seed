@@ -27,7 +27,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
+import org.seed.InternalException;
 import org.seed.core.data.datasource.ColumnMetadata;
 import org.seed.core.data.datasource.DataSourceResult;
 import org.seed.core.report.Report;
@@ -54,7 +54,7 @@ class ExcelReportGenerator extends AbstractReportGenerator {
 			return getBytes();
 		}
 		catch (IOException ioex) {
-			throw new RuntimeException(ioex);
+			throw new InternalException(ioex);
 		}
 		finally {
 			try {
@@ -88,48 +88,51 @@ class ExcelReportGenerator extends AbstractReportGenerator {
 			// create columns
 			for (ColumnMetadata column : result.getColumns()) {
 				final Cell cell = row.createCell(colIdx);
-				final Object columnValue = columnValues[colIdx];
-				switch (column.type) {
-					case Types.BLOB:
-						final byte[] bytes = (byte[]) columnValue;
-						if (bytes != null) {
-							cell.setCellValue(bytes.length + " bytes");
-						}
-						break;
-					case Types.BOOLEAN:
-						cell.setCellValue((boolean) columnValue);
-						break;
-					case Types.SMALLINT:
-					case Types.INTEGER:
-					case Types.BIGINT:
-					case Types.DOUBLE:
-						final Double doubleValue = (Double) columnValue;
-						if (doubleValue != null) {
-							cell.setCellValue(doubleValue);
-						}
-						break;
-					case Types.DECIMAL:
-						final BigDecimal decimal = (BigDecimal) columnValue;
-						if (decimal != null) {
-							cell.setCellValue(decimal.doubleValue());
-						}
-						break;
-					case Types.DATE:
-						final Date dateValue = (Date) columnValue;
-						if (dateValue != null) {
-							cell.setCellValue((Date) columnValue);
-						}
-						break;
-					case Types.CHAR:
-					case Types.VARCHAR:
-					case Types.LONGVARCHAR:
-						cell.setCellValue(columnValue.toString());
-						break;
-					default:
-						throw new IllegalStateException("unhandled type " + column.type);
-				}
+				setCellValue(column, cell, columnValues[colIdx]);
 				colIdx++;
 			}
+		}
+	}
+	
+	private static void setCellValue(ColumnMetadata column, Cell cell, Object columnValue) {
+		switch (column.type) {
+			case Types.BLOB:
+				final byte[] bytes = (byte[]) columnValue;
+				if (bytes != null) {
+					cell.setCellValue(bytes.length + " bytes");
+				}
+				break;
+			case Types.BOOLEAN:
+				cell.setCellValue((boolean) columnValue);
+				break;
+			case Types.SMALLINT:
+			case Types.INTEGER:
+			case Types.BIGINT:
+			case Types.DOUBLE:
+				final Double doubleValue = (Double) columnValue;
+				if (doubleValue != null) {
+					cell.setCellValue(doubleValue);
+				}
+				break;
+			case Types.DECIMAL:
+				final BigDecimal decimal = (BigDecimal) columnValue;
+				if (decimal != null) {
+					cell.setCellValue(decimal.doubleValue());
+				}
+				break;
+			case Types.DATE:
+				final Date dateValue = (Date) columnValue;
+				if (dateValue != null) {
+					cell.setCellValue((Date) columnValue);
+				}
+				break;
+			case Types.CHAR:
+			case Types.VARCHAR:
+			case Types.LONGVARCHAR:
+				cell.setCellValue(columnValue.toString());
+				break;
+			default:
+				throw new IllegalStateException("unhandled type " + column.type);
 		}
 	}
 

@@ -17,7 +17,8 @@
  */
 package org.seed.core.form.layout.visit;
 
-import org.seed.core.config.ApplicationContextProvider;
+import org.seed.C;
+import org.seed.Seed;
 import org.seed.core.entity.EntityField;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormFieldExtra;
@@ -26,9 +27,8 @@ import org.seed.core.form.layout.LayoutElement;
 import org.seed.core.form.layout.LayoutService;
 import org.seed.core.form.layout.LayoutUtils;
 import org.seed.core.form.layout.LayoutVisitor;
+import org.seed.core.util.Assert;
 import org.seed.core.util.TinyId;
-
-import org.springframework.util.Assert;
 
 abstract class AbstractLayoutVisitor extends LayoutUtils implements LayoutVisitor {
 	
@@ -41,7 +41,7 @@ abstract class AbstractLayoutVisitor extends LayoutUtils implements LayoutVisito
 	private LayoutElement rootElement;
 
 	AbstractLayoutVisitor(Form form) {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		this.form = form;
 	}
@@ -53,7 +53,7 @@ abstract class AbstractLayoutVisitor extends LayoutUtils implements LayoutVisito
 	}
 
 	protected void setRootElement(LayoutElement rootElement) {
-		Assert.notNull(rootElement, "rootElement is null");
+		Assert.notNull(rootElement, "rootElement");
 		Assert.state(this.rootElement == null, "multiple zk elements");
 		
 		this.rootElement = rootElement;
@@ -61,7 +61,7 @@ abstract class AbstractLayoutVisitor extends LayoutUtils implements LayoutVisito
 	}
 	
 	protected void addToRoot(LayoutElement element) {
-		Assert.notNull(element, "element is null");
+		Assert.notNull(element, C.ELEMENT);
 		
 		getRootElement().addChild(element);
 	}
@@ -71,13 +71,13 @@ abstract class AbstractLayoutVisitor extends LayoutUtils implements LayoutVisito
 	}
 	
 	protected EntityField getEntityField(LayoutElement element) {
-		Assert.notNull(element, "element is null");
+		Assert.notNull(element, C.ELEMENT);
 		
 		return getEntityField(getId(element));
 	}
 	
 	protected EntityField getEntityField(String uid) {
-		Assert.notNull(uid, "uid is null");
+		Assert.notNull(uid, C.UID);
 		
 		final EntityField field = form.getEntity().getFieldByUid(uid);
 		Assert.state(field != null, "entity field not found: " + uid);
@@ -85,20 +85,20 @@ abstract class AbstractLayoutVisitor extends LayoutUtils implements LayoutVisito
 	}
 	
 	protected FormFieldExtra getFieldExtra(EntityField entityField) {
-		Assert.notNull(entityField, "entityField is null");
+		Assert.notNull(entityField, "entityField");
 		
 		return form.getFieldExtra(entityField);
 	}
 	
 	protected SubForm getSubForm(LayoutElement element) {
-		Assert.notNull(element, "element is null");
+		Assert.notNull(element, C.ELEMENT);
 		
 		return form.getSubFormByNestedEntityUid(getId(element));
 	}
 	
 	protected LayoutService getLayoutService() {
 		if (layoutService == null) {
-			layoutService = ApplicationContextProvider.getBean(LayoutService.class);
+			layoutService = Seed.getBean(LayoutService.class);
 		}
 		return layoutService;
 	}

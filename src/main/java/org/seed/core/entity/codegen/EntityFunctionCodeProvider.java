@@ -20,6 +20,7 @@ package org.seed.core.entity.codegen;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.codegen.SourceCodeBuilder;
 import org.seed.core.codegen.SourceCodeProvider;
@@ -27,19 +28,19 @@ import org.seed.core.codegen.SourceCodeBuilder.BuildMode;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityFunction;
 import org.seed.core.entity.EntityRepository;
+import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 @Component
-public class EntityFunctionCodeProvider implements SourceCodeProvider<EntityFunction> {
+public class EntityFunctionCodeProvider implements SourceCodeProvider {
 	
 	@Autowired
 	private EntityRepository entityRepository;
 	
 	public String getFunctionTemplate(EntityFunction function) {
-		Assert.notNull(function, "function is null");
+		Assert.notNull(function, C.FUNCTION);
 		
 		if (function.isCallback()) {
 			return new EntityFunctionCodeBuilder(function).build(BuildMode.TEMPLATE).getContent();
@@ -47,15 +48,15 @@ public class EntityFunctionCodeProvider implements SourceCodeProvider<EntityFunc
 		return "\n\n\tpublic void " + function.getInternalName() + "() {\n\n\t}\n";
 	}
 	
-	public SourceCode<EntityFunction> getFunctionSource(EntityFunction function) {
-		Assert.notNull(function, "function is null");
+	public SourceCode getFunctionSource(EntityFunction function) {
+		Assert.notNull(function, C.FUNCTION);
 		
 		return new EntityFunctionCodeBuilder(function).build();
 	}
 	
 	@Override
-	public List<SourceCodeBuilder<EntityFunction>> getSourceCodeBuilders() {
-		final List<SourceCodeBuilder<EntityFunction>> result = new ArrayList<>();
+	public List<SourceCodeBuilder> getSourceCodeBuilders() {
+		final List<SourceCodeBuilder> result = new ArrayList<>();
 		for (Entity entity : entityRepository.find()) {
 			if (entity.hasFunctions()) {
 				for (EntityFunction function : entity.getCallbackFunctions()) {

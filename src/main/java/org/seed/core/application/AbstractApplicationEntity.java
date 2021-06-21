@@ -28,14 +28,14 @@ import javax.persistence.MappedSuperclass;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.seed.C;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.ModuleMetadata;
 import org.seed.core.data.AbstractSystemEntity;
 import org.seed.core.user.User;
+import org.seed.core.util.Assert;
 import org.seed.core.util.ReferenceJsonSerializer;
 import org.seed.core.util.UID;
-
-import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -73,7 +73,7 @@ public abstract class AbstractApplicationEntity extends AbstractSystemEntity
 	
 	@Override
 	public final boolean checkPermissions(User user, @Nullable Enum<?> access) {
-		Assert.notNull(user, "user is null");
+		Assert.notNull(user, C.USER);
 		Assert.state(this instanceof ApprovableObject, "object is not approvable");
 		
 		final ApprovableObject<?> approvable = (ApprovableObject<?>) this;
@@ -82,7 +82,7 @@ public abstract class AbstractApplicationEntity extends AbstractSystemEntity
 		if (!approvable.hasPermissions()) {
 			return true;
 		}
-		for (Permission permission : approvable.getPermissions()) {
+		for (Permission<?> permission : approvable.getPermissions()) {
 			if (user.belongsTo(permission.getUserGroup()) && 
 				(access == null || // access doesn't exist or granted
 				 permission.getAccess().ordinal() >= access.ordinal())) {
@@ -92,12 +92,8 @@ public abstract class AbstractApplicationEntity extends AbstractSystemEntity
 		return false;
 	}
 	
-	protected void initUids() {
-		initUid(this);
-	}
-	
 	public static <T extends TransferableObject> T getObjectByUid(Collection<T> list, String uid) {
-		Assert.notNull(uid, "uid is null");
+		Assert.notNull(uid, C.UID);
 		
 		if (list != null) {
 			for (T object : list) {
@@ -109,13 +105,19 @@ public abstract class AbstractApplicationEntity extends AbstractSystemEntity
 		return null;
 	}
 	
+	protected void initUids() {
+		initUid(this);
+	}
+	
 	protected static void initUids(List<? extends TransferableObject> transferableList) {
 		if (transferableList != null) {
-			transferableList.forEach(t -> initUid(t));
+			for (TransferableObject transferable : transferableList) {
+				initUid(transferable);
+			}
 		}
 	}
 	
-	protected static void initUid(TransferableObject transferable) {
+	private static void initUid(TransferableObject transferable) {
 		if (transferable.getUid() == null) {
 			transferable.setUid(UID.createUID());
 		}

@@ -20,11 +20,10 @@ package org.seed.core.entity.filter;
 import java.util.List;
 
 import org.seed.core.api.EntityFilter;
-import org.seed.core.api.EntityObject;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.entity.Entity;
 
-public interface Filter extends ApplicationEntity, EntityFilter<EntityObject> {
+public interface Filter extends ApplicationEntity, EntityFilter {
 	
 	Entity getEntity();
 	

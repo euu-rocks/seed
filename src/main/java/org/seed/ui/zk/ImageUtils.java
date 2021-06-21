@@ -28,15 +28,19 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import org.springframework.util.Assert;
+import org.seed.InternalException;
+import org.seed.core.util.Assert;
+
 import org.zkoss.image.AImage;
 
 abstract class ImageUtils {
 	
 	private static final Font PLACEHOLDER_FONT = new Font(Font.SANS_SERIF, Font.PLAIN, 12);
 	
+	private ImageUtils() {}
+	
 	static byte[] createPlaceholderImage(String text, int width, int height) {
-		Assert.notNull(text, "text is null");
+		Assert.notNull(text, "text");
 		
 		final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		final Graphics2D g2d = image.createGraphics();
@@ -57,7 +61,7 @@ abstract class ImageUtils {
 	}
 	
 	static AImage createThumbnail(byte[] bytes, int thumbnailWidth) {
-		Assert.notNull(bytes, "bytes is null");
+		Assert.notNull(bytes, "bytes");
 		
 		final BufferedImage image = getImage(bytes);
 		final double ratio = ((double) thumbnailWidth) / image.getWidth(); 
@@ -77,7 +81,7 @@ abstract class ImageUtils {
 			return baos.toByteArray(); 
 		} 
 		catch (IOException ex) {
-			throw new RuntimeException(ex);
+			throw new InternalException(ex);
 		}
 	}
 	
@@ -86,7 +90,7 @@ abstract class ImageUtils {
 			return ImageIO.read(new ByteArrayInputStream(bytes));
 		} 
 		catch (IOException ex) {
-			throw new RuntimeException(ex);
+			throw new InternalException(ex);
 		}
 	}
 	
@@ -95,7 +99,7 @@ abstract class ImageUtils {
 			return new AImage(null, getBytes(image)); 
 		} 
 		catch (IOException ex) {
-			throw new RuntimeException(ex);
+			throw new InternalException(ex);
 		}
 	}
 	

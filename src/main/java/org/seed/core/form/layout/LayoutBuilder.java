@@ -19,14 +19,16 @@ package org.seed.core.form.layout;
 
 import java.util.Map.Entry;
 
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 abstract class LayoutBuilder {
 	
 	private static final String LF = System.lineSeparator();
 	
+	private LayoutBuilder() {}
+	
 	public static String build(LayoutElement rootElement) {
-		Assert.notNull(rootElement, "rootElement is null");
+		Assert.notNull(rootElement, "rootElement");
 		
 		final StringBuilder buf = new StringBuilder();
 		build(buf, rootElement, 0);

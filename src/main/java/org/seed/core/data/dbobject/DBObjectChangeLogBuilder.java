@@ -18,49 +18,30 @@
 package org.seed.core.data.dbobject;
 
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 import org.seed.core.config.AbstractChangeLogBuilder;
 import org.seed.core.config.ChangeLog;
+import org.seed.core.util.Assert;
 
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import liquibase.change.core.CreateViewChange;
 import liquibase.change.core.DropViewChange;
 
-class DBObjectChangeLogBuilder extends AbstractChangeLogBuilder {
+class DBObjectChangeLogBuilder extends AbstractChangeLogBuilder<DBObject> {
 	
-	private DBObject currentVersionObject;
-	
-	private DBObject nextVersionObject;
-
-	DBObjectChangeLogBuilder setCurrentVersionObject(DBObject currentVersionObject) {
-		this.currentVersionObject = currentVersionObject;
-		return this;
-	}
-
-	DBObjectChangeLogBuilder setNextVersionObject(DBObject nextVersionObject) {
-		this.nextVersionObject = nextVersionObject;
-		return this;
-	}
-
 	@Override
-	public List<ChangeLog> build() {
+	public ChangeLog build() {
 		// create object
 		if (currentVersionObject == null) {
-			switch (nextVersionObject.getType()) {
-				case VIEW:
-					addCreateViewChangeSet(nextVersionObject);
-					break;
+			if (nextVersionObject.getType() == DBObjectType.VIEW) {
+				addCreateViewChangeSet(nextVersionObject);
 			}
 		}
 		// drop object
 		else if (nextVersionObject == null) {
-			switch (currentVersionObject.getType()) {
-				case VIEW:
-					addDropViewChangeSet(currentVersionObject);
-					break;
+			if (currentVersionObject.getType() == DBObjectType.VIEW) {
+				addDropViewChangeSet(currentVersionObject);
 			}
 		}
 		else {
@@ -68,35 +49,32 @@ class DBObjectChangeLogBuilder extends AbstractChangeLogBuilder {
 					   												nextVersionObject.getInternalName());
 			final boolean contentChanged = !ObjectUtils.nullSafeEquals(currentVersionObject.getContent(), 
 																	   nextVersionObject.getContent());
-			switch (nextVersionObject.getType()) {
-				case VIEW:
-					if (nameChanged || contentChanged) {
-						addDropViewChangeSet(currentVersionObject);
-						addCreateViewChangeSet(nextVersionObject);
-					}
-					break;
+			if (nextVersionObject.getType() == DBObjectType.VIEW && 
+				(nameChanged || contentChanged)) {
+				addDropViewChangeSet(currentVersionObject);
+				addCreateViewChangeSet(nextVersionObject);
 			}
 		}
 		return super.build();
 	}
 	
 	private void addCreateViewChangeSet(DBObject dbObject) {
-		Assert.notNull(dbObject, "dbObject is null");
+		Assert.notNull(dbObject, "dbObject");
 		
 		final CreateViewChange createViewChange = new CreateViewChange();
 		createViewChange.setFullDefinition(Boolean.FALSE);
 		createViewChange.setEncoding(StandardCharsets.UTF_8.name());
 		createViewChange.setViewName(dbObject.getInternalName());
 		createViewChange.setSelectQuery(dbObject.getContent());
-		createChangeSet().addChange(createViewChange);
+		addChange(createViewChange);
 	}
 	
 	private void addDropViewChangeSet(DBObject dbObject) {
-		Assert.notNull(dbObject, "dbObject is null");
+		Assert.notNull(dbObject, "dbObject");
 		
 		final DropViewChange dropViewChange = new DropViewChange();
 		dropViewChange.setViewName(dbObject.getInternalName());
-		createChangeSet().addChange(dropViewChange);
+		addChange(dropViewChange);
 	}
 	
 }

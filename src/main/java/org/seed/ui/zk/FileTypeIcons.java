@@ -22,28 +22,37 @@ import java.util.Map;
 
 public abstract class FileTypeIcons {
 	
-	private final static Map<String, String> contentTypeMap = new HashMap<>();
+	private static final String ICON_ARCHIVE    = "file-archive-o";
+	private static final String ICON_CODE       = "file-code-o";
+	private static final String ICON_EXCEL      = "file-excel-o";
+	private static final String ICON_PDF        = "file-pdf-o";
+	private static final String ICON_POWERPOINT = "file-powerpoint-o";
+	private static final String ICON_WORD       = "file-word-o";
+	
+	private static final Map<String, String> contentTypeMap = new HashMap<>();
 	
 	static {
-		contentTypeMap.put("text/html", "file-code-o");
-		contentTypeMap.put("text/xml", "file-code-o");
-		contentTypeMap.put("application/pdf", "file-pdf-o");
-		contentTypeMap.put("application/msword", "file-word-o");
-		contentTypeMap.put("application/vnd.ms-word", "file-word-o");
-		contentTypeMap.put("application/vnd.oasis.opendocument.text", "file-word-o");
-		contentTypeMap.put("application/vnd.openxmlformats-officedocument.wordprocessingml", "file-word-o");
-		contentTypeMap.put("application/vnd.openxmlformats-officedocument.wordprocessingml.document", "file-word-o");
-		contentTypeMap.put("application/vnd.ms-excel", "file-excel-o");
-		contentTypeMap.put("application/vnd.openxmlformats-officedocument.spreadsheetml", "file-excel-o");
-		contentTypeMap.put("application/vnd.oasis.opendocument.spreadsheet", "file-excel-o");
-		contentTypeMap.put("application/vnd.ms-powerpoint", "file-powerpoint-o");
-		contentTypeMap.put("application/vnd.openxmlformats-officedocument.presentationml", "file-powerpoint-o");
-		contentTypeMap.put("application/vnd.oasis.opendocument.presentation", "file-powerpoint-o");
-		contentTypeMap.put("application/vnd.ms-powerpoint", "file-powerpoint-o");
-		contentTypeMap.put("application/gzip", "file-archive-o");
-		contentTypeMap.put("application/zip", "file-archive-o");
-		contentTypeMap.put("application/x-jar", "file-archive-o");
+		contentTypeMap.put("text/html", ICON_CODE);
+		contentTypeMap.put("text/xml", ICON_CODE);
+		contentTypeMap.put("application/pdf", ICON_PDF);
+		contentTypeMap.put("application/msword", ICON_WORD);
+		contentTypeMap.put("application/vnd.ms-word", ICON_WORD);
+		contentTypeMap.put("application/vnd.oasis.opendocument.text", ICON_WORD);
+		contentTypeMap.put("application/vnd.openxmlformats-officedocument.wordprocessingml", ICON_WORD);
+		contentTypeMap.put("application/vnd.openxmlformats-officedocument.wordprocessingml.document", ICON_WORD);
+		contentTypeMap.put("application/vnd.ms-excel", ICON_EXCEL);
+		contentTypeMap.put("application/vnd.openxmlformats-officedocument.spreadsheetml", ICON_EXCEL);
+		contentTypeMap.put("application/vnd.oasis.opendocument.spreadsheet", ICON_EXCEL);
+		contentTypeMap.put("application/vnd.ms-powerpoint", ICON_POWERPOINT);
+		contentTypeMap.put("application/vnd.openxmlformats-officedocument.presentationml", ICON_POWERPOINT);
+		contentTypeMap.put("application/vnd.oasis.opendocument.presentation", ICON_POWERPOINT);
+		contentTypeMap.put("application/vnd.ms-powerpoint", ICON_POWERPOINT);
+		contentTypeMap.put("application/gzip", ICON_ARCHIVE);
+		contentTypeMap.put("application/zip", ICON_ARCHIVE);
+		contentTypeMap.put("application/x-jar", ICON_ARCHIVE);
 	}
+	
+	private FileTypeIcons() {}
 	
 	public static String getIcon(String contentType) {
 		String icon = null;
@@ -65,7 +74,7 @@ public abstract class FileTypeIcons {
 					icon = "file-text-o";
 				}
 				else if (contentType.contains("archive")) {
-					icon = "file-archive-o";
+					icon = ICON_ARCHIVE;
 				}
 				else {
 					icon = "file-o";
@@ -75,4 +84,5 @@ public abstract class FileTypeIcons {
 		}
 		return icon;
 	}
+	
 }

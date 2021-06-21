@@ -21,12 +21,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.seed.C;
 import org.seed.core.config.Limits;
+import org.seed.core.util.Assert;
 import org.seed.core.util.NameUtils;
 import org.seed.core.util.ObjectAccess;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
@@ -48,21 +49,20 @@ public abstract class AbstractSystemEntityValidator<T extends SystemEntity>
 	
 	@Override
 	public void validateSave(T object) throws ValidationException {
-		Assert.notNull(object, "object is null");
+		Assert.notNull(object, C.OBJECT);
 		final Set<ValidationError> errors = createErrorList();
 		
 		if (isEmpty(object.getName())) {
-			errors.add(new ValidationError("val.empty.field", "label.name"));
+			errors.add(ValidationError.emptyName());
 		}
 		else if (!isNameLengthAllowed(object.getName())) {
-			errors.add(new ValidationError("val.toolong.fieldvalue", "label.name",
-										   String.valueOf(getMaxNameLength())));
+			errors.add(ValidationError.overlongName(getMaxNameLength()));
 		}
 		validate(errors);
 	}
 	
 	protected int getLimit(String key) {
-		Assert.notNull(key, "key is null");
+		Assert.notNull(key, C.KEY);
 		
 		return limits.getLimit(key);
 	}
@@ -71,8 +71,12 @@ public abstract class AbstractSystemEntityValidator<T extends SystemEntity>
 		return getLimit("entity.identifier.length");
 	}
 	
+	protected int getMaxStringLength() {
+		return getLimit("entity.stringfield.length");
+	}
+	
 	protected boolean isNameLengthAllowed(String name) {
-		Assert.notNull(name, "name is null");
+		Assert.notNull(name, C.NAME);
 		
 		return name.length() <= getMaxNameLength();
 	}
@@ -82,7 +86,7 @@ public abstract class AbstractSystemEntityValidator<T extends SystemEntity>
 	}
 	
 	protected static void validate(Set<ValidationError> errors) throws ValidationException {
-		Assert.notNull(errors, "errors is null");
+		Assert.notNull(errors, C.ERRORS);
 		
 		if (!errors.isEmpty()) {
 			throw new ValidationException(errors);
@@ -90,10 +94,11 @@ public abstract class AbstractSystemEntityValidator<T extends SystemEntity>
 	}
 	
 	protected static boolean isEmpty(Object object) {
-		if (object instanceof String) {
-			return !StringUtils.hasText((String) object);
-		}
-		return object == null;
+		return ObjectUtils.isEmpty(object);
+	}
+	
+	protected static boolean isEmpty(String str) {
+		return !StringUtils.hasText(str);
 	}
 	
 	protected static boolean isZeroOrBelow(Number number) {
@@ -103,18 +108,18 @@ public abstract class AbstractSystemEntityValidator<T extends SystemEntity>
 	@SuppressWarnings("unchecked")
 	protected static boolean isNameUnique(String name, 
 										  List<? extends SystemObject> ...elementLists) {
-		return isUnique(name, "name", elementLists);
+		return isUnique(name, C.NAME, elementLists);
 	}
 	
 	protected static boolean isNameAllowed(String name) {
-		Assert.notNull(name, "name is null");
+		Assert.notNull(name, C.NAME);
 		
 		return !Character.isDigit(name.charAt(0)) && 
 			   !NameUtils.isKeyword(name);
 	}
 	
 	protected static boolean isPositiveInteger(String value) {
-		Assert.notNull(value, "value is null");
+		Assert.notNull(value, C.VALUE);
 		try {
 			return !isZeroOrBelow(Integer.parseInt(value));
 		}
@@ -126,20 +131,17 @@ public abstract class AbstractSystemEntityValidator<T extends SystemEntity>
 	@SuppressWarnings("unchecked")
 	protected static boolean isUnique(Object value, String fieldName, 
 									  List<? extends SystemObject> ...elementLists) {
-		Assert.notNull(value, "value is null");
-		Assert.notNull(fieldName, "fieldName is null");
-		Assert.notNull(elementLists, "elementLists is null");
-		int counter = 0;
+		Assert.notNull(value, C.VALUE);
+		Assert.notNull(fieldName, "fieldName");
+		Assert.notNull(elementLists, "elementLists");
+		
+		int occurrences = 0;
 		for (List<? extends SystemObject> elementList : elementLists) {
-			if (!ObjectUtils.isEmpty(elementList)) {
+			if (elementList != null) {
 				for (SystemObject element : elementList) {
-					final Object elementValue = ObjectAccess.callGetter(element, fieldName);
-					if ((value instanceof String && elementValue instanceof String &&
-						((String) value).equalsIgnoreCase((String) elementValue)) || 
-						value.equals(elementValue)) {
-						if (++counter > 1) {
-							return false;
-						}
+					if (checkElement(value, fieldName, element) && 
+						++occurrences > 1) {
+						return false;
 					}
 				}
 			}
@@ -147,11 +149,22 @@ public abstract class AbstractSystemEntityValidator<T extends SystemEntity>
 		return true;
 	}
 	
+	private static boolean checkElement(Object value, String fieldName, SystemObject element) {
+		final Object elementValue = ObjectAccess.callGetter(element, fieldName);
+		return (value instanceof String && elementValue instanceof String &&
+				((String) value).equalsIgnoreCase((String) elementValue)) || 
+				value.equals(elementValue);
+	}
+	
 	protected static String getEntityType(SystemEntity entity) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
 		final String packageName = entity.getClass().getPackage().getName();
 		return packageName.substring(packageName.lastIndexOf('.') + 1);
+	}
+	
+	protected static void unhandledEntity(SystemEntity entity) {
+		throw new IllegalStateException("unhandled entity: " + getEntityType(entity));
 	}
 	
 }

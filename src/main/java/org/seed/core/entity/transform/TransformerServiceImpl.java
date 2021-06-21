@@ -29,7 +29,8 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 import org.hibernate.Session;
-
+import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -49,16 +50,16 @@ import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupService;
+import org.seed.core.util.Assert;
 import org.seed.core.util.MultiKey;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 @Service
 public class TransformerServiceImpl extends AbstractApplicationEntityService<Transformer>
-	implements TransformerService, EntityDependent {
+	implements TransformerService, EntityDependent<Transformer> {
 	
 	@Autowired
 	private EntityService entityService;
@@ -95,7 +96,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	@Override
 	@Secured("ROLE_ADMIN_ENTITY")
 	public TransformerFunction createFunction(Transformer transformer) {
-		Assert.notNull(transformer, "transformer is null");
+		Assert.notNull(transformer, C.TRANSFORMER);
 		
 		final TransformerFunction function = new TransformerFunction();
 		transformer.addFunction(function);
@@ -104,58 +105,49 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	
 	@Override
 	public Transformer getTransformerByName(Entity sourceEntity, Entity targetEntity, String name) {
-		Assert.notNull(sourceEntity, "sourceEntity is null");
-		Assert.notNull(targetEntity, "targetEntity is null");
-		Assert.notNull(name, "name is null");
+		Assert.notNull(sourceEntity, C.SOURCEENTITY);
+		Assert.notNull(targetEntity, C.TARGETENTITY);
+		Assert.notNull(name, C.NAME);
 		
-		final List<Transformer> list = repository.find(queryParam("sourceEntity", sourceEntity),
-				   									   queryParam("targetEntity", targetEntity),
-				   									   queryParam("name", name));
+		final List<Transformer> list = repository.find(queryParam(C.SOURCEENTITY, sourceEntity),
+				   									   queryParam(C.TARGETENTITY, targetEntity),
+				   									   queryParam(C.NAME, name));
 		return !list.isEmpty() ? list.get(0) : null;
 	}
 	
 	@Override
 	public List<Transformer> findTransformers(Entity sourceEntity) {
-		Assert.notNull(sourceEntity, "sourceEntity is null");
+		Assert.notNull(sourceEntity, C.SOURCEENTITY);
 		
-		return repository.find(queryParam("sourceEntity", sourceEntity));
+		return repository.find(queryParam(C.SOURCEENTITY, sourceEntity));
 	}
 	
 	@Override
 	public List<Transformer> findTransformers(Entity sourceEntity, Entity targetEntity) {
-		Assert.notNull(sourceEntity, "sourceEntity is null");
-		Assert.notNull(targetEntity, "targetEntity is null");
+		Assert.notNull(sourceEntity, C.SOURCEENTITY);
+		Assert.notNull(targetEntity, C.TARGETENTITY);
 		
-		return repository.find(queryParam("sourceEntity", sourceEntity),
-							   queryParam("targetEntity", targetEntity));
+		return repository.find(queryParam(C.SOURCEENTITY, sourceEntity),
+							   queryParam(C.TARGETENTITY, targetEntity));
 	}
 	
 	@Override
 	public List<Transformer> findUsage(Entity entity) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
 		final Set<Transformer> result = new HashSet<>();
-		result.addAll(repository.find(queryParam("sourceEntity", entity)));
-		result.addAll(repository.find(queryParam("targetEntity", entity)));
+		result.addAll(repository.find(queryParam(C.SOURCEENTITY, entity)));
+		result.addAll(repository.find(queryParam(C.TARGETENTITY, entity)));
 		return new ArrayList<>(result);
 	}
 	
 	@Override
 	public List<UserGroup> getAvailableUserGroups(Transformer transformer) {
-		Assert.notNull(transformer, "transformer is null");
+		Assert.notNull(transformer, C.TRANSFORMER);
 		
 		final List<UserGroup> result = new ArrayList<>();
 		for (UserGroup group : userGroupService.findAllObjects()) {
-			boolean found = false;
-			if (transformer.hasUserGroups()) {
-				for (UserGroup existingGroup : transformer.getUserGroups()) {
-					if (existingGroup.equals(group)) {
-						found = true;
-						break;
-					}
-				}
-			}
-			if (!found) {
+			if (!transformer.containsUserGroup(group)) {
 				result.add(group);
 			}
 		}
@@ -164,21 +156,12 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	
 	@Override
 	public List<EntityStatus> getAvailableStatus(Transformer transformer) {
-		Assert.notNull(transformer, "transformer is null");
+		Assert.notNull(transformer, C.TRANSFORMER);
 		
 		final List<EntityStatus> result = new ArrayList<>();
 		if (transformer.getSourceEntity().hasStatus()) {
 			for (EntityStatus status : transformer.getSourceEntity().getStatusList()) {
-				boolean found = false;
-				if (transformer.hasStatus()) {
-					for (EntityStatus transformerStatus : transformer.getStatus()) {
-						if (transformerStatus.equals(status)) {
-							found = true;
-							break;
-						}
-					}
-				}
-				if (!found) {
+				if (!transformer.containsStatus(status)) {
 					result.add(status);
 				}
 			}
@@ -188,7 +171,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	
 	@Override
 	public List<TransformerElement> getMainObjectElements(Transformer transformer) {
-		Assert.notNull(transformer, "transformer is null");
+		Assert.notNull(transformer, C.TRANSFORMER);
 		
 		final List<TransformerElement> result = new ArrayList<>();
 		if (transformer.hasElements()) {
@@ -203,7 +186,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	
 	@Override
 	public List<NestedTransformer> getNestedTransformers(Transformer transformer) {
-		Assert.notNull(transformer, "transformer is null");
+		Assert.notNull(transformer, C.TRANSFORMER);
 		
 		final Map<MultiKey, NestedTransformer> resultMap = new HashMap<>();
 		if (transformer.hasElements()) {
@@ -214,12 +197,8 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 				final NestedEntity targetNested = targetEntity.getNestedByEntityField(element.getTargetField());
 				if (sourceNested != null && targetNested != null) {
 					final MultiKey key = MultiKey.valueOf(sourceNested, targetNested);
-					NestedTransformer nestedTransformer = resultMap.get(key);
-					if (nestedTransformer == null) {
-						nestedTransformer = new NestedTransformer(sourceNested, targetNested);
-						resultMap.put(key, nestedTransformer);
-					}
-					nestedTransformer.addElement(element);
+					resultMap.computeIfAbsent(key, t -> new NestedTransformer(sourceNested, targetNested));
+					resultMap.get(key).addElement(element);
 				}
 			}
 		}
@@ -229,9 +208,9 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	@Override
 	@Secured("ROLE_ADMIN_ENTITY")
 	public void adjustElements(Transformer transformer, List<TransformerElement> elements, List<NestedTransformer> nesteds) {
-		Assert.notNull(transformer, "transformer is null");
-		Assert.notNull(elements, "elements is null");
-		Assert.notNull(nesteds, "nesteds is null");
+		Assert.notNull(transformer, C.TRANSFORMER);
+		Assert.notNull(elements, "elements");
+		Assert.notNull(nesteds, "nesteds");
 		
 		for (TransformerElement element : elements) {
 			if (!transformer.containsElement(element)) {
@@ -246,23 +225,27 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 			}
 		}
 		if (transformer.hasElements()) {
-			for (Iterator<TransformerElement> it = transformer.getElements().iterator();it.hasNext();) {
-				final TransformerElement element = it.next();
-				boolean found = false;
-				if (elements.contains(element)) {
-					found = true;
-				}
-				else {
-					for (NestedTransformer nested : nesteds) {
-						if (nested.getElements().contains(element)) {
-							found = true;
-							break;
-						}
+			adjustTransformerElements(transformer, elements, nesteds);
+		}
+	}
+	
+	private void adjustTransformerElements(Transformer transformer, List<TransformerElement> elements, List<NestedTransformer> nesteds) {
+		for (Iterator<TransformerElement> it = transformer.getElements().iterator(); it.hasNext();) {
+			final TransformerElement element = it.next();
+			boolean found = false;
+			if (elements.contains(element)) {
+				found = true;
+			}
+			else {
+				for (NestedTransformer nested : nesteds) {
+					if (nested.containsElement(element)) {
+						found = true;
+						break;
 					}
 				}
-				if (!found) {
-					it.remove();
-				}
+			}
+			if (!found) {
+				it.remove();
 			}
 		}
 	}
@@ -285,7 +268,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 
 	@Override
 	public List<Transformer> findUsage(EntityField entityField) {
-		Assert.notNull(entityField, "entityField is null");
+		Assert.notNull(entityField, C.ENTITYFIELD);
 		
 		final List<Transformer> result = new ArrayList<>();
 		for (Transformer transformer : findAllObjects()) {
@@ -323,9 +306,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	}
 	
 	@Override
-	public void analyzeObjects(ImportAnalysis analysis, Module currentVersionModule) {
-		Assert.notNull(analysis, "analysis is null");
-		
+	protected void analyzeNextVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
 		if (analysis.getModule().getTransformers() != null) {
 			for (Transformer transformer : analysis.getModule().getTransformers()) {
 				if (currentVersionModule == null) {
@@ -343,7 +324,11 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 				}
 			}
 		}
-		if (currentVersionModule != null && currentVersionModule.getTransformers() != null) {
+	}
+	
+	@Override
+	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
+		if (currentVersionModule.getTransformers() != null) {
 			for (Transformer currentVersionTransformer : currentVersionModule.getTransformers()) {
 				if (analysis.getModule().getTransformerByUid(currentVersionTransformer.getUid()) == null) {
 					analysis.addChangeDelete(currentVersionTransformer);
@@ -354,68 +339,83 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public Class<? extends ApplicationEntityService<? extends ApplicationEntity>>[] getImportDependencies() {
-		return (Class<? extends ApplicationEntityService<? extends ApplicationEntity>>[]) 
-				new Class[] { EntityService.class };
+	public Class<? extends ApplicationEntityService<ApplicationEntity>>[] getImportDependencies() {
+		return new Class[] { EntityService.class };
 	}
 	
 	@Override
 	public void importObjects(TransferContext context, Session session) {
-		Assert.notNull(context, "context is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(context, C.CONTEXT);
+		Assert.notNull(session, C.SESSION);
 		try {
 			if (context.getModule().getTransformers() != null) {
 				for (Transformer transformer : context.getModule().getTransformers()) {
-					final Transformer currentVersionTransformer = findByUid(session, transformer.getUid());
-					final Entity sourceEntity = entityService.findByUid(session, transformer.getSourceEntityUid());
-					final Entity targetEntity = entityService.findByUid(session, transformer.getTargetEntityUid());
-					((TransformerMetadata) transformer).setModule(context.getModule());
-					((TransformerMetadata) transformer).setSourceEntity(sourceEntity);
-					((TransformerMetadata) transformer).setTargetEntity(targetEntity);
-					if (currentVersionTransformer != null) {
-						((TransformerMetadata) currentVersionTransformer).copySystemFieldsTo(transformer);
-						session.detach(currentVersionTransformer);
-					}
-					if (transformer.hasElements()) {
-						for (TransformerElement element : transformer.getElements()) {
-							element.setTransformer(transformer);
-							element.setSourceField(sourceEntity.findFieldByUid(element.getSourceFieldUid()));
-							element.setTargetField(targetEntity.findFieldByUid(element.getTargetFieldUid()));
-							final TransformerElement currentVersionElement =
-								currentVersionTransformer != null 
-									? currentVersionTransformer.getElementByUid(element.getUid()) 
-									: null;
-							if (currentVersionElement != null) {
-								currentVersionElement.copySystemFieldsTo(element);
-							}
-						}
-					}
-					if (transformer.hasFunctions()) {
-						for (TransformerFunction function : transformer.getFunctions()) {
-							function.setTransformer(transformer);
-							final TransformerFunction currentVersionFunction =
-								currentVersionTransformer != null
-									? currentVersionTransformer.getFunctionByUid(function.getUid())
-									: null;
-							if (currentVersionFunction != null) {
-								currentVersionFunction.copySystemFieldsTo(function);
-							}
-						}
-					}
+					initTransformer(transformer, context, session);
 					saveObject(transformer, session);
 				}
 			}
 		}
 		catch (ValidationException vex) {
-			throw new RuntimeException(vex);
+			throw new InternalException(vex);
+		}
+	}
+	
+	private void initTransformer(Transformer transformer, TransferContext context, Session session) {
+		final Transformer currentVersionTransformer = findByUid(session, transformer.getUid());
+		final Entity sourceEntity = entityService.findByUid(session, transformer.getSourceEntityUid());
+		final Entity targetEntity = entityService.findByUid(session, transformer.getTargetEntityUid());
+		((TransformerMetadata) transformer).setModule(context.getModule());
+		((TransformerMetadata) transformer).setSourceEntity(sourceEntity);
+		((TransformerMetadata) transformer).setTargetEntity(targetEntity);
+		if (currentVersionTransformer != null) {
+			((TransformerMetadata) currentVersionTransformer).copySystemFieldsTo(transformer);
+			session.detach(currentVersionTransformer);
+		}
+		if (transformer.hasElements()) {
+			for (TransformerElement element : transformer.getElements()) {
+				initTransformerElement(element, transformer, sourceEntity, targetEntity, 
+									   currentVersionTransformer);
+			}
+		}
+		if (transformer.hasFunctions()) {
+			for (TransformerFunction function : transformer.getFunctions()) {
+				initTransformerFunction(function, transformer, currentVersionTransformer);
+			}
+		}
+	}
+	
+	private void initTransformerElement(TransformerElement element, Transformer transformer,
+										Entity sourceEntity, Entity targetEntity, 
+										Transformer currentVersionTransformer) {
+		element.setTransformer(transformer);
+		element.setSourceField(sourceEntity.findFieldByUid(element.getSourceFieldUid()));
+		element.setTargetField(targetEntity.findFieldByUid(element.getTargetFieldUid()));
+		final TransformerElement currentVersionElement =
+			currentVersionTransformer != null 
+				? currentVersionTransformer.getElementByUid(element.getUid()) 
+				: null;
+		if (currentVersionElement != null) {
+			currentVersionElement.copySystemFieldsTo(element);
+		}
+	}
+	
+	private void initTransformerFunction(TransformerFunction function, Transformer transformer,
+										 Transformer currentVersionTransformer) {
+		function.setTransformer(transformer);
+		final TransformerFunction currentVersionFunction =
+			currentVersionTransformer != null
+				? currentVersionTransformer.getFunctionByUid(function.getUid())
+				: null;
+		if (currentVersionFunction != null) {
+			currentVersionFunction.copySystemFieldsTo(function);
 		}
 	}
 	
 	@Override
 	public void deleteObjects(Module module, Module currentVersionModule, Session session) {
-		Assert.notNull(module, "module is null");
-		Assert.notNull(currentVersionModule, "currentVersionModule is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(module, C.MODULE);
+		Assert.notNull(currentVersionModule, "currentVersionModule");
+		Assert.notNull(session, C.SESSION);
 		
 		for (Transformer currentVersionTransformer : currentVersionModule.getTransformers()) {
 			if (module.getTransformerByUid(currentVersionTransformer.getUid()) == null) {
@@ -424,11 +424,10 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		}
 	}
 	
-	// TODO autoMatch-Funktionen vereinigen
 	@Override
 	public boolean autoMatchFields(Transformer transformer, List<TransformerElement> elements) {
-		Assert.notNull(transformer, "transformer is null");
-		Assert.notNull(elements, "elements is null");
+		Assert.notNull(transformer, C.TRANSFORMER);
+		Assert.notNull(elements, "elements");
 		
 		boolean matched = false;
 		if (transformer.getSourceEntity().hasAllFields() &&
@@ -453,7 +452,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	
 	@Override
 	public boolean autoMatchFields(NestedTransformer transformer) {
-		Assert.notNull(transformer, "transformer is null");
+		Assert.notNull(transformer, C.TRANSFORMER);
 		
 		boolean matched = false;
 		if (transformer.getSourceNested().getNestedEntity().hasAllFields() &&

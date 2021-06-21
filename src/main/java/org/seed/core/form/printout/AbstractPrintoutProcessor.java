@@ -23,35 +23,35 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.data.FileObject;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.form.FormPrintout;
 import org.seed.core.form.LabelProvider;
+import org.seed.core.util.Assert;
 import org.seed.core.util.ObjectAccess;
-
-import org.springframework.util.Assert;
 
 public abstract class AbstractPrintoutProcessor extends ObjectAccess implements PrintoutProcessor {
 	
-	private final static String PATTERN_START = "{{";
-	private final static String PATTERN_END = "}}";
+	private static final String PATTERN_START = "{{";
+	private static final String PATTERN_END = "}}";
 	
 	private final Entity entity;
 	
 	private final LabelProvider labelProvider;
 	
 	public AbstractPrintoutProcessor(Entity entity, LabelProvider labelProvider) {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(labelProvider, "labelPrivider is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(labelProvider, "labelPrivider");
 		
 		this.entity = entity;
 		this.labelProvider = labelProvider;
 	}
 	
 	protected NestedEntity findNestedProperty(String text) {
-		Assert.notNull(text, "text is null");
+		Assert.notNull(text, "text");
 		
 		int idx = 0;
 		while (idx < text.length()) {
@@ -79,8 +79,8 @@ public abstract class AbstractPrintoutProcessor extends ObjectAccess implements 
 	}
 	
 	protected String replace(String text, ValueObject valueObject, NestedEntity nestedEntity, ValueObject nestedObject) {
-		Assert.notNull(text, "text is null");
-		Assert.notNull(valueObject, "valueObject is null");
+		Assert.notNull(text, "text");
+		Assert.notNull(valueObject, "valueObject");
 		
 		if (findPatternStart(text, 0) < 0) {
 			return text;
@@ -91,8 +91,7 @@ public abstract class AbstractPrintoutProcessor extends ObjectAccess implements 
 		while (idx < text.length()) {
 			final int start = findPatternStart(text, idx);
 			if (start < 0) {
-				// append rest after last }}
-				buf.append(text.substring(idx)); 
+				buf.append(text.substring(idx));
 				break;
 			}
 			
@@ -100,10 +99,10 @@ public abstract class AbstractPrintoutProcessor extends ObjectAccess implements 
 			if (end < 0) {
 				return "error: {{unbalanced braces}}";
 			}
-			// append text before {{
+			
 			buf.append(text.substring(idx, start))
-			   // replace key with value
-			   .append(replaceKey(getKey(text, start, end), valueObject, nestedEntity, nestedObject));
+			   .append(replaceKey(getKey(text, start, end), 
+					   			  valueObject, nestedEntity, nestedObject));
 			
 			idx = end + PATTERN_END.length();
 		}

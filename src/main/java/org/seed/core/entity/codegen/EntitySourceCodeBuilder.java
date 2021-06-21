@@ -34,7 +34,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Formula;
-
+import org.seed.C;
 import org.seed.core.codegen.AbstractSourceCodeBuilder;
 import org.seed.core.codegen.AnnotationMetadata;
 import org.seed.core.codegen.SourceCode;
@@ -46,15 +46,15 @@ import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.entity.value.AbstractValueObject;
 import org.seed.core.entity.value.ValueEntity;
+import org.seed.core.util.Assert;
 import org.seed.core.util.ReferenceJsonSerializer;
 
-import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder<Entity> {
+class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	
 	private final Entity entity;
 	
@@ -86,18 +86,23 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder<Entity> {
 		}
 		// check nested entities
 		if (entity.hasNesteds()) {
-			for (NestedEntity nested : entity.getNesteds()) {
-				final Entity entityNested = nested.getNestedEntity();
-				if (entityNested.getLastModified().after(timestamp)) {
-					timestamp = entityNested.getLastModified();
-				}
-				// check nested referenced entities
-				if (entityNested.hasFields()) {
-					for (EntityField field : entityNested.getFields()) {
-						if (field.getType().isReference() && 
-							field.getReferenceEntity().getLastModified().after(timestamp)) {
-							timestamp = field.getReferenceEntity().getLastModified();
-						}
+			timestamp = getNeestedsLastModified(timestamp);
+		}
+		return timestamp;
+	}
+	
+	public Date getNeestedsLastModified(Date timestamp) {
+		for (NestedEntity nested : entity.getNesteds()) {
+			final Entity entityNested = nested.getNestedEntity();
+			if (entityNested.getLastModified().after(timestamp)) {
+				timestamp = entityNested.getLastModified();
+			}
+			// check nested referenced entities
+			if (entityNested.hasFields()) {
+				for (EntityField field : entityNested.getFields()) {
+					if (field.getType().isReference() && 
+						field.getReferenceEntity().getLastModified().after(timestamp)) {
+						timestamp = field.getReferenceEntity().getLastModified();
 					}
 				}
 			}
@@ -106,7 +111,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder<Entity> {
 	}
 	
 	@Override
-	public SourceCode<Entity> build(BuildMode buildMode) {
+	public SourceCode build(BuildMode buildMode) {
 		Assert.state(buildMode == BuildMode.COMPLETE, "unsupported build mode: " + buildMode.name());
 		
 		// status field
@@ -128,6 +133,100 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder<Entity> {
 		buildEntityIdGetter();
 		
 		// getters / setters
+		buildGetterAndSetter();
+
+		// nested methods
+		if (entity.hasNesteds()) {
+			buildNestedMethods();
+		}
+		
+		// member functions
+		if (entity.hasFunctions()) {
+			for (EntityFunction function : entity.getMemberFunctions()) {
+				addFunction(function.getContent(), newAnnotation(JsonIgnore.class));
+			}
+		}
+		
+		return super.build(true);
+	}
+	
+	private void addFunction(String code, AnnotationMetadata ...annotations) {
+		Assert.notNull(code, "code");
+		
+		if (annotations != null) {
+			for (AnnotationMetadata annotation : annotations) {
+				addAnnotation(annotation);
+			}
+		}
+		try (Scanner scanner = new Scanner(code)) {
+			boolean comment = false;
+			while (scanner.hasNextLine()) {
+				final String line = scanner.nextLine().trim();
+				if (line.endsWith("*/")) {
+					comment = false;
+				}
+				else if (!(comment || line.isEmpty() || line.startsWith("//"))) {
+					if (line.startsWith("/*")) {
+						comment = true;
+					}	
+					else if (line.startsWith("import ")) {
+						addImport(newTypeClass(line.substring(7).replace(";","").trim()));
+					}
+					else {
+						addCode(code.substring(scanner.match().start()));
+						break;
+					}
+				}
+			}
+		}
+	}
+	
+	private void buildStatusField() {
+		addImport(ReferenceJsonSerializer.class);
+		addMember("entityStatus", newTypeClass(EntityStatus.class), 
+				  newAnnotation(JoinColumn.class, C.NAME, quote("status_id")),
+				  newAnnotation(ManyToOne.class, C.FETCH, FetchType.LAZY),
+				  newAnnotation(JsonSerialize.class, "using", "ReferenceJsonSerializer.class"));
+	}
+	
+	private void buildEntityIdGetter() {
+		addMethod(newTypeClass(Long.class), "getEntityId", null, 
+				  "return " + (entity.isNew() ? -1 : entity.getId()) + "L;" + LF,
+				  newAnnotation(JsonIgnore.class));
+	}
+	
+	private void buildFields() {
+		for (EntityField field : entity.getFields()) {
+			TypeClass typeClass = newTypeClass(field.getType().typeClass); 
+			final List<AnnotationMetadata> annotations = new ArrayList<>(5);
+			if (field.getColumnName() != null) {
+				annotations.add(newAnnotation(Column.class, C.NAME, quote(field.getColumnName().toLowerCase())));
+			}
+			if (field.isCalculated()) {
+				annotations.add(newAnnotation(Formula.class, field.getFormula()));
+			}
+			else if (field.getType().isReference() || field.getType().isFile()) {
+				addImport(ReferenceJsonSerializer.class);
+				final Map<String, Object> annotationParamMap = new HashMap<>(4);
+				annotationParamMap.put(C.FETCH, FetchType.LAZY);
+				if (field.getType().isFile()) {
+					annotationParamMap.put("cascade", CascadeType.ALL);
+				}
+				annotations.add(newAnnotation(ManyToOne.class, annotationParamMap));
+				annotations.add(newAnnotation(JoinColumn.class, C.NAME, quote(field.getInternalName())));
+				annotations.add(newAnnotation(JsonSerialize.class, "using", "ReferenceJsonSerializer.class"));
+				if (field.getType().isReference()) {
+					typeClass = newTypeClass(field.getReferenceEntity());
+				}
+			}
+			addMember(field.getInternalName(), typeClass, 
+					  annotations.isEmpty() 
+					  	? null 
+					  	: annotations.toArray(new AnnotationMetadata[annotations.size()]));
+		}
+	}
+	
+	private void buildGetterAndSetter() {
 		if (entity.hasStatus()) {
 			addGetterAndSetter("entityStatus");
 		}
@@ -146,101 +245,6 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder<Entity> {
 			for (NestedEntity nested : entity.getNesteds()) {
 				addGetterAndSetter(nested.getInternalName());
 			}
-		}
-		
-		// nested methods
-		if (entity.hasNesteds()) {
-			buildNestedMethods();
-		}
-		
-		// member functions
-		if (entity.hasFunctions()) {
-			for (EntityFunction function : entity.getMemberFunctions()) {
-				addFunction(function.getContent(), newAnnotation(JsonIgnore.class));
-			}
-		}
-		
-		return super.build(true);
-	}
-	
-	private void addFunction(String code, AnnotationMetadata ...annotations) {
-		Assert.notNull(code, "code is null");
-		
-		if (annotations != null) {
-			for (AnnotationMetadata annotation : annotations) {
-				addAnnotation(annotation);
-			}
-		}
-		try (Scanner scanner = new Scanner(code)) {
-			boolean comment = false;
-			while (scanner.hasNextLine()) {
-				final String line = scanner.nextLine().trim();
-				// ignore comments
-				if (line.endsWith("*/")) {
-					comment = false;
-					continue;
-				}
-				if (comment || line.isEmpty() || line.startsWith("//")) {
-					continue;
-				}
-				if (line.startsWith("/*")) {
-					comment = true;
-				}
-				// imports
-				else if (line.startsWith("import ")) {
-					addImport(newTypeClass(line.substring(7).replace(";","").trim()));
-				}
-				// code
-				else {
-					addCode(code.substring(scanner.match().start()));
-					break;
-				}
-			}
-		}
-	}
-	
-	private void buildStatusField() {
-		addImport(ReferenceJsonSerializer.class);
-		addMember("entityStatus", newTypeClass(EntityStatus.class), 
-				  newAnnotation(JoinColumn.class, "name", quote("status_id")),
-				  newAnnotation(ManyToOne.class, "fetch", FetchType.LAZY),
-				  newAnnotation(JsonSerialize.class, "using", "ReferenceJsonSerializer.class"));
-	}
-	
-	private void buildEntityIdGetter() {
-		addMethod(newTypeClass(Long.class), "getEntityId", null, 
-				  "return " + (entity.isNew() ? -1 : entity.getId()) + "L;" + LF,
-				  newAnnotation(JsonIgnore.class));
-	}
-	
-	private void buildFields() {
-		for (EntityField field : entity.getFields()) {
-			TypeClass typeClass = newTypeClass(field.getType().typeClass); 
-			final List<AnnotationMetadata> annotations = new ArrayList<>(5);
-			if (field.getColumnName() != null) {
-				annotations.add(newAnnotation(Column.class, "name", quote(field.getColumnName().toLowerCase())));
-			}
-			if (field.isCalculated()) {
-				annotations.add(newAnnotation(Formula.class, field.getFormula()));
-			}
-			else if (field.getType().isReference() || field.getType().isFile()) {
-				addImport(ReferenceJsonSerializer.class);
-				final Map<String, Object> annotationParamMap = new HashMap<>(4);
-				annotationParamMap.put("fetch", FetchType.LAZY);
-				if (field.getType().isFile()) {
-					annotationParamMap.put("cascade", CascadeType.ALL);
-				}
-				annotations.add(newAnnotation(ManyToOne.class, annotationParamMap));
-				annotations.add(newAnnotation(JoinColumn.class, "name", quote(field.getInternalName())));
-				annotations.add(newAnnotation(JsonSerialize.class, "using", "ReferenceJsonSerializer.class"));
-				if (field.getType().isReference()) {
-					typeClass = newTypeClass(field.getReferenceEntity());
-				}
-			}
-			addMember(field.getInternalName(), typeClass, 
-					  annotations.isEmpty() 
-					  	? null 
-					  	: annotations.toArray(new AnnotationMetadata[annotations.size()]));
 		}
 	}
 	
@@ -288,7 +292,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder<Entity> {
 		}
 		else {
 			if (entity.getTableName() != null) {
-				annotations.add(newAnnotation(Table.class, "name", quote(entity.getTableName())));
+				annotations.add(newAnnotation(Table.class, C.NAME, quote(entity.getTableName())));
 			}
 			annotations.add(newAnnotation(javax.persistence.Entity.class));
 		}

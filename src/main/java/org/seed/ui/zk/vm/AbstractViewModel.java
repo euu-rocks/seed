@@ -19,16 +19,17 @@ package org.seed.ui.zk.vm;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import org.seed.C;
 import org.seed.core.data.ValidationError;
 import org.seed.core.form.LabelProvider;
+import org.seed.core.util.Assert;
 import org.seed.core.util.ExceptionUtils;
+import org.seed.ui.zk.UIUtils;
 
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.zkoss.bind.BindUtils;
@@ -49,6 +50,10 @@ import org.zkoss.zul.Messagebox;
 @VariableResolver(DelegatingVariableResolver.class)
 abstract class AbstractViewModel {
 	
+	private static final String AFTER_CENTER = "after_center";
+	private static final String NOBR_START   = "<nobr>";
+	private static final String NOBR_END     = "</nobr>";
+	
 	@WireVariable(value="ZKLabelProvider")
 	private LabelProvider labelProvider;
 	
@@ -65,33 +70,33 @@ abstract class AbstractViewModel {
 	}
 	
 	protected final boolean hasSessionObject(String name) {
-		Assert.notNull(name, "name is null");
+		Assert.notNull(name, C.NAME);
 		
 		return Sessions.getCurrent().hasAttribute(name);
 	}
 	
 	@SuppressWarnings("unchecked")
 	protected final <T> T getSessionObject(String name) {
-		Assert.notNull(name, "name is null");
+		Assert.notNull(name, C.NAME);
 		
 		return (T) Sessions.getCurrent().getAttribute(name);
 	}
 	
 	protected final void setSessionObject(String name, Object object) {
-		Assert.notNull(name, "name is null");
-		Assert.notNull(object, "object is null");
+		Assert.notNull(name, C.NAME);
+		Assert.notNull(object, C.OBJECT);
 		
 		Sessions.getCurrent().setAttribute(name, object);
 	}
 	
 	protected final void removeSessionObject(String name) {
-		Assert.notNull(name, "name is null");
+		Assert.notNull(name, C.NAME);
 		
 		Sessions.getCurrent().removeAttribute(name);
 	}
 	
 	protected final void confirm(String questionKey, final Component elem, final Object confirmParam, String ...params) {
-		Assert.notNull(questionKey, "questionKey is null");
+		Assert.notNull(questionKey, "questionKey");
 		
 		Messagebox.show(getLabel(questionKey, params), 
 						getLabel("question.sure"), 
@@ -111,7 +116,7 @@ abstract class AbstractViewModel {
 	}
 	
 	protected final void wireComponents(Component component) {
-		Assert.notNull(component, "component is null");
+		Assert.notNull(component, "component");
 		
 		Selectors.wireComponents(component, this, false);
 	}
@@ -125,65 +130,60 @@ abstract class AbstractViewModel {
 	}
 	
 	protected static void createComponents(String view, Object param) {
-		Assert.notNull(view, "view is null");
+		Assert.notNull(view, "view");
 		
 		Executions.createComponents(view, null, createParameterMap(param));
 	}
 	
 	protected static Component getComponent(String path) {
-		Assert.notNull(path, "path is null");
+		Assert.notNull(path, "path");
 		
 		return Path.getComponent(path);
 	}
 	
 	protected static int getChildIndex(Component component) {
-		Assert.notNull(component, "component is null");
+		Assert.notNull(component, "component");
 		
 		return component.getParent().getChildren().indexOf(component);
 	}
 	
-	protected static InputStream getMediaStream(Media media, Charset charset) {
-		Assert.notNull(media, "media is null");
+	protected static InputStream getMediaStream(Media media) {
+		Assert.notNull(media, "media");
 		
-		return media.isBinary()
-				? media.getStreamData()
-				: new ByteArrayInputStream(media.getStringData()
-												.getBytes(charset != null 
-															? charset 
-															: Charset.defaultCharset()));
+		return new ByteArrayInputStream(UIUtils.getBytes(media));
 	}
 	
 	protected static void globalCommand(String command, Object param) {
-		Assert.notNull(command, "command is null");
+		Assert.notNull(command, C.COMMAND);
 		
 		BindUtils.postGlobalCommand(null, null, command, createParameterMap(param));
 	}
 	
 	protected static void notifyObjectChange(Object object, String ...properties) {
-		Assert.notNull(object, "object is null");
+		Assert.notNull(object, C.OBJECT);
 		
-		BindUtils.postNotifyChange(null, null, object, properties);
+		BindUtils.postNotifyChange(object, properties);
 	}
 	
 	protected static void redirect(String url) {
-		Assert.notNull(url, "url is null");
+		Assert.notNull(url, "url");
 		
 		Executions.getCurrent().sendRedirect(url);
 	}
 	
 	protected final void showNotification(Component component, boolean warning, String msgKey, String ...params) {
-		Assert.notNull(msgKey, "msgKey is null");
+		Assert.notNull(msgKey, "msgKey");
 		
-		Clients.showNotification("<nobr>" + getLabel(msgKey, params) + "</nobr>", 
+		Clients.showNotification(NOBR_START + getLabel(msgKey, params) + NOBR_END, 
 								 warning ? Clients.NOTIFICATION_TYPE_WARNING : Clients.NOTIFICATION_TYPE_INFO, 
 								 component, 
-								 "after_center",
+								 AFTER_CENTER,
 								 warning ? 3000 : 2000,  // milliseconds
 								 true); // closable
 	}
 	
 	protected final void showValidationErrors(Component component, String errorKey, Set<ValidationError> validationErrors) {
-		Assert.notNull(validationErrors, "validationErrors is null");
+		Assert.notNull(validationErrors, "validationErrors");
 		
 		final boolean isList = errorKey != null || validationErrors.size() > 1;
 		final StringBuilder buf = new StringBuilder();
@@ -197,20 +197,7 @@ abstract class AbstractViewModel {
 			if (isList) {
 				buf.append("<li>");
 			}
-			buf.append("<nobr>");
-			if (ObjectUtils.isEmpty(error.getParameters())) {
-				buf.append(getLabel(error.getError()));
-			}
-			else {
-				final String[] params = error.getParameters();
-				for (int i = 0; i < params.length; i++) {
-					if (params[i].startsWith("label.")) {
-						params[i] = getLabel(params[i]);
-					}
-				}
-				buf.append(getLabel(error.getError(), params));
-			}
-			buf.append("</nobr>");
+			buildError(buf, error);
 			if (isList) {
 				buf.append("</li>");
 			}
@@ -221,15 +208,32 @@ abstract class AbstractViewModel {
 		Clients.showNotification(buf.toString(),
 				 				 Clients.NOTIFICATION_TYPE_WARNING, 
 				 				 component, 
-				 				 "after_center",
+				 				 AFTER_CENTER,
 				 				 5000 + (validationErrors.size() * 1000),
 				 				 true); // closable
 	}
 	
+	private void buildError(StringBuilder buf, ValidationError error) {
+		buf.append(NOBR_START);
+		if (ObjectUtils.isEmpty(error.getParameters())) {
+			buf.append(getLabel(error.getError()));
+		}
+		else {
+			final String[] params = error.getParameters();
+			for (int i = 0; i < params.length; i++) {
+				if (params[i].startsWith("label.")) {
+					params[i] = getLabel(params[i]);
+				}
+			}
+			buf.append(getLabel(error.getError(), params));
+		}
+		buf.append(NOBR_END);
+	}
+	
 	protected final void showError(Component component, String msgKey, String ...params) {
-		Assert.notNull(msgKey, "msgKey is null");
+		Assert.notNull(msgKey, "msgKey");
 		
-		showError(component, "<nobr>" + getLabel(msgKey, params) + "</nobr>");
+		showError(component, NOBR_START + getLabel(msgKey, params) + NOBR_END);
 	}
 	
 	protected final void showError(Component component, Exception ex) {
@@ -251,18 +255,22 @@ abstract class AbstractViewModel {
 	
 	@SuppressWarnings("unchecked")
 	private static Map<String, Object> createParameterMap(Object param) {
-		return param != null 
-				? param instanceof Map 
-					? (Map<String, Object>) param 
-					: Collections.singletonMap("param", param)
-				: null;
+		if (param != null) {
+			if (param instanceof Map) {
+				return (Map<String, Object>) param;
+			}
+			else {
+				return Collections.singletonMap("param", param);
+			}
+		}
+		return null;
 	}
 	
 	private void showError(Component component, String message) {
 		Clients.showNotification(message, 
 				 Clients.NOTIFICATION_TYPE_ERROR, 
 				 component, 
-				 "after_center",
+				 AFTER_CENTER,
 				 5000,  // milliseconds
 				 true); // closable
 	}

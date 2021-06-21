@@ -20,7 +20,7 @@ package org.seed.ui.zk.vm.admin;
 import java.util.List;
 
 import org.seed.core.data.DataException;
-import org.seed.core.data.datasource.DataSource;
+import org.seed.core.data.datasource.IDataSource;
 import org.seed.core.data.datasource.DataSourceParameter;
 import org.seed.core.data.datasource.DataSourceParameterType;
 import org.seed.core.data.datasource.DataSourceService;
@@ -40,9 +40,9 @@ import org.zkoss.bind.annotation.SmartNotifyChange;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
 
-public class AdminDataSourceViewModel extends AbstractAdminViewModel<DataSource> {
+public class AdminDataSourceViewModel extends AbstractAdminViewModel<IDataSource> {
 	
-	private final static String PARAMETERS = "parameters";
+	private static final String PARAMETERS = "parameters";
 	
 	@WireVariable(value="dataSourceServiceImpl")
 	private DataSourceService dataSourceService;
@@ -87,6 +87,7 @@ public class AdminDataSourceViewModel extends AbstractAdminViewModel<DataSource>
 	}
 	
 	@Command
+	@Override
 	public void flagDirty(@BindingParam("notify") String notify, 
 						  @BindingParam("notifyObject") String notifyObject) {
 		super.flagDirty(notify, notifyObject);

@@ -34,12 +34,12 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
-
+import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormMetadata;
+import org.seed.core.util.Assert;
 
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 @javax.persistence.Entity
@@ -122,7 +122,7 @@ public class MenuMetadata extends AbstractApplicationEntity implements Menu {
 	
 	@Override
 	public void addSubMenu(Menu menu) {
-		Assert.notNull(menu, "menu is null");
+		Assert.notNull(menu, C.MENU);
 		
 		MenuMetadata child = (MenuMetadata) menu;
 		if (children == null) {
@@ -134,7 +134,7 @@ public class MenuMetadata extends AbstractApplicationEntity implements Menu {
 	
 	@Override
 	public void removeSubMenu(Menu menu) {
-		Assert.notNull(menu, "menu is null");
+		Assert.notNull(menu, C.MENU);
 		
 		getChildren().remove(menu);
 	}
@@ -151,7 +151,7 @@ public class MenuMetadata extends AbstractApplicationEntity implements Menu {
 	
 	@Override
 	public Menu getChildByUid(String childUid) {
-		Assert.notNull(childUid, "childUid is null");
+		Assert.notNull(childUid, "childUid");
 		
 		return getObjectByUid(getChildren(), childUid);
 	}
@@ -176,6 +176,10 @@ public class MenuMetadata extends AbstractApplicationEntity implements Menu {
 			.isEquals()) {
 			return false;
 		}
+		return isEqualSubMenus(otherMenu);
+	}
+	
+	private boolean isEqualSubMenus(Menu otherMenu) {
 		if (hasSubMenus()) {
 			for (Menu subMenu : getSubMenus()) {
 				if (!subMenu.isEqual(otherMenu.getChildByUid(subMenu.getUid()))) {

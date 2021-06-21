@@ -24,7 +24,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import org.hibernate.Session;
-
+import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -41,15 +42,15 @@ import org.seed.core.entity.EntityFunction;
 import org.seed.core.entity.EntityService;
 import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.NestedEntity;
+import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 @Service
 public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
-	implements FilterService, EntityDependent {
+	implements FilterService, EntityDependent<Filter> {
 	
 	@Autowired
 	private EntityService entityService;
@@ -72,7 +73,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	
 	@Override
 	public void initObject(Filter filter) throws ValidationException {
-		Assert.notNull(filter, "filter is null");
+		Assert.notNull(filter, C.FILTER);
 		
 		super.initObject(filter);
 		final FilterMetadata filterMeta = (FilterMetadata) filter;
@@ -83,19 +84,19 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	
 	@Override
 	public Filter getFilterByName(Entity entity, String name) {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(name, "name is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(name, C.NAME);
 		
-		final List<Filter> list = filterRepository.find(queryParam("entity", entity),
-														queryParam("name", name));
+		final List<Filter> list = filterRepository.find(queryParam(C.ENTITY, entity),
+														queryParam(C.NAME, name));
 		return !list.isEmpty() ? list.get(0) : null;
 	}
 	
 	@Override
 	public Filter createFieldFilter(Entity entity, EntityField entityField, Object value) {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(entityField, "entityField is null");
-		Assert.notNull(value, "value is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(entityField, C.ENTITYFIELD);
+		Assert.notNull(value, C.VALUE);
 		
 		final FilterMetadata filter = new FilterMetadata();
 		filter.setEntity(entity);
@@ -109,8 +110,8 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	
 	@Override
 	public Filter createStatusFilter(Entity entity, EntityStatus status) {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(status, "status is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(status, C.STATUS);
 		
 		final FilterMetadata filter = new FilterMetadata();
 		filter.setEntity(entity);
@@ -124,7 +125,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	
 	@Override
 	public List<FilterElement> getFilterElements(Filter filter, @Nullable NestedEntity nestedEntity) {
-		Assert.notNull(filter, "filter is null");
+		Assert.notNull(filter, C.FILTER);
 		
 		final List<FilterElement> elements = new ArrayList<>();
 		// main object
@@ -154,15 +155,13 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	
 	@Override
 	public List<Filter> findFilters(Entity entity) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
-		return filterRepository.find(queryParam("entity", entity));
+		return filterRepository.find(queryParam(C.ENTITY, entity));
 	}
 	
 	@Override
-	public void analyzeObjects(ImportAnalysis analysis, Module currentVersionModule) {
-		Assert.notNull(analysis, "analysis is null");
-		
+	protected void analyzeNextVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
 		if (analysis.getModule().getFilters() != null) {
 			for (Filter filter : analysis.getModule().getFilters()) {
 				if (currentVersionModule == null) {
@@ -180,7 +179,11 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 				}
 			}
 		}
-		if (currentVersionModule != null && currentVersionModule.getFilters() != null) {
+	}
+	
+	@Override
+	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
+		if (currentVersionModule.getFilters() != null) {
 			for (Filter currentVersionFilter : currentVersionModule.getFilters()) {
 				if (analysis.getModule().getFilterByUid(currentVersionFilter.getUid()) == null) {
 					analysis.addChangeDelete(currentVersionFilter);
@@ -191,15 +194,14 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public Class<? extends ApplicationEntityService<? extends ApplicationEntity>>[] getImportDependencies() {
-		return (Class<? extends ApplicationEntityService<? extends ApplicationEntity>>[]) 
-				new Class[] { EntityService.class };
+	public Class<? extends ApplicationEntityService<ApplicationEntity>>[] getImportDependencies() {
+		return new Class[] { EntityService.class };
 	}
 	
 	@Override
 	public void importObjects(TransferContext context, Session session) {
-		Assert.notNull(context, "context is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(context, C.CONTEXT);
+		Assert.notNull(session, C.SESSION);
 		try {
 			if (context.getModule().getFilters() != null) {
 				for (Filter filter : context.getModule().getFilters()) {
@@ -212,32 +214,36 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 						session.detach(currentVersionFilter);
 					}
 					if (filter.hasCriteria()) {
-						for (FilterCriterion criterion : filter.getCriteria()) {
-							criterion.setFilter(filter);
-							criterion.setEntityField(entity.findFieldByUid(criterion.getEntityFieldUid()));
-							final FilterCriterion currentVersionCriterion = 
-								currentVersionFilter != null 
-									? currentVersionFilter.getCriterionByUid(criterion.getUid()) 
-									: null;
-							if (currentVersionCriterion != null) {
-								currentVersionCriterion.copySystemFieldsTo(criterion);
-							}
-						}
+						importCriteria(entity, filter, currentVersionFilter);
 					}
 					saveObject(filter, session);
 				}
 			}
 		}
 		catch (ValidationException vex) {
-			throw new RuntimeException(vex);
+			throw new InternalException(vex);
+		}
+	}
+	
+	private void importCriteria(Entity entity, Filter filter, Filter currentVersionFilter) {
+		for (FilterCriterion criterion : filter.getCriteria()) {
+			criterion.setFilter(filter);
+			criterion.setEntityField(entity.findFieldByUid(criterion.getEntityFieldUid()));
+			final FilterCriterion currentVersionCriterion = 
+				currentVersionFilter != null 
+					? currentVersionFilter.getCriterionByUid(criterion.getUid()) 
+					: null;
+			if (currentVersionCriterion != null) {
+				currentVersionCriterion.copySystemFieldsTo(criterion);
+			}
 		}
 	}
 	
 	@Override
 	public void deleteObjects(Module module, Module currentVersionModule, Session session) {
-		Assert.notNull(module, "module is null");
-		Assert.notNull(currentVersionModule, "currentVersionModule is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(module, C.MODULE);
+		Assert.notNull(currentVersionModule, "currentVersionModule");
+		Assert.notNull(session, C.SESSION);
 		
 		if (currentVersionModule.getFilters() != null) {
 			for (Filter currentVersionFilter : currentVersionModule.getFilters()) {
@@ -251,7 +257,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	@Override
 	@Secured("ROLE_ADMIN_ENTITY")
 	public void saveObject(Filter filter) throws ValidationException {
-		Assert.notNull(filter, "filter is null");
+		Assert.notNull(filter, C.FILTER);
 		
 		if (filter.hasCriteria()) {
 			for (FilterCriterion criterion : filter.getCriteria()) {
@@ -287,7 +293,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 
 	@Override
 	public List<Filter> findUsage(EntityField entityField) {
-		Assert.notNull(entityField, "entityField is null");
+		Assert.notNull(entityField, C.ENTITYFIELD);
 		
 		final List<Filter> result = new ArrayList<>();
 		for (Filter filter : findFilters(entityField.getEntity())) {

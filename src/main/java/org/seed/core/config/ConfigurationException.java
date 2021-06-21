@@ -17,7 +17,9 @@
  */
 package org.seed.core.config;
 
-public class ConfigurationException extends RuntimeException {
+import org.seed.InternalException;
+
+public class ConfigurationException extends InternalException {
 
 	private static final long serialVersionUID = -2127130787942676131L;
 	

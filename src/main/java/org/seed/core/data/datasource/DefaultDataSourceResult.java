@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 class DefaultDataSourceResult implements DataSourceResult {
 	
@@ -32,15 +32,15 @@ class DefaultDataSourceResult implements DataSourceResult {
 	private final List<ColumnMetadata> columns;
 	
 	DefaultDataSourceResult(List<Object[]> resultList, ResultSetMetaData metaData) throws SQLException {
-		Assert.notNull(resultList, "resultList is null");
+		Assert.notNull(resultList, "resultList");
 		
 		if (metaData != null) {
-			final List<ColumnMetadata> columns = new ArrayList<>(metaData.getColumnCount());
+			final List<ColumnMetadata> columnList = new ArrayList<>(metaData.getColumnCount());
 			for (int i = 1; i <= metaData.getColumnCount(); i++) {
-				columns.add(new ColumnMetadata(metaData.getColumnName(i),
-											   metaData.getColumnType(i)));
+				columnList.add(new ColumnMetadata(metaData.getColumnName(i),
+											      metaData.getColumnType(i)));
 			}
-			this.columns = Collections.unmodifiableList(columns);
+			this.columns = columnList;
 		}
 		else {
 			this.columns = null;

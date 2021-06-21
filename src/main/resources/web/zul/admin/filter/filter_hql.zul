@@ -21,6 +21,8 @@
 <borderlayout>
 	<center border="0">
 		<textbox value="@bind(vm.object.hqlQuery)"
+				 onChange="@command('flagDirty')"
+				 instant="true"
 				 multiline="true"
 				 mandatory="true"
 				 style="margin:5px"

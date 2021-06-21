@@ -59,11 +59,11 @@ public class DataSourceParameter extends AbstractSystemEntity
 	private Object value;
 	
 	@XmlTransient
-	public DataSource getDataSource() {
+	public IDataSource getDataSource() {
 		return dataSource;
 	}
 
-	public void setDataSource(DataSource dataSource) {
+	public void setDataSource(IDataSource dataSource) {
 		this.dataSource = (DataSourceMetadata) dataSource;
 	}
 	

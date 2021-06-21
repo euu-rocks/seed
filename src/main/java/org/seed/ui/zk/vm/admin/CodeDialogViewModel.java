@@ -31,9 +31,9 @@ import org.seed.core.entity.transform.TransformerFunction;
 import org.seed.core.entity.transform.codegen.TransformerFunctionCodeProvider;
 import org.seed.core.task.Task;
 import org.seed.core.task.codegen.TaskCodeProvider;
+import org.seed.core.util.Assert;
 import org.seed.ui.zk.vm.AbstractApplicationViewModel;
 
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.zkoss.bind.annotation.BindingParam;
@@ -92,17 +92,23 @@ public class CodeDialogViewModel extends AbstractApplicationViewModel {
 	}
 	
 	public String getContent() {
-		return entityFunction != null
-				? entityFunction.getContent()
-				: transformerFunction != null 
-					? transformerFunction.getContent()
-					: task.getContent();
+		if(entityFunction != null) {
+			return entityFunction.getContent();
+		}
+		if (transformerFunction != null) {
+			return transformerFunction.getContent();
+		}
+		if (task != null) {
+			return task.getContent();
+		}
+		
+		return null;
 	}
 
 	@Init
     public void init(@ContextParam(ContextType.VIEW) Component view,
     				 @ExecutionArgParam("param") CodeDialogParameter param) {
-		Assert.notNull(param, "param is null");
+		Assert.notNull(param, "param");
 		wireComponents(view);
 		
 		parentViewModel = param.parentViewModel;
@@ -200,9 +206,9 @@ public class CodeDialogViewModel extends AbstractApplicationViewModel {
 		window.detach();
 	}
 	
-	private SourceCode<?> createSourceCode(String code) {
+	private SourceCode createSourceCode(String code) {
 		functionStartRow = -1;
-		SourceCode<?> sourceCode = null;
+		SourceCode sourceCode = null;
 		Pattern pattern = null;
 		if (entityFunction != null) {
 			entityFunction.setContent(code);
@@ -252,8 +258,8 @@ public class CodeDialogViewModel extends AbstractApplicationViewModel {
 		return buf.toString();
 	}
 	
-	private final static String ERROR_SEP = ": error:";
-	private final static String FUNC_PRE = ".*\\s";			// anything and a whitespace
-	private final static String FUNC_POST = "\\s*\\(.*";	// zero or more whitespaces and ( and anything
+	private static final String ERROR_SEP = ": error:";
+	private static final String FUNC_PRE = ".*\\s";			// anything and a whitespace
+	private static final String FUNC_POST = "\\s*\\(.*";	// zero or more whitespaces and ( and anything
 	
 }

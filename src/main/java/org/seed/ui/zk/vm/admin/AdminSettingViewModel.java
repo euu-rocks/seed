@@ -18,12 +18,11 @@
 package org.seed.ui.zk.vm.admin;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 import javax.persistence.OptimisticLockException;
 
-import org.seed.core.application.setting.ApplicationSettingService;
 import org.seed.core.application.setting.Setting;
 import org.seed.core.data.ValidationException;
 import org.seed.ui.zk.vm.AbstractApplicationViewModel;
@@ -32,7 +31,6 @@ import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.Init;
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zk.ui.select.annotation.WireVariable;
 
 public class AdminSettingViewModel extends AbstractApplicationViewModel {
 	
@@ -62,21 +60,14 @@ public class AdminSettingViewModel extends AbstractApplicationViewModel {
 		}
 	}
 	
-	private final Map<Setting, SettingAdapter> adapterMap = Collections.synchronizedMap(new HashMap<>());
-	
-	@WireVariable(value="applicationSettingServiceImpl")
-	private ApplicationSettingService settingService;
+	private final Map<Setting, SettingAdapter> adapterMap = Collections.synchronizedMap(new EnumMap<>(Setting.class));
 	
 	private Map<Setting, String> settings;
 	
 	public SettingAdapter getSetting(String settingName) {
 		final Setting setting = Setting.valueOf(settingName.toUpperCase());
-		SettingAdapter adapter = adapterMap.get(setting);
-		if (adapter == null) {
-			adapter = new SettingAdapter(setting);
-			adapterMap.put(setting, adapter);
-		}
-		return adapter;
+		adapterMap.computeIfAbsent(setting, s -> new SettingAdapter(setting));
+		return adapterMap.get(setting);
 	}
 	
 	@Init
@@ -109,6 +100,7 @@ public class AdminSettingViewModel extends AbstractApplicationViewModel {
 	}
 	
 	@Command
+	@Override
 	public void flagDirty() {
 		super.flagDirty();
 	}

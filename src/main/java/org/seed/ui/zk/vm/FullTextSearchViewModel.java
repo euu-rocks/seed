@@ -20,7 +20,6 @@ package org.seed.ui.zk.vm;
 import java.util.List;
 
 import org.seed.core.data.Cursor;
-import org.seed.core.data.SystemObject;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityService;
 import org.seed.core.entity.value.FullTextResult;
@@ -28,10 +27,10 @@ import org.seed.core.entity.value.ValueObject;
 import org.seed.core.entity.value.ValueObjectService;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormService;
+import org.seed.core.util.Assert;
 import org.seed.ui.Tab;
 import org.seed.ui.zk.LoadOnDemandListModel;
 
-import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
@@ -64,27 +63,27 @@ public class FullTextSearchViewModel extends AbstractApplicationViewModel {
 	
 	@Init
 	private void init(@ExecutionArgParam("param") Tab tab) {
-		Assert.notNull(tab, "tab is null");
+		Assert.notNull(tab, "tab");
 		
 		this.tab = tab;
 	}
 	
-	public ListModel<SystemObject> getListModel() {
+	public ListModel<FullTextResult> getListModel() {
 		if (StringUtils.hasText(getSearchTerm())) {
 			
 			// get or create cursor
-			Cursor cursor = tab.getFullTextSearchCursor();
+			Cursor<FullTextResult> cursor = tab.getFullTextSearchCursor();
 			if (cursor == null) {
 				cursor = valueObjectService.createFullTextSearchCursor(getSearchTerm());
 				tab.setFullTextSearchCursor(cursor);
 			}
 			
 			// create model
-			return new LoadOnDemandListModel(cursor, false) {
+			return new LoadOnDemandListModel<FullTextResult>(cursor, false) {
 				private static final long serialVersionUID = -7870718083524982606L;
 				
 				@Override
-				protected List<FullTextResult> loadChunk(Cursor cursor) {
+				protected List<FullTextResult> loadChunk(Cursor<FullTextResult> cursor) {
 					return valueObjectService.loadFullTextChunk(cursor);
 				}
 			};
@@ -104,12 +103,14 @@ public class FullTextSearchViewModel extends AbstractApplicationViewModel {
 		final Entity entity = entityService.getObject(entityId);
 		final ValueObject object = valueObjectService.getObject(entity, objectId);
 		Assert.state(object != null, "value object not available: " + objectId);
-		// use first available form
-		for (Form form : formService.findForms(entity)) {
-			openTab(form, object);
-			return;
+		
+		final List<Form> forms = formService.findForms(entity);
+		if (!forms.isEmpty()) {
+			openTab(forms.get(0), object); // use first available form
 		}
-		showWarnMessage(getLabel("label.formnotavailable"));
+		else {
+			showWarnMessage(getLabel("label.formnotavailable"));
+		}
 	}
 	
 }

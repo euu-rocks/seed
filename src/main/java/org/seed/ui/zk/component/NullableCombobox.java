@@ -17,7 +17,9 @@
  */
 package org.seed.ui.zk.component;
 
-import org.springframework.util.Assert;
+import org.seed.core.data.SystemObject;
+import org.seed.core.util.Assert;
+
 import org.zkoss.zk.au.AuRequest;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zul.Combobox;
@@ -44,25 +46,24 @@ public class NullableCombobox extends Combobox {
 	}
 	
 	@Override
-	@SuppressWarnings({"unchecked", "rawtypes"})
 	public void setReadonly(boolean readonly) {
 		super.setReadonly(readonly);
 		// if model set before readonly and is nullable -> remove null value
-		if (readonly && getModel() != null && getModel().getSize() > 0 && getModel().getElementAt(0) == null) {
-			final ListModelList newModel = new ListModelList(getModel().getSize() - 1);
-			for (int i = 1; i < getModel().getSize(); i++) {
-				newModel.add(getModel().getElementAt(i));
+		final ListModel<SystemObject> model = getModel();
+		if (readonly && model != null && model.getSize() > 0 && model.getElementAt(0) == null) {
+			final ListModelList<SystemObject> newModel = new ListModelList<>(model.getSize() - 1);
+			for (int i = 1; i < model.getSize(); i++) {
+				newModel.add(model.getElementAt(i));
 			}
 			super.setModel(newModel);
 		}
 	}
 	
 	@Override
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	public void setModel(ListModel model) {
-		Assert.notNull(model, "model is null");
+	public void setModel(ListModel<?> model) {
+		Assert.notNull(model, "model");
 		if (nullable && !isReadonly()) {
-			final ListModelList newModel = new ListModelList(model.getSize() + 1);
+			final ListModelList<Object> newModel = new ListModelList<>(model.getSize() + 1);
 			newModel.add(null);
 			for (int i = 0; i < model.getSize(); i++) {
 				newModel.add(model.getElementAt(i));

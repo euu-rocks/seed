@@ -50,9 +50,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.authorizeRequests()
 			.antMatchers(
-					"/zkau*",				// <--- for zk ajax (internal)
-					"/login*", "/logout",	// <--- for login/logout
-					"/js/**", 				// <--- static resources...
+					"/zkau*",
+					"/login*", "/logout",
+					"/js/**",
 					"/css/**", 
 					"/img/**", 
 					"/static/**"

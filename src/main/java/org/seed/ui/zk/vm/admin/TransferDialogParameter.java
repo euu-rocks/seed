@@ -19,10 +19,11 @@ package org.seed.ui.zk.vm.admin;
 
 import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.entity.transfer.TransferResult;
-
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 class TransferDialogParameter {
+	
+	private static final String PARENT_VIEWMODEL = "parentViewModel";
 	
 	final AbstractAdminViewModel<?> parentViewModel;
 	
@@ -31,7 +32,7 @@ class TransferDialogParameter {
 	final ImportAnalysis importAnalysis;
 
 	public TransferDialogParameter(AdminTransferViewModel parentViewModel) {
-		Assert.notNull(parentViewModel, "parentViewModel is null");
+		Assert.notNull(parentViewModel, PARENT_VIEWMODEL);
 		
 		this.parentViewModel = parentViewModel;
 		this.transferResult = null;
@@ -39,8 +40,8 @@ class TransferDialogParameter {
 	}
 
 	public TransferDialogParameter(AdminTransferViewModel parentViewModel, TransferResult transferResult) {
-		Assert.notNull(parentViewModel, "parentViewModel is null");
-		Assert.notNull(transferResult, "transferResult is null");
+		Assert.notNull(parentViewModel, PARENT_VIEWMODEL);
+		Assert.notNull(transferResult, "transferResult");
 		
 		this.parentViewModel = parentViewModel;
 		this.transferResult = transferResult;
@@ -48,8 +49,8 @@ class TransferDialogParameter {
 	}
 
 	public TransferDialogParameter(AdminModuleViewModel parentViewModel, ImportAnalysis importAnalysis) {
-		Assert.notNull(parentViewModel, "parentViewModel is null");
-		Assert.notNull(importAnalysis, "importAnalysis is null");
+		Assert.notNull(parentViewModel, PARENT_VIEWMODEL);
+		Assert.notNull(importAnalysis, "importAnalysis");
 		
 		this.parentViewModel = parentViewModel;
 		this.importAnalysis = importAnalysis;

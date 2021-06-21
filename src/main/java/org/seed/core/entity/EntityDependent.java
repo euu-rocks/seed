@@ -21,18 +21,18 @@ import java.util.List;
 
 import org.seed.core.data.SystemEntity;
 
-public interface EntityDependent {
+public interface EntityDependent<T extends SystemEntity> {
 	
-	List<? extends SystemEntity> findUsage(Entity entity);
+	List<T> findUsage(Entity entity);
 	
-	List<? extends SystemEntity> findUsage(EntityField entityField);
+	List<T> findUsage(EntityField entityField);
 	
-	List<? extends SystemEntity> findUsage(EntityFieldGroup fieldGroup);
+	List<T> findUsage(EntityFieldGroup fieldGroup);
 	
-	List<? extends SystemEntity> findUsage(EntityStatus entityStatus);
+	List<T> findUsage(EntityStatus entityStatus);
 	
-	List<? extends SystemEntity> findUsage(EntityFunction entityFunction);
+	List<T> findUsage(EntityFunction entityFunction);
 	
-	List<? extends SystemEntity> findUsage(NestedEntity nestedEntity);
+	List<T> findUsage(NestedEntity nestedEntity);
 	
 }

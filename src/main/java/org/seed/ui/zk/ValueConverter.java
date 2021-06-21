@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import org.seed.InternalException;
 import org.seed.core.data.FileObject;
 import org.seed.core.form.LabelProvider;
 
@@ -53,15 +54,20 @@ public class ValueConverter extends AbstractConverter<Object, Object, Component>
 				return ((FileObject) beanProp).getName();
 			}
 			if (beanProp instanceof byte[]) {
-				try {
-					return new AImage(null, (byte[]) beanProp);
-				} catch (IOException ex) {
-					throw new RuntimeException(ex);
-				}
+				return createImage((byte[]) beanProp);
 			}
 			return beanProp.toString();
 		}
 		return null;
+	}
+	
+	private static AImage createImage(byte[] bytes) {
+		try {
+			return new AImage(null, bytes);
+		} 
+		catch (IOException ex) {
+			throw new InternalException(ex);
+		}
 	}
 
 }

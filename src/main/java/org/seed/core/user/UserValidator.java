@@ -19,60 +19,57 @@ package org.seed.core.user;
 
 import java.util.Set;
 
+import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.ValidationError;
 import org.seed.core.data.ValidationException;
+import org.seed.core.util.Assert;
 
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 @Component
 public class UserValidator extends AbstractSystemEntityValidator<User> {
 	
-	public void validatePassword(String password, String passwordRepeated) throws ValidationException {
+	@Override
+	public void validateSave(User user) throws ValidationException {
+		Assert.notNull(user, C.USER);
 		final Set<ValidationError> errors = createErrorList();
 		
-		if (isEmpty(password)) {
-			errors.add(new ValidationError("val.empty.field", "label.password"));
+		if (isEmpty(user.getName())) {
+			errors.add(ValidationError.emptyField("label.name"));
 		}
-		if (isEmpty(passwordRepeated)) {
-			errors.add(new ValidationError("val.empty.field", "label.passwordrepeated"));
+		else if (user.getName().length() > getLimit("user.name.length")) {
+			errors.add(ValidationError.overlongField("label.username", getLimit("user.name.length")));
 		}
-		if (errors.isEmpty() && !password.equals(passwordRepeated)) {
-			errors.add(new ValidationError("val.ambiguous.password"));
+		if (isEmpty(user.getEmail())) {
+			errors.add(ValidationError.emptyField("label.email"));
+		}
+		else if (user.getEmail().length() > getMaxStringLength()) {
+			errors.add(ValidationError.overlongField("label.email", getMaxStringLength()));
+		}
+		if (user.getFirstname() != null &&
+			user.getFirstname().length() > getMaxStringLength()) {
+			errors.add(ValidationError.overlongField("label.firstname", getMaxStringLength()));
+		}
+		if (user.getLastname() != null &&
+			user.getLastname().length() > getMaxStringLength()) {
+			errors.add(ValidationError.overlongField("label.lastname", getMaxStringLength()));
 		}
 		
 		validate(errors);
 	}
 	
-	@Override
-	public void validateSave(User user) throws ValidationException {
-		Assert.notNull(user, "user is null");
+	void validatePassword(String password, String passwordRepeated) throws ValidationException {
 		final Set<ValidationError> errors = createErrorList();
 		
-		if (isEmpty(user.getName())) {
-			errors.add(new ValidationError("val.empty.field", "label.name"));
+		if (isEmpty(password)) {
+			errors.add(ValidationError.emptyField("label.password"));
 		}
-		else if (user.getName().length() > getLimit("user.name.length")) {
-			errors.add(new ValidationError("val.toolong.fieldvalue", "label.username", 
-					   					   String.valueOf(getLimit("user.name.length"))));
+		if (isEmpty(passwordRepeated)) {
+			errors.add(ValidationError.emptyField("label.passwordrepeated"));
 		}
-		if (isEmpty(user.getEmail())) {
-			errors.add(new ValidationError("val.empty.field", "label.email"));
-		}
-		else if (user.getEmail().length() > getLimit("entity.stringfield.length")) {
-			errors.add(new ValidationError("val.toolong.fieldvalue", "label.email", 
-					   					   String.valueOf(getLimit("entity.stringfield.length"))));
-		}
-		if (user.getFirstname() != null &&
-			user.getFirstname().length() > getLimit("entity.stringfield.length")) {
-			errors.add(new ValidationError("val.toolong.fieldvalue", "label.firstname", 
-					   					   String.valueOf(getLimit("entity.stringfield.length"))));
-		}
-		if (user.getLastname() != null &&
-			user.getLastname().length() > getLimit("entity.stringfield.length")) {
-			errors.add(new ValidationError("val.toolong.fieldvalue", "label.lastname", 
-					   					   String.valueOf(getLimit("entity.stringfield.length"))));
+		if (errors.isEmpty() && !password.equals(passwordRepeated)) {
+			errors.add(new ValidationError("val.ambiguous.password"));
 		}
 		
 		validate(errors);

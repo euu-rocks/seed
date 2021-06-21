@@ -36,16 +36,16 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-
+import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.data.FieldAccess;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.Order;
 import org.seed.core.user.User;
 import org.seed.core.user.UserGroup;
+import org.seed.core.util.Assert;
 import org.seed.core.util.ReferenceJsonSerializer;
 
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
@@ -57,6 +57,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class EntityMetadata extends AbstractApplicationEntity 
 	implements Entity {
+	
+	static final String PACKAGE_NAME = "org.seed.generated.entity";
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "generic_entity_id")
@@ -128,7 +130,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	private String identifierPattern;
 	
 	private boolean isGeneric;
-	
+
 	@Override
 	@XmlAttribute
 	public boolean isGeneric() {
@@ -218,14 +220,14 @@ public class EntityMetadata extends AbstractApplicationEntity
 	// includes generic fields
 	@Override
 	public List<EntityField> getAllFieldsByGroup(EntityFieldGroup fieldGroup) {
-		Assert.notNull(fieldGroup, "fieldGroup is null");
+		Assert.notNull(fieldGroup, C.FIELDGROUP);
 		
 		return subList(getAllFields(), f -> fieldGroup.equals(f.getFieldGroup()));
 	}
 	
 	@Override
 	public List<EntityField> getAllFieldsByType(FieldType fieldType) {
-		Assert.notNull(fieldType, "fieldType is null");
+		Assert.notNull(fieldType, C.FIELDTYPE);
 		
 		return subList(getAllFields(), f -> f.getType() == fieldType);
 	}
@@ -233,7 +235,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	// get fields that reference to given entity
 	@Override
 	public List<EntityField> getReferenceFields(Entity entity) {
-		Assert.notNull(entity, "nested is null");
+		Assert.notNull(entity, C.NESTED);
 		
 		return subList(getAllFields(), f -> f.getType().isReference() && 
 											f.getReferenceEntity().equals(entity));
@@ -242,7 +244,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	@Override
 	@JsonIgnore
 	public List<EntityField> getFullTextSearchFields() {
-		return subList(getAllFields(), f -> f.isFullTextSearch());
+		return subList(getAllFields(), EntityField::isFullTextSearch);
 	}
 	
 	@Override
@@ -258,7 +260,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	public EntityField findDefaultIdentifierField() {
 		// search in all unique fields first
 		if (hasAllFields()) {
-			for (EntityField field : subList(getAllFields(), f -> f.isUnique())) {
+			for (EntityField field : subList(getAllFields(), EntityField::isUnique)) {
 				if (field.getType().isText() || field.getType().isAutonum()) {
 					return field;
 				}
@@ -424,9 +426,16 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public boolean containsField(EntityField field) {
-		Assert.notNull(field, "field is null");
+		Assert.notNull(field, C.FIELD);
 		
 		return hasFields() && getFields().contains(field);
+	}
+	
+	@Override
+	public boolean containsFieldGroup(EntityFieldGroup fieldGroup) {
+		Assert.notNull(fieldGroup, C.FIELDGROUP);
+		
+		return hasFieldGroups() && getFieldGroups().contains(fieldGroup);
 	}
 	
 	@Override
@@ -519,7 +528,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public NestedEntity getNestedByInternalName(String name) {
-		Assert.notNull(name, "name is null");
+		Assert.notNull(name, C.NAME);
 		
 		NestedEntity result = null;
 		if (genericEntity != null) {
@@ -538,7 +547,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public NestedEntity getNestedByEntityId(Long id) {
-		Assert.notNull(id, "id is null");
+		Assert.notNull(id, C.ID);
 		
 		NestedEntity result = null;
 		if (genericEntity != null) {
@@ -557,7 +566,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public NestedEntity getNestedByEntityField(EntityField field) {
-		Assert.notNull(field, "field is null");
+		Assert.notNull(field, C.FIELD);
 		
 		NestedEntity result = null;
 		if (genericEntity != null) {
@@ -589,7 +598,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public boolean isNestedEntity(Entity entity) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
 		if (hasAllNesteds()) {
 			for (NestedEntity nested : getAllNesteds()) {
@@ -613,7 +622,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public void addFieldGroup(EntityFieldGroup fieldGroup) {
-		Assert.notNull(fieldGroup, "fieldGroup is null");
+		Assert.notNull(fieldGroup, C.FIELDGROUP);
 		
 		if (fieldGroups == null) {
 			fieldGroups = new ArrayList<>();
@@ -624,14 +633,14 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public void removeFieldGroup(EntityFieldGroup fieldGroup) {
-		Assert.notNull(fieldGroup, "fieldGroup is null");
+		Assert.notNull(fieldGroup, C.FIELDGROUP);
 		
 		getFieldGroups().remove(fieldGroup);
 	}
 	
 	@Override
 	public void addField(EntityField field) {
-		Assert.notNull(field, "field is null");
+		Assert.notNull(field, C.FIELD);
 		
 		if (fields == null) {
 			fields = new ArrayList<>();
@@ -642,14 +651,14 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public void removeField(EntityField field) {
-		Assert.notNull(field, "field is null");
+		Assert.notNull(field, C.FIELD);
 		
 		getFields().remove(field);
 	}
 	
 	@Override
 	public void addNested(NestedEntity nested) {
-		Assert.notNull(nested, "nested is null");
+		Assert.notNull(nested, C.NESTED);
 		
 		if (nesteds == null) {
 			nesteds = new ArrayList<>();
@@ -660,14 +669,14 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public void removeNested(NestedEntity nested) {
-		Assert.notNull(nested, "nested is null");
+		Assert.notNull(nested, C.NESTED);
 		
 		getNesteds().remove(nested);
 	}
 	
 	@Override
 	public void addPermission(EntityPermission permission) {
-		Assert.notNull(permission, "permission is null");
+		Assert.notNull(permission, C.PERMISSION);
 		
 		if (permissions == null) {
 			permissions = new ArrayList<>();
@@ -678,14 +687,14 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public void removePermission(EntityPermission permission) {
-		Assert.notNull(permission, "permission is null");
+		Assert.notNull(permission, C.PERMISSION);
 		
 		getPermissions().remove(permission);
 	}
 	
 	@Override
 	public void addStatus(EntityStatus status) {
-		Assert.notNull(status, "status is null");
+		Assert.notNull(status, C.STATUS);
 		
 		if (statusList == null) {
 			statusList = new ArrayList<>();
@@ -696,7 +705,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public void removeStatus(EntityStatus status) {
-		Assert.notNull(status, "status is null");
+		Assert.notNull(status, C.STATUS);
 		
 		getStatusList().remove(status);
 		// remove transitions containing status
@@ -707,8 +716,21 @@ public class EntityMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
+	public boolean isUnique(EntityStatusTransition statusTransition) {
+		Assert.notNull(statusTransition, C.STATUSTRANSITION);
+		for (EntityStatusTransition tran : getStatusTransitions()) {
+			if (statusTransition != tran && 
+				ObjectUtils.nullSafeEquals(statusTransition.getSourceStatus(), tran.getSourceStatus()) &&
+				ObjectUtils.nullSafeEquals(statusTransition.getTargetStatus(), tran.getTargetStatus())) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	@Override
 	public void addStatusTransition(EntityStatusTransition statusTransition) {
-		Assert.notNull(statusTransition, "statusTransition is null");
+		Assert.notNull(statusTransition, C.STATUSTRANSITION);
 		
 		if (statusTransitions == null) {
 			statusTransitions = new ArrayList<>();
@@ -719,14 +741,14 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public void removeStatusTransition(EntityStatusTransition statusTransition) {
-		Assert.notNull(statusTransition, "statusTransition is null");
+		Assert.notNull(statusTransition, C.STATUSTRANSITION);
 		
 		getStatusTransitions().remove(statusTransition);
 	}
 	
 	@Override
 	public void addFieldConstraint(EntityFieldConstraint constraint) {
-		Assert.notNull(constraint, "constraint is null");
+		Assert.notNull(constraint, "constraint");
 		
 		if (fieldConstraints == null) {
 			fieldConstraints = new ArrayList<>();
@@ -737,7 +759,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public void removeFieldConstraint(EntityFieldConstraint constraint) {
-		Assert.notNull(constraint, "constraint is null");
+		Assert.notNull(constraint, "constraint");
 		
 		getFieldConstraints().remove(constraint);
 	}
@@ -775,7 +797,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	@Override
 	@JsonIgnore
 	public List<EntityFunction> getCallbackFunctions() {
-		return subList(getFunctions(), f -> f.isCallback());
+		return subList(getFunctions(), EntityFunction::isCallback);
 	}
 	
 	@Override
@@ -787,7 +809,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	@Override
 	@JsonIgnore
 	public List<EntityFunction> getUserActionFunctions() {
-		return subList(getFunctions(), f -> f.isActiveOnUserAction());
+		return subList(getFunctions(), EntityFunction::isActiveOnUserAction);
 	}
 	
 	@Override
@@ -802,7 +824,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 
 	@Override
 	public void addFunction(EntityFunction function) {
-		Assert.notNull(function, "function is null");
+		Assert.notNull(function, C.FUNCTION);
 		
 		if (functions == null) {
 			functions = new ArrayList<>();
@@ -813,7 +835,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public void removeFunction(EntityFunction function) {
-		Assert.notNull(function, "function is null");
+		Assert.notNull(function, C.FUNCTION);
 		
 		getFunctions().remove(function);
 	}
@@ -835,23 +857,17 @@ public class EntityMetadata extends AbstractApplicationEntity
 				.isEquals()) {
 			return false;
 		}
-		// check field groups
-		if (hasFieldGroups()) {
-			for (EntityFieldGroup group : getFieldGroups()) {
-				if (!group.isEqual(otherEntity.getFieldGroupByUid(group.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherEntity.hasFieldGroups()) {
-			for (EntityFieldGroup otherGroup : otherEntity.getFieldGroups()) {
-				if (getFieldGroupByUid(otherGroup.getUid()) == null) {
-					return false;
-				}
-			}
-				
-		}
-		// check fields
+		return isEqualFields(otherEntity) &&
+			   isEqualFieldGroups(otherEntity) &&
+			   isEqualFunctions(otherEntity) &&
+			   isEqualStatus(otherEntity) &&
+			   isEqualStatusTransitions(otherEntity) &&
+			   isEqualNesteds(otherEntity) &&
+			   isEqualPermissions(otherEntity) &&
+			   isEqualConstraints(otherEntity);
+	}
+	
+	private boolean isEqualFields(Entity otherEntity) {
 		if (hasFields()) {
 			for (EntityField field : getFields()) {
 				if (!field.isEqual(otherEntity.getFieldByUid(field.getUid()))) {
@@ -866,22 +882,28 @@ public class EntityMetadata extends AbstractApplicationEntity
 				}
 			}
 		}
-		// check nesteds
-		if (hasNesteds()) {
-			for (NestedEntity nested : getNesteds()) {
-				if (!nested.isEqual(otherEntity.getNestedByUid(nested.getUid()))) {
+		return true;
+	}
+	
+	private boolean isEqualFieldGroups(Entity otherEntity) {
+		if (hasFieldGroups()) {
+			for (EntityFieldGroup group : getFieldGroups()) {
+				if (!group.isEqual(otherEntity.getFieldGroupByUid(group.getUid()))) {
 					return false;
 				}
 			}
 		}
-		if (otherEntity.hasNesteds()) {
-			for (NestedEntity otherNested : otherEntity.getNesteds()) {
-				if (getNestedByUid(otherNested.getUid()) == null) {
+		if (otherEntity.hasFieldGroups()) {
+			for (EntityFieldGroup otherGroup : otherEntity.getFieldGroups()) {
+				if (getFieldGroupByUid(otherGroup.getUid()) == null) {
 					return false;
 				}
 			}
 		}
-		// check functions
+		return true;
+	}
+	
+	private boolean isEqualFunctions(Entity otherEntity) {
 		if (hasFunctions()) {
 			for (EntityFunction function : getFunctions()) {
 				if (!function.isEqual(otherEntity.getFunctionByUid(function.getUid()))) {
@@ -896,7 +918,10 @@ public class EntityMetadata extends AbstractApplicationEntity
 				}
 			}
 		}
-		// check status
+		return true;
+	}
+	
+	private boolean isEqualStatus(Entity otherEntity) {
 		if (hasStatus()) {
 			for (EntityStatus status : getStatusList()) {
 				if (!status.isEqual(otherEntity.getStatusByUid(status.getUid()))) {
@@ -911,7 +936,10 @@ public class EntityMetadata extends AbstractApplicationEntity
 				}
 			}
 		}
-		// check status transitions
+		return true;
+	}
+	
+	private boolean isEqualStatusTransitions(Entity otherEntity) {
 		if (hasStatusTransitions()) {
 			for (EntityStatusTransition transition : getStatusTransitions()) {
 				if (!transition.isEqual(otherEntity.getStatusTransitionByUid(transition.getUid()))) {
@@ -926,7 +954,10 @@ public class EntityMetadata extends AbstractApplicationEntity
 				}
 			}
 		}
-		// check permissions
+		return true;
+	}
+	
+	private boolean isEqualPermissions(Entity otherEntity) {
 		if (hasPermissions()) {
 			for (EntityPermission permission : getPermissions()) {
 				if (!permission.isEqual(otherEntity.getPermissionByUid(permission.getUid()))) {
@@ -941,7 +972,10 @@ public class EntityMetadata extends AbstractApplicationEntity
 				}
 			}
 		}
-		// check field constraints
+		return true;
+	}
+	
+	private boolean isEqualConstraints(Entity otherEntity) {
 		if (hasFieldConstraints()) {
 			for (EntityFieldConstraint constraint : getFieldConstraints()) {
 				if (!constraint.isEqual(otherEntity.getFieldConstraintByUid(constraint.getUid()))) {
@@ -952,6 +986,24 @@ public class EntityMetadata extends AbstractApplicationEntity
 		if (otherEntity.hasFieldConstraints()) {
 			for (EntityFieldConstraint otherConstraint : otherEntity.getFieldConstraints()) {
 				if (getFieldConstraintByUid(otherConstraint.getUid()) == null) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	private boolean isEqualNesteds(Entity otherEntity) {
+		if (hasNesteds()) {
+			for (NestedEntity nested : getNesteds()) {
+				if (!nested.isEqual(otherEntity.getNestedByUid(nested.getUid()))) {
+					return false;
+				}
+			}
+		}
+		if (otherEntity.hasNesteds()) {
+			for (NestedEntity otherNested : otherEntity.getNesteds()) {
+				if (getNestedByUid(otherNested.getUid()) == null) {
 					return false;
 				}
 			}
@@ -1016,9 +1068,9 @@ public class EntityMetadata extends AbstractApplicationEntity
 	@Override
 	public boolean checkFieldAccess(EntityField field, User user, EntityStatus status, 
 									FieldAccess ...fieldAccess) {
-		Assert.notNull(field, "field is null");
-		Assert.notNull(user, "user is null");
-		Assert.notNull(fieldAccess, "fieldAccess is null");
+		Assert.notNull(field, C.FIELD);
+		Assert.notNull(user, C.USER);
+		Assert.notNull(fieldAccess, "fieldAccess");
 		
 		if (hasFieldConstraints()) {
 			// check universal status constraints (no user group)
@@ -1026,35 +1078,43 @@ public class EntityMetadata extends AbstractApplicationEntity
 				for (EntityFieldConstraint constraint : getFieldConstraints(field)) {
 					if (constraint.getUserGroup() == null &&
 						constraint.getStatus().equals(status)) {
-						for (FieldAccess access : fieldAccess) {
-							if (constraint.getAccess() == access) {
-								return true;
-							}
-						}
-						return false;
+						return checkAccess(constraint, fieldAccess);
 					}
 				}
 			}
 			
 			// check group constraints
 			if (hasGroupConstraints(field)) {
-				if (user.hasUserGroups()) {
-					for (UserGroup group : user.getUserGroups()) {
-						final EntityFieldConstraint constraint = getGroupConstraint(field, group, status);
-						if (constraint == null) {
-							return true;
-						}
-						for (FieldAccess access : fieldAccess) {
-							if (constraint.getAccess() == access) {
-								return true;
-							}
-						}
-					}
-				}
-				return false;
+				return checkUserGroupConstraints(field, user, status, fieldAccess);
 			}
 		}
 		return true;
+	}
+	
+	private boolean checkUserGroupConstraints(EntityField field, User user, EntityStatus status, 
+			  FieldAccess ...fieldAccess) {
+		if (user.hasUserGroups()) {
+			for (UserGroup group : user.getUserGroups()) {
+				final EntityFieldConstraint constraint = getGroupConstraint(field, group, status);
+				if (constraint == null) {
+					return true;
+				}
+	
+				if (checkAccess(constraint, fieldAccess)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	private boolean checkAccess(EntityFieldConstraint constraint, FieldAccess ...fieldAccess) {
+		for (FieldAccess access : fieldAccess) {
+			if (constraint.getAccess() == access) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	@JsonIgnore
@@ -1072,7 +1132,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public EntityStatus getStatusByNumber(Integer statusNumber) {
-		Assert.notNull(statusNumber, "statusNumber is null");
+		Assert.notNull(statusNumber, "statusNumber");
 		
 		if (hasStatus()) {
 			for (EntityStatus status : getStatusList()) {
@@ -1108,7 +1168,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	}
 	
 	private List<EntityFieldConstraint> getFieldConstraints(EntityField field) {
-		Assert.notNull(field, "field is null");
+		Assert.notNull(field, C.FIELD);
 		
 		final List<EntityFieldConstraint> result = new ArrayList<>();
 		if (hasFieldConstraints()) {
@@ -1124,7 +1184,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	}
 	
 	private boolean hasGroupConstraints(EntityField field) {
-		Assert.notNull(field, "field is null");
+		Assert.notNull(field, C.FIELD);
 		
 		for (EntityFieldConstraint constraint : getFieldConstraints(field)) {
 			if (constraint.getUserGroup() != null) {
@@ -1135,8 +1195,8 @@ public class EntityMetadata extends AbstractApplicationEntity
 	}
 	
 	private EntityFieldConstraint getGroupConstraint(EntityField field, UserGroup userGroup, EntityStatus status) {
-		Assert.notNull(field, "field is null");
-		Assert.notNull(userGroup, "userGroup is null");
+		Assert.notNull(field, C.FIELD);
+		Assert.notNull(userGroup, C.USERGROUP);
 		
 		for (EntityFieldConstraint constraint : getFieldConstraints(field)) {
 			if (userGroup.equals(constraint.getUserGroup()) &&

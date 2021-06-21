@@ -17,7 +17,7 @@
  */
 package org.seed.core.api;
 
-public interface EntityFilter<T extends EntityObject> {
+public interface EntityFilter {
 	
 	String getName();
 	

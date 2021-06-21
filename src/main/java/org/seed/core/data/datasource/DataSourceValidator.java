@@ -26,19 +26,20 @@ import java.util.Set;
 
 import javax.persistence.PersistenceException;
 
+import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.DataException;
 import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationError;
 import org.seed.core.data.ValidationException;
 import org.seed.core.form.LabelProvider;
+import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 @Component
-public class DataSourceValidator extends AbstractSystemEntityValidator<DataSource> {
+public class DataSourceValidator extends AbstractSystemEntityValidator<IDataSource> {
 	
 	@Autowired
 	private DataSourceRepository repository;
@@ -47,64 +48,43 @@ public class DataSourceValidator extends AbstractSystemEntityValidator<DataSourc
 	private LabelProvider labelProvider;
 	
 	@Autowired
-	private List<DataSourceDependent> dataSourceDependents;
+	private List<DataSourceDependent<? extends SystemEntity>> dataSourceDependents;
 	
 	@Override
-	public void validateDelete(DataSource dataSource) throws ValidationException {
-		Assert.notNull(dataSource, "dataSource is null");
+	public void validateDelete(IDataSource dataSource) throws ValidationException {
+		Assert.notNull(dataSource, C.DATASOURCE);
 		final Set<ValidationError> errors = createErrorList();
 		
-		for (DataSourceDependent dependent : dataSourceDependents) {
+		for (DataSourceDependent<? extends SystemEntity> dependent : dataSourceDependents) {
 			for (SystemEntity systemEntity : dependent.findUsage(dataSource)) {
-				switch (getEntityType(systemEntity)) {
-					case "report":
-						errors.add(new ValidationError("val.inuse.datasourcereport", systemEntity.getName()));
-						break;
-					default:
-						throw new IllegalStateException("unhandled entity: " + getEntityType(systemEntity));
+				if (C.REPORT.equals(getEntityType(systemEntity))) {
+					errors.add(new ValidationError("val.inuse.datasourcereport", systemEntity.getName()));
 				}
 			}
 		}
 		validate(errors);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
-	public void validateSave(DataSource dataSource) throws ValidationException {
-		Assert.notNull(dataSource, "dataSource is null");
+	public void validateSave(IDataSource dataSource) throws ValidationException {
+		Assert.notNull(dataSource, C.DATASOURCE);
 		final Set<ValidationError> errors = createErrorList();
 		
 		if (isEmpty(dataSource.getName())) {
-			errors.add(new ValidationError("val.empty.field", "label.name"));
+			errors.add(ValidationError.emptyName());
 		}
 		else if (!isNameLengthAllowed(dataSource.getName())) {
-			errors.add(new ValidationError("val.toolong.name", String.valueOf(getMaxNameLength())));
+			errors.add(ValidationError.overlongName(getMaxNameLength()));
 		}
 		if (isEmpty(dataSource.getContent())) {
-			errors.add(new ValidationError("val.empty.field", "label.sqlstatement"));
+			errors.add(ValidationError.emptyField("label.sqlstatement"));
 		}
 		else if (!dataSource.getContent().toLowerCase().contains("select ")) {
 			errors.add(new ValidationError("val.query.noselect"));
 		}
 		else {
 			if (dataSource.hasParameters()) {
-				for (DataSourceParameter parameter : dataSource.getParameters()) {
-					// validate name
-					if (isEmpty(parameter.getName())) {
-						errors.add(new ValidationError("val.empty.field", "label.paramname"));
-					}
-					else if (!isNameUnique(parameter.getName(), dataSource.getParameters())) {
-						errors.add(new ValidationError("val.ambiguous.param", parameter.getName()));
-					}
-					// validate type
-					if (isEmpty(parameter.getType())) {
-						errors.add(new ValidationError("val.empty.field", "label.paramtype"));
-					}
-					else if (parameter.getType().isReference() && 
-							 isEmpty(parameter.getReferenceEntity())) {
-						errors.add(new ValidationError("val.empty.field", "label.refentity"));
-					}
-				}
+				validateParameters(dataSource, errors);
 			}
 			for (String contentParameter : dataSource.getContentParameterSet()) {
 				if (dataSource.getParameterByName(contentParameter) == null) {
@@ -126,11 +106,32 @@ public class DataSourceValidator extends AbstractSystemEntityValidator<DataSourc
 		validate(errors);
 	}
 	
-	private Map<String, Object> createTestParameterMap(DataSource dataSource) {
+	@SuppressWarnings("unchecked")
+	private void validateParameters(IDataSource dataSource, Set<ValidationError> errors) {
+		for (DataSourceParameter parameter : dataSource.getParameters()) {
+			// validate name
+			if (isEmpty(parameter.getName())) {
+				errors.add(ValidationError.emptyField("label.paramname"));
+			}
+			else if (!isNameUnique(parameter.getName(), dataSource.getParameters())) {
+				errors.add(new ValidationError("val.ambiguous.param", parameter.getName()));
+			}
+			// validate type
+			if (isEmpty(parameter.getType())) {
+				errors.add(ValidationError.emptyField("label.paramtype"));
+			}
+			else if (parameter.getType().isReference() && 
+					 isEmpty(parameter.getReferenceEntity())) {
+				errors.add(ValidationError.emptyField("label.refentity"));
+			}
+		}
+	}
+	
+	private Map<String, Object> createTestParameterMap(IDataSource dataSource) {
 		final Map<String, Object> parameterMap = new HashMap<>();
 		for (String contentParameter : dataSource.getContentParameterSet()) {
 			final DataSourceParameter parameter = dataSource.getParameterByName(contentParameter);
-			Assert.state(parameter != null, "parameter '" + contentParameter + "' not available");
+			Assert.stateAvailable(parameterMap, "parameterMap");
 			
 			String value;
 			switch (parameter.getType()) {

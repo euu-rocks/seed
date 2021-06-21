@@ -17,22 +17,22 @@
  */
 package org.seed.core.form.layout;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-import org.seed.core.config.ApplicationContextProvider;
+import org.seed.C;
+import org.seed.Seed;
 import org.seed.core.data.FieldType;
 import org.seed.core.entity.EntityField;
 import org.seed.core.form.LabelProvider;
-
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 public abstract class LayoutUtils {
 	
-	private static final Map<FieldType, String> mapElements = new HashMap<>(16, 1f);
+	private static final Map<FieldType, String> mapElements  = new EnumMap<>(FieldType.class);
 	
-	private static final Map<BorderLayoutArea, String> mapBorderLayoutArea = new HashMap<>(8, 1f);
+	private static final Map<BorderLayoutArea, String> mapBorderLayoutArea = new EnumMap<>(BorderLayoutArea.class);
 	
 	private static LabelProvider labelProvider;
 	
@@ -58,26 +58,28 @@ public abstract class LayoutUtils {
 		mapBorderLayoutArea.put(BorderLayoutArea.SOUTH,  LayoutElement.SOUTH);
 	}
 	
+	protected LayoutUtils() {}
+	
 	public static String bind(String property) {
-		Assert.notNull(property, "property is null");
+		Assert.notNull(property, C.PROPERTY);
 		
 		return "@bind(" + property + ')';
  	}
 	
 	public static String command(String command) {
-		Assert.notNull(command, "command is null");
+		Assert.notNull(command, C.COMMAND);
 		
 		return "@command(" + command + ')';
  	}
 	
 	public static String converter(String converter) {
-		Assert.notNull(converter, "converter is null");
+		Assert.notNull(converter, "converter");
 		
 		return "@converter(" + converter + ')';
 	}
 	
 	public static String load(String property) {
-		Assert.notNull(property, "property is null");
+		Assert.notNull(property, C.PROPERTY);
 		
 		return "@load(" + property + ')';
  	}
@@ -97,7 +99,7 @@ public abstract class LayoutUtils {
 	public static LayoutElement createGrid(int numColumns, int numRows, String title) {
 		final LayoutElement elemGrid = new LayoutElement(LayoutElement.GRID);
 		final LayoutElement elemRows = elemGrid.addChild(new LayoutElement(LayoutElement.ROWS));
-		elemGrid.setClass("alpha-noborder");
+		elemGrid.setClass(LayoutElementClass.NO_BORDER);
 		elemGrid.addChild(createColumns(numColumns));
 		for (int i = 0; i < numRows; i++) {
 			elemRows.addChild(createRow(numColumns));
@@ -109,8 +111,8 @@ public abstract class LayoutUtils {
 	}
 	
 	public static LayoutElement createGroupbox(String title, LayoutElement elemGrid) {
-		Assert.notNull(title, "title is null");
-		Assert.notNull(elemGrid, "elemGrid is null");
+		Assert.notNull(title, "title");
+		Assert.notNull(elemGrid, "elemGrid");
 		
 		final LayoutElement elemGoupbox = new LayoutElement(LayoutElement.GROUPBOX);
 		final LayoutElement elemCaption = elemGoupbox.addChild(new LayoutElement(LayoutElement.CAPTION));
@@ -120,12 +122,12 @@ public abstract class LayoutUtils {
 	}
 	
 	public static LayoutElement createBandbox(EntityField field) {
-		Assert.notNull(field, "field is null");
+		Assert.notNull(field, C.FIELD);
 		
 		final LayoutElement elemBandbox = new LayoutElement(LayoutElement.BANDBOX);
-		elemBandbox.setAttribute("id", field.getUid());
-		elemBandbox.setAttribute("hflex", "1");
-		elemBandbox.setOrRemoveAttribute("mandatory", field.isMandatory());
+		elemBandbox.setAttribute(LayoutElementAttributes.A_ID, field.getUid());
+		elemBandbox.setAttribute(LayoutElementAttributes.A_HFLEX, "1");
+		elemBandbox.setOrRemoveAttribute(LayoutElementAttributes.A_MANDATORY, field.isMandatory());
 		return elemBandbox;
 	}
 	
@@ -134,7 +136,7 @@ public abstract class LayoutUtils {
 	}
 	
 	public static LayoutElement createBorderLayout(BorderLayoutProperties layoutProperties) {
-		Assert.notNull(layoutProperties, "layoutProperties is null");
+		Assert.notNull(layoutProperties, "layoutProperties");
 		
 		final LayoutElement elemLayout = new LayoutElement(LayoutElement.BORDERLAYOUT);
 		if (layoutProperties.getNorth().isVisible()) {
@@ -156,10 +158,10 @@ public abstract class LayoutUtils {
 	}
 	
 	public static LayoutElement createBorderLayoutArea(BorderLayoutArea area) {
-		Assert.notNull(area, "area is null");
+		Assert.notNull(area, "area");
 		
 		final LayoutElement element = new LayoutElement(mapBorderLayoutArea.get(area));
-		element.setAttribute("border", "0");
+		element.setAttribute(LayoutElementAttributes.A_BORDER, "0");
 		return element;
 	}
 	
@@ -176,7 +178,7 @@ public abstract class LayoutUtils {
 	}
 	
 	public static LayoutElement createComboitem(String label) {
-		Assert.notNull(label, "label is null");
+		Assert.notNull(label, C.LABEL);
 		
 		final LayoutElement elemComboitem = new LayoutElement(LayoutElement.COMBOITEM);
 		elemComboitem.setLabel(label);
@@ -184,7 +186,7 @@ public abstract class LayoutUtils {
 	}
 	
 	public static LayoutElement createLabel(String text) {
-		Assert.notNull(text, "text is null");
+		Assert.notNull(text, "text");
 		
 		final LayoutElement elemLabel = new LayoutElement(LayoutElement.LABEL);
 		if (text.contains("\n")) {
@@ -192,41 +194,40 @@ public abstract class LayoutUtils {
 			elemLabel.addChild(createLabelAttribute(text));
 		}
 		else {
-			elemLabel.setAttribute("value", text);
+			elemLabel.setAttribute(LayoutElementAttributes.A_VALUE, text);
 		}
 		return elemLabel;
 	}
 	
 	public static LayoutElement createLabelAttribute(String text) {
-		Assert.notNull(text, "text is null");
+		Assert.notNull(text, "text");
 		
 		final LayoutElement elemAttr = new LayoutElement(LayoutElement.ATTRIBUTE);
-		elemAttr.setAttribute("name", "value");
+		elemAttr.setAttribute(LayoutElementAttributes.A_NAME, "value");
 		elemAttr.setText(text);
 		return elemAttr;
 	}
 	
 	public static LayoutElement createFormField(EntityField field) {
-		Assert.notNull(field, "field is null");
-		Assert.state(mapElements.containsKey(field.getType()), "unsupported type " + field.getType());
+		Assert.notNull(field, C.FIELD);
 		
-		final LayoutElement elemField = new LayoutElement(mapElements.get(field.getType()));
-		elemField.setAttribute("id", field.getUid());
+		final LayoutElement elemField = createElement(field.getType());
+		elemField.setAttribute(LayoutElementAttributes.A_ID, field.getUid());
 		
 		if (field.getType().isDateTime()) {
 			elemField.setAttribute("format", "long+medium");
 		}
 		else if (field.getType().isTextLong()) {
-			elemField.setAttribute("rows", "3");
+			elemField.setAttribute(LayoutElementAttributes.A_ROWS, "3");
 		}
 		if (!field.getType().isBinary()) {
-			elemField.setAttribute("hflex", "1");
+			elemField.setAttribute(LayoutElementAttributes.A_HFLEX, "1");
 		}
 		return elemField;
 	}
 	
 	public static LayoutElement createButton(String icon) {
-		Assert.notNull(icon, "icon is null");
+		Assert.notNull(icon, "icon");
 		
 		final LayoutElement elemButton = new LayoutElement(LayoutElement.BUTTON);
 		elemButton.setIcon(icon);
@@ -246,11 +247,11 @@ public abstract class LayoutUtils {
 	}
 	
 	public static LayoutElement createPopupMenu(String contextId, List<LayoutElement> menus) {
-		Assert.notNull(contextId, "contextId is null");
-		Assert.notNull(menus, "menus is null");
+		Assert.notNull(contextId, "contextId");
+		Assert.notNull(menus, "menus");
 		
 		final LayoutElement elemPopup = new LayoutElement(LayoutElement.MENUPOPUP);
-		elemPopup.setAttribute("id", contextId);
+		elemPopup.setAttribute(LayoutElementAttributes.A_ID, contextId);
 		for (LayoutElement menu : menus) {
 			elemPopup.addChild(menu);
 		}
@@ -258,7 +259,7 @@ public abstract class LayoutUtils {
 	}
 	
 	public static LayoutElement createMenu(String label, String icon, LayoutElement ...menuItems) {
-		Assert.notNull(label, "label is null");
+		Assert.notNull(label, C.LABEL);
 		
 		final LayoutElement elemMenu = new LayoutElement(LayoutElement.MENU);
 		elemMenu.setLabel(getLabel(label));
@@ -273,8 +274,8 @@ public abstract class LayoutUtils {
 	}
 	
 	public static LayoutElement createMenuItem(String label, String icon, String command) {
-		Assert.notNull(label, "label is null");
-		Assert.notNull(command, "command is null");
+		Assert.notNull(label, C.LABEL);
+		Assert.notNull(command, C.COMMAND);
 		
 		final LayoutElement elemMenuItem = new LayoutElement(LayoutElement.MENUITEM);
 		elemMenuItem.setLabel(getLabel(label));
@@ -287,9 +288,9 @@ public abstract class LayoutUtils {
 	
 	public static LayoutElement createTabbox(String title) {
 		final LayoutElement elemTabbox = new LayoutElement(LayoutElement.TABBOX);
-		elemTabbox.setAttribute("vflex", "1");
-		elemTabbox.setAttribute("hflex", "1");
-		elemTabbox.setClass("alpha-tabbox");
+		elemTabbox.setAttribute(LayoutElementAttributes.A_HFLEX, "1");
+		elemTabbox.setAttribute(LayoutElementAttributes.A_VFLEX, "1");
+		elemTabbox.setClass(LayoutElementClass.TABBOX);
 		final LayoutElement elemTabs = elemTabbox.addChild(new LayoutElement(LayoutElement.TABS));
 		elemTabs.addChild(createTab(title));
 		final LayoutElement elemPanels = elemTabbox.addChild(new LayoutElement(LayoutElement.TABPANELS));
@@ -298,7 +299,7 @@ public abstract class LayoutUtils {
 	}
 	
 	public static LayoutElement createTab(String title) {
-		Assert.notNull(title, "title is null");
+		Assert.notNull(title, "title");
 		
 		final LayoutElement elemTab = new LayoutElement(LayoutElement.TAB);
 		elemTab.setLabel(title);
@@ -314,7 +315,7 @@ public abstract class LayoutUtils {
 	}
 	
 	public static LayoutElement createToolbar(String children) {
-		Assert.notNull(children, "children is null");
+		Assert.notNull(children, "children");
 		
 		final LayoutElement elemToolbar = new LayoutElement(LayoutElement.TOOLBAR);
 		elemToolbar.setAttribute("children", children);
@@ -322,46 +323,46 @@ public abstract class LayoutUtils {
 	}
 	
 	public static LayoutElement createToolbarButton(String label, String command, String icon) {
-		Assert.notNull(label, "label is null");
-		Assert.notNull(command, "command is null");
+		Assert.notNull(label, C.LABEL);
+		Assert.notNull(command, C.COMMAND);
 		
 		final LayoutElement elemButton = new LayoutElement(LayoutElement.TOOLBARBUTTON);
 		elemButton.setLabel(label);
 		elemButton.setOnClick(command(command));
 		if (icon != null) {
-			elemButton.setAttribute("iconSclass", icon);
+			elemButton.setAttribute(LayoutElementAttributes.A_ICONSCLASS, icon);
 		}
 		return elemButton;
 	}
 	
 	public static LayoutElement createListFormList() {
 		final LayoutElement elemListbox = createListBox();
-		elemListbox.setAttribute("model", load("vm.listModel"));
-		elemListbox.setAttribute("selectedItem", bind("vm.object"));
-		elemListbox.setAttribute("onSelect", command("'selectObject'"));
-		elemListbox.setAttribute("vflex", "true");
-		elemListbox.setAttribute("style", "margin:5px");
+		elemListbox.setAttribute(LayoutElementAttributes.A_MODEL, load("vm.listModel"));
+		elemListbox.setAttribute(LayoutElementAttributes.A_SELECTEDITEM, bind("vm.object"));
+		elemListbox.setAttribute(LayoutElementAttributes.A_ONSELECT, command("'selectObject'"));
+		elemListbox.setAttribute(LayoutElementAttributes.A_VFLEX, "true");
+		elemListbox.setAttribute(LayoutElementAttributes.A_STYLE, "margin:5px");
 		return elemListbox;
 	}
 	
 	public static LayoutElement createListHead(boolean sizable) {
 		final LayoutElement elemListhead = new LayoutElement(LayoutElement.LISTHEAD);
 		if (sizable) {
-			elemListhead.setAttribute("sizable", "true");
+			elemListhead.setAttribute(LayoutElementAttributes.A_SIZABLE, "true");
 		}
 		return elemListhead;
 	}
 	
 	public static LayoutElement createListHeader(String label, String hflex, String style) {
-		Assert.notNull(label, "label is null");
+		Assert.notNull(label, C.LABEL);
 		
 		final LayoutElement elemListheader = new LayoutElement(LayoutElement.LISTHEADER);
 		elemListheader.setLabel(label);
 		if (hflex != null) {
-			elemListheader.setAttribute("hflex", hflex);
+			elemListheader.setAttribute(LayoutElementAttributes.A_HFLEX, hflex);
 		}
 		if (style != null) {
-			elemListheader.setAttribute("style", style);
+			elemListheader.setAttribute(LayoutElementAttributes.A_STYLE, style);
 		}
 		return elemListheader;
 	}
@@ -369,47 +370,53 @@ public abstract class LayoutUtils {
 	public static LayoutElement createListItem(String doubleClickAction) {
 		final LayoutElement elemListitem = new LayoutElement(LayoutElement.LISTITEM);
 		if (doubleClickAction != null) {
-			elemListitem.setAttribute("onDoubleClick", command(doubleClickAction));
+			elemListitem.setAttribute(LayoutElementAttributes.A_ONDOUBLECLICK, command(doubleClickAction));
 		}
 		return elemListitem;
 	}
 	
 	public static LayoutElement createListCell(String property, String icon, String style) {
-		Assert.notNull(property, "property is null");
+		Assert.notNull(property, C.PROPERTY);
 		
 		final LayoutElement elemListcell = new LayoutElement(LayoutElement.LISTCELL);
 		if (icon != null) {
-			elemListcell.setAttribute("iconSclass", icon);
+			elemListcell.setAttribute(LayoutElementAttributes.A_ICONSCLASS, icon);
 		}
 		final LayoutElement elemLabel = elemListcell.addChild(createLabel(property));
 		if (style != null) {
-			elemLabel.setAttribute("style", style);
+			elemLabel.setAttribute(LayoutElementAttributes.A_STYLE, style);
 		}
 		return elemListcell;
 	}
 	
 	public static LayoutElement createImageListCell(String property) {
-		Assert.notNull(property, "property is null");
+		Assert.notNull(property, C.PROPERTY);
 		
 		final LayoutElement elemListcell = new LayoutElement(LayoutElement.LISTCELL);
 		final LayoutElement elemImage = elemListcell.addChild(new LayoutElement(LayoutElement.IMAGE));
-		elemImage.setAttribute("content", property);
+		elemImage.setAttribute(LayoutElementAttributes.A_CONTENT, property);
 		return elemListcell;
 	}
 	
 	public static LayoutElement createTemplate(String name, String var) {
-		Assert.notNull(name, "name is null");
-		Assert.notNull(var, "var is null");
+		Assert.notNull(name, C.NAME);
+		Assert.notNull(var, "var");
 		
 		final LayoutElement elemTemplate = new LayoutElement(LayoutElement.TEMPLATE);
-		elemTemplate.setAttribute("name", name);
-		elemTemplate.setAttribute("var", var);
+		elemTemplate.setAttribute(LayoutElementAttributes.A_NAME, name);
+		elemTemplate.setAttribute(LayoutElementAttributes.A_VAR, var);
 		return elemTemplate;
+	}
+	
+	private static LayoutElement createElement(FieldType type) {
+		final String element = mapElements.get(type);
+		Assert.state(element != null, "unsupported type " + type);
+		return new LayoutElement(element);
 	}
 	
 	private static LabelProvider labelProvider() {
 		if (labelProvider == null) {
-			labelProvider = ApplicationContextProvider.getBean(LabelProvider.class);
+			labelProvider = Seed.getBean(LabelProvider.class);
 		}
 		return labelProvider;
 	}

@@ -19,10 +19,10 @@ package org.seed.core.entity.value;
 
 import java.util.List;
 
-import org.seed.core.entity.Entity;
+import org.seed.core.data.SystemEntity;
 
-public interface ValueObjectDependent {
+public interface ValueObjectDependent<T extends SystemEntity> {
 	
-	List<? extends Entity> findUsage(ValueObject object);
+	List<T> findUsage(ValueObject object);
 	
 }

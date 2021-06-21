@@ -23,18 +23,18 @@ import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-
+import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.data.AbstractSystemEntityService;
 import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationException;
+import org.seed.core.util.Assert;
 import org.seed.core.util.UID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 @Service
 public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
@@ -50,7 +50,7 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 	private ModuleTransfer transfer;
 	
 	@Autowired
-	private List<ModuleDependent> moduleDependents;
+	private List<ModuleDependent<? extends ApplicationEntity>> moduleDependents;
 	
 	@Override
 	protected ModuleRepository getRepository() {
@@ -77,7 +77,7 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 	@Override
 	@Secured("ROLE_ADMIN_MODULE")
 	public ImportAnalysis analyzeModule(Module module) throws ValidationException {
-		Assert.notNull(module, "module is null");
+		Assert.notNull(module, C.MODULE);
 		
 		final Module currentVersionModule = repository.findByUid(module.getUid());
 		validator.validateImport(module, currentVersionModule);
@@ -93,7 +93,7 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 	@Override
 	@Secured("ROLE_ADMIN_MODULE")
 	public ModuleParameter createParameter(Module module) {
-		Assert.notNull(module, "module is null");
+		Assert.notNull(module, C.MODULE);
 		
 		final ModuleParameter parameter = new ModuleParameter();
 		module.addParameter(parameter);
@@ -103,10 +103,10 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 	@Override
 	@Secured("ROLE_ADMIN_MODULE")
 	public void deleteObject(Module module) throws ValidationException {
-		Assert.notNull(module, "module is null");
+		Assert.notNull(module, C.MODULE);
 		
 		final List<SystemEntity> moduleObjects = new ArrayList<>();
-		for (ModuleDependent dependent : moduleDependents) {
+		for (ModuleDependent<? extends ApplicationEntity> dependent : moduleDependents) {
 			moduleObjects.addAll(dependent.findUsage(module));
 		}
 		
@@ -131,7 +131,7 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 	@Override
 	@Secured("ROLE_ADMIN_MODULE")
 	public void saveObject(Module module) throws ValidationException {
-		Assert.notNull(module, "module is null");
+		Assert.notNull(module, C.MODULE);
 		
 		try (Session session = repository.openSession()) {
 			Transaction tx = null;

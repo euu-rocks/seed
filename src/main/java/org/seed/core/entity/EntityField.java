@@ -31,21 +31,20 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import org.seed.core.application.TransferableObject;
-import org.seed.core.data.AbstractOrderedSystemObject;
+import org.seed.core.application.AbstractOrderedTransferableObject;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.SystemObject;
 import org.seed.core.util.NameUtils;
 import org.seed.core.util.ReferenceJsonSerializer;
 
+import org.springframework.util.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @javax.persistence.Entity
 @Table(name = "sys_entity_field")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class EntityField extends AbstractOrderedSystemObject
-	implements TransferableObject {
+public class EntityField extends AbstractOrderedTransferableObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "entity_id")
@@ -61,8 +60,6 @@ public class EntityField extends AbstractOrderedSystemObject
     @JoinColumn(name = "ref_entity_id")
 	@JsonSerialize(using = ReferenceJsonSerializer.class)
 	private EntityMetadata referenceEntity;
-	
-	private String uid;
 	
 	private String name;
 	
@@ -112,17 +109,6 @@ public class EntityField extends AbstractOrderedSystemObject
 	@JsonIgnore
 	private SystemObject defaultObject;
 	
-	@Override
-	@XmlAttribute
-	public String getUid() {
-		return uid;
-	}
-	
-	@Override
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
-
 	@XmlAttribute
 	public String getName() {
 		return name;
@@ -327,6 +313,33 @@ public class EntityField extends AbstractOrderedSystemObject
 	public boolean isJsonSerializable() {
 		return type != null && 
 				!(type.isBinary() || type.isFile());
+	}
+	
+	@JsonIgnore
+	public boolean hasDefaultValue() {
+		if (type == null) {
+			return false;
+		}
+		switch (type) {
+			case TEXT:
+			case TEXTLONG:
+				return StringUtils.hasText(getDefaultString());
+				
+			case DATE:
+			case DATETIME:
+				return getDefaultDate() != null;
+				
+			case REFERENCE:
+				return getDefaultObject() != null;
+				
+			case INTEGER:
+			case LONG:
+			case DECIMAL:
+			case DOUBLE:
+				return getDefaultNumber() != null;
+			default:
+				throw new UnsupportedOperationException(type.name());
+		}
 	}
 	
 	@Override

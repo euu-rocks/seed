@@ -35,7 +35,8 @@ import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
-
+import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.api.Job;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.codegen.GeneratedCode;
@@ -47,21 +48,22 @@ import org.seed.core.task.TaskResult;
 import org.seed.core.task.TaskRun;
 import org.seed.core.task.TaskRunLog;
 import org.seed.core.task.TaskService;
+import org.seed.core.util.Assert;
 import org.seed.core.util.ExceptionUtils;
+import org.seed.core.util.MiscUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 @Component
 public class JobScheduler implements JobListener {
 	
-	private final static Logger log = LoggerFactory.getLogger(JobScheduler.class);
+	private static final Logger log = LoggerFactory.getLogger(JobScheduler.class);
 	
-	private final static String GROUP = "seed";
+	private static final String GROUP = "seed";
 	
 	@Autowired
 	private SchedulerFactoryBean schedulerFactory;
@@ -81,31 +83,31 @@ public class JobScheduler implements JobListener {
 	}
 	
 	public void addJobListener(JobListener listener) {
-		Assert.notNull(listener, "listener is null");
+		Assert.notNull(listener, "listener");
 		
 		try {
 			getScheduler()
 				.getListenerManager()
 					.addJobListener(listener);
-		} catch (SchedulerException e) {
-			throw new RuntimeException(e);
+		} catch (SchedulerException ex) {
+			throw new InternalException(ex);
 		}
 	}
 	
 	public void removeJobListener(JobListener listener) {
-		Assert.notNull(listener, "listener is null");
+		Assert.notNull(listener, "listener");
 		
 		try {
 			getScheduler()
 				.getListenerManager()
 					.removeJobListener(listener.getName());
-		} catch (SchedulerException e) {
-			throw new RuntimeException(e);
+		} catch (SchedulerException ex) {
+			throw new InternalException(ex);
 		}
 	}
 	
 	public boolean isRunning(Task task) {
-		Assert.notNull(task, "task is null");
+		Assert.notNull(task, C.TASK);
 		
 		try {
 			for (JobExecutionContext context : getScheduler().getCurrentlyExecutingJobs()) {
@@ -116,33 +118,33 @@ public class JobScheduler implements JobListener {
 			}
 		} 
 		catch (SchedulerException ex) {
-			throw new RuntimeException(ex);
+			throw new InternalException(ex);
 		}
 		return false;
 	}
 	
 	public void startJob(Task task) {
-		Assert.notNull(task, "task is null");
+		Assert.notNull(task, C.TASK);
 		Assert.state(!isRunning(task), "job is already running");
 		
 		try {
 			getScheduler().scheduleJob(createImmediateJobDetail(task), 
 									   createImmediateTrigger(task));
 		} 
-		catch (SchedulerException e) {
-			throw new RuntimeException(e);
+		catch (SchedulerException ex) {
+			throw new InternalException(ex);
 		}
-		log.info("Job for task '" + task.getName() + "' started");
+		log.info("Job for task '{}' started", task.getName());
 	}
 	
 	public void scheduleJob(Job job) {
-		Assert.notNull(job, "job is null");
+		Assert.notNull(job, "job");
 		
 		scheduleTask(getTask(job));
 	}
 	
 	public void scheduleTask(Task task) {
-		Assert.notNull(task, "task is null");
+		Assert.notNull(task, C.TASK);
 		
 		if (!task.isActive() || // deactivated
 			!(task.getCronExpression() != null || // or no cron expression and no interval
@@ -152,17 +154,16 @@ public class JobScheduler implements JobListener {
 		try {
 			getScheduler().scheduleJob(createJobDetail(task), createTrigger(task));
 		}
-		catch (SchedulerException e) {
-			throw new RuntimeException(e);
+		catch (SchedulerException ex) {
+			throw new InternalException(ex);
 		}
-		log.info("Job for task '" + task.getName() + "' scheduled");
+		log.info("Job for task '{}' scheduled", task.getName());
 	}
 	
 	public void scheduleAllTasks() {
 		try {
 			for (Class<GeneratedCode> jobClass : codeManager.getGeneratedClasses(Job.class)) {
-				final Job job = (Job) jobClass.getDeclaredConstructor().newInstance();
-				scheduleJob(job);
+				scheduleJob((Job) MiscUtils.instantiate(jobClass));
 			}
 		}
 		catch (Exception ex) {
@@ -171,22 +172,23 @@ public class JobScheduler implements JobListener {
 	}
 	
 	public void unscheduleTask(Task task) {
-		Assert.notNull(task, "task is null");
+		Assert.notNull(task, C.TASK);
 		
 		try {
 			getScheduler().deleteJob(JobKey.jobKey(task.getUid(), GROUP));
 		} 
-		catch (SchedulerException e) {
-			throw new RuntimeException(e);
+		catch (SchedulerException ex) {
+			throw new InternalException(ex);
 		}
-		log.info("Job for task '" + task.getName() + "' unscheduled");
+		log.info("Job for task '{}' unscheduled", task.getName());
 	}
 
 	public void unscheduleAllTasks() {
 		try {
 			getScheduler().clear();
-		} catch (SchedulerException e) {
-			throw new RuntimeException(e);
+		} 
+		catch (SchedulerException ex) {
+			throw new InternalException(ex);
 		}
 	}
 	
@@ -209,12 +211,12 @@ public class JobScheduler implements JobListener {
 		if (task.hasParameters()) {
 			context.put(DefaultJobContext.RUN_PARAMS, task.getParameters());
 		}
-		log.debug("start job: " + context.getJobDetail());
+		log.debug("start job: {}", context.getJobDetail());
 	}
 
 	@Override
 	public void jobExecutionVetoed(JobExecutionContext context) {
-		log.debug("vetoed job: " + context.getJobDetail());
+		log.debug("vetoed job: {}", context.getJobDetail());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -225,10 +227,10 @@ public class JobScheduler implements JobListener {
 		final Long taskRunId = (Long) context.get(DefaultJobContext.RUN_ID);
 		final TaskRun run = task.getRunById(taskRunId);
 		LogLevel maxLevel = LogLevel.INFO;
-		for (TaskRunLog log : (List<TaskRunLog>) context.get(DefaultJobContext.RUN_LOGS)) {
-			run.addLog(log);
-			if (log.getLevel().ordinal() > maxLevel.ordinal()) {
-				maxLevel = log.getLevel();
+		for (TaskRunLog runLog : (List<TaskRunLog>) context.get(DefaultJobContext.RUN_LOGS)) {
+			run.addLog(runLog);
+			if (runLog.getLevel().ordinal() > maxLevel.ordinal()) {
+				maxLevel = runLog.getLevel();
 			}
 		}
 		if (jobException != null) {
@@ -242,7 +244,7 @@ public class JobScheduler implements JobListener {
 		if (task.hasNotifications()) {
 			taskService.sendNotifications(task, run);
 		}
-		log.debug("finished job: " + context.getJobDetail());
+		log.debug("finished job: {}", context.getJobDetail());
 	}
 	
 	private Scheduler getScheduler() {
@@ -278,10 +280,10 @@ public class JobScheduler implements JobListener {
 			if (line.contains(AbstractJob.class.getName())) {
 				break;
 			}
-			final TaskRunLog log = new TaskRunLog();
-			log.setLevel(LogLevel.ERROR);
-			log.setContent(line.trim());
-			run.addLog(log);
+			final TaskRunLog runLog = new TaskRunLog();
+			runLog.setLevel(LogLevel.ERROR);
+			runLog.setContent(line.trim());
+			run.addLog(runLog);
 		}
 	}
 	

@@ -23,7 +23,7 @@ import java.util.Date;
 
 public abstract class NameUtils {
 	
-	private static final String KEYWORDS[] = {
+	private static final String[] KEYWORDS = {
 
 		"abstract", "assert", "boolean", "break", "byte", "case", "catch", 
 		"char", "class", "const", "continue", "default", "do", "double", 
@@ -35,8 +35,11 @@ public abstract class NameUtils {
         "void", "volatile", "while" 
     };
 	
+	private NameUtils() {}
+	
 	public static boolean isKeyword(String name) {
-		return Arrays.binarySearch(KEYWORDS, name.toLowerCase()) >= 0;
+		return name != null && 
+			   Arrays.binarySearch(KEYWORDS, name.toLowerCase()) >= 0;
 	}
 	
 	public static String getInternalName(String name) {

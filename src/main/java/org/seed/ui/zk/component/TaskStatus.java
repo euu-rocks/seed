@@ -24,7 +24,7 @@ import org.zkoss.zul.A;
 @SuppressWarnings("serial")
 public class TaskStatus extends A {
 	
-	private final static String STYLE = ";cursor:default";
+	private static final String STYLE = ";cursor:default";
 	
 	public TaskStatus() {
 		setIconSclass("z-icon-circle alpha-icon-lg");

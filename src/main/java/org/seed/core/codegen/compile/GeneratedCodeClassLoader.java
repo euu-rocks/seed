@@ -18,8 +18,7 @@
 package org.seed.core.codegen.compile;
 
 import org.seed.core.codegen.GeneratedCode;
-
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 class GeneratedCodeClassLoader extends ClassLoader {
 	
@@ -29,7 +28,7 @@ class GeneratedCodeClassLoader extends ClassLoader {
 	
 	@SuppressWarnings("unchecked")
 	Class<GeneratedCode> defineClass(JavaClassFileObject classFileObject) {
-		Assert.notNull(classFileObject, "classFileObject is null");
+		Assert.notNull(classFileObject, "classFileObject");
 		
 		return (Class<GeneratedCode>) 
 					defineClass(classFileObject.getQualifiedName(), 

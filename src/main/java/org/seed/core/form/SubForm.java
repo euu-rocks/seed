@@ -29,25 +29,27 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
+import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntity;
-import org.seed.core.application.TransferableObject;
-import org.seed.core.data.AbstractSystemObject;
+import org.seed.core.application.AbstractTransferableObject;
 import org.seed.core.data.Order;
+import org.seed.core.entity.EntityField;
+import org.seed.core.entity.EntityFunction;
 import org.seed.core.entity.NestedEntity;
+import org.seed.core.entity.filter.Filter;
+import org.seed.core.entity.transform.Transformer;
 import org.seed.core.entity.value.ValueObject;
+import org.seed.core.util.Assert;
 
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 @Entity
 @Table(name = "sys_subform")
-public class SubForm extends AbstractSystemObject
-	implements TransferableObject {
+public class SubForm extends AbstractTransferableObject {
 
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "form_id")
@@ -71,24 +73,11 @@ public class SubForm extends AbstractSystemObject
 	@OrderBy("order")
 	private List<SubFormAction> actions;
 	
-	private String uid;
-	
 	@Transient
 	private String nestedEntityUid;
 	
 	@Transient
 	private ValueObject selectedObject;
-	
-	@Override
-	@XmlAttribute
-	public String getUid() {
-		return uid;
-	}
-	
-	@Override
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
 	
 	@XmlTransient
 	public Form getForm() {
@@ -139,7 +128,7 @@ public class SubForm extends AbstractSystemObject
 	}
 	
 	public void addField(SubFormField field) {
-		Assert.notNull(field, "field is null");
+		Assert.notNull(field, C.FIELD);
 		
 		if (fields == null) {
 			fields = new ArrayList<>();
@@ -156,7 +145,7 @@ public class SubForm extends AbstractSystemObject
 	}
 	
 	public void addAction(SubFormAction action) {
-		Assert.notNull(action, "action is null");
+		Assert.notNull(action, C.ACTION);
 		
 		if (actions == null) {
 			actions = new ArrayList<>();
@@ -165,19 +154,19 @@ public class SubForm extends AbstractSystemObject
 	}
 	
 	public SubFormField getFieldByUid(String fieldUid) {
-		Assert.notNull(fieldUid, "fieldUid is null");
+		Assert.notNull(fieldUid, "fieldUid");
 		
 		return AbstractApplicationEntity.getObjectByUid(getFields(), fieldUid);
 	}
 	
 	public SubFormAction getActionByUid(String actionUid) {
-		Assert.notNull(actionUid, "actionUid is null");
+		Assert.notNull(actionUid, "actionUid");
 		
 		return AbstractApplicationEntity.getObjectByUid(getActions(), actionUid);
 	}
 	
 	public SubFormField getFieldByEntityFieldUid(String entityFieldUid) {
-		Assert.notNull(entityFieldUid, "entityFieldUid is null");
+		Assert.notNull(entityFieldUid, "entityFieldUid");
 		
 		if (hasFields()) {
 			for (SubFormField field : getFields()) {
@@ -189,6 +178,71 @@ public class SubForm extends AbstractSystemObject
 		return null;
 	}
 	
+	public boolean containsForm(Form form) {
+		Assert.notNull(form, "form");
+		
+		if (hasFields()) {
+			for (SubFormField subFormField : getFields()) {
+				if (form.equals(subFormField.getDetailForm())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public boolean containsEntityField(EntityField entityField) {
+		Assert.notNull(entityField, "entityField");
+		
+		if (hasFields()) {
+			for (SubFormField subFormField : getFields()) {
+				if (entityField.equals(subFormField.getEntityField())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public boolean containsEntityFunction(EntityFunction entityFunction) {
+		Assert.notNull(entityFunction, "entityFunction");
+		
+		if (hasActions()) {
+			for (SubFormAction action : getActions()) {
+				if (entityFunction.equals(action.getEntityFunction())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public boolean containsTransformer(Transformer transformer) {
+		Assert.notNull(transformer, C.TRANSFORMER);
+		
+		if (hasFields()) {
+			for (SubFormField field : getFields()) {
+				if (transformer.equals(field.getTransformer())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public boolean containsFilter(Filter filter) {
+		Assert.notNull(filter, C.FILTER);
+		
+		if (hasFields()) {
+			for (SubFormField field : getFields()) {
+				if (filter.equals(field.getFilter())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
 	public SubFormAction getActionByType(FormActionType actionType) {
 		if (hasActions()) {
 			return getActionByType(getActions(), actionType);
@@ -197,8 +251,8 @@ public class SubForm extends AbstractSystemObject
 	}
 	
 	public SubFormAction getActionByType(List<SubFormAction> actions, FormActionType actionType) {
-		Assert.notNull(actions, "actions is null");
-		Assert.notNull(actionType, "actionType is null");
+		Assert.notNull(actions, "actions");
+		Assert.notNull(actionType, "actionType");
 		
 		for (SubFormAction action : actions) {
 			if (action.getType() == actionType) {
@@ -222,7 +276,11 @@ public class SubForm extends AbstractSystemObject
 			.isEquals()) {
 			return false;
 		}
-		// check fields
+		return isEqualFields(otherSubForm) &&
+			   isEqualActions(otherSubForm);
+	}
+	
+	private boolean isEqualFields(SubForm otherSubForm) {
 		if (hasFields()) {
 			for (SubFormField field : getFields()) {
 				if (!field.isEqual(otherSubForm.getFieldByUid(field.getUid()))) {
@@ -237,7 +295,10 @@ public class SubForm extends AbstractSystemObject
 				}
 			}
  		}
-		// check actions
+		return true;
+	}
+	
+	private boolean isEqualActions(SubForm otherSubForm) {
 		if (hasActions()) {
 			for (SubFormAction action : getActions()) {
 				if (!action.isEqual(otherSubForm.getActionByUid(action.getUid()))) {

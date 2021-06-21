@@ -17,7 +17,7 @@
  */
 package org.seed.core.task;
 
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 public enum TaskResult {
 	
@@ -26,7 +26,7 @@ public enum TaskResult {
 	ERROR;
 	
 	public static TaskResult getResult(LogLevel level) {
-		Assert.notNull(level, "level is null");
+		Assert.notNull(level, "level");
 		
 		switch (level) {
 			case INFO:

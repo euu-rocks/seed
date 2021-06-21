@@ -21,8 +21,6 @@ public interface TransferableObject {
 	
 	String getUid();
 	
-	// this is necessary because not all TransferableObjects
-	// extends from AbstractApplicationEntity (e.g. EntityField)
 	void setUid(String uid);
 	
 }

@@ -20,29 +20,32 @@ package org.seed.core.entity.transform;
 import java.util.List;
 import java.util.Set;
 
+import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationError;
 import org.seed.core.data.ValidationException;
+import org.seed.core.util.Assert;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 @Component
 public class TransformerValidator extends AbstractSystemEntityValidator<Transformer> {
 	
 	@Autowired
-	private List<TransformerDependent> transformerDependents;
+	private List<TransformerDependent<? extends SystemEntity>> transformerDependents;
 	
+	@Override
 	public void validateCreate(Transformer transformer) throws ValidationException {
-		Assert.notNull(transformer, "transformer is null");
+		Assert.notNull(transformer, C.TRANSFORMER);
 		final Set<ValidationError> errors = createErrorList();
 		
 		if (isEmpty(transformer.getSourceEntity())) {
-			errors.add(new ValidationError("val.empty.field", "label.sourceentity"));
+			errors.add(ValidationError.emptyField("label.sourceentity"));
 		}
 		if (isEmpty(transformer.getTargetEntity())) {
-			errors.add(new ValidationError("val.empty.field", "label.targetentity"));
+			errors.add(ValidationError.emptyField("label.targetentity"));
 		}
 		
 		validate(errors);
@@ -50,14 +53,14 @@ public class TransformerValidator extends AbstractSystemEntityValidator<Transfor
 	
 	@Override
 	public void validateSave(Transformer transformer) throws ValidationException {
-		Assert.notNull(transformer, "transformer is null");
+		Assert.notNull(transformer, C.TRANSFORMER);
 		final Set<ValidationError> errors = createErrorList();
 		
 		if (isEmpty(transformer.getName())) {
-			errors.add(new ValidationError("val.empty.field", "label.name"));
+			errors.add(ValidationError.emptyName());
 		}
 		else if (!isNameLengthAllowed(transformer.getName())) {
-			errors.add(new ValidationError("val.toolong.name", String.valueOf(getMaxNameLength())));
+			errors.add(ValidationError.overlongName(getMaxNameLength()));
 		}
 		
 		// elements
@@ -77,17 +80,16 @@ public class TransformerValidator extends AbstractSystemEntityValidator<Transfor
 	
 	@Override
 	public void validateDelete(Transformer transformer) throws ValidationException {
-		Assert.notNull(transformer, "transformer is null");
+		Assert.notNull(transformer, C.TRANSFORMER);
 		final Set<ValidationError> errors = createErrorList();
 		
-		for (TransformerDependent dependent : transformerDependents) {
+		for (TransformerDependent<? extends SystemEntity> dependent : transformerDependents) {
 			for (SystemEntity systemEntity : dependent.findUsage(transformer)) {
-				switch (getEntityType(systemEntity)) {
-				case "form":
+				if (C.FORM.equals(getEntityType(systemEntity))) {
 					errors.add(new ValidationError("val.inuse.transformform", systemEntity.getName()));
-					break;
-				default:
-					throw new IllegalStateException("unhandled entity: " + getEntityType(systemEntity));
+				}
+				else {
+					unhandledEntity(systemEntity);
 				}
 			}
 		}

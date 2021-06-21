@@ -24,7 +24,7 @@ import java.io.OutputStream;
 
 import javax.tools.SimpleJavaFileObject;
 
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 import static org.seed.core.codegen.CodeUtils.*;
 

@@ -20,7 +20,8 @@ package org.seed.core.codegen;
 import java.util.Collections;
 import java.util.Map;
 
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
+
 import org.springframework.util.ObjectUtils;
 
 public final class AnnotationMetadata {
@@ -36,8 +37,8 @@ public final class AnnotationMetadata {
 	}
 	
 	AnnotationMetadata(Class<?> annotationClass, String singleValue) {
-		Assert.notNull(annotationClass, "annotationClass is null");
-		Assert.notNull(singleValue, "singleValue is null");
+		Assert.notNull(annotationClass, "annotationClass");
+		Assert.notNull(singleValue, "singleValue");
 		
 		this.annotationClass = annotationClass;
 		this.singleValue = singleValue;
@@ -49,7 +50,7 @@ public final class AnnotationMetadata {
 	}
 
 	AnnotationMetadata(Class<?> annotationClass, Map<String, Object> parameterMap) {
-		Assert.notNull(annotationClass, "annotationClass is null");
+		Assert.notNull(annotationClass, "annotationClass");
 		
 		this.annotationClass = annotationClass;
 		this.parameterMap = parameterMap;

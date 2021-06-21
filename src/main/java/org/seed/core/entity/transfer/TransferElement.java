@@ -29,15 +29,13 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import org.seed.core.application.TransferableObject;
-import org.seed.core.data.AbstractOrderedSystemObject;
+import org.seed.core.application.AbstractOrderedTransferableObject;
 import org.seed.core.entity.EntityField;
 
 @javax.persistence.Entity
 @Table(name = "sys_entity_transfer_elem")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class TransferElement extends AbstractOrderedSystemObject
-	implements TransferableObject {
+public class TransferElement extends AbstractOrderedTransferableObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "transfer_id")
@@ -47,23 +45,10 @@ public class TransferElement extends AbstractOrderedSystemObject
     @JoinColumn(name = "entity_field_id")
 	private EntityField entityField;
 	
-	private String uid;
-	
 	private boolean isIdentifier;
 	
 	@Transient
 	private String fieldUid;
-	
-	@Override
-	@XmlAttribute
-	public String getUid() {
-		return uid;
-	}
-	
-	@Override
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
 	
 	@XmlAttribute
 	public boolean isIdentifier() {

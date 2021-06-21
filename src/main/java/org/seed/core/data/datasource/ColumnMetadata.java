@@ -17,7 +17,8 @@
  */
 package org.seed.core.data.datasource;
 
-import org.springframework.util.Assert;
+import org.seed.C;
+import org.seed.core.util.Assert;
 
 public final class ColumnMetadata {
 	
@@ -26,7 +27,7 @@ public final class ColumnMetadata {
 	public final int type; // SQL type from java.sql.Types
 
 	ColumnMetadata(String name, int type) {
-		Assert.notNull(name, "name is null");
+		Assert.notNull(name, C.NAME);
 		
 		this.name = name;
 		this.type = type;

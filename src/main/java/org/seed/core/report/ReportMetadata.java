@@ -38,8 +38,8 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.data.Order;
 import org.seed.core.data.datasource.DataSourceParameter;
+import org.seed.core.util.Assert;
 
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 @Entity
@@ -80,7 +80,7 @@ public class ReportMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public void addDataSource(ReportDataSource reportDataSource) {
-		Assert.notNull(reportDataSource, "reprtDataSource is null");
+		Assert.notNull(reportDataSource, "reportDataSource");
 		
 		if (dataSources == null) {
 			dataSources = new ArrayList<>();
@@ -90,10 +90,10 @@ public class ReportMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
-	public void removeDataSource(ReportDataSource reprtDataSource) {
-		Assert.notNull(reprtDataSource, "reprtDataSource is null");
+	public void removeDataSource(ReportDataSource reportDataSource) {
+		Assert.notNull(reportDataSource, "reportDataSource");
 		
-		getDataSources().remove(reprtDataSource);
+		getDataSources().remove(reportDataSource);
 	}
 
 	public void setDataSources(List<ReportDataSource> dataSources) {
@@ -149,7 +149,11 @@ public class ReportMetadata extends AbstractApplicationEntity
 				.isEquals()) {
 			return false;
 		}
-		
+		return isEqualDataSources(otherReport) &&
+			   isEqualPermissions(otherReport);
+	}
+	
+	private boolean isEqualDataSources(Report otherReport) {
 		if (hasDataSources()) {
 			for (ReportDataSource dataSource : getDataSources()) {
 				if (!dataSource.isEqual(otherReport.getDataSourceByUid(dataSource.getUid()))) {
@@ -164,6 +168,10 @@ public class ReportMetadata extends AbstractApplicationEntity
 				}
 			}
 		}
+		return true;
+	}
+	
+	private boolean isEqualPermissions(Report otherReport) {
 		if (hasPermissions()) {
 			for (ReportPermission permission : getPermissions()) {
 				if (!permission.isEqual(otherReport.getPermissionByUid(permission.getUid()))) {

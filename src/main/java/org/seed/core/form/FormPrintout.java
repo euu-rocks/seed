@@ -27,19 +27,15 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
-import org.seed.core.application.TransferableObject;
-import org.seed.core.data.AbstractOrderedSystemObject;
+import org.seed.core.application.AbstractOrderedTransferableObject;
 
 @Entity
 @Table(name = "sys_form_printout")
-public class FormPrintout extends AbstractOrderedSystemObject
-	implements TransferableObject {
+public class FormPrintout extends AbstractOrderedTransferableObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "form_id")
 	private FormMetadata form;
-	
-	private String uid;
 	
 	private String name;
 	
@@ -58,17 +54,6 @@ public class FormPrintout extends AbstractOrderedSystemObject
 		this.form = (FormMetadata) form;
 	}
 
-	@Override
-	@XmlAttribute
-	public String getUid() {
-		return uid;
-	}
-	
-	@Override
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
-	
 	@XmlAttribute
 	public String getName() {
 		return name;

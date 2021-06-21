@@ -20,7 +20,8 @@ package org.seed.core.entity.value.event;
 import javax.annotation.Nullable;
 
 import org.hibernate.Session;
-
+import org.seed.C;
+import org.seed.Seed;
 import org.seed.core.api.AbstractFunctionContext;
 import org.seed.core.api.CallbackFunctionContext;
 import org.seed.core.api.ClientProvider;
@@ -31,12 +32,10 @@ import org.seed.core.api.ParameterProvider;
 import org.seed.core.api.Status;
 import org.seed.core.application.module.DefaultParameterProvider;
 import org.seed.core.application.module.Module;
-import org.seed.core.config.ApplicationContextProvider;
 import org.seed.core.data.datasource.DefaultDataSourceProvider;
 import org.seed.core.entity.EntityStatusTransition;
 import org.seed.core.mail.DefaultMailProvider;
-
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 public class ValueObjectFunctionContext extends AbstractFunctionContext 
 	implements CallbackFunctionContext {
@@ -63,7 +62,7 @@ public class ValueObjectFunctionContext extends AbstractFunctionContext
 	
 	protected ValueObjectFunctionContext(Session session, @Nullable Module module, 
 										@Nullable EntityStatusTransition statusTransition) {
-		Assert.notNull(session, "session is null");
+		Assert.notNull(session, C.SESSION);
 		
 		this.session = session;
 		this.module = module;
@@ -78,7 +77,7 @@ public class ValueObjectFunctionContext extends AbstractFunctionContext
 	@Override
 	public ClientProvider getClientProvider() {
 		if (clientProvider == null) {
-			clientProvider = ApplicationContextProvider.getBean(ClientProvider.class);
+			clientProvider = Seed.getBean(ClientProvider.class);
 			Assert.state(clientProvider != null, "client provider not available");
 		}
 		return clientProvider;

@@ -33,6 +33,7 @@ import org.seed.core.entity.transform.TransformerFunction;
 import org.seed.core.entity.transform.TransformerService;
 import org.seed.core.user.Authorisation;
 import org.seed.core.user.UserGroup;
+import org.seed.core.util.MiscUtils;
 import org.seed.ui.ListFilter;
 
 import org.springframework.util.ObjectUtils;
@@ -98,11 +99,11 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	
 	@Override
 	protected void initFilters() {
-		final ListFilter filterSourceEntity = getFilter(FILTERGROUP_LIST, "sourceentity");
-		filterSourceEntity.setValueFunction(o -> ((Transformer) o).getSourceEntity().getName());
+		final ListFilter<Transformer> filterSourceEntity = getFilter(FILTERGROUP_LIST, "sourceentity");
+		filterSourceEntity.setValueFunction(o -> o.getSourceEntity().getName());
 		
-		final ListFilter filterTargetEntity = getFilter(FILTERGROUP_LIST, "targetentity");
-		filterTargetEntity.setValueFunction(o -> ((Transformer) o).getTargetEntity().getName());
+		final ListFilter<Transformer> filterTargetEntity = getFilter(FILTERGROUP_LIST, "targetentity");
+		filterTargetEntity.setValueFunction(o -> o.getTargetEntity().getName());
 		
 		for (Transformer transformer : getObjectList()) {
 			filterSourceEntity.addValue(transformer.getSourceEntity().getName());
@@ -325,6 +326,7 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	}
 	
 	@Command
+	@Override
 	public void flagDirty(@BindingParam("notify") String notify, 
 						  @BindingParam("notifyObject") String notifyObject) {
 		super.flagDirty(notify, notifyObject);
@@ -363,32 +365,32 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	}
 	
 	@GlobalCommand
-	public void _refreshObject(@BindingParam("param") Long objectId) {
+	public void globalRefreshObject(@BindingParam("param") Long objectId) {
 		refreshObject(objectId);
 	}
 	
 	@Override
-	protected List<? extends SystemObject> getListSorterSource(String key) {
-		switch (key) {
-			case FUNCTIONS:
-				return getObject().getFunctions();
-			default:
-				throw new IllegalStateException("unknown list sorter key: " + key);
+	protected List<SystemObject> getListSorterSource(String key) {
+		if (FUNCTIONS.equals(key)) {
+			return MiscUtils.cast(getObject().getFunctions());
+		}
+		else {
+			throw new IllegalStateException("unknown list sorter key: " + key);
 		}
 	}
 	
 	@Override
-	protected List<? extends SystemObject> getListManagerSource(String key, int listNum) {
+	protected List<SystemObject> getListManagerSource(String key, int listNum) {
 		switch (key) {
 			case USERGROUPS:
-				return listNum == LIST_AVAILABLE
-						? transformerService.getAvailableUserGroups(getObject())
-						: new ArrayList<>(getObject().getUserGroups());
+				return MiscUtils.cast(listNum == LIST_AVAILABLE
+							? transformerService.getAvailableUserGroups(getObject())
+							: new ArrayList<>(getObject().getUserGroups()));
 						
 			case STATUS:
-				return listNum == LIST_AVAILABLE
-						? transformerService.getAvailableStatus(getObject())
-						: new ArrayList<>(getObject().getStatus());
+				return MiscUtils.cast(listNum == LIST_AVAILABLE
+							? transformerService.getAvailableStatus(getObject())
+							: new ArrayList<>(getObject().getStatus()));
 						
 			default:
 				throw new IllegalStateException("unknown list manager key: " + key);

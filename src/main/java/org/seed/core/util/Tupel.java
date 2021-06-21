@@ -17,8 +17,6 @@
  */
 package org.seed.core.util;
 
-import org.springframework.util.Assert;
-
 public final class Tupel<X, Y> {
 	
 	public final X x;
@@ -26,8 +24,8 @@ public final class Tupel<X, Y> {
 	public final Y y;
 
 	public Tupel(X x, Y y) {
-		Assert.notNull(x, "first parameter is null");
-		Assert.notNull(y, "second parameter is null");
+		Assert.notNull(x, "first parameter");
+		Assert.notNull(y, "second parameter");
 		
 		this.x = x;
 		this.y = y;

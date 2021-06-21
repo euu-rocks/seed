@@ -67,14 +67,12 @@
 		  class="alpha-properties">
 		<vlayout class="alpha-properties-content">
 			<label value="${labels.label.name}:"/>
-            <textbox hflex="1"
-            		 value="@bind(vm.nested.name)"
+            <textbox value="@bind(vm.nested.name)"
+            		 tooltiptext="@load(vm.nested.internalName)"
+            		 onChange="@command('flagDirty',notify='nested')"
             		 mandatory="true"
-            		 onChange="@command('flagDirty',notify='nested')"/>
-            <label value="${labels.label.internalname}:"/>
-            <textbox readonly="true" hflex="1"
-               		 value="@load(vm.nested.internalName)"/>
-        	<label value="${labels.label.nested}:"/>
+            		 hflex="1"/>
+            <label value="${labels.label.nested}:"/>
             <combobox model="@load(vm.availableNesteds) @template(empty each.name ? 'empty' : 'nested')"
            			  mandatory="true"
            			  selectedItem="@bind(vm.nested.nestedEntity)"

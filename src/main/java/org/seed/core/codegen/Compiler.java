@@ -27,6 +27,6 @@ public interface Compiler {
 	
 	List<Class<GeneratedCode>> getGeneratedClasses(Class<?> type);
 	
-	void compile(List<SourceCode<?>> sourceCodes);
+	void compile(List<SourceCode> sourceCodes);
 
 }

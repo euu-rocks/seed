@@ -17,6 +17,7 @@
  */
 package org.seed.ui.zk;
 
+import org.seed.InternalException;
 import org.zkoss.bind.BindContext;
 import org.zkoss.bind.Converter;
 import org.zkoss.image.AImage;
@@ -37,7 +38,7 @@ public class ImageConverter implements Converter<AImage, byte[], Image> {
 			return new AImage(null, bytes);
         }
 		catch (Exception ex) {
-			throw new RuntimeException(ex);
+			throw new InternalException(ex);
 		}
 	}
 

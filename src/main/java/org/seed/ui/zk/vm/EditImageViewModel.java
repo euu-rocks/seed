@@ -18,8 +18,8 @@
 package org.seed.ui.zk.vm;
 
 import org.seed.core.entity.value.ValueObjectService;
+import org.seed.core.util.Assert;
 
-import org.springframework.util.Assert;
 import org.zkoss.bind.BindContext;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.ContextParam;
@@ -51,7 +51,7 @@ public class EditImageViewModel extends AbstractApplicationViewModel {
 	@Init
     public void init(@ContextParam(ContextType.VIEW) Component view,
     				 @ExecutionArgParam("param") EditImageParameter param) {
-		Assert.notNull(param, "param is null");
+		Assert.notNull(param, "param");
 		parameter = param;
 		image = (byte[]) valueObjectService.getValue(parameter.valueObject, parameter.entityField);
 		wireComponents(view);
@@ -83,9 +83,9 @@ public class EditImageViewModel extends AbstractApplicationViewModel {
 	@NotifyChange("image")
 	public void uploadImage(@ContextParam(ContextType.BIND_CONTEXT) BindContext ctx) {
 		final Event event = ctx.getTriggerEvent();
-		if (event != null && event instanceof UploadEvent) {
+		if (event instanceof UploadEvent) {
 			final Media media = ((UploadEvent) event).getMedia();
-			if (media != null && media instanceof Image) {
+			if (media instanceof Image) {
 				image = media.getByteData();
 			}
 		}

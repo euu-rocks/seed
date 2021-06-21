@@ -27,15 +27,13 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
-import org.seed.core.application.TransferableObject;
-import org.seed.core.data.AbstractOrderedSystemObject;
+import org.seed.core.application.AbstractOrderedTransferableObject;
 import org.seed.core.entity.transform.Transformer;
 import org.seed.core.entity.transform.TransformerMetadata;
 
 @javax.persistence.Entity
 @Table(name = "sys_form_transformer")
-public class FormTransformer extends AbstractOrderedSystemObject
-	implements TransferableObject {
+public class FormTransformer extends AbstractOrderedTransferableObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "form_id")
@@ -49,8 +47,6 @@ public class FormTransformer extends AbstractOrderedSystemObject
     @JoinColumn(name = "target_form_id")
 	private FormMetadata targetForm;
 	
-	private String uid;
-	
 	private String label;
 	
 	@Transient
@@ -58,17 +54,6 @@ public class FormTransformer extends AbstractOrderedSystemObject
 	
 	@Transient
 	private String targetFormUid;
-	
-	@Override
-	@XmlAttribute
-	public String getUid() {
-		return uid;
-	}
-	
-	@Override
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
 	
 	@XmlTransient
 	public Form getForm() {

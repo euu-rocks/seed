@@ -17,9 +17,12 @@
  */
 package org.seed.ui.zk.component;
 
-import org.seed.ui.zk.FileTypeIcons;
+import javax.annotation.Nullable;
 
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
+import org.seed.ui.zk.FileTypeIcons;
+import org.seed.ui.zk.UIUtils;
+
 import org.zkoss.util.media.Media;
 import org.zkoss.util.resource.Labels;
 import org.zkoss.zk.ui.annotation.ComponentAnnotation;
@@ -149,29 +152,30 @@ public class Filebox extends Inputgroup implements EventListener<Event> {
 		if (disabled) {
 			return;
 		}
-		// download file
+		// download
 		if (event.getTarget() == elemIcon || event.getTarget() == elemFilename) {
 			if (content != null) {
 				Filedownload.save(content, contentType, fileName);
 			}
 		}
-		// upload / delete file
-		else if (event.getTarget() == buttonUpload || event.getTarget() == buttonDelete) {
-			Assert.state(!readonly, "filebox is readonly");
-			
-			final Media media = event.getTarget() == buttonUpload 
-									? ((UploadEvent) event).getMedia() 
-									: null;
-			setContent(media != null 
-						? media.isBinary() 
-							? media.getByteData()
-							: media.getStringData().getBytes() 
-						: null);
-			setContentType(media != null ? media.getContentType() : null);
-			setFileName(media != null ? trimFileName(media.getName()) : null);
-		
-			Events.postEvent(Events.ON_CHANGE, this, content);
+		// upload
+		else if (event.getTarget() == buttonUpload) {
+			initContent(((UploadEvent) event).getMedia());
 		}
+		// delete
+		else if (event.getTarget() == buttonDelete) {
+			initContent(null);
+		}
+	}
+	
+	private void initContent(@Nullable Media media) {
+		Assert.state(!readonly, "filebox is readonly");
+		
+		setContent(UIUtils.getBytes(media));
+		setContentType(media != null ? media.getContentType() : null);
+		setFileName(media != null ? trimFileName(media.getName()) : null);
+	
+		Events.postEvent(Events.ON_CHANGE, this, content);
 	}
 	
 	private void enableButtons() {

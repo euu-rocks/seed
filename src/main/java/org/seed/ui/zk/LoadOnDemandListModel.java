@@ -21,50 +21,50 @@ import java.util.List;
 
 import org.seed.core.data.Cursor;
 import org.seed.core.data.SystemObject;
+import org.seed.core.util.Assert;
 
-import org.springframework.util.Assert;
 import org.zkoss.zul.AbstractListModel;
 
 @SuppressWarnings("serial")
-public abstract class LoadOnDemandListModel extends AbstractListModel<SystemObject> {
+public abstract class LoadOnDemandListModel<T extends SystemObject> extends AbstractListModel<T> {
 	
-	private final Cursor cursor;
+	private final transient Cursor<T> cursor;
+	
+	private transient List<T> chunk;
 	
 	private final boolean nullable;
 	
-	private List<? extends SystemObject> chunk;
-	
 	private int chunkIndex = -1;
 	
-	public LoadOnDemandListModel(Cursor cursor, boolean nullable) {
-		Assert.notNull(cursor, "cursor is null");
+	protected LoadOnDemandListModel(Cursor<T> cursor, boolean nullable) {
+		Assert.notNull(cursor, "cursor");
 		
 		this.cursor = cursor;
 		this.nullable = nullable;
 	}
 	
 	@Override
-	public SystemObject getElementAt(int index) {
+	public final T getElementAt(int index) {
 		if (nullable) {
 			if (index == 0) {
 				return null;
 			}
 			index--;
 		}
-		final int chunkIndex = index / cursor.getChunkSize();
-		if (this.chunkIndex != chunkIndex) {
-			this.chunkIndex = chunkIndex;
-			cursor.setChunkIndex(chunkIndex);
+		final int newChunkIndex = index / cursor.getChunkSize();
+		if (chunkIndex != newChunkIndex) {
+			chunkIndex = newChunkIndex;
+			cursor.setChunkIndex(newChunkIndex);
 			chunk = loadChunk(cursor);
 		}
 		return chunk.get(index % cursor.getChunkSize());
 	}
 	
 	@Override
-	public int getSize() {
+	public final int getSize() {
 		return cursor.getTotalCount() + (nullable ? 1 : 0);
 	}
 	
-	protected abstract List<? extends SystemObject> loadChunk(Cursor cursor);
+	protected abstract List<T> loadChunk(Cursor<T> cursor);
 
 }

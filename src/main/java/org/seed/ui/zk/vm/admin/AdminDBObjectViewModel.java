@@ -70,8 +70,8 @@ public class AdminDBObjectViewModel extends AbstractAdminViewModel<DBObject> {
 	
 	@Override
 	protected void initFilters() {
-		final ListFilter filterType = getFilter(FILTERGROUP_LIST, "type");
-		filterType.setValueFunction(o -> getEnumLabel(((DBObject) o).getType()));
+		final ListFilter<DBObject> filterType = getFilter(FILTERGROUP_LIST, "type");
+		filterType.setValueFunction(o -> getEnumLabel(o.getType()));
 		for (DBObject dbObject : getObjectList()) {
 			filterType.addValue(getEnumLabel(dbObject.getType()));
 		}
@@ -83,6 +83,7 @@ public class AdminDBObjectViewModel extends AbstractAdminViewModel<DBObject> {
 	}
 	
 	@Command
+	@Override
 	public void flagDirty(@BindingParam("notify") String notify, 
 						  @BindingParam("notifyObject") String notifyObject) {
 		super.flagDirty(notify, notifyObject);

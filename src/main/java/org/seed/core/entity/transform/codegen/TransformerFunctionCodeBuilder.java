@@ -19,16 +19,18 @@ package org.seed.core.entity.transform.codegen;
 
 import java.util.Date;
 
+import org.apache.commons.lang3.ArrayUtils;
+
+import org.seed.C;
 import org.seed.core.api.CallbackFunctionContext;
 import org.seed.core.api.TransformationFunction;
 import org.seed.core.codegen.AbstractSourceCodeBuilder;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.codegen.TypeClass;
 import org.seed.core.entity.transform.TransformerFunction;
+import org.seed.core.util.Assert;
 
-import org.springframework.util.Assert;
-
-class TransformerFunctionCodeBuilder extends AbstractSourceCodeBuilder<TransformerFunction> {
+class TransformerFunctionCodeBuilder extends AbstractSourceCodeBuilder {
 	
 	private final TransformerFunction transformerFunction;
 	
@@ -40,7 +42,8 @@ class TransformerFunctionCodeBuilder extends AbstractSourceCodeBuilder<Transform
 				  newTypeClass(TransformationFunction.class,
 							   newTypeClass(transformerFunction.getTransformer().getSourceEntity()),
 							   newTypeClass(transformerFunction.getTransformer().getTargetEntity()))
-			  });
+			  },
+			  ArrayUtils.toArray());
 		
 		this.transformerFunction = transformerFunction;
 	}
@@ -51,8 +54,8 @@ class TransformerFunctionCodeBuilder extends AbstractSourceCodeBuilder<Transform
 	}
 	
 	@Override
-	public SourceCode<TransformerFunction> build(BuildMode buildMode) {
-		Assert.notNull(buildMode, "buildMode is null");
+	public SourceCode build(BuildMode buildMode) {
+		Assert.notNull(buildMode, "buildMode");
 		
 		switch (buildMode) {
 			case TEMPLATE:
@@ -60,7 +63,7 @@ class TransformerFunctionCodeBuilder extends AbstractSourceCodeBuilder<Transform
 						new ParameterMetadata[] { 
 								newParameter("sourceObject", newTypeClass(transformerFunction.getTransformer().getSourceEntity())),
 								newParameter("targetObject", newTypeClass(transformerFunction.getTransformer().getTargetEntity())),
-								newParameter("context", newTypeClass(CallbackFunctionContext.class))
+								newParameter(C.CONTEXT, newTypeClass(CallbackFunctionContext.class))
 							  },
 						  CODE_PLACEHOLDER);
 				return super.build(false);

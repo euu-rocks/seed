@@ -21,6 +21,7 @@ import org.seed.config.ZKCEApplication;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Controller;
@@ -31,14 +32,28 @@ import org.springframework.web.bind.annotation.GetMapping;
 @EnableScheduling
 @ZKCEApplication
 @SpringBootApplication(exclude = {org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration.class})
-public class SeedApplication {
-
+public class Seed {
+	
+	private static ApplicationContext applicationContext;
+	
 	public static void main(String[] args) {
-		SpringApplication.run(SeedApplication.class, args);
+		applicationContext = SpringApplication.run(Seed.class, args);
 	}
 	
 	@GetMapping("/seed")
 	public String seed() {
 		return "seed";
 	}
+	
+	// beans only available after startup completed
+	public static <T> T getBean(Class<T> typeClass) {
+    	if (typeClass == null) {
+    		throw new IllegalArgumentException("typeClass is null");
+    	}
+		if (applicationContext == null) {
+    		throw new IllegalStateException("applicationContext not avalable");
+    	}
+    	return applicationContext.getBean(typeClass);
+	}
+	
 }

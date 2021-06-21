@@ -24,9 +24,9 @@ import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.seed.C;
+import org.seed.core.util.Assert;
 import org.seed.core.util.NameUtils;
-
-import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -62,7 +62,7 @@ public abstract class AbstractSystemEntity extends AbstractSystemObject
 	public <T extends Options> T getOptions() {
 		return (T) options;
 	}
-
+	
 	void setOptions(Options options) {
 		this.options = options;
 	}
@@ -73,7 +73,7 @@ public abstract class AbstractSystemEntity extends AbstractSystemObject
 	}
 	
 	protected static <T extends SystemEntity> T getObjectByName(List<T> list, String name, boolean ignoreCase) {
-		Assert.notNull(name, "name is null");
+		Assert.notNull(name, C.NAME);
 		
 		if (list != null) {
 			for (T object : list) {

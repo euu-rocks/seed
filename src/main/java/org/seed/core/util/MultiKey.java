@@ -19,7 +19,6 @@ package org.seed.core.util;
 
 import java.util.Arrays;
 
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 public class MultiKey {
@@ -37,10 +36,8 @@ public class MultiKey {
 
 	@Override
 	public boolean equals(Object object) {
-		return this == object ||
-			   (object instanceof MultiKey 
-			   	? Arrays.equals(objects, ((MultiKey) object).objects) 
-				: false);
+		return object instanceof MultiKey && 
+			   Arrays.equals(objects, ((MultiKey) object).objects);
 	}
 	
 	public static MultiKey valueOf(Object ...objects) {

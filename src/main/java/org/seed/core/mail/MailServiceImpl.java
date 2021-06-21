@@ -20,30 +20,30 @@ package org.seed.core.mail;
 import java.util.Properties;
 
 import org.hibernate.Session;
+
+import org.seed.Seed;
 import org.seed.core.application.setting.ApplicationSetting;
 import org.seed.core.application.setting.ApplicationSettingService;
 import org.seed.core.application.setting.Setting;
 import org.seed.core.application.setting.SettingChangeAware;
-import org.seed.core.config.ApplicationContextProvider;
+import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 @Component
 public class MailServiceImpl implements MailService, SettingChangeAware {
 	
-	private final static Logger log = LoggerFactory.getLogger(MailService.class);
+	private static final Logger log = LoggerFactory.getLogger(MailServiceImpl.class);
 	
-	@Autowired
-	private ApplicationContextProvider applicationContext;
+	private ApplicationSettingService settingService;
 	
 	private JavaMailSender mailSender;
 	
@@ -60,7 +60,7 @@ public class MailServiceImpl implements MailService, SettingChangeAware {
 	@Async
 	@Override
 	public void sendMail(Mail ...mails) {
-		Assert.notNull(mails, "mails is null");
+		Assert.notNull(mails, "mails");
 		
 		if (!isMailingEnabled()) {
 			return;
@@ -75,7 +75,7 @@ public class MailServiceImpl implements MailService, SettingChangeAware {
 				}
 			}
 			catch (MailException mex) {
-				log.warn("Mail could not be sent: " + MiscUtils.printArray(mail.getToAddresses()) + 
+				log.warn("Mail could not be sent: {}", MiscUtils.printArray(mail.getToAddresses()) + 
 						 ' ' + mail.getSubject());
 			}
 		}
@@ -98,29 +98,28 @@ public class MailServiceImpl implements MailService, SettingChangeAware {
 	
 	private JavaMailSender getMailSender() {
 		if (mailSender == null) {
-			final ApplicationSettingService settingService = getSettingService();
-			Assert.state(settingService.hasMailSettings(), "mail settings not available");
-			
-			final boolean useAuth = "true".equals(settingService.getSettingOrNull(Setting.MAIL_SERVER_USE_AUTH));
-			final JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-			final Properties properties = mailSender.getJavaMailProperties();
+			final boolean useAuth = "true".equals(getSettingService().getSettingOrNull(Setting.MAIL_SERVER_USE_AUTH));
+			final JavaMailSenderImpl newMailSender = new JavaMailSenderImpl();
+			final Properties properties = newMailSender.getJavaMailProperties();
 			properties.put("mail.transport.protocol", "smtp");
-			mailSender.setHost(settingService.getSetting(Setting.MAIL_SERVER_HOST));
-			mailSender.setPort(settingService.getIntSetting(Setting.MAIL_SERVER_PORT));
+			newMailSender.setHost(getSettingService().getSetting(Setting.MAIL_SERVER_HOST));
+			newMailSender.setPort(getSettingService().getIntSetting(Setting.MAIL_SERVER_PORT));
 			if (useAuth) {
-				mailSender.setUsername(settingService.getSettingOrNull(Setting.MAIL_SERVER_USER));
-				mailSender.setPassword(settingService.getSettingOrNull(Setting.MAIL_SERVER_PWD));
+				newMailSender.setUsername(getSettingService().getSettingOrNull(Setting.MAIL_SERVER_USER));
+				newMailSender.setPassword(getSettingService().getSettingOrNull(Setting.MAIL_SERVER_PWD));
 				properties.put("mail.smtp.auth", "true");
 			}
-			this.mailSender = mailSender;
+			mailSender = newMailSender;
 			log.info("SMPT mail sender created.");
 		}
 		return mailSender;
 	}
 	
-	@SuppressWarnings("static-access")
 	private ApplicationSettingService getSettingService() {
-		return applicationContext.getBean(ApplicationSettingService.class);
+		if (settingService == null) {
+			settingService = Seed.getBean(ApplicationSettingService.class);
+		}
+		return settingService;
 	}
 	
 }

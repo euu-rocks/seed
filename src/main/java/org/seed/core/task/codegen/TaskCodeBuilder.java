@@ -19,15 +19,15 @@ package org.seed.core.task.codegen;
 
 import java.util.Date;
 
+import org.seed.C;
 import org.seed.core.api.JobContext;
 import org.seed.core.codegen.AbstractSourceCodeBuilder;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.task.AbstractJob;
 import org.seed.core.task.Task;
+import org.seed.core.util.Assert;
 
-import org.springframework.util.Assert;
-
-class TaskCodeBuilder extends AbstractSourceCodeBuilder<Task> {
+class TaskCodeBuilder extends AbstractSourceCodeBuilder {
 	
 	private final Task task;
 	
@@ -45,14 +45,14 @@ class TaskCodeBuilder extends AbstractSourceCodeBuilder<Task> {
 	}
 	
 	@Override
-	public SourceCode<Task> build(BuildMode buildMode) {
-		Assert.notNull(buildMode, "buildMode is null");
+	public SourceCode build(BuildMode buildMode) {
+		Assert.notNull(buildMode, "buildMode");
 		
 		switch (buildMode) {
 			case TEMPLATE:
 				addMethod(null, "execute", 
 						  new ParameterMetadata[] {
-							newParameter("context", newTypeClass(JobContext.class))
+							newParameter(C.CONTEXT, newTypeClass(JobContext.class))
 						  }, 
 						  CODE_PLACEHOLDER, newAnnotation(Override.class));
 				return super.build(false);

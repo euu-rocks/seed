@@ -39,6 +39,7 @@ import org.seed.core.task.TaskRun;
 import org.seed.core.task.TaskService;
 import org.seed.core.user.Authorisation;
 import org.seed.core.user.User;
+import org.seed.core.util.MiscUtils;
 
 import org.springframework.util.ObjectUtils;
 import org.zkoss.bind.annotation.BindingParam;
@@ -57,9 +58,9 @@ import org.zkoss.zk.ui.select.annotation.WireVariable;
 public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	implements JobListener {
 	
-	private final static String PARAMETERS = "parameters";
-	private final static String PERMISSIONS = "permissions";
-	private final static String NOTIFICATIONS = "notifications";
+	private static final String PARAMETERS = "parameters";
+	private static final String PERMISSIONS = "permissions";
+	private static final String NOTIFICATIONS = "notifications";
 	
 	private final String listenerName = UUID.randomUUID().toString();
 	
@@ -197,7 +198,7 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 		if (jobStatusChanged) {
 			switch (getViewMode()) {
 				case LIST:
-					notifyChange("objectList");
+					notifyChange(OBJECT_LIST);
 					break;
 					
 				case DETAIL:
@@ -312,13 +313,14 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	}
 	
 	@Command
+	@Override
 	public void flagDirty(@BindingParam("notify") String notify, 
 						  @BindingParam("notifyObject") String notifyObject) {
 		super.flagDirty(notify, notifyObject);
 	}
 	
 	@GlobalCommand
-	public void _refreshObject(@BindingParam("param") Long objectId) {
+	public void globalRefreshObject(@BindingParam("param") Long objectId) {
 		refreshObject(objectId);
 	}
 	
@@ -328,14 +330,15 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	}
 
 	@Override
-	protected List<? extends SystemObject> getListManagerSource(String key, int listNum) {
-		switch (key) {
-			case PERMISSIONS:
-				return listNum == LIST_AVAILABLE 
-				? taskService.getAvailablePermissions(getObject()) 
-				: getObject().getPermissions();
+	protected List<SystemObject> getListManagerSource(String key, int listNum) {
+		if (PERMISSIONS.equals(key)) {
+			return MiscUtils.cast(listNum == LIST_AVAILABLE 
+					? taskService.getAvailablePermissions(getObject()) 
+					: getObject().getPermissions());
 		}
-		return null;
+		else {
+			throw new UnsupportedOperationException(key);
+		}
 	}
 
 	@Override

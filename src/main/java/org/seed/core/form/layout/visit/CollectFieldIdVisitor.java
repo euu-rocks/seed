@@ -33,21 +33,8 @@ public class CollectFieldIdVisitor implements LayoutVisitor {
 
 	@Override
 	public void visit(LayoutElement element) {
-		switch (element.getName()) {
-			case LayoutElement.BANDBOX:
-			case LayoutElement.CHECKBOX:
-			case LayoutElement.COMBOBOX:
-			case LayoutElement.DATEBOX:
-			case LayoutElement.DECIMALBOX:
-			case LayoutElement.DOUBLEBOX:
-			case LayoutElement.IMAGE:
-			case LayoutElement.INTBOX:
-			case LayoutElement.LONGBOX:
-			case LayoutElement.TEXTBOX:
-			case LayoutElement.FILEBOX:
-				if (element.getId() != null) {
-					fieldIdList.add(element.getId());
-				}
+		if (element.getId() != null) {
+			fieldIdList.add(element.getId());
 		}
 	}
 

@@ -26,7 +26,8 @@ import javax.annotation.Nullable;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-
+import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -36,6 +37,7 @@ import org.seed.core.application.module.TransferContext;
 import org.seed.core.codegen.CodeChangeAware;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.config.ChangeLog;
+import org.seed.core.config.Limits;
 import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.Options;
@@ -43,15 +45,15 @@ import org.seed.core.data.ValidationException;
 import org.seed.core.user.User;
 import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupService;
+import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 @Service
 public class EntityServiceImpl extends AbstractApplicationEntityService<Entity> 
-	implements EntityService, EntityDependent, CodeChangeAware { 
+	implements EntityService, EntityDependent<Entity>, CodeChangeAware { 
 	
 	@Autowired
 	private EntityValidator entityValidator;
@@ -67,6 +69,9 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	@Autowired
 	private UpdatableConfiguration configuration;
+	
+	@Autowired
+	private Limits limits;
 	
 	@Autowired
 	private List<EntityChangeAware> changeAwareObjects;
@@ -92,7 +97,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	@Override
 	@Secured("ROLE_ADMIN_ENTITY")
 	public EntityField createField(Entity entity) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
 		final EntityField field  = new EntityField();
 		entity.addField(field);
@@ -102,7 +107,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	@Override
 	@Secured("ROLE_ADMIN_ENTITY")
 	public EntityFieldGroup createFieldGroup(Entity entity) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
 		final EntityFieldGroup group = new EntityFieldGroup();
 		entity.addFieldGroup(group);
@@ -112,7 +117,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	@Override
 	@Secured("ROLE_ADMIN_ENTITY")
 	public NestedEntity createNested(Entity entity) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
 		final NestedEntity nested = new NestedEntity();
 		entity.addNested(nested);
@@ -122,7 +127,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	@Override
 	@Secured("ROLE_ADMIN_ENTITY")
 	public EntityFunction createFunction(Entity entity, boolean isCallback) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
 		final EntityFunction function = new EntityFunction();
 		if (isCallback) {
@@ -136,7 +141,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	@Override
 	@Secured("ROLE_ADMIN_ENTITY")
 	public EntityStatus createStatus(Entity entity) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
 		final EntityStatus status = new EntityStatus();
 		if (!entity.hasStatus()) {
@@ -149,7 +154,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	@Override
 	@Secured("ROLE_ADMIN_ENTITY")
 	public EntityFieldConstraint createFieldConstraint(Entity entity) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
 		final EntityFieldConstraint constraint = new EntityFieldConstraint();
 		entity.addFieldConstraint(constraint);
@@ -159,7 +164,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	@Override
 	@Secured("ROLE_ADMIN_ENTITY")
 	public EntityStatusTransition createStatusTransition(Entity entity) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
 		final EntityStatusTransition transition = new EntityStatusTransition();
 		transition.createLists();
@@ -184,7 +189,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	@Override
 	public List<Entity> findUsage(Entity entity) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
 		final List<Entity> result = new ArrayList<>();
 		for (Entity otherEntity : findAllObjects()) {
@@ -211,31 +216,14 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	@Override
 	public List<Entity> findUsage(EntityFieldGroup fieldGroup) {
-		Assert.notNull(fieldGroup, "fieldGroup is null");
+		Assert.notNull(fieldGroup, C.FIELDGROUP);
 		
 		final List<Entity> result = new ArrayList<>();
 		for (Entity entity : findAllObjects()) {
 			if (entity.equals(fieldGroup.getEntity())) {
 				continue;
 			}
-			boolean found = false;
-			if (entity.hasFieldGroups()) {
-				for (EntityFieldGroup group : entity.getFieldGroups()) {
-					if (fieldGroup.equals(group)) {
-						found = true;
-						break;
-					}
-				}
-			}
-			if (!found && entity.hasFieldConstraints()) {
-				for (EntityFieldConstraint constraint : entity.getFieldConstraints()) {
-					if (fieldGroup.equals(constraint.getFieldGroup())) {
-						found = true;
-						break;
-					}
-				}
-			}
-			if (found) {
+			if (entity.containsFieldGroup(fieldGroup)) {
 				result.add(entity);
 			}
 		}
@@ -265,52 +253,42 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	@Override
 	public FieldType[] getAvailableFieldTypes(Entity entity, EntityField field, boolean existObjects) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
+		if (!existObjects) {
+			return FieldType.values();
+		}
 		if (field != null && field.getType() != null && !field.isNew()) {
 			switch (field.getType()) {
 				case BOOLEAN:
-					if (existObjects) {
-						return new FieldType[] { FieldType.BOOLEAN,
-												 FieldType.INTEGER,
-												 FieldType.LONG,
-												 FieldType.TEXT,
-												 FieldType.TEXTLONG };
-					}
-					break;
+					return new FieldType[] { FieldType.BOOLEAN,
+											 FieldType.INTEGER,
+											 FieldType.LONG,
+											 FieldType.TEXT,
+											 FieldType.TEXTLONG };
 				case INTEGER:
-					if (existObjects) {
-						return new FieldType[] { FieldType.INTEGER,
-												 FieldType.LONG,
-												 FieldType.TEXT,
-												 FieldType.TEXTLONG };
-					}
-					break;
+					return new FieldType[] { FieldType.INTEGER,
+											 FieldType.LONG,
+											 FieldType.TEXT,
+											 FieldType.TEXTLONG };
 				case BINARY:
 				case FILE:
 				case TEXTLONG:
-					if (!existObjects) {
-						break;
-					}
-					// no break on purpose
 				case REFERENCE:
 					return new FieldType[] { field.getType() };
+					
 				default:
-					if (existObjects) {
-						return new FieldType[] { field.getType(),
-											 	 FieldType.TEXT,
-											 	 FieldType.TEXTLONG };
-					}
+					return new FieldType[] { field.getType(),
+										 	 FieldType.TEXT,
+										 	 FieldType.TEXTLONG };
 			}
 		}
-		return existObjects 
-				? FieldType.valuesWithoutAutonum() 
-				: FieldType.values();
+		return FieldType.valuesWithoutAutonum();
 	}
 	
 	@Override
 	public List<Entity> getAvailableNestedEntities(Entity entity) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
 		final List<Entity> result = new ArrayList<>();
 		try (Session session = entityRepository.getSession()) {
@@ -326,7 +304,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	@Override
 	public List<EntityPermission> getAvailablePermissions(Entity entity) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
 		final List<EntityPermission> result = new ArrayList<>();
 		for (UserGroup group : userGroupService.findAllObjects()) {
@@ -352,7 +330,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	@Override
 	public List<EntityStatusTransitionPermission> getAvailableStatusTransitionPermissions(EntityStatusTransition transition) {
-		Assert.notNull(transition, "transition is null");
+		Assert.notNull(transition, C.TRANSITION);
 		
 		final List<EntityStatusTransitionPermission> result = new ArrayList<>();
 		for (UserGroup group : userGroupService.findAllObjects()) {
@@ -377,10 +355,10 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	@Override
 	public List<EntityStatus> getAvailableStatusList(Entity entity, EntityStatus currentStatus, User user) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		Assert.state(entity.hasStatus(), "entity has no status");
-		Assert.notNull(currentStatus, "currentStatus is null");
-		Assert.notNull(user, "user is null");
+		Assert.notNull(currentStatus, "currentStatus");
+		Assert.notNull(user, C.USER);
 		
 		final List<EntityStatus> result = new ArrayList<>();
 		if (entity.hasStatus()) {
@@ -399,8 +377,8 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	@Override
 	public List<EntityStatusTransitionFunction> getAvailableStatusTransitionFunctions(Entity entity, EntityStatusTransition transition) {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(transition, "transition is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(transition, C.TRANSITION);
 		
 		final List<EntityStatusTransitionFunction> result = new ArrayList<>();
 		if (entity.hasFunctions()) {
@@ -408,16 +386,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				if (!function.isActiveOnStatusTransition()) {
 					continue;
 				}
-				boolean found = false;
-				if (transition.hasFunctions()) {
-					for (EntityStatusTransitionFunction transitionFunction : transition.getFunctions()) {
-						if (transitionFunction.getFunction().equals(function)) {
-							found = true;
-							break;
-						}
-					}
-				}
-				if (!found) {
+				if (!transition.containsEntityFunction(function)) {
 					final EntityStatusTransitionFunction transitionFunction = new EntityStatusTransitionFunction();
 					transitionFunction.setStatusTransition(transition);
 					transitionFunction.setFunction(function);
@@ -431,8 +400,8 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	@Override
 	@Secured("ROLE_ADMIN_ENTITY")
 	public void removeField(Entity entity, EntityField field) throws ValidationException {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(field, "field is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(field, C.FIELD);
 		
 		if (!field.isNew()) {
 			entityValidator.validateRemoveField(field);
@@ -443,8 +412,8 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	@Override
 	@Secured("ROLE_ADMIN_ENTITY")
 	public void removeFieldGroup(Entity entity, EntityFieldGroup fieldGroup) throws ValidationException {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(fieldGroup, "fieldGroup is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(fieldGroup, C.FIELDGROUP);
 		
 		if (!fieldGroup.isNew()) {
 			entityValidator.validateRemoveFieldGroup(fieldGroup);
@@ -462,8 +431,8 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	@Override
 	@Secured("ROLE_ADMIN_ENTITY")
 	public void removeFunction(Entity entity, EntityFunction function) throws ValidationException {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(function, "function is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(function, C.FUNCTION);
 		
 		if (!function.isNew() && function.isCallback()) {
 			entityValidator.validateRemoveFunction(function);
@@ -474,8 +443,8 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	@Override
 	@Secured("ROLE_ADMIN_ENTITY")
 	public void removeStatus(Entity entity, EntityStatus status) throws ValidationException {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(status, "status is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(status, C.STATUS);
 		
 		if (!status.isNew()) {
 			entityValidator.validateRemoveStatus(status);
@@ -486,8 +455,8 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	@Override
 	@Secured("ROLE_ADMIN_ENTITY")
 	public void removeStatusTransition(Entity entity, EntityStatusTransition statusTransition) throws ValidationException {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(statusTransition, "statusTransition is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(statusTransition, C.STATUSTRANSITION);
 		
 		entity.removeStatusTransition(statusTransition);
 	}
@@ -495,8 +464,8 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	@Override
 	@Secured("ROLE_ADMIN_ENTITY")
 	public void removeNested(Entity entity, NestedEntity nested) throws ValidationException {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(nested, "nested is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(nested, C.NESTED);
 		
 		if (!nested.isNew()) {
 			entityValidator.validateRemoveNested(nested);
@@ -505,9 +474,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	@Override
-	public void analyzeObjects(ImportAnalysis analysis, Module currentVersionModule) {
-		Assert.notNull(analysis, "analysis is null");
-		
+	protected void analyzeNextVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
 		if (analysis.getModule().getEntities() != null) {
 			for (Entity entity : analysis.getModule().getEntities()) {
 				if (currentVersionModule == null) {
@@ -525,7 +492,11 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				}
 			}
 		}
-		if (currentVersionModule!= null && currentVersionModule.getEntities() != null) {
+	}
+	
+	@Override
+	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
+		if (currentVersionModule.getEntities() != null) {
 			for (Entity currentVersionEntity : currentVersionModule.getEntities()) {
 				if (analysis.getModule().getEntityByUid(currentVersionEntity.getUid()) == null) {
 					analysis.addChangeDelete(currentVersionEntity);
@@ -536,108 +507,80 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public Class<? extends ApplicationEntityService<? extends ApplicationEntity>>[] getImportDependencies() {
-		return (Class<? extends ApplicationEntityService<? extends ApplicationEntity>>[]) 
-				new Class[] { UserGroupService.class };
+	public Class<? extends ApplicationEntityService<ApplicationEntity>>[] getImportDependencies() {
+		return new Class[] { UserGroupService.class };
 	}
-		
+	
 	@Override
 	public void importObjects(TransferContext context, Session session) {
-		Assert.notNull(context, "context is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(context, C.CONTEXT);
+		Assert.notNull(session, C.SESSION);
 		try {
 			if (context.getModule().getEntities() != null) {
-				// init entities
-				for (Entity entity : context.getModule().getEntities()) {
-					final Entity currentVersionEntity = findByUid(session, entity.getUid());
-					((EntityMetadata) entity).setModule(context.getModule());
-					// entity already exists
-					if (currentVersionEntity != null) {
-						context.addExistingEntity(entity, currentVersionEntity);
-						((EntityMetadata) currentVersionEntity).copySystemFieldsTo(entity);
-						session.detach(currentVersionEntity);
-					}
-					else { // new entity
-						context.addNewEntity(entity);
-					}
-					if (entity.hasFieldGroups()) {
-						initFieldGroup(entity, currentVersionEntity);
-					}
-					if (entity.hasAllFields()) {
-						initFields(entity, currentVersionEntity);
-					}
-					if (entity.hasFunctions()) {
-						initFunctions(entity, currentVersionEntity);
-					}
-					if (entity.hasPermissions()) {
-						initPermissions(session, entity, currentVersionEntity);
-					}
-					if (entity.hasStatus()) {
-						initStatus(entity, currentVersionEntity);
-						if (entity.hasStatusTransitions()) {
-							initStatusTransitions(session, entity, currentVersionEntity);
-						}
-					}
-					if (entity.hasFieldConstraints()) {
-						initFieldConstraints(session, entity, currentVersionEntity);
-					}
-					if (entity.hasAllNesteds()) {
-						initNesteds(entity, currentVersionEntity);
-					}
-					session.saveOrUpdate(entity);
-				}
-				
+				importEntities(context, session);
 				// set references to other entities
 				for (Entity entity : context.getModule().getEntities()) {
-					if (entity.hasAllFields() || entity.hasAllNesteds()) {
-						if (entity.hasAllFields()) {
-							initReferenceFields(session, entity);
-						}
-						if (entity.hasAllNesteds()) {
-							initNestedEntities(session, entity);
-						}
-					}
+					initEntityReferences(entity, session);
 					// validate and save
 					saveObject(entity, session);
 				}
 			}
 		}
 		catch (ValidationException vex) {
-			throw new RuntimeException(vex);
+			throw new InternalException(vex);
+		}
+	}
+	
+	private void importEntities(TransferContext context, Session session) {
+		for (Entity entity : context.getModule().getEntities()) {
+			final Entity currentVersionEntity = findByUid(session, entity.getUid());
+			((EntityMetadata) entity).setModule(context.getModule());
+			
+			// entity already exists
+			if (currentVersionEntity != null) {
+				context.addExistingEntity(entity, currentVersionEntity);
+				((EntityMetadata) currentVersionEntity).copySystemFieldsTo(entity);
+				session.detach(currentVersionEntity);
+			}
+			// new entity
+			else { 
+				context.addNewEntity(entity);
+			}
+			initEntity(entity, currentVersionEntity, session);
+			session.saveOrUpdate(entity);
 		}
 	}
 	
 	@Override
 	public void createChangeLogs(TransferContext context, Session session) {
-		Assert.notNull(context, "context ist null");
-		Assert.notNull(session, "session ist null");
+		Assert.notNull(context, C.CONTEXT);
+		Assert.notNull(session, C.SESSION);
 		
 		final List<ChangeLog> changeLogs = new ArrayList<>();
 		for (Entity entity : context.getNewEntities()) {
-			for (ChangeLog changeLog : new EntityChangeLogBuilder()
-			 								.setNextVersionEntity(entity)
-			 								.build()) {
+			final ChangeLog changeLog = createChangeLog(null, entity);
+			if (changeLog != null) {
 				changeLogs.add(changeLog);
 			}
 		}
 		for (Entity entity : context.getExistingEntities()) {
 			final Entity currentVersionEntity = context.getCurrentVersionEntity(entity.getUid());
-			for (ChangeLog changeLog : new EntityChangeLogBuilder()
-											.setCurrentVersionEntity(currentVersionEntity)
-											.setNextVersionEntity(entity)
-											.build()) {
+			final ChangeLog changeLog = createChangeLog(currentVersionEntity, entity);
+			if (changeLog != null) {
 				changeLogs.add(changeLog);
 			}
 		}
 		changeLogs.sort(changeLogComparator);
-		changeLogs.forEach(changeLog -> session.saveOrUpdate(changeLog));
+		for (ChangeLog changeLog : changeLogs) {
+			session.saveOrUpdate(changeLog);
+		}
 	}
 	
 	@Override
 	public void deleteObjects(Module module, Module currentVersionModule, Session session) {
-		Assert.notNull(module, "module is null");
-		Assert.notNull(currentVersionModule, "currentVersionModule is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(module, C.MODULE);
+		Assert.notNull(currentVersionModule, "currentVersionModule");
+		Assert.notNull(session, C.SESSION);
 		
 		if (currentVersionModule.getEntities() != null) {
 			for (Entity currentVersionEntity : currentVersionModule.getEntities()) {
@@ -656,17 +599,17 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	@Override
 	@Secured("ROLE_ADMIN_ENTITY")
 	public void saveObject(Entity entity) throws ValidationException {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
 		cleanup(entity);
 		final boolean isInsert = entity.isNew();
-		final Entity currentVersion = !isInsert ? getObject(entity.getId()) : null;
+		final Entity currentVersionEntity = !isInsert ? getObject(entity.getId()) : null;
 		try (Session session = entityRepository.getSession()) {
 			Transaction tx = null;
 			try {
 				tx = session.beginTransaction();
 				if (!isInsert) {
-					final EntityField deletedAutonum = getDeletedAutonumField(currentVersion, entity);
+					final EntityField deletedAutonum = getDeletedAutonumField(currentVersionEntity, entity);
 					if (deletedAutonum != null) {
 						autonumService.deleteAutonumber(deletedAutonum, session);
 					}
@@ -674,10 +617,8 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				saveObject(entity, session);
 				
 				if (!entity.isGeneric()) {
-					for (ChangeLog changeLog : new EntityChangeLogBuilder()
-													.setCurrentVersionEntity(currentVersion)
-													.setNextVersionEntity(entity)
-													.build()) {
+					final ChangeLog changeLog = createChangeLog(currentVersionEntity, entity);
+					if (changeLog != null) {
 						session.saveOrUpdate(changeLog);
 					}
 				}
@@ -693,8 +634,8 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	@Override
 	public void saveObject(Entity entity, Session session) throws ValidationException {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(session, C.SESSION);
 		
 		final boolean isInsert = entity.isNew();
 		super.saveObject(entity, session);
@@ -712,7 +653,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	@Override
 	@Secured("ROLE_ADMIN_ENTITY")
 	public void deleteObject(Entity entity) throws ValidationException {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
 		try (Session session = entityRepository.getSession()) {
 			Transaction tx = null;
@@ -725,9 +666,8 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				deleteObject(entity, session);
 				
 				if (!entity.isGeneric()) {
-					for (ChangeLog changeLog : new EntityChangeLogBuilder()
-													.setCurrentVersionEntity(entity)
-													.build()) {
+					final ChangeLog changeLog = createChangeLog(entity, null);
+					if (changeLog != null) {
 						session.saveOrUpdate(changeLog);
 					}
 				}
@@ -743,8 +683,8 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	@Override
 	public void deleteObject(Entity entity, Session session) throws ValidationException {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(session, C.SESSION);
 		
 		for (EntityChangeAware changeAware : changeAwareObjects) {
 			changeAware.notifyDelete(entity, session);
@@ -754,27 +694,30 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	@Override
-	public boolean processCodeChange(SourceCode<?> sourceCode, Session session) {
-		Assert.notNull(sourceCode, "sourceCode is null");
-		Assert.notNull(session, "session is null");
-		// callback functions
-		if (sourceCode.getPackageName().startsWith(Entity.PACKAGE_NAME) &&
-		   !sourceCode.getPackageName().equals(Entity.PACKAGE_NAME)) {
-			final String entityName = sourceCode.getPackageName().substring(Entity.PACKAGE_NAME.length() + 1);
-			for (Entity entity : findAllObjects()) {
-				if (entity.getName().toLowerCase().equals(entityName)) {
-					for (EntityFunction function : entity.getFunctions()) {
-						if (function.isCallback() && 
-							function.getName().equalsIgnoreCase(sourceCode.getClassName()) &&
-							!function.getContent().equals(sourceCode.getContent())) {
-							
-							function.setContent(sourceCode.getContent());
-							session.saveOrUpdate(function);
-							return true;
-						}
+	public boolean processCodeChange(SourceCode sourceCode, Session session) {
+		Assert.notNull(sourceCode, "sourceCode");
+		Assert.notNull(session, C.SESSION);
+		
+		return sourceCode.getPackageName().startsWith(EntityMetadata.PACKAGE_NAME) &&
+			   !sourceCode.getPackageName().equals(EntityMetadata.PACKAGE_NAME) &&
+			   processCallbackFunctionChange(sourceCode, session);
+	}
+	
+	private boolean processCallbackFunctionChange(SourceCode sourceCode, Session session) {
+		final String entityName = sourceCode.getPackageName().substring(EntityMetadata.PACKAGE_NAME.length() + 1);
+		for (Entity entity : findAllObjects()) {
+			if (entity.getName().equalsIgnoreCase(entityName)) {
+				for (EntityFunction function : entity.getFunctions()) {
+					if (function.isCallback() && 
+						function.getName().equalsIgnoreCase(sourceCode.getClassName()) &&
+						!function.getContent().equals(sourceCode.getContent())) {
+						
+						function.setContent(sourceCode.getContent());
+						session.saveOrUpdate(function);
+						return true;
 					}
-					break;
 				}
+				break;
 			}
 		}
 		return false;
@@ -790,6 +733,44 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 			return autonumField;
 		}
 		return null;
+	}
+	
+	private void initEntity(Entity entity, Entity currentVersionEntity, Session session) {
+		if (entity.hasFieldGroups()) {
+			initFieldGroup(entity, currentVersionEntity);
+		}
+		if (entity.hasAllFields()) {
+			initFields(entity, currentVersionEntity);
+		}
+		if (entity.hasFunctions()) {
+			initFunctions(entity, currentVersionEntity);
+		}
+		if (entity.hasPermissions()) {
+			initPermissions(session, entity, currentVersionEntity);
+		}
+		if (entity.hasStatus()) {
+			initStatus(entity, currentVersionEntity);
+			if (entity.hasStatusTransitions()) {
+				initStatusTransitions(session, entity, currentVersionEntity);
+			}
+		}
+		if (entity.hasFieldConstraints()) {
+			initFieldConstraints(session, entity, currentVersionEntity);
+		}
+		if (entity.hasAllNesteds()) {
+			initNesteds(entity, currentVersionEntity);
+		}
+	}
+	
+	private void initEntityReferences(Entity entity, Session session) {
+		if (entity.hasAllFields() || entity.hasAllNesteds()) {
+			if (entity.hasAllFields()) {
+				initReferenceFields(session, entity);
+			}
+			if (entity.hasAllNesteds()) {
+				initNestedEntities(session, entity);
+			}
+		}
 	}
 	
 	private void initFields(Entity entity, Entity currentVersionEntity) {
@@ -927,32 +908,46 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				if (currentVersionTransition != null) {
 					currentVersionTransition.copySystemFieldsTo(transition);
 				}
+				
 				// functions
-				if (transition.hasFunctions()) {
-					for (EntityStatusTransitionFunction function : transition.getFunctions()) {
-						function.setStatusTransition(transition);
-						function.setFunction(entity.getFunctionByUid(function.getFunctionUid()));
-						if (currentVersionTransition != null) {
-							final EntityStatusTransitionFunction currentVersionFunction =
-									currentVersionTransition.getFunctionByUid(function.getUid());
-							if (currentVersionFunction != null) {
-								currentVersionFunction.copySystemFieldsTo(function);
-							}
-						}
+				initStatusTransitionFunctions(currentVersionEntity, transition, currentVersionTransition);
+				
+				// permissions
+				initStatusTransitionPermission(transition, currentVersionTransition, session);
+			}
+		}
+	}
+	
+	private void initStatusTransitionFunctions(Entity entity, 
+											   EntityStatusTransition transition, 
+											   EntityStatusTransition currentVersionTransition) {
+		if (transition.hasFunctions()) {
+			for (EntityStatusTransitionFunction function : transition.getFunctions()) {
+				function.setStatusTransition(transition);
+				function.setFunction(entity.getFunctionByUid(function.getFunctionUid()));
+				if (currentVersionTransition != null) {
+					final EntityStatusTransitionFunction currentVersionFunction =
+							currentVersionTransition.getFunctionByUid(function.getUid());
+					if (currentVersionFunction != null) {
+						currentVersionFunction.copySystemFieldsTo(function);
 					}
 				}
-				// permissions
-				if (transition.hasPermissions()) {
-					for (EntityStatusTransitionPermission permission : transition.getPermissions()) {
-						permission.setStatusTransition(transition);
-						permission.setUserGroup(userGroupService.findByUid(session, permission.getUserGroupUid()));
-						if (currentVersionTransition != null) {
-							final EntityStatusTransitionPermission currentVersionPermission =
-									currentVersionTransition.getPermissionByUid(permission.getUid());
-							if (currentVersionPermission != null) {
-								currentVersionPermission.copySystemFieldsTo(permission);
-							}
-						}
+			}
+		}
+	}
+
+	private void initStatusTransitionPermission(EntityStatusTransition transition,
+												EntityStatusTransition currentVersionTransition,
+												Session session) {
+		if (transition.hasPermissions()) {
+			for (EntityStatusTransitionPermission permission : transition.getPermissions()) {
+				permission.setStatusTransition(transition);
+				permission.setUserGroup(userGroupService.findByUid(session, permission.getUserGroupUid()));
+				if (currentVersionTransition != null) {
+					final EntityStatusTransitionPermission currentVersionPermission =
+						currentVersionTransition.getPermissionByUid(permission.getUid());
+					if (currentVersionPermission != null) {
+						currentVersionPermission.copySystemFieldsTo(permission);
 					}
 				}
 			}
@@ -964,33 +959,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		// fields
 		if (entity.hasFields()) {
 			for (EntityField field : entity.getFields()) {
-				// boolean and calculated fields cannot have options
-				if (field.getType().isBoolean() || field.isCalculated()) {
-					field.setMandatory(false);
-					field.setIndexed(false);
-					field.setUnique(false);
-				}
-				// only text fields can have length
-				if (!field.getType().isText()) {
-					field.setLength(null);
-				}
-				// only some fields can be fulltext indexed
-				if (!(field.isTextField() || field.getType().isAutonum() || field.getType().isReference())) {
-					field.setFullTextSearch(false);
-				}
-				// only reference fields can have reference entity or field
-				if (!field.getType().isReference()) {
-					field.setReferenceEntity(null);
-				}
-				// only calculated fields can have formular
-				if (!field.isCalculated()) {
-					field.setFormula(null);
-				}
-				// only autonum fields can have pattern and start
-				if (!field.getType().isAutonum()) {
-					field.setAutonumPattern(null);
-					field.setAutonumStart(null);
-				}
+				cleanupField(field);
 			}
 		}
 		// functions
@@ -1002,6 +971,44 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				}
 			}
 		}
+	}
+	
+	private void cleanupField(EntityField field) {
+		if (field.getType() != null) {
+			// boolean and calculated fields cannot have options
+			if (field.getType().isBoolean() || field.isCalculated()) {
+				field.setMandatory(false);
+				field.setIndexed(false);
+				field.setUnique(false);
+			}
+			// only text fields can have length
+			if (!field.getType().isText()) {
+				field.setLength(null);
+			}
+			// only some fields can be fulltext indexed
+			if (!(field.isTextField() || field.getType().isAutonum() || field.getType().isReference())) {
+				field.setFullTextSearch(false);
+			}
+			// only reference fields can have reference entity or field
+			if (!field.getType().isReference()) {
+				field.setReferenceEntity(null);
+			}
+			// only autonum fields can have pattern and start
+			if (!field.getType().isAutonum()) {
+				field.setAutonumPattern(null);
+				field.setAutonumStart(null);
+			}
+		}
+		if (!field.isCalculated()) {
+			field.setFormula(null);
+		}
+	}
+	
+	private ChangeLog createChangeLog(Entity currentVersionEntity, Entity nextVersionEntity) {
+		return new EntityChangeLogBuilder(limits, configuration)
+						.setCurrentVersionObject(currentVersionEntity)
+						.setNextVersionObject(nextVersionEntity)
+						.build();
 	}
 	
 	private static final Comparator<ChangeLog> changeLogComparator = new Comparator<>() {

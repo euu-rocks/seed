@@ -20,9 +20,13 @@ package org.seed.core.form;
 import java.util.List;
 
 import org.seed.core.application.ApplicationEntity;
+import org.seed.core.data.SystemField;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
+import org.seed.core.entity.EntityFunction;
 import org.seed.core.entity.EntityStatus;
+import org.seed.core.entity.filter.Filter;
+import org.seed.core.entity.transform.Transformer;
 import org.seed.core.user.User;
 
 public interface Form extends ApplicationEntity {
@@ -34,6 +38,18 @@ public interface Form extends ApplicationEntity {
 	FormLayout getLayout();
 	
 	boolean hasFields();
+	
+	boolean containsEntityField(EntityField entityField);
+	
+	boolean containsSystemField(SystemField systemField);
+	
+	boolean containsEntityFunction(EntityFunction entityFunction);
+	
+	boolean containsTransformer(Transformer transformer);
+	
+	boolean containsFilter(Filter filter);
+	
+	boolean containsForm(Form form);
 	
 	List<FormField> getFields();
 	
@@ -70,6 +86,8 @@ public interface Form extends ApplicationEntity {
 	boolean hasActions();
 	
 	List<FormAction> getActions();
+	
+	List<FormAction> getActions(boolean isList);
 	
 	boolean isActionEnabled(FormAction action, User user);
 	

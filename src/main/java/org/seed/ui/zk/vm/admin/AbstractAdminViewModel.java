@@ -25,6 +25,7 @@ import java.util.Map;
 import javax.persistence.OptimisticLockException;
 import javax.persistence.PersistenceException;
 
+import org.seed.C;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.ModuleService;
@@ -36,6 +37,7 @@ import org.seed.core.data.ValidationException;
 import org.seed.core.user.Authorisation;
 import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupService;
+import org.seed.core.util.Assert;
 import org.seed.ui.DragDropListManager;
 import org.seed.ui.DragDropListSorter;
 import org.seed.ui.ListFilter;
@@ -45,7 +47,6 @@ import org.seed.ui.ViewMode;
 import org.seed.ui.zk.vm.AbstractApplicationViewModel;
 
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.util.Assert;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
 import org.zkoss.zul.Tabbox;
@@ -60,13 +61,16 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	static final String KEY_SUCCESS = "success";
 	static final String KEY_FAIL 	= "fail";
 	
-	static final String FILTERGROUP_LIST = "list";
-	
 	static final String CONFIRM_BACK 		= "back";
 	static final String CONFIRM_DELETE 		= "delete";
 	static final String CONFIRM_NEW 		= "new";
 	static final String CONFIRM_NEW_DIALOG 	= "newdialog";
 	static final String CONFIRM_RELOAD 		= "reload";
+	
+	protected static final String FILTERGROUP_LIST = "list";
+	protected static final String LISTMANAGER_LIST = "getListManagerList";
+	protected static final String OBJECT_LIST      = "objectList";
+	protected static final String PRE_ADMIN 	   = "admin.";
 	
 	private final Authorisation authorisation;
 	
@@ -79,7 +83,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	private ModuleService moduleService;
 	
 	@WireVariable(value="userGroupServiceImpl")
-	private UserGroupService userGroupService;
+	protected UserGroupService userGroupService;
 	
 	private DialogParameter dialogParameter;
 	
@@ -116,10 +120,10 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 									 String listViewZul, 
 									 String detailViewZul,
 									 String createDialogZul) {
-		Assert.notNull(authorisation, "authorisation is null");
-		Assert.notNull(objectLabelKey, "objectLabelKey is null");
-		Assert.notNull(listViewZul, "listView is null");
-		Assert.notNull(detailViewZul, "detailView is null");
+		Assert.notNull(authorisation, "authorisation");
+		Assert.notNull(objectLabelKey, "objectLabelKey");
+		Assert.notNull(listViewZul, "listView");
+		Assert.notNull(detailViewZul, "detailView");
 		
 		this.authorisation = authorisation;
 		this.objectLabelKey = objectLabelKey;
@@ -149,6 +153,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 			else {
 				this.object = (T) object;
 			}
+			Assert.stateAvailable(this.object, "object not available");
 			initObject(this.object);
 			if (this.object.isNew()) {
 				flagDirty();
@@ -157,7 +162,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		// list
 		else {
 			this.viewMode = ViewMode.LIST;
-			initFilterGroup(FILTERGROUP_LIST, "objectList");
+			initFilterGroup(FILTERGROUP_LIST, OBJECT_LIST);
 			if (getObjectService().isEntityType(ApplicationEntity.class)) {
 				createModuleFilter();
 			}
@@ -174,15 +179,16 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		return viewMode;
 	}
 	
-	protected AbstractAdminViewModel<?> getParentVM() {
+	@SuppressWarnings("unchecked")
+	protected <E extends SystemEntity> AbstractAdminViewModel<E> getParentVM() {
 		Assert.state(dialogParameter != null, "DialogParameter not available");
 		
-		return dialogParameter.parentViewModel;
+		return (AbstractAdminViewModel<E>) dialogParameter.parentViewModel;
 	}
 	
 	@SuppressWarnings("unchecked")
 	protected void internalRefresh(Object object) {
-		Assert.notNull(object, "object is null");
+		Assert.notNull(object, C.OBJECT);
 		
 		filterGroupMap = null;
 		listSorterMap = null;
@@ -200,19 +206,19 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	}
 	
 	protected void showDetailView(T object) {
-		Assert.notNull(object, "object is null");
+		Assert.notNull(object, C.OBJECT);
 		
 		showView(detailViewZul, object.isNew() ? object : object.getId());
 	}
 	
 	protected void showCodeDialog(CodeDialogParameter parameter) {
-		Assert.notNull(parameter, "parameter is null");
+		Assert.notNull(parameter, C.PARAMETER);
 		
 		showDialog("/admin/codedialog.zul", parameter);
 	}
 	
 	protected void notifyObjectChange(String ...property) {
-		Assert.notNull(property, "property is null");
+		Assert.notNull(property, C.PROPERTY);
 		
 		notifyObjectChange(object, property);
 	}
@@ -240,7 +246,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 			objectList = loadObjectList();
 		}
 		if (getListViewFilterGroup().isVisible()) {
-			return (List<T>) getListViewFilterGroup().filter(objectList);
+			return getListViewFilterGroup().filter(objectList);
 		}
 		return objectList;
 	}
@@ -288,8 +294,8 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		notifyChange(filterGroup.getNotifyChange());
 	}
 	
-	public final ListFilter getFilter(String filterGroupName, String filterName) {
-		Assert.notNull(filterName, "filterName is null");
+	public final ListFilter<T> getFilter(String filterGroupName, String filterName) {
+		Assert.notNull(filterName, "filterName");
 		
 		return getFilterGroup(filterGroupName).getFilter(filterName);
 	}
@@ -303,7 +309,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	}
 	
 	protected void initFilterGroup(String filterGroupName, String ...notifyChange) {
-		Assert.notNull(filterGroupName, "filterGroupName is null");
+		Assert.notNull(filterGroupName, "filterGroupName");
 		
 		if (filterGroupMap == null) {
 			filterGroupMap = new HashMap<>();
@@ -312,35 +318,37 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	}
 	
 	protected ListFilterGroup getFilterGroup(String filterGroupName) {
-		Assert.notNull(filterGroupName, "filterGroupName is null");
+		Assert.notNull(filterGroupName, "filterGroupName");
 		Assert.state(filterGroupMap != null, "filters not initialized");
 		Assert.state(filterGroupMap.containsKey(filterGroupName), "filter group not exist: " + filterGroupName);
 		
 		return filterGroupMap.get(filterGroupName);
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void createModuleFilter() {
-		final ListFilter filterModule = getFilter(FILTERGROUP_LIST, "module");
-		filterModule.setValueFunction(o -> ((ApplicationEntity) o).getModule() != null 
-											? ((ApplicationEntity) o).getModule().getName() 
+		final ListFilter<? extends ApplicationEntity> filterModule = 
+			(ListFilter<ApplicationEntity>) getFilter(FILTERGROUP_LIST, "module");
+		filterModule.setValueFunction(o -> o.getModule() != null 
+											? o.getModule().getName() 
 											: null);
-		for (T object : getObjectList()) {
-			if (((ApplicationEntity) object).getModule() != null) {
-				filterModule.addValue(((ApplicationEntity) object).getModule().getName());
+		for (T obj : getObjectList()) {
+			if (((ApplicationEntity) obj).getModule() != null) {
+				filterModule.addValue(((ApplicationEntity) obj).getModule().getName());
 			}
 		}
 	}
 	
 	// d&d list sorter ----------------------------------------
 	
-	protected List<? extends SystemObject> getListSorterSource(String key) {
+	protected List<SystemObject> getListSorterSource(String key) {
 		throw new UnsupportedOperationException();
 	}
 
 	protected void swapItems(String key, SystemObject base, SystemObject item) {
-		Assert.notNull(key, "key is null");
-		Assert.notNull(base, "base is null");
-		Assert.notNull(item, "item is null");
+		Assert.notNull(key, C.KEY);
+		Assert.notNull(base, C.BASE);
+		Assert.notNull(item, C.ITEM);
 		
 		if (listSorterMap == null) {
 			listSorterMap = new HashMap<>();
@@ -357,7 +365,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	
 	// d&d list manager -------------------------------------
 	
-	protected List<? extends SystemObject> getListManagerSource(String key, int listNum) {
+	protected List<SystemObject> getListManagerSource(String key, int listNum) {
 		throw new UnsupportedOperationException();
 	}
 	
@@ -366,32 +374,32 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	}
 	
 	protected void dropToList(String key, int listNum, SystemObject item) {
-		Assert.notNull(item, "item is null");
+		Assert.notNull(item, C.ITEM);
 		
 		getListManager(key).drop(item, listNum);
-		notifyChange("getListManagerList");
+		notifyChange(LISTMANAGER_LIST);
 		flagDirty();
 	}
 	
 	protected void insertToList(String key, int listNum, SystemObject base, SystemObject item) {
-		Assert.notNull(base, "base is null");
-		Assert.notNull(item, "item is null");
+		Assert.notNull(base, C.BASE);
+		Assert.notNull(item, C.ITEM);
 		
 		getListManager(key).insert(base, item, listNum);
-		notifyChange("getListManagerList");
+		notifyChange(LISTMANAGER_LIST);
 		flagDirty();
 	}
 	
 	protected void selectAll(String key) {
-		Assert.notNull(key, "key is null");
+		Assert.notNull(key, C.KEY);
 		
 		getListManager(key).selectAll();
-		notifyChange("getListManagerList");
+		notifyChange(LISTMANAGER_LIST);
 		flagDirty();
 	}
 	
 	protected void removeListManager(String key) {
-		Assert.notNull(key, "key is null");
+		Assert.notNull(key, C.KEY);
 		
 		if (listManagerMap != null) {
 			listManagerMap.remove(key);
@@ -399,7 +407,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	}
 	
 	protected DragDropListManager getListManager(String key) {
-		Assert.notNull(key, "key is null");
+		Assert.notNull(key, C.KEY);
 		
 		if (listManagerMap == null) {
 			listManagerMap = new HashMap<>();
@@ -418,13 +426,14 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		return listManager;
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected void adjustLists(Collection objectList, List viewList) {
-		Assert.notNull(objectList, "objectList is null");
-		Assert.notNull(viewList, "viewList is null");
+	@SuppressWarnings({ "unchecked" })
+	protected void adjustLists(Collection<?> objectList, List<?> viewList) {
+		Assert.notNull(objectList, OBJECT_LIST);
+		Assert.notNull(viewList, "viewList");
 		
-		objectList.clear();
-		objectList.addAll(viewList);
+		final List<Object> dest = (List<Object>) objectList;
+		dest.clear();
+		dest.addAll(viewList);
 	}
 	
 	// commands ----------------------------------------
@@ -496,12 +505,12 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	
 	protected void refreshList() {
 		objectList = null;
-		notifyChange("existObjects", "objectList");
+		notifyChange("existObjects", OBJECT_LIST);
 	}
 	
 	// called from tab.onselect
 	protected void refreshObject(Long objectId) {
-		Assert.notNull(objectId, "objectId is null");
+		Assert.notNull(objectId, "objectId");
 		
 		if (viewMode == ViewMode.DETAIL && objectId.equals(object.getId())) {
 			final T reloadedObject = getObjectService().getObject(object.getId());
@@ -518,16 +527,16 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	}
 	
 	protected void cmdEditObject() {
-		Assert.state(object != null, "object not available");
+		Assert.stateAvailable(object, C.OBJECT);
 		
 		showDetailView(object);
 	}
 	
 	protected void cmdDeleteObject(Component component) {
-		Assert.notNull(component, "component is null");
-		Assert.state(object != null, "object not available");
+		Assert.notNull(component, C.COMPONENT);
+		Assert.stateAvailable(object, C.OBJECT);
 		
-		final String msgKey = "admin." + objectLabelKey + ".confirmdelete";
+		final String msgKey = PRE_ADMIN + objectLabelKey + ".confirmdelete";
 		confirm(msgKey, component, CONFIRM_DELETE, object.getName());
 	}
 	
@@ -542,7 +551,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 				case LIST:
 					object = null;
 					objectList = null;
-					notifyChange("object", "objectList");
+					notifyChange("object", OBJECT_LIST);
 					break;
 					
 				default:
@@ -550,14 +559,14 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 			}
 		}
 		catch (ValidationException vex) {
-			final String msgKey = "admin." + objectLabelKey + ".deletefail";
+			final String msgKey = PRE_ADMIN + objectLabelKey + ".deletefail";
 			showValidationErrors(component, msgKey, vex.getErrors());
 		}
 	}
 	
 	protected void cmdInitObject(Component component, Window window) {
-		Assert.notNull(component, "component is null");
-		Assert.notNull(window, "window is null");
+		Assert.notNull(component, C.COMPONENT);
+		Assert.notNull(window, "window");
 		
 		try {
 			getObjectService().initObject(object);
@@ -577,19 +586,19 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 			}
 		} 
 		catch (ValidationException vex) {
-			final String msgKey = "admin." + objectLabelKey + ".createfail";
+			final String msgKey = PRE_ADMIN + objectLabelKey + ".createfail";
 			showValidationErrors(component, msgKey, vex.getErrors());
 		}
 	}
 	
 	protected boolean cmdSaveObject(Component component) {
-		Assert.notNull(component, "component is null");
+		Assert.notNull(component, C.COMPONENT);
 		
-		final String msgKey = "admin." + objectLabelKey + ".save";
+		final String msgKey = PRE_ADMIN + objectLabelKey + ".save";
 		try {
 			getObjectService().saveObject(object);
 			showNotification(component, false, msgKey + KEY_SUCCESS);
-			notifyChange("object", "title");
+			notifyChange(C.OBJECT, "title");
 			resetDirty();
 			return true;
 		}
@@ -600,14 +609,14 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 			}
 		}
 		catch (OptimisticLockException olex) {
-			final String errMsgKey = "admin." + objectLabelKey + ".failstale";
+			final String errMsgKey = PRE_ADMIN + objectLabelKey + ".failstale";
 			showError(component, errMsgKey);
 		}
 		catch (PersistenceException persitenceException) {
 			final Throwable cause =  persitenceException.getCause();
 			if (cause instanceof org.hibernate.exception.ConstraintViolationException &&
 				cause.getCause().getMessage().contains("(name)=")) {
-				final String errMsgKey = "admin." + objectLabelKey + ".failunique";
+				final String errMsgKey = PRE_ADMIN + objectLabelKey + ".failunique";
 				showError(component, errMsgKey, object.getName());
 			}
 			else
@@ -618,7 +627,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	
 	@Override
 	protected void confirmed(boolean confirmed, Component component, Object confirmParam) {
-		Assert.notNull(confirmParam, "confirmParam is null");
+		Assert.notNull(confirmParam, "confirmParam");
 		
 		if (confirmed) {
 			switch (confirmParam.toString()) {
@@ -646,6 +655,9 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 					deleteObject(component);
 					refreshMenu();
 					break;
+					
+				default:
+					throw new UnsupportedOperationException(confirmParam.toString());
 			}
 		}
 	}
@@ -666,7 +678,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	}
 	
 	private void confirmDirty(String action) {
-		Assert.notNull(action, "action is null");
+		Assert.notNull(action, "action");
 		
 		confirm("question.dirty", null, action);
 	}

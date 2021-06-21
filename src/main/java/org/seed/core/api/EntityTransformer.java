@@ -17,7 +17,7 @@
  */
 package org.seed.core.api;
 
-public interface EntityTransformer<T extends EntityObject, U extends EntityObject> {
+public interface EntityTransformer {
 	
 	String getName();
 	

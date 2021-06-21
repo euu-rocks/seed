@@ -20,10 +20,12 @@ package org.seed.ui.zk.vm.admin;
 import org.seed.core.entity.EntityFunction;
 import org.seed.core.entity.transform.TransformerFunction;
 import org.seed.core.task.Task;
-
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 class CodeDialogParameter {
+	
+	private static final String PARENT_VIEWMODEL = "parentViewModel"; 
+	private static final String ENTITY_FUNCTION  = "entityFunction"; 
 	
 	final AbstractAdminViewModel<?> parentViewModel;
 	
@@ -34,8 +36,8 @@ class CodeDialogParameter {
 	final Task task;
 	
 	public CodeDialogParameter(AbstractAdminViewModel<?> parentViewModel, EntityFunction entityFunction) {
-		Assert.notNull(parentViewModel, "parentViewModel is null");
-		Assert.notNull(entityFunction, "entityFunction is null");
+		Assert.notNull(parentViewModel, PARENT_VIEWMODEL);
+		Assert.notNull(entityFunction, ENTITY_FUNCTION);
 		
 		this.parentViewModel = parentViewModel;
 		this.entityFunction = entityFunction;
@@ -44,8 +46,8 @@ class CodeDialogParameter {
 	}
 	
 	public CodeDialogParameter(AbstractAdminViewModel<?> parentViewModel, TransformerFunction transformerFunction) {
-		Assert.notNull(parentViewModel, "parentViewModel is null");
-		Assert.notNull(transformerFunction, "entityFunction is null");
+		Assert.notNull(parentViewModel, PARENT_VIEWMODEL);
+		Assert.notNull(transformerFunction, ENTITY_FUNCTION);
 		
 		this.parentViewModel = parentViewModel;
 		this.entityFunction = null;
@@ -54,8 +56,8 @@ class CodeDialogParameter {
 	}
 	
 	public CodeDialogParameter(AbstractAdminViewModel<?> parentViewModel, Task task) {
-		Assert.notNull(parentViewModel, "parentViewModel is null");
-		Assert.notNull(task, "task is null");
+		Assert.notNull(parentViewModel, PARENT_VIEWMODEL);
+		Assert.notNull(task, "task");
 		
 		this.parentViewModel = parentViewModel;
 		this.entityFunction = null;

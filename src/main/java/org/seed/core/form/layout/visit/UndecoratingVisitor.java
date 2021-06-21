@@ -26,8 +26,9 @@ import org.seed.core.form.SubForm;
 import org.seed.core.form.SubFormField;
 import org.seed.core.form.layout.BorderLayoutArea;
 import org.seed.core.form.layout.LayoutElement;
-
-import org.springframework.util.Assert;
+import org.seed.core.form.layout.LayoutElementAttributes;
+import org.seed.core.form.layout.LayoutElementClass;
+import org.seed.core.util.Assert;
 
 public class UndecoratingVisitor extends AbstractLayoutVisitor {
 	
@@ -41,117 +42,60 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 			return;
 		}
 		
-		element.removeAttribute("context");
-		element.removeAttribute("tooltiptext");
+		element.removeAttribute(LayoutElementAttributes.A_CONTEXT);
+		element.removeAttribute(LayoutElementAttributes.A_TOOLTIPTEXT);
 		// remove text if element has new child
 		if (element.hasChildren() && element.getText() != null) {
 			element.setText(null);
 		}
-		EntityField entityField;
-		FormFieldExtra fieldExtra;
 		switch (element.getName()) {
 			case LayoutElement.ZK:
 				setRootElement(element);
 				break;
 			
+			case LayoutElement.TABPANEL:
+				if (element.getText() != null) {
+					element.setText(null);
+					element.removeAttribute(LayoutElementAttributes.A_STYLE);
+				}
+				break;
+				
+			case LayoutElement.BORDERLAYOUT:
+				if (element.getId() != null) {
+					createSubForm(element);
+				}
+				break;
+				
 			case LayoutElement.NORTH:
 			case LayoutElement.EAST:
 			case LayoutElement.CENTER:
 			case LayoutElement.WEST:
 			case LayoutElement.SOUTH:
-				element.setClass("alpha-noborder");
+				element.setClass(LayoutElementClass.NO_BORDER);
 				break;
 				
 			case LayoutElement.CELL:
-				element.removeAttribute("class");
-				if (element.getText() != null) {
-					element.setText(null);
-					element.removeAttribute("align");
-				}
+				visitCell(element);
 				break;
 			
 			case LayoutElement.IMAGE:
-				entityField = getEntityField(element);
-				element.setAttribute("content", load(propertyName(entityField)) + ' ' + 
-												converter("vm.imageConverter"));
-				element.setAttribute("visible", load(isVisible(entityField)));
-				if (!entityField.isCalculated()) {
-					element.setOnClick(command("'editImage', fieldId='" + entityField.getUid() +'\''));
-				}
+				visitImage(element);
 				break;
 				
 			case LayoutElement.FILEBOX:
-				entityField = getEntityField(element);
-				element.setAttribute("content", bind(propertyName(entityField) + ".content"));
-				element.setAttribute("contentType", bind(propertyName(entityField) + ".contentType"));
-				element.setAttribute("fileName", bind(propertyName(entityField) + ".name"));
-				element.setAttribute("visible", load(isVisible(entityField)));
-				element.setAttribute("readonly", load(isReadonly(entityField)));
-				element.setAttribute("mandatory", load(isMandatory(entityField)));
-				element.setAttribute("onChange", command(onChange(entityField)));
-				element.removeAttribute("disabled");
+				visitFilebox(element);
 				break;
 				
 			case LayoutElement.CHECKBOX:
-				entityField = getEntityField(element);
-				element.setAttribute("checked", entityField.isCalculated() 
-												? load(propertyName(entityField)) 
-												: bind(propertyName(entityField)));
-				element.setAttribute("visible", load(isVisible(entityField)));
-				element.setAttribute("disabled", load(isReadonly(entityField)));
-				if (!entityField.isCalculated()) {
-					element.setAttribute("onCheck", command(onChange(entityField)));
-				}
+				visitCheckbox(element);
 				break;
 				
 			case LayoutElement.COMBOBOX:
-				entityField = getEntityField(element);
-				Assert.state(entityField.getType().isReference(), "field is not a reference field");
-				element.setAttribute("model", load("vm.getReferenceValues('" + entityField.getUid() + "')"));
-				element.setAttribute("value", load("vm.getIdentifier(" + propertyName(entityField) + ')'));
-				element.setAttribute("visible", load(isVisible(entityField)));
-				element.setAttribute("readonly", load(isReadonly(entityField)));
-				element.setAttribute("mandatory", load(isMandatory(entityField)));
-				element.setAttribute("selectedItem", bind(propertyName(entityField)));
-				element.setAttribute("onSelect", command(onChange(entityField)));
-				element.addChild(createTemplate("model", entityField.getInternalName()))
-					   .addChild(createComboitem(load("vm.getIdentifier(" + entityField.getInternalName() + ')')));
-				fieldExtra  = getFieldExtra(entityField);
-				if (fieldExtra != null && fieldExtra.getDetailForm() != null) {
-					element.setContext(newContextId());
-					addToRoot(createReferencePopup(element.getContext(), element.getId()));
-				}
+				visitCombobox(element);
 				break;
 			
 			case LayoutElement.BANDBOX:
-				entityField = getEntityField(element);
-				Assert.state(entityField.getType().isReference(), "field is not a reference field");
-				element.setAttribute("value", load("vm.getIdentifier(" + propertyName(entityField) + ')'));
-				element.setAttribute("visible", load(isVisible(entityField)));
-				element.setAttribute("readonly", load(isReadonly(entityField)));
-				element.setAttribute("mandatory", load(isMandatory(entityField)));
-				element.setAttribute("buttonVisible", load('!'+isReadonly(entityField)));
-				final LayoutElement elemListbox = element.addChild(createBandpopup())
-														 .addChild(createListBox());
-				elemListbox.setAttribute("model", load("vm.getReferenceListModel('" + entityField.getUid() + 
-														"')) @template(empty each ? 'empty' : 'model'"));
-				elemListbox.setAttribute("selectedItem", bind(propertyName(entityField)));
-				elemListbox.setAttribute("onSelect", command(onChange(entityField)));
-				elemListbox.setAttribute("height", "300px");
-				elemListbox.setAttribute("width", "350px");
-				elemListbox.addChild(createListHead(true));
-				elemListbox.addChild(createTemplate("empty", entityField.getReferenceEntity().getInternalName()))
-				   		   .addChild(createListItem(null))		   
-				   		   .addChild(createListCell('[' + getLabel("label.empty") + ']', null, null));
-				elemListbox.addChild(createTemplate("model", entityField.getReferenceEntity().getInternalName()))
-						   .addChild(createListItem(null))		   
-						   .addChild(createListCell(load("vm.getIdentifier(" + entityField.getReferenceEntity().getInternalName() + ')')
-								   				   , null, null));
-				fieldExtra = getFieldExtra(entityField);
-				if (fieldExtra != null && fieldExtra.getDetailForm() != null) {
-					element.setContext(newContextId());
-					addToRoot(createReferencePopup(element.getContext(), element.getId()));
-				}
+				visitBandbox(element);
 				break;
 			
 			case LayoutElement.TEXTBOX:	
@@ -160,184 +104,287 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 			case LayoutElement.DOUBLEBOX:
 			case LayoutElement.INTBOX:
 			case LayoutElement.LONGBOX:
-				entityField = getEntityField(element);
-				element.setAttribute("visible", load(isVisible(entityField)));
-				element.setAttribute("readonly", load(isReadonly(entityField)));
-				element.setAttribute("mandatory", load(isMandatory(entityField)));
-				element.setAttribute("value", entityField.isCalculated() 
-												? load(propertyName(entityField)) 
-												: bind(propertyName(entityField)));
+				final EntityField entityField = getEntityField(element);
+				element.setAttribute(LayoutElementAttributes.A_VISIBLE, load(isVisible(entityField)));
+				element.setAttribute(LayoutElementAttributes.A_READONLY, load(isReadonly(entityField)));
+				element.setAttribute(LayoutElementAttributes.A_MANDATORY, load(isMandatory(entityField)));
+				element.setAttribute(LayoutElementAttributes.A_VALUE, entityField.isCalculated() 
+																	? load(propertyName(entityField)) 
+																	: bind(propertyName(entityField)));
 				if (!(entityField.isCalculated() || entityField.getType().isAutonum())) {
-					element.setAttribute("onChange", command(onChange(entityField)));
-					element.setAttribute("instant", "true");
+					element.setAttribute(LayoutElementAttributes.A_ONCHANGE, command(onChange(entityField)));
+					element.setAttribute(LayoutElementAttributes.A_INSTANT, "true");
 				}
 				break;
 				
-			case LayoutElement.TABPANEL:
-				if (element.getText() != null) {
-					element.setText(null);
-					element.removeAttribute("style");
-				}
-				break;
-				
-			case LayoutElement.BORDERLAYOUT:
-				if (element.getId() == null) {
-					break;
-				}
-				// create sub form
-				final SubForm subForm = getSubForm(element);
-				element.setAttribute("visible", load("vm.isSubFormVisible('" + subForm.getNestedEntity().getUid() + "')"));
-				final LayoutElement elemListBox = element.getChild(LayoutElement.CENTER).getChild(LayoutElement.LISTBOX);
-				elemListBox.setAttribute("model", load("vm.object." + subForm.getNestedEntity().getInternalName()));
-				elemListBox.setAttribute("selectedItem", bind(selectedSubFormObject(subForm)));
-				elemListBox.setAttribute("onSelect", command("'selectSubFormObject'"));
-				elemListBox.setAttribute("nonselectableTags", "");
-				elemListBox.setAttribute("autopaging", "true");
-				elemListBox.setAttribute("mold", "paging");
-				final LayoutElement elemListitem = elemListBox.addChild(createTemplate("model", subForm.getNestedEntity().getInternalName()))
-															  .addChild(createListItem(null));
-				if (subForm.hasActions()) {
-					final LayoutElement elemNorth = element.addChild(createBorderLayoutArea(BorderLayoutArea.NORTH), 0);
-					final LayoutElement elemToolbar = elemNorth.addChild(createToolbar("@init(vm.getSubFormActions('" + subForm.getNestedEntity().getUid() + 
-																					"')) @template(empty each.type.listTemplate ? 'default' : each.type.listTemplate)"));
-					final LayoutElement elemActionTemplate = elemToolbar.addChild(createTemplate("default", "action"));
-					final LayoutElement elemActionTemplateSelect = elemToolbar.addChild(createTemplate("select", "action"));
-					final LayoutElement elemToolbarButton = createToolbarButton("@init(vm.getActionLabel(action))", // label
-							"'callSubFormAction',nestedId='" + subForm.getNestedEntity().getUid() + "',action=action,elem=self", // command
-							"@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"); // icon
-					elemToolbarButton.setAttribute("enable", load("vm.isActionEnabled(action)"));
-					final LayoutElement elemToolbarButtonSelect = elemToolbarButton.copy();
-					elemToolbarButtonSelect.setAttribute("visible", load("!empty " + selectedSubFormObject(subForm)));
-					elemActionTemplate.addChild(elemToolbarButton);
-					elemActionTemplateSelect.addChild(elemToolbarButtonSelect);
-				}
-				
-				if (subForm.hasFields()) {
-					final String nestedName = subForm.getNestedEntity().getInternalName();
-					for (SubFormField subFormField : subForm.getFields()) {
-						final EntityField nestedEntityField = subFormField.getEntityField();
-						final String subFormPropertyName = nestedName + '.' + nestedEntityField.getInternalName();
-						// bandbox
-						if (subFormField.isBandbox()) {
-							final LayoutElement elemField = elemListitem.addChild(new LayoutElement(LayoutElement.LISTCELL))
-																		.addChild(createBandbox(nestedEntityField));
-							elemField.setContext(subForm.getNestedEntity().getId() + "_" + elemField.getId());
-							elemField.removeAttribute("id");
-							elemField.setAttribute("value", load("vm.getIdentifier(" + subFormPropertyName + ')')); 
-							elemField.setAttribute("readonly", load(isReadonly(nestedEntityField)));
-							elemField.setAttribute("mandatory", load(isMandatory(nestedEntityField)));
-							elemField.setAttribute("buttonVisible", load('!'+isReadonly(nestedEntityField)));
-							
-							final LayoutElement elemList = elemField.addChild(createBandpopup())
-									 								.addChild(createListBox());
-							elemList.setAttribute("model", load("vm.getNestedReferenceListModel('" + subForm.getNestedEntity().getUid() + "','" + 
-														   		nestedEntityField.getUid()+'\'') + ") @template(empty each ? 'empty' : 'model')");
-							elemList.setAttribute("selectedItem", bind(subFormPropertyName));
-							elemList.setAttribute("onSelect", command(onNestedChange(nestedName, nestedEntityField)));
-							elemList.setAttribute("height", "300px");
-							elemList.setAttribute("width", "350px");
-							elemList.addChild(createListHead(true));
-							elemList.addChild(createTemplate("empty", nestedEntityField.getReferenceEntity().getInternalName()))
-									   .addChild(createListItem(null))		   
-									   .addChild(createListCell('[' + getLabel("label.empty") + ']', null, null));
-							elemList.addChild(createTemplate("model", nestedEntityField.getReferenceEntity().getInternalName()))
-								   .addChild(createListItem(null))		   
-								   .addChild(createListCell(load("vm.getIdentifier(" + nestedEntityField.getReferenceEntity().getInternalName() + ')'), 
-										   					null, null));
-							if (subFormField.getDetailForm() != null) {
-								addToRoot(createReferencePopup(elemField.getContext(), nestedEntityField.getUid()));
-							}
-							continue;
-						}
-						
-						final LayoutElement elemField = elemListitem.addChild(new LayoutElement(LayoutElement.LISTCELL))
-																	.addChild(createFormField(nestedEntityField));
-						elemField.setContext(subForm.getNestedEntity().getId() + "_" + elemField.getId());
-						elemField.removeAttribute("id");
-						switch (nestedEntityField.getType()) {
-							case DATE:
-							case DATETIME:
-							case DECIMAL:
-							case DOUBLE:
-							case INTEGER:
-							case LONG:
-							case TEXT:
-							case TEXTLONG:
-								elemField.setAttribute("value", nestedEntityField.isCalculated() 
-																	? load(subFormPropertyName) 
-																	: bind(subFormPropertyName));
-								elemField.setAttribute("readonly", load(isReadonly(nestedEntityField)));
-								elemField.setAttribute("mandatory", load(isMandatory(nestedEntityField)));
-								if (!nestedEntityField.isCalculated()) {
-									elemField.setAttribute("instant", "true");
-									elemField.setAttribute("onChange", command(onNestedChange(nestedName, nestedEntityField)));
-								}
-								break;
-							
-							case BINARY:
-								elemField.removeAttribute("hflex");
-								elemField.setAttribute("content", load(subFormPropertyName) + ' ' + 
-																  converter("vm.imageConverter"));
-								elemField.setAttribute("width", subFormField.getWidth());
-								elemField.setAttribute("height", subFormField.getHeight());
-								if (!nestedEntityField.isCalculated()) {
-									elemField.setOnClick(command("'editImage', fieldId='" + nestedEntityField.getUid() + 
-																		    "', nestedObject=" + nestedName));
-								}
-								break;
-								
-							case BOOLEAN:
-								elemField.setAttribute("checked", nestedEntityField.isCalculated() 
-																	? load(subFormPropertyName) 
-																	: bind(subFormPropertyName));
-								elemField.setAttribute("disabled", load(isReadonly(nestedEntityField)));
-								if (!nestedEntityField.isCalculated()) {
-									elemField.setAttribute("onCheck", command(onNestedChange(nestedName, nestedEntityField)));
-								}
-								break;
-							
-							case REFERENCE:
-								elemField.setAttribute("model", load("vm.getNestedReferenceValues('" + 
-																		subForm.getNestedEntity().getUid() + "','" + 
-																		nestedEntityField.getUid() + "')"));
-								elemField.setAttribute("onSelect", command(onNestedChange(nestedName, nestedEntityField)));
-								elemField.setAttribute("selectedItem", bind(subFormPropertyName));
-								elemField.setAttribute("value", load("vm.getIdentifier(" + subFormPropertyName + ')'));
-								elemField.setAttribute("readonly", load(isReadonly(nestedEntityField)));
-								elemField.setAttribute("mandatory", load(isMandatory(nestedEntityField)));
-								elemField.addChild(createTemplate("model", nestedEntityField.getInternalName()))
-										 .addChild(createComboitem(load("vm.getIdentifier(" + nestedEntityField.getInternalName() + ')')));
-					            if (subFormField.getDetailForm() != null) {
-									addToRoot(createReferencePopup(elemField.getContext(), nestedEntityField.getUid()));
-								}
-								break;
-								
-							case FILE:
-								elemField.setAttribute("content", bind(subFormPropertyName + ".content"));
-								elemField.setAttribute("contentType", bind(subFormPropertyName + ".contentType"));
-								elemField.setAttribute("fileName", bind(subFormPropertyName + ".name"));
-								elemField.setAttribute("readonly", load(isReadonly(nestedEntityField)));
-								elemField.setAttribute("mandatory", load(isMandatory(nestedEntityField)));
-								elemField.setAttribute("onChange", command(onNestedChange(nestedName, nestedEntityField)));
-								break;
-							
-							default:
-								throw new UnsupportedOperationException(nestedEntityField.getType().name());
-						}
-					}
-				}
+			default:
+				// do nothing
 				break;
 		}
-	
 		element.setDecorated(false);
+	}
+	
+	private void visitCell(LayoutElement element) {
+		element.removeAttribute(LayoutElementAttributes.A_CLASS);
+		if (element.getText() != null) {
+			element.setText(null);
+			element.removeAttribute(LayoutElementAttributes.A_ALIGN);
+		}
+	}
+	
+	private void visitImage(LayoutElement element) {
+		final EntityField entityField = getEntityField(element);
+		element.setAttribute(LayoutElementAttributes.A_CONTENT, load(propertyName(entityField)) + ' ' + 
+							 									converter("vm.imageConverter"));
+		element.setAttribute(LayoutElementAttributes.A_VISIBLE, load(isVisible(entityField)));
+		if (!entityField.isCalculated()) {
+			element.setOnClick(command("'editImage', fieldId='" + entityField.getUid() +'\''));
+		}
+	}
+	
+	private void visitFilebox(LayoutElement element) {
+		final EntityField entityField = getEntityField(element);
+		element.setAttribute(LayoutElementAttributes.A_CONTENT, bind(propertyName(entityField) + ".content"));
+		element.setAttribute(LayoutElementAttributes.A_CONTENTTYPE, bind(propertyName(entityField) + ".contentType"));
+		element.setAttribute(LayoutElementAttributes.A_FILENAME, bind(propertyName(entityField) + ".name"));
+		element.setAttribute(LayoutElementAttributes.A_VISIBLE, load(isVisible(entityField)));
+		element.setAttribute(LayoutElementAttributes.A_READONLY, load(isReadonly(entityField)));
+		element.setAttribute(LayoutElementAttributes.A_MANDATORY, load(isMandatory(entityField)));
+		element.setAttribute(LayoutElementAttributes.A_ONCHANGE, command(onChange(entityField)));
+		element.removeAttribute(LayoutElementAttributes.A_DISABLED);
+	}
+	
+	private void visitCheckbox(LayoutElement element) {
+		final EntityField entityField = getEntityField(element);
+		element.setAttribute(LayoutElementAttributes.A_CHECKED, entityField.isCalculated() 
+																? load(propertyName(entityField)) 
+																: bind(propertyName(entityField)));
+		element.setAttribute(LayoutElementAttributes.A_VISIBLE, load(isVisible(entityField)));
+		element.setAttribute(LayoutElementAttributes.A_DISABLED, load(isReadonly(entityField)));
+		if (!entityField.isCalculated()) {
+			element.setAttribute(LayoutElementAttributes.A_ONCHECK, command(onChange(entityField)));
+		}
+	}
+	
+	private void visitCombobox(LayoutElement element) {
+		final EntityField entityField = getEntityField(element);
+		Assert.state(entityField.getType().isReference(), "field is not a reference field");
+		element.setAttribute(LayoutElementAttributes.A_MODEL, load("vm.getReferenceValues('" + entityField.getUid() + "')"));
+		element.setAttribute(LayoutElementAttributes.A_VALUE, load(identifier(propertyName(entityField))));
+		element.setAttribute(LayoutElementAttributes.A_VISIBLE, load(isVisible(entityField)));
+		element.setAttribute(LayoutElementAttributes.A_READONLY, load(isReadonly(entityField)));
+		element.setAttribute(LayoutElementAttributes.A_MANDATORY, load(isMandatory(entityField)));
+		element.setAttribute(LayoutElementAttributes.A_SELECTEDITEM, bind(propertyName(entityField)));
+		element.setAttribute(LayoutElementAttributes.A_ONSELECT, command(onChange(entityField)));
+		element.addChild(createTemplate(LayoutElementAttributes.A_MODEL, entityField.getInternalName()))
+			   .addChild(createComboitem(load(identifier(entityField.getInternalName()))));
+		
+		final FormFieldExtra fieldExtra  = getFieldExtra(entityField);
+		if (fieldExtra != null && fieldExtra.getDetailForm() != null) {
+			element.setContext(newContextId());
+			addToRoot(createReferencePopup(element.getContext(), element.getId()));
+		}
+	}
+	
+	private void visitBandbox(LayoutElement element) {
+		final EntityField entityField = getEntityField(element);
+		Assert.state(entityField.getType().isReference(), "field is not a reference field");
+		element.setAttribute(LayoutElementAttributes.A_VALUE, load(identifier(propertyName(entityField))));
+		element.setAttribute(LayoutElementAttributes.A_VISIBLE, load(isVisible(entityField)));
+		element.setAttribute(LayoutElementAttributes.A_READONLY, load(isReadonly(entityField)));
+		element.setAttribute(LayoutElementAttributes.A_MANDATORY, load(isMandatory(entityField)));
+		element.setAttribute(LayoutElementAttributes.A_BUTTONVISIBLE, load('!' + isReadonly(entityField)));
+		final LayoutElement elemListbox = element.addChild(createBandpopup())
+												 .addChild(createListBox());
+		elemListbox.setAttribute(LayoutElementAttributes.A_MODEL, load("vm.getReferenceListModel('" + entityField.getUid() + 
+												"')) @template(empty each ? 'empty' : 'model'"));
+		elemListbox.setAttribute(LayoutElementAttributes.A_SELECTEDITEM, bind(propertyName(entityField)));
+		elemListbox.setAttribute(LayoutElementAttributes.A_ONSELECT, command(onChange(entityField)));
+		elemListbox.setAttribute(LayoutElementAttributes.A_HEIGHT, "300px");
+		elemListbox.setAttribute(LayoutElementAttributes.A_WIDTH, "350px");
+		elemListbox.addChild(createListHead(true));
+		elemListbox.addChild(createTemplate("empty", entityField.getReferenceEntity().getInternalName()))
+		   		   .addChild(createListItem(null))		   
+		   		   .addChild(createListCell('[' + getLabel("label.empty") + ']', null, null));
+		elemListbox.addChild(createTemplate(LayoutElementAttributes.A_MODEL, entityField.getReferenceEntity().getInternalName()))
+				   .addChild(createListItem(null))		   
+				   .addChild(createListCell(load(identifier(entityField.getReferenceEntity().getInternalName())) , null, null));
+		
+		final FormFieldExtra fieldExtra = getFieldExtra(entityField);
+		if (fieldExtra != null && fieldExtra.getDetailForm() != null) {
+			element.setContext(newContextId());
+			addToRoot(createReferencePopup(element.getContext(), element.getId()));
+		}
+	}
+	
+	private void createSubForm(LayoutElement element) {
+		// create sub form
+		final SubForm subForm = getSubForm(element);
+		element.setAttribute(LayoutElementAttributes.A_VISIBLE, load("vm.isSubFormVisible('" + subForm.getNestedEntity().getUid() + "')"));
+		final LayoutElement elemListBox = element.getChild(LayoutElement.CENTER).getChild(LayoutElement.LISTBOX);
+		elemListBox.setAttribute(LayoutElementAttributes.A_MODEL, load("vm.object." + subForm.getNestedEntity().getInternalName()));
+		elemListBox.setAttribute(LayoutElementAttributes.A_SELECTEDITEM, bind(selectedSubFormObject(subForm)));
+		elemListBox.setAttribute(LayoutElementAttributes.A_ONSELECT, command("'selectSubFormObject'"));
+		elemListBox.setAttribute("nonselectableTags", "");
+		elemListBox.setAttribute(LayoutElementAttributes.A_AUTOPAGING, "true");
+		elemListBox.setAttribute(LayoutElementAttributes.A_MOLD, "paging");
+		final LayoutElement elemListitem = elemListBox.addChild(createTemplate(LayoutElementAttributes.A_MODEL, subForm.getNestedEntity().getInternalName()))
+													  .addChild(createListItem(null));
+		if (subForm.hasActions()) {
+			final LayoutElement elemNorth = element.addChild(createBorderLayoutArea(BorderLayoutArea.NORTH), 0);
+			final LayoutElement elemToolbar = elemNorth.addChild(createToolbar("@init(vm.getSubFormActions('" + subForm.getNestedEntity().getUid() + 
+																			"')) @template(empty each.type.listTemplate ? 'default' : each.type.listTemplate)"));
+			final LayoutElement elemActionTemplate = elemToolbar.addChild(createTemplate("default", "action"));
+			final LayoutElement elemActionTemplateSelect = elemToolbar.addChild(createTemplate("select", "action"));
+			final LayoutElement elemToolbarButton = createToolbarButton("@init(vm.getActionLabel(action))", // label
+					"'callSubFormAction',nestedId='" + subForm.getNestedEntity().getUid() + "',action=action,elem=self", // command
+					"@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"); // icon
+			elemToolbarButton.setAttribute("enable", load("vm.isActionEnabled(action)"));
+			final LayoutElement elemToolbarButtonSelect = elemToolbarButton.copy();
+			elemToolbarButtonSelect.setAttribute(LayoutElementAttributes.A_VISIBLE, load("!empty " + selectedSubFormObject(subForm)));
+			elemActionTemplate.addChild(elemToolbarButton);
+			elemActionTemplateSelect.addChild(elemToolbarButtonSelect);
+		}
+		
+		if (subForm.hasFields()) {
+			final String nestedName = subForm.getNestedEntity().getInternalName();
+			for (SubFormField subFormField : subForm.getFields()) {
+				createSubFormField(subFormField, nestedName, elemListitem);
+			}
+		}
+	}
+	
+	private void createSubFormField(SubFormField subFormField, String nestedName, LayoutElement elemListitem) {
+		final SubForm subForm = subFormField.getSubForm();
+		final EntityField nestedEntityField = subFormField.getEntityField();
+		final String subFormPropertyName = nestedName + '.' + nestedEntityField.getInternalName();
+		// bandbox
+		if (subFormField.isBandbox()) {
+			createSubFormBandboxField(subFormField, nestedName, subFormPropertyName, nestedEntityField, elemListitem);
+			return;
+		}
+		
+		final LayoutElement elemField = elemListitem.addChild(new LayoutElement(LayoutElement.LISTCELL))
+													.addChild(createFormField(nestedEntityField));
+		elemField.setContext(subFormContext(subForm, elemField));
+		elemField.removeAttribute(LayoutElementAttributes.A_ID);
+		switch (nestedEntityField.getType()) {
+			case DATE:
+			case DATETIME:
+			case DECIMAL:
+			case DOUBLE:
+			case INTEGER:
+			case LONG:
+			case TEXT:
+			case TEXTLONG:
+				elemField.setAttribute(LayoutElementAttributes.A_VALUE, nestedEntityField.isCalculated() 
+																		? load(subFormPropertyName) 
+																		: bind(subFormPropertyName));
+				elemField.setAttribute(LayoutElementAttributes.A_READONLY, load(isReadonly(nestedEntityField)));
+				elemField.setAttribute(LayoutElementAttributes.A_MANDATORY, load(isMandatory(nestedEntityField)));
+				if (!nestedEntityField.isCalculated()) {
+					elemField.setAttribute(LayoutElementAttributes.A_INSTANT, "true");
+					elemField.setAttribute(LayoutElementAttributes.A_ONCHANGE, command(onNestedChange(nestedName, nestedEntityField)));
+				}
+				break;
+			
+			case BINARY:
+				elemField.removeAttribute(LayoutElementAttributes.A_HFLEX);
+				elemField.setAttribute(LayoutElementAttributes.A_CONTENT, load(subFormPropertyName) + ' ' + 
+												  converter("vm.imageConverter"));
+				elemField.setAttribute(LayoutElementAttributes.A_WIDTH, subFormField.getWidth());
+				elemField.setAttribute(LayoutElementAttributes.A_HEIGHT, subFormField.getHeight());
+				if (!nestedEntityField.isCalculated()) {
+					elemField.setOnClick(command("'editImage', fieldId='" + nestedEntityField.getUid() + 
+														    "', nestedObject=" + nestedName));
+				}
+				break;
+				
+			case BOOLEAN:
+				elemField.setAttribute(LayoutElementAttributes.A_CHECKED, nestedEntityField.isCalculated() 
+																			? load(subFormPropertyName) 
+																			: bind(subFormPropertyName));
+				elemField.setAttribute(LayoutElementAttributes.A_DISABLED, load(isReadonly(nestedEntityField)));
+				if (!nestedEntityField.isCalculated()) {
+					elemField.setAttribute(LayoutElementAttributes.A_ONCHECK, command(onNestedChange(nestedName, nestedEntityField)));
+				}
+				break;
+			
+			case REFERENCE:
+				elemField.setAttribute(LayoutElementAttributes.A_MODEL, load("vm.getNestedReferenceValues('" + 
+																		subForm.getNestedEntity().getUid() + "','" + 
+																		nestedEntityField.getUid() + "')"));
+				elemField.setAttribute(LayoutElementAttributes.A_ONSELECT, command(onNestedChange(nestedName, nestedEntityField)));
+				elemField.setAttribute(LayoutElementAttributes.A_SELECTEDITEM, bind(subFormPropertyName));
+				elemField.setAttribute(LayoutElementAttributes.A_VALUE, load(identifier(subFormPropertyName)));
+				elemField.setAttribute(LayoutElementAttributes.A_READONLY, load(isReadonly(nestedEntityField)));
+				elemField.setAttribute(LayoutElementAttributes.A_MANDATORY, load(isMandatory(nestedEntityField)));
+				elemField.addChild(createTemplate(LayoutElementAttributes.A_MODEL, nestedEntityField.getInternalName()))
+						 .addChild(createComboitem(load(identifier(nestedEntityField.getInternalName()))));
+	            if (subFormField.getDetailForm() != null) {
+					addToRoot(createReferencePopup(elemField.getContext(), nestedEntityField.getUid()));
+				}
+				break;
+				
+			case FILE:
+				elemField.setAttribute(LayoutElementAttributes.A_CONTENT, bind(subFormPropertyName + ".content"));
+				elemField.setAttribute(LayoutElementAttributes.A_CONTENTTYPE, bind(subFormPropertyName + ".contentType"));
+				elemField.setAttribute(LayoutElementAttributes.A_FILENAME, bind(subFormPropertyName + ".name"));
+				elemField.setAttribute(LayoutElementAttributes.A_READONLY, load(isReadonly(nestedEntityField)));
+				elemField.setAttribute(LayoutElementAttributes.A_MANDATORY, load(isMandatory(nestedEntityField)));
+				elemField.setAttribute(LayoutElementAttributes.A_ONCHANGE, command(onNestedChange(nestedName, nestedEntityField)));
+				break;
+			
+			default:
+				throw new UnsupportedOperationException(nestedEntityField.getType().name());
+		}
+	}
+	
+	private void createSubFormBandboxField(SubFormField subFormField, String nestedName,String subFormPropertyName, 
+										   EntityField nestedEntityField, LayoutElement elemListitem) {
+		final LayoutElement elemField = elemListitem.addChild(new LayoutElement(LayoutElement.LISTCELL))
+				.addChild(createBandbox(nestedEntityField));
+		elemField.setContext(subFormContext(subFormField.getSubForm(), elemField));
+		elemField.removeAttribute(LayoutElementAttributes.A_ID);
+		elemField.setAttribute(LayoutElementAttributes.A_VALUE, load(identifier(subFormPropertyName))); 
+		elemField.setAttribute(LayoutElementAttributes.A_READONLY, load(isReadonly(nestedEntityField)));
+		elemField.setAttribute(LayoutElementAttributes.A_MANDATORY, load(isMandatory(nestedEntityField)));
+		elemField.setAttribute(LayoutElementAttributes.A_BUTTONVISIBLE, load('!' + isReadonly(nestedEntityField)));
+
+		final LayoutElement elemList = elemField.addChild(createBandpopup())
+				.addChild(createListBox());
+		elemList.setAttribute(LayoutElementAttributes.A_MODEL, load("vm.getNestedReferenceListModel('" + subFormField.getSubForm().getNestedEntity().getUid() + "','" + 
+				nestedEntityField.getUid() + '\'') + ") @template(empty each ? 'empty' : 'model')");
+		elemList.setAttribute(LayoutElementAttributes.A_SELECTEDITEM, bind(subFormPropertyName));
+		elemList.setAttribute(LayoutElementAttributes.A_ONSELECT, command(onNestedChange(nestedName, nestedEntityField)));
+		elemList.setAttribute(LayoutElementAttributes.A_HEIGHT, "300px");
+		elemList.setAttribute(LayoutElementAttributes.A_WIDTH, "350px");
+		elemList.addChild(createListHead(true));
+		elemList.addChild(createTemplate("empty", nestedEntityField.getReferenceEntity().getInternalName()))
+			.addChild(createListItem(null))		   
+			.addChild(createListCell('[' + getLabel("label.empty") + ']', null, null));
+		elemList.addChild(createTemplate(LayoutElementAttributes.A_MODEL, nestedEntityField.getReferenceEntity().getInternalName()))
+			.addChild(createListItem(null))		   
+			.addChild(createListCell(load(identifier(nestedEntityField.getReferenceEntity().getInternalName())), null, null));
+		if (subFormField.getDetailForm() != null) {
+			addToRoot(createReferencePopup(elemField.getContext(), nestedEntityField.getUid()));
+		}
 	}
 	
 	private static LayoutElement createReferencePopup(String context, String fieldUid) {
 		final LayoutElement elemMenuItem = 
 				createMenuItem("label.showreference", "z-icon-share alpha-icon-lg", 
 							   "'showReference',fieldId='" + fieldUid + '\'');
-		elemMenuItem.setAttribute("disabled", load("vm.isReferenceEmpty('" + fieldUid + "')"));
+		elemMenuItem.setAttribute(LayoutElementAttributes.A_DISABLED, load("vm.isReferenceEmpty('" + fieldUid + "')"));
 		return createPopupMenu(context, Collections.singletonList(elemMenuItem));
+	}
+	
+	private static String subFormContext(SubForm subForm, LayoutElement element) {
+		return subForm.getNestedEntity().getId() + "_" + element.getId();
+	}
+	
+	private static String identifier(String name) {
+		return "vm.getIdentifier(" + name + ')';
 	}
 	
 	private static String propertyName(EntityField entityField) {
@@ -367,5 +414,5 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 	private static String selectedSubFormObject(SubForm subForm) {
 		return "vm.getSubForm('" + subForm.getNestedEntity().getUid() + "').selectedObject";
 	}
-
+	
 }

@@ -29,11 +29,8 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import org.seed.core.application.TransferableObject;
-import org.seed.core.data.AbstractSystemObject;
+import org.seed.core.application.AbstractPermissionObject;
 import org.seed.core.data.FieldAccess;
-import org.seed.core.user.UserGroup;
-import org.seed.core.user.UserGroupMetadata;
 import org.seed.core.util.ReferenceJsonSerializer;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -42,8 +39,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @javax.persistence.Entity
 @Table(name = "sys_entity_field_constraint")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class EntityFieldConstraint extends AbstractSystemObject
-	implements TransferableObject {
+public class EntityFieldConstraint extends AbstractPermissionObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "entity_id")
@@ -65,13 +61,6 @@ public class EntityFieldConstraint extends AbstractSystemObject
 	@JsonSerialize(using = ReferenceJsonSerializer.class)
 	private EntityStatus status;
 	
-	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usergroup_id")
-	@JsonSerialize(using = ReferenceJsonSerializer.class)
-	private UserGroupMetadata userGroup;
-	
-	private String uid;
-	
 	private FieldAccess access;
 	
 	private boolean isMandatory;
@@ -87,21 +76,6 @@ public class EntityFieldConstraint extends AbstractSystemObject
 	@Transient
 	@JsonIgnore
 	private String statusUid;
-	
-	@Transient
-	@JsonIgnore
-	private String userGroupUid;
-	
-	@Override
-	@XmlAttribute
-	public String getUid() {
-		return uid;
-	}
-	
-	@Override
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
 	
 	@XmlTransient
 	public Entity getEntity() {
@@ -166,24 +140,6 @@ public class EntityFieldConstraint extends AbstractSystemObject
 		this.status = status;
 	}
 	
-	@XmlTransient
-	public UserGroup getUserGroup() {
-		return userGroup;
-	}
-	
-	@XmlAttribute
-	public String getUserGroupUid() {
-		return userGroup != null ? userGroup.getUid() : userGroupUid;
-	}
-
-	public void setUserGroupUid(String userGroupUid) {
-		this.userGroupUid = userGroupUid;
-	}
-
-	public void setUserGroup(UserGroup userGroup) {
-		this.userGroup = (UserGroupMetadata) userGroup;
-	}
-	
 	@XmlAttribute
 	public FieldAccess getAccess() {
 		return access;
@@ -215,7 +171,7 @@ public class EntityFieldConstraint extends AbstractSystemObject
 			.append(fieldUid, otherConstraint.getFieldUid())
 			.append(fieldGroupUid, otherConstraint.getFieldGroupUid())
 			.append(statusUid, otherConstraint.getStatusUid())
-			.append(userGroupUid, otherConstraint.getUserGroupUid())
+			.append(getUserGroupUid(), otherConstraint.getUserGroupUid())
 			.append(access,  otherConstraint.access)
 			.append(isMandatory, otherConstraint.isMandatory)
 			.isEquals();

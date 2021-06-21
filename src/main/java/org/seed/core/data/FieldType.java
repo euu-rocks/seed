@@ -23,27 +23,27 @@ import java.util.Date;
 
 public enum FieldType {
 	
-	AUTONUM		(String.class,		"VARCHAR"),	
-	BINARY		(byte[].class,		"BLOB"),
-	BOOLEAN 	(boolean.class, 	"BOOLEAN"),
-	DATE		(Date.class,		"DATE"),
-	DATETIME	(Date.class,		"DATETIME"),
-	DECIMAL 	(BigDecimal.class,	"DECIMAL"),
-	DOUBLE		(Double.class,		"DOUBLE"),
-	FILE		(FileObject.class,	"BIGINT"),
-	INTEGER 	(Integer.class,		"INT"),
-	LONG		(Long.class,		"BIGINT"),				
-	REFERENCE	(Object.class,		"BIGINT"),
-	TEXT 		(String.class,		"VARCHAR"),
-	TEXTLONG 	(String.class,		"CLOB");
+	AUTONUM		(String.class,		DataType.VARCHAR),	
+	BINARY		(byte[].class,		DataType.BLOB),
+	BOOLEAN 	(boolean.class, 	DataType.BOOLEAN),
+	DATE		(Date.class,		DataType.DATE),
+	DATETIME	(Date.class,		DataType.DATETIME),
+	DECIMAL 	(BigDecimal.class,	DataType.DECIMAL),
+	DOUBLE		(Double.class,		DataType.DOUBLE),
+	FILE		(FileObject.class,	DataType.BIGINT),
+	INTEGER 	(Integer.class,		DataType.INT),
+	LONG		(Long.class,		DataType.BIGINT),				
+	REFERENCE	(Object.class,		DataType.BIGINT),
+	TEXT 		(String.class,		DataType.VARCHAR),
+	TEXTLONG 	(String.class,		DataType.CLOB);
 	
 	public final Class<?> typeClass;
 	
-	public final String dbType;
+	public final DataType dataType;
 
-	private FieldType(Class<?> typeClass, String dbType) {
+	private FieldType(Class<?> typeClass, DataType dataType) {
 		this.typeClass = typeClass;
-		this.dbType = dbType;
+		this.dataType = dataType;
 	}
 	
 	public boolean isAutonum() {
@@ -100,6 +100,21 @@ public enum FieldType {
 	
 	public static FieldType[] valuesWithoutAutonum() {
 		return Arrays.copyOfRange(values(), 1, values().length);
+	}
+	
+	public enum DataType {
+		
+		BIGINT,
+		BLOB,
+		BOOLEAN,
+		CLOB,
+		DATE,
+		DATETIME,
+		DECIMAL,
+		DOUBLE,
+		INT,
+		VARCHAR
+		
 	}
 	
 }

@@ -28,8 +28,7 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
-import org.seed.core.application.TransferableObject;
-import org.seed.core.data.AbstractSystemObject;
+import org.seed.core.application.AbstractTransferableObject;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.filter.Filter;
 import org.seed.core.entity.filter.FilterMetadata;
@@ -38,8 +37,7 @@ import org.seed.core.entity.transform.TransformerMetadata;
 
 @Entity
 @Table(name = "sys_form_field_extra")
-public class FormFieldExtra extends AbstractSystemObject
-	implements TransferableObject {
+public class FormFieldExtra extends AbstractTransferableObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "form_id")
@@ -61,8 +59,6 @@ public class FormFieldExtra extends AbstractSystemObject
     @JoinColumn(name = "detail_form_id")
 	private FormMetadata detailForm;
 	
-	private String uid;
-	
 	private boolean isReadonly;
 	
 	@Transient
@@ -76,17 +72,6 @@ public class FormFieldExtra extends AbstractSystemObject
 	
 	@Transient
 	private String detailFormUid;
-	
-	@Override
-	@XmlAttribute
-	public String getUid() {
-		return uid;
-	}
-	
-	@Override
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
 	
 	@XmlTransient
 	public Form getForm() {

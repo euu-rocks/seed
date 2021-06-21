@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TaskCodeProvider implements SourceCodeProvider<Task> {
+public class TaskCodeProvider implements SourceCodeProvider {
 	
 	@Autowired
 	private TaskRepository taskRepository;
@@ -40,13 +40,13 @@ public class TaskCodeProvider implements SourceCodeProvider<Task> {
 		return new TaskCodeBuilder(task).build(BuildMode.TEMPLATE).getContent();
 	}
 	
-	public SourceCode<Task> getTaskSource(Task task) {
+	public SourceCode getTaskSource(Task task) {
 		return new TaskCodeBuilder(task).build();
 	}
 	
 	@Override
-	public List<SourceCodeBuilder<Task>> getSourceCodeBuilders() {
-		final List<SourceCodeBuilder<Task>> result = new ArrayList<>();
+	public List<SourceCodeBuilder> getSourceCodeBuilders() {
+		final List<SourceCodeBuilder> result = new ArrayList<>();
 		for (Task task : taskRepository.find()) {
 			result.add(new TaskCodeBuilder(task));
 		}

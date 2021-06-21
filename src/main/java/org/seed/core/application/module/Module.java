@@ -22,7 +22,7 @@ import java.util.List;
 import org.seed.core.application.TransferableObject;
 import org.seed.core.customcode.CustomCode;
 import org.seed.core.data.SystemEntity;
-import org.seed.core.data.datasource.DataSource;
+import org.seed.core.data.datasource.IDataSource;
 import org.seed.core.data.dbobject.DBObject;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.filter.Filter;
@@ -38,7 +38,7 @@ public interface Module extends SystemEntity, TransferableObject {
 	
 	List<DBObject> getDBObjects();
 	
-	List<DataSource> getDataSources();
+	List<IDataSource> getDataSources();
 	
 	List<Entity> getEntities();
 	
@@ -88,7 +88,7 @@ public interface Module extends SystemEntity, TransferableObject {
 	
 	DBObject getDBObjectByUid(String objectUid);
 	
-	DataSource getDataSourceByUid(String dataSourceUid);
+	IDataSource getDataSourceByUid(String dataSourceUid);
 	
 	CustomCode getCustomCodeByUid(String customCodeUid);
 	

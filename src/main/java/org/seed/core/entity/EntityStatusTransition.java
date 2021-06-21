@@ -33,17 +33,18 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntity;
-import org.seed.core.application.TransferableObject;
-import org.seed.core.data.AbstractSystemObject;
+import org.seed.core.application.AbstractTransferableObject;
 import org.seed.core.data.Order;
 import org.seed.core.user.User;
+import org.seed.core.util.Assert;
 import org.seed.core.util.ReferenceJsonSerializer;
 
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -52,8 +53,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @javax.persistence.Entity
 @Table(name = "sys_entity_statustransition")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class EntityStatusTransition extends AbstractSystemObject
-	implements TransferableObject {
+public class EntityStatusTransition extends AbstractTransferableObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "entity_id")
@@ -85,8 +85,6 @@ public class EntityStatusTransition extends AbstractSystemObject
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private List<EntityStatusTransitionPermission> permissions;
 	
-	private String uid;
-	
 	@Transient
 	@JsonIgnore
 	private String sourceStatusUid;
@@ -94,17 +92,6 @@ public class EntityStatusTransition extends AbstractSystemObject
 	@Transient
 	@JsonIgnore
 	private String targetStatusUid;
-	
-	@Override
-	@XmlAttribute
-	public String getUid() {
-		return uid;
-	}
-	
-	@Override
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
 	
 	@XmlTransient
 	public Entity getEntity() {
@@ -170,7 +157,7 @@ public class EntityStatusTransition extends AbstractSystemObject
 	}
 	
 	public void addFunction(EntityStatusTransitionFunction function) {
-		Assert.notNull(function, "function is null");
+		Assert.notNull(function, C.FUNCTION);
 		
 		if (functions == null) {
 			functions = new ArrayList<>();
@@ -178,8 +165,21 @@ public class EntityStatusTransition extends AbstractSystemObject
 		functions.add(function);
 	}
 	
+	public boolean containsEntityFunction(EntityFunction function) {
+		Assert.notNull(function, C.FUNCTION);
+		
+		if (hasFunctions()) {
+			for (EntityStatusTransitionFunction transitionFunction : getFunctions()) {
+				if (transitionFunction.getFunction().equals(function)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
 	public void removeFunction(EntityStatusTransitionFunction function) {
-		Assert.notNull(function, "function is null");
+		Assert.notNull(function, C.FUNCTION);
 		
 		getFunctions().remove(function);
 	}
@@ -203,7 +203,7 @@ public class EntityStatusTransition extends AbstractSystemObject
 	}
 
 	public boolean isAuthorized(User user) {
-		Assert.notNull(user, "user is null");
+		Assert.notNull(user, C.USER);
 		
 		if (hasPermissions()) {
 			for (EntityStatusTransitionPermission permission : getPermissions()) {
@@ -238,7 +238,17 @@ public class EntityStatusTransition extends AbstractSystemObject
 			return true;
 		}
 		final EntityStatusTransition otherTransition = (EntityStatusTransition) other;
-		// check functions
+		if (!new EqualsBuilder()
+			.append(sourceStatusUid, otherTransition.getSourceStatusUid())
+			.append(targetStatusUid, otherTransition.getTargetStatusUid())
+			.isEquals()) {
+			return false;
+		}
+		return isEqualFunctions(otherTransition) && 
+			   isEqualPermissions(otherTransition);
+	}
+	
+	private boolean isEqualFunctions(EntityStatusTransition otherTransition) {
 		if (hasFunctions()) {
 			for (EntityStatusTransitionFunction function : getFunctions()) {
 				if (!function.isEqual(otherTransition.getFunctionByUid(function.getUid()))) {
@@ -253,7 +263,10 @@ public class EntityStatusTransition extends AbstractSystemObject
 				}
 			}
 		}
-		// check permissions
+		return true;
+	}
+	
+	private boolean isEqualPermissions(EntityStatusTransition otherTransition) {
 		if (hasPermissions()) {
 			for (EntityStatusTransitionPermission permission : getPermissions()) {
 				if (!permission.isEqual(otherTransition.getPermissionByUid(permission.getUid()))) {
@@ -271,6 +284,7 @@ public class EntityStatusTransition extends AbstractSystemObject
 		return true;
 	}
 	
+	@Override
 	protected void setOrderIndexes() {
 		Order.setOrderIndexes(getFunctions());
 	}

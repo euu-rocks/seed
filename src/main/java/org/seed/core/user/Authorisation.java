@@ -33,6 +33,12 @@ public enum Authorisation {
 	
 	RUN_JOBS,
 	PRINT_REPORTS,
-	SEARCH_FULLTEXT
+	SEARCH_FULLTEXT;
+	
+	private static final String ROLE_PREFIX = "ROLE_";
+	
+	String roleName() {
+		return ROLE_PREFIX.concat(name());
+	}
 	
 }

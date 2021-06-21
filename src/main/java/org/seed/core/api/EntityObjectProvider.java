@@ -36,13 +36,13 @@ public interface EntityObjectProvider {
 	
 	<T extends EntityObject> List<T> findAll(Class<T> objectClass);
 	
-	<T extends EntityObject> List<T> find(EntityFilter<T> filter);
+	<T extends EntityObject> List<T> find(EntityFilter filter);
 	
 	<T extends EntityObject> List<T> find(CriteriaQuery<T> query);
 	
-	<T extends EntityObject> EntityFilter<T> getFilter(Class<T> objectClass, String filterName);
+	<T extends EntityObject> EntityFilter getFilter(Class<T> objectClass, String filterName);
 	
-	<T extends EntityObject,U extends EntityObject> EntityTransformer<T,U> getTransformer(Class<T> sourceClass, Class<U> targetClass, String transformerName);
+	<T extends EntityObject,U extends EntityObject> EntityTransformer getTransformer(Class<T> sourceClass, Class<U> targetClass, String transformerName);
 	
 	<T extends EntityObject> void save(T entityObject) throws ValidationException;
 	
@@ -52,8 +52,8 @@ public interface EntityObjectProvider {
 	
 	<T extends EntityObject> void changeStatus(T entityObject, Status targetStatus) throws ValidationException;
 	
-	<T extends EntityObject,U extends EntityObject> U transform(EntityTransformer<T,U> transformer, T sourceObject);
+	<T extends EntityObject,U extends EntityObject> U transform(EntityTransformer transformer, T sourceObject);
 	
-	<T extends EntityObject,U extends EntityObject> void transform(EntityTransformer<T,U> transformer, T sourceObject, U targetObject);
+	<T extends EntityObject,U extends EntityObject> void transform(EntityTransformer transformer, T sourceObject, U targetObject);
 	
 }

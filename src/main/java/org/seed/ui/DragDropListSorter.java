@@ -20,22 +20,22 @@ package org.seed.ui;
 import java.util.Collections;
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.data.SystemObject;
-
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 public class DragDropListSorter {
 	
 	private final List<? extends SystemObject> list;
 
 	public DragDropListSorter(List<? extends SystemObject> list) {
-		Assert.notNull(list, "list is null");
+		Assert.notNull(list, C.LIST);
 		this.list = list;
 	}
 	
 	public void swap(SystemObject base, SystemObject item) {
-		Assert.notNull(base, "base is null");
-		Assert.notNull(item, "item is null");
+		Assert.notNull(base, C.BASE);
+		Assert.notNull(item, C.ITEM);
 		
 		Collections.swap(list, list.indexOf(base), list.indexOf(item));
     }

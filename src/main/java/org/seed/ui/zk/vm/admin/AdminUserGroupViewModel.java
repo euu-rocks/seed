@@ -27,7 +27,7 @@ import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupAuthorisation;
 import org.seed.core.user.UserGroupMetadata;
 import org.seed.core.user.UserGroupService;
-
+import org.seed.core.util.MiscUtils;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.ExecutionArgParam;
@@ -53,6 +53,7 @@ public class AdminUserGroupViewModel extends AbstractAdminViewModel<UserGroup> {
 		super.init(object, null);
 	}
 	
+	@Override
 	protected void initObject(UserGroup userGroup) {
 		if (!userGroup.isNew() && userGroup.hasUsers()) {
 			for (User user : userGroup.getUsers()) {
@@ -97,6 +98,7 @@ public class AdminUserGroupViewModel extends AbstractAdminViewModel<UserGroup> {
 	}
 	
 	@Command
+	@Override
 	public void flagDirty(@BindingParam("notify") String notify, 
 						  @BindingParam("notifyObject") String notifyObject) {
 		super.flagDirty(notify, notifyObject);
@@ -129,22 +131,22 @@ public class AdminUserGroupViewModel extends AbstractAdminViewModel<UserGroup> {
 	}
 	
 	@GlobalCommand
-	public void _refreshObject(@BindingParam("param") Long objectId) {
+	public void globalRefreshObject(@BindingParam("param") Long objectId) {
 		refreshObject(objectId);
 	}
 
 	@Override
-	protected List<? extends SystemObject> getListManagerSource(String key, int listNum) {
+	protected List<SystemObject> getListManagerSource(String key, int listNum) {
 		switch (key) {
 			case AUTHORISATIONS:
-				return listNum == LIST_AVAILABLE
+				return MiscUtils.cast(listNum == LIST_AVAILABLE
 						? userGroupService().getAvailableAuthorisations(getObject())
-						: getObject().getAuthorisations();
+						: getObject().getAuthorisations());
 				
 			case USERS:
-				return listNum == LIST_AVAILABLE
+				return MiscUtils.cast(listNum == LIST_AVAILABLE
 						? userGroupService().getAvailableUsers(getObject())
-						: new ArrayList<>(getObject().getUsers());
+						: new ArrayList<>(getObject().getUsers()));
 			
 			default:
 				throw new IllegalStateException("unknown list manager key: " + key);

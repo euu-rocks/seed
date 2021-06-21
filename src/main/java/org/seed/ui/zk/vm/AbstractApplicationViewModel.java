@@ -17,6 +17,11 @@
  */
 package org.seed.ui.zk.vm;
 
+import java.util.List;
+
+import org.seed.C;
+import org.seed.core.application.setting.ApplicationSettingService;
+import org.seed.core.application.setting.Setting;
 import org.seed.core.config.FullTextSearchProvider;
 import org.seed.core.config.Limits;
 import org.seed.core.data.ValidationException;
@@ -27,6 +32,7 @@ import org.seed.core.report.ReportFormat;
 import org.seed.core.report.ReportService;
 import org.seed.core.user.User;
 import org.seed.core.user.UserService;
+import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 import org.seed.ui.FormParameter;
 import org.seed.ui.TabParameterMap;
@@ -39,7 +45,6 @@ import org.seed.ui.zk.TimeConverter;
 import org.seed.ui.zk.ValueConverter;
 
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.Assert;
 
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Sessions;
@@ -50,17 +55,20 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	
 	protected static final String ZUL_PATH = "~./zul";
 	
-	private static StringConverter stringConverter;
+	private StringConverter stringConverter;
 	
-	private static ValueConverter valueConverter;
+	private ValueConverter valueConverter;
 	
-	private static DateTimeConverter dateTimeConverter;
+	private DateTimeConverter dateTimeConverter;
 	
-	private static TimeConverter timeConverter;
+	private TimeConverter timeConverter;
 	
-	private static ImageConverter imageConverter;
+	private ImageConverter imageConverter;
 	
-	private static FileIconConverter fileIconConverter;
+	private FileIconConverter fileIconConverter;
+	
+	@WireVariable(value="applicationSettingServiceImpl")
+	protected ApplicationSettingService settingService;
 	
 	@WireVariable(value="reportServiceImpl")
 	protected ReportService reportService;
@@ -78,6 +86,14 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	
 	public final int getLimit(String limitName) {
 		return limits.getLimit(limitName);
+	}
+	
+	protected final String getSetting(Setting setting) {
+		return settingService.getSetting(setting);
+	}
+	
+	protected final String getSettingOrNull(Setting setting) {
+		return settingService.getSettingOrNull(setting);
 	}
 	
 	public final StringConverter getStringConverter() {
@@ -122,6 +138,10 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 		return fileIconConverter;
 	}
 	
+	public final List<Report> getUserReports() {
+		return reportService.getReports(getUser());
+	}
+	
 	public boolean isFullTextSearchAvailable() {
 		return fullTextSearch.isFullTextSearchAvailable();
 	}
@@ -143,24 +163,24 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	}
 	
 	protected final User getUser() {
-		User user = getSessionObject("user");
+		User user = getSessionObject(C.USER);
 		if (user == null) {
 			user = userService.getCurrentUser();
-			Assert.state(user != null, "user not available");
-			setSessionObject("user", user);
+			Assert.stateAvailable(user, C.USER);
+			setSessionObject(C.USER, user);
 		}
 		return user;
 	}
 	
 	@SuppressWarnings("unchecked")
 	protected final <T extends Component> T getComponentById(String id) {
-		Assert.notNull(id, "id is null");
+		Assert.notNull(id, C.ID);
 		
 		return (T) getComponent("/inc/" + id);
 	}
 	
 	protected final void refreshMenu() {
-		globalCommand("_refreshMenu", null);
+		globalCommand("globalRefreshMenu", null);
 	}
 	
 	protected final void downloadReport(Report report, ReportFormat format) 
@@ -173,28 +193,27 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	private void setDirty(boolean dirty) {
 		this.dirty = dirty;
 		notifyChange("isDirty");
-		globalCommand("_contentDirty", dirty); 
 	}
 	
 	protected static void openTab(Form form, ValueObject object) {
-		Assert.notNull(form, "form is null");
-		Assert.notNull(object, "object is null");
+		Assert.notNull(form, C.FORM);
+		Assert.notNull(object, C.OBJECT);
 		
-		globalCommand("_openTab", new TabParameterMap(form.getName(), 
-													  "/form/detailform.zul", null, 
-													  new FormParameter(form, object)));
+		globalCommand("globalOpenTab", new TabParameterMap(form.getName(), 
+														   "/form/detailform.zul", null, 
+														   new FormParameter(form, object)));
 	}
 	
 	protected static void showDialog(String view, Object param) {
-		Assert.notNull(view, "view is null");
+		Assert.notNull(view, "view");
 		
 		createComponents(ZUL_PATH + view, param);
 	}
 	
 	protected static void showView(String view, Object param) {
-		Assert.notNull(view, "view is null");
+		Assert.notNull(view, "view");
 	
-		globalCommand("_showView", new ViewParameterMap(view, param));
+		globalCommand("globalShowView", new ViewParameterMap(view, param));
 	}
 	
 	protected static void logout() {

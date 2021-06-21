@@ -21,15 +21,17 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityService;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.form.FormPrintout;
 import org.seed.core.form.LabelProvider;
+import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 @Service
 public class PrintoutServiceImpl implements PrintoutService {
@@ -85,13 +87,13 @@ public class PrintoutServiceImpl implements PrintoutService {
 
 	@Override
 	public byte[] print(FormPrintout printout, ValueObject valueObject) {
-		Assert.notNull(printout, "printout is null");
-		Assert.notNull(valueObject, "valueObject is null");
+		Assert.notNull(printout, C.PRINTOUT);
+		Assert.notNull(valueObject, "valueObject");
 		
 		try {
 			final Class<? extends PrintoutProcessor> processorClass = mapProcessors.get(printout.getContentType());
 			if (processorClass == null) {
-				throw new RuntimeException("no processor available for content type: " + printout.getContentType());
+				throw new IllegalStateException("no processor available for content type: " + printout.getContentType());
 			}
 			
 			final Entity entity = entityService.getObject(valueObject.getEntityId());
@@ -99,9 +101,10 @@ public class PrintoutServiceImpl implements PrintoutService {
 															  .newInstance(entity, labelProvider);
 			return processor.process(printout, valueObject);
 		
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException | SecurityException ex) {
-			throw new RuntimeException(ex);
+		} 
+		catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | 
+				NoSuchMethodException | SecurityException ex) {
+			throw new InternalException(ex);
 		}
 	}
 

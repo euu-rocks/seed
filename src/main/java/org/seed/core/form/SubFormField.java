@@ -27,9 +27,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.seed.core.application.TransferableObject;
-import org.seed.core.data.AbstractOrderedSystemObject;
-import org.seed.core.entity.EntityField;
+
 import org.seed.core.entity.filter.Filter;
 import org.seed.core.entity.filter.FilterMetadata;
 import org.seed.core.entity.transform.Transformer;
@@ -37,16 +35,11 @@ import org.seed.core.entity.transform.TransformerMetadata;
 
 @Entity
 @Table(name = "sys_subform_field")
-public class SubFormField extends AbstractOrderedSystemObject 
-	implements TransferableObject {
+public class SubFormField extends AbstractFormField {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subform_id")
 	private SubForm subForm;
-	
-	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "entity_field_id")
-	private EntityField entityField;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "transform_id")
@@ -60,26 +53,9 @@ public class SubFormField extends AbstractOrderedSystemObject
     @JoinColumn(name = "detail_form_id")
 	private FormMetadata detailForm;
 	
-	private String uid;
-	
-	private String label;
-	
-	private String width;
-	
-	private String height;
-	
-	private String hflex;
-	
-	private String style;
-	
-	private String labelStyle;
-	
 	private boolean isReadonly;
 	
 	private boolean isBandbox;
-	
-	@Transient
-	private String entityFieldUid;
 	
 	@Transient
 	private String transformerUid;
@@ -90,17 +66,6 @@ public class SubFormField extends AbstractOrderedSystemObject
 	@Transient
 	private String detailFormUid;
 	
-	@Override
-	@XmlAttribute
-	public String getUid() {
-		return uid;
-	}
-	
-	@Override
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
-	
 	@XmlTransient
 	public SubForm getSubForm() {
 		return subForm;
@@ -108,15 +73,6 @@ public class SubFormField extends AbstractOrderedSystemObject
 
 	public void setSubForm(SubForm subForm) {
 		this.subForm = subForm;
-	}
-	
-	@XmlTransient
-	public EntityField getEntityField() {
-		return entityField;
-	}
-
-	public void setEntityField(EntityField entityField) {
-		this.entityField = entityField;
 	}
 	
 	@XmlTransient
@@ -147,60 +103,6 @@ public class SubFormField extends AbstractOrderedSystemObject
 	}
 	
 	@XmlAttribute
-	public String getLabel() {
-		return label;
-	}
-
-	public void setLabel(String label) {
-		this.label = label;
-	}
-	
-	@XmlAttribute
-	public String getWidth() {
-		return width;
-	}
-
-	public void setWidth(String width) {
-		this.width = width;
-	}
-	
-	@XmlAttribute
-	public String getHeight() {
-		return height;
-	}
-
-	public void setHeight(String height) {
-		this.height = height;
-	}
-	
-	@XmlAttribute
-	public String getHflex() {
-		return hflex;
-	}
-
-	public void setHflex(String hflex) {
-		this.hflex = hflex;
-	}
-
-	@XmlAttribute
-	public String getStyle() {
-		return style;
-	}
-
-	public void setStyle(String style) {
-		this.style = style;
-	}
-	
-	@XmlAttribute
-	public String getLabelStyle() {
-		return labelStyle;
-	}
-
-	public void setLabelStyle(String labelStyle) {
-		this.labelStyle = labelStyle;
-	}
-	
-	@XmlAttribute
 	public boolean isReadonly() {
 		return isReadonly;
 	}
@@ -216,15 +118,6 @@ public class SubFormField extends AbstractOrderedSystemObject
 
 	public void setBandbox(boolean isBandbox) {
 		this.isBandbox = isBandbox;
-	}
-	
-	@XmlAttribute
-	public String getEntityFieldUid() {
-		return entityField != null ? entityField.getUid() : entityFieldUid;
-	}
-
-	public void setEntityFieldUid(String entityFieldUid) {
-		this.entityFieldUid = entityFieldUid;
 	}
 	
 	@XmlAttribute
@@ -255,7 +148,7 @@ public class SubFormField extends AbstractOrderedSystemObject
 	}
 
 	public String getName() {
-		return label != null ? label : entityField.getName();
+		return getLabel() != null ? getLabel() : getEntityField().getName();
 	}
 	
 	@Override
@@ -268,16 +161,16 @@ public class SubFormField extends AbstractOrderedSystemObject
 		}
 		final SubFormField otherField = (SubFormField) other;
 		return new EqualsBuilder()
-			.append(entityFieldUid, otherField.getEntityFieldUid())
+			.append(getEntityFieldUid(), otherField.getEntityFieldUid())
 			.append(transformerUid, otherField.getTransformerUid())
 			.append(filterUid, otherField.getFilterUid())
 			.append(detailFormUid, otherField.getDetailFormUid())
-			.append(label, otherField.label)
-			.append(width, otherField.width)
-			.append(height, otherField.height)
-			.append(hflex, otherField.hflex)
-			.append(style, otherField.style)
-			.append(labelStyle, otherField.labelStyle)
+			.append(getLabel(), otherField.getLabel())
+			.append(getWidth(), otherField.getWidth())
+			.append(getHeight(), otherField.getHeight())
+			.append(getHflex(), otherField.getHflex())
+			.append(getStyle(), otherField.getStyle())
+			.append(getLabelStyle(), otherField.getLabelStyle())
 			.append(isReadonly, otherField.isReadonly)
 			.append(isBandbox, otherField.isBandbox)
 			.isEquals();

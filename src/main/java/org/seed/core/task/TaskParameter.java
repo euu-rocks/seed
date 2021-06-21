@@ -27,22 +27,18 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
-import org.seed.core.application.TransferableObject;
-import org.seed.core.data.AbstractSystemObject;
+import org.seed.core.application.AbstractTransferableObject;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "sys_task_param")
-public class TaskParameter extends AbstractSystemObject
-	implements TransferableObject {
+public class TaskParameter extends AbstractTransferableObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_id")
 	@JsonIgnore
 	private TaskMetadata task;
-	
-	private String uid;
 	
 	private String name;
 	
@@ -55,17 +51,6 @@ public class TaskParameter extends AbstractSystemObject
 	
 	public void setTask(Task task) {
 		this.task = (TaskMetadata) task;
-	}
-	
-	@Override
-	@XmlAttribute
-	public String getUid() {
-		return uid;
-	}
-	
-	@Override
-	public void setUid(String uid) {
-		this.uid = uid;
 	}
 	
 	@XmlAttribute

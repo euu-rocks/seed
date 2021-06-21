@@ -15,29 +15,20 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.data.datasource;
+package org.seed.core.form.layout;
 
-import java.util.List;
-import java.util.Set;
+public final class LabelProperties {
+	
+	public final Orientation orient;
+	
+	public final Alignment align;
+	
+	public final Alignment valign;
 
-import org.seed.core.application.ApplicationEntity;
-
-public interface DataSource extends ApplicationEntity, org.seed.core.api.DataSource {
-	
-	String getContent();
-	
-	boolean hasParameters();
-	
-	DataSourceParameter getParameterByUid(String uid);
-	
-	DataSourceParameter getParameterByName(String name);
-	
-	List<DataSourceParameter> getParameters();
-	
-	void addParameter(DataSourceParameter parameter);
-	
-	void removeParameter(DataSourceParameter parameter);
-	
-	Set<String> getContentParameterSet();
+	public LabelProperties(Orientation orient, Alignment align, Alignment valign) {
+		this.orient = orient;
+		this.align = align;
+		this.valign = valign;
+	}
 	
 }

@@ -19,24 +19,24 @@ package org.seed.ui;
 
 import java.util.HashMap;
 
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
-public class TabParameterMap extends HashMap<String, Object> {
+public final class TabParameterMap extends HashMap<String, Object> {
 
 	private static final long serialVersionUID = -3098990587395841188L;
 	
-	public final static String NAME = "name";
+	public static final String NAME = "name";
 	
-	public final static String VIEW = "view";
+	public static final String VIEW = "view";
 	
-	public final static String ICON = "icon";
+	public static final String ICON = "icon";
 	
-	public final static String PARAMETER = "parameter";
+	public static final String PARAMETER = "parameter";
 	
 	public TabParameterMap(String name, String view, String icon, FormParameter parameter) {
 		super(4, 1f);
-		Assert.notNull(name, "name is null");
-		Assert.notNull(view, "view is null");
+		Assert.notNull(name, NAME);
+		Assert.notNull(view, VIEW);
 		
 		put(NAME, name);
 		put(VIEW, view);

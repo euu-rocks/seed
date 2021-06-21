@@ -35,9 +35,10 @@ import org.seed.core.form.layout.LayoutService;
 import org.seed.core.form.navigation.Menu;
 import org.seed.core.form.navigation.MenuService;
 import org.seed.core.user.Authorisation;
+import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 import org.seed.ui.ListFilter;
 
-import org.springframework.util.Assert;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.ContextParam;
@@ -54,10 +55,11 @@ import org.zkoss.zul.Window;
 
 public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	
-	private static final String FIELDS = "fields";
-	private static final String ACTIONS = "actions";
-	private static final String TRANSFORMERS = "transformers";
-	private static final String PRINTOUTS = "printouts";
+	private static final String FIELDS         = "fields";
+	private static final String ACTIONS        = "actions";
+	private static final String TRANSFORMERS   = "transformers";
+	private static final String PRINTOUTS      = "printouts";
+	private static final String LAYOUT_INCLUDE = "layoutInclude";
 	
 	@Wire("#newFormWin")
 	private Window window;
@@ -104,14 +106,14 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 		}
 		else if (layoutService.getEditLayout(getUserName()) != null) {
 			layoutService.resetEditLayout(getUserName());
-			notifyChange("layoutInclude");
+			notifyChange(LAYOUT_INCLUDE);
 		}
 	}
 	
 	@Override
 	protected void initFilters() {
-		final ListFilter filterEntity = getFilter(FILTERGROUP_LIST, "entity");
-		filterEntity.setValueFunction(o -> ((Form) o).getEntity().getName());
+		final ListFilter<Form> filterEntity = getFilter(FILTERGROUP_LIST, "entity");
+		filterEntity.setValueFunction(o -> o.getEntity().getName());
 		for (Form form : getObjectList()) {
 			filterEntity.addValue(form.getEntity().getName());
 		}
@@ -194,32 +196,32 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 
 	@Override
-	protected List<? extends SystemObject> getListSorterSource(String key) {
-		switch (key) {
-			case PRINTOUTS:
-				return getObject().getPrintouts();
-			default:
-				throw new IllegalStateException("unknown list sorter key: " + key);	
+	protected List<SystemObject> getListSorterSource(String key) {
+		if (PRINTOUTS.equals(key)) {
+			return MiscUtils.cast(getObject().getPrintouts());
+		}
+		else {
+			throw new IllegalStateException("unknown list sorter key: " + key);	
 		}
 	}
 
 	@Override
-	protected List<? extends SystemObject> getListManagerSource(String key, int listNum) {
+	protected List<SystemObject> getListManagerSource(String key, int listNum) {
 		switch (key) {
 			case FIELDS:
-				return listNum == LIST_AVAILABLE
-						? formService.getAvailableFields(getObject())
-						: getObject().getFields();
+				return MiscUtils.cast(listNum == LIST_AVAILABLE
+							? formService.getAvailableFields(getObject())
+							: getObject().getFields());
 			
 			case ACTIONS:
-				return listNum == LIST_AVAILABLE
-						? formService.getAvailableActions(getObject())
-						: getObject().getActions();
+				return MiscUtils.cast(listNum == LIST_AVAILABLE
+							? formService.getAvailableActions(getObject())
+							: getObject().getActions());
 						
 			case TRANSFORMERS:
-				return listNum == LIST_AVAILABLE
-						? formService.getAvailableTransformers(getObject())
-						: getObject().getTransformers();
+				return MiscUtils.cast(listNum == LIST_AVAILABLE
+							? formService.getAvailableTransformers(getObject())
+							: getObject().getTransformers());
 			
 			default:
 				throw new IllegalStateException("unknown list manager key: " + key);
@@ -255,6 +257,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
+	@Override
 	public void flagDirty() {
 		super.flagDirty();
 	}
@@ -271,12 +274,10 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 			final String layoutContent = layoutService.buildLayout(layoutRoot);
 			layoutService.decorateLayout(getObject(), layoutRoot);
 			((FormMetadata) getObject()).setLayoutContent(layoutContent);
-			notifyChange("layoutInclude");
+			notifyChange(LAYOUT_INCLUDE);
 		}
-		if (cmdSaveObject(component)) {
-			if (isCreate) {
-				refreshMenu();
-			}
+		if (cmdSaveObject(component) && isCreate) {
+			refreshMenu();
 		}
 	}
 	
@@ -572,7 +573,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
-	@NotifyChange({"action", "getListManagerList"})
+	@NotifyChange({"action", LISTMANAGER_LIST})
 	public void newCustomAction() {
 		action = formService.createCustomAction(getObject());
 		removeListManager(ACTIONS);
@@ -592,7 +593,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@GlobalCommand
-	public void _refreshObject(@BindingParam("param") Long objectId) {
+	public void globalRefreshObject(@BindingParam("param") Long objectId) {
 		refreshObject(objectId);
 	}
 	
@@ -605,7 +606,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	void refreshLayout() {
-		notifyChange("layoutInclude");
+		notifyChange(LAYOUT_INCLUDE);
 	}
 	
 	private void initLayout(LayoutElement layoutRoot) {

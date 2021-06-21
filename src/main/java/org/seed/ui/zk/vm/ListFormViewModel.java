@@ -23,13 +23,13 @@ import java.util.Map;
 
 import org.seed.core.data.Cursor;
 import org.seed.core.data.Sort;
-import org.seed.core.data.SystemObject;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.form.FormAction;
 import org.seed.core.form.FormActionType;
 import org.seed.core.form.FormField;
 import org.seed.ui.FormParameter;
+import org.seed.ui.SearchParameter;
 import org.seed.ui.zk.LoadOnDemandListModel;
 import org.seed.ui.zk.ThumbnailConverter;
 
@@ -58,12 +58,14 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	private int version;
 	
 	@Init
+	@Override
 	public void init(@ExecutionArgParam("param") FormParameter param) {
 		super.init(param);
 		
 		editAction = getForm().getActionByType(FormActionType.DETAIL);
 	}
 	
+	@Override
 	public boolean isFullTextSearchAvailable() {
 		return super.isFullTextSearchAvailable() &&
 				getForm().getEntity().hasFullTextSearchFields();
@@ -77,10 +79,10 @@ public class ListFormViewModel extends AbstractFormViewModel {
 		this.fullTextSearchTerm = fullTextSearchTerm;
 	}
 
-	public ListModel<SystemObject> getListModel() {
-		final SearchParameter searchParam = getSessionObject("searchParameter");
-		Cursor cursor;
-		if (isResultList()) {
+	public ListModel<ValueObject> getListModel() {
+		final SearchParameter searchParam = getSessionObject(SEARCH_PARAMETER);
+		Cursor<ValueObject> cursor;
+		if (searchParam != null) {
 			cursor = valueObjectService().createCursor(searchParam.searchObject, searchParam.mapOperators);
 		}
 		else if (fullTextQuery != null) {
@@ -96,15 +98,17 @@ public class ListFormViewModel extends AbstractFormViewModel {
 			}
 		}
 		
-		return new LoadOnDemandListModel(cursor, false) {
+		return new LoadOnDemandListModel<ValueObject>(cursor, false) {
 			private static final long serialVersionUID = 6122960735585906371L;
 			
 			@Override
-			protected List<ValueObject> loadChunk(Cursor cursor) {
+			protected List<ValueObject> loadChunk(Cursor<ValueObject> cursor) {
 				return valueObjectService().loadChunk(cursor);
 			}
 		};
 	}
+	
+	
 	
 	public ThumbnailConverter getThumbnailConverter(Long fieldId) {
 		ThumbnailConverter converter = null;
@@ -131,13 +135,16 @@ public class ListFormViewModel extends AbstractFormViewModel {
 			return null;
 		}
 		final Boolean dirAsc = sortMap.get(fieldId);
-		return dirAsc != null 
-				? (dirAsc ? "z-icon-sort-up alpha-icon-lg" : "z-icon-sort-down alpha-icon-lg") 
-				: null;
+		if (dirAsc != null) {
+			return dirAsc.booleanValue() 
+					? "z-icon-sort-up alpha-icon-lg" 
+					: "z-icon-sort-down alpha-icon-lg";
+		}
+		return null;
 	}
 	
 	public boolean isResultList() {
-		return hasSessionObject("searchParameter");
+		return hasSessionObject(SEARCH_PARAMETER);
 	}
 
 	@Command
@@ -174,8 +181,8 @@ public class ListFormViewModel extends AbstractFormViewModel {
 				break;
 				
 			case SEARCH:
-				removeSessionObject("searchParameter");
-				// no break on purpose
+				removeSessionObject(SEARCH_PARAMETER);
+				/* falls through */
 			case BACKSEARCH:
 				showSearchForm();
 				break;
@@ -205,13 +212,11 @@ public class ListFormViewModel extends AbstractFormViewModel {
 		}
 	}
 	
-	
-	
 	@Command
 	@NotifyChange({"listModel", "getSortIcon"})
 	public void sort(@BindingParam("fieldId") Long fieldId) {
 		if (sortMap == null) {
-			sortMap = new HashMap<>(2);
+			sortMap = new HashMap<>();
 		}
 		Boolean directionAscending = sortMap.get(fieldId);
 		if (directionAscending != null) {
@@ -226,6 +231,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 						directionAscending);
 	}
 	
+	@Override
 	protected void confirmed(boolean confirmed, Component component, Object confirmParam) {
 		final FormAction action = (FormAction) confirmParam;
 		switch (action.getType()) {
@@ -257,15 +263,13 @@ public class ListFormViewModel extends AbstractFormViewModel {
 		}
 	}
 	
-	private void reload() {
-		notifyChange("listModel");
-	}
-	
-	
-	
 	@Override
 	protected String getLayoutPath() {
 		return "/list" + (version++);
+	}
+	
+	private void reload() {
+		notifyChange("listModel");
 	}
 	
  }

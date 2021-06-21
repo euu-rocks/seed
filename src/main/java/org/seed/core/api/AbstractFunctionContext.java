@@ -21,7 +21,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.hibernate.Session;
-import org.springframework.util.Assert;
+
+import org.seed.C;
+import org.seed.core.util.Assert;
 
 public abstract class AbstractFunctionContext implements FunctionContext {
 	
@@ -43,21 +45,21 @@ public abstract class AbstractFunctionContext implements FunctionContext {
 	
 	@Override
 	public boolean hasProperty(String name) {
-		Assert.notNull(name, "name is null");
+		Assert.notNull(name, C.NAME);
 		
-		return mapProperties != null ? mapProperties.containsKey(name) : false;
+		return mapProperties != null && mapProperties.containsKey(name);
 	}
 	
 	@Override
 	public Object getProperty(String name) {
-		Assert.notNull(name, "name is null");
+		Assert.notNull(name, C.NAME);
 		
 		return mapProperties != null ? mapProperties.get(name) : null;
 	}
 	
 	@Override
 	public void setProperty(String name, Object object) {
-		Assert.notNull(name, "name is null");
+		Assert.notNull(name, C.NAME);
 		
 		if (object != null) {
 			if (mapProperties == null) {

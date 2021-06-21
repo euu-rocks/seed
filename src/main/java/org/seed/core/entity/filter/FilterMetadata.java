@@ -35,13 +35,13 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-
+import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityMetadata;
+import org.seed.core.util.Assert;
 import org.seed.core.util.ReferenceJsonSerializer;
 
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -133,7 +133,7 @@ public class FilterMetadata extends AbstractApplicationEntity implements Filter 
 	
 	@Override
 	public void addCriterion(FilterCriterion criterion) {
-		Assert.notNull(criterion, "criterion is null");
+		Assert.notNull(criterion, C.CRITERION);
 		
 		criterion.setFilter(this);
 		if (criteria == null) {
@@ -144,7 +144,7 @@ public class FilterMetadata extends AbstractApplicationEntity implements Filter 
 	
 	@Override
 	public void removeCriterion(FilterCriterion criterion) {
-		Assert.notNull(criterion, "criterion is null");
+		Assert.notNull(criterion, C.CRITERION);
 		
 		getCriteria().remove(criterion);
 	}
@@ -163,7 +163,10 @@ public class FilterMetadata extends AbstractApplicationEntity implements Filter 
 			.isEquals()) {
 			return false;
 		}
-		
+		return isEqualCriteria(otherFilter);
+	}
+	
+	private boolean isEqualCriteria(Filter otherFilter) {
 		if (hasCriteria()) {
 			for (FilterCriterion criterion : getCriteria()) {
 				if (!criterion.isEqual(otherFilter.getCriterionByUid(criterion.getUid()))) {

@@ -38,8 +38,8 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.core.application.AbstractApplicationEntity;
+import org.seed.core.util.Assert;
 
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 @Entity
@@ -95,7 +95,7 @@ public class UserGroupMetadata extends AbstractApplicationEntity implements User
 
 	@Override
 	public boolean isAuthorised(Authorisation authorisation) {
-		Assert.notNull(authorisation, "authorisation is null");
+		Assert.notNull(authorisation, "authorisation");
 		
 		if (hasAuthorisation()) {
 			for (UserGroupAuthorisation auth : getAuthorisations()) {

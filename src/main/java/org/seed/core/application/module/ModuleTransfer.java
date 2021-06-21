@@ -29,14 +29,15 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.seed.C;
 import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.config.SessionFactoryProvider;
 import org.seed.core.config.UpdatableConfiguration;
+import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 /**
  * In case of "NPE while unmarshalling" 
@@ -69,13 +70,13 @@ public class ModuleTransfer {
 	}
 	
 	public Module readModule(InputStream inputStream) {
-		Assert.notNull(inputStream, "inputStream is null");
+		Assert.notNull(inputStream, "inputStream");
 		
 		return (Module) marshaller.unmarshal(new StreamSource(inputStream));
 	}
 	
 	public byte[] exportModule(Module module) {
-		Assert.notNull(module, "module is null");
+		Assert.notNull(module, C.MODULE);
 		
 		final ByteArrayOutputStream out = new ByteArrayOutputStream();
 		marshaller.marshal(module, new StreamResult(out));
@@ -83,7 +84,7 @@ public class ModuleTransfer {
 	}
 	
 	public ImportAnalysis analyzeModule(Module module) {
-		Assert.notNull(module, "module is null");
+		Assert.notNull(module, C.MODULE);
 		
 		final ImportAnalysis analysis = new ImportAnalysis(module);
 		final Module currentVersionModule = getCurrentVersionModule(module);
@@ -94,7 +95,7 @@ public class ModuleTransfer {
 	}
 	
 	public void importModule(Module module) {
-		Assert.notNull(module, "module is null");
+		Assert.notNull(module, C.MODULE);
 		
 		final Module currentVersionModule = getCurrentVersionModule(module);
 		final TransferContext context = new DefaultTransferContext(module);
@@ -152,29 +153,32 @@ public class ModuleTransfer {
 				if (result.contains(applicationService)) {
 					continue;
 				}
-				boolean doAddService = true;
-				// check dependencies
-				if (applicationService.getImportDependencies() != null) {
-					for (Class<?> dependency : applicationService.getImportDependencies()) {
-						boolean dependencyResolved = false;
-						for (ApplicationEntityService<?> service : result) {
-							if (dependency.isAssignableFrom(service.getClass())) {
-								dependencyResolved = true;
-								break;
-							}
-						}
-						if (!dependencyResolved) {
-							doAddService = false;
-							break;
-						}
-					}
-				}
-				if (doAddService) {
+				if (dependenciesResolved(applicationService, result)) {
 					result.add(applicationService);
 				}
 			}
 		}
 		return result;
+	}
+	
+	private static boolean dependenciesResolved(ApplicationEntityService<?> applicationService,
+										  		List<ApplicationEntityService<?>> resolvedServices) {
+		if (applicationService.getImportDependencies() != null) {
+			for (Class<?> dependency : applicationService.getImportDependencies()) {
+				boolean dependencyResolved = false;
+				// check already resolved services
+				for (ApplicationEntityService<?> service : resolvedServices) {
+					if (dependency.isAssignableFrom(service.getClass())) {
+						dependencyResolved = true;
+						break;
+					}
+				}
+				if (!dependencyResolved) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 }

@@ -35,17 +35,22 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
+import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.data.FieldAccess;
 import org.seed.core.data.Order;
+import org.seed.core.data.SystemField;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityAccess;
 import org.seed.core.entity.EntityField;
+import org.seed.core.entity.EntityFunction;
 import org.seed.core.entity.EntityMetadata;
 import org.seed.core.entity.EntityStatus;
+import org.seed.core.entity.filter.Filter;
+import org.seed.core.entity.transform.Transformer;
 import org.seed.core.user.User;
+import org.seed.core.util.Assert;
 
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 @javax.persistence.Entity
@@ -145,6 +150,20 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 		return actions;
 	}
 	
+	@Override
+	public List<FormAction> getActions(boolean isList) {
+		final List<FormAction> result = new ArrayList<>();
+		if (hasActions()) {
+			for (FormAction action : getActions()) {
+				if ((isList && action.getType().isVisibleAtList) ||
+				   (!isList && action.getType().isVisibleAtDetail)) {
+					result.add(action);
+				}
+			}
+		}
+		return result;
+	}
+	
 	public void setActions(List<FormAction> actions) {
 		this.actions = actions;
 	}
@@ -213,7 +232,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public void addField(FormField field) {
-		Assert.notNull(field, "field is null");
+		Assert.notNull(field, C.FIELD);
 		
 		if (fields == null) {
 			fields = new ArrayList<>();
@@ -224,7 +243,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public void removeField(FormField field) {
-		Assert.notNull(field, "field is null");
+		Assert.notNull(field, C.FIELD);
 		
 		getFields().remove(field);
 	}
@@ -235,7 +254,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public void addSubForm(SubForm subForm) {
-		Assert.notNull(subForm, "subForm is null");
+		Assert.notNull(subForm, C.SUBFORM);
 		
 		if (subForms == null) {
 			subForms = new ArrayList<>();
@@ -246,7 +265,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public void removeSubForm(SubForm subForm) {
-		Assert.notNull(subForm, "subForm is null");
+		Assert.notNull(subForm, C.SUBFORM);
 		
 		subForms.remove(subForm);
 	}
@@ -258,7 +277,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public void addPrintout(FormPrintout printout) {
-		Assert.notNull(printout, "printout is null");
+		Assert.notNull(printout, C.PRINTOUT);
 		
 		if (printouts == null) {
 			printouts = new ArrayList<>();
@@ -269,7 +288,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public void removePrintout(FormPrintout printout) {
-		Assert.notNull(printout, "printout is null");
+		Assert.notNull(printout, C.PRINTOUT);
 		
 		getPrintouts().remove(printout);
 	}
@@ -281,7 +300,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public void addAction(FormAction action) {
-		Assert.notNull(action, "action is null");
+		Assert.notNull(action, C.ACTION);
 		
 		if (actions == null) {
 			actions = new ArrayList<>();
@@ -291,7 +310,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public void removeAction(FormAction action) {
-		Assert.notNull(action, "action is null");
+		Assert.notNull(action, C.ACTION);
 		
 		getActions().remove(action);
 	}
@@ -303,7 +322,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public void addTransformer(FormTransformer transformer) {
-		Assert.notNull(transformer, "transformer is null");
+		Assert.notNull(transformer, C.TRANSFORMER);
 		
 		if (transformers == null) {
 			transformers = new ArrayList<>();
@@ -313,14 +332,127 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public void removeTransformer(FormTransformer transformer) {
-		Assert.notNull(transformer, "transformer is null");
+		Assert.notNull(transformer, C.TRANSFORMER);
 		
 		getTransformers().remove(transformer);
 	}
 	
 	@Override
+	public boolean containsEntityField(EntityField entityField) {
+		Assert.notNull(entityField, "entityField");
+		
+		if (hasFields()) {
+			for (FormField formField : getFields()) {
+				if (entityField.equals(formField.getEntityField())) {
+					return true;
+				}
+			}
+	    }
+		return false;
+	}
+	
+	@Override
+	public boolean containsSystemField(SystemField systemField) {
+		Assert.notNull(systemField, "systemField");
+		
+		if (hasFields()) {
+			for (FormField formField : getFields()) {
+				if (systemField == formField.getSystemField()) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean containsEntityFunction(EntityFunction entityFunction) {
+		Assert.notNull(entityFunction, "entityFunction");
+		
+		if (hasActions()) {
+			for (FormAction action : getActions()) {
+				if (entityFunction.equals(action.getEntityFunction())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean containsFilter(Filter filter) {
+		Assert.notNull(filter, C.FILTER);
+		
+		if (hasFieldExtras()) {
+			for (FormFieldExtra fieldExtra : getFieldExtras()) {
+				if (filter.equals(fieldExtra.getFilter())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean containsTransformer(Transformer transformer) {
+		Assert.notNull(transformer, C.TRANSFORMER);
+		
+		if (hasTransformers()) {
+			for (FormTransformer formTransformer : getTransformers()) {
+				if (transformer.equals(formTransformer.getTransformer())) {
+					return true;
+				}
+			}
+		}
+		if (hasFieldExtras()) {
+			for (FormFieldExtra fieldExtra : getFieldExtras()) {
+				if (transformer.equals(fieldExtra.getTransformer())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean containsForm(Form form) {
+		Assert.notNull(form, C.FORM);
+		
+		return (hasFieldExtras() && containsFormFieldExtra(form)) || 
+			   (hasActions() && containsFormFormAction(form)) || 
+			   (hasTransformers() && containsFormFormTransformer(form));
+	}
+	
+	private boolean containsFormFieldExtra(Form form) {
+		for (FormFieldExtra fieldExtra : getFieldExtras()) {
+			if (form.equals(fieldExtra.getDetailForm())) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private boolean containsFormFormAction(Form form) {
+		for (FormAction action : getActions()) {
+			if (form.equals(action.getTargetForm())) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private boolean containsFormFormTransformer(Form form) {
+		for (FormTransformer transformer : getTransformers()) {
+			if (form.equals(transformer.getTargetForm())) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	@Override
 	public FormAction getActionByType(FormActionType actionType) {
-		Assert.notNull(actionType, "actionType is null");
+		Assert.notNull(actionType, "actionType");
 		
 		if (hasActions()) {
 			for (FormAction action : getActions()) {
@@ -334,56 +466,56 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public FormField getFieldById(Long fieldId) {
-		Assert.notNull(fieldId, "fieldId is null");
+		Assert.notNull(fieldId, "fieldId");
 		
 		return getObjectById(getFields(), fieldId);
 	}
 	
 	@Override
 	public FormField getFieldByUid(String fieldUid) {
-		Assert.notNull(fieldUid, "fieldUid is null");
+		Assert.notNull(fieldUid, "fieldUid");
 		
 		return getObjectByUid(getFields(), fieldUid);
 	}
 	
 	@Override
 	public FormFieldExtra getFieldExtraByUid(String fieldExtraUid) {
-		Assert.notNull(fieldExtraUid, "fieldExtraUid is null");
+		Assert.notNull(fieldExtraUid, "fieldExtraUid");
 		
 		return getObjectByUid(getFieldExtras(), fieldExtraUid);
 	}
 	
 	@Override
 	public FormAction getActionByUid(String actionUid) {
-		Assert.notNull(actionUid, "actionUid is null");
+		Assert.notNull(actionUid, "actionUid");
 		
 		return getObjectByUid(getActions(), actionUid);
 	}
 	
 	@Override
 	public FormTransformer getTransformerByUid(String transformerUid) {
-		Assert.notNull(transformerUid, "transformerUid is null");
+		Assert.notNull(transformerUid, "transformerUid");
 		
 		return getObjectByUid(getTransformers(), transformerUid);
 	}
 	
 	@Override
 	public FormPrintout getPrintoutByUid(String printoutUid) {
-		Assert.notNull(printoutUid, "printoutUid is null");
+		Assert.notNull(printoutUid, "printoutUid");
 		
 		return getObjectByUid(getPrintouts(), printoutUid);
 	}
 	
 	@Override
 	public SubForm getSubFormByUid(String subFormUid) {
-		Assert.notNull(subFormUid, "subFormUid is null");
+		Assert.notNull(subFormUid, "subFormUid");
 		
 		return getObjectByUid(subForms, subFormUid);
 	}
 	
 	@Override
 	public SubForm getSubFormByEntityId(Long entityId) {
-		Assert.notNull(entityId, "entityId is null");
+		Assert.notNull(entityId, "entityId");
 		
 		if (hasSubForms()) {
 			for (SubForm subForm : subForms) {
@@ -397,7 +529,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public SubForm getSubFormByNestedEntityId(Long nestedEntityId) {
-		Assert.notNull(nestedEntityId, "nestedEntityId is null");
+		Assert.notNull(nestedEntityId, "nestedEntityId");
 		
 		if (hasSubForms()) {
 			for (SubForm subForm : subForms) {
@@ -411,7 +543,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public SubForm getSubFormByNestedEntityUid(String nestedEntityUid) {
-		Assert.notNull(nestedEntityUid, "nestedEntityUid is null");
+		Assert.notNull(nestedEntityUid, "nestedEntityUid");
 		
 		if (hasSubForms()) {
 			for (SubForm subForm : subForms) {
@@ -441,7 +573,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public FormFieldExtra getFieldExtra(EntityField entityField) {
-		Assert.notNull(entityField, "entityField is null");
+		Assert.notNull(entityField, C.ENTITYFIELD);
 		
 		if (hasFieldExtras()) {
 			for (FormFieldExtra fieldExtra : getFieldExtras()) {
@@ -455,8 +587,8 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public boolean isActionEnabled(FormAction action, User user) {
-		Assert.notNull(action, "action is null");
-		Assert.notNull(user, "user is null");
+		Assert.notNull(action, C.ACTION);
+		Assert.notNull(user, C.USER);
 		
 		switch (action.getType()) {
 			case DETAIL:
@@ -474,8 +606,8 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public boolean isActionEnabled(SubFormAction action, User user) {
-		Assert.notNull(action, "action is null");
-		Assert.notNull(user, "user is null");
+		Assert.notNull(action, C.ACTION);
+		Assert.notNull(user, C.USER);
 		
 		switch (action.getType()) {
 			case NEWOBJECT:
@@ -491,8 +623,8 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public boolean isSubFormVisible(String nestedEntityUid, User user) {
-		Assert.notNull(nestedEntityUid, "nestedEntityUid is null");
-		Assert.notNull(user, "user is null");
+		Assert.notNull(nestedEntityUid, "nestedEntityUid");
+		Assert.notNull(user, C.USER);
 		
 		final SubForm subForm = getSubFormByNestedEntityUid(nestedEntityUid);
 		Assert.state(subForm != null, "subForm not found  " + nestedEntityUid);
@@ -502,23 +634,23 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public boolean isFieldVisible(EntityField entityField, EntityStatus status, User user) {
-		Assert.notNull(entityField, "entityField is null");
-		Assert.notNull(user, "user is null");
+		Assert.notNull(entityField, C.ENTITYFIELD);
+		Assert.notNull(user, C.USER);
 		
 		return entity.checkFieldAccess(entityField, user, status, FieldAccess.READ, FieldAccess.WRITE);
 	}
 	
 	@Override
 	public boolean isFieldMandatory(EntityField entityField) {
-		Assert.notNull(entityField, "entityField is null");
+		Assert.notNull(entityField, C.ENTITYFIELD);
 		
 		return entityField.isMandatory() && !entityField.getType().isAutonum();
 	}
 	
 	@Override
 	public boolean isFieldReadonly(EntityField entityField, EntityStatus status, User user) {
-		Assert.notNull(entityField, "entityField is null");
-		Assert.notNull(user, "user is null");
+		Assert.notNull(entityField, C.ENTITYFIELD);
+		Assert.notNull(user, C.USER);
 		
 		if (entityField.getType().isAutonum() || 
 			entityField.isCalculated()) {
@@ -550,7 +682,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public void addFieldExtra(FormFieldExtra fieldExtra) {
-		Assert.notNull(fieldExtra, "fieldExtra is null");
+		Assert.notNull(fieldExtra, "fieldExtra");
 		
 		fieldExtra.setForm(this);
 		if (fieldExtras == null) {
@@ -561,13 +693,13 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public void removeFieldExtra(FormFieldExtra fieldExtra) {
-		Assert.notNull(fieldExtra, "fieldExtra is null");
+		Assert.notNull(fieldExtra, "fieldExtra");
 		
 		getFieldExtras().remove(fieldExtra);
 	}
 	
 	public void setLayoutContent(String content) {
-		Assert.notNull(content, "content is null");
+		Assert.notNull(content, C.CONTENT);
 		
 		if (layout == null) {
 			layout = new FormLayout();
@@ -599,7 +731,16 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 		else if (otherForm.getLayout() != null) {
 			return false;
 		}
-		// check fields 
+		return isEqualFields(otherForm) &&
+			   isEqualFieldExtras(otherForm) &&
+			   isEqualActions(otherForm) &&
+			   isEqualTransformers(otherForm) &&
+			   isEqualPrintouts(otherForm) &&
+			   isEqualSubForms(otherForm);
+
+	}
+	
+	private boolean isEqualFields(Form otherForm) {
 		if (hasFields()) {
 			for (FormField field : getFields()) {
 				if (!field.isEqual(otherForm.getFieldByUid(field.getUid()))) {
@@ -614,7 +755,10 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 				}
 			}
 		}
-		// check field extras
+		return true;
+	}
+	
+	private boolean isEqualFieldExtras(Form otherForm) {
 		if (hasFieldExtras()) {
 			for (FormFieldExtra extra : getFieldExtras()) {
 				if (!extra.isEqual(otherForm.getFieldExtraByUid(extra.getUid()))) {
@@ -629,7 +773,10 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 				}
 			}
 		}
-		// check actions
+		return true;
+	}
+	
+	private boolean isEqualActions(Form otherForm) {
 		if (hasActions()) {
 			for (FormAction action : getActions()) {
 				if (!action.isEqual(otherForm.getActionByUid(action.getUid()))) {
@@ -644,7 +791,10 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 				}
 			}
 		}
-		// check transformers
+		return true;
+	}
+	
+	private boolean isEqualTransformers(Form otherForm) {
 		if (hasTransformers()) {
 			for (FormTransformer transformer : getTransformers()) {
 				if (!transformer.isEqual(otherForm.getTransformerByUid(transformer.getUid()))) {
@@ -659,7 +809,10 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 				}
 			}
 		}
-		// check printouts
+		return true;
+	}
+	
+	private boolean isEqualPrintouts(Form otherForm) {
 		if (hasPrintouts()) {
 			for (FormPrintout printout : getPrintouts()) {
 				if (!printout.isEqual(otherForm.getPrintoutByUid(printout.getUid()))) {
@@ -674,7 +827,10 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 				}
 			}
 		}
-		// check subforms
+		return true;
+	}
+	
+	private boolean isEqualSubForms(Form otherForm) {
 		if (hasSubForms()) {
 			for (SubForm subForm : getSubForms()) {
 				if (!subForm.isEqual(otherForm.getSubFormByUid(subForm.getUid()))) {

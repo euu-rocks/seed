@@ -44,6 +44,7 @@ import org.hibernate.Transaction;
 
 import org.seed.core.config.SessionFactoryProvider;
 import org.seed.core.config.UpdatableConfiguration;
+import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 
 import org.slf4j.Logger;
@@ -52,7 +53,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
@@ -76,7 +76,7 @@ public class CodeManagerImpl implements CodeManager {
 	private Compiler compiler;
 	
 	@Autowired
-	private List<SourceCodeProvider<?>> codeProviders;
+	private List<SourceCodeProvider> codeProviders;
 	
 	@Autowired
 	private List<CodeChangeAware> changeAwareObjects;
@@ -92,18 +92,19 @@ public class CodeManagerImpl implements CodeManager {
 		// init external sources
 		final String propExternalRootDir = environment.getProperty("codegen.external.rootdir");
 		if (propExternalRootDir != null) {
-			log.info("Enable external source files at " + propExternalRootDir);
+			log.info("Enable external source files at {}", propExternalRootDir);
 			final File fileExternalRootDir = new File(propExternalRootDir);
 			if (fileExternalRootDir.exists() && fileExternalRootDir.isDirectory()) {
 				externalSourcesRootDir = fileExternalRootDir;
 				try {
 					FileUtils.cleanDirectory(externalSourcesRootDir);
-				} catch (IOException ioex) {
-					log.warn("Could not delete dir content " + externalSourcesRootDir, ioex);
+				} 
+				catch (IOException ioex) {
+					log.warn("Could not delete dir content {}", externalSourcesRootDir, ioex);
 				}
 			}
 			else {
-				log.warn("Location " + fileExternalRootDir + " does not exist or is not a directory");
+				log.warn("Location {} does not exist or is not a directory", fileExternalRootDir);
 				return;
 			}
 			// init upload changes
@@ -128,59 +129,55 @@ public class CodeManagerImpl implements CodeManager {
 				final Path dir = (Path) watchKey.watchable();
 				Thread.sleep(50); // prevent double event detection (https://stackoverflow.com/questions/16777869/java-7-watchservice-ignoring-multiple-occurrences-of-the-same-event)
 				
-				boolean changesProcessed = false;
-				final Session session = getSession();
-				if (session != null) {
-					Transaction tx = null;
-					try {
-						tx = session.beginTransaction();
-						for (WatchEvent<?> watchEvent : watchKey.pollEvents()) {
-							final Path file = (Path) watchEvent.context();
-							if (isSourceFile(file.toString())) {
-								try {
-									if (onExternalSourceFileChanged(dir, file, session)) {
-										changesProcessed = true;
-									}
-								}
-								catch (Exception ex) {
-									log.warn("source file upload failed: " + ex.getMessage());
-								}
-							}
-						}
-						try {
-							tx.commit();
-						} 
-						catch (Exception ex) {
-							// ignore if session is closed
-						}
-					}
-					catch (Exception ex) {
-						try {
-							tx.rollback();
-						}
-						catch (Exception ex1) {
-							// ignore if session is closed
-						}
-						log.warn("pollWatchServiceEvents failed: " + ex.getMessage());
-					}
-					finally {
-						try {
-							session.close();
-						}
-						catch (Exception ex1) {
-							// ignore if session is closed
-						}
-					}
-				}
+				boolean changesProcessed = proccessWatchEvents(watchKey, dir);
 				watchKey.reset();
+				
 				if (changesProcessed) {
 					configuration.updateConfiguration();
 				}
 			} 
 			catch (InterruptedException e) {
 				log.warn("WatchServiceTask interuppted");
+				Thread.currentThread().interrupt();
 			}
 		}
+	}
+	
+	private boolean proccessWatchEvents(WatchKey watchKey, Path dir) {
+		boolean changesProcessed = false;
+		final Session session = getSession();
+		if (session != null) {
+			Transaction tx = null;
+			try {
+				tx = session.beginTransaction();
+				changesProcessed = pollEvents(watchKey, dir, session);
+				tx.commit();
+			}
+			catch (Exception ex) {
+				if (session.isOpen() && tx != null) {
+					tx.rollback();
+				}
+				log.warn("pollWatchServiceEvents failed: {}", ex.getMessage());
+			}
+			finally {
+				if (session.isOpen()) {
+					session.close();
+				}
+			}
+		}
+		return changesProcessed;
+	}
+	
+	private boolean pollEvents(WatchKey watchKey, Path dir, Session session) {
+		boolean changesProcessed = false;
+		for (WatchEvent<?> watchEvent : watchKey.pollEvents()) {
+			final Path file = (Path) watchEvent.context();
+			if (isSourceFile(file.toString()) &&
+				onSourceFileChanged(dir, file, session)) {
+				changesProcessed = true;
+			}
+		}
+		return changesProcessed;
 	}
 	
 	@Override
@@ -195,6 +192,8 @@ public class CodeManagerImpl implements CodeManager {
 	
 	@Override
 	public Class<GeneratedCode> getGeneratedClass(GeneratedObject generatedObject) {
+		Assert.notNull(generatedObject, "generatedObject is null");
+		
 		return getGeneratedClass(getQualifiedName(generatedObject.getGeneratedPackage(), 
 												  generatedObject.getGeneratedClass()));
 	}
@@ -205,7 +204,7 @@ public class CodeManagerImpl implements CodeManager {
 	}
 	
 	@Override
-	public void testCompile(SourceCode<?> sourceCode) {
+	public void testCompile(SourceCode sourceCode) {
 		Assert.notNull(sourceCode, "sourceCode is null");
 		
 		compiler.compile(Collections.singletonList(sourceCode));
@@ -213,27 +212,9 @@ public class CodeManagerImpl implements CodeManager {
 	
 	@Override
 	public void generateClasses() {
-		final List<SourceCode<?>> sourceCodeList = new ArrayList<>();
-		final List<SourceCodeBuilder<?>> builderList = new ArrayList<>();
 		
-		// collect relevant code builders
-		for (SourceCodeProvider<?> codeProvider : codeProviders) {
-			for (SourceCodeBuilder<?> builder : codeProvider.getSourceCodeBuilders()) {
-				// compile only if code has changed since last compiler run
-				if (lastCompilerRun == null || builder.getLastModified().after(lastCompilerRun)) {
-					builderList.add(builder);
-				}
-			}
-		}
-		
-		// build sources
-		for (SourceCodeBuilder<?> codeBuilder : builderList) {
-			final SourceCode<?> sourceCode = codeBuilder.build();
-			if (log.isDebugEnabled()) {
-				log.debug("generated source: " + sourceCode.getQualifiedName() + System.lineSeparator() + sourceCode.getContent());
-			}
-			sourceCodeList.add(sourceCode);
-		}
+		final List<SourceCodeBuilder> builderList = collectCodeBuilders();
+		final List<SourceCode> sourceCodeList = buildSources(builderList);
 		
 		// compile
 		if (!sourceCodeList.isEmpty()) {
@@ -243,12 +224,12 @@ public class CodeManagerImpl implements CodeManager {
 		
 		// file storage
 		if (externalSourcesRootDir != null) {
-			for (SourceCode<?> sourceCode : sourceCodeList) {
+			for (SourceCode sourceCode : sourceCodeList) {
 				try {
 					storeToFileSystem(sourceCode);
 				} 
 				catch (IOException e) {
-					log.warn("Couldn't write external source file for " + sourceCode.getQualifiedName(), e);
+					log.warn("Couldn't write external source file for {}", sourceCode.getQualifiedName(), e);
 				}
 			}
 			// watch service
@@ -260,6 +241,31 @@ public class CodeManagerImpl implements CodeManager {
 				}
 			}
 		}
+	}
+	
+	private List<SourceCodeBuilder> collectCodeBuilders() {
+		final List<SourceCodeBuilder> builderList = new ArrayList<>();
+		for (SourceCodeProvider codeProvider : codeProviders) {
+			for (SourceCodeBuilder builder : codeProvider.getSourceCodeBuilders()) {
+				// compile only if code has changed since last compiler run
+				if (lastCompilerRun == null || builder.getLastModified().after(lastCompilerRun)) {
+					builderList.add(builder);
+				}
+			}
+		}
+		return builderList;
+	}
+	
+	private List<SourceCode> buildSources(List<SourceCodeBuilder> builderList) {
+		final List<SourceCode> sourceCodeList = new ArrayList<>(builderList.size());
+		for (SourceCodeBuilder codeBuilder : builderList) {
+			final SourceCode sourceCode = codeBuilder.build();
+			if (log.isDebugEnabled()) {
+				log.debug("generated source: {}", sourceCode.getQualifiedName() + System.lineSeparator() + sourceCode.getContent());
+			}
+			sourceCodeList.add(sourceCode);
+		}
+		return sourceCodeList;
 	}
 	
 	private Session getSession() {
@@ -287,13 +293,13 @@ public class CodeManagerImpl implements CodeManager {
 	    });
 	}
 	
-	private void storeToFileSystem(SourceCode<?> sourceCode) throws IOException {
+	private void storeToFileSystem(SourceCode sourceCode) throws IOException {
 		Assert.state(externalSourcesRootDir != null, "externalSourcesRootDir not available");
 		
 		final File file = new File(externalSourcesRootDir, getSourceFileName(sourceCode.getQualifiedName()));
 		final File dir = file.getParentFile();
 		if (!dir.exists() && !dir.mkdirs()) {
-			log.warn("Couldn't create external source dir " + dir.getAbsolutePath());
+			log.warn("Couldn't create external source dir {}", dir.getAbsolutePath());
 			return;
 		}
 		try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
@@ -301,17 +307,21 @@ public class CodeManagerImpl implements CodeManager {
 		}
 	}
 	
-	private boolean onExternalSourceFileChanged(Path dir, Path file, Session session) {
-		String code;
+	private boolean onSourceFileChanged(Path dir, Path file, Session session) {
 		try {
-			code = MiscUtils.getFileAsText(new File(dir.toFile(), file.toFile().getName()));
-		} catch (IOException ioex) {
-			throw new RuntimeException(ioex);
-		} 
-		
+			return onExternalSourceFileChanged(dir, file, session);
+		}
+		catch (Exception ex) {
+			log.warn("source file upload failed: {}", ex.getMessage());
+			return false;
+		}
+	}
+	
+	private boolean onExternalSourceFileChanged(Path dir, Path file, Session session) throws IOException {
+		final String code = MiscUtils.getFileAsText(new File(dir.toFile(), file.toFile().getName()));
 		final String packageName = getPackageName(externalSourcesRootDir, dir.toFile());
 		final String className = getClassName(file.toFile());
-		final SourceCode<?> sourceCode = new SourceCodeImpl<>(new ClassMetadata(packageName, className), code);
+		final SourceCode sourceCode = new SourceCodeImpl(new ClassMetadata(packageName, className), code);
 		try {
 			testCompile(sourceCode);
 		}

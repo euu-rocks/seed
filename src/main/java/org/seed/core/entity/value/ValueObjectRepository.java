@@ -35,11 +35,14 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Selection;
 import javax.persistence.criteria.Subquery;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.config.SessionFactoryProvider;
 import org.seed.core.data.FieldType;
@@ -60,10 +63,11 @@ import org.seed.core.entity.value.event.ValueObjectEvent;
 import org.seed.core.entity.value.event.ValueObjectEventHandler;
 import org.seed.core.entity.value.event.ValueObjectEventType;
 import org.seed.core.entity.value.event.ValueObjectFunctionContext;
+import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 @Repository
@@ -88,8 +92,8 @@ public class ValueObjectRepository {
 	private CodeManager codeManager;
 	
 	public ValueObject get(Entity entity, Long id) {
-		Assert.notNull(entity, "entity is null");
-		Assert.state(!entity.isGeneric(), "entity is generic");
+		Assert.notNull(entity, C.ENTITY);
+		checkGeneric(entity);
 		
 		try (Session session = getSession()) {
 			return get(session, getEntityClass(entity), id);
@@ -97,27 +101,26 @@ public class ValueObjectRepository {
 	}
 	
 	public ValueObject get(Session session, Entity entity, Long id) {
-		Assert.notNull(entity, "entity is null");
-		Assert.state(!entity.isGeneric(), "entity is generic");
+		Assert.notNull(entity, C.ENTITY);
+		checkGeneric(entity);
 		
 		return get(session, getEntityClass(entity), id);
 	}
 	
 	public ValueObject get(Session session, Class<?> entityClass, Long id) {
-		Assert.notNull(session, "session is null");
-		Assert.notNull(entityClass, "entityClass is null");
-		Assert.notNull(id, "id is null");
+		Assert.notNull(session, C.SESSION);
+		Assert.notNull(entityClass, C.ENTITYCLASS);
+		Assert.notNull(id, C.ID);
 		
 		return (ValueObject) session.get(entityClass, id);
 	}
- 	
+	
 	public ValueObject createInstance(Entity entity, Session session, ValueObjectFunctionContext functionContext) {
-		Assert.notNull(entity, "entity is null");
-		Assert.state(!entity.isGeneric(), "entity is generic");
-		Assert.state(!(session == null && functionContext == null), "no session or functionContext provided");
-		Assert.state(!(session != null && functionContext != null), "only session or functionContext allowed");
+		Assert.notNull(entity, C.ENTITY);
+		checkGeneric(entity);
+		checkSessionAndContext(session, functionContext);
 		try {
-			final AbstractValueObject object = (AbstractValueObject) getEntityClass(entity).getDeclaredConstructor().newInstance();
+			final AbstractValueObject object = (AbstractValueObject) MiscUtils.instantiate(getEntityClass(entity));
 			if (entity.hasStatus()) {
 				object.setEntityStatus(entity.getInitialStatus());
 			}
@@ -125,12 +128,12 @@ public class ValueObjectRepository {
 			return object;
 		}
 		catch (Exception ex) {
-			throw new RuntimeException(ex);
+			throw new InternalException(ex);
 		}
 	}
 	
 	public boolean notifyChange(ValueObject object) {
-		Assert.notNull(object, "object is null");
+		Assert.notNull(object, C.OBJECT);
 		
 		final Entity entity = getEntity(object);
 		boolean existModifyFunction = false;
@@ -168,16 +171,16 @@ public class ValueObjectRepository {
 	}
 	
 	public long count(Session session, Entity entity) {
-		Assert.notNull(session, "session is null");
-		Assert.notNull(entity, "entity is null");
-		Assert.state(!entity.isGeneric(), "entity is generic");
+		Assert.notNull(session, C.SESSION);
+		Assert.notNull(entity, C.ENTITY);
+		checkGeneric(entity);
 		
 		return entity.isNew() ? 0 : count(session, getEntityClass(entity));
 	}
 	
 	public long count(Session session, Class<?> entityClass) {
-		Assert.notNull(session, "session is null");
-		Assert.notNull(entityClass, "entityClass is null");
+		Assert.notNull(session, C.SESSION);
+		Assert.notNull(entityClass, C.ENTITYCLASS);
 		
 		final CriteriaBuilder builder = session.getCriteriaBuilder();
 		final CriteriaQuery<Long> query = builder.createQuery(Long.class);
@@ -195,32 +198,31 @@ public class ValueObjectRepository {
 		return findAll(session, getEntityClass(entity));
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings("unchecked")
 	public List<ValueObject> findAll(Session session, Class<?> entityClass) {
-		Assert.notNull(session, "session is null");
-		Assert.notNull(entityClass, "entityClass is null");
+		Assert.notNull(session, C.SESSION);
+		Assert.notNull(entityClass, C.ENTITYCLASS);
 		
-		final CriteriaQuery query = (CriteriaQuery<?>) session.getCriteriaBuilder().createQuery(entityClass);
-		return find(session, query.select(query.from(entityClass)));
+		final CriteriaQuery<ValueObject> query = (CriteriaQuery<ValueObject>) session.getCriteriaBuilder().createQuery(entityClass);
+		return find(session, query.select((Selection<? extends ValueObject>) query.from(entityClass)));
 	}
 	
-	@SuppressWarnings({ "unchecked" })
+	@SuppressWarnings("unchecked")
 	public List<ValueObject> find(Entity entity, Filter filter) {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(filter, "filter is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(filter, C.FILTER);
 		
 		try (Session session = getSession()) {
 			if (filter.getHqlQuery() != null) {
 				return session.createQuery(filter.getHqlQuery()).list();
 			}
-			return find(session, buildQuery(session, entity, filter, false));
+			return find(session, buildQuery(session, entity, filter));
 		}
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public List<ValueObject> find(Session session, CriteriaQuery query) {
-		Assert.notNull(session, "session is null");
-		Assert.notNull(query, "query is null");
+	public List<ValueObject> find(Session session, CriteriaQuery<ValueObject> query) {
+		Assert.notNull(session, C.SESSION);
+		Assert.notNull(query, "query");
 		
 		return session.createQuery(query).getResultList();
 	}
@@ -231,14 +233,13 @@ public class ValueObjectRepository {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	public boolean exist(Session session, Entity entity, @Nullable Filter filter) {
-		Assert.notNull(session, "session is null");
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(session, C.SESSION);
+		Assert.notNull(entity, C.ENTITY);
 		
-		return session.createQuery(buildQuery(session, entity, filter, false))
-					  .setMaxResults(1)
-					  .getResultList().size() > 0;
+		return !session.createQuery(buildQuery(session, entity, filter))
+					   .setMaxResults(1)
+					   .getResultList().isEmpty();
 	}
 	
 	public ValueObject findUnique(Entity entity, Filter filter) {
@@ -248,28 +249,27 @@ public class ValueObjectRepository {
 	}
 	
 	public ValueObject findUnique(Session session, Entity entity, Filter filter) {
-		Assert.notNull(session, "session is null");
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(filter, "filter is null");
+		Assert.notNull(session, C.SESSION);
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(filter, C.FILTER);
 		
-		return findUnique(session, buildQuery(session, entity, filter, false));
+		return findUnique(session, buildQuery(session, entity, filter));
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public ValueObject findUnique(Session session, CriteriaQuery query) {
-		Assert.notNull(session, "session is null");
-		Assert.notNull(query, "query is null");
+	public ValueObject findUnique(Session session, CriteriaQuery<ValueObject> query) {
+		Assert.notNull(session, C.SESSION);
+		Assert.notNull(query, "query");
 		
 		final List<ValueObject> list = session.createQuery(query)
 											  .setMaxResults(2)
 											  .getResultList();
-		if (list != null) {
-			if (list.size() > 1) {
-				throw new NonUniqueResultException();
-			}
-			return list.isEmpty() ? null : list.get(0);
+		if (list.isEmpty()) {
+			return null;
 		}
-		return null;
+		if (list.size() > 1) {
+			throw new NonUniqueResultException();
+		}
+		return list.get(0);
 	}
 	
 	public void reload(ValueObject object) {
@@ -279,29 +279,30 @@ public class ValueObjectRepository {
 	}
 	
 	public void reload(Session session, ValueObject object) {
-		Assert.notNull(session, "session is null");
-		Assert.notNull(object, "object is null");
+		Assert.notNull(session, C.SESSION);
+		Assert.notNull(object, C.OBJECT);
 		
 		session.refresh(object);
 	}
 	
 	public void delete(ValueObject object, Session session, ValueObjectFunctionContext functionContext) {
-		Assert.notNull(object, "object is null");
-		Assert.state(!(session == null && functionContext == null), "no session or functionContext provided");
-		Assert.state(!(session != null && functionContext != null), "only session or functionContext allowed");
+		Assert.notNull(object, C.OBJECT);
+		checkSessionAndContext(session, functionContext);
 		
 		// fire before-event
 		fireEvent(ValueObjectEventType.BEFOREDELETE, object, session, functionContext);
 		
 		// delete object
-		final Session _session = functionContext != null ? functionContext.getSession() : session;
-		_session.delete(object);
+		final Session localSession = functionContext != null ? functionContext.getSession() : session;
+		if (localSession != null) {
+			localSession.delete(object);
+		}
 		
 		// delete orphan files
 		for (EntityField fileField : getEntity(object).getAllFieldsByType(FieldType.FILE)) {
 			final FileObject file = (FileObject) objectAccess.getValue(object, fileField);
-			if (file != null && !file.isNew()) {
-				_session.delete(file);
+			if (localSession != null && file != null && !file.isNew()) {
+				localSession.delete(file);
 			}
 		}
 		
@@ -310,9 +311,8 @@ public class ValueObjectRepository {
 	}
 	
 	public void save(ValueObject object, Session session, ValueObjectFunctionContext functionContext) {
-		Assert.notNull(object, "object is null");
-		Assert.state(!(session == null && functionContext == null), "no session or functionContext provided");
-		Assert.state(!(session != null && functionContext != null), "only session or functionContext allowed");
+		Assert.notNull(object, C.OBJECT);
+		checkSessionAndContext(session, functionContext);
 		
 		final boolean isInsert = object.isNew();
 		// autonum
@@ -331,8 +331,10 @@ public class ValueObjectRepository {
 		fireEvent(eventTypeBefore, object, session, functionContext);
 		
 		// save object
-		final Session _session = functionContext != null ? functionContext.getSession() : session;
-		_session.saveOrUpdate(object);
+		final Session localSession = functionContext != null ? functionContext.getSession() : session;
+		if (localSession != null) {
+			localSession.saveOrUpdate(object);
+		}
 		
 		// fire after-event
 		final ValueObjectEventType eventTypeAfter = isInsert 
@@ -341,129 +343,49 @@ public class ValueObjectRepository {
 		fireEvent(eventTypeAfter, object, session, functionContext);
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected CriteriaQuery buildQuery(Session session, Entity entity, @Nullable Filter filter,
-									   boolean countQuery, Sort ...sorts) {
-		Assert.notNull(session, "session is null");
+	protected CriteriaQuery<Long> buildCountQuery(Session session, Entity entity, @Nullable Filter filter) {
+		Assert.notNull(session, C.SESSION);
+		Assert.notNull(entity, C.ENTITY);
 		
-		final Class entityClass = getEntityClass(entity);
 		final CriteriaBuilder builder = session.getCriteriaBuilder();
-		final CriteriaQuery query = builder.createQuery(entityClass);
-		final Root root = query.from(entityClass);
-		
-		// criterias
-		if (filter != null) {
-			Assert.state(entity.equals(filter.getEntity()), "entity not match filter entity");
-			Map<Long, Join> joins = null;
-			if (filter.hasCriteria()) {
-				for (NestedEntity nested : getNestedEntities(filter)) {
-					if (joins == null) {
-						joins = new HashMap<>();
-					}
-					joins.put(nested.getNestedEntity().getId(), 
-							  root.join(nested.getInternalName()));
-				}
-				if (filter.getCriteria().size() == 1) {
-					query.where(createRestriction(builder, root, filter.getCriteria().get(0), joins));
-				}
-				else {
-					final Predicate[] restrictions = new Predicate[filter.getCriteria().size()];
-					for (int i = 0; i < restrictions.length; i++) {
-						restrictions[i] = createRestriction(builder, root, filter.getCriteria().get(i), joins);
-					}
-					query.where(builder.and(restrictions));
-				}
-			}
-		}
-		
-		// sort
-		if (!ObjectUtils.isEmpty(sorts)) {
-			applySorting(builder, query, root, sorts);
-		}
-		
-		return query.select(countQuery ? builder.count(root) : root);
+		final CriteriaQuery<Long> query = createQuery(builder, entity);
+		return query.select(builder.count(buildQuery(builder, entity, filter, query)));
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected CriteriaQuery buildQuery(Session session, ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap, 
-									   boolean countQuery, Sort ...sorts) {
-		Assert.notNull(session, "session is null");
-				
-		final Entity entity = entityRepository.get(searchObject.getEntityId(), session);
-		final Class entityClass = getEntityClass(entity);
+	protected CriteriaQuery<ValueObject> buildQuery(Session session, Entity entity, @Nullable Filter filter, Sort ...sorts) {
+		Assert.notNull(session, C.SESSION);
+		Assert.notNull(entity, C.ENTITY);
+		
 		final CriteriaBuilder builder = session.getCriteriaBuilder();
-		final CriteriaQuery query = builder.createQuery(entityClass);
-		final Root root = query.from(entityClass);
-		final List<Predicate> restrictions = new ArrayList<>();
+		final CriteriaQuery<ValueObject> query = createQuery(builder, entity);
+		return query.select(buildQuery(builder, entity, filter, query, sorts));
+	}
+	
+	protected CriteriaQuery<Long> buildCountQuery(Session session, ValueObject searchObject, 
+												  Map<Long, Map<String, CriterionOperator>> criteriaMap) {
+		Assert.notNull(session, C.SESSION);
+		Assert.notNull(searchObject, "searchObject");
 		
-		// main object
-		Map<String, Object> valueMap = getValueMap(searchObject, entity);
-		initNullValues(valueMap, criteriaMap, 0L);
-		for (Entry<String, Object> entry : valueMap.entrySet()) {
-			final CriterionOperator operator = getOperator(criteriaMap, 0L, entry.getKey());
-			final FilterCriterion criterion = createCriterion(entity, entry.getKey(), operator, entry.getValue());
-			restrictions.add(createRestriction(builder, root, criterion, null));
-		}
+		final Entity entity = getEntity(searchObject.getEntityId(), session);
+		final CriteriaBuilder builder = session.getCriteriaBuilder();
+		final CriteriaQuery<Long> query = createQuery(builder, entity);
+		return query.select(builder.count(buildQuery(builder, entity, searchObject, query, criteriaMap)));
+	}
+	
+	protected CriteriaQuery<ValueObject> buildQuery(Session session, ValueObject searchObject, 
+													Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sorts) {
+		Assert.notNull(session, C.SESSION);
+		Assert.notNull(searchObject, "searchObject");
 		
-		// nesteds
-		if (entity.hasAllNesteds()) {
-			for (NestedEntity nestedEntity : entity.getAllNesteds()) {
-				final List<ValueObject> nesteds = objectAccess.getNestedObjects(searchObject, nestedEntity);
-				if (ObjectUtils.isEmpty(nesteds)) {
-					continue;
-				}
-				final Entity entityNested = nestedEntity.getNestedEntity();
-				final Class nestedEntityClass = getEntityClass(entityNested);
-				for (ValueObject nestedObject : nesteds) {
-					final Long tmpId = ((AbstractValueObject) nestedObject).getTmpId();
-					valueMap = getValueMap(nestedObject, nestedEntity);
-					initNullValues(valueMap, criteriaMap, tmpId);
-					if (valueMap.isEmpty()) {
-						continue;
-					}
-					
-					final Subquery subQuery = query.subquery(nestedEntityClass);
-					final Root subRoot = subQuery.correlate(root);
-					final Join join = subRoot.join(nestedEntity.getInternalName());
-					final Map<Long, Join> joins = Collections.singletonMap(entityNested.getId(), join);
-					final Predicate[] subRestrictions = new Predicate[valueMap.size()];
-					
-					int idx = 0;
-					for (Entry<String, Object> entry : valueMap.entrySet()) {
-						final CriterionOperator operator = getOperator(criteriaMap, tmpId, entry.getKey());
-						final FilterCriterion criterion = createCriterion(entityNested, entry.getKey(), operator, entry.getValue());
-						subRestrictions[idx++] = createRestriction(builder, subRoot, criterion, joins);
-					}
-					subQuery.select(subRoot);
-					if (subRestrictions.length == 1) {
-						subQuery.where(subRestrictions[0]);
-					} 
-					else {
-						subQuery.where(builder.and(subRestrictions));
-					}
-					restrictions.add(builder.exists(subQuery));
-				}
-			}
-		}
-		
-		if (restrictions.size() == 1) {
-			query.where(restrictions.get(0));
-		}
-		else if (restrictions.size() > 1) {
-			query.where(builder.and(restrictions.toArray(new Predicate[restrictions.size()])));
-		}
-		
-		// sort
-		if (!countQuery && !ObjectUtils.isEmpty(sorts)) {
-			applySorting(builder, query, root, sorts);
-		}
-		
-		return query.select(countQuery ? builder.count(root) : root);
+		final Entity entity = getEntity(searchObject.getEntityId(), session);
+		final CriteriaBuilder builder = session.getCriteriaBuilder();
+		final CriteriaQuery<ValueObject> query = createQuery(builder, entity);
+		return query.select(buildQuery(builder, entity, searchObject, query, criteriaMap, sorts));
 	}
 	
 	protected void changeStatus(ValueObject object, EntityStatus targetStatus) {
-		Assert.notNull(object, "object is null");
-		Assert.notNull(targetStatus, "targetStatus is null");
+		Assert.notNull(object, C.OBJECT);
+		Assert.notNull(targetStatus, "targetStatus");
 		
 		try (Session session = getSession()) {
 			Transaction tx = null;
@@ -483,10 +405,9 @@ public class ValueObjectRepository {
 	
 	protected void changeStatus(ValueObject object, EntityStatus targetStatus,
 							 	Session session, ValueObjectFunctionContext functionContext) {
-		Assert.notNull(object, "object is null");
-		Assert.notNull(targetStatus, "targetStatus is null");
-		Assert.state(!(session == null && functionContext == null), "no session or functionContext provided");
-		Assert.state(!(session != null && functionContext != null), "only session or functionContext allowed");
+		Assert.notNull(object, C.OBJECT);
+		Assert.notNull(targetStatus, "targetStatus");
+		checkSessionAndContext(session, functionContext);
 		
 		final EntityStatusTransition statusTransition = getEntity(object).getStatusTransition(object.getEntityStatus(), targetStatus);
 		if (statusTransition != null) {
@@ -512,47 +433,39 @@ public class ValueObjectRepository {
 		return sessionFactoryProvider.getSessionFactory().openSession();
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected <T> T querySingleResult(Session session, CriteriaQuery query) {
-		return (T) session.createQuery(query).getSingleResult();
+	protected <T> T querySingleResult(Session session, CriteriaQuery<T> query) {
+		return session.createQuery(query).getSingleResult();
 	}
 	
-	Entity getEntity(ValueObject object) {
-		Assert.notNull(object, "object is null");
+	protected Entity getEntity(ValueObject object) {
+		Assert.notNull(object, C.OBJECT);
 		
 		return getEntity(object.getEntityId());
 	}
 	
-	Entity getEntity(Long entityId) {
-		Assert.notNull(entityId, "entityId is null");
+	protected Entity getEntity(Long entityId) {
+		Assert.notNull(entityId, "entityId");
 		
 		final Entity entity = entityRepository.get(entityId);
 		Assert.state(entity != null, "entity not available id:" + entityId);
 		return entity;
 	}
 	
-	String getIdentifier(ValueObject object) {
-		Assert.notNull(object, "object is null");
+	protected Entity getEntity(Long entityId, Session session) {
+		Assert.notNull(entityId, "entityId");
+		Assert.notNull(session, C.SESSION);
+		
+		final Entity entity = entityRepository.get(entityId, session);
+		Assert.state(entity != null, "entity not available id:" + entityId);
+		return entity;
+	}
+	
+	protected String getIdentifier(ValueObject object) {
+		Assert.notNull(object, C.OBJECT);
 		
 		final Entity entity = getEntity(object);
-		String pattern = entity.getIdentifierPattern();
-		// replaces pattern keys with actual values 
-		if (pattern != null) {
-			pattern = pattern.replace("{entity}", entity.getName());
-			if (entity.hasAllFields()) {
-				for (EntityField field : entity.getAllFields()) {
-					final String key = '{' + field.getName() + '}';
-					if (pattern.contains(key)) {
-						Object value = objectAccess.getValue(object, field);
-						if (value != null && field.getType().isReference()) {
-							value = getIdentifier((ValueObject) value);
-						}
-						// replace key -> value
-						pattern = pattern.replace(key, value != null ? value.toString() : "");
-					}
-				}
-			}
-			return pattern;
+		if (entity.getIdentifierPattern() != null) {
+			return resolveIdentifierPattern(entity, object);
 		}
 		
 		// fallback if no pattern exist
@@ -569,19 +482,38 @@ public class ValueObjectRepository {
 		}
 	}
 	
-	Class<?> getEntityClass(Entity entity) {
-		Assert.notNull(entity, "entity is null");
+	private String resolveIdentifierPattern(Entity entity, ValueObject object) {
+		String pattern = entity.getIdentifierPattern();
+		pattern = pattern.replace("{entity}", entity.getName());
+		if (entity.hasAllFields()) {
+			for (EntityField field : entity.getAllFields()) {
+				final String key = '{' + field.getName() + '}';
+				if (pattern.contains(key)) {
+					Object value = objectAccess.getValue(object, field);
+					if (value != null && field.getType().isReference()) {
+						value = getIdentifier((ValueObject) value);
+					}
+					// replace key -> value
+					pattern = pattern.replace(key, value != null ? value.toString() : "");
+				}
+			}
+		}
+		return pattern;
+	}
+	
+	protected Class<?> getEntityClass(Entity entity) {
+		Assert.notNull(entity, C.ENTITY);
 		Assert.state(!entity.isNew(), "entity is new");
 		
 		// entity reload is necessary because entity could be renamed but not saved yet
-		entity = entityRepository.get(entity.getId());
+		entity = getEntity(entity.getId());
 		final Class<?> entityClass = codeManager.getGeneratedClass(entity);
 		Assert.state(entityClass != null, "no class available for entity: " + entity.getName());
 		return entityClass;
 	}
 	
-	private Set<NestedEntity> getNestedEntities(Filter filter) {
-		Assert.notNull(filter, "filter is null");
+	private static Set<NestedEntity> getNestedEntities(Filter filter) {
+		Assert.notNull(filter, C.FILTER);
 		
 		final Set<NestedEntity> nesteds = new HashSet<>();
 		if (filter.hasCriteria()) {
@@ -595,14 +527,13 @@ public class ValueObjectRepository {
 		return nesteds;
 	}
 	
-	@SuppressWarnings("rawtypes")
-	private static void applySorting(CriteriaBuilder builder, CriteriaQuery query, Root root, Sort ...sorts) {
+	private static <T> void applySorting(CriteriaBuilder builder, CriteriaQuery<T> query, Root<ValueObject> root, Sort ...sorts) {
 		if (sorts.length == 1) {
 			query.orderBy(createOrder(builder, root, sorts[0]));
 		}
 		else {
 			int idx = 0;
-			final Order orders[] = new Order[sorts.length];
+			final Order[] orders = new Order[sorts.length];
 			for (Sort sort : sorts) {
 				orders[idx++] = createOrder(builder, root, sort);
 			}
@@ -662,16 +593,138 @@ public class ValueObjectRepository {
 		return valueMap;
 	}
 	
-	@SuppressWarnings("rawtypes")
-	private static Order createOrder(CriteriaBuilder builder, Root root, Sort sort) {
+	@SuppressWarnings("unchecked")
+	private <T> CriteriaQuery<T> createQuery(CriteriaBuilder builder, Entity entity) {
+		return (CriteriaQuery<T>) builder.createQuery(getEntityClass(entity));
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T> Root<ValueObject> buildQuery(CriteriaBuilder builder, Entity entity, Filter filter, 
+											 CriteriaQuery<T> query, Sort ...sorts) {
+		final Root<ValueObject> root = (Root<ValueObject>) query.from(getEntityClass(entity));
+		// criteria
+		if (filter != null) {
+			Assert.state(entity.equals(filter.getEntity()), "entity not match filter entity");
+			if (filter.hasCriteria()) {
+				final Map<Long, Join<Object, Object>> joins = buildJoinMap(filter, root);
+				if (filter.getCriteria().size() == 1) {
+					query.where(createRestriction(builder, root, filter.getCriteria().get(0), joins));
+				}
+				else {
+					query.where(builder.and(buildCriteria(filter, builder, root, joins)));
+				}
+			}
+		}
+		// sort
+		if (!ObjectUtils.isEmpty(sorts)) {
+			applySorting(builder, query, root, sorts);
+		}
+		return root;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T> Root<ValueObject> buildQuery(CriteriaBuilder builder, Entity entity, ValueObject searchObject,
+											 CriteriaQuery<T> query, Map<Long, Map<String, CriterionOperator>> criteriaMap,
+											 Sort ...sorts) {
+		final Root<ValueObject> root = (Root<ValueObject>) query.from(getEntityClass(entity));
+		final List<Predicate> restrictions = new ArrayList<>();
+		
+		// main object
+		final Map<String, Object> valueMap = getValueMap(searchObject, entity);
+		initNullValues(valueMap, criteriaMap, 0L);
+		for (Entry<String, Object> entry : valueMap.entrySet()) {
+			final CriterionOperator operator = getOperator(criteriaMap, 0L, entry.getKey());
+			final FilterCriterion criterion = createCriterion(entity, entry.getKey(), operator, entry.getValue());
+			restrictions.add(createRestriction(builder, root, criterion, null));
+		}
+		
+		// nesteds
+		if (entity.hasAllNesteds()) {
+			for (NestedEntity nestedEntity : entity.getAllNesteds()) {
+				final List<ValueObject> nesteds = objectAccess.getNestedObjects(searchObject, nestedEntity);
+				if (!ObjectUtils.isEmpty(nesteds)) {
+					restrictions.addAll(createNestedRestriction(builder, nestedEntity, nesteds, criteriaMap, query, root));
+				}
+			}
+		}
+		if (restrictions.size() == 1) {
+			query.where(restrictions.get(0));
+		}
+		else if (restrictions.size() > 1) {
+			query.where(builder.and(restrictions.toArray(new Predicate[restrictions.size()])));
+		}
+		// sort
+		if (!ObjectUtils.isEmpty(sorts)) {
+			applySorting(builder, query, root, sorts);
+		}
+		return root;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T> List<Predicate> createNestedRestriction(CriteriaBuilder builder, NestedEntity nestedEntity, List<ValueObject> nesteds,
+														Map<Long, Map<String, CriterionOperator>> criteriaMap,
+														CriteriaQuery<T> query, Root<ValueObject> root) {
+		final List<Predicate> restrictions = new ArrayList<>();
+		final Entity entityNested = nestedEntity.getNestedEntity();
+		final Class<?> nestedEntityClass = getEntityClass(entityNested);
+		for (ValueObject nestedObject : nesteds) {
+			final Long tmpId = ((AbstractValueObject) nestedObject).getTmpId();
+			final Map<String, Object> valueMap = getValueMap(nestedObject, nestedEntity);
+			initNullValues(valueMap, criteriaMap, tmpId);
+			if (valueMap.isEmpty()) {
+				continue;
+			}
+			
+			final Subquery<ValueObject> subQuery = (Subquery<ValueObject>) query.subquery(nestedEntityClass);
+			final Root<ValueObject> subRoot = subQuery.correlate(root);
+			final Join<Object, Object> join = subRoot.join(nestedEntity.getInternalName());
+			final Map<Long, Join<Object, Object>> joins = Collections.singletonMap(entityNested.getId(), join);
+			final Predicate[] subRestrictions = new Predicate[valueMap.size()];
+			
+			int idx = 0;
+			for (Entry<String, Object> entry : valueMap.entrySet()) {
+				final CriterionOperator operator = getOperator(criteriaMap, tmpId, entry.getKey());
+				final FilterCriterion criterion = createCriterion(entityNested, entry.getKey(), operator, entry.getValue());
+				subRestrictions[idx++] = createRestriction(builder, subRoot, criterion, joins);
+			}
+			subQuery.select(subRoot);
+			if (subRestrictions.length == 1) {
+				subQuery.where(subRestrictions[0]);
+			} 
+			else {
+				subQuery.where(builder.and(subRestrictions));
+			}
+			restrictions.add(builder.exists(subQuery));
+		}
+		return restrictions;
+	}
+
+	private static Map<Long, Join<Object, Object>> buildJoinMap(Filter filter, Root<ValueObject> root) {
+		final Map<Long, Join<Object, Object>> joinMap = new HashMap<>();
+		for (NestedEntity nested : getNestedEntities(filter)) {
+			joinMap.put(nested.getNestedEntity().getId(), root.join(nested.getInternalName()));
+		}
+		return joinMap;
+	}
+
+	private static Predicate[] buildCriteria(Filter filter, CriteriaBuilder builder, Root<ValueObject> root, 
+											 Map<Long, Join<Object, Object>> joins) {
+		final Predicate[] restrictions = new Predicate[filter.getCriteria().size()];
+		for (int i = 0; i < restrictions.length; i++) {
+			restrictions[i] = createRestriction(builder, root, filter.getCriteria().get(i), joins);
+		}
+		return restrictions;
+	}
+	
+	private static Order createOrder(CriteriaBuilder builder, Root<ValueObject> root, Sort sort) {
 		return sort.isAscending() 
 						? builder.asc(root.get(sort.getColumnName())) 
 						: builder.desc(root.get(sort.getColumnName()));
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static Predicate createRestriction(CriteriaBuilder builder, Root table, 
-											   FilterCriterion criterion, Map<Long, Join> joins) {
+	private static Predicate createRestriction(CriteriaBuilder builder, Root<ValueObject> table, 
+											   FilterCriterion criterion, Map<Long, Join<Object, Object>> joins) {
 		Path path;
 		// system field
 		if (criterion.getSystemField() != null) {
@@ -680,9 +733,9 @@ public class ValueObjectRepository {
 		// entity field
 		else {
 			final EntityField field = criterion.getEntityField();
-			final Join join = joins != null 
-								? joins.get(field.getEntity().getId()) 
-								: null;
+			final Join<Object, Object> join = joins != null 
+										? joins.get(field.getEntity().getId()) 
+										: null;
 			path = join != null 
 					? join.get(field.getInternalName())
 					: table.get(field.getInternalName());
@@ -711,6 +764,15 @@ public class ValueObjectRepository {
 			default:
 				throw new UnsupportedOperationException(criterion.getOperator().name());
 		}
+	}
+	
+	private void checkGeneric(Entity entity) {
+		Assert.state(!entity.isGeneric(), "entity is generic");
+	}
+	
+	private void checkSessionAndContext(Session session, ValueObjectFunctionContext functionContext) {
+		Assert.state(!(session == null && functionContext == null), "no session or functionContext provided");
+		Assert.state(!(session != null && functionContext != null), "only session or functionContext allowed");
 	}
 	
 	private boolean fireEvent(ValueObjectEventType eventType, ValueObject object, Session session) {

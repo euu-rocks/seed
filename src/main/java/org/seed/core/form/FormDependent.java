@@ -21,8 +21,8 @@ import java.util.List;
 
 import org.seed.core.data.SystemEntity;
 
-public interface FormDependent {
+public interface FormDependent<T extends SystemEntity> {
 	
-	List<? extends SystemEntity> findUsage(Form form);
+	List<T> findUsage(Form form);
 	
 }

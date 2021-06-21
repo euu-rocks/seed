@@ -17,7 +17,7 @@
  */
 package org.seed.core.config;
 
-public interface UpdatableConfiguration {
+public interface UpdatableConfiguration extends SessionFactoryProvider {
 	
 	void updateConfiguration();
 

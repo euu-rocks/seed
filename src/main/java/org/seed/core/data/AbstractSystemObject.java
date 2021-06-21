@@ -17,6 +17,7 @@
  */
 package org.seed.core.data;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Predicate;
@@ -30,7 +31,8 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Version;
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.springframework.util.Assert;
+import org.seed.C;
+import org.seed.core.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -132,19 +134,19 @@ public abstract class AbstractSystemObject implements SystemObject {
 	}
 	
 	@Override
-	public int hashCode() {
+	public final int hashCode() {
 		return isNew() ? super.hashCode() : getId().hashCode();
 	}
 	
 	@Override
-	public boolean equals(Object obj) {
+	public final boolean equals(Object obj) {
 		return obj == this ||
 				(!isNew() && obj instanceof SystemObject && 
 				 getId().equals(((SystemObject) obj).getId()));
 	}
 	
 	public void copySystemFieldsTo(SystemObject object) {
-		Assert.notNull(object, "object is null");
+		Assert.notNull(object, C.OBJECT);
 		
 		final AbstractSystemObject other = (AbstractSystemObject) object;
 		other.id = id;
@@ -160,7 +162,7 @@ public abstract class AbstractSystemObject implements SystemObject {
 	}
 	
 	protected static <T extends SystemObject> T getObjectById(List<T> list, Long id) {
-		Assert.notNull(id, "id is null");
+		Assert.notNull(id, C.ID);
 		
 		if (list != null) {
 			for (T object : list) {
@@ -173,19 +175,19 @@ public abstract class AbstractSystemObject implements SystemObject {
 	}
 	
 	protected static <T extends SystemObject> List<T> subList(List<T> list, Predicate<T> predicate) {
-		Assert.notNull(predicate, "predicate is null");
+		Assert.notNull(predicate, "predicate");
 		
 		return list != null 
 				? list.stream()
 					  .filter(predicate)
 					  .collect(Collectors.toList()) 
-				: null;
+				: Collections.emptyList();
 	}
 	
 	protected static <T extends SystemObject> void removeNewObjects(List<T> list) {
 		if (list != null) {
 			try {
-				list.removeIf(o -> o.isNew());
+				list.removeIf(SystemObject::isNew);
 			}
 			catch (Exception ex) {
 				// ignore exceptions

@@ -18,6 +18,7 @@
 package org.seed.core.entity.value.event;
 
 import org.hibernate.Session;
+import org.seed.InternalException;
 import org.seed.core.api.ApplicationException;
 import org.seed.core.api.CallbackFunction;
 import org.seed.core.codegen.CodeManager;
@@ -28,17 +29,18 @@ import org.seed.core.entity.EntityRepository;
 import org.seed.core.entity.EntityStatusTransition;
 import org.seed.core.entity.EntityStatusTransitionFunction;
 import org.seed.core.entity.value.ValueObject;
+import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 @Component
 public class ValueObjectEventHandler {
 	
-	private final static Logger log = LoggerFactory.getLogger(ValueObjectEventHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(ValueObjectEventHandler.class);
 	
 	@Autowired
 	private EntityRepository entityRepository;
@@ -47,11 +49,10 @@ public class ValueObjectEventHandler {
 	private CodeManager codeManager;
 	
 	public boolean processEvent(ValueObjectEvent event) {
-		Assert.notNull(event, "event is null");
+		Assert.notNull(event, "event");
+		Assert.state(event.type != ValueObjectEventType.USERACTION, "use processUserEvent instead");
 		
 		switch (event.type) {
-			case USERACTION:
-				Assert.state(false, "use processUserEvent instead");
 			case BEFORETRANSITION:
 			case AFTERTRANSITION:
 				return processStatusTransitionEvent(event);
@@ -61,6 +62,7 @@ public class ValueObjectEventHandler {
 	}
 	
 	public String processUserEvent(ValueObjectEvent event) {
+		Assert.notNull(event, "event");
 		final EntityFunction entityFunction = event.entityFunction;
 		Assert.state(entityFunction != null, "entity function not available");
 		
@@ -158,11 +160,11 @@ public class ValueObjectEventHandler {
 			throw new IllegalStateException("function class not available: " + function.getGeneratedPackage() + '.' + function.getGeneratedClass());
 		}
 		try {
-			final CallbackFunction<ValueObject> callbackFunction = (CallbackFunction<ValueObject>) functionClass.getDeclaredConstructor().newInstance();
+			final CallbackFunction<ValueObject> callbackFunction = (CallbackFunction<ValueObject>) MiscUtils.instantiate(functionClass);
 			if (functionContext == null) {
 				functionContext = new ValueObjectFunctionContext(session, entity.getModule(), statusTransition);
 			}
-			log.debug("Execute function '" + function.getName() + "' on " + function.getEntity().getName() + " id:" + object.getId());
+			log.debug("Execute function '{}' on {} id:{}", function.getName(), function.getEntity().getName(), object.getId());
 			callbackFunction.call(object, functionContext);
 			return functionContext.getSuccessMessage();
 		}
@@ -170,7 +172,7 @@ public class ValueObjectEventHandler {
 			throw appex;
 		}
 		catch (Exception ex) {
-			throw new RuntimeException(ex);
+			throw new InternalException(ex);
 		}
 	}
 	

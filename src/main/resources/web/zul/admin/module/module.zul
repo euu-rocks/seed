@@ -99,7 +99,7 @@
 						 visible="@load(vm.existFilters())"/>
 					<tab id="tabTransformers" label="${labels.label.transformers}"
 						 visible="@load(vm.existTransformers())"/>
-					<tab id="tabTransfers" label="${labels.label.transfers}"
+					<tab id="tabTransfers" label="${labels.label.transfer}"
 						 visible="@load(vm.existTransfers())"/>
 					<tab id="tabForms" label="${labels.label.forms}"
 						 visible="@load(vm.existForms())"/>

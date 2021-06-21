@@ -20,10 +20,10 @@ package org.seed.core.entity.transform;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.NestedEntity;
-
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 public class NestedTransformer {
 	
@@ -36,8 +36,8 @@ public class NestedTransformer {
 	public NestedTransformer() {}
 	
 	public NestedTransformer(NestedEntity sourceNested, NestedEntity targetNested) {
-		Assert.notNull(sourceNested, "sourceNested is null");
-		Assert.notNull(sourceNested, "targetNested is null");
+		Assert.notNull(sourceNested, "sourceNested");
+		Assert.notNull(sourceNested, "targetNested");
 		
 		this.sourceNested = sourceNested;
 		this.targetNested = targetNested;
@@ -63,16 +63,20 @@ public class NestedTransformer {
 		this.targetNested = targetNested;
 	}
 	
-	public boolean containsElement(EntityField sourceField, EntityField targetField) {
-		Assert.notNull(sourceField, "sourceField is null");
-		Assert.notNull(targetField, "targetField is null");
+	public boolean containsElement(TransformerElement element) {
+		Assert.notNull(element, C.ELEMENT);
 		
-		if (elements != null) {
-			for (TransformerElement element : elements) {
-				if (element.getSourceField().equals(sourceField) &&
-					element.getTargetField().equals(targetField)) {
-					return true;
-				}
+		return elements.contains(element);
+	}
+	
+	public boolean containsElement(EntityField sourceField, EntityField targetField) {
+		Assert.notNull(sourceField, "sourceField");
+		Assert.notNull(targetField, "targetField");
+		
+		for (TransformerElement element : elements) {
+			if (element.getSourceField().equals(sourceField) &&
+				element.getTargetField().equals(targetField)) {
+				return true;
 			}
 		}
 		return false;
@@ -83,13 +87,13 @@ public class NestedTransformer {
 	}
 
 	public void addElement(TransformerElement element) {
-		Assert.notNull(element, "element is null");
+		Assert.notNull(element, C.ELEMENT);
 		
 		elements.add(element);
 	}
 	
 	public void removeElement(TransformerElement element) {
-		Assert.notNull(element, "element is null");
+		Assert.notNull(element, C.ELEMENT);
 		
 		elements.remove(element);
 	}

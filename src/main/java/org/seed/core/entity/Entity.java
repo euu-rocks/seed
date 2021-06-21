@@ -29,8 +29,6 @@ import org.seed.core.user.User;
 public interface Entity 
 	extends ApplicationEntity, GeneratedObject, ApprovableObject<EntityPermission> {
 	
-	final static String PACKAGE_NAME = "org.seed.generated.entity";
-	
 	String getInternalName();
 	
 	boolean isGeneric();
@@ -52,6 +50,8 @@ public interface Entity
 	boolean hasFunctions(); 
 	
 	boolean containsField(EntityField field);
+	
+	boolean containsFieldGroup(EntityFieldGroup fieldGroup);
 	
 	String getTableName();
 	
@@ -132,6 +132,8 @@ public interface Entity
 	void removeStatus(EntityStatus status);
 	
 	boolean hasStatusTransitions();
+	
+	boolean isUnique(EntityStatusTransition transition);
 	
 	EntityStatusTransition getStatusTransitionByUid(String uid);
 	

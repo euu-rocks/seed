@@ -17,10 +17,12 @@
  */
 package org.seed.core.codegen;
 
-import org.springframework.util.Assert;
+import org.seed.C;
+import org.seed.core.util.Assert;
+
 import org.springframework.util.StringUtils;
 
-public class SourceCodeImpl<T> implements SourceCode<T> {
+public class SourceCodeImpl implements SourceCode {
 	
 	private final ClassMetadata classMetadata;
 	
@@ -31,8 +33,8 @@ public class SourceCodeImpl<T> implements SourceCode<T> {
 	}
 	
 	SourceCodeImpl(ClassMetadata classMetadata, String content) {
-		Assert.notNull(classMetadata, "classMetadata is null");
-		Assert.state(StringUtils.hasText(content), "content is empty");
+		Assert.notNull(classMetadata, "classMetadata");
+		Assert.state(StringUtils.hasText(content), C.CONTENT);
 		
 		this.classMetadata = classMetadata;
 		this.content = content;

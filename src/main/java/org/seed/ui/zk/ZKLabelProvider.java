@@ -29,10 +29,10 @@ import java.util.TimeZone;
 
 import javax.annotation.PostConstruct;
 
+import org.seed.C;
 import org.seed.core.form.LabelProvider;
-
+import org.seed.core.util.Assert;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 import org.zkoss.math.BigDecimals;
 import org.zkoss.text.DateFormats;
 import org.zkoss.util.resource.Labels;
@@ -48,28 +48,28 @@ public class ZKLabelProvider implements LabelProvider {
 	
 	private static final Map<Enum<?>, String> cacheEnumLabel = Collections.synchronizedMap(new HashMap<>());
 	
-	private final DateFormat DATE_FORMAT = new SimpleDateFormat(
+	private final DateFormat dateFormat = new SimpleDateFormat(
 			DateFormats.getDateFormat(DateFormat.DEFAULT, LOCALE, "yyyy/MM/dd"),
 			LOCALE);
 	
-	private final DateFormat DATE_TIME_FORMAT = new SimpleDateFormat(
+	private final DateFormat dateTimeFormat = new SimpleDateFormat(
 			DateFormats.getDateTimeFormat(DateFormat.DEFAULT, DateFormat.DEFAULT, LOCALE, "yyyy/MM/dd HH:mm:ss"),
 			LOCALE);
 	
-	private final DateFormat TIME_FORMAT = new SimpleDateFormat(
+	private final DateFormat timeFormat = new SimpleDateFormat(
 			DateFormats.getTimeFormat(DateFormat.DEFAULT, LOCALE, "HH:mm:ss"),
 			LOCALE);
 	
 	@PostConstruct
 	private void init() {
-		DATE_FORMAT.setTimeZone(TIMEZONE);
-		DATE_TIME_FORMAT.setTimeZone(TIMEZONE);
-		TIME_FORMAT.setTimeZone(TIMEZONE);
+		dateFormat.setTimeZone(TIMEZONE);
+		dateTimeFormat.setTimeZone(TIMEZONE);
+		timeFormat.setTimeZone(TIMEZONE);
 	}
 	
 	@Override
 	public String getLabel(String key, String ...params) {
-		Assert.notNull(key, "key is null");
+		Assert.notNull(key, C.KEY);
 		
 		final String label = params != null 
 								? Labels.getLabel(key, params) 
@@ -84,16 +84,14 @@ public class ZKLabelProvider implements LabelProvider {
 		if (enm == null) {
 			return null;
 		}
-		String label = cacheEnumLabel.get(enm);
-		if (label == null) {
-			final String[] parts = enm.getClass().getName().toLowerCase().split("\\.");
-			final String key = parts[parts.length - 2] + '.' + 
-					 	 	   parts[parts.length - 1] + '.' + 
-					 	 	   enm.name().toLowerCase();
-			label = getLabel(key);
-			cacheEnumLabel.put(enm, label);
+		synchronized (this) {
+			String label = cacheEnumLabel.get(enm);
+			if (label == null) {
+				label = getLabel(getEnumKey(enm));
+				cacheEnumLabel.put(enm, label);
+			}
+			return label;
 		}
-		return label;
 	}
 	
 	@Override
@@ -109,8 +107,8 @@ public class ZKLabelProvider implements LabelProvider {
 		if (date == null) {
 			return EMPTY;
 		}
-		synchronized (DATE_FORMAT) {
-			return DATE_FORMAT.format(date);
+		synchronized (dateFormat) {
+			return dateFormat.format(date);
 		}
 	}
 	
@@ -119,8 +117,8 @@ public class ZKLabelProvider implements LabelProvider {
 		if (date == null) {
 			return EMPTY;
 		}
-		synchronized (DATE_TIME_FORMAT) {
-			return DATE_TIME_FORMAT.format(date);
+		synchronized (dateTimeFormat) {
+			return dateTimeFormat.format(date);
 		}
 	}
 	
@@ -129,8 +127,8 @@ public class ZKLabelProvider implements LabelProvider {
 		if (time == null) {
 			return EMPTY;
 		}
-		synchronized (TIME_FORMAT) {
-			return TIME_FORMAT.format(time);
+		synchronized (timeFormat) {
+			return timeFormat.format(time);
 		}
 	}
 	
@@ -140,6 +138,13 @@ public class ZKLabelProvider implements LabelProvider {
 			return EMPTY;
 		}
 		return BigDecimals.toLocaleString(decimal, LOCALE);
+	}
+	
+	private static String getEnumKey(Enum<?> enm) {
+		final String[] parts = enm.getClass().getName().toLowerCase().split("\\.");
+		return parts[parts.length - 2] + '.' + 
+			   parts[parts.length - 1] + '.' + 
+			   enm.name().toLowerCase();
 	}
 
 }

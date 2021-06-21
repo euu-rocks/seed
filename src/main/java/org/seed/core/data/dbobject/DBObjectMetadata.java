@@ -62,7 +62,7 @@ public class DBObjectMetadata extends AbstractApplicationEntity
 	public void setOrder(Integer order) {
 		this.order = order;
 	}
-
+	
 	@Override
 	@XmlJavaTypeAdapter(CDATAXmlAdapter.class)
 	public String getContent() {

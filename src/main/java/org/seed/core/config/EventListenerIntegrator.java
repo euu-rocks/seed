@@ -42,7 +42,7 @@ class EventListenerIntegrator implements Integrator {
 
 	@Override
 	public void disintegrate(SessionFactoryImplementor sessionFactory, SessionFactoryServiceRegistry serviceRegistry) {
-		
+		// do nothing
 	}
 
 }

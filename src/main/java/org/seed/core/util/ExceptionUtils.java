@@ -19,8 +19,14 @@ package org.seed.core.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Scanner;
 
 public abstract class ExceptionUtils {
+	
+	@SuppressWarnings("unused")
+	private static final long serialVersionUID = -3338292458819471313L;
+	
+	private ExceptionUtils() {}
 	
 	public static String getOriginalCauseMessage(Throwable th) {
 		 if (th.getCause() == null || th.getCause() == th) {
@@ -33,6 +39,18 @@ public abstract class ExceptionUtils {
 		final StringWriter stringWriter = new StringWriter();
 		th.printStackTrace(new PrintWriter(stringWriter));
 		return stringWriter.toString();
+	}
+	
+	public static boolean isThrownAt(Throwable th, String pattern) {
+		try (Scanner scanner = new Scanner(stackTraceAsString(th))) {
+			if (scanner.hasNextLine()) {
+				scanner.nextLine(); // skip first line
+				if (scanner.hasNextLine() && scanner.nextLine().contains(pattern)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 }

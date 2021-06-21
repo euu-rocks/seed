@@ -17,7 +17,7 @@
  */
 package org.seed.ui.zk;
 
-import org.seed.core.config.ApplicationContextProvider;
+import org.seed.Seed;
 import org.seed.core.form.layout.LayoutProvider;
 
 import org.zkoss.zk.ui.http.SimpleUiFactory;
@@ -45,7 +45,7 @@ public class DelegatingUiFactory extends SimpleUiFactory {
 	
 	private LayoutProvider getLayoutProvider() {
 		if (layoutProvider == null) {
-			layoutProvider = ApplicationContextProvider.getBean(LayoutProvider.class);
+			layoutProvider = Seed.getBean(LayoutProvider.class);
 		}
 		return layoutProvider;
 	}

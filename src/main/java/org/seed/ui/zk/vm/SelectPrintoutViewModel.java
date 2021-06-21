@@ -20,8 +20,8 @@ package org.seed.ui.zk.vm;
 import java.util.List;
 
 import org.seed.core.form.FormPrintout;
+import org.seed.core.util.Assert;
 
-import org.springframework.util.Assert;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.ContextParam;
 import org.zkoss.bind.annotation.ContextType;
@@ -43,7 +43,7 @@ public class SelectPrintoutViewModel extends AbstractViewModel {
 	@Init
     public void init(@ContextParam(ContextType.VIEW) Component view,
     				 @ExecutionArgParam("param") AbstractFormViewModel param) {
-		Assert.notNull(param, "param is null");
+		Assert.notNull(param, "param");
 		
 		parentVM = param;
 		wireComponents(view);

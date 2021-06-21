@@ -23,15 +23,14 @@ import org.seed.core.codegen.SourceCode;
 import org.seed.core.codegen.SourceCodeBuilder;
 import org.seed.core.codegen.SourceCodeImpl;
 import org.seed.core.customcode.CustomCode;
+import org.seed.core.util.Assert;
 
-import org.springframework.util.Assert;
-
-class CustomCodeBuilder implements SourceCodeBuilder<CustomCode> {
+class CustomCodeBuilder implements SourceCodeBuilder {
 	
 	private final CustomCode customCode;
 	
 	CustomCodeBuilder(CustomCode customCode) {
-		Assert.notNull(customCode, "customCode is null");
+		Assert.notNull(customCode, "customCode");
 		
 		this.customCode = customCode;
 	}
@@ -42,16 +41,15 @@ class CustomCodeBuilder implements SourceCodeBuilder<CustomCode> {
 	}
 	
 	@Override
-	public SourceCode<CustomCode> build() {
+	public SourceCode build() {
 		return build(BuildMode.COMPLETE);
 	}
 
 	@Override
-	public SourceCode<CustomCode> build(BuildMode buildMode) {
+	public SourceCode build(BuildMode buildMode) {
 		Assert.state(buildMode == BuildMode.COMPLETE, "unsupported build mode: " + buildMode.name());
 		
-		return new SourceCodeImpl<>(customCode.getQualifiedName(), 
-								    customCode.getContent());
+		return new SourceCodeImpl(customCode.getQualifiedName(), customCode.getContent());
 	}
 
 }

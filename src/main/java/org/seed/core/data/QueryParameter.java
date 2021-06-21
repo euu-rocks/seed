@@ -17,21 +17,22 @@
  */
 package org.seed.core.data;
 
-import org.springframework.util.Assert;
+import org.seed.C;
+import org.seed.core.util.Assert;
 
 public final class QueryParameter {
 	
-	public final static Object IS_NULL = new Object();
+	public static final Object IS_NULL = new Object();
 	
-	public final static Object NOT_NULL = new Object();
+	public static final Object NOT_NULL = new Object();
 	
 	final String name;
 	
 	final Object value;
 
 	QueryParameter(String name, Object value) {
-		Assert.notNull(name, "name is null");
-		Assert.notNull(value, "value is null");
+		Assert.notNull(name, C.NAME);
+		Assert.notNull(value, C.VALUE);
 		
 		this.name = name;
 		this.value = value;

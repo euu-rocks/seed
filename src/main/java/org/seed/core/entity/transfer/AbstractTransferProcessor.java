@@ -27,14 +27,14 @@ import javax.persistence.PersistenceException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import org.seed.C;
 import org.seed.core.data.Cursor;
 import org.seed.core.data.ValidationException;
-import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.entity.value.ValueObjectService;
+import org.seed.core.util.Assert;
 
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 public abstract class AbstractTransferProcessor implements TransferProcessor {
@@ -45,7 +45,7 @@ public abstract class AbstractTransferProcessor implements TransferProcessor {
 	
 	private final Transfer transfer;
 	
-	private Cursor cursor;
+	private Cursor<ValueObject> cursor;
 	
 	private List<ValueObject> chunk;
 	
@@ -56,9 +56,9 @@ public abstract class AbstractTransferProcessor implements TransferProcessor {
 	public AbstractTransferProcessor(ValueObjectService valueObjectService,
 									 Class<? extends ValueObject> objectClass,
 									 Transfer transfer) {
-		Assert.notNull(valueObjectService, "valueObjectService is null");
-		Assert.notNull(objectClass, "objectClass is null");
-		Assert.notNull(transfer, "transfer is null");
+		Assert.notNull(valueObjectService, "valueObjectService");
+		Assert.notNull(objectClass, C.OBJECTCLASS);
+		Assert.notNull(transfer, C.TRANSFER);
 		
 		this.valueObjectService = valueObjectService;
 		this.objectClass = objectClass;
@@ -84,131 +84,44 @@ public abstract class AbstractTransferProcessor implements TransferProcessor {
 	}
 	
 	protected ValueObject getNextObject() {
-		final int chunkIndex = index / getCursor().getChunkSize();
-		if (this.chunkIndex != chunkIndex) {
-			this.chunkIndex = chunkIndex;
-			getCursor().setChunkIndex(chunkIndex);
+		final int newChunkIndex = index / getCursor().getChunkSize();
+		if (chunkIndex != newChunkIndex) {
+			chunkIndex = newChunkIndex;
+			getCursor().setChunkIndex(newChunkIndex);
 			chunk = valueObjectService.loadChunk(getCursor());
 		}
 		return chunk.get(index++ % getCursor().getChunkSize());
 	}
 	
-	protected void saveObjects(List<ValueObject> objects, ImportOptions options, TransferResult result) {
+	protected void saveObjects(List<ValueObject> objects, ImportOptions options, 
+							   TransferResult result) {
 		final Set<Object> keys = new HashSet<>();
-		final Entity entity = transfer.getEntity();
 		final EntityField identifierField = transfer.getIdentifierField();
 		if (options.isModifyExisting()) {
-			Assert.state(identifierField != null, "no identifier field");
+			Assert.stateAvailable(identifierField, "identifier field");
 		}
 		Session session = null;
 		Transaction tx = null;
-		Exception ex = null;
 		try {
 			if (options.isAllOrNothing()) {
 				session = valueObjectService.openSession();
 				tx = session.beginTransaction();
 			}
 			for (ValueObject object : objects) {
-				// update existing object
-				if (options.isModifyExisting()) {
-					final Object key = valueObjectService.getValue(object, identifierField);
-					// check key
-					if (ObjectUtils.isEmpty(key)) {
-						result.addMissingKeyError(identifierField.getName());
-						if (options.isAllOrNothing()) {
-							ex = new RuntimeException("missingkey");
-							break;
-						}
-						continue;
-					}
-					// check duplicate
-					if (keys.contains(key)) {
-						result.addDuplicateError(identifierField.getName(), key.toString());
-						if (options.isAllOrNothing()) {
-							ex = new RuntimeException("duplicate");
-							break;
-						}
-						continue;
-					}
-					keys.add(key);
-					
-					final ValueObject existingObject = session != null 
-							? valueObjectService.findUnique(session, entity, identifierField, key)
-							: valueObjectService.findUnique(entity, identifierField, key);
-					// if object exist
-					if (existingObject != null) {
-						valueObjectService.copyFields(object, existingObject, transfer.getElementFields());
-						try {
-							saveObject(existingObject, session);
-							result.incUpdatedObjects();
-							result.incSuccessfulTransfers();
-						}
-						catch (ValidationException vex) {
-							result.addError(vex);
-							if (options.isAllOrNothing()) {
-								ex = vex;
-								break;
-							}
-						}
-						catch (PersistenceException pex) {
-							result.addError(pex);
-							if (options.isAllOrNothing()) {
-								ex = pex;
-								break;
-							}
-						}
-						continue;
-					}
-				}
-				
-				// create new objects
-				if (options.isCreateIfNew()) {
-					try {
-						saveObject(object, session);
-						result.incCreatedObjects();
-						result.incSuccessfulTransfers();
-					}
-					catch (ValidationException vex) {
-						result.addError(vex);
-						if (options.isAllOrNothing()) {
-							ex = vex;
-							break;
-						}
-					}
-					catch (PersistenceException pex) {
-						result.addError(pex);
-						if (options.isAllOrNothing()) {
-							ex = pex;
-							break;
-						}
-					}
-				}
+				processObject(object, options, identifierField, result, keys, session);
+			}
+			if (tx != null) {
+				tx.commit();
 			}
 		}
-		catch (Exception e) {
-			ex = e;
-			throw e;
+		catch (Exception ex) {
+			if (tx != null) {
+				tx.rollback();
+			}
 		}
 		finally {
-			if (tx != null) {
-				try {
-					if (ex != null) {
-						tx.rollback();
-					}
-					else {
-						tx.commit();
-					}
-				}
-				catch (PersistenceException pex) {
-					result.addError(pex);
-				}
-				catch (Exception e) {}
-			}
 			if (session != null) {
-				try {
-					session.close();
-				}
-				catch (Exception e) {}
+				session.close();
 			}
 			if (options.isAllOrNothing() && result.hasErrors()) {
 				result.resetModifiedObjects();
@@ -216,20 +129,90 @@ public abstract class AbstractTransferProcessor implements TransferProcessor {
 		}
 	}
 	
-	private Cursor getCursor() {
+	private void processObject(ValueObject object, ImportOptions options, EntityField identifierField,
+				TransferResult result, Set<Object> keys, Session session) 
+		throws MissingKeyException, DuplicateKeyException, ValidationException {
+		
+		int updateResult = 0;
+		if (options.isModifyExisting()) {
+			updateResult = updateExistingObject(object, identifierField, options, 
+												result, keys, session);
+		}
+		if (updateResult == 0 && options.isCreateIfNew()) {
+			saveObject(object, options, result, session);
+		}
+	}
+	
+	// -1 = error, 0 = no existing object, 1 = existing object updated
+	private int updateExistingObject(ValueObject object, EntityField identifierField,
+			 ImportOptions options, TransferResult result,
+			 Set<Object> keys, Session session) 
+		throws MissingKeyException, DuplicateKeyException, ValidationException {
+		
+		final Object key = valueObjectService.getValue(object, identifierField);
+		// check key
+		if (ObjectUtils.isEmpty(key)) {
+			result.addMissingKeyError(identifierField.getName());
+			if (options.isAllOrNothing()) {
+				throw new MissingKeyException(identifierField.getName());
+			}
+			return -1;
+		}
+		// check duplicate
+		if (keys.contains(key)) {
+			result.addDuplicateError(identifierField.getName(), key.toString());
+			if (options.isAllOrNothing()) {
+				throw new DuplicateKeyException(key.toString());
+			}
+			return -1;
+		}
+		keys.add(key);
+
+		// load existing object
+		final ValueObject existingObject = session != null 
+				? valueObjectService.findUnique(session, identifierField.getEntity(), identifierField, key)
+						: valueObjectService.findUnique(identifierField.getEntity(), identifierField, key);
+		if (existingObject == null) {
+			// no object exits
+			return 0;
+		}
+
+		valueObjectService.copyFields(object, existingObject, transfer.getElementFields());
+		saveObject(existingObject, options, result, session);
+		return 1;
+	}
+	
+	private void saveObject(ValueObject object, ImportOptions options, TransferResult result, Session session) 
+		throws ValidationException {
+		try {
+			if (session != null) {
+				valueObjectService.saveObject(object, session, null);
+			}
+			else {
+				valueObjectService.saveObject(object);
+			}
+			result.incCreatedObjects();
+			result.incSuccessfulTransfers();
+		}
+		catch (ValidationException vex) {
+			result.addError(vex);
+			if (options.isAllOrNothing()) {
+				throw vex;
+			}
+		}
+		catch (PersistenceException pex) {
+			result.addError(pex);
+			if (options.isAllOrNothing()) {
+				throw pex;
+			}
+		}
+	}
+	
+	private Cursor<ValueObject> getCursor() {
 		if (cursor == null) {
 			cursor = valueObjectService.createCursor(transfer.getEntity(), null);
 		}
 		return cursor;
 	}
-	
-	private void saveObject(ValueObject object, Session session) throws ValidationException {
-		if (session != null) {
-			valueObjectService.saveObject(object, session, null);
-		}
-		else {
-			valueObjectService.saveObject(object);
-		}
-	}
-	
+
 }

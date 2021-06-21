@@ -23,26 +23,27 @@ import java.util.Properties;
 
 import javax.annotation.PostConstruct;
 
+import org.seed.core.util.Assert;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 @Component
 public class Limits {
 	
-	private final Properties limits = new Properties();
+	private final Properties properties = new Properties();
 	
 	@Value("classpath:schema-limits.properties")
-    private Resource limitsResource;
+    private Resource resource;
 	
 	@PostConstruct
 	private void init() {
-		Assert.notNull(limitsResource, "schema-limits.properties not found");
+		Assert.notNull(resource, "schema-limits.properties not found");
 		
-		try (InputStream inputStream = limitsResource.getInputStream()) {
-			limits.load(inputStream);
+		try (InputStream inputStream = resource.getInputStream()) {
+			properties.load(inputStream);
 		}
 		catch (IOException ex) {
 			throw new ConfigurationException("failed to load schema-limits.properties", ex);
@@ -50,17 +51,17 @@ public class Limits {
 	}
 	
 	public int getLimit(String limitName) {
-		Assert.notNull(limitName, "limitName is null");
+		Assert.notNull(limitName, "limitName");
 		
-		final String limit = limits.getProperty(limitName);
-		if (!StringUtils.hasText(limit)) {
+		final String limitValue = properties.getProperty(limitName);
+		if (!StringUtils.hasText(limitValue)) {
 			throw new ConfigurationException("limit '" + limitName + "' is not available");
 		}
 		try {
-			return Integer.parseInt(limit);
+			return Integer.parseInt(limitValue);
 		}
 		catch (NumberFormatException nfe) {
-			throw new ConfigurationException("limit '" + limitName + "' is not an integer: " + limit);
+			throw new ConfigurationException("limit '" + limitName + "' is not an integer: " + limitValue);
 		}
 	}
 

@@ -37,7 +37,7 @@ public interface ApplicationEntityService<T extends ApplicationEntity> extends S
 	
 	void analyzeObjects(ImportAnalysis analysis, Module currentVersionModule);
 	
-	Class<? extends ApplicationEntityService<? extends ApplicationEntity>>[] getImportDependencies();
+	Class<? extends ApplicationEntityService<ApplicationEntity>>[] getImportDependencies();
 	
 	void importObjects(TransferContext context, Session session);
 	

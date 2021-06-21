@@ -21,26 +21,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Session;
-
+import org.seed.C;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.codegen.SourceCodeBuilder;
 import org.seed.core.codegen.SourceCodeProvider;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityRepository;
+import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 @Component
-public class EntitySourceCodeProvider implements SourceCodeProvider<Entity> {
+public class EntitySourceCodeProvider implements SourceCodeProvider {
 	
 	@Autowired
 	private EntityRepository entityRepository;
 	
 	@Override
-	public List<SourceCodeBuilder<Entity>> getSourceCodeBuilders() {
-		final List<SourceCodeBuilder<Entity>> result = new ArrayList<>();
+	public List<SourceCodeBuilder> getSourceCodeBuilders() {
+		final List<SourceCodeBuilder> result = new ArrayList<>();
 		try (Session session = entityRepository.getSession()) {
 			for (Entity entity : entityRepository.find(session)) {
 				result.add(new EntitySourceCodeBuilder(entity));
@@ -49,8 +49,8 @@ public class EntitySourceCodeProvider implements SourceCodeProvider<Entity> {
 		return result;
 	}
 	
-	public SourceCode<Entity> getEntitySource(Entity entity) {
-		Assert.notNull(entity, "entity is null");
+	public SourceCode getEntitySource(Entity entity) {
+		Assert.notNull(entity, C.ENTITY);
 		
 		return new EntitySourceCodeBuilder(entity).build();
 	}

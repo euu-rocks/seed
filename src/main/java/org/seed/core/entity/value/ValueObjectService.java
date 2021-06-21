@@ -49,17 +49,17 @@ public interface ValueObjectService {
 	
 	ValueObject createObject(Entity entity, Map<String,Object> valueMap);
 	
-	Cursor createCursor(Entity entity, @Nullable Filter filter, Sort ...sort);
+	Cursor<ValueObject> createCursor(Entity entity, @Nullable Filter filter, Sort ...sort);
 	
-	Cursor createCursor(ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sort);
+	Cursor<ValueObject> createCursor(ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sort);
 	
-	Cursor createFullTextSearchCursor(String fullTextQueryString);
+	Cursor<ValueObject> createFullTextSearchCursor(String fullTextQueryString, Entity entity);
 	
-	Cursor createFullTextSearchCursor(String fullTextQueryString, Entity entity);
+	Cursor<FullTextResult> createFullTextSearchCursor(String fullTextQueryString);
 	
-	List<ValueObject> loadChunk(Cursor cursor);
+	List<ValueObject> loadChunk(Cursor<ValueObject> cursor);
 	
-	List<FullTextResult> loadFullTextChunk(Cursor cursor);
+	List<FullTextResult> loadFullTextChunk(Cursor<FullTextResult> cursor);
 	
 	boolean notifyChange(ValueObject object);
 	
@@ -110,7 +110,7 @@ public interface ValueObjectService {
 	
 	List<ValueObject> find(Entity entity, Filter filter);
 	
-	List<ValueObject> find(Session session, CriteriaQuery<?> query);
+	List<ValueObject> find(Session session, CriteriaQuery<ValueObject> query);
 	
 	ValueObject findUnique(Entity entity, EntityField entityField, Object value);
 	

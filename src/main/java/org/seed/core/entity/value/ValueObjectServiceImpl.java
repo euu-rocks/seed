@@ -32,6 +32,8 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
+import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.data.AbstractSystemEntity;
 import org.seed.core.data.Cursor;
 import org.seed.core.data.FieldType;
@@ -54,21 +56,21 @@ import org.seed.core.entity.transform.Transformer;
 import org.seed.core.entity.value.event.ValueObjectEvent;
 import org.seed.core.entity.value.event.ValueObjectEventHandler;
 import org.seed.core.entity.value.event.ValueObjectFunctionContext;
+import org.seed.core.util.Assert;
 import org.seed.core.util.Tupel;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 @Service
 public class ValueObjectServiceImpl 
-	implements ValueObjectService, EntityDependent, ValueObjectDependent {
+	implements ValueObjectService, EntityDependent<SystemEntity>, ValueObjectDependent<Entity> {
 	
 	// dummy object; only last part of package name is important ("value")
-	private final static SystemEntity VALUE_ENTITY = new AbstractSystemEntity() {};
+	private static final SystemEntity VALUE_ENTITY = new AbstractSystemEntity() {};
 	
-	private final static int CHUNK_SIZE = 50;
+	private static final int CHUNK_SIZE = 50;
 	
 	@Autowired
 	private EntityService entityService;
@@ -126,8 +128,8 @@ public class ValueObjectServiceImpl
 	public void copyFields(ValueObject sourceObject, 
 						   ValueObject targetObject,
 						   List<EntityField> entityFields) {
-		Assert.notNull(sourceObject, "sourceObject is null");
-		Assert.notNull(targetObject, "targetObject is null");
+		Assert.notNull(sourceObject, "sourceObject");
+		Assert.notNull(targetObject, "targetObject");
 		Assert.state(!ObjectUtils.isEmpty(entityFields), "entityFields are empty");
 		
 		for (EntityField entityField : entityFields) {
@@ -137,6 +139,8 @@ public class ValueObjectServiceImpl
 	
 	@Override
 	public ValueObject createInstance(Entity entity) {
+		Assert.notNull(entity, C.ENTITY);
+		
 		try (Session session = repository.getSession()) {
 			Transaction tx = null;
 			try {
@@ -156,6 +160,8 @@ public class ValueObjectServiceImpl
 	
 	@Override
 	public ValueObject createObject(Entity entity, Map<String,Object> valueMap) {
+		Assert.notNull(entity, C.ENTITY);
+		
 		try (Session session = repository.getSession()) {
 			Transaction tx = null;
 			try {
@@ -171,66 +177,72 @@ public class ValueObjectServiceImpl
 				if (tx != null) {
 					tx.rollback();
 				}
-				throw new RuntimeException(ex);
+				throw new InternalException(ex);
 			}
 		}
 	}
 	
+	// von FullTextSearchViewMode aufgerufen
 	@Override
-	public Cursor createFullTextSearchCursor(String fullTextQueryString) {
-		return createFullTextSearchCursor(fullTextQueryString, null);
+	public Cursor<FullTextResult> createFullTextSearchCursor(String fullTextQueryString) {
+		Assert.notNull(fullTextQueryString, "fullTextQueryString");
+		
+		final List<Tupel<Long,Long>> fullTextSearchResult = fullTextSearch.query(fullTextQueryString, null);
+		return new Cursor<>(fullTextQueryString, fullTextSearchResult, CHUNK_SIZE);
 	}
 	
+	// von ListFormViewModel aufgerufen
 	@Override
-	public Cursor createFullTextSearchCursor(String fullTextQueryString, Entity entity) {
-		Assert.notNull(fullTextQueryString, "fullTextQueryString is null");
+	public Cursor<ValueObject> createFullTextSearchCursor(String fullTextQueryString, Entity entity) {
+		Assert.notNull(fullTextQueryString, "fullTextQueryString");
 		
 		final List<Tupel<Long,Long>> fullTextSearchResult = fullTextSearch.query(fullTextQueryString, entity);
-		return new Cursor(fullTextQueryString, fullTextSearchResult, CHUNK_SIZE);
+		return new Cursor<>(fullTextQueryString, fullTextSearchResult, CHUNK_SIZE);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
-	@SuppressWarnings("rawtypes")
-	public Cursor createCursor(Entity entity, @Nullable Filter filter, Sort ...sort) {
-		Assert.notNull(entity, "entity is null");
+	public Cursor<ValueObject> createCursor(Entity entity, @Nullable Filter filter, Sort ...sort) {
+		Assert.notNull(entity, C.ENTITY);
 		
 		try (Session session = repository.getSession()) {
 			if (filter != null && filter.getHqlQuery() != null) {
-				final Query query = session.createQuery("select count(*) " + filter.getHqlQuery());
-				final Long totalSize = (Long) query.uniqueResult();
-				return new Cursor(filter.getHqlQuery(), totalSize.intValue(), CHUNK_SIZE);
+				final StringBuilder queryBuilder = new StringBuilder("select count(*) ").append(filter.getHqlQuery());
+				final Query<Long> query = session.createQuery(queryBuilder.toString());
+				final Long totalSize = query.uniqueResult();
+				return new Cursor<>(filter.getHqlQuery(), totalSize.intValue(), CHUNK_SIZE);
 			}
-			CriteriaQuery query = repository.buildQuery(session, entity, filter, true);
-			final Long totalSize = repository.querySingleResult(session, query);
-			query = repository.buildQuery(session, entity, filter, false, sort);
-			return new Cursor(query, totalSize.intValue(), CHUNK_SIZE);
+			
+			final CriteriaQuery<Long> countQuery = repository.buildCountQuery(session, entity, filter); 
+			final Long totalSize = repository.querySingleResult(session, countQuery);
+			final CriteriaQuery<ValueObject> query = repository.buildQuery(session, entity, filter, sort);
+			return new Cursor<>(query, totalSize.intValue(), CHUNK_SIZE);
 		}
 	}
 	
 	@Override
-	@SuppressWarnings({ "rawtypes" })
-	public Cursor createCursor(ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sort) {
-		Assert.notNull(searchObject, "searchObject is null");
-		Assert.notNull(criteriaMap, "criteriaMap is null");
+	public Cursor<ValueObject> createCursor(ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sort) {
+		Assert.notNull(searchObject, "searchObject");
+		Assert.notNull(criteriaMap, "criteriaMap");
 		
 		try (Session session = repository.getSession()) {
-			CriteriaQuery query = repository.buildQuery(session, searchObject, criteriaMap, true);
-			final Long totalSize = repository.querySingleResult(session, query);
-			query = repository.buildQuery(session, searchObject, criteriaMap, false, sort);
-			return new Cursor(query, totalSize.intValue(), CHUNK_SIZE);
+			final CriteriaQuery<Long> countQuery = repository.buildCountQuery(session, searchObject, criteriaMap);
+			final Long totalSize = repository.querySingleResult(session, countQuery);
+			final CriteriaQuery<ValueObject> query = repository.buildQuery(session, searchObject, criteriaMap, sort);
+			return new Cursor<>(query, totalSize.intValue(), CHUNK_SIZE);
 		}
 	}
 	
 	@Override
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public List<ValueObject> loadChunk(Cursor cursor) {
-		Assert.notNull(cursor, "cursor is null");
+	public List<ValueObject> loadChunk(Cursor<ValueObject> cursor) {
+		Assert.notNull(cursor, "cursor");
 		
 		if (cursor.isFullTextSearch()) {
 			return loadFullTextObjects(cursor);
 		}
 		try (Session session = repository.getSession()) {
-			final Query query = cursor.getHqlQuery() != null
+			@SuppressWarnings("unchecked")
+			final Query<ValueObject> query = cursor.getHqlQuery() != null
 								? session.createQuery(cursor.getHqlQuery())
 								: session.createQuery(cursor.getQuery());
 			query.setFirstResult(cursor.getStartIndex());
@@ -240,8 +252,8 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public List<FullTextResult> loadFullTextChunk(Cursor cursor) {
-		Assert.notNull(cursor, "cursor is null");
+	public List<FullTextResult> loadFullTextChunk(Cursor<FullTextResult> cursor) {
+		Assert.notNull(cursor, "cursor");
 		
 		final List<ValueObject> listObjects = loadFullTextObjects(cursor);
 		final Map<Long, String> mapTexts = fullTextSearch.getTextMap(listObjects, cursor.getFullTextQuery());
@@ -252,7 +264,7 @@ public class ValueObjectServiceImpl
 	
 	@Override
 	public List<FileObject> getFileObjects(ValueObject object) {
-		Assert.notNull(object, "object is null");
+		Assert.notNull(object, C.OBJECT);
 		
 		final List<FileObject> fileObjects = new ArrayList<>();
 		final Entity entity = repository.getEntity(object);
@@ -271,8 +283,8 @@ public class ValueObjectServiceImpl
 	
 	@Override
 	public String callUserActionFunction(ValueObject object, EntityFunction function) {
-		Assert.notNull(object, "object is null");
-		Assert.notNull(function, "function is null");
+		Assert.notNull(object, C.OBJECT);
+		Assert.notNull(function, C.FUNCTION);
 		
 		String message = null;
 		try (Session session = repository.getSession()) {
@@ -358,7 +370,7 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public List<ValueObject> find(Session session, CriteriaQuery<?> query) {
+	public List<ValueObject> find(Session session, CriteriaQuery<ValueObject> query) {
 		return repository.find(session, query);
 	}
 	
@@ -374,7 +386,7 @@ public class ValueObjectServiceImpl
 	
 	@Override
 	public ValueObject findUnique(Session session, Entity entity, EntityField entityField, Object value) {
-		Assert.notNull(entityField, "entityField is null");
+		Assert.notNull(entityField, "entityField");
 		Assert.state(entityField.isUnique(), "entityField is not unique");
 		
 		final Filter filter = filterService.createFieldFilter(entity, entityField, value);
@@ -385,12 +397,16 @@ public class ValueObjectServiceImpl
 	
 	@Override
 	public void reloadObject(ValueObject object) {
+		Assert.notNull(object, C.OBJECT);
+		
 		repository.reload(object);
 	}
 	
 	@Override
 	public void deleteObject(ValueObject object) throws ValidationException {
+		Assert.notNull(object, C.OBJECT);
 		clearEmptyFileObjects(object);
+		
 		try (Session session = repository.getSession()) {
 			Transaction tx = null;
 			try {
@@ -410,14 +426,16 @@ public class ValueObjectServiceImpl
 	@Override
 	public void deleteObject(ValueObject object, Session session, ValueObjectFunctionContext functionContext) 
 			throws ValidationException {
-		final Session _session = functionContext != null 
+		Assert.notNull(object, C.OBJECT);
+		final Session sessionToUse = functionContext != null 
 				? functionContext.getSession() 
 				: session;
+		
 		validator.validateDelete(object);
 		repository.delete(object, session, functionContext);
 		
 		for (ValueObjectChangeAware changeAware : changeAwareObjects) {
-			changeAware.notifyDelete(object, _session);
+			changeAware.notifyDelete(object, sessionToUse);
 		}
 	}
 	
@@ -450,7 +468,9 @@ public class ValueObjectServiceImpl
 	
 	@Override
 	public void saveObject(ValueObject object, List<FileObject> deletedFiles) throws ValidationException {
+		Assert.notNull(object, C.OBJECT);
 		clearEmptyFileObjects(object);
+		
 		try (Session session = repository.getSession()) {
 			Transaction tx = null;
 			try {
@@ -458,7 +478,9 @@ public class ValueObjectServiceImpl
 				saveObject(object, session, null);
 				
 				if (deletedFiles != null) {
-					deletedFiles.forEach(file -> session.delete(file));
+					for (FileObject file : deletedFiles) {
+						session.delete(file);
+					}
 				}
 				tx.commit();
 			}
@@ -474,19 +496,20 @@ public class ValueObjectServiceImpl
 	@Override
 	public void saveObject(ValueObject object, Session session, ValueObjectFunctionContext functionContext) 
 			throws ValidationException {
+		Assert.notNull(object, C.OBJECT);
 		final boolean isInsert = object.isNew();
-		final Session _session = functionContext != null 
-									? functionContext.getSession() 
-									: session;
+		final Session sessionToUse = functionContext != null 
+										? functionContext.getSession() 
+										: session;
 		validator.validateSave(object);
 		repository.save(object, session, functionContext);
 		
 		for (ValueObjectChangeAware changeAware : changeAwareObjects) {
 			if (isInsert) {
-				changeAware.notifyCreate(object, _session);
+				changeAware.notifyCreate(object, sessionToUse);
 			}
 			else {
-				changeAware.notifyChange(object, _session);
+				changeAware.notifyChange(object, sessionToUse);
 			}
 		}
 	}
@@ -521,8 +544,8 @@ public class ValueObjectServiceImpl
 	
 	@Override
 	public ValueObject transform(Transformer transformer, ValueObject sourceObject) {
-		Assert.notNull(transformer, "transformer is null");
-		Assert.notNull(sourceObject, "sourceObject is null");
+		Assert.notNull(transformer, "transformer");
+		Assert.notNull(sourceObject, "sourceObject");
 		
 		final ValueObject targetObject = createInstance(transformer.getTargetEntity());
 		objectTransformer.transform(transformer, sourceObject, targetObject);
@@ -530,7 +553,7 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public List<? extends SystemEntity> findUsage(Entity entity) {
+	public List<SystemEntity> findUsage(Entity entity) {
 		if (repository.exist(entity, null)) {
 			return Collections.singletonList(VALUE_ENTITY);
 		}
@@ -538,17 +561,17 @@ public class ValueObjectServiceImpl
 	}
 
 	@Override
-	public List<? extends SystemEntity> findUsage(EntityField entityField) {
+	public List<SystemEntity> findUsage(EntityField entityField) {
 		return Collections.emptyList();
 	}
 
 	@Override
-	public List<? extends SystemEntity> findUsage(EntityFieldGroup fieldGroup) {
+	public List<SystemEntity> findUsage(EntityFieldGroup fieldGroup) {
 		return Collections.emptyList();
 	}
 
 	@Override
-	public List<? extends SystemEntity> findUsage(EntityStatus entityStatus) {
+	public List<SystemEntity> findUsage(EntityStatus entityStatus) {
 		final Entity entity = entityStatus.getEntity();
 		final Filter filter = filterService.createStatusFilter(entity, entityStatus);
 		if (repository.exist(entity, filter)) {
@@ -558,17 +581,17 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public List<? extends SystemEntity> findUsage(EntityFunction entityFunction) {
+	public List<SystemEntity> findUsage(EntityFunction entityFunction) {
 		return Collections.emptyList();
 	}
 
 	@Override
-	public List<? extends SystemEntity> findUsage(NestedEntity nestedEntity) {
+	public List<SystemEntity> findUsage(NestedEntity nestedEntity) {
 		return Collections.emptyList();
 	}
 	
 	@Override
-	public List<? extends Entity> findUsage(ValueObject object) {
+	public List<Entity> findUsage(ValueObject object) {
 		final List<Entity> result = new ArrayList<>();
 		final Entity entity = repository.getEntity(object);
 		for (Entity otherEntity : entityService.findAllObjects()) {
@@ -586,7 +609,7 @@ public class ValueObjectServiceImpl
 		return result;
 	}
 	
-	private List<ValueObject> loadFullTextObjects(Cursor cursor) {
+	private List<ValueObject> loadFullTextObjects(Cursor<?> cursor) {
 		final List<ValueObject> result = new ArrayList<>(cursor.getChunkSize());
 		Entity entity = null;
 		for (int i = cursor.getStartIndex(); i < Math.min(cursor.getStartIndex() + cursor.getChunkSize(), cursor.getTotalCount()); i++) {
@@ -602,72 +625,81 @@ public class ValueObjectServiceImpl
 	}
 	
 	@SuppressWarnings("unchecked")
-	private boolean setObjectValues(Session session, Entity entity, 
-									ValueObject object, Map<String, Object> valueMap) {
+	private boolean setObjectValues(Session session, Entity entity, ValueObject object, Map<String, Object> valueMap) {
 		boolean isModified = false;
 		if (entity.hasAllFields()) {
 			for (EntityField field : entity.getAllFields()) {
-				if (field.isJsonSerializable() && 
-					!field.getType().isAutonum() &&
-					valueMap.containsKey(field.getInternalName())) {
-					
-					Object value = valueMap.get(field.getInternalName());
-					if (value != null && field.getType().isReference()) {
-						Assert.state(value instanceof Map, "value of '" + field.getInternalName() + "' is not a map");
-						final Map<String, Object> objectMap = (Map<String, Object>) value;
-						final Integer referenceId = (Integer) objectMap.get("id");
-						Assert.state(referenceId != null, "reference id of '" + field.getInternalName() + "' is not available");
-						value = getObject(session, field.getReferenceEntity(), referenceId.longValue());
-					}
-					objectAccess.setValue(object, field, value);
+				if (setObjectFieldValue(session, field, object, valueMap)) {
 					isModified = true;
 				}
 			}
 		}
 		if (entity.hasAllNesteds()) {
 			for (NestedEntity nested : entity.getAllNesteds()) {
-				// skip if nested entity has no fields
-				if (!nested.getNestedEntity().hasAllFields()) {
-					continue;
-				}
 				// get nested maps
 				final List<Map<String, Object>> listNestedMaps = 
 						(List<Map<String, Object>>) valueMap.get(nested.getInternalName());
-				// skip if no nested maps exist
-				if (listNestedMaps == null || listNestedMaps.isEmpty()) {
-					continue;
+				if (!ObjectUtils.isEmpty(listNestedMaps) && 
+					setNestedObjectValues(session, nested, object, listNestedMaps)) {
+					isModified = true;
 				}
-				
-				// get existing nested value objects as map
-				final Map<Long, ValueObject> nestedObjectMap = 
-						objectAccess.getNestedObjects(object, nested).stream()
-									.collect(Collectors.toMap(obj -> obj.getId(),
-													  		  obj -> obj));
-				// iterate over nested maps
-				final Set<Long> nestedIds = new HashSet<>();
-				for (Map<String, Object> nestedValueMap : listNestedMaps) {
-					final Integer nestedId = (Integer) nestedValueMap.get("id");
-					// update existing nested object
-					if (nestedId != null && nestedObjectMap != null && 
-						nestedObjectMap.containsKey(nestedId.longValue())) {
-						final ValueObject nestedObject = nestedObjectMap.get(nestedId.longValue());
-						if (setObjectValues(session, nested.getNestedEntity(), nestedObject, nestedValueMap)) {
-							isModified = true;
-						}
-						nestedIds.add(nestedId.longValue());
-					}
-					// create new nested object
-					else {
-						final ValueObject nestedObject = objectAccess.addNestedInstance(object, nested);
-						setObjectValues(session, nested.getNestedEntity(), nestedObject, nestedValueMap);
-						isModified = true;
-					}
+			}
+		}
+		return isModified;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private boolean setObjectFieldValue(Session session, EntityField field, ValueObject object, Map<String, Object> valueMap) {
+		if (field.isJsonSerializable() && 
+			!field.getType().isAutonum() &&
+			valueMap.containsKey(field.getInternalName())) {
+			
+			Object value = valueMap.get(field.getInternalName());
+			if (value != null && field.getType().isReference()) {
+				Assert.state(value instanceof Map, "value of '" + field.getInternalName() + "' is not a map");
+				final Map<String, Object> objectMap = (Map<String, Object>) value;
+				final Integer referenceId = (Integer) objectMap.get(C.ID);
+				Assert.state(referenceId != null, "reference id of '" + field.getInternalName() + "' is not available");
+				value = getObject(session, field.getReferenceEntity(), referenceId.longValue());
+			}
+			objectAccess.setValue(object, field, value);
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean setNestedObjectValues(Session session, NestedEntity nested, ValueObject object, 
+										  List<Map<String, Object>> listNestedMaps) {
+		boolean isModified = false;
+		// get existing nested value objects as map
+		final Map<Long, ValueObject> nestedObjectMap = 
+				objectAccess.getNestedObjects(object, nested).stream()
+							.collect(Collectors.toMap(ValueObject::getId, obj -> obj));
+		// iterate over nested maps
+		final Set<Long> nestedIds = new HashSet<>();
+		for (Map<String, Object> nestedValueMap : listNestedMaps) {
+			final Integer nestedId = (Integer) nestedValueMap.get(C.ID);
+			// update existing nested object
+			if (nestedId != null && nestedObjectMap != null && 
+				nestedObjectMap.containsKey(nestedId.longValue())) {
+				final ValueObject nestedObject = nestedObjectMap.get(nestedId.longValue());
+				if (setObjectValues(session, nested.getNestedEntity(), nestedObject, nestedValueMap)) {
+					isModified = true;
 				}
-				// remove nested objects 
-				for (Map.Entry<Long, ValueObject> entry : nestedObjectMap.entrySet()) {
-					if (!nestedIds.contains(entry.getKey())) {
-						objectAccess.removeNestedObject(object, nested, entry.getValue());
-					}
+				nestedIds.add(nestedId.longValue());
+			}
+			// create new nested object
+			else {
+				final ValueObject nestedObject = objectAccess.addNestedInstance(object, nested);
+				setObjectValues(session, nested.getNestedEntity(), nestedObject, nestedValueMap);
+				isModified = true;
+			}
+		}
+		// remove nested objects 
+		if (nestedObjectMap != null) {
+			for (Map.Entry<Long, ValueObject> entry : nestedObjectMap.entrySet()) {
+				if (!nestedIds.contains(entry.getKey())) {
+					objectAccess.removeNestedObject(object, nested, entry.getValue());
 				}
 			}
 		}
@@ -688,7 +720,7 @@ public class ValueObjectServiceImpl
 	}
 	
 	private void setFileObjects(ValueObject object, boolean createObject) {
-		Assert.notNull(object, "object is null");
+		Assert.notNull(object, C.OBJECT);
 		
 		final Entity entity = repository.getEntity(object);
 		setFileFields(object, entity, createObject);

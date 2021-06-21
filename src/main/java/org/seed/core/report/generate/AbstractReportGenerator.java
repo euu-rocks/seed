@@ -26,15 +26,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.seed.core.config.ApplicationContextProvider;
+import org.seed.C;
+import org.seed.Seed;
 import org.seed.core.data.datasource.ColumnMetadata;
 import org.seed.core.data.datasource.DataSourceResult;
 import org.seed.core.form.LabelProvider;
 import org.seed.core.report.Report;
 import org.seed.core.report.ReportDataSource;
 import org.seed.core.report.ReportGenerator;
-
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 abstract class AbstractReportGenerator implements ReportGenerator {
 	
@@ -47,22 +47,22 @@ abstract class AbstractReportGenerator implements ReportGenerator {
 	private ByteArrayOutputStream outputStream;
 	
 	protected AbstractReportGenerator(Report report) {
-		Assert.notNull(report, "report is null");
+		Assert.notNull(report, C.REPORT);
 		
 		this.report = report;
-		labelProvider = ApplicationContextProvider.getBean(LabelProvider.class);
+		labelProvider = Seed.getBean(LabelProvider.class);
 	}
 	
 	@Override
 	public void addDataSourceResult(ReportDataSource dataSource, DataSourceResult result) {
-		Assert.notNull(dataSource, "dataSource is null");
-		Assert.notNull(result, "result is null");
+		Assert.notNull(dataSource, "dataSource");
+		Assert.notNull(result, "result");
 		
 		resultMap.put(dataSource.getId(), result);
 	}
 	
 	protected DataSourceResult getDataSourceResult(ReportDataSource dataSource) {
-		Assert.notNull(dataSource, "dataSource is null");
+		Assert.notNull(dataSource, "dataSource");
 		Assert.state(resultMap.containsKey(dataSource.getId()), "result not available");
 		
 		return resultMap.get(dataSource.getId());
@@ -77,7 +77,7 @@ abstract class AbstractReportGenerator implements ReportGenerator {
 	}
 	
 	protected String formatValue(Object object, ColumnMetadata column) {
-		Assert.notNull(column, "column is null");
+		Assert.notNull(column, "column");
 		
 		switch (column.type) {
 			case Types.BLOB:

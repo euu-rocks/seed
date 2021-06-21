@@ -19,8 +19,8 @@ package org.seed.core.codegen;
 
 import java.util.List;
 
-public interface SourceCodeProvider<T> {
+public interface SourceCodeProvider {
 	
-	List<SourceCodeBuilder<T>> getSourceCodeBuilders();
+	List<SourceCodeBuilder> getSourceCodeBuilders();
 	
 }

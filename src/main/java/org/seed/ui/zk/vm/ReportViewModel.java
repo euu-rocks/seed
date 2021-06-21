@@ -20,14 +20,10 @@ package org.seed.ui.zk.vm;
 import java.util.List;
 
 import org.seed.core.report.Report;
-import org.seed.core.report.ReportService;
+
 import org.zkoss.bind.annotation.Command;
-import org.zkoss.zk.ui.select.annotation.WireVariable;
 
 public class ReportViewModel extends AbstractApplicationViewModel {
-	
-	@WireVariable(value="reportServiceImpl")
-	private ReportService reportService;
 	
 	private Report report;
 
@@ -40,7 +36,7 @@ public class ReportViewModel extends AbstractApplicationViewModel {
 	}
 	
 	public List<Report> getReports() {
-		return reportService.getReports(getUser());
+		return super.getUserReports();
 	}
 	
 	@Command

@@ -18,6 +18,7 @@
 package org.seed.core.entity.transfer;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -25,11 +26,12 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.seed.InternalException;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.entity.value.ValueObjectService;
+import org.seed.core.util.Assert;
 
-import com.opencsv.CSVWriter;
 import com.opencsv.ICSVWriter;
 import com.opencsv.bean.ColumnPositionMappingStrategy;
 import com.opencsv.bean.CsvToBeanBuilder;
@@ -77,17 +79,18 @@ class CSVProcessor extends AbstractTransferProcessor {
 			}
 		} 
 		catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
-			throw new RuntimeException(e);
+			throw new InternalException(e);
 		}
 		return out.toByteArray();
 	}
 	
 	@Override
 	public TransferResult doImport(ImportOptions options, InputStream inputStream) throws ValidationException {
+		Assert.notNull(options, "options");
+		Assert.notNull(inputStream, "inputStream");
 		final TransferResult result = new TransferResult(options);
-		Reader reader = null;
-		try {
-			reader = new InputStreamReader(inputStream, getCharset());
+		
+		try (Reader reader = new InputStreamReader(inputStream, getCharset())) {
 			final CsvToBeanBuilder<ValueObject> builder  =
 					new CsvToBeanBuilder<ValueObject>(reader)
 						.withType(getObjectClass())
@@ -107,15 +110,11 @@ class CSVProcessor extends AbstractTransferProcessor {
 				builder.withEscapeChar(getTransfer().getEscapeChar().charAt(0));
 			}
 			saveObjects(builder.build().parse(), options, result);
+		} 
+		catch (IOException ioe) {
+			throw new InternalException(ioe);
 		}
-		finally {
-			try {
-				if (reader != null) {
-					reader.close();
-				}
-			} 
-			catch (Exception ex) {}
-		}
+
 		return result;
 	}
 	
@@ -135,33 +134,38 @@ class CSVProcessor extends AbstractTransferProcessor {
 	
 	private void writeHeader(PrintWriter writer) {
 		if (getTransfer().hasElements()) {
-			final char separator = getTransfer().getSeparatorChar() != null 
-										? getTransfer().getSeparatorChar().charAt(0)
-										: ICSVWriter.DEFAULT_SEPARATOR;
-			final char quote = getTransfer().getQuoteChar() != null 
-										? getTransfer().getQuoteChar().charAt(0)
-										: ICSVWriter.DEFAULT_QUOTE_CHARACTER;
-			boolean first = true;
-			for (TransferElement element : getTransfer().getElements()) {
-				if (first) {
-					first = false;
-				}
-				else {
-					writer.write(separator);
-				}
-				if (getTransfer().isQuoteAll()) {
-					writer.write(quote);
-				}
-				writer.write(element.getEntityField().getInternalName());
-				if (getTransfer().isQuoteAll()) {
-					writer.write(quote);
-				}
-			}
+			writeHeaderFields(writer);
 			if (getTransfer().getNewline() != null) {
 				writer.write(getTransfer().getNewline().content);
 			}
 			else {
-				writer.write(CSVWriter.DEFAULT_LINE_END);
+				writer.write(ICSVWriter.DEFAULT_LINE_END);
+			}
+		}
+	}
+	
+	private void writeHeaderFields(PrintWriter writer) {
+		final char separator = getTransfer().getSeparatorChar() != null 
+				? getTransfer().getSeparatorChar().charAt(0)
+				: ICSVWriter.DEFAULT_SEPARATOR;
+		final char quote = getTransfer().getQuoteChar() != null 
+				? getTransfer().getQuoteChar().charAt(0)
+				: ICSVWriter.DEFAULT_QUOTE_CHARACTER;
+		
+		boolean first = true;
+		for (TransferElement element : getTransfer().getElements()) {
+			if (first) {
+				first = false;
+			}
+			else {
+				writer.write(separator);
+			}
+			if (getTransfer().isQuoteAll()) {
+				writer.write(quote);
+			}
+			writer.write(element.getEntityField().getInternalName());
+			if (getTransfer().isQuoteAll()) {
+				writer.write(quote);
 			}
 		}
 	}

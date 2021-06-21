@@ -38,7 +38,7 @@ import org.seed.core.application.TransferableObject;
 import org.seed.core.customcode.CustomCode;
 import org.seed.core.customcode.CustomCodeMetadata;
 import org.seed.core.data.AbstractSystemEntity;
-import org.seed.core.data.datasource.DataSource;
+import org.seed.core.data.datasource.IDataSource;
 import org.seed.core.data.datasource.DataSourceMetadata;
 import org.seed.core.data.dbobject.DBObject;
 import org.seed.core.data.dbobject.DBObjectMetadata;
@@ -60,8 +60,8 @@ import org.seed.core.task.Task;
 import org.seed.core.task.TaskMetadata;
 import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupMetadata;
+import org.seed.core.util.Assert;
 
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import static org.seed.core.application.AbstractApplicationEntity.getObjectByUid;
@@ -295,9 +295,9 @@ public class ModuleMetadata extends AbstractSystemEntity
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<DataSource> getDataSources() {
+	public List<IDataSource> getDataSources() {
 		final List<?> list = getDataSourceMetadata();
-		return (List<DataSource>) list;
+		return (List<IDataSource>) list;
 	}
 
 	@XmlElement(name="datasource")
@@ -367,7 +367,7 @@ public class ModuleMetadata extends AbstractSystemEntity
 	
 	@Override
 	public void addParameter(ModuleParameter parameter) {
-		Assert.notNull(parameter, "parameter is null");
+		Assert.notNull(parameter, "parameter");
 		
 		if (parameters == null) {
 			parameters = new ArrayList<>();
@@ -378,7 +378,7 @@ public class ModuleMetadata extends AbstractSystemEntity
 	
 	@Override
 	public void removeParameter(ModuleParameter parameter) {
-		Assert.notNull(parameter, "parameter is null");
+		Assert.notNull(parameter, "parameter");
 		
 		getParameters().remove(parameter);
 	}
@@ -399,84 +399,84 @@ public class ModuleMetadata extends AbstractSystemEntity
 	
 	@Override
 	public Entity getEntityByUid(String entityUid) {
-		Assert.notNull(entityUid, "entityUid is null");
+		Assert.notNull(entityUid, "entityUid");
 		
 		return getObjectByUid(getEntities(), entityUid);
 	}
 	
 	@Override
 	public Filter getFilterByUid(String filterUid) {
-		Assert.notNull(filterUid, "entityUid is null");
+		Assert.notNull(filterUid, "entityUid");
 		
 		return getObjectByUid(getFilters(), filterUid);
 	}
 	
 	@Override
 	public Transformer getTransformerByUid(String transformerUid) {
-		Assert.notNull(transformerUid, "transformerUid is null");
+		Assert.notNull(transformerUid, "transformerUid");
 		
 		return getObjectByUid(getTransformers(), transformerUid);
 	}
 	
 	@Override
 	public Transfer getTransferByUid(String transferUid) {
-		Assert.notNull(transferUid, "transferUid is null");
+		Assert.notNull(transferUid, "transferUid");
 		
 		return getObjectByUid(getTransfers(), transferUid);
 	}
 	
 	@Override
 	public Form getFormByUid(String formUid) {
-		Assert.notNull(formUid, "formUid is null");
+		Assert.notNull(formUid, "formUid");
 		
 		return getObjectByUid(getForms(), formUid);
 	}
 	
 	@Override
 	public Menu getMenuByUid(String menuUid) {
-		Assert.notNull(menuUid, "menuUid is null");
+		Assert.notNull(menuUid, "menuUid");
 		
 		return getObjectByUid(getMenus(), menuUid);
 	}
 	
 	@Override
 	public Task getTaskByUid(String taskUid) {
-		Assert.notNull(taskUid, "taskUid is null");
+		Assert.notNull(taskUid, "taskUid");
 		
 		return getObjectByUid(getTasks(), taskUid);
 	}
 	
 	@Override
 	public UserGroup getUserGroupByUid(String groupUid) {
-		Assert.notNull(groupUid, "groupUid is null");
+		Assert.notNull(groupUid, "groupUid");
 		
 		return getObjectByUid(getUserGroups(), groupUid);
 	}
 	
 	@Override
 	public DBObject getDBObjectByUid(String objectUid) {
-		Assert.notNull(objectUid, "objectUid is null");
+		Assert.notNull(objectUid, "objectUid");
 	
 		return getObjectByUid(getDBObjects(), objectUid);
 	}
 	
 	@Override
-	public DataSource getDataSourceByUid(String dataSourceUid) {
-		Assert.notNull(dataSourceUid, "dataSourceUid is null");
+	public IDataSource getDataSourceByUid(String dataSourceUid) {
+		Assert.notNull(dataSourceUid, "dataSourceUid");
 		
 		return getObjectByUid(getDataSources(), dataSourceUid);
 	}
 	
 	@Override
 	public CustomCode getCustomCodeByUid(String customCodeUid) {
-		Assert.notNull(customCodeUid, "customCodeUid is null");
+		Assert.notNull(customCodeUid, "customCodeUid");
 		
 		return getObjectByUid(getCustomCodes(), customCodeUid);
 	}
 	
 	@Override
 	public Report getReportByUid(String reportUid) {
-		Assert.notNull(reportUid, "reportUid is null");
+		Assert.notNull(reportUid, "reportUid");
 		
 		return getObjectByUid(getReports(), reportUid);
 	}

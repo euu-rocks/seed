@@ -21,16 +21,16 @@ import org.seed.core.report.Report;
 import org.seed.core.report.ReportFormat;
 import org.seed.core.report.ReportGenerator;
 import org.seed.core.report.ReportGeneratorProvider;
+import org.seed.core.util.Assert;
 
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 @Component
 public class ReportGeneratorFactory implements ReportGeneratorProvider {
 
 	@Override
 	public ReportGenerator getGenerator(Report report, ReportFormat format) {
-		Assert.notNull(format, "format is null");
+		Assert.notNull(format, "format");
 		
 		switch (format) {
 			case EXCEL:

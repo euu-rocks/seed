@@ -28,11 +28,12 @@ import javax.persistence.criteria.Root;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-
+import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.config.SessionFactoryProvider;
+import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.Assert;
 
 public abstract class AbstractSystemEntityRepository<T extends SystemEntity> 
 	implements SystemEntityRepository<T> {
@@ -43,7 +44,8 @@ public abstract class AbstractSystemEntityRepository<T extends SystemEntity>
 	private final Class<? extends T> entityTypeClass;
 	
 	protected AbstractSystemEntityRepository(Class<? extends T> entityTypeClass) {
-		Assert.notNull(entityTypeClass, "entityTypeClass is null");
+		Assert.notNull(entityTypeClass, "entityTypeClass");
+		
 		this.entityTypeClass = entityTypeClass;
 	}
 	
@@ -61,15 +63,15 @@ public abstract class AbstractSystemEntityRepository<T extends SystemEntity>
 	
 	@Override
 	public T get(Long id, Session session) {
-		Assert.notNull(id, "id is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(id, C.ID);
+		Assert.notNull(session, C.SESSION);
 		
-		return (T) session.get(entityTypeClass, id);
+		return session.get(entityTypeClass, id);
 	}
 	
 	@Override
 	public void reload(T object) {
-		Assert.notNull(object, "object is null");
+		Assert.notNull(object, C.OBJECT);
 		
 		try (Session session = getSession()) {
 			session.refresh(object);
@@ -95,11 +97,11 @@ public abstract class AbstractSystemEntityRepository<T extends SystemEntity>
 	
 	@Override
 	public boolean exist(Session session, QueryParameter ...params) {
-		Assert.notNull(session, "session is null");
+		Assert.notNull(session, C.SESSION);
 		
-		return createQuery(session, params)
+		return !createQuery(session, params)
 				.setMaxResults(1)
-				.getResultList().size() > 0;
+				.getResultList().isEmpty();
 	}
 	
 	@Override
@@ -112,7 +114,7 @@ public abstract class AbstractSystemEntityRepository<T extends SystemEntity>
 	@Override
 	@SuppressWarnings({ "unchecked" })
 	public List<T> find(Session session, QueryParameter ...params) {
-		Assert.notNull(session, "session is null");
+		Assert.notNull(session, C.SESSION);
 		
 		return createQuery(session, params).getResultList();
 	}
@@ -127,7 +129,7 @@ public abstract class AbstractSystemEntityRepository<T extends SystemEntity>
 	@Override
 	@SuppressWarnings("unchecked")
 	public T findUnique(Session session, QueryParameter ...params) {
-		Assert.notNull(session, "session is null");
+		Assert.notNull(session, C.SESSION);
 		
 		final List<T> list = createQuery(session, params)
 								.setMaxResults(2)
@@ -143,7 +145,7 @@ public abstract class AbstractSystemEntityRepository<T extends SystemEntity>
 	
 	@Override
 	public void save(T object) {
-		Assert.notNull(object, "object is null");
+		Assert.notNull(object, C.OBJECT);
 		
 		try (Session session = getSession()) {
 			Transaction tx = null;
@@ -163,15 +165,15 @@ public abstract class AbstractSystemEntityRepository<T extends SystemEntity>
 	
 	@Override
 	public void save(T object, Session session) {
-		Assert.notNull(object, "object is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(object, C.OBJECT);
+		Assert.notNull(session, C.SESSION);
 		
 		session.saveOrUpdate(object);
 	}
 	
 	@Override
 	public void delete(T object) {
-		Assert.notNull(object, "object is null");
+		Assert.notNull(object, C.OBJECT);
 		
 		try (Session session = getSession()) {
 			Transaction tx = null;
@@ -191,8 +193,8 @@ public abstract class AbstractSystemEntityRepository<T extends SystemEntity>
 	
 	@Override
 	public void delete(T object, Session session) {
-		Assert.notNull(object, "object is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(object, C.OBJECT);
+		Assert.notNull(session, C.SESSION);
 		
 		session.delete(object);
 	}
@@ -238,7 +240,7 @@ public abstract class AbstractSystemEntityRepository<T extends SystemEntity>
 			throw (RuntimeException) ex;
 		}
 		else {
-			throw new RuntimeException(ex);
+			throw new InternalException(ex);
 		}
 	}
 	

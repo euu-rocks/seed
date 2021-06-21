@@ -30,6 +30,7 @@ import org.seed.core.entity.transfer.TransferService;
 import org.seed.core.user.Authorisation;
 import org.seed.core.entity.transfer.TransferFormat;
 import org.seed.core.entity.transfer.TransferResult;
+import org.seed.core.util.MiscUtils;
 import org.seed.core.util.NameUtils;
 import org.seed.ui.ListFilter;
 
@@ -104,8 +105,8 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	
 	@Override
 	protected void initFilters() {
-		final ListFilter filterEntity = getFilter(FILTERGROUP_LIST, "entity");
-		filterEntity.setValueFunction(o -> ((Transfer) o).getEntity().getName());
+		final ListFilter<Transfer> filterEntity = getFilter(FILTERGROUP_LIST, "entity");
+		filterEntity.setValueFunction(o -> o.getEntity().getName());
 		for (Transfer transfer : getObjectList()) {
 			filterEntity.addValue(transfer.getEntity().getName());
 		}
@@ -192,6 +193,7 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	}
 	
 	@Command
+	@Override
 	public void flagDirty(@BindingParam("notify") String notify, 
 						  @BindingParam("notifyObject") String notifyObject) {
 		super.flagDirty(notify, notifyObject);
@@ -219,19 +221,19 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	}
 	
 	@GlobalCommand
-	public void _refreshObject(@BindingParam("param") Long objectId) {
+	public void globalRefreshObject(@BindingParam("param") Long objectId) {
 		refreshObject(objectId);
 	}
 
 	@Override
-	protected List<? extends SystemObject> getListManagerSource(String key, int listNum) {
-		switch (key) {
-			case ELEMENTS:
-				return listNum == LIST_AVAILABLE
-						? transferService.getAvailableElements(getObject())
-					    : getObject().getElements();
-			default:
-				throw new IllegalStateException("unknown list manager key: " + key);
+	protected List<SystemObject> getListManagerSource(String key, int listNum) {
+		if (ELEMENTS.equals(key)) {
+			return MiscUtils.cast(listNum == LIST_AVAILABLE
+					? transferService.getAvailableElements(getObject())
+				    : getObject().getElements());
+		}
+		else {
+			throw new IllegalStateException("unknown list manager key: " + key);
 		}
 	}
 

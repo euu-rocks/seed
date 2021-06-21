@@ -47,6 +47,7 @@ import org.seed.core.form.FormOptions;
 import org.seed.core.form.navigation.Menu;
 import org.seed.core.form.navigation.MenuService;
 import org.seed.core.user.Authorisation;
+import org.seed.core.util.MiscUtils;
 import org.seed.ui.ListFilter;
 
 import org.zkoss.bind.annotation.BindingParam;
@@ -99,7 +100,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	
 	private EntityFunction callbackFunction;
 	
-	private EntityStatus status;
+	private EntityStatus entityStatus;
 	
 	private EntityStatusTransition statusTransition;
 	
@@ -136,9 +137,9 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	protected void initObject(Entity entity) {
 		originalName = entity.getInternalName();
 		if (!entity.isNew() && entity.hasFields()) {
-			for (EntityField field : entity.getFields()) {
-				if (field.isMandatory()) {
-					mandatoryFieldIds.add(field.getId());
+			for (EntityField entityField : entity.getFields()) {
+				if (entityField.isMandatory()) {
+					mandatoryFieldIds.add(entityField.getId());
 				}
 			}
 		}
@@ -146,9 +147,9 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	
 	@Override
 	protected void initFilters() {
-		final ListFilter filterGenericName = getFilter(FILTERGROUP_LIST, "genericname");
-		filterGenericName.setValueFunction(o -> ((Entity) o).getGenericEntity() != null 
-												? ((Entity) o).getGenericEntity().getName() 
+		final ListFilter<Entity> filterGenericName = getFilter(FILTERGROUP_LIST, "genericname");
+		filterGenericName.setValueFunction(o -> o.getGenericEntity() != null 
+												? o.getGenericEntity().getName() 
 												: null);
 		for (Entity entity : getObjectList()) {
 			if (entity.getGenericEntity() != null) {
@@ -206,7 +207,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	protected void resetProperties() {
 		field = null;
 		fieldGroup = null;
-		status = null;
+		entityStatus = null;
 		nested = null;
 		function = null;
 		callbackFunction = null;
@@ -254,11 +255,11 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 
 	public EntityStatus getStatus() {
-		return status;
+		return entityStatus;
 	}
 
 	public void setStatus(EntityStatus status) {
-		this.status = status;
+		this.entityStatus = status;
 	}
 
 	public EntityStatusTransition getStatusTransition() {
@@ -337,11 +338,12 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	
 	// reference entity can only be selected if field id new
 	public List<Entity> getReferenceEntities() {
-		return field != null 
-				? field.isNew() 
+		if (field != null) {
+			return field.isNew() 
 					? entityService.findNonGenericEntities()
-					: Collections.singletonList(field.getReferenceEntity()) 
-				: null;
+					: Collections.singletonList(field.getReferenceEntity());
+		}
+		return Collections.emptyList();
 	}
 	
 	public List<Entity> getAvailableNesteds() {
@@ -560,7 +562,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	@Command
 	@NotifyChange("status")
 	public void newStatus() {
-		status = entityService.createStatus(getObject());
+		entityStatus = entityService.createStatus(getObject());
 		notifyObjectChange("statusList");
 		flagDirty();
 	}
@@ -569,8 +571,8 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	@NotifyChange("status")
 	public void removeStatus(@BindingParam("elem") Component component) {
 		try {
-			entityService.removeStatus(getObject(), status);
-			status = null;
+			entityService.removeStatus(getObject(), entityStatus);
+			entityStatus = null;
 			notifyObjectChange("statusList");
 			flagDirty();
 		}
@@ -618,7 +620,9 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	
 	@Command
 	@NotifyChange("object")
-	public void selectConstraintTab() {}
+	public void selectConstraintTab() {
+		// do nothing, just notify
+	}
 	
 	@Command
 	@NotifyChange({"referenceEntities", "fieldTypes"})
@@ -673,7 +677,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
-	@NotifyChange("getListManagerList")
+	@NotifyChange(LISTMANAGER_LIST)
 	public void selectStatusTransition() {
 		removeListManager(TRANSITIONFUNCTIONS);
 		removeListManager(TRANSITIONPERMISSIONS);
@@ -716,9 +720,9 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	@NotifyChange("constraintNested")
 	public void selectFieldConstraint() {
 		if (fieldConstraint.getField() != null && getObject().hasNesteds()) {
-			for (NestedEntity nested : getObject().getNesteds()) {
-				if (nested.getNestedEntity().containsField(fieldConstraint.getField())) {
-					constraintNested = nested;
+			for (NestedEntity nestedEntity : getObject().getNesteds()) {
+				if (nestedEntity.getNestedEntity().containsField(fieldConstraint.getField())) {
+					constraintNested = nestedEntity;
 					return;
 				}
 			}
@@ -776,6 +780,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
+	@Override
 	public void flagDirty(@BindingParam("notify") String notify, 
 						  @BindingParam("notifyObject") String notifyObject) {
 		super.flagDirty(notify, notifyObject);
@@ -841,57 +846,60 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@GlobalCommand
-	public void _refreshObject(@BindingParam("param") Long objectId) {
+	public void globalRefreshObject(@BindingParam("param") Long objectId) {
 		refreshObject(objectId);
 	}
 	
 	@Override
-	protected List<? extends SystemObject> getListSorterSource(String key) {
+	protected List<SystemObject> getListSorterSource(String key) {
 		switch (key) {
 			case FIELDS:
-				return getObject().getFields();
+				return MiscUtils.cast(getObject().getFields());
 			case FIELDGROUPS:
-				return getObject().getFieldGroups();
+				return MiscUtils.cast(getObject().getFieldGroups());
 			case FIELDCONSTRAINTS:
-				return getObject().getFieldConstraints();
+				return MiscUtils.cast(getObject().getFieldConstraints());
 			case STATUS:
-				return getObject().getStatusList();
+				return MiscUtils.cast(getObject().getStatusList());
 			case STATUSTRANSITIONS:
-				return getObject().getStatusTransitions();
+				return MiscUtils.cast(getObject().getStatusTransitions());
 			case NESTEDS:
-				return getObject().getNesteds();
+				return MiscUtils.cast(getObject().getNesteds());
 			case CALLBACKS:
-				return getObject().getCallbackFunctions();
+				return MiscUtils.cast(getObject().getCallbackFunctions());
 			default:
 				throw new IllegalStateException("unknown list sorter key: " + key);
 		}
 	}
 	
 	@Override
-	protected List<? extends SystemObject> getListManagerSource(String key, int listNum) {
+	protected List<SystemObject> getListManagerSource(String key, int listNum) {
 		switch (key) {
 			case PERMISSIONS:
-				return listNum == LIST_AVAILABLE 
+				return MiscUtils.cast(listNum == LIST_AVAILABLE 
 						? entityService.getAvailablePermissions(getObject()) 
-						: getObject().getPermissions();
+						: getObject().getPermissions());
 			
 			case TRANSITIONFUNCTIONS:
-				return statusTransition != null
-						? listNum == LIST_AVAILABLE
-						  ? entityService.getAvailableStatusTransitionFunctions(getObject(), statusTransition)
-						  : statusTransition.getFunctions()
-						: null;
+				if (statusTransition != null) {
+					return MiscUtils.cast(listNum == LIST_AVAILABLE
+							  ? entityService.getAvailableStatusTransitionFunctions(getObject(), statusTransition)
+							  : statusTransition.getFunctions());
+				}
+				break;
 			
 			case TRANSITIONPERMISSIONS:
-				return statusTransition != null
-						? listNum == LIST_AVAILABLE
-						  ? entityService.getAvailableStatusTransitionPermissions(statusTransition)
-						  : statusTransition.getPermissions()
-						: null;
+				if (statusTransition != null) {
+					return MiscUtils.cast(listNum == LIST_AVAILABLE
+							  ? entityService.getAvailableStatusTransitionPermissions(statusTransition)
+							  : statusTransition.getPermissions());
+				}
+				break;
 						  
 			default:
 				throw new IllegalStateException("unknown list manager key: " + key);
 		}
+		return Collections.emptyList();
 	}
 	
 	private void setDefaultTransition() {
@@ -903,46 +911,12 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	private void validateMandatoryDefaultValues() throws ValidationException {
 		if (getObject().hasFields() && existValueObjects()) {
 			final Set<ValidationError> errors = new HashSet<>();
-			for (EntityField field : getObject().getFields()) {
-				if (!field.getType().isAutonum() && 
-					field.isMandatory() && 
-					!isAlreadyMandatory(field)) {
-					boolean defaultValueFound = false;
-					switch (field.getType()) {
-						case TEXT:
-						case TEXTLONG:
-							if (field.getDefaultString() != null) {
-								defaultValueFound  = true;
-							}
-							break;
-							
-						case DATE:
-						case DATETIME:
-							if (field.getDefaultDate() != null) {
-								defaultValueFound = true;
-							}
-							break;
-							
-						case REFERENCE:
-							if (field.getDefaultObject() != null) {
-								defaultValueFound = true;
-							}
-							break;
-							
-						case INTEGER:
-						case LONG:
-						case DECIMAL:
-						case DOUBLE:
-							if (field.getDefaultNumber() != null) {
-								defaultValueFound = true;
-							}
-							break;
-						default:
-							throw new UnsupportedOperationException(field.getType().name());
-					}
-					if (!defaultValueFound) {
-						errors.add(new ValidationError("val.empty.default", field.getName()));
-					}
+			for (EntityField entityField : getObject().getFields()) {
+				if (entityField.isMandatory() && !isAlreadyMandatory(entityField) &&
+					!entityField.getType().isAutonum() && !entityField.getType().isBinary() &&
+					!entityField.getType().isBoolean() && !entityField.getType().isFile() &&
+					!entityField.hasDefaultValue()) {
+					errors.add(new ValidationError("val.empty.default", entityField.getName()));
 				}
 			}
 			if (!errors.isEmpty()) {

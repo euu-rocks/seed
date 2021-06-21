@@ -31,5 +31,5 @@ public interface CodeManager {
 	
 	List<Class<GeneratedCode>> getGeneratedClasses(Class<?> type);
 	
-	void testCompile(SourceCode<?> sourceCode);
+	void testCompile(SourceCode sourceCode);
 }

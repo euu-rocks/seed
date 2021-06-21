@@ -26,19 +26,20 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
-
+import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.data.AbstractSystemEntityRepository;
+import org.seed.core.util.Assert;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.Assert;
 
 @Repository
-public class DataSourceRepository extends AbstractSystemEntityRepository<DataSource> {
+public class DataSourceRepository extends AbstractSystemEntityRepository<IDataSource> {
 	
-	private final static Logger log = LoggerFactory.getLogger(DataSourceRepository.class);
+	private static final Logger log = LoggerFactory.getLogger(DataSourceRepository.class);
 	
 	@Autowired
 	private javax.sql.DataSource sqlDataSource;
@@ -47,30 +48,31 @@ public class DataSourceRepository extends AbstractSystemEntityRepository<DataSou
 		super(DataSourceMetadata.class);
 	}
 	
-	public DataSourceResult query(DataSource dataSource, Map<String, Object> parameters) {
+	public DataSourceResult query(IDataSource dataSource, Map<String, Object> parameters) {
 		try (Session session = getSession()) {
 			return query(dataSource, parameters, session);
 		}
 	}
 	
-	public DataSourceResult query(DataSource dataSource, Map<String, Object> parameters, Session session) {
+	public DataSourceResult query(IDataSource dataSource, Map<String, Object> parameters, Session session) {
 		try {
 			return new DefaultDataSourceResult(query(dataSource, parameters, session, false), 
 											   getMetadata(dataSource, parameters));
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
+		} 
+		catch (SQLException ex) {
+			throw new InternalException(ex);
 		}
 	}
 	
-	void testQuery(DataSource dataSource, Map<String, Object> parameters) {
+	void testQuery(IDataSource dataSource, Map<String, Object> parameters) {
 		try (Session session = getSession()) {
 			query(dataSource, parameters, session, true);
 		}
 	}
 	
-	private ResultSetMetaData getMetadata(DataSource dataSource, Map<String, Object> parameters) {
-		Assert.notNull(dataSource, "dataSource is null");
-		Assert.notNull(parameters, "parameters is null");
+	private ResultSetMetaData getMetadata(IDataSource dataSource, Map<String, Object> parameters) {
+		Assert.notNull(dataSource, C.DATASOURCE);
+		Assert.notNull(parameters, "parameters");
 		
 		final String sql = buildSQLQuery(dataSource, parameters);
 		try (Connection connection = sqlDataSource.getConnection()) {
@@ -80,15 +82,15 @@ public class DataSourceRepository extends AbstractSystemEntityRepository<DataSou
 			}
 		} 
 		catch (SQLException ex) {
-			throw new RuntimeException(ex);
+			throw new InternalException(ex);
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
-	private List<Object[]> query(DataSource dataSource, Map<String, Object> parameters, Session session, boolean testQuery) {
-		Assert.notNull(dataSource, "dataSource is null");
-		Assert.notNull(parameters, "parameters is null");
-		Assert.notNull(session, "session is null");
+	private List<Object[]> query(IDataSource dataSource, Map<String, Object> parameters, Session session, boolean testQuery) {
+		Assert.notNull(dataSource, C.DATASOURCE);
+		Assert.notNull(parameters, "parameters");
+		Assert.notNull(session, C.SESSION);
 		
 		final String sql = buildSQLQuery(dataSource, parameters);
 		return testQuery
@@ -96,18 +98,18 @@ public class DataSourceRepository extends AbstractSystemEntityRepository<DataSou
 				: session.createSQLQuery(sql).list();
 	}
 	
-	private static String buildSQLQuery(DataSource dataSource, Map<String, Object> parameters) {
+	private static String buildSQLQuery(IDataSource dataSource, Map<String, Object> parameters) {
 		String sql = dataSource.getContent();
-		Assert.state(sql != null, "content not available");
+		Assert.stateAvailable(sql, C.CONTENT);
 		
 		for (String contentParameter : dataSource.getContentParameterSet()) {
 			final Object paramValue = parameters.get(contentParameter);
-			Assert.state(paramValue != null, "parameter '" + contentParameter + "' not available");
+			Assert.stateAvailable(paramValue, "parameter value " + contentParameter);
 			
 			sql = sql.replace('{' + contentParameter + '}', paramValue.toString());
 		}
 		if (log.isDebugEnabled()) {
-			log.debug('[' + dataSource.getName() + "] " + sql);
+			log.debug("[{}] {}", dataSource.getName(), sql);
 		}
 		return sql;
 	}

@@ -22,10 +22,12 @@ import java.util.List;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
-import org.springframework.util.Assert;
+import org.seed.InternalException;
+import org.seed.core.util.Assert;
 
-@SuppressWarnings("serial")
-public class CompilerException extends RuntimeException {
+public class CompilerException extends InternalException {
+
+	private static final long serialVersionUID = 5748866051489365928L;
 
 	CompilerException(String message) {
 		super(message);
@@ -40,8 +42,9 @@ public class CompilerException extends RuntimeException {
 	}
 	
 	static String createDiagnosticsMessage(List<Diagnostic<? extends JavaFileObject>> diagnostics) {
-		Assert.notNull(diagnostics, "diagnostics is null");
+		Assert.notNull(diagnostics, "diagnostics");
 		final StringBuilder buf = new StringBuilder();
+		
 		for (Diagnostic<?> diagnostic : diagnostics) {
 			if (buf.length() > 0) {
 				buf.append(System.lineSeparator());

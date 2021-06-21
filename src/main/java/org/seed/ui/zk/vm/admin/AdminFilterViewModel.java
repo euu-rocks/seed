@@ -35,9 +35,9 @@ import org.seed.core.entity.filter.FilterService;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.entity.value.ValueObjectService;
 import org.seed.core.user.Authorisation;
+import org.seed.core.util.Assert;
 import org.seed.ui.ListFilter;
 
-import org.springframework.util.Assert;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.ContextParam;
@@ -116,40 +116,44 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 			hqlInput = true;
 		}
 		else if (filter.hasCriteria()) {
-			for (FilterCriterion criterion : filter.getCriteria()) {
-				final FilterElement element = new FilterElement();
-				criterion.setElement(element);
-				
-				// entity field
-				if (criterion.getEntityField() != null) {
-					element.setEntityField(criterion.getEntityField());
-					// reference field
-					if (criterion.getReferenceId() != null) {
-						criterion.setReference(
-							valueObjectService.getObject(criterion.getEntityField().getReferenceEntity(), 
-							  	   						 criterion.getReferenceId()));
-					}
-					
-				}
-				// system field
-				else if (criterion.getSystemField() != null) {
-					element.setSystemField(criterion.getSystemField());
-					// status field
-					if (criterion.getSystemField() == SystemField.ENTITYSTATUS) {
-						criterion.setReference(filter.getEntity().getStatusById(criterion.getReferenceId()));
-					}
-				}
-				else {
-					Assert.state(false, "either entity or system field");
-				}
+			for (FilterCriterion filterCriterion : filter.getCriteria()) {
+				initCriterion(filter, filterCriterion);
 			}
+		}
+	}
+	
+	private void initCriterion(Filter filter, FilterCriterion criterion) {
+		final FilterElement element = new FilterElement();
+		criterion.setElement(element);
+		
+		// entity field
+		if (criterion.getEntityField() != null) {
+			element.setEntityField(criterion.getEntityField());
+			// reference field
+			if (criterion.getReferenceId() != null) {
+				criterion.setReference(
+					valueObjectService.getObject(criterion.getEntityField().getReferenceEntity(), 
+					  	   						 criterion.getReferenceId()));
+			}
+		}
+		
+		// system field
+		else if (criterion.getSystemField() != null) {
+			element.setSystemField(criterion.getSystemField());
+			// status field
+			if (criterion.getSystemField() == SystemField.ENTITYSTATUS) {
+				criterion.setReference(filter.getEntity().getStatusById(criterion.getReferenceId()));
+			}
+		}
+		else {
+			Assert.state(false, "either entity or system field");
 		}
 	}
 	
 	@Override
 	protected void initFilters() {
-		final ListFilter filterEntity = getFilter(FILTERGROUP_LIST, "entity");
-		filterEntity.setValueFunction(o -> ((Filter) o).getEntity().getName());
+		final ListFilter<Filter> filterEntity = getFilter(FILTERGROUP_LIST, "entity");
+		filterEntity.setValueFunction(o -> o.getEntity().getName());
 		for (Filter filter : getObjectList()) {
 			filterEntity.addValue(filter.getEntity().getName());
 		}
@@ -165,9 +169,12 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 	}
 	
 	public String getElementName(FilterElement element) {
-		return element == null ? null : element.getEntityField() != null
-				? element.getEntityField().getName()
-				: getEnumLabel(element.getSystemField());
+		if (element != null) {
+			return element.getEntityField() != null
+							? element.getEntityField().getName()
+							: getEnumLabel(element.getSystemField());
+		}
+		return null;
 	}
 	
 	public String getFieldName(FilterElement element) {
@@ -249,6 +256,7 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 	}
 	
 	@Command
+	@Override
 	public void flagDirty(@BindingParam("notify") String notify, 
 						  @BindingParam("notifyObject") String notifyObject) {
 		super.flagDirty(notify, notifyObject);
@@ -318,7 +326,7 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 	}
 	
 	@GlobalCommand
-	public void _refreshObject(@BindingParam("param") Long objectId) {
+	public void globalRefreshObject(@BindingParam("param") Long objectId) {
 		refreshObject(objectId);
 	}
 

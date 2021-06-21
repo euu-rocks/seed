@@ -19,38 +19,39 @@ package org.seed.core.entity.transfer;
 
 import java.util.Set;
 
+import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.FileObject;
 import org.seed.core.data.ValidationError;
 import org.seed.core.data.ValidationException;
+import org.seed.core.util.Assert;
 
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 @Component
 public class TransferValidator extends AbstractSystemEntityValidator<Transfer> {
 	
 	@Override
 	public void validateCreate(Transfer transfer) throws ValidationException {
-		Assert.notNull(transfer, "transfer is null");
+		Assert.notNull(transfer, C.TRANSFER);
 		final Set<ValidationError> errors = createErrorList();
 		
 		if (isEmpty(transfer.getEntity())) {
-			errors.add(new ValidationError("val.empty.field", "label.entity"));
+			errors.add(ValidationError.emptyField("label.entity"));
 		}
 		if (isEmpty(transfer.getFormat())) {
-			errors.add(new ValidationError("val.empty.field", "label.type"));
+			errors.add(ValidationError.emptyField("label.type"));
 		}
 	
 		validate(errors);
 	}
 	
 	public void validateImport(FileObject importFile) throws ValidationException {
-		Assert.notNull(importFile, "importFile is null");
+		Assert.notNull(importFile, "importFile");
 		final Set<ValidationError> errors = createErrorList();
 		
 		if (importFile.isEmpty()) {
-			errors.add(new ValidationError("val.empty.field", "label.file"));
+			errors.add(ValidationError.emptyField("label.file"));
 		}
 		
 		validate(errors);
@@ -58,14 +59,14 @@ public class TransferValidator extends AbstractSystemEntityValidator<Transfer> {
 	
 	@Override
 	public void validateSave(Transfer transfer) throws ValidationException {
-		Assert.notNull(transfer, "transfer is null");
+		Assert.notNull(transfer, C.TRANSFER);
 		final Set<ValidationError> errors = createErrorList();
 		
 		if (isEmpty(transfer.getName())) {
-			errors.add(new ValidationError("val.empty.field", "label.name"));
+			errors.add(ValidationError.emptyName());
 		}
 		else if (!isNameLengthAllowed(transfer.getName())) {
-			errors.add(new ValidationError("val.toolong.name", String.valueOf(getMaxNameLength())));
+			errors.add(ValidationError.overlongName(getMaxNameLength()));
 		}
 		
 		if (transfer.hasElements()) {

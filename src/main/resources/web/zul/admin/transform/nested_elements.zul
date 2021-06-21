@@ -92,7 +92,7 @@
 				  class="alpha-properties">
 				<vlayout class="alpha-properties-content">
 					<label value="${labels.label.sourcefield}:"/>
-					<combobox model="@init(vm.nested.sourceNested.fields) @template(empty each.name ? 'empty' : each.type.isReference() ? 'reference' : 'field')" 
+					<combobox model="@load(vm.nested.sourceNested.nestedEntity.fields) @template(empty each.name ? 'empty' : each.type.isReference() ? 'reference' : 'field')" 
 		           			  selectedItem="@bind(vm.nestedElement.sourceField)"
 		           			  onSelect="@command('flagDirty',notify='availableNestedTargetFields')"
 		           			  mandatory="true"

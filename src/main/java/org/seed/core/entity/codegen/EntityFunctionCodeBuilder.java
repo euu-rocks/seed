@@ -19,16 +19,18 @@ package org.seed.core.entity.codegen;
 
 import java.util.Date;
 
+import org.apache.commons.lang3.ArrayUtils;
+
+import org.seed.C;
 import org.seed.core.api.CallbackFunction;
 import org.seed.core.api.CallbackFunctionContext;
 import org.seed.core.codegen.AbstractSourceCodeBuilder;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.codegen.TypeClass;
 import org.seed.core.entity.EntityFunction;
+import org.seed.core.util.Assert;
 
-import org.springframework.util.Assert;
-
-class EntityFunctionCodeBuilder extends AbstractSourceCodeBuilder<EntityFunction> {
+class EntityFunctionCodeBuilder extends AbstractSourceCodeBuilder {
 	
 	private final EntityFunction entityFunction;
 	
@@ -38,7 +40,8 @@ class EntityFunctionCodeBuilder extends AbstractSourceCodeBuilder<EntityFunction
 			  null,
 			  new TypeClass[] {
 				newTypeClass(entityFunction.getEntity(), CallbackFunction.class)
-			  });
+			  }, 
+			  ArrayUtils.toArray());
 		this.entityFunction = entityFunction;
 	}
 
@@ -48,8 +51,8 @@ class EntityFunctionCodeBuilder extends AbstractSourceCodeBuilder<EntityFunction
 	}
 	
 	@Override
-	public SourceCode<EntityFunction> build(BuildMode buildMode) {
-		Assert.notNull(buildMode, "buildMode is null");
+	public SourceCode build(BuildMode buildMode) {
+		Assert.notNull(buildMode, "buildMode");
 		
 		switch (buildMode) {
 			case TEMPLATE:
@@ -57,7 +60,7 @@ class EntityFunctionCodeBuilder extends AbstractSourceCodeBuilder<EntityFunction
 						  new ParameterMetadata[] { 
 							newParameter(entityFunction.getEntity().getInternalName().toLowerCase(), 
 										 newTypeClass(entityFunction.getEntity())),
-							newParameter("context", newTypeClass(CallbackFunctionContext.class))
+							newParameter(C.CONTEXT, newTypeClass(CallbackFunctionContext.class))
 						  }, 
 						  CODE_PLACEHOLDER);
 				return super.build(false);

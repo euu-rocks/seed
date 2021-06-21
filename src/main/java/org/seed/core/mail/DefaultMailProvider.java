@@ -19,11 +19,10 @@ package org.seed.core.mail;
 
 import java.io.InputStream;
 
+import org.seed.Seed;
 import org.seed.core.api.Mail;
 import org.seed.core.api.MailProvider;
-import org.seed.core.config.ApplicationContextProvider;
-
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 public class DefaultMailProvider implements MailProvider {
 	
@@ -63,7 +62,7 @@ public class DefaultMailProvider implements MailProvider {
 
 		@Override
 		public Mail addText(String text) {
-			Assert.notNull(text, "text is null");
+			Assert.notNull(text, "text");
 			
 			textBuilder.append(text);
 			return this;
@@ -78,7 +77,7 @@ public class DefaultMailProvider implements MailProvider {
 	private final MailService mailService;
 	
 	public DefaultMailProvider() {
-		mailService = ApplicationContextProvider.getBean(MailService.class);
+		mailService = Seed.getBean(MailService.class);
 	}
 	
 	@Override

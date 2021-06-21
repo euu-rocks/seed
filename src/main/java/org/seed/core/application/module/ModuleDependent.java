@@ -21,8 +21,8 @@ import java.util.List;
 
 import org.seed.core.application.ApplicationEntity;
 
-public interface ModuleDependent {
+public interface ModuleDependent<T extends ApplicationEntity> {
 	
-	List<? extends ApplicationEntity> findUsage(Module module);
+	List<T> findUsage(Module module);
 	
 }

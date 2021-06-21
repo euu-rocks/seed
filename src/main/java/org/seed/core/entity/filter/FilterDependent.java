@@ -21,8 +21,8 @@ import java.util.List;
 
 import org.seed.core.data.SystemEntity;
 
-public interface FilterDependent {
+public interface FilterDependent<T extends SystemEntity> {
 	
-	List<? extends SystemEntity> findUsage(Filter filter);
+	List<T> findUsage(Filter filter);
 	
 }

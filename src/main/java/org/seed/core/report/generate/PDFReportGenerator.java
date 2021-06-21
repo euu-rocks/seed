@@ -17,6 +17,7 @@
  */
 package org.seed.core.report.generate;
 
+import org.seed.InternalException;
 import org.seed.core.data.datasource.ColumnMetadata;
 import org.seed.core.data.datasource.DataSourceResult;
 import org.seed.core.report.Report;
@@ -53,7 +54,7 @@ class PDFReportGenerator extends AbstractReportGenerator {
 			document.close();
 		} 
 		catch (DocumentException dex) {
-			throw new RuntimeException(dex);
+			throw new InternalException(dex);
 		}
 		return getBytes();
 	}

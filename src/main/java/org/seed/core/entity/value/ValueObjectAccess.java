@@ -19,14 +19,17 @@ package org.seed.core.entity.value;
 
 import java.util.List;
 
+import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.NestedEntity;
+import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 import org.seed.core.util.ObjectAccess;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
@@ -37,15 +40,15 @@ public class ValueObjectAccess extends ObjectAccess {
 	private CodeManager codeManager;
 	
 	public Object getValue(ValueObject object, EntityField field) {
-		Assert.notNull(object, "object is null");
-		Assert.notNull(field, "field is null");
+		Assert.notNull(object, C.OBJECT);
+		Assert.notNull(field, C.FIELD);
 		
 		return callGetter(object, field.getInternalName());
 	}
 	
 	public void setValue(ValueObject object, EntityField field, Object value) {
-		Assert.notNull(object, "object is null");
-		Assert.notNull(field, "field is null");
+		Assert.notNull(object, C.OBJECT);
+		Assert.notNull(field, C.FIELD);
 		
 		callSetter(object, field.getInternalName(), value);
 	}
@@ -56,32 +59,32 @@ public class ValueObjectAccess extends ObjectAccess {
 	
 	@SuppressWarnings("unchecked")
 	public List<ValueObject> getNestedObjects(ValueObject object, NestedEntity nested) {
-		Assert.notNull(object, "object is null");
-		Assert.notNull(nested, "nested is null");
+		Assert.notNull(object, C.OBJECT);
+		Assert.notNull(nested, C.NESTED);
 		
 		return (List<ValueObject>) callGetter(object, nested.getInternalName());
 	}
 	
 	public ValueObject addNestedInstance(ValueObject object, NestedEntity nested) {
-		Assert.notNull(object, "object is null");
-		Assert.notNull(nested, "nested is null");
+		Assert.notNull(object, C.OBJECT);
+		Assert.notNull(nested, C.NESTED);
 		
 		try {
 			final Class<?> nestedClass = codeManager.getGeneratedClass(nested.getNestedEntity());
-			final AbstractValueObject nestedObject = (AbstractValueObject) nestedClass.getDeclaredConstructor().newInstance();
+			final AbstractValueObject nestedObject = (AbstractValueObject) MiscUtils.instantiate(nestedClass);
 			nestedObject.setTmpId(System.currentTimeMillis());
 			callMethod(object, "add" + StringUtils.capitalize(nested.getInternalName()), nestedObject);
 			return nestedObject;
 		} 
 		catch (Exception ex) {
-			throw new RuntimeException(ex);
+			throw new InternalException(ex);
 		}
 	}
 	
 	public void removeNestedObject(ValueObject object, NestedEntity nested, ValueObject nestedObject) {
-		Assert.notNull(object, "object is null");
-		Assert.notNull(nested, "nested is null");
-		Assert.notNull(nestedObject, "nestedObject is null");
+		Assert.notNull(object, C.OBJECT);
+		Assert.notNull(nested, C.NESTED);
+		Assert.notNull(nestedObject, "nestedObject");
 		
 		callMethod(object, "remove" + StringUtils.capitalize(nested.getInternalName()), nestedObject);
 	}

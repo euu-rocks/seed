@@ -22,6 +22,8 @@ import java.util.List;
 
 import org.hibernate.Session;
 
+import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -40,15 +42,15 @@ import org.seed.core.form.FormOptions;
 import org.seed.core.form.FormService;
 import org.seed.core.form.LabelProvider;
 import org.seed.core.user.User;
+import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 @Service
 public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
-	implements MenuService, FormDependent, FormChangeAware {
+	implements MenuService, FormDependent<Menu>, FormChangeAware {
 	
 	@Autowired
 	private FormService formService;
@@ -75,7 +77,7 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 	
 	@Override
 	public List<Menu> getMenus(User user) {
-		Assert.notNull(user, "user is null");
+		Assert.notNull(user, C.USER);
 		
 		final List<Menu> result = new ArrayList<>();
 		for (Menu menu : getTopLevelMenus()) {
@@ -90,8 +92,8 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 	@Override
 	@Secured("ROLE_ADMIN_MENU")
 	public Menu createMenuEntry(Menu menu, Form form) {
-		Assert.notNull(menu, "menu is null");
-		Assert.notNull(form, "form is null");
+		Assert.notNull(menu, C.MENU);
+		Assert.notNull(form, C.FORM);
 		
 		final MenuMetadata entry = new MenuMetadata();
 		entry.setName(form.getName());
@@ -102,15 +104,15 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 	
 	@Override
 	public List<Menu> findUsage(Form form) {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
-		return menuRepository.find(queryParam("form", form));
+		return menuRepository.find(queryParam(C.FORM, form));
 	}
 	
 	@Override
 	public void notifyCreate(Form form, Session session) {
-		Assert.notNull(form, "form is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(form, C.FORM);
+		Assert.notNull(session, C.SESSION);
 		try {
 			final FormOptions formOptions = form.getOptions();
 			if (formOptions != null) {
@@ -133,7 +135,7 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 			}
 		}
 		catch (ValidationException vex) {
-			throw new RuntimeException(vex);
+			throw new InternalException(vex);
 		}
 	}
 	
@@ -144,10 +146,10 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 	
 	@Override
 	public void notifyDelete(Form form, Session session) {
-		Assert.notNull(form, "form is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(form, C.FORM);
+		Assert.notNull(session, C.SESSION);
 		
-		for (Menu menu : menuRepository.find(session, queryParam("form", form))) {
+		for (Menu menu : menuRepository.find(session, queryParam(C.FORM, form))) {
 			session.delete(menu);
 		}
 	}
@@ -163,11 +165,9 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 	}
 	
 	@Override
-	public void analyzeObjects(ImportAnalysis analysis, Module currentVersionModule) {
-		Assert.notNull(analysis, "analysis is null");
-		
+	protected void analyzeNextVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
 		if (analysis.getModule().getMenus() != null) {
-			for(Menu menu : analysis.getModule().getMenus()) {
+			for (Menu menu : analysis.getModule().getMenus()) {
 				if (currentVersionModule == null) {
 					analysis.addChangeNew(menu);
 				}
@@ -183,7 +183,11 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 				}
 			}
 		}
-		if (currentVersionModule != null && currentVersionModule.getMenus() != null) {
+	}
+	
+	@Override
+	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
+		if (currentVersionModule.getMenus() != null) {
 			for (Menu currentVersionMenu : currentVersionModule.getMenus()) {
 				if (analysis.getModule().getMenuByUid(currentVersionMenu.getUid()) == null) {
 					analysis.addChangeDelete(currentVersionMenu);
@@ -194,15 +198,14 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public Class<? extends ApplicationEntityService<? extends ApplicationEntity>>[] getImportDependencies() {
-		return (Class<? extends ApplicationEntityService<? extends ApplicationEntity>>[]) 
-				new Class[] { FormService.class };
+	public Class<? extends ApplicationEntityService<ApplicationEntity>>[] getImportDependencies() {
+		return new Class[] { FormService.class };
 	}
 	
 	@Override
 	public void importObjects(TransferContext context, Session session) {
-		Assert.notNull(context, "context is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(context, C.CONTEXT);
+		Assert.notNull(session, C.SESSION);
 		try {
 			if (context.getModule().getMenus() != null) {
 				for (Menu menu : context.getModule().getMenus()) {
@@ -216,33 +219,37 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 						((MenuMetadata) currentVersionMenu).copySystemFieldsTo(menu);
 						session.detach(currentVersionMenu);
 					}
-					if (menuMeta.getChildren() != null) {
-						for (MenuMetadata child : menuMeta.getChildren()) {
-							child.setParent(menu);
-							if (child.getFormUid() != null) {
-								child.setForm(formService.findByUid(session, child.getFormUid()));
-							}
-							final Menu currentVersionChild =
-								currentVersionMenu != null ? currentVersionMenu.getChildByUid(child.getUid()) : null;
-							if (currentVersionChild != null) {
-								((MenuMetadata) currentVersionChild).copySystemFieldsTo(child);
-							}
-						}
-					}
+					initMenu(menuMeta, currentVersionMenu, session);
 					saveObject(menu, session);	
 				}
 			}
 		}
 		catch (ValidationException vex) {
-			throw new RuntimeException(vex);
+			throw new InternalException(vex);
+		}
+	}
+	
+	private void initMenu(MenuMetadata menu, Menu currentVersionMenu, Session session) {
+		if (menu.getChildren() != null) {
+			for (MenuMetadata child : menu.getChildren()) {
+				child.setParent(menu);
+				if (child.getFormUid() != null) {
+					child.setForm(formService.findByUid(session, child.getFormUid()));
+				}
+				final Menu currentVersionChild =
+					currentVersionMenu != null ? currentVersionMenu.getChildByUid(child.getUid()) : null;
+				if (currentVersionChild != null) {
+					((MenuMetadata) currentVersionChild).copySystemFieldsTo(child);
+				}
+			}
 		}
 	}
 	
 	@Override
 	public void deleteObjects(Module module, Module currentVersionModule, Session session) {
-		Assert.notNull(module, "module is null");
-		Assert.notNull(currentVersionModule, "currentVersionModule is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(module, C.MODULE);
+		Assert.notNull(currentVersionModule, "currentVersionModule");
+		Assert.notNull(session, C.SESSION);
 		
 		if (currentVersionModule.getMenus() != null) {
 			for (Menu currentVersionMenu : currentVersionModule.getMenus()) {
@@ -250,21 +257,24 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 					session.delete(currentVersionMenu);
 				}
 				// delete sub menus for deleted forms
-				else if (currentVersionMenu.hasSubMenus())  {
-					boolean subMenuChanged = false;
-					for (Menu subMenu : new ArrayList<>(currentVersionMenu.getSubMenus())) {
-						if (subMenu.getForm() != null &&
-							module.getFormByUid(subMenu.getFormUid()) == null) {
-							currentVersionMenu.removeSubMenu(subMenu);
-							subMenuChanged = true;
-						}
-					}
-					if (subMenuChanged) {
-						session.update(currentVersionMenu);
-					}
+				else if (currentVersionMenu.hasSubMenus() && 
+						 removeSubMenus(currentVersionModule, currentVersionMenu)) {
+							session.update(currentVersionMenu);
 				}
 			}
 		}
+	}
+	
+	private boolean removeSubMenus(Module module, Menu menu) {
+		boolean subMenuChanged = false;
+		for (Menu subMenu : new ArrayList<>(menu.getSubMenus())) {
+			if (subMenu.getForm() != null &&
+				module.getFormByUid(subMenu.getFormUid()) == null) {
+					menu.removeSubMenu(subMenu);
+					subMenuChanged = true;
+			}
+		}
+		return subMenuChanged;
 	}
 	
 	@Override
@@ -275,7 +285,7 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 	
 	@Override
 	public void saveObject(Menu menu, Session session) throws ValidationException {
-		Assert.notNull(menu, "menu is null");
+		Assert.notNull(menu, C.MENU);
 		
 		if (menu.getParent() != null && menu.getModule() != null) {
 			throw new IllegalStateException("child menu must not belong to a module");

@@ -32,15 +32,15 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import org.seed.core.application.TransferableObject;
-import org.seed.core.data.AbstractSystemObject;
+import org.seed.C;
+import org.seed.core.application.AbstractTransferableObject;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.SystemField;
 import org.seed.core.data.SystemObject;
 import org.seed.core.entity.EntityField;
+import org.seed.core.util.Assert;
 import org.seed.core.util.ReferenceJsonSerializer;
 
-import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -49,8 +49,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @javax.persistence.Entity
 @Table(name = "sys_entity_filter_criterion")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class FilterCriterion extends AbstractSystemObject
-	implements TransferableObject {
+public class FilterCriterion extends AbstractTransferableObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "filter_id")
@@ -61,8 +60,6 @@ public class FilterCriterion extends AbstractSystemObject
     @JoinColumn(name = "entity_field_id")
 	@JsonSerialize(using = ReferenceJsonSerializer.class)
 	private EntityField entityField;
-	
-	private String uid;
 	
 	private SystemField systemField;
 	
@@ -97,17 +94,6 @@ public class FilterCriterion extends AbstractSystemObject
 	@Transient
 	@JsonIgnore
 	private SystemObject reference;
-	
-	@Override
-	@XmlAttribute
-	public String getUid() {
-		return uid;
-	}
-	
-	@Override
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
 	
 	@XmlAttribute
 	public String getEntityFieldUid() {
@@ -299,7 +285,7 @@ public class FilterCriterion extends AbstractSystemObject
 	@XmlTransient
 	@JsonIgnore
 	public Object getValue() {
-		final FieldType fieldType = fieldType();
+		final FieldType fieldType = getType();
 		if (fieldType == null) {
 			return null;
 		}
@@ -333,9 +319,9 @@ public class FilterCriterion extends AbstractSystemObject
 	}
 	
 	public void setValue(Object value) {
-		Assert.notNull(value, "value is null");
+		Assert.notNull(value, C.VALUE);
 		
-		final FieldType fieldType = fieldType();
+		final FieldType fieldType = getType();
 		if (fieldType == null) {
 			return;
 		}
@@ -382,14 +368,22 @@ public class FilterCriterion extends AbstractSystemObject
 		}
 	}
 	
-	private FieldType fieldType() {
+	private FieldType getType() {
 		return element != null 
 				? element.getType() 
-				: entityField != null 
-					? entityField.getType() 
-					: systemField != null 
-						? systemField.type
-						: null;
+				: getFieldType();
+	}
+	
+	private FieldType getFieldType() {
+		return entityField != null 
+				? entityField.getType() 
+				: getSystemFieldType();
+	}
+	
+	private FieldType getSystemFieldType() {
+		return systemField != null 
+				? systemField.type
+				: null;
 	}
 	
 	void cleanup() {

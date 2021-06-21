@@ -20,6 +20,7 @@ package org.seed.core.form.layout;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.data.AbstractSystemObject;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.NestedEntity;
@@ -30,8 +31,7 @@ import org.seed.core.form.FormActionType;
 import org.seed.core.form.SubForm;
 import org.seed.core.form.SubFormAction;
 import org.seed.core.form.SubFormField;
-
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 public class SubFormProperties {
 	
@@ -42,7 +42,7 @@ public class SubFormProperties {
 	private final List<SubFormAction> actions = new ArrayList<>();
 	
 	public SubFormProperties(SubForm subForm) {
-		Assert.notNull(subForm, "subForm is null");
+		Assert.notNull(subForm, C.SUBFORM);
 		
 		this.subForm = subForm;
 		if (subForm.hasFields()) {
@@ -155,7 +155,7 @@ public class SubFormProperties {
 		private boolean bandbox;
 		
 		private SubFormColumn(SubFormField subFormField) {
-			Assert.notNull(subFormField, "subFormField is null");
+			Assert.notNull(subFormField, "subFormField");
 			
 			this.subFormField = subFormField;
 			transformer = subFormField.getTransformer();

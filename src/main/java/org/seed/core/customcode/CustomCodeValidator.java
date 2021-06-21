@@ -22,25 +22,29 @@ import java.util.Set;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.ValidationError;
 import org.seed.core.data.ValidationException;
+import org.seed.core.util.Assert;
 
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 @Component
 public class CustomCodeValidator extends AbstractSystemEntityValidator<CustomCode> {
-
+	
+	@Override
 	public void validateSave(CustomCode code) throws ValidationException {
-		Assert.notNull(code, "code is null");
+		Assert.notNull(code, "code");
 		final Set<ValidationError> errors = createErrorList();
 		
 		if (isEmpty(code.getName())) {
-			errors.add(new ValidationError("val.empty.field", "label.name"));
+			errors.add(ValidationError.emptyName());
 		}
 		else if (!isNameAllowed(code.getInternalName())) {
-			errors.add(new ValidationError("val.illegal.field", "label.name", code.getName()));
+			errors.add(ValidationError.illegalField("label.name", code.getName()));
+		}
+		else if (code.getName().length() > 512) {
+			errors.add(ValidationError.overlongName(512));
 		}
 		if (isEmpty(code.getContent())) {
-			errors.add(new ValidationError("val.empty.field", "label.sourcecode"));
+			errors.add(ValidationError.emptyField("label.sourcecode"));
 		}
 		
 		validate(errors);

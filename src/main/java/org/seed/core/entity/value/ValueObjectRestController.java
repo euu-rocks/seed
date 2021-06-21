@@ -20,6 +20,7 @@ package org.seed.core.entity.value;
 import java.util.List;
 import java.util.Map;
 
+import org.seed.C;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityAccess;
@@ -31,10 +32,10 @@ import org.seed.core.entity.transform.Transformer;
 import org.seed.core.entity.transform.TransformerService;
 import org.seed.core.user.User;
 import org.seed.core.user.UserService;
+import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -167,9 +168,6 @@ public class ValueObjectRestController {
 		if (filter == null) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "filter:" + id);
 		}
-		if (!filter.checkPermissions(userService.getCurrentUser(), null)) {
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "filter:" + id);
-		}
 		return filter;
 	}
 	
@@ -193,7 +191,7 @@ public class ValueObjectRestController {
 	}
 	
 	private void checkEntityAccess(Entity entity, EntityAccess access) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
 		final User user = userService.getCurrentUser();
 		Assert.state(user != null, "user not available");

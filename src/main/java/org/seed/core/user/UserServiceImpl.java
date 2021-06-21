@@ -25,12 +25,14 @@ import javax.annotation.Nullable;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-
+import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.data.AbstractSystemEntityService;
 import org.seed.core.data.Options;
 import org.seed.core.data.ValidationException;
 import org.seed.core.mail.MailBuilder;
 import org.seed.core.mail.MailService;
+import org.seed.core.util.Assert;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +44,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 @Service
 public class UserServiceImpl extends AbstractSystemEntityService<User> 
@@ -107,7 +108,7 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 					if (tx != null) {
 						tx.rollback();
 					}
-					throw new RuntimeException(ex);
+					throw new InternalException(ex);
 				}
 			}
 		}
@@ -134,7 +135,7 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 	public void onApplicationEvent(AuthenticationSuccessEvent event) {
 		final String userName = event.getAuthentication().getName();
 		if (log.isDebugEnabled()) {
-			log.debug("login user: " + userName);
+			log.debug("login user: {}", userName);
 		}
 		final User user = getUser(event.getAuthentication());
 		Assert.state(user != null, "user not available: " + userName);
@@ -143,13 +144,13 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 			super.saveObject(user);
 		} 
 		catch (ValidationException vex) {
-			throw new RuntimeException(vex);
+			throw new InternalException(vex);
 		}
 	}
 	
 	@Override
 	public List<UserGroup> getAvailableUserGroups(User user) {
-		Assert.notNull(user, "user is null");
+		Assert.notNull(user, C.USER);
 		
 		final List<UserGroup> result = new ArrayList<>();
 		for (UserGroup group : userGroupService.findAllObjects()) {
@@ -171,7 +172,7 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 	
 	@Override
 	public void setPassword(User user, String password, String passwordRepeated) throws ValidationException {
-		Assert.notNull(user, "user is null");
+		Assert.notNull(user, C.USER);
 		
 		validator.validatePassword(password, passwordRepeated);
 		
@@ -183,7 +184,7 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 	@Override
 	@Secured("ROLE_ADMIN_USER")
 	public void saveObject(User user) throws ValidationException {
-		Assert.notNull(user, "user is null");
+		Assert.notNull(user, C.USER);
 		
 		String pwd = null;
 		final boolean isInsert = user.isNew();

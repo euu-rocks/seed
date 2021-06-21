@@ -17,20 +17,14 @@
  */
 package org.seed.core.codegen;
 
-import java.util.Comparator;
+import java.util.List;
 
-import org.springframework.util.Assert;
+import org.seed.C;
+import org.seed.core.util.Assert;
 
 import static org.seed.core.codegen.CodeUtils.*;
 
 public final class TypeClass {
-	
-	static final Comparator<TypeClass> COMPARATOR = new Comparator<TypeClass>() {
-		@Override
-		public int compare(TypeClass typeClass1, TypeClass typeClass2) {
-			return typeClass1.getQualifiedName().compareTo(typeClass2.getQualifiedName());
-		}
-	};
 	
 	public final String packageName;
 	
@@ -54,8 +48,8 @@ public final class TypeClass {
 	}
 	
 	TypeClass(String packageName, String className, Class<?> genericClass, TypeClass ...typeClasses) {
-		Assert.notNull(packageName, "packageName is null");
-		Assert.notNull(className, "className is null");
+		Assert.notNull(packageName, C.PACKAGENAME);
+		Assert.notNull(className, C.CLASSNAME);
 		
 		this.packageName = packageName;
 		this.className = className;
@@ -86,6 +80,13 @@ public final class TypeClass {
 		final TypeClass other = (TypeClass) obj;
 		return packageName.equals(other.packageName) &&
 			   className.equals(other.className);
+	}
+	
+	static void sort(List<TypeClass> list) {
+		if (list != null) {
+			list.sort((TypeClass typeClass1, TypeClass typeClass2) -> 
+							typeClass1.getQualifiedName().compareTo(typeClass2.getQualifiedName()));
+		}
 	}
 	
 }

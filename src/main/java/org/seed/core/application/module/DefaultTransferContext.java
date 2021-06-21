@@ -25,8 +25,7 @@ import java.util.Set;
 
 import org.seed.core.data.dbobject.DBObject;
 import org.seed.core.entity.Entity;
-
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 class DefaultTransferContext implements TransferContext {
 	
@@ -45,7 +44,7 @@ class DefaultTransferContext implements TransferContext {
 	private final Module module;
 
 	DefaultTransferContext(Module module) {
-		Assert.notNull(module, "module is null");
+		Assert.notNull(module, "module");
 		
 		this.module = module;
 	}
@@ -67,22 +66,22 @@ class DefaultTransferContext implements TransferContext {
 
 	@Override
 	public Entity getCurrentVersionEntity(String uid) {
-		Assert.notNull(uid, "uid is null");
+		Assert.notNull(uid, "uid");
 		
 		return currentVersionEntityMap.get(uid);
 	}
 	
 	@Override
 	public void addNewEntity(Entity entity) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, "entity");
 		
 		newEntities.add(entity);
 	}
 	
 	@Override
 	public void addExistingEntity(Entity entity, Entity currentVersionEntity) {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(currentVersionEntity, "currentVersionEntity is null");
+		Assert.notNull(entity, "entity");
+		Assert.notNull(currentVersionEntity, "currentVersionEntity");
 		
 		existingEntities.add(entity);
 		currentVersionEntityMap.put(entity.getUid(), currentVersionEntity);
@@ -100,22 +99,22 @@ class DefaultTransferContext implements TransferContext {
 	
 	@Override
 	public DBObject getCurrentVersionDBObject(String uid) {
-		Assert.notNull(uid, "uid is null");
+		Assert.notNull(uid, "uid");
 		
 		return currentVersionDBObjectMap.get(uid);
 	}
 	
 	@Override
 	public void addNewDBObject(DBObject dbObject) {
-		Assert.notNull(dbObject, "dbObject is null");
+		Assert.notNull(dbObject, "dbObject");
 		
 		newDBObjects.add(dbObject);
 	}
 	
 	@Override
 	public void addExistingDBObject(DBObject dbObject, DBObject currentVersionDBObject) {
-		Assert.notNull(dbObject, "dbObject is null");
-		Assert.notNull(currentVersionDBObject, "currentVersionDBObject is null");
+		Assert.notNull(dbObject, "dbObject");
+		Assert.notNull(currentVersionDBObject, "currentVersionDBObject");
 		
 		existingDBObjects.add(dbObject);
 		currentVersionDBObjectMap.put(dbObject.getUid(), currentVersionDBObject);

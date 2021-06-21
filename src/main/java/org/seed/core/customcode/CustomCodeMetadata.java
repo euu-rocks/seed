@@ -24,13 +24,11 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-
+import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.codegen.CodeUtils;
+import org.seed.core.util.Assert;
 import org.seed.core.util.CDATAXmlAdapter;
-
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 @Entity
 @Table(name = "sys_customcode")
@@ -53,7 +51,7 @@ public class CustomCodeMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public String getQualifiedName() {
-		Assert.state(StringUtils.hasText(content), "content is empty");
+		Assert.hasText(content, C.CONTENT);
 		
 		return CodeUtils.extractQualifiedName(content);
 	}

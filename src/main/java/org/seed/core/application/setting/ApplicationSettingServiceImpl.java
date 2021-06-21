@@ -18,20 +18,20 @@
 package org.seed.core.application.setting;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.data.ValidationException;
+import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 @Service
@@ -43,21 +43,11 @@ public class ApplicationSettingServiceImpl implements ApplicationSettingService 
 	@Autowired
 	private List<SettingChangeAware> changeAwareObjects;
 	
-	private Map<Setting, String> settings = Collections.synchronizedMap(new HashMap<>());
-	
-	@PostConstruct
-	private void init() {
-		for (ApplicationSetting setting : repository.find()) {
-			settings.put(setting.getSetting(), setting.getValue());
-		}
-		if (!settings.containsKey(Setting.MENU_MODE)) {
-			settings.put(Setting.MENU_MODE, "NAVIGATION");
-		}
-	}
+	private Map<Setting, String> settingMap;
 	
 	@Override
 	public boolean hasSetting(Setting setting) {
-		return !ObjectUtils.isEmpty(settings.get(setting));
+		return !ObjectUtils.isEmpty(getSettingMap().get(setting));
 	}
 	
 	@Override
@@ -68,7 +58,7 @@ public class ApplicationSettingServiceImpl implements ApplicationSettingService 
 	
 	@Override
 	public Map<Setting, String> getSettings() {
-		return new HashMap<>(settings);
+		return new EnumMap<>(getSettingMap());
 	}
 	
 	@Override
@@ -80,9 +70,9 @@ public class ApplicationSettingServiceImpl implements ApplicationSettingService 
 	
 	@Override
 	public String getSettingOrNull(Setting setting) {
-		Assert.notNull(setting, "setting is null");
+		Assert.notNull(setting, C.SETTING);
 		
-		return settings.get(setting);
+		return getSettingMap().get(setting);
 	}
 	
 	@Override
@@ -99,22 +89,22 @@ public class ApplicationSettingServiceImpl implements ApplicationSettingService 
 	@Override
 	@Secured("ROLE_ADMIN_SETTINGS")
 	public void setSetting(Setting setting, String value) {
-		Assert.notNull(setting, "setting is null");
+		Assert.notNull(setting, C.SETTING);
 		
-		settings.put(setting, value);
+		getSettingMap().put(setting, value);
 	}
 	
 	@Override
 	@Secured("ROLE_ADMIN_SETTINGS")
 	public void saveSettings(Map<Setting, String> settings) throws ValidationException {
-		Assert.notNull(settings, "settings is null");
+		Assert.notNull(settings, C.SETTING);
 		
 		try (Session session = repository.openSession()) {
 			Transaction tx = null;
 			try {
 				tx = session.beginTransaction();
 				// read current settings
-				final Map<Setting, ApplicationSetting> appSettings = new HashMap<>();
+				final Map<Setting, ApplicationSetting> appSettings = new EnumMap<>(Setting.class);
 				for (ApplicationSetting setting : repository.find(session)) {
 					// and delete no longer existing ones
 					if (!settings.containsKey(setting.getSetting())) {
@@ -146,16 +136,30 @@ public class ApplicationSettingServiceImpl implements ApplicationSettingService 
 				
 				tx.commit();
 				
-				this.settings.clear();
-				this.settings.putAll(settings);
+				this.getSettingMap().clear();
+				this.getSettingMap().putAll(settings);
 			}
 			catch (Exception ex) {
 				if (tx != null) {
 					tx.rollback();
 				}
-				throw new RuntimeException(ex);
+				throw new InternalException(ex);
 			}
 		}
+	}
+	
+	private Map<Setting, String> getSettingMap() {
+		if (settingMap == null) {
+			final Map<Setting, String> map = new EnumMap<>(Setting.class);
+			for (ApplicationSetting setting : repository.find()) {
+				map.put(setting.getSetting(), setting.getValue());
+			}
+			if (!map.containsKey(Setting.MENU_MODE)) {
+				map.put(Setting.MENU_MODE, "NAVIGATION");
+			}
+			settingMap = Collections.synchronizedMap(map);
+		}
+		return settingMap;
 	}
 	
 }

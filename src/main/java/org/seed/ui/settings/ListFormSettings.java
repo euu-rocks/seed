@@ -23,7 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.seed.core.form.FormField;
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
+
 import org.springframework.util.ObjectUtils;
 
 public class ListFormSettings {
@@ -45,7 +46,7 @@ public class ListFormSettings {
 	}
 
 	public void setColumnSetting(Long fieldId, boolean hidden) {
-		Assert.notNull(fieldId, "fieldId is null");
+		Assert.notNull(fieldId, "fieldId");
 		
 		if (columnSettings == null) {
 			columnSettings = new ArrayList<>();
@@ -67,7 +68,7 @@ public class ListFormSettings {
 	}
 	
 	public ColumnSetting getColumnSetting(Long fieldId) {
-		Assert.notNull(fieldId, "fieldId is null");
+		Assert.notNull(fieldId, "fieldId");
 		
 		if (columnSettings != null) {
 			for (ColumnSetting setting : columnSettings) {
@@ -80,7 +81,7 @@ public class ListFormSettings {
 	}
 	
 	public void sortFields(List<FormField> fields) {
-		Assert.notNull(fields, "fields is null");
+		Assert.notNull(fields, "fields");
 		
 		if (columnSettings != null) {
 			final Map<Long,FormField> fieldMap = new HashMap<>();

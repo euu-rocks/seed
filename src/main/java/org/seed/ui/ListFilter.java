@@ -21,15 +21,18 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
 
-import org.springframework.util.Assert;
+import org.seed.C;
+import org.seed.core.data.SystemObject;
+import org.seed.core.util.Assert;
+
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-public class ListFilter {
+public final class ListFilter<T extends SystemObject> {
 	
 	private final ListFilterListener listener;
 	
-	private Function<Object, Object> valueFunction;
+	private Function<T, Object> valueFunction;
 	
 	private Set<String> values;
 	
@@ -39,18 +42,18 @@ public class ListFilter {
 	
 	private boolean booleanValue; 
 	
-	public ListFilter(ListFilterListener listener) {
-		Assert.notNull(listener, "listener is null");
+	ListFilter(ListFilterListener listener) {
+		Assert.notNull(listener, "listener");
 		
 		this.listener = listener;
 	}
 	
-	public Function<Object, Object> getValueFunction() {
+	public Function<T, Object> getValueFunction() {
 		return valueFunction;
 	}
 	
-	public void setValueFunction(Function<Object, Object> valueFunction) {
-		Assert.notNull(valueFunction, "valueFunction is null");
+	public void setValueFunction(Function<T, Object> valueFunction) {
+		Assert.notNull(valueFunction, "valueFunction");
 		
 		this.valueFunction = valueFunction;
 	}
@@ -108,7 +111,7 @@ public class ListFilter {
 	}
 	
 	public void addValue(String value) {
-		Assert.notNull(value, "value is null");
+		Assert.notNull(value, C.VALUE);
 		
 		getValues().add(value);
 	}

@@ -19,10 +19,10 @@ package org.seed.core.application;
 
 import org.seed.core.user.UserGroup;
 
-public interface Permission {
+public interface Permission<E extends Enum<E>> {
 	
 	UserGroup getUserGroup();
 	
-	Enum<?> getAccess();
+	E getAccess();
 	
 }

@@ -41,6 +41,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.data.Order;
 import org.seed.core.entity.Entity;
@@ -49,9 +50,9 @@ import org.seed.core.entity.EntityStatus;
 import org.seed.core.user.User;
 import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupMetadata;
+import org.seed.core.util.Assert;
 import org.seed.core.util.ReferenceJsonSerializer;
 
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -62,6 +63,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class TransformerMetadata extends AbstractApplicationEntity 
 	implements Transformer {
+	
+	static final String PACKAGE_NAME = "org.seed.generated.transform";
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "source_entity_id")
@@ -104,7 +107,7 @@ public class TransformerMetadata extends AbstractApplicationEntity
 					   @JoinColumn(name = "transformer_id", nullable = false, updatable = false) }, 
 			   inverseJoinColumns = { 
 					   @JoinColumn(name = "status_id", nullable = false, updatable = false) })
-	private Set<EntityStatus> status;
+	private Set<EntityStatus> statusSet;
 	
 	@Transient
 	@JsonIgnore
@@ -188,12 +191,28 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public boolean containsElement(TransformerElement element) {
+		Assert.notNull(element, C.ELEMENT);
+		
 		return hasElements() && getElements().contains(element);
 	}
 	
 	@Override
+	public boolean containsStatus(EntityStatus status) {
+		Assert.notNull(status, C.STATUS);
+		
+		return hasStatus() && getStatus().contains(status);
+	}
+	
+	@Override
+	public boolean containsUserGroup(UserGroup userGroup) {
+		Assert.notNull(userGroup, C.USERGROUP);
+		
+		return hasUserGroups() && getUserGroups().contains(userGroup);
+	}
+	
+	@Override
 	public void addElement(TransformerElement element) {
-		Assert.notNull(element, "element is null");
+		Assert.notNull(element, C.ELEMENT);
 		
 		element.setTransformer(this);
 		if (elements == null) {
@@ -204,7 +223,7 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public void removeElement(TransformerElement element) {
-		Assert.notNull(element, "element is null");
+		Assert.notNull(element, C.ELEMENT);
 		
 		getElements().remove(element);
 	}
@@ -227,7 +246,7 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public void addFunction(TransformerFunction function) {
-		Assert.notNull(function, "function is null");
+		Assert.notNull(function, C.FUNCTION);
 		
 		function.setTransformer(this);
 		if (functions == null) {
@@ -238,7 +257,7 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public void removeFunction(TransformerFunction function) {
-		Assert.notNull(function, "function is null");
+		Assert.notNull(function, C.FUNCTION);
 		
 		getFunctions().remove(function);
 	}
@@ -257,14 +276,14 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public boolean isAuthorized(User user) {
-		Assert.notNull(user, "user is null");
+		Assert.notNull(user, C.USER);
 		
 		return user.belongsToOneOf(getUserGroups());
 	}
 	
 	@Override
 	public boolean isEnabled(EntityStatus entityStatus) {
-		Assert.notNull(entityStatus, "entityStatus is null");
+		Assert.notNull(entityStatus, "entityStatus");
 		
 		return !hasStatus() || getStatus().contains(entityStatus);
 	}
@@ -276,7 +295,7 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public Set<EntityStatus> getStatus() {
-		return status;
+		return statusSet;
 	}
 	
 	@Override
@@ -294,7 +313,13 @@ public class TransformerMetadata extends AbstractApplicationEntity
 			.isEquals()) {
 			return false;
 		}
-		// check elements
+		return isEqualElements(otherTransformer) &&
+			   isEqualFunctions(otherTransformer) &&
+			   isEqualUserGroups(otherTransformer) &&
+			   isEqualStatus(otherTransformer);
+	}
+	
+	private boolean isEqualElements(Transformer otherTransformer) {
 		if (hasElements()) {
 			for (TransformerElement element : getElements()) {
 				if (!element.isEqual(otherTransformer.getElementByUid(element.getUid()))) {
@@ -309,7 +334,10 @@ public class TransformerMetadata extends AbstractApplicationEntity
 				}
 			}
 		}
-		// check functions
+		return true;
+	}
+	
+	private boolean isEqualFunctions(Transformer otherTransformer) {
 		if (hasFunctions()) {
 			for (TransformerFunction function : getFunctions()) {
 				if (!function.isEqual(otherTransformer.getFunctionByUid(function.getUid()))) {
@@ -324,7 +352,10 @@ public class TransformerMetadata extends AbstractApplicationEntity
 				}
 			}
 		}
-		// check user groups (only uids)
+		return true;
+	}
+	
+	private boolean isEqualUserGroups(Transformer otherTransformer) {
 		if (hasUserGroups()) {
 			for (UserGroup group : getUserGroups()) {
 				if (otherTransformer.getUserGroupByUid(group.getUid()) == null) {
@@ -339,7 +370,10 @@ public class TransformerMetadata extends AbstractApplicationEntity
 				}
 			}
 		}
-		// check status (only uids)
+		return true;
+	}
+	
+	private boolean isEqualStatus(Transformer otherTransformer) {
 		if (hasStatus()) {
 			for (EntityStatus status : getStatus()) {
 				if (otherTransformer.getStatusByUid(status.getUid()) == null) {
@@ -377,7 +411,7 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	
 	void createLists() {
 		userGroups = new HashSet<>();
-		status = new HashSet<>();
+		statusSet = new HashSet<>();
 	}
 	
 }

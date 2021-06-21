@@ -66,7 +66,7 @@ public interface LayoutService {
 	
 	void removeText(Form form, LayoutElement layoutRoot, String contextId);
 	
-	void addField(Form form, EntityField entityField, Orientation labelOrient, Alignment labelAlign, Alignment labelValign, String width, String height, LayoutElement layoutRoot, String contextId) throws ValidationException;
+	void addField(Form form, EntityField entityField, LabelProperties labelProperties, String width, String height, LayoutElement layoutRoot, String contextId) throws ValidationException;
 	
 	void removeField(Form form, LayoutElement layoutRoot, String contextId);
 	
@@ -100,7 +100,7 @@ public interface LayoutService {
 	
 	void addBorderLayout(Form form, BorderLayoutProperties layoutProperties, LayoutElement layoutRoot, String contextId);
 	
-	void applyProperties(LayoutElement element, LayoutElementProperties properties) throws ValidationException;
+	void applyProperties(LayoutElement element, LayoutElementAttributes properties) throws ValidationException;
 	
 	void applyBorderLayoutProperties(Form form, LayoutElement layoutRoot, LayoutElement element, BorderLayoutProperties properties) throws ValidationException;
 	

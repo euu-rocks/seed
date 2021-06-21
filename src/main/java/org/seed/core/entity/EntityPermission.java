@@ -21,7 +21,6 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -29,50 +28,23 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import org.seed.core.application.AbstractPermissionObject;
 import org.seed.core.application.Permission;
-import org.seed.core.application.TransferableObject;
-import org.seed.core.data.AbstractSystemObject;
-import org.seed.core.user.UserGroup;
-import org.seed.core.user.UserGroupMetadata;
-import org.seed.core.util.ReferenceJsonSerializer;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @javax.persistence.Entity
 @Table(name = "sys_entity_permission")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class EntityPermission extends AbstractSystemObject 
-	implements Permission, TransferableObject {
+public class EntityPermission extends AbstractPermissionObject 
+	implements Permission<EntityAccess> {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "entity_id")
 	@JsonIgnore
 	private EntityMetadata entity;
 	
-	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usergroup_id")
-	@JsonSerialize(using = ReferenceJsonSerializer.class)
-	private UserGroupMetadata userGroup;
-	
-	private String uid;
-	
 	private EntityAccess access;
-	
-	@Transient
-	@JsonIgnore
-	private String userGroupUid;
-	
-	@Override
-	@XmlAttribute
-	public String getUid() {
-		return uid;
-	}
-	
-	@Override
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
 	
 	@XmlTransient
 	public Entity getEntity() {
@@ -81,25 +53,6 @@ public class EntityPermission extends AbstractSystemObject
 
 	public void setEntity(Entity entity) {
 		this.entity = (EntityMetadata) entity;
-	}
-	
-	@Override
-	@XmlTransient
-	public UserGroup getUserGroup() {
-		return userGroup;
-	}
-	
-	@XmlAttribute
-	public String getUserGroupUid() {
-		return userGroup != null ? userGroup.getUid() : userGroupUid;
-	}
-
-	public void setUserGroupUid(String userGroupUid) {
-		this.userGroupUid = userGroupUid;
-	}
-
-	public void setUserGroup(UserGroup userGroup) {
-		this.userGroup = (UserGroupMetadata) userGroup;
 	}
 	
 	@Override
@@ -122,7 +75,7 @@ public class EntityPermission extends AbstractSystemObject
 		}
 		final EntityPermission otherPermission = (EntityPermission) other;
 		return new EqualsBuilder()
-			.append(userGroupUid, otherPermission.getUserGroupUid())
+			.append(getUserGroupUid(), otherPermission.getUserGroupUid())
 			.append(access, otherPermission.access)
 			.isEquals();
 	}

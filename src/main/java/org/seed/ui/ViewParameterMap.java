@@ -19,19 +19,19 @@ package org.seed.ui;
 
 import java.util.HashMap;
 
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
-public class ViewParameterMap extends HashMap<String, Object> {
+public final class ViewParameterMap extends HashMap<String, Object> {
 	
 	private static final long serialVersionUID = -901328042280559618L;
 
-	public final static String VIEW = "view";
+	public static final String VIEW = "view";
 	
-	public final static String PARAM = "param";
+	public static final String PARAM = "param";
 	
 	public ViewParameterMap(String view, Object param) {
 		super(2, 1f);
-		Assert.notNull(view, "view is null");
+		Assert.notNull(view, VIEW);
 		
 		put(VIEW, view);
 		if (param != null) {

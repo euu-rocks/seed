@@ -17,11 +17,14 @@
  */
 package org.seed.core.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,10 +36,14 @@ import org.springframework.util.StreamUtils;
 
 public abstract class MiscUtils {
 	
+	private static final String USERNAME_SYSTEM = "system";
+	
+	private MiscUtils() {}
+	
 	public static String geUserName() {
 		return SecurityContextHolder.getContext().getAuthentication() != null 
 				? SecurityContextHolder.getContext().getAuthentication().getName()
-				: "system";
+				: USERNAME_SYSTEM;
 	}
 	
 	public static String printArray(String[] elements) {
@@ -56,10 +63,21 @@ public abstract class MiscUtils {
 		return buf.toString();
 	}
 	
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> cast(List<?> list) {
+		return (List<T>) list;
+	}
+	
+	public static <T> T instantiate(Class<T> clas) 
+			throws InstantiationException, IllegalAccessException,
+				   InvocationTargetException, NoSuchMethodException {
+		return clas.getDeclaredConstructor().newInstance();
+	}
+	
 	public static String filterString(String text, Predicate<Character> predicate) {
 		return text.chars().mapToObj(c -> (char) c)
 				   .filter(predicate)
-				   .map(c -> c.toString())
+				   .map(String::valueOf)
 				   .collect(Collectors.joining());
 	}
 	
@@ -73,7 +91,7 @@ public abstract class MiscUtils {
 		final long duration = System.currentTimeMillis() - startTime;
 		return duration < 1000 
 				? duration + " ms"
-				: (((double) duration) / 1000d) + " seconds";
+				: (((double) duration) / 1000d) + " sec";
 	}
 	
 	public static String getFileAsText(File file) throws IOException {
@@ -86,6 +104,10 @@ public abstract class MiscUtils {
 		try (InputStream inputStream = resource.getInputStream()) {
 			return StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
 		} 
+	}
+	
+	public static InputStream getStringAsStream(String string) {
+		return new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
 	}
 	
 	public static boolean booleanProperty(String property) {

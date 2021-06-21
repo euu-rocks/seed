@@ -23,12 +23,12 @@ import org.hibernate.Session;
 
 import org.seed.core.application.ApplicationEntityService;
 
-public interface DataSourceService extends ApplicationEntityService<DataSource> {
+public interface DataSourceService extends ApplicationEntityService<IDataSource> {
 	
-	DataSourceParameter createParameter(DataSource dataSource);
+	DataSourceParameter createParameter(IDataSource dataSource);
 	
-	DataSourceResult query(DataSource dataSource, Map<String, Object> parameters, Session session);
+	DataSourceResult query(IDataSource dataSource, Map<String, Object> parameters, Session session);
 	
-	DataSourceResult query(DataSource dataSource, Map<String, Object> parameters);
+	DataSourceResult query(IDataSource dataSource, Map<String, Object> parameters);
 	
 }

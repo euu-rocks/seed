@@ -18,12 +18,13 @@
 package org.seed.core.data.dbobject;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -34,11 +35,11 @@ import org.seed.core.config.ChangeLog;
 import org.seed.core.config.SessionFactoryProvider;
 import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.data.ValidationException;
+import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 @Service
 public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObject>
@@ -67,9 +68,7 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 	}
 	
 	@Override
-	public void analyzeObjects(ImportAnalysis analysis, Module currentVersionModule) {
-		Assert.notNull(analysis, "analysis is null");
-		
+	protected void analyzeNextVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
 		if (analysis.getModule().getDBObjects() != null) {
 			for (DBObject dbObject : analysis.getModule().getDBObjects()) {
 				if (currentVersionModule == null) {
@@ -87,6 +86,10 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 				}
 			}
 		}
+	}
+	
+	@Override
+	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
 		if (currentVersionModule!= null && currentVersionModule.getDBObjects() != null) {
 			for (DBObject currentVersionObject : currentVersionModule.getDBObjects()) {
 				if (analysis.getModule().getEntityByUid(currentVersionObject.getUid()) == null) {
@@ -96,15 +99,16 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
-	public Class<? extends ApplicationEntityService<? extends ApplicationEntity>>[] getImportDependencies() {
-		return null; // independent
+	public Class<? extends ApplicationEntityService<ApplicationEntity>>[] getImportDependencies() {
+		return ArrayUtils.toArray(); // independent
 	}
 
 	@Override
 	public void importObjects(TransferContext context, Session session) {
-		Assert.notNull(context, "context is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(context, C.CONTEXT);
+		Assert.notNull(session, C.SESSION);
 		
 		if (context.getModule().getDBObjects() != null) {
 			for (DBObject dbObject : context.getModule().getDBObjects()) {
@@ -126,28 +130,29 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 	
 	@Override
 	public void createChangeLogs(TransferContext context, Session session) {
-		Assert.notNull(context, "context ist null");
-		Assert.notNull(session, "session ist null");
+		Assert.notNull(context, C.CONTEXT);
+		Assert.notNull(session, C.SESSION);
 		
 		final List<DBObject> newObjects = new ArrayList<>(context.getNewDBObjects());
-		newObjects.sort(dbObjectComparator);
+		newObjects.sort((DBObject dbObject1, DBObject dbObject2) -> 
+							Integer.compare(dbObject1.getOrder() != null ? dbObject1.getOrder() : 0, 
+											dbObject2.getOrder() != null ? dbObject2.getOrder() : 0));
 		for (DBObject dbObject : newObjects) {
-			for (ChangeLog changeLog : new DBObjectChangeLogBuilder()
-											.setNextVersionObject(dbObject)
-											.build()) {
+			final ChangeLog changeLog = createChangeLog(null, dbObject);
+			if (changeLog != null) {
 				session.saveOrUpdate(changeLog);
 			}
 		}
 		
 		final List<DBObject> existingObjects = new ArrayList<>(context.getExistingDBObjects());
 		
-		existingObjects.sort(dbObjectComparator);
+		existingObjects.sort((DBObject dbObject1, DBObject dbObject2) -> 
+								Integer.compare(dbObject1.getOrder() != null ? dbObject1.getOrder() : 0, 
+												dbObject2.getOrder() != null ? dbObject2.getOrder() : 0));
 		for (DBObject dbObject : existingObjects) {
 			final DBObject currentVersionObject = context.getCurrentVersionDBObject(dbObject.getUid());
-			for (ChangeLog changeLog : new DBObjectChangeLogBuilder()
-											.setCurrentVersionObject(currentVersionObject)
-											.setNextVersionObject(dbObject)
-											.build()) {
+			final ChangeLog changeLog = createChangeLog(currentVersionObject, dbObject);
+			if (changeLog != null) {
 				session.saveOrUpdate(changeLog);
 			}
 		}
@@ -155,9 +160,9 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 	
 	@Override
 	public void deleteObjects(Module module, Module currentVersionModule, Session session) {
-		Assert.notNull(module, "module is null");
-		Assert.notNull(currentVersionModule, "currentVersionModule is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(module, C.MODULE);
+		Assert.notNull(currentVersionModule, "currentVersionModule");
+		Assert.notNull(session, C.SESSION);
 		
 		if (currentVersionModule.getDBObjects() != null) {
 			for (DBObject currentVersionObject : currentVersionModule.getDBObjects()) {
@@ -171,7 +176,7 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 	@Override
 	@Secured("ROLE_ADMIN_DBOBJECT")
 	public void deleteObject(DBObject dbObject) throws ValidationException {
-		Assert.notNull(dbObject, "dbObject is null");
+		Assert.notNull(dbObject, "dbObject");
 		
 		try (Session session = sessionFactoryProvider.getSessionFactory().openSession()) {
 			Transaction tx = null;
@@ -179,9 +184,8 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 				tx = session.beginTransaction();
 				deleteObject(dbObject, session);
 				
-				for (ChangeLog changeLog : new DBObjectChangeLogBuilder()
-												.setCurrentVersionObject(dbObject)
-												.build()) {
+				final ChangeLog changeLog = createChangeLog(dbObject, null);
+				if (changeLog != null) {
 					session.saveOrUpdate(changeLog);
 				}
 				tx.commit();
@@ -197,7 +201,7 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 	@Override
 	@Secured("ROLE_ADMIN_DBOBJECT")
 	public void saveObject(DBObject dbObject) throws ValidationException {
-		Assert.notNull(dbObject, "dbObject is null");
+		Assert.notNull(dbObject, "dbObject");
 		
 		final boolean isInsert = dbObject.isNew();
 		final DBObject currentVersionObject = !isInsert ? getObject(dbObject.getId()) : null;
@@ -207,10 +211,8 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 				tx = session.beginTransaction();
 				saveObject(dbObject, session);
 				
-				for (ChangeLog changeLog : new DBObjectChangeLogBuilder()
-												.setCurrentVersionObject(currentVersionObject)
-												.setNextVersionObject(dbObject)
-												.build()) {
+				final ChangeLog changeLog = createChangeLog(currentVersionObject, dbObject);
+				if (changeLog != null) {
 					session.saveOrUpdate(changeLog);
 				}
 				tx.commit();
@@ -223,14 +225,11 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 		configuration.updateConfiguration();
 	}
 	
-	private static final Comparator<DBObject> dbObjectComparator = new Comparator<>() {
-		@Override
-		public int compare(DBObject dbObject1, DBObject dbObject2) {
-			final int o1 = dbObject1.getOrder() != null ? dbObject1.getOrder() : 0;
-			final int o2 = dbObject2.getOrder() != null ? dbObject2.getOrder() : 0;
-			return Integer.compare(o1, o2);
-		}
+	private static ChangeLog createChangeLog(DBObject currentVersionObject, DBObject nextVersionObject) {
+		return new DBObjectChangeLogBuilder()
+						.setCurrentVersionObject(currentVersionObject)
+						.setNextVersionObject(nextVersionObject)
+						.build();
+	}
 	
-	};
-
 }

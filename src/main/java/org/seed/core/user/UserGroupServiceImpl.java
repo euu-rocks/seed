@@ -22,9 +22,12 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -34,10 +37,10 @@ import org.seed.core.application.module.TransferContext;
 import org.seed.core.data.Options;
 import org.seed.core.data.QueryParameter;
 import org.seed.core.data.ValidationException;
+import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 @Service
 public class UserGroupServiceImpl extends AbstractApplicationEntityService<UserGroup> 
@@ -82,7 +85,7 @@ public class UserGroupServiceImpl extends AbstractApplicationEntityService<UserG
 	
 	@Override
 	public List<UserGroupAuthorisation> getAvailableAuthorisations(UserGroup userGroup) {
-		Assert.notNull(userGroup, "userGroup is null");
+		Assert.notNull(userGroup, C.USERGROUP);
 		
 		final List<UserGroupAuthorisation> result = new ArrayList<>();
 		for (Authorisation authorisation : Authorisation.values()) {
@@ -98,7 +101,7 @@ public class UserGroupServiceImpl extends AbstractApplicationEntityService<UserG
 	
 	@Override
 	public List<User> getAvailableUsers(UserGroup userGroup) {
-		Assert.notNull(userGroup, "userGroup is null");
+		Assert.notNull(userGroup, C.USERGROUP);
 		
 		final List<User> result = new ArrayList<>();
 		for (User user : userRepository.find()) {
@@ -119,9 +122,7 @@ public class UserGroupServiceImpl extends AbstractApplicationEntityService<UserG
 	}
 	
 	@Override
-	public void analyzeObjects(ImportAnalysis analysis, Module currentVersionModule) {
-		Assert.notNull(analysis, "analysis is null");
-		
+	protected void analyzeNextVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
 		if (analysis.getModule().getUserGroups() != null) {
 			for (UserGroup group : analysis.getModule().getUserGroups()) {
 				if (currentVersionModule == null) {
@@ -139,25 +140,29 @@ public class UserGroupServiceImpl extends AbstractApplicationEntityService<UserG
 				}
 			}
 		}
-		if (currentVersionModule != null && currentVersionModule.getUserGroups() != null) {
+	}
+	
+	@Override
+	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
+		if (currentVersionModule.getUserGroups() != null) {
 			for (UserGroup currentVersionGroup : currentVersionModule.getUserGroups()) {
 				if (analysis.getModule().getUserGroupByUid(currentVersionGroup.getUid()) == null) {
 					analysis.addChangeDelete(currentVersionGroup);
 				}
 			}
 		}
-
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
-	public Class<? extends ApplicationEntityService<? extends ApplicationEntity>>[] getImportDependencies() {
-		return null; // independent
+	public Class<? extends ApplicationEntityService<ApplicationEntity>>[] getImportDependencies() {
+		return ArrayUtils.toArray(); // independent
 	}
 	
 	@Override
 	public void importObjects(TransferContext context, Session session) {
-		Assert.notNull(context, "context is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(context, C.CONTEXT);
+		Assert.notNull(session, C.SESSION);
 		try {
 			if (context.getModule().getUserGroups() != null) {
 				for (UserGroup group : context.getModule().getUserGroups()) {
@@ -177,15 +182,15 @@ public class UserGroupServiceImpl extends AbstractApplicationEntityService<UserG
 			}
 		}
 		catch (ValidationException vex) {
-			throw new RuntimeException(vex);
+			throw new InternalException(vex);
 		}
  	}
 	
 	@Override
 	public void deleteObjects(Module module, Module currentVersionModule, Session session) {
-		Assert.notNull(module, "module is null");
-		Assert.notNull(currentVersionModule, "currentVersionModule is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(module, C.MODULE);
+		Assert.notNull(currentVersionModule, "currentVersionModule");
+		Assert.notNull(session, C.SESSION);
 		
 		if (currentVersionModule.getUserGroups() != null) {
 			for (UserGroup currentVersionGroup : currentVersionModule.getUserGroups()) {
@@ -198,10 +203,10 @@ public class UserGroupServiceImpl extends AbstractApplicationEntityService<UserG
 	
 	@Override
 	public void saveObject(UserGroup userGroup) throws ValidationException {
-		Assert.notNull(userGroup, "userGroup is null");
+		Assert.notNull(userGroup, C.USERGROUP);
 		
 		final List<Long> originalUserIds = ((UserGroupMetadata) userGroup).getOriginalUserIds();
-		Assert.state(originalUserIds != null, "originalUserIds is null");
+		Assert.notNull(originalUserIds != null, "originalUserIds");
 		
 		try (Session session = repository.openSession()) {
 			Transaction tx = null;

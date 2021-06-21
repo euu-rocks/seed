@@ -39,9 +39,9 @@ import javax.tools.StandardLocation;
 import javax.tools.JavaFileObject.Kind;
 import javax.tools.StandardJavaFileManager;
 
+import org.seed.C;
 import org.seed.core.codegen.SourceCode;
-
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 import static org.seed.core.codegen.CodeUtils.*;
 
@@ -58,20 +58,20 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	}
 	
 	JavaClassFileObject getClassFileObject(String qualifiedName) {
-		Assert.notNull(qualifiedName, "qualifiedName is null");
+		Assert.notNull(qualifiedName, C.QUALIFIEDNAME);
 		Assert.state(classFileObjectMap.containsKey(qualifiedName), "class file not available for: " + qualifiedName);
 		
 		return classFileObjectMap.get(qualifiedName); 
 	}
 	
 	JavaClassFileObject removeClassFileObject(String qualifiedName) {
-		Assert.notNull(qualifiedName, "qualifiedName is null");
+		Assert.notNull(qualifiedName, C.QUALIFIEDNAME);
 		
 		return classFileObjectMap.remove(qualifiedName); 
 	}
 	
-	List<JavaSourceFileObject> createSourceFileObjects(List<SourceCode<?>> sourceCodes) {
-		Assert.notNull(sourceCodes, "sourceCodes is null");
+	List<JavaSourceFileObject> createSourceFileObjects(List<SourceCode> sourceCodes) {
+		Assert.notNull(sourceCodes, "sourceCodes");
 		
 		final List<JavaSourceFileObject> sourceFileObjects = new ArrayList<>(sourceCodes.size());
 		sourceCodes.forEach(sourceCode -> sourceFileObjects.add(new JavaSourceFileObject(sourceCode)));
@@ -116,7 +116,7 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	}
 	
 	private Iterable<JavaFileObject> listGeneratedClasses(String packageName) {
-		Assert.notNull(packageName, "package name is null");
+		Assert.notNull(packageName, C.PACKAGENAME);
 		
 		final List<JavaFileObject> result = new ArrayList<>();
 		for (Entry<String, JavaClassFileObject> entry : classFileObjectMap.entrySet()) {
@@ -128,7 +128,7 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	}
 	
 	private Iterable<JavaFileObject> listDependencies(String packageName) throws IOException {
-		Assert.notNull(packageName, "package name is null");
+		Assert.notNull(packageName, C.PACKAGENAME);
 		
 		final List<JavaFileObject> result = new ArrayList<>();
 		final Enumeration<URL> urlEnum = getClass().getClassLoader().getResources(packageName.replace('.', '/'));
@@ -146,9 +146,9 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	}
 	
 	private void listDirectory(List<JavaFileObject> result, String packageName, File directory) {
-		Assert.notNull(result, "result is null");
-		Assert.notNull(packageName, "package name is null");
-		Assert.notNull(directory, "directory is null");
+		Assert.notNull(result, C.RESULT);
+		Assert.notNull(packageName, C.PACKAGENAME);
+		Assert.notNull(directory, "directory");
 		
 		for (File file : directory.listFiles()) {
 			if (file.isFile() && isClassFile(file.getName())) {
@@ -159,8 +159,8 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	}
 	
 	private void listJar(List<JavaFileObject> result, URL packageURL) throws IOException {
-		Assert.notNull(result, "result is null");
-		Assert.notNull(packageURL, "packageURL is null");
+		Assert.notNull(result, C.RESULT);
+		Assert.notNull(packageURL, "packageURL");
 		
 		final JarURLConnection jarCon = (JarURLConnection) packageURL.openConnection();
 		final String packagePath = jarCon.getEntryName();

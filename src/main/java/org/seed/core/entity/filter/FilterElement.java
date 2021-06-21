@@ -56,9 +56,13 @@ public class FilterElement {
 	public FieldType getType() {
 		return entityField != null 
 				? entityField.getType() 
-				: systemField != null 
-					? systemField.type 
-					: null;
+				: getSystemFieldType();
+	}
+	
+	private FieldType getSystemFieldType() {
+		return systemField != null 
+				? systemField.type 
+				: null;
 	}
 	
 }

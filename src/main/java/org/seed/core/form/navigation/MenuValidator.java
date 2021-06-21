@@ -19,31 +19,31 @@ package org.seed.core.form.navigation;
 
 import java.util.Set;
 
+import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.ValidationError;
 import org.seed.core.data.ValidationException;
+import org.seed.core.util.Assert;
 
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 @Component
 public class MenuValidator extends AbstractSystemEntityValidator<Menu> {
 	
 	@Override
 	public void validateSave(Menu menu) throws ValidationException {
-		Assert.notNull(menu, "menu is null");
+		Assert.notNull(menu, C.MENU);
 		final Set<ValidationError> errors = createErrorList();
 		
 		if (isEmpty(menu.getName())) {
-			errors.add(new ValidationError("val.empty.field", "label.name"));
+			errors.add(ValidationError.emptyName());
 		}
 		else if (!isNameLengthAllowed(menu.getName())) {
-			errors.add(new ValidationError("val.toolong.name", String.valueOf(getMaxNameLength())));
+			errors.add(ValidationError.overlongName(getMaxNameLength()));
 		}
 		if (menu.getIcon() != null &&
-		    menu.getIcon().length() > getLimit("entity.stringfield.length")) {
-			errors.add(new ValidationError("val.toolong.fieldvalue", "label.icon", 
-					   					   String.valueOf(getLimit("entity.stringfield.length"))));
+		    menu.getIcon().length() > getMaxStringLength()) {
+			errors.add(ValidationError.overlongField("label.icon", getMaxStringLength()));
 		}
 		if (menu.hasSubMenus()) {
 			for (Menu subMenu : menu.getSubMenus()) {

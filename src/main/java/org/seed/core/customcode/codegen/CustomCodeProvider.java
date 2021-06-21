@@ -30,18 +30,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CustomCodeProvider implements SourceCodeProvider<CustomCode> {
+public class CustomCodeProvider implements SourceCodeProvider {
 
 	@Autowired
 	private CustomCodeService customCodeService;
 	
-	public SourceCode<CustomCode> getCustomCodeSource(CustomCode customCode) {
+	public SourceCode getCustomCodeSource(CustomCode customCode) {
 		return new CustomCodeBuilder(customCode).build();
 	}
 	
 	@Override
-	public List<SourceCodeBuilder<CustomCode>> getSourceCodeBuilders() {
-		final List<SourceCodeBuilder<CustomCode>> result = new ArrayList<>();
+	public List<SourceCodeBuilder> getSourceCodeBuilders() {
+		final List<SourceCodeBuilder> result = new ArrayList<>();
 		for (CustomCode customCode : customCodeService.findAllObjects()) {
 			result.add(new CustomCodeBuilder(customCode));
 		}

@@ -21,9 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.seed.C;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.customcode.CustomCode;
-import org.seed.core.data.datasource.DataSource;
+import org.seed.core.data.datasource.IDataSource;
 import org.seed.core.data.dbobject.DBObject;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.filter.Filter;
@@ -34,8 +35,7 @@ import org.seed.core.form.navigation.Menu;
 import org.seed.core.report.Report;
 import org.seed.core.task.Task;
 import org.seed.core.user.UserGroup;
-
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 public class ImportAnalysis {
 	
@@ -44,7 +44,7 @@ public class ImportAnalysis {
 	private final Module module;
 	
 	ImportAnalysis(Module module) {
-		Assert.notNull(module, "module is null");
+		Assert.notNull(module, C.MODULE);
 		
 		this.module = module;
 	}
@@ -54,19 +54,19 @@ public class ImportAnalysis {
 	}
 
 	public void addChangeNew(ApplicationEntity entity) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
 		addChange(ChangeType.NEW, entity);
 	}
 	
 	public void addChangeModify(ApplicationEntity entity) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
 		addChange(ChangeType.MODIFY, entity);
 	}
 	
 	public void addChangeDelete(ApplicationEntity entity) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
 		addChange(ChangeType.DELETE, entity);
 	}
@@ -96,7 +96,7 @@ public class ImportAnalysis {
 	}
 	
 	public List<Change> getDataSourceChanges() {
-		return getChanges(DataSource.class);
+		return getChanges(IDataSource.class);
 	}
 	
 	public List<Change> getEntityChanges() {
@@ -155,7 +155,7 @@ public class ImportAnalysis {
 					  .collect(Collectors.toList());
 	}
 	
-	public static enum ChangeType {
+	public enum ChangeType {
 		
 		NEW,
 		MODIFY,

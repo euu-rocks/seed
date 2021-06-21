@@ -198,6 +198,18 @@ public class TransferMetadata extends AbstractApplicationEntity implements Trans
 	}
 	
 	@Override
+	public boolean containsField(EntityField entityField) {
+		if (hasElements()) {
+			for (TransferElement element : getElements()) {
+				if (entityField.equals(element.getEntityField())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	@Override
 	public boolean isEqual(Object other) {
 		if (other == null || !Transfer.class.isAssignableFrom(other.getClass())) {
 			return false;
@@ -218,7 +230,10 @@ public class TransferMetadata extends AbstractApplicationEntity implements Trans
 			.isEquals()) {
 			return false;
 		}
-		
+		return isEqualElements(otherTransfer);
+	}
+	
+	private boolean isEqualElements(Transfer otherTransfer) {
 		if (hasElements()) {
 			for (TransferElement element : getElements()) {
 				if (!element.isEqual(otherTransfer.getElementByUid(element.getUid()))) {

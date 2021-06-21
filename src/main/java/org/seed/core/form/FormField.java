@@ -22,62 +22,25 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
-import org.seed.core.application.TransferableObject;
-import org.seed.core.config.ApplicationContextProvider;
-import org.seed.core.data.AbstractOrderedSystemObject;
+import org.seed.Seed;
 import org.seed.core.data.SystemField;
-import org.seed.core.entity.EntityField;
 
 @Entity
 @Table(name = "sys_form_field")
-public class FormField extends AbstractOrderedSystemObject
-	implements TransferableObject {
+public class FormField extends AbstractFormField {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "form_id")
 	private FormMetadata form;
 	
-	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "entity_field_id")
-	private EntityField entityField;
-	
-	private String uid;
-	
 	private SystemField systemField;
 	
-	private String label;
-	
-	private String style;
-	
-	private String labelStyle;
-	
-	private String width;
-	
-	private String height;
-	
-	private String hflex;
-	
 	private Integer thumbnailWidth;
-	
-	@Transient
-	private String entityFieldUid;
-	
-	@Override
-	@XmlAttribute
-	public String getUid() {
-		return uid;
-	}
-	
-	@Override
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
 	
 	@XmlTransient
 	public Form getForm() {
@@ -86,15 +49,6 @@ public class FormField extends AbstractOrderedSystemObject
 
 	public void setForm(Form form) {
 		this.form = (FormMetadata) form;
-	}
-	
-	@XmlTransient
-	public EntityField getEntityField() {
-		return entityField;
-	}
-
-	public void setEntityField(EntityField entityField) {
-		this.entityField = entityField;
 	}
 	
 	@XmlAttribute
@@ -107,51 +61,6 @@ public class FormField extends AbstractOrderedSystemObject
 	}
 	
 	@XmlAttribute
-	public String getLabel() {
-		return label;
-	}
-
-	public void setLabel(String label) {
-		this.label = label;
-	}
-	
-	@XmlAttribute
-	public String getStyle() {
-		return style;
-	}
-
-	public void setStyle(String style) {
-		this.style = style;
-	}
-	
-	@XmlAttribute
-	public String getLabelStyle() {
-		return labelStyle;
-	}
-
-	public void setLabelStyle(String labelStyle) {
-		this.labelStyle = labelStyle;
-	}
-	
-	@XmlAttribute
-	public String getWidth() {
-		return width;
-	}
-
-	public void setWidth(String width) {
-		this.width = width;
-	}
-	
-	@XmlAttribute
-	public String getHeight() {
-		return height;
-	}
-
-	public void setHeight(String height) {
-		this.height = height;
-	}
-
-	@XmlAttribute
 	public Integer getThumbnailWidth() {
 		return thumbnailWidth;
 	}
@@ -160,37 +69,18 @@ public class FormField extends AbstractOrderedSystemObject
 		this.thumbnailWidth = thumbnailWidth;
 	}
 	
-	@XmlAttribute
-	public String getHflex() {
-		return hflex;
-	}
-
-	public void setHflex(String hflex) {
-		this.hflex = hflex;
-	}
-
 	public boolean isSystem() {
 		return systemField != null;
 	}
 	
-	@XmlAttribute
-	public String getEntityFieldUid() {
-		return entityField != null ? entityField.getUid() : entityFieldUid;
-	}
-
-	public void setEntityFieldUid(String entityFieldUid) {
-		this.entityFieldUid = entityFieldUid;
-	}
-	
 	public String getName() {
-		if (label != null) {
-			return label;
+		if (getLabel() != null) {
+			return getLabel();
 		}
-		if (entityField != null) {
-			return entityField.getName();
+		if (getEntityField() != null) {
+			return getEntityField().getName();
 		}
-		return ApplicationContextProvider.getBean(LabelProvider.class)
-										 .getEnumLabel(systemField);
+		return Seed.getBean(LabelProvider.class).getEnumLabel(systemField);
 	}
 	
 	@Override
@@ -203,14 +93,14 @@ public class FormField extends AbstractOrderedSystemObject
 		}
 		final FormField otherField = (FormField) other;
 		return new EqualsBuilder()
-			.append(entityFieldUid, otherField.getEntityFieldUid())
+			.append(getEntityFieldUid(), otherField.getEntityFieldUid())
 			.append(systemField, otherField.systemField)
-			.append(label, otherField.label)
-			.append(style, otherField.style)
-			.append(labelStyle, otherField.labelStyle)
-			.append(width, otherField.width)
-			.append(height, otherField.height)
-			.append(hflex, otherField.hflex)
+			.append(getLabel(), otherField.getLabel())
+			.append(getStyle(), otherField.getStyle())
+			.append(getLabelStyle(), otherField.getLabelStyle())
+			.append(getWidth(), otherField.getWidth())
+			.append(getHeight(), otherField.getHeight())
+			.append(getHflex(), otherField.getHflex())
 			.append(thumbnailWidth, otherField.thumbnailWidth)
 			.isEquals();
 	}

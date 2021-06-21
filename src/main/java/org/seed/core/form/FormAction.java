@@ -28,14 +28,9 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
-import org.seed.core.application.TransferableObject;
-import org.seed.core.data.AbstractOrderedSystemObject;
-import org.seed.core.entity.EntityFunction;
-
 @Entity
 @Table(name = "sys_form_action")
-public class FormAction extends AbstractOrderedSystemObject
-	implements TransferableObject {
+public class FormAction extends AbstractFormAction {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "form_id")
@@ -45,32 +40,8 @@ public class FormAction extends AbstractOrderedSystemObject
     @JoinColumn(name = "target_form_id")
 	private FormMetadata targetForm;
 	
-	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "entity_function_id")
-	private EntityFunction entityFunction;
-	
-	private String uid;
-	
-	private FormActionType type;
-	
-	private String label;
-	
 	@Transient
 	private String targetFormUid;
-	
-	@Transient
-	private String entityFunctionUid;
-	
-	@Override
-	@XmlAttribute
-	public String getUid() {
-		return uid;
-	}
-	
-	@Override
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
 	
 	@XmlAttribute
 	public String getTargetFormUid() {
@@ -81,15 +52,6 @@ public class FormAction extends AbstractOrderedSystemObject
 		this.targetFormUid = targetFormUid;
 	}
 	
-	@XmlAttribute
-	public String getEntityFunctionUid() {
-		return entityFunction != null ? entityFunction.getUid() : entityFunctionUid;
-	}
-
-	public void setEntityFunctionUid(String entityFunctionUid) {
-		this.entityFunctionUid = entityFunctionUid;
-	}
-
 	@XmlTransient
 	public Form getForm() {
 		return form;
@@ -108,37 +70,6 @@ public class FormAction extends AbstractOrderedSystemObject
 		this.targetForm = (FormMetadata) targetForm;
 	}
 	
-	@XmlTransient
-	public EntityFunction getEntityFunction() {
-		return entityFunction;
-	}
-
-	public void setEntityFunction(EntityFunction entityFunction) {
-		this.entityFunction = entityFunction;
-	}
-
-	@XmlAttribute
-	public FormActionType getType() {
-		return type;
-	}
-
-	public void setType(FormActionType type) {
-		this.type = type;
-	}
-	
-	@XmlAttribute
-	public String getLabel() {
-		return label;
-	}
-
-	public void setLabel(String label) {
-		this.label = label;
-	}
-	
-	public boolean isCustom() {
-		return type == FormActionType.CUSTOM;
-	}
-	
 	@Override
 	public boolean isEqual(Object other) {
 		if (other == null || !FormAction.class.isAssignableFrom(other.getClass())) {
@@ -150,9 +81,9 @@ public class FormAction extends AbstractOrderedSystemObject
 		final FormAction otherAction = (FormAction) other;
 		return new EqualsBuilder()
 				.append(targetFormUid, otherAction.getTargetFormUid())
-				.append(entityFunctionUid, otherAction.getEntityFunctionUid())
-				.append(type, otherAction.type)
-				.append(label, otherAction.label)
+				.append(getEntityFunctionUid(), otherAction.getEntityFunctionUid())
+				.append(getType(), otherAction.getType())
+				.append(getLabel(), otherAction.getLabel())
 				.isEquals();
 	}
 	

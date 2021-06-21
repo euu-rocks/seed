@@ -15,31 +15,14 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.data;
+package org.seed.core.entity.transfer;
 
-import javax.persistence.Column;
-import javax.persistence.MappedSuperclass;
-import javax.xml.bind.annotation.XmlAttribute;
+public class MissingKeyException extends Exception {
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+	private static final long serialVersionUID = -2554235696489451908L;
 
-@MappedSuperclass
-public abstract class AbstractOrderedSystemObject extends AbstractSystemObject 
-	implements Order {
-	
-	@JsonIgnore
-	@Column(name = "ordernum")
-	private int order;
-	
-	@Override
-	@XmlAttribute
-	public int getOrder() {
-		return order;
-	}
-	
-	@Override
-	public void setOrder(int order) {
-		this.order = order;
+	MissingKeyException(String identifierFieldName) {
+		super("no key found for identifier field: " + identifierFieldName);
 	}
 	
 }

@@ -22,15 +22,14 @@ import java.util.List;
 
 import org.seed.core.form.FormField;
 import org.seed.core.form.FormSettings;
-
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 public class ViewSettings implements FormSettings {
 	
 	private List<ListFormSettings> listFormSettings;
 	
 	public ListFormSettings getListFormSettings(Long formId) {
-		Assert.notNull(formId, "formId is null");
+		Assert.notNull(formId, "formId");
 		
 		if (listFormSettings == null) {
 			listFormSettings = new ArrayList<>();
@@ -48,7 +47,7 @@ public class ViewSettings implements FormSettings {
 	
 	@Override
 	public boolean isFormFieldVisible(FormField formField) {
-		Assert.notNull(formField, "formField is null");
+		Assert.notNull(formField, "formField");
 		
 		final ListFormSettings listSettings = getListFormSettings(formField.getForm().getId());
 		final ColumnSetting columnSetting = listSettings.getColumnSetting(formField.getId());
@@ -60,7 +59,7 @@ public class ViewSettings implements FormSettings {
 	
 	@Override
 	public void sortFields(List<FormField> fields) {
-		Assert.notNull(fields, "fields is null");
+		Assert.notNull(fields, "fields");
 		
 		if (fields.size() > 1) {
 			final ListFormSettings listSettings = getListFormSettings(fields.get(0).getForm().getId());

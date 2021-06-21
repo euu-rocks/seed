@@ -23,13 +23,15 @@ import java.util.List;
 
 import org.seed.core.form.Form;
 import org.seed.core.form.layout.LayoutElement;
+import org.seed.core.form.layout.LayoutElementAttributes;
+import org.seed.core.form.layout.LayoutElementClass;
 
 public class DecoratingVisitor extends AbstractLayoutVisitor {
 	
 	public DecoratingVisitor(Form form) {
 		super(form);
 	}
-
+	
 	@Override
 	public void visit(LayoutElement element) {
 		if (element.isDecorated()) {
@@ -42,40 +44,15 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 			
 			case LayoutElement.NORTH:
 			case LayoutElement.SOUTH:
-				element.setContext(newContextId());
-				if (element.isEmpty()) {
-					element.setClass("alpha-layout-grid");
-					if (!element.hasAttribute("size")) {
-						element.setAttribute("size", "20%");
-					}
-				}
-				addToRoot(createBorderLayoutMenuPopup(element));
-				break;
-				
 			case LayoutElement.EAST:
 			case LayoutElement.WEST:
-				element.setContext(newContextId());
-				if (element.isEmpty()) {
-					element.setClass("alpha-layout-grid");
-					final boolean existCenter = element.getParent().existChild(LayoutElement.CENTER);
-					if (!element.hasAttribute("size")) {
-						element.setAttribute("size", existCenter ? "20%" : "50%");
-					}
-				}
-				addToRoot(createBorderLayoutMenuPopup(element));
-				break;
-				
 			case LayoutElement.CENTER:
-				element.setContext(newContextId());
-				if (element.isEmpty()) {
-					element.setClass("alpha-layout-grid");
-				}
-				addToRoot(createBorderLayoutMenuPopup(element));
+				visitBorderLayoutElement(element);
 				break;
-				
+			
 			case LayoutElement.CELL:
 				element.setContext(newContextId())
-					   .setClass("alpha-layout-grid");
+					   .setClass(LayoutElementClass.LAYOUT_GRID);
 				if (element.isEmpty()) {
 					element.setAlign("center")
 						   .setText('(' + String.valueOf(element.getColumnIndex() + 1) + 
@@ -90,64 +67,69 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 				break;
 			
 			case LayoutElement.IMAGE:
-				element.setAttribute("content", "@init(null) @converter('org.seed.ui.zk.ImageConverter')");
-				element.removeAttribute("onClick");
-				element.removeAttribute("visible");
+				element.setAttribute(LayoutElementAttributes.A_CONTENT, "@init(null) @converter('org.seed.ui.zk.ImageConverter')");
+				element.removeAttribute(LayoutElementAttributes.A_ONCLICK);
+				element.removeAttribute(LayoutElementAttributes.A_VISIBLE);
 				if (element.getId() != null) {
 					element.setContext(newContextId())
-						   .setAttribute("tooltiptext", getEntityField(element).getName());
+						   .setAttribute(LayoutElementAttributes.A_TOOLTIPTEXT, getEntityField(element).getName());
 					addToRoot(createFieldMenuPopup(element));
 				}
 				break;
 				
 			case LayoutElement.CHECKBOX:
-				element.removeAttribute("checked");
-				element.removeAttribute("onCheck");
-				element.removeAttribute("disabled");
-				element.removeAttribute("visible");
+				element.removeAttribute(LayoutElementAttributes.A_CHECKED);
+				element.removeAttribute(LayoutElementAttributes.A_ONCHECK);
+				element.removeAttribute(LayoutElementAttributes.A_DISABLED);
+				element.removeAttribute(LayoutElementAttributes.A_VISIBLE);
 				if (element.getId() != null) {
 					element.setContext(newContextId());
-					element.setAttribute("tooltiptext", getEntityField(element).getName());
+					element.setAttribute(LayoutElementAttributes.A_TOOLTIPTEXT, getEntityField(element).getName());
 					addToRoot(createFieldMenuPopup(element));
 				}
 				break;
 			
 			case LayoutElement.COMBOBOX:
-				element.removeAttribute("model");
-				element.removeAttribute("selectedItem");
-				element.removeAttribute("onSelect");
+				element.removeAttribute(LayoutElementAttributes.A_MODEL);
+				element.removeAttribute(LayoutElementAttributes.A_SELECTEDITEM);
+				element.removeAttribute(LayoutElementAttributes.A_ONSELECT);
 				element.removeChildren(LayoutElement.TEMPLATE);
-				// no break on purpose
+				/* falls through */
 			
 			case LayoutElement.BANDBOX:
-				element.removeAttribute("buttonVisible");
+				element.removeAttribute(LayoutElementAttributes.A_BUTTONVISIBLE);
 				element.removeChildren(LayoutElement.BANDPOPUP);
-				// no break on purpose
+				/* falls through */
 			
 			case LayoutElement.FILEBOX:	
-				element.removeAttribute("content");
-				element.removeAttribute("contentType");
-				element.removeAttribute("fileName");
+				element.removeAttribute(LayoutElementAttributes.A_CONTENT);
+				element.removeAttribute(LayoutElementAttributes.A_CONTENTTYPE);
+				element.removeAttribute(LayoutElementAttributes.A_FILENAME);
 				if (element.is(LayoutElement.FILEBOX)) {
-					element.setAttribute("disabled", "true");
+					element.setAttribute(LayoutElementAttributes.A_DISABLED, "true");
 				}
-				// no break on purpose
+				/* falls through */
 				
 			case LayoutElement.TEXTBOX:
+				/* falls through */
 			case LayoutElement.DATEBOX:
+				/* falls through */
 			case LayoutElement.DECIMALBOX:
+				/* falls through */
 			case LayoutElement.DOUBLEBOX:
+				/* falls through */
 			case LayoutElement.INTBOX:
+				/* falls through */
 			case LayoutElement.LONGBOX:
-				element.removeAttribute("instant");
-				element.removeAttribute("readonly");
-				element.removeAttribute("mandatory");
-				element.removeAttribute("visible");
-				element.removeAttribute("value");
-				element.removeAttribute("onChange");
+				element.removeAttribute(LayoutElementAttributes.A_INSTANT);
+				element.removeAttribute(LayoutElementAttributes.A_READONLY);
+				element.removeAttribute(LayoutElementAttributes.A_MANDATORY);
+				element.removeAttribute(LayoutElementAttributes.A_VISIBLE);
+				element.removeAttribute(LayoutElementAttributes.A_VALUE);
+				element.removeAttribute(LayoutElementAttributes.A_ONCHANGE);
 				if (element.getId() != null) {
 					element.setContext(newContextId())
-						   .setAttribute("tooltiptext", getEntityField(element).getName());
+						   .setAttribute(LayoutElementAttributes.A_TOOLTIPTEXT, getEntityField(element).getName());
 					addToRoot(createFieldMenuPopup(element));
 				}
 				break;
@@ -156,14 +138,14 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 				if (element.getId() == null) {
 					break;	// no subform
 				}
-				element.removeAttribute("visible");
+				element.removeAttribute(LayoutElementAttributes.A_VISIBLE);
 				final LayoutElement elemListBox = element.getChild(LayoutElement.CENTER).getChild(LayoutElement.LISTBOX);
 				elemListBox.setContext(newContextId());
-				elemListBox.removeAttribute("model");
-				elemListBox.removeAttribute("selectedItem");
-				elemListBox.removeAttribute("autopaging");
-				elemListBox.removeAttribute("mold");
-				elemListBox.removeChildren("template");
+				elemListBox.removeAttribute(LayoutElementAttributes.A_MODEL);
+				elemListBox.removeAttribute(LayoutElementAttributes.A_SELECTEDITEM);
+				elemListBox.removeAttribute(LayoutElementAttributes.A_AUTOPAGING);
+				elemListBox.removeAttribute(LayoutElementAttributes.A_MOLD);
+				elemListBox.removeChildren(LayoutElementAttributes.A_TEMPLATE);
 				element.removeChildren(LayoutElement.NORTH);
 				addToRoot(createSubFormMenuPopup(elemListBox));
 				break;
@@ -175,14 +157,11 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 				break;
 				
 			case LayoutElement.TABPANEL:
-				element.setContext(newContextId());
-				if (element.isEmpty()) {
-					if (element.getParent().getParent().parentIs(LayoutElement.CELL)) {
-						element.setAttribute("style", "padding: 5px;text-align:center")
-							   .setText(getLabel("label.empty"));
-					}
-					addToRoot(createTabPanelPopupMenu(element));
-				}
+				visitTabpanel(element);
+				break;
+				
+			default:
+				// do nothing
 				break;
 		}
 		
@@ -190,6 +169,46 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 			element.setDecorated(true);
 		}
 		
+	}
+	
+	private void visitBorderLayoutElement(LayoutElement element) {
+		switch (element.getName()) {
+			case LayoutElement.NORTH:
+			case LayoutElement.SOUTH:
+				if (element.isEmpty() && !element.hasAttribute(LayoutElementAttributes.A_SIZE)) {
+					element.setAttribute(LayoutElementAttributes.A_SIZE, "20%");
+				}
+				break;
+				
+			case LayoutElement.CENTER:
+				// do nothing
+				break;
+			
+			case LayoutElement.EAST:
+			case LayoutElement.WEST:
+				final boolean existCenter = element.getParent().existChild(LayoutElement.CENTER);
+				if (element.isEmpty() && !element.hasAttribute(LayoutElementAttributes.A_SIZE)) {
+					element.setAttribute(LayoutElementAttributes.A_SIZE, existCenter ? "20%" : "50%");
+				}
+				break;
+			
+			default:
+				throw new UnsupportedOperationException(element.getName());
+		}
+		if (element.isEmpty()) {
+			element.setClass(LayoutElementClass.LAYOUT_GRID);
+		}
+		element.setContext(newContextId());
+		addToRoot(createBorderLayoutMenuPopup(element));
+	}
+	
+	private void visitTabpanel(LayoutElement element) {
+		element.setContext(newContextId());
+		if (element.isEmpty() && element.getParent().getParent().parentIs(LayoutElement.CELL)) {
+			element.setAttribute(LayoutElementAttributes.A_STYLE, "padding: 5px;text-align:center")
+				   .setText(getLabel("label.empty"));
+		}
+		addToRoot(createTabPanelPopupMenu(element));
 	}
 	
 	private LayoutElement createCellMenuPopup(LayoutElement element) {
@@ -202,7 +221,7 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 			}
 			menus.add(createMenuItem("admin.layout.addtext", "z-icon-paragraph",
 	   				 				 "'addText',contextid='" + element.getContext() + '\''));
-			menus.add(createMenuItem("admin.layout.addtab", "z-icon-folder",
+			menus.add(createMenuItem(LABEL_ADDTAB, ICON_FOLDER,
 	 				 				 "'addTabbox',contextid='" + element.getContext() + '\''));
 			menus.add(createMenuItem("admin.layout.addgrid", "z-icon-table",
 		 				 			 "'addGrid',contextid='" + element.getContext() + '\''));
@@ -220,11 +239,11 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 	private static LayoutElement createBorderLayoutMenuPopup(LayoutElement element) {
 		final List<LayoutElement> menus = new ArrayList<>();
 		if (element.isEmpty()) {
-			menus.add(createMenuItem("admin.layout.addsubform", "z-icon-list-alt",
+			menus.add(createMenuItem("admin.layout.addsubform", ICON_LIST,
  	   		  						 "'addSubForm',contextid='" + element.getContext() + '\''));
-			menus.add(createMenuItem("admin.layout.addlayout", "z-icon-newspaper-o",
+			menus.add(createMenuItem("admin.layout.addlayout", ICON_NEWSPAPER,
 		 	   	   	   	   			 "'addLayout',contextid='" + element.getContext() + '\''));
-			menus.add(createMenuItem("admin.layout.addtab", "z-icon-folder",
+			menus.add(createMenuItem(LABEL_ADDTAB, ICON_FOLDER,
 	 				 				 "'addTabbox',contextid='" + element.getContext() + '\''));
 		}
 		menus.add(createLayoutAreaMenu(element.getContext(), element.isEmpty()));
@@ -235,10 +254,10 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 	private static LayoutElement createLayoutAreaMenu(String contextId, boolean isAreaEmpty) {
 		final List<LayoutElement> menus = new ArrayList<>();
 		
-		menus.add(createMenuItem("admin.layout.editarea", "z-icon-wrench",
+		menus.add(createMenuItem("admin.layout.editarea", ICON_WRENCH,
 								 "'editBorderLayoutArea',contextid='" + contextId + '\''));
 		if (isAreaEmpty) {
-			menus.add(createMenuItem("admin.layout.removearea", "z-icon-remove",
+			menus.add(createMenuItem("admin.layout.removearea", ICON_REMOVE,
 	 	   	   	   	   				 "'removeBorderLayoutArea',contextid='" + contextId + '\''));
 		}
 		return createMenu("label.layoutarea", "z-icon-columns",
@@ -248,14 +267,14 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 	private static LayoutElement createBorderLayoutMenu(String contextId, boolean isRootLayout) {
 		final List<LayoutElement> menus = new ArrayList<>();
 		
-		menus.add(createMenuItem("admin.layout.editlayout", "z-icon-wrench",
+		menus.add(createMenuItem("admin.layout.editlayout", ICON_WRENCH,
 		 	   	   				 "'editBorderLayout',contextid='" + contextId + '\''));
 		if (!isRootLayout) {
-			menus.add(createMenuItem("admin.layout.removelayout", "z-icon-remove",
+			menus.add(createMenuItem("admin.layout.removelayout", ICON_REMOVE,
    	   				 				 "'removeBorderLayout',contextid='" + contextId + '\''));
 		}
 		
-		return createMenu("label.layout", "z-icon-newspaper-o",
+		return createMenu("label.layout", ICON_NEWSPAPER,
 				  		  menus.toArray(new LayoutElement[menus.size()]));
 	}
 	
@@ -263,9 +282,9 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 		final List<LayoutElement> menus = new ArrayList<>();
 		
 		menus.add(createMenu("label.text", "z-icon-paragraph",
-				createMenuItem("admin.layout.edittext", "z-icon-wrench",
+				createMenuItem("admin.layout.edittext", ICON_WRENCH,
 		 				 	   "'editText',contextid='" + element.getContext() + '\''),
-				createMenuItem("admin.layout.removetext", "z-icon-remove",
+				createMenuItem("admin.layout.removetext", ICON_REMOVE,
 		  				 	   "'removeText',contextid='" + element.getContext() + '\'')));
 		menus.add(createCellMenu(element.getParent().getContext()));
 		menus.add(createGridMenu(element.getParent().getContext(), isRootGrid(element.getParent())));
@@ -276,9 +295,9 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 		final List<LayoutElement> menus = new ArrayList<>();
 		
 		menus.add(createMenu("label.field", "z-icon-edit",
-				createMenuItem("admin.layout.editfield", "z-icon-wrench",
+				createMenuItem("admin.layout.editfield", ICON_WRENCH,
 		 				 	   "'editField',contextid='" + element.getContext() + '\''),
-				createMenuItem("admin.layout.removefield", "z-icon-remove",
+				createMenuItem("admin.layout.removefield", ICON_REMOVE,
 		  				 	   "'removeField',contextid='" + element.getContext() + '\'')));
 		menus.add(createCellMenu(element.getParent().getContext()));
 		menus.add(createGridMenu(element.getParent().getContext(), isRootGrid(element.getParent())));
@@ -288,10 +307,10 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 	private static LayoutElement createSubFormMenuPopup(LayoutElement element) {
 		final List<LayoutElement> menus = new ArrayList<>();
 		
-		menus.add(createMenu("label.subform", "z-icon-list-alt",
-				createMenuItem("admin.layout.editsubform", "z-icon-wrench",
+		menus.add(createMenu("label.subform", ICON_LIST,
+				createMenuItem("admin.layout.editsubform", ICON_WRENCH,
 	 				 	   "'editSubForm',contextid='" + element.getContext() + '\''),
-				createMenuItem("admin.layout.removesubform", "z-icon-remove",
+				createMenuItem("admin.layout.removesubform", ICON_REMOVE,
 	  				 	   "'removeSubForm',contextid='" + element.getContext() + '\'')));
 		return createPopupMenu(element.getContext(), menus);
 	}
@@ -299,9 +318,9 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 	private static LayoutElement createTabPanelPopupMenu(LayoutElement element) {
 		final List<LayoutElement> menus = new ArrayList<>();
 		
-		menus.add(createMenuItem("admin.layout.addlayout", "z-icon-newspaper-o",
+		menus.add(createMenuItem("admin.layout.addlayout", ICON_NEWSPAPER,
 		 	   	   	   	   		 "'addLayout',contextid='" + element.getContext() + '\''));
-		menus.add(createMenuItem("admin.layout.addsubform", "z-icon-list-alt",
+		menus.add(createMenuItem("admin.layout.addsubform", ICON_LIST,
 	   	   	   		  			 "'addSubForm',contextid='" + element.getContext() + '\''));
 		menus.add(createTabMenu(element.getTab()));
 		if (element.getTabboxContainer().isLayoutArea()) {
@@ -311,18 +330,18 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 	}
 	
 	private static LayoutElement createTabMenu(LayoutElement element) {
-		return createMenu("label.tab", "z-icon-folder",	
-				createMenuItem("admin.layout.addtab", "z-icon-plus",
+		return createMenu("label.tab", ICON_FOLDER,	
+				createMenuItem(LABEL_ADDTAB, "z-icon-plus",
 			   	   	   	   	   "'addTab',contextid='" + element.getContext() + '\''),
-				createMenuItem("admin.layout.edittab", "z-icon-wrench",
+				createMenuItem("admin.layout.edittab", ICON_WRENCH,
 				   	   	   	   "'editTab',contextid='" + element.getContext() + '\''),
-				createMenuItem("admin.layout.removetab", "z-icon-remove",
+				createMenuItem("admin.layout.removetab", ICON_REMOVE,
 		   	   	   	   	   	   "'removeTab',contextid='" + element.getContext() + '\''));
 	}
 	
 	private static LayoutElement createCellMenu(String contextId) {
 		return createMenu("label.cell", "z-icon-square-o",	
-				createMenuItem("admin.layout.editcell", "z-icon-wrench",
+				createMenuItem("admin.layout.editcell", ICON_WRENCH,
 				   	   	   	   "'editCell',contextid='" + contextId + '\''));
 	}
 	
@@ -334,19 +353,19 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 							   "'newColumnLeft',contextid='" + contextId + '\''),	
 				createMenuItem("admin.layout.newcolumnright", "z-icon-arrow-right",
 							   "'newColumnRight',contextid='" + contextId + '\''),
-				createMenuItem("admin.layout.removecolumn", "z-icon-remove",
+				createMenuItem("admin.layout.removecolumn", ICON_REMOVE,
 							   "'removeColumn',contextid='" + contextId + '\'')));
 		menus.add(createMenu("label.row", "z-icon-arrows-h",
 				createMenuItem("admin.layout.newrowabove", "z-icon-arrow-up",
 						   	   "'newRowAbove',contextid='" + contextId + '\''),	
 				createMenuItem("admin.layout.newrowbelow", "z-icon-arrow-down",
 						   	   "'newRowBelow',contextid='" + contextId + '\''),
-				createMenuItem("admin.layout.removerow", "z-icon-remove",
+				createMenuItem("admin.layout.removerow", ICON_REMOVE,
 						   	   "'removeRow',contextid='" + contextId + '\'')));
-		menus.add(createMenuItem("admin.layout.editgrid", "z-icon-wrench",
+		menus.add(createMenuItem("admin.layout.editgrid", ICON_WRENCH,
 				   	   	   	   "'editGrid',contextid='" + contextId + '\''));
 		if (!rootGrid) {
-			menus.add(createMenuItem("admin.layout.removegrid", "z-icon-remove",
+			menus.add(createMenuItem("admin.layout.removegrid", ICON_REMOVE,
 	  				 				 "'removeGrid',contextid='" + contextId + '\''));
 		}
 		return createMenu("label.grid", "z-icon-table", 
@@ -364,5 +383,13 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 	private boolean fieldsAvailable() {
 		return !getLayoutService().getAvailableEntityFields(form, getRootElement()).isEmpty();
 	}
+	
+	private static final String LABEL_ADDTAB   = "admin.layout.addtab";
+	
+	private static final String ICON_FOLDER    = "z-icon-folder";
+	private static final String ICON_LIST      = "z-icon-list-alt";
+	private static final String ICON_NEWSPAPER = "z-icon-newspaper-o";
+	private static final String ICON_REMOVE    = "z-icon-remove";
+	private static final String ICON_WRENCH    = "z-icon-wrench";
 	
 }

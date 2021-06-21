@@ -17,7 +17,8 @@
  */
 package org.seed.core.codegen;
 
-import org.springframework.util.Assert;
+import org.seed.C;
+import org.seed.core.util.Assert;
 
 final class ClassMetadata {
 	
@@ -52,8 +53,8 @@ final class ClassMetadata {
 	private ClassMetadata(String packageName, String className, boolean isAbstract,
 						  TypeClass superClass, TypeClass[] interfaceClasses, 
 						  AnnotationMetadata ...annotations) {
-		Assert.notNull(packageName, "packageName is null");
-		Assert.notNull(className, "className is null");
+		Assert.notNull(packageName, C.PACKAGENAME);
+		Assert.notNull(className, C.CLASSNAME);
 		
 		this.packageName = packageName;
 		this.className = className;

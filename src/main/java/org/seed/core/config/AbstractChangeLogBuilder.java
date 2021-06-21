@@ -23,70 +23,61 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.hibernate.dialect.Dialect;
-import org.hibernate.dialect.PostgreSQL81Dialect;
-
+import org.seed.InternalException;
+import org.seed.core.data.SystemEntity;
+import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 import org.seed.core.util.UID;
 
+import liquibase.change.Change;
 import liquibase.changelog.ChangeLogChild;
 import liquibase.changelog.ChangeSet;
 import liquibase.changelog.DatabaseChangeLog;
 import liquibase.serializer.core.yaml.YamlChangeLogSerializer;
-import liquibase.util.StringUtils;
 
-public abstract class AbstractChangeLogBuilder {
+public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
+	implements ChangeLogBuilder<T> {
 	
-	private final DatabaseChangeLog databaseChangeLog = new DatabaseChangeLog();
+	private ChangeSet changeSet;
 	
-	private final List<ChangeSet> changeSets = new ArrayList<>();
+	protected T currentVersionObject;
 	
-	private final String changeSetBaseId = UID.createUID();
+	protected T nextVersionObject;
 	
-	private Dialect dialect;
+	@Override
+	public ChangeLogBuilder<T> setCurrentVersionObject(T currentVersionObject) {
+		this.currentVersionObject = currentVersionObject;
+		return this;
+	}
 	
-	private Limits limits;
+	@Override
+	public ChangeLogBuilder<T> setNextVersionObject(T nextVersionObject) {
+		this.nextVersionObject = nextVersionObject;
+		return this;
+	}
 	
-	private int changeSetCounter;
-	
-	protected List<ChangeLog> build() {
-		final List<ChangeLog> result = new ArrayList<>(changeSets.size());
-		for (ChangeSet changeSet : changeSets) {
+	@Override
+	public ChangeLog build() {
+		if (changeSet != null) {
 			final ChangeLog changeLog = new ChangeLog();
 			changeLog.setChangeSet(toJson(changeSet));
-			result.add(changeLog);
+			return changeLog;
 		}
-		return result;
+		return null;
 	}
 	
-	protected boolean isPostgres() {
-		return getDialect() instanceof PostgreSQL81Dialect;
-	}
-	
-	protected ChangeSet createChangeSet() {
-		final ChangeSet changeSet = new ChangeSet(changeSetBaseId + String.valueOf(++changeSetCounter), 
-												  MiscUtils.geUserName(), false, false, "", null, null, 
-												  true, null, databaseChangeLog);
-		changeSets.add(changeSet);
-		return changeSet;
-	}
-	
-	protected int getLimit(String limitName) {
-		if (limits == null) {
-			limits = ApplicationContextProvider.getBean(Limits.class);
+	protected void addChange(Change change) {
+		Assert.notNull(change, "change");
+		
+		if (changeSet == null) {
+			changeSet = new ChangeSet(UID.createUID(), MiscUtils.geUserName(), 
+									  false, false, "", null, null, 
+									  true, null, new DatabaseChangeLog());
 		}
-		return limits.getLimit(limitName);
-	}
-	
-	protected Dialect getDialect() {
-		if (dialect == null) {
-			dialect = ApplicationContextProvider.getBean(SessionFactoryProvider.class).getDialect();
-		}
-		return dialect;
+		changeSet.addChange(change);
 	}
 	
 	private static String toJson(ChangeSet changeSet) {
@@ -96,11 +87,15 @@ public abstract class AbstractChangeLogBuilder {
 			return baos.toString(StandardCharsets.UTF_8);
 		} 
 		catch (IOException ioex) {
-			throw new RuntimeException(ioex);
+			throw new InternalException(ioex);
 		}
 	}
 	
 	private static class JsonChangeLogSerializer extends YamlChangeLogSerializer {
+		
+		private static final String[] FILE_EXTENSIONS = new String[] { "json" }; 
+		
+		private static final String PADDING = "  ";
 		
 		@Override
 	    public <T extends ChangeLogChild> void write(List<T> children, OutputStream out) throws IOException {
@@ -111,7 +106,7 @@ public abstract class AbstractChangeLogBuilder {
 	            if (++i < children.size()) {
 	                serialized = serialized.replaceFirst("}\\s*$", "},\n");
 	            }
-	            writer.write(StringUtils.indent(serialized, 2));
+	            writer.write(PADDING + serialized.replaceAll("\n", '\n' + PADDING));
 	            writer.write('\n');
 	        }
 	        writer.flush();
@@ -119,9 +114,7 @@ public abstract class AbstractChangeLogBuilder {
 
 	    @Override
 	    public String[] getValidFileExtensions() {
-	        return new String[] {
-	        	"json"
-	        };
+	        return FILE_EXTENSIONS;
 	    }
 	    
 	}

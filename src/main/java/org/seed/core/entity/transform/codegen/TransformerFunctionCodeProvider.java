@@ -20,6 +20,7 @@ package org.seed.core.entity.transform.codegen;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.codegen.SourceCodeBuilder;
 import org.seed.core.codegen.SourceCodeBuilder.BuildMode;
@@ -27,32 +28,32 @@ import org.seed.core.codegen.SourceCodeProvider;
 import org.seed.core.entity.transform.Transformer;
 import org.seed.core.entity.transform.TransformerFunction;
 import org.seed.core.entity.transform.TransformerRepository;
+import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 @Component
-public class TransformerFunctionCodeProvider implements SourceCodeProvider<TransformerFunction> {
+public class TransformerFunctionCodeProvider implements SourceCodeProvider {
 	
 	@Autowired
 	private TransformerRepository transformerRepository;
 	
 	public String getFunctionTemplate(TransformerFunction function) {
-		Assert.notNull(function, "function is null");
+		Assert.notNull(function, C.FUNCTION);
 		
 		return new TransformerFunctionCodeBuilder(function).build(BuildMode.TEMPLATE).getContent();
 	}
 	
-	public SourceCode<TransformerFunction> getFunctionSource(TransformerFunction function) {
-		Assert.notNull(function, "function is null");
+	public SourceCode getFunctionSource(TransformerFunction function) {
+		Assert.notNull(function, C.FUNCTION);
 		
 		return new TransformerFunctionCodeBuilder(function).build();
 	}
 	
 	@Override
-	public List<SourceCodeBuilder<TransformerFunction>> getSourceCodeBuilders() {
-		final List<SourceCodeBuilder<TransformerFunction>> result = new ArrayList<>();
+	public List<SourceCodeBuilder> getSourceCodeBuilders() {
+		final List<SourceCodeBuilder> result = new ArrayList<>();
 		for (Transformer transformer : transformerRepository.find()) {
 			if (transformer.hasFunctions()) {
 				for (TransformerFunction function : transformer.getFunctions()) {

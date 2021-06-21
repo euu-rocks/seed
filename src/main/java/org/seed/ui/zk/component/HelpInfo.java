@@ -17,7 +17,8 @@
  */
 package org.seed.ui.zk.component;
 
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
+
 import org.springframework.util.ObjectUtils;
 import org.zkoss.util.resource.Labels;
 import org.zkoss.zul.A;
@@ -47,7 +48,7 @@ public class HelpInfo extends Div {
 	
 	// use | as line separator in zk-label.properties
 	public void setKey(String key) {
-		Assert.notNull(key, "key is null");
+		Assert.notNull(key, "key");
 		Assert.state(ObjectUtils.isEmpty(popup.getChildren()), "content has already been set");
 		
 		final String content = Labels.getLabel(key);

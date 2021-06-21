@@ -20,13 +20,14 @@ package org.seed.ui.zk.vm.admin;
 import java.util.List;
 
 import org.seed.core.data.SystemObject;
-import org.seed.core.data.datasource.DataSource;
+import org.seed.core.data.datasource.IDataSource;
 import org.seed.core.data.datasource.DataSourceService;
 import org.seed.core.report.Report;
 import org.seed.core.report.ReportDataSource;
 import org.seed.core.report.ReportPermission;
 import org.seed.core.report.ReportService;
 import org.seed.core.user.Authorisation;
+import org.seed.core.util.MiscUtils;
 import org.seed.ui.zk.vm.SelectReportFormatParameter;
 
 import org.zkoss.bind.annotation.BindingParam;
@@ -44,8 +45,8 @@ import org.zkoss.zul.Window;
 
 public class AdminReportViewModel extends AbstractAdminViewModel<Report> {
 	
-	private final static String DATASOURCES = "dataSources";
-	private final static String PERMISSIONS = "permissions";
+	private static final String DATASOURCES = "dataSources";
+	private static final String PERMISSIONS = "permissions";
 	
 	@Wire("#newReportWin")
 	private Window window;
@@ -64,7 +65,7 @@ public class AdminReportViewModel extends AbstractAdminViewModel<Report> {
 			  "/admin/report/newreport.zul");
 	}
 	
-	public List<DataSource> getDataSources() {
+	public List<IDataSource> getDataSources() {
 		return dataSourceService.findAllObjects();
 	}
 	
@@ -96,6 +97,7 @@ public class AdminReportViewModel extends AbstractAdminViewModel<Report> {
 	}
 	
 	@Command
+	@Override
 	public void flagDirty(@BindingParam("notify") String notify, 
 						  @BindingParam("notifyObject") String notifyObject) {
 		super.flagDirty(notify, notifyObject);
@@ -154,24 +156,24 @@ public class AdminReportViewModel extends AbstractAdminViewModel<Report> {
 	}
 	
 	@Override
-	protected List<? extends SystemObject> getListManagerSource(String key, int listNum) {
-		switch (key) {
-			case PERMISSIONS:
-				return listNum == LIST_AVAILABLE 
-						? reportService.getAvailablePermissions(getObject()) 
-						: getObject().getPermissions();
-			default:
-				throw new IllegalStateException("unknown list manager key: " + key);
+	protected List<SystemObject> getListManagerSource(String key, int listNum) {
+		if (PERMISSIONS.equals(key)) {
+			return MiscUtils.cast(listNum == LIST_AVAILABLE 
+					? reportService.getAvailablePermissions(getObject()) 
+					: getObject().getPermissions());
+		}
+		else {
+			throw new IllegalStateException("unknown list manager key: " + key);
 		}
 	}
 	
 	@Override
-	protected List<? extends SystemObject> getListSorterSource(String key) {
-		switch (key) {
-			case DATASOURCES:
-				return getObject().getDataSources();
-			default:
-				throw new IllegalStateException("unknown list sorter key: " + key);
+	protected List<SystemObject> getListSorterSource(String key) {
+		if (DATASOURCES.equals(key)) {
+			return MiscUtils.cast(getObject().getDataSources());
+		}
+		else {
+			throw new IllegalStateException("unknown list sorter key: " + key);
 		}
 	}
 	

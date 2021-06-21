@@ -19,8 +19,7 @@ package org.seed.ui.zk.vm.admin;
 
 import org.seed.core.form.Form;
 import org.seed.core.form.layout.LayoutElement;
-
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 class LayoutDialogParameter {
 	
@@ -38,9 +37,9 @@ class LayoutDialogParameter {
 						  Form form, LayoutElement layoutRoot, 
 						  String command, String contextId) {
 		
-		Assert.notNull(parentViewModel, "parentViewModel is null");
-		Assert.notNull(form, "form is null");
-		Assert.notNull(command, "command is null");
+		Assert.notNull(parentViewModel, "parentViewModel");
+		Assert.notNull(form, "form");
+		Assert.notNull(command, "command");
 		
 		this.parentViewModel = parentViewModel;
 		this.form = form;

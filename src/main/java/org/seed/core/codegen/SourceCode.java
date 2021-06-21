@@ -17,7 +17,7 @@
  */
 package org.seed.core.codegen;
 
-public interface SourceCode<T> {
+public interface SourceCode {
 	
 	String getQualifiedName();
 	

@@ -33,10 +33,10 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-
+import org.seed.C;
 import org.seed.core.data.AbstractSystemEntity;
+import org.seed.core.util.Assert;
 
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 @Entity
@@ -137,7 +137,7 @@ public class UserMetadata extends AbstractSystemEntity implements User {
 	
 	@Override
 	public boolean belongsTo(UserGroup userGroup) {
-		Assert.notNull(userGroup, "userGroup is null");
+		Assert.notNull(userGroup, C.USERGROUP);
 		
 		return hasUserGroups() && getUserGroups().contains(userGroup);
 	}
@@ -164,7 +164,7 @@ public class UserMetadata extends AbstractSystemEntity implements User {
 	
 	@Override
 	public boolean isAuthorised(Authorisation authorisation) {
-		Assert.notNull(authorisation, "authorisation is null");
+		Assert.notNull(authorisation, "authorisation");
 		
 		if (isEnabled && hasUserGroups()) {
 			for (UserGroup userGroup : getUserGroups()) {

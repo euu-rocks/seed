@@ -18,8 +18,7 @@
 package org.seed.ui.zk.vm;
 
 import org.seed.core.report.Report;
-
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 public class SelectReportFormatParameter {
 	
@@ -28,8 +27,8 @@ public class SelectReportFormatParameter {
 	final Report report;
 
 	public SelectReportFormatParameter(AbstractApplicationViewModel parentVM, Report report) {
-		Assert.notNull(parentVM, "parentViewModel is null");
-		Assert.notNull(report, "report is null");
+		Assert.notNull(parentVM, "parentViewModel");
+		Assert.notNull(report, "report");
 		
 		this.parentVM = parentVM;
 		this.report = report;

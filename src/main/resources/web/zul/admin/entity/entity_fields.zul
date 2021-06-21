@@ -82,7 +82,7 @@
             <label value="${labels.label.columnname}:"/>   		 
             <textbox hflex="1"
             		 value="@bind(vm.field.columnName)"
-            		 placeholder="@load(vm.field.internalName)"
+            		 placeholder="@load(vm.field.internalName.toLowerCase())"
             		 onChange="@command('flagDirty')"/>
             <vlayout visible="@load(!empty vm.object.allFieldGroups)">
 	            <label value="${labels.label.fieldgroup}:"/>

@@ -25,11 +25,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.springframework.util.Assert;
+import org.seed.C;
+import org.seed.core.util.Assert;
+
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-public abstract class AbstractSourceCodeBuilder<T> implements SourceCodeBuilder<T> {
+public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 	
 	protected static final String LF = System.lineSeparator();
 	
@@ -48,18 +50,18 @@ public abstract class AbstractSourceCodeBuilder<T> implements SourceCodeBuilder<
 	protected AbstractSourceCodeBuilder(GeneratedObject generatedObject, boolean isAbstract,
 										TypeClass superClass, TypeClass[] interfaceClasses, 
 										AnnotationMetadata ...annotations) {
-		Assert.notNull(generatedObject, "generatedObject is null");
+		Assert.notNull(generatedObject, "generatedObject");
 
 		classMetadata = new ClassMetadata(generatedObject, isAbstract, superClass, 
 										  interfaceClasses, annotations);
 	}
 	
 	@Override
-	public final SourceCode<T> build() {
+	public final SourceCode build() {
 		return build(BuildMode.COMPLETE);
 	}
 	
-	protected SourceCode<T> build(boolean isGenerated) {
+	protected SourceCode build(boolean isGenerated) {
 		final StringBuilder buildBuffer = new StringBuilder();
 		
 		// package
@@ -83,7 +85,7 @@ public abstract class AbstractSourceCodeBuilder<T> implements SourceCodeBuilder<
 			addImport(classMetadata.superClass);
 		}
 		final List<TypeClass> importList = new ArrayList<>(imports);
-		importList.sort(TypeClass.COMPARATOR);
+		TypeClass.sort(importList);
 		importList.forEach(i -> buildImport(buildBuffer, i));
 		buildBuffer.append(LF);
 		
@@ -96,13 +98,13 @@ public abstract class AbstractSourceCodeBuilder<T> implements SourceCodeBuilder<
 	}
 	
 	protected void addImport(Class<?> importClass) {
-		Assert.notNull(importClass, "importClass is null");
+		Assert.notNull(importClass, "importClass");
 		
 		addImport(new TypeClass(importClass));
 	}
 	
 	protected void addImport(TypeClass typeClass) {
-		Assert.notNull(typeClass, "typeClass is null");
+		Assert.notNull(typeClass, C.TYPECLASS);
 		
 		if (typeClass.genericClass != null) {
 			addImport(typeClass.genericClass);
@@ -119,7 +121,7 @@ public abstract class AbstractSourceCodeBuilder<T> implements SourceCodeBuilder<
 	}
 	
 	protected void addImport(AnnotationMetadata annotation) {
-		Assert.notNull(annotation, "annotation is null");
+		Assert.notNull(annotation, C.ANNOTATION);
 		
 		addImport(annotation.annotationClass);
 		if (annotation.hasParameters()) {
@@ -130,8 +132,8 @@ public abstract class AbstractSourceCodeBuilder<T> implements SourceCodeBuilder<
 	}
 
 	protected void addMember(String name, TypeClass typeClass, AnnotationMetadata ...annotations) {
-		Assert.notNull(typeClass, "typeClass is null");
-		Assert.notNull(name, "name is null");
+		Assert.notNull(typeClass, C.TYPECLASS);
+		Assert.notNull(name, C.NAME);
 		Assert.state(!memberMap.containsKey(name), "duplicate member definition for: " + name);
 		
 		addImport(typeClass);
@@ -140,7 +142,7 @@ public abstract class AbstractSourceCodeBuilder<T> implements SourceCodeBuilder<
 				addImport(annotation);
 			}
 		}
-		final MemberMetadata member = new MemberMetadata(typeClass, name);
+		final MemberMetadata member = new MemberMetadata(name, typeClass);
 		memberMap.put(name, member);
 		buildMember(codeBuffer, member, annotations);
 	}
@@ -166,8 +168,8 @@ public abstract class AbstractSourceCodeBuilder<T> implements SourceCodeBuilder<
 	protected void addMethod(TypeClass returnType, String methodName, 
 							 ParameterMetadata[] parameters, 
 							 String content, AnnotationMetadata ...annotations) {
-		Assert.notNull(methodName, "methodName is null");
-		Assert.notNull(content, "content is null");
+		Assert.notNull(methodName, "methodName");
+		Assert.notNull(content, C.CONTENT);
 		
 		// annotations
 		if (annotations != null) {
@@ -217,7 +219,7 @@ public abstract class AbstractSourceCodeBuilder<T> implements SourceCodeBuilder<
  	}
 	
 	protected void addAnnotation(AnnotationMetadata annotation) {
-		Assert.notNull(annotation, "annotation is null");
+		Assert.notNull(annotation, C.ANNOTATION);
 		
 		addImport(annotation);
 		codeBuffer.append('\t');
@@ -226,17 +228,17 @@ public abstract class AbstractSourceCodeBuilder<T> implements SourceCodeBuilder<
 	}
 	
 	protected void addCode(String code) {
-		Assert.notNull(code, "code is null");
+		Assert.notNull(code, "code");
 		
 		codeBuffer.append(code).append(LF);
 	}
 	
-	protected SourceCode<T> createSourceCode(String content) {
-		return new SourceCodeImpl<>(classMetadata, content);
+	protected SourceCode createSourceCode(String content) {
+		return new SourceCodeImpl(classMetadata, content);
 	}
 	
 	private MemberMetadata getMember(String memberName) {
-		Assert.notNull(memberName, "memberName is null");
+		Assert.notNull(memberName, "memberName");
 		Assert.state(memberMap.containsKey(memberName), "member not exist: " + memberName);
 		
 		return memberMap.get(memberName);
@@ -267,22 +269,26 @@ public abstract class AbstractSourceCodeBuilder<T> implements SourceCodeBuilder<
 		// interfaces
 		if (isGenerated || classMetadata.interfaceClasses != null) {
 			buf.append(" implements ");
-			boolean first = true;
-			if (isGenerated) {
-				buf.append(GeneratedCode.class.getSimpleName());
-				first = false;
-			}
-			if (classMetadata.interfaceClasses != null) {
-				for (TypeClass interfaceClass : classMetadata.interfaceClasses) {
-					if (!first) {
-						buf.append(", ");
-					}
-					buildTypeClass(buf, interfaceClass);
-					first = false;
-				}
-			}
+			buildClassInterfaces(buf, isGenerated);
 		}
 		buf.append(" {").append(LFLF);
+	}
+	
+	private void buildClassInterfaces(StringBuilder buf, boolean isGenerated) {
+		boolean first = true;
+		if (isGenerated) {
+			buf.append(GeneratedCode.class.getSimpleName());
+			first = false;
+		}
+		if (classMetadata.interfaceClasses != null) {
+			for (TypeClass interfaceClass : classMetadata.interfaceClasses) {
+				if (!first) {
+					buf.append(", ");
+				}
+				buildTypeClass(buf, interfaceClass);
+				first = false;
+			}
+		}
 	}
 	
 	private static void buildPackage(StringBuilder buf, String packageName) {

@@ -26,8 +26,6 @@ import org.seed.core.codegen.GeneratedObject;
 
 public interface Task extends ApplicationEntity, GeneratedObject, ApprovableObject<TaskPermission> {
 	
-	final static String PACKAGE_NAME = "org.seed.generated.task";
-	
 	String getInternalName();
 	
 	Date getStartTime();

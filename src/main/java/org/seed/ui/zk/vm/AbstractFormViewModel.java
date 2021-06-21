@@ -20,9 +20,9 @@ package org.seed.ui.zk.vm;
 import java.util.Collections;
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.api.ApplicationException;
 import org.seed.core.data.Cursor;
-import org.seed.core.data.SystemObject;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityFunction;
@@ -31,6 +31,7 @@ import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.filter.Filter;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.entity.value.ValueObjectService;
+import org.seed.core.form.AbstractFormAction;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormAction;
 import org.seed.core.form.FormActionType;
@@ -40,10 +41,11 @@ import org.seed.core.form.FormTransformer;
 import org.seed.core.form.SubForm;
 import org.seed.core.form.SubFormAction;
 import org.seed.core.form.printout.PrintoutService;
+import org.seed.core.util.Assert;
+
 import org.seed.ui.FormParameter;
 import org.seed.ui.zk.LoadOnDemandListModel;
 
-import org.springframework.util.Assert;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
 import org.zkoss.zul.Bandbox;
@@ -52,7 +54,11 @@ import org.zkoss.zul.Filedownload;
 import org.zkoss.zul.ListModel;
 import org.zkoss.zul.Listbox;
 
-public abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
+abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
+	
+	protected static final String FIELD_UID           = "fieldUid";
+	protected static final String REFERENCE_FIELD_UID = "referenceFieldUid";
+	protected static final String SEARCH_PARAMETER    = "searchParameter";
 	
 	@WireVariable(value="entityServiceImpl")
 	private EntityService entityService;
@@ -160,25 +166,7 @@ public abstract class AbstractFormViewModel extends AbstractApplicationViewModel
 				: null;
 	}
 	
-	public String getActionLabel(FormAction action) {
-		String label = null;
-		if (action != null) {
-			if (action.getLabel() != null) {
-				label = action.getLabel();
-			}
-			else if (action.isCustom()) {
-				if (action.getEntityFunction() != null) {
-					label = action.getEntityFunction().getName();
-				}
-			}
-			else {
-				label = getActionLabel(action.getType());
-			}
-		}
-		return label;
-	}
-	
-	public String getActionLabel(SubFormAction action) {
+	public String getActionLabel(AbstractFormAction action) {
 		String label = null;
 		if (action != null) {
 			if (action.getLabel() != null) {
@@ -207,7 +195,7 @@ public abstract class AbstractFormViewModel extends AbstractApplicationViewModel
 	protected abstract String getLayoutPath();
 	
 	protected void init(FormParameter formParameter) {
-		Assert.notNull(formParameter, "formParameter is null");
+		Assert.notNull(formParameter, "formParameter");
 		
 		this.formParameter = formParameter;
 		form = formParameter.form;
@@ -235,7 +223,7 @@ public abstract class AbstractFormViewModel extends AbstractApplicationViewModel
 	}
 	
 	protected void notifyObjectChange(String property) {
-		Assert.notNull(property, "property is null");
+		Assert.notNull(property, C.PROPERTY);
 		
 		notifyObjectChange(object, property);
 	}
@@ -281,21 +269,21 @@ public abstract class AbstractFormViewModel extends AbstractApplicationViewModel
 		return valueObjectService.getAllObjects(referenceField.getReferenceEntity());
 	}
 	
-	protected ListModel<SystemObject> createReferenceListModel(EntityField referenceField, Filter filter) {
-		final Cursor cursor = valueObjectService.createCursor(referenceField.getReferenceEntity(), filter);
-		return new LoadOnDemandListModel(cursor, true) {
+	protected ListModel<ValueObject> createReferenceListModel(EntityField referenceField, Filter filter) {
+		final Cursor<ValueObject> cursor = valueObjectService.createCursor(referenceField.getReferenceEntity(), filter);
+		return new LoadOnDemandListModel<ValueObject>(cursor, true) {
 			private static final long serialVersionUID = 6084064046031574238L;
 
 			@Override
-			protected List<ValueObject> loadChunk(Cursor cursor) {
+			protected List<ValueObject> loadChunk(Cursor<ValueObject> cursor) {
 				return valueObjectService.loadChunk(cursor);
 			}
 		};
 	}
 	
 	protected void callSubFormAction(Component component, SubForm subForm, SubFormAction action) {
-		Assert.notNull(subForm, "subForm is null");
-		Assert.notNull(action, "action is null");
+		Assert.notNull(subForm, C.SUBFORM);
+		Assert.notNull(action, C.ACTION);
 		
 		switch (action.getType()) {
 			case NEWOBJECT:
@@ -320,7 +308,7 @@ public abstract class AbstractFormViewModel extends AbstractApplicationViewModel
 	}
 	
 	protected SubForm getSubFormByEntityId(Long entityId) {
-		Assert.notNull(entityId, "entityId is null");
+		Assert.notNull(entityId, "entityId");
 		
 		final SubForm subForm = form.getSubFormByEntityId(entityId);
 		Assert.state(subForm != null, "subform not found for entity " + entityId);
@@ -359,6 +347,10 @@ public abstract class AbstractFormViewModel extends AbstractApplicationViewModel
 		catch (ApplicationException applicationException) {
 			showErrorMessage(applicationException.getMessage());
 		}
+	}
+	
+	protected static void checkReferenceField(EntityField referenceField, String referenceFieldUid) {
+		Assert.state(referenceField != null, "referenceField not available " + referenceFieldUid);
 	}
 	
 }

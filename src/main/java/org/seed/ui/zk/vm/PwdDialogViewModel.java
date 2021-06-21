@@ -19,9 +19,9 @@ package org.seed.ui.zk.vm;
 
 import org.seed.core.data.ValidationException;
 import org.seed.core.user.User;
+import org.seed.core.util.Assert;
 import org.seed.ui.zk.vm.admin.AbstractAdminViewModel;
 
-import org.springframework.util.Assert;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.ContextParam;
@@ -64,7 +64,7 @@ public class PwdDialogViewModel extends AbstractApplicationViewModel {
 	@Init
     public void init(@ContextParam(ContextType.VIEW) Component view,
     				 @ExecutionArgParam("param") PwdDialogParameter param) {
-		Assert.notNull(param, "param is null");
+		Assert.notNull(param, "param");
 		wireComponents(view);
 		
 		parentViewModel = param.parentViewModel;

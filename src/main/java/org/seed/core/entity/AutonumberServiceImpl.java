@@ -23,14 +23,15 @@ import java.util.Date;
 import javax.annotation.Nullable;
 
 import org.hibernate.Session;
-
+import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.data.AbstractSystemEntityService;
 import org.seed.core.data.SystemEntityValidator;
 import org.seed.core.data.ValidationException;
+import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 @Service
@@ -42,8 +43,8 @@ public class AutonumberServiceImpl extends AbstractSystemEntityService<Autonumbe
 	
 	@Override
 	public String getNextValue(EntityField entityField, @Nullable Session session) {
-		Assert.notNull(entityField, "entityField is null");
-		Assert.state(entityField.getType().isAutonum(), "field is not autonumber");
+		Assert.notNull(entityField, C.ENTITYFIELD);
+		Assert.state(entityField.getType().isAutonum(), "no auto number");
 		
 		final String pattern = entityField.getAutonumPattern() != null 
 								? resolvePattern(entityField.getAutonumPattern())
@@ -55,24 +56,20 @@ public class AutonumberServiceImpl extends AbstractSystemEntityService<Autonumbe
 			}
 			else {
 				autonum.setPattern(pattern);
-				autonum.setValue(entityField.getAutonumStart() != null
-									? entityField.getAutonumStart() 
-									: 1L);
+				autonum.setValue(getStartValue(entityField));
 			}
 		}
 		else {
 			autonum = new Autonumber();
 			autonum.setField(entityField);
 			autonum.setPattern(pattern);
-			autonum.setValue(entityField.getAutonumStart() != null
-								? entityField.getAutonumStart() 
-								: 1L);
+			autonum.setValue(getStartValue(entityField));
 		}
 		try {
 			super.saveObject(autonum, session);
 		} 
 		catch (ValidationException e) {
-			throw new RuntimeException(e);
+			throw new InternalException(e);
 		}
 		return pattern != null 
 				? pattern + autonum.getValue()
@@ -81,9 +78,9 @@ public class AutonumberServiceImpl extends AbstractSystemEntityService<Autonumbe
 	
 	@Override
 	public void deleteAutonumber(EntityField entityField, Session session) {
-		Assert.notNull(entityField, "entityField is null");
-		Assert.notNull(session, "session is null");
-		Assert.state(entityField.getType().isAutonum(), "field is not autonumber");
+		Assert.notNull(entityField, C.ENTITYFIELD);
+		Assert.notNull(session, C.SESSION);
+		Assert.state(entityField.getType().isAutonum(), "field is not an autonumber");
 		
 		final Autonumber autonum = getAutonumber(entityField, session);
 		if (autonum != null) {
@@ -103,22 +100,48 @@ public class AutonumberServiceImpl extends AbstractSystemEntityService<Autonumbe
 	
 	private Autonumber getAutonumber(EntityField entityField, @Nullable Session session) {
 		return session != null 
-				? repository.findUnique(session, queryParam("field", entityField)) 
-				: repository.findUnique(queryParam("field", entityField));
+				? repository.findUnique(session, queryParam(C.FIELD, entityField)) 
+				: repository.findUnique(queryParam(C.FIELD, entityField));
+	}
+	
+	private static Long getStartValue(EntityField entityField) {
+		return entityField.getAutonumStart() != null
+				? entityField.getAutonumStart() 
+				: 1L;
 	}
 	
 	private static String resolvePattern(String pattern) {
-		final int idxStart = pattern.indexOf('{');
-		if (idxStart < 0) {
-			return pattern;
+		final Date now = new Date();
+		final StringBuilder buf = new StringBuilder();
+		int idx = 0;
+		
+		while (idx < pattern.length()) {
+			// find next '{'
+			final int idxStart = pattern.indexOf('{', idx);
+			if (idxStart >= 0) {
+				final int idxEnd = pattern.indexOf('}', idxStart);
+				if (idxEnd >= 0) {
+					if (idx < idxStart) {
+						// all chars before '{'
+						buf.append(pattern.substring(idx, idxStart));
+					}
+					// formated date value
+					buf.append(new SimpleDateFormat(pattern.substring(idxStart + 1, idxEnd)).format(now));
+					idx = idxEnd + 1;
+				}
+				else { // '}' not found
+					break;
+				}
+			}
+			else { // no (further) '{' found
+				break;
+			}
 		}
-		final int idxEnd = pattern.indexOf('}', idxStart);
-		if (idxEnd < 0) {
-			return pattern;
+		if (idx > 0) {
+			// all chars after last '}'
+			buf.append(pattern.substring(idx));
 		}
-		return pattern.substring(0, idxStart) + 
-				new SimpleDateFormat(pattern.substring(idxStart + 1, idxEnd)).format(new Date()) + 
-			    pattern.substring(idxEnd + 1);
+		return buf.length() > 0 ? buf.toString() : pattern;
  	}
 	
 }

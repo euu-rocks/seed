@@ -23,7 +23,8 @@ import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-
+import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -49,16 +50,16 @@ import org.seed.core.entity.transform.TransformerDependent;
 import org.seed.core.entity.transform.TransformerService;
 import org.seed.core.form.layout.LayoutService;
 import org.seed.core.user.User;
+import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 @Service
 public class FormServiceImpl extends AbstractApplicationEntityService<Form> 
-	implements FormService, EntityChangeAware, EntityDependent,  
-			   FormDependent, FilterDependent, TransformerDependent {
+	implements FormService, EntityChangeAware, EntityDependent<Form>,  
+			   FormDependent<Form>, FilterDependent<Form>, TransformerDependent<Form> {
 	
 	@Autowired
 	private EntityService entityService;
@@ -93,17 +94,20 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	
 	@Override
 	public void initObject(Form form) throws ValidationException {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		super.initObject(form);
 		final FormMetadata formMeta = (FormMetadata) form;
 		formMeta.createLists();
-		// module
+		
 		final FormOptions formOptions = form.getOptions();
-		formMeta.setModule(formOptions.getModule());
-		// auto layout
-		if (formOptions != null && formOptions.isAutoLayout()) {
-			formMeta.setLayoutContent(layoutService.buildAutoLayout(form));
+		if (formOptions != null) {
+			// module
+			formMeta.setModule(formOptions.getModule());
+			// auto layout
+			if (formOptions.isAutoLayout()) {
+				formMeta.setLayoutContent(layoutService.buildAutoLayout(form));
+			}
 		}
 		// list form
 		if (form.getEntity().hasAllFields()) {
@@ -121,7 +125,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	void initSubForm(SubForm subForm) {
-		Assert.notNull(subForm, "subForm is null");
+		Assert.notNull(subForm, C.SUBFORM);
 		
 		// actions
 		for (FormActionType actionType : FormActionType.values()) {
@@ -136,7 +140,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public SubForm addSubForm(Form form, NestedEntity nested) throws ValidationException {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		formValidator.validateAddSubForm(nested);
 		final SubForm subForm = new SubForm();
@@ -152,7 +156,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public FormPrintout createPrintout(Form form) {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		final FormPrintout printout = new FormPrintout();
 		form.addPrintout(printout);
@@ -162,7 +166,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public FormAction createCustomAction(Form form) {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		final FormAction action = createAction(form, FormActionType.CUSTOM);
 		form.addAction(action);
@@ -171,9 +175,9 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	
 	@Override
 	public List<Form> findForms(Entity entity) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
-		return formRepository.find(queryParam("entity", entity));
+		return formRepository.find(queryParam(C.ENTITY, entity));
 	}
 	
 	@Override
@@ -183,44 +187,23 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	
 	@Override
 	public List<Form> findUsage(EntityField entityField) {
-		Assert.notNull(entityField, "entityField is null");
+		Assert.notNull(entityField, C.ENTITYFIELD);
 		
 		final List<Form> result = new ArrayList<>();
 		for (Form form : findAllObjects()) {
-			boolean found = false;
-			// same entity
-			if (form.getEntity().equals(entityField.getEntity())) {
-			    // check fields
-				if (form.hasFields()) {
-					for (FormField formField : form.getFields()) {
-						if (formField.getEntityField().equals(entityField)) {
-							found = true;
-							break;
-						}
-					}
-			    }
-				// check layout
-			    if (!found && form.getLayout() != null && !result.contains(form) &&
-					layoutService.containsField(form.getLayout(), entityField)) {
-					found = true;
-				}
-			}
-			// subforms
-			if (!found && form.hasSubForms()) {
-				for (SubForm subForm : form.getSubForms()) {
-					if (!found && subForm.getNestedEntity().getNestedEntity().equals(entityField.getEntity()) &&
-						subForm.hasFields()) {
-						for (SubFormField subFormField : subForm.getFields()) {
-							if (subFormField.getEntityField().equals(entityField)) {
-								found = true;
-								break;
-							}
-						}
-					}
-				}
-			}
-			if (found) {
+			// check fields
+			if (form.containsEntityField(entityField) || 
+				(form.getLayout() != null && layoutService.containsField(form.getLayout(), entityField))) {
 				result.add(form);
+			}
+			// check subforms
+			else if (form.hasSubForms()) {
+				for (SubForm subForm : form.getSubForms()) {
+					if (subForm.containsEntityField(entityField)) {
+						result.add(form);
+						break; // skip other subforms
+					}
+				}
 			}
 		}
 		return result;
@@ -238,7 +221,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	
 	@Override
 	public List<Form> findUsage(NestedEntity nestedEntity) {
-		Assert.notNull(nestedEntity, "nestedEntity is null");
+		Assert.notNull(nestedEntity, C.NESTEDENTITY);
 		final List<Form> result = new ArrayList<>();
 		
 		for (Form form : findAllObjects()) {
@@ -246,7 +229,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 				for (SubForm subForm : form.getSubForms()) {
 					if (nestedEntity.equals(subForm.getNestedEntity())) {
 						result.add(form);
-						break;
+						break; // skip other subforms
 					}
 				}
 			}
@@ -256,33 +239,20 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	
 	@Override
 	public List<Form> findUsage(EntityFunction entityFunction) {
-		Assert.notNull(entityFunction, "entityFunction is null");
+		Assert.notNull(entityFunction, "entityFunction");
 		final List<Form> result = new ArrayList<>();
 		
 		for (Form form : findAllObjects()) {
-			boolean found = false;
-			if (form.hasActions()) {
-				for (FormAction action : form.getActions()) {
-					if (entityFunction.equals(action.getEntityFunction())) {
-						found = true;
-						break;
-					}
-				}
-			}
-			if (!found && form.hasSubForms()) {
-				for (SubForm subForm : form.getSubForms()) {
-					if (!found && subForm.hasActions()) {
-						for (SubFormAction action : subForm.getActions()) {
-							if (entityFunction.equals(action.getEntityFunction())) {
-								found = true;
-								break;
-							}
-						}
-					}
-				}
-			}
-			if (found) {
+			if (form.containsEntityFunction(entityFunction)) {
 				result.add(form);
+			}
+			else if (form.hasSubForms()) {
+				for (SubForm subForm : form.getSubForms()) {
+					if (subForm.containsEntityFunction(entityFunction)) {
+						result.add(form);
+						break; // skip other subforms
+					}
+				}
 			}
 		}
 		return result;
@@ -290,50 +260,22 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
  	
 	@Override
 	public List<Form> findUsage(Form form) {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		final List<Form> result = new ArrayList<>();
 		
 		for (Form otherForm : findAllObjects()) {
-			if (!form.equals(otherForm)) {
-				boolean found = false;
-				if (otherForm.hasFieldExtras()) {
-					for (FormFieldExtra fieldExtra : otherForm.getFieldExtras()) {
-						if (form.equals(fieldExtra.getDetailForm())) {
-							found = true;
-							break;
-						}
+			if (form.equals(otherForm)) {
+				continue; // ignore same form
+			}
+			if (form.containsForm(otherForm)) {
+				result.add(otherForm);
+			}
+			else if (otherForm.hasSubForms()) {
+				for (SubForm subForm : otherForm.getSubForms()) {
+					if (subForm.containsForm(form)) {
+						result.add(otherForm);
+						break; // skip other subforms
 					}
-				}
-				if (!found && otherForm.hasActions()) {
-					for (FormAction action : otherForm.getActions()) {
-						if (form.equals(action.getTargetForm())) {
-							found = true;
-							break;
-						}
-					}
-				}
-				if (!found && otherForm.hasTransformers()) {
-					for (FormTransformer transformer : otherForm.getTransformers()) {
-						if (form.equals(transformer.getTargetForm())) {
-							found = true;
-							break;
-						}
-					}
-				}
-				if (!found && otherForm.hasSubForms()) {
-					for (SubForm subForm : otherForm.getSubForms()) {
-						if (!found && subForm.hasFields()) {
-							for (SubFormField subFormField : subForm.getFields()) {
-								if (form.equals(subFormField.getDetailForm())) {
-									found = true;
-									break;
-								}
-							}
-						}
-					}
-				}
-				if (found) {
-					result.add(form);
 				}
 			}
 		}
@@ -342,41 +284,20 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	
 	@Override
 	public List<Form> findUsage(Transformer transformer) {
-		Assert.notNull(transformer, "transformer is null");
+		Assert.notNull(transformer, C.TRANSFORMER);
 		final List<Form> result = new ArrayList<>();
 		
 		for (Form form : findAllObjects()) {
-			boolean found = false;
-			if (form.hasTransformers()) {
-				for (FormTransformer formTransformer : form.getTransformers()) {
-					if (formTransformer.getTransformer().equals(transformer)) {
-						found = true;
-						break;
-					}
-				}
-			}
-			if (!found && form.getFieldExtras() != null) {
-				for (FormFieldExtra fieldExtra : form.getFieldExtras()) {
-					if (transformer.equals(fieldExtra.getTransformer())) {
-						found = true;
-						break;
-					}
-				}
-			}
-			if (!found && form.hasSubForms()) {
-				for (SubForm subForm : form.getSubForms()) {
-					if (!found && subForm.hasFields()) {
-						for (SubFormField subFormField : subForm.getFields()) {
-							if (transformer.equals(subFormField.getTransformer())) {
-								found = true;
-								break;
-							}
-						}
-					}
-				}
-			}
-			if (found) {
+			if (form.containsTransformer(transformer)) {
 				result.add(form);
+			}
+			else if (form.hasSubForms()) {
+				for (SubForm subForm : form.getSubForms()) {
+					if (subForm.containsTransformer(transformer)) {
+						result.add(form);
+						break; // skip other subforms
+					}
+				}
 			}
 		}
 		return result;
@@ -384,33 +305,20 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	
 	@Override
 	public List<Form> findUsage(Filter filter) {
-		Assert.notNull(filter, "filter is null");
+		Assert.notNull(filter, C.FILTER);
 		final List<Form> result = new ArrayList<>();
 		
 		for (Form form : findAllObjects()) {
-			boolean found = false;
-			if (form.getFieldExtras() != null) {
-				for (FormFieldExtra fieldExtra : form.getFieldExtras()) {
-					if (filter.equals(fieldExtra.getFilter())) {
-						found = true;
-						break;
-					}
-				}
-			}
-			if (!found && form.hasSubForms()) {
-				for (SubForm subForm : form.getSubForms()) {
-					if (!found && subForm.hasFields()) {
-						for (SubFormField subFormField : subForm.getFields()) {
-							if (filter.equals(subFormField.getFilter())) {
-								found = true;
-								break;
-							}
-						}
-					}
-				}
-			}
-			if (found) {
+			if (form.containsFilter(filter)) {
 				result.add(form);
+			}
+			else if (form.hasSubForms()) {
+				for (SubForm subForm : form.getSubForms()) {
+					if (subForm.containsFilter(filter)) {
+						result.add(form);
+						break; // skip other subforms
+					}
+				}
 			}
 		}
 		return result;
@@ -418,8 +326,8 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	
 	@Override
 	public List<FormTransformer> getFormTransformers(Form form, User user, EntityStatus status) {
-		Assert.notNull(form, "form is null");
-		Assert.notNull(user, "user is null");
+		Assert.notNull(form, C.FORM);
+		Assert.notNull(user, C.USER);
 		
 		final List<FormTransformer> result = new ArrayList<>();
 		if (form.hasTransformers()) {
@@ -435,42 +343,23 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	
 	@Override
 	public List<FormField> getAvailableFields(Form form) {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		final Entity entity = form.getEntity();
 		final List<FormField> result = new ArrayList<>();
 		// entity fields
 		if (entity.hasAllFields()) {
 			for (EntityField entityField : entity.getAllFields()) {
-				boolean found = false;
-				if (form.hasFields()) {
-					for (FormField formField : form.getFields()) {
-						if (entityField.equals(formField.getEntityField())) {
-							found = true;
-							break;
-						}
-					}
-				}
-				if (!found) {
+				if (!form.containsEntityField(entityField)) {
 					result.add(createFormField(form, entityField));
 				}
 			}
 		}
 		// system fields
 		for (SystemField systemField : SystemField.values()) {
-			if (systemField != SystemField.ENTITYSTATUS || entity.hasStatus()) {
-				boolean found = false;
-				if (form.hasFields()) {
-					for (FormField formField : form.getFields()) {
-						if (formField.getSystemField() == systemField) {
-							found = true;
-							break;
-						}
-					}
-				}
-				if (!found) {
-					result.add(createSystemFormField(form, systemField));
-				}
+			if ((systemField != SystemField.ENTITYSTATUS || entity.hasStatus()) && 
+				!form.containsSystemField(systemField)) {
+				result.add(createSystemFormField(form, systemField));
 			}
 		}
 		return result;
@@ -478,7 +367,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	
 	@Override
 	public List<FormTransformer> getAvailableTransformers(Form form) {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		final List<FormTransformer> result = new ArrayList<>();
 		for (Transformer transformer : transformerService.findTransformers(form.getEntity())) {
@@ -503,7 +392,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	
 	@Override
 	public List<FormAction> getAvailableActions(Form form) {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		final List<FormAction> result = new ArrayList<>();
 		for (FormActionType actionType : FormActionType.values()) {
@@ -526,9 +415,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	@Override
-	public void analyzeObjects(ImportAnalysis analysis, Module currentVersionModule) {
-		Assert.notNull(analysis, "analysis is null");
-		
+	protected void analyzeNextVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
 		if (analysis.getModule().getForms() != null) {
 			for (Form form : analysis.getModule().getForms()) {
 				if (currentVersionModule == null) {
@@ -546,7 +433,11 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 				}
 			}
 		}
-		if (currentVersionModule != null && currentVersionModule.getForms() != null) {
+	}
+	
+	@Override
+	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
+		if (currentVersionModule.getForms() != null) {
 			for (Form currentVersionForm : currentVersionModule.getForms()) {
 				if (analysis.getModule().getFormByUid(currentVersionForm.getUid()) == null) {
 					analysis.addChangeDelete(currentVersionForm);
@@ -557,15 +448,14 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public Class<? extends ApplicationEntityService<? extends ApplicationEntity>>[] getImportDependencies() {
-		return (Class<? extends ApplicationEntityService<? extends ApplicationEntity>>[]) 
-				new Class[] { FilterService.class, TransformerService.class };
+	public Class<? extends ApplicationEntityService<ApplicationEntity>>[] getImportDependencies() {
+		return new Class[] { FilterService.class, TransformerService.class };
 	}
 	
 	@Override
 	public void importObjects(TransferContext context, Session session) {
-		Assert.notNull(context, "context is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(context, C.CONTEXT);
+		Assert.notNull(session, C.SESSION);
 		try {
 			if (context.getModule().getForms() != null) {
 				for (Form form : context.getModule().getForms()) {
@@ -577,85 +467,29 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 						((FormMetadata) currentVersionForm).copySystemFieldsTo(form);
 						session.detach(currentVersionForm);
 					}
-					if (form.hasFields()) {
-						initFields(form, currentVersionForm);
-					}
-					if (form.hasFieldExtras()) {
-						initFieldExtras(session, form, currentVersionForm);
-					}
-					if (form.hasActions()) {
-						initActions(session, form, currentVersionForm);
-					}
-					if (form.hasTransformers()) {
-						initTransformers(session, form, currentVersionForm);
-					}
-					if (form.hasPrintouts()) {
-						initPrintouts(form, currentVersionForm);
-					}
-					if (form.hasSubForms()) {
-						initSubForms(session, form, currentVersionForm);
-					}
-					if (form.getLayout() != null) {
-						final FormLayout currentVersionLayout =
-							currentVersionForm != null ? currentVersionForm.getLayout() : null;
-						if (currentVersionLayout != null) {
-							currentVersionLayout.copySystemFieldsTo(form.getLayout());
-							session.detach(currentVersionLayout);
-						}
-						session.saveOrUpdate(form.getLayout());
-					}
+					initForm(form, currentVersionForm, session);
 					session.saveOrUpdate(form);
 				}
 				
 				// set references to other forms
 				for (Form form : context.getModule().getForms()) {
-					if (form.hasFieldExtras()) {
-						for (FormFieldExtra fieldExtra : form.getFieldExtras()) {
-							if (fieldExtra.getDetailFormUid() != null) {
-								fieldExtra.setDetailForm(findByUid(session, fieldExtra.getDetailFormUid()));
-							}
-						}
-					}
-					if (form.hasActions()) {
-						for (FormAction action : form.getActions()) {
-							if (action.getTargetFormUid() != null) {
-								action.setTargetForm(findByUid(session, action.getTargetFormUid()));
-							}
-						}
-					}
-					if (form.hasTransformers()) {
-						for (FormTransformer transformer : form.getTransformers()) {
-							if (transformer.getTargetFormUid() != null) {
-								transformer.setTargetForm(findByUid(session, transformer.getTargetFormUid()));
-							}
-						}
-					}
-					if (form.hasSubForms()) {
-						for (SubForm subForm : form.getSubForms()) {
-							if (subForm.hasFields()) {
-								for (SubFormField subFormField : subForm.getFields()) {
-									if (subFormField.getDetailFormUid() != null) {
-										subFormField.setDetailForm(findByUid(session, subFormField.getDetailFormUid()));
-									}
-								}
-							}
-						}
-					}
+					initFormReferences(form, session);
+					initSubFormReferences(form, session);
 					// validate and save
 					saveObject(form, session);
 				}
 			}
 		}
 		catch (ValidationException vex) {
-			throw new RuntimeException(vex);
+			throw new InternalException(vex);
 		}
 	}
 	
 	@Override
 	public void deleteObjects(Module module, Module currentVersionModule, Session session) {
-		Assert.notNull(module, "module is null");
-		Assert.notNull(currentVersionModule, "currentVersionModule is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(module, C.MODULE);
+		Assert.notNull(currentVersionModule, "currentVersionModule");
+		Assert.notNull(session, C.SESSION);
 		
 		if (currentVersionModule.getForms() != null) {
 			for (Form currentVersionForm : currentVersionModule.getForms()) {
@@ -669,7 +503,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public void deleteObject(Form form) throws ValidationException {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		try (Session session = formRepository.openSession()) {
 			Transaction tx = null;
@@ -686,8 +520,8 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	
 	@Override
 	public void deleteObject(Form form, Session session) throws ValidationException {
-		Assert.notNull(form, "form is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(form, C.FORM);
+		Assert.notNull(session, C.SESSION);
 		
 		for (FormChangeAware changeAware : changeAwareObjects) {
 			changeAware.notifyDelete(form, session);
@@ -703,7 +537,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public void saveObject(Form form) throws ValidationException {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		cleanupForm(form);
 		try (Session session = formRepository.openSession()) {
@@ -721,8 +555,8 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	
 	@Override
 	public void saveObject(Form form, Session session) throws ValidationException {
-		Assert.notNull(form, "form is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(form, C.FORM);
+		Assert.notNull(session, C.SESSION);
 		
 		final boolean isInsert = form.isNew();
 		super.saveObject(form, session);
@@ -743,8 +577,8 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	
 	@Override
 	public void notifyCreate(Entity entity, Session session) {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(session, C.SESSION);
 		
 		final FormOptions formOptions = entity.getOptions();
 		if (formOptions != null && formOptions.isAutoLayout()) {
@@ -757,7 +591,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 				layoutService.rebuildLayout(form);
 				saveObject(form, session);
 			} catch (ValidationException vex) {
-				throw new RuntimeException(vex);
+				throw new InternalException(vex);
 			}
 		}
 	}
@@ -769,10 +603,10 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	
 	@Override
 	public void notifyChange(Entity entity, Session session) {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(session, C.SESSION);
 		
-		for (Form form : formRepository.find(session, queryParam("entity", entity))) {
+		for (Form form : formRepository.find(session, queryParam(C.ENTITY, entity))) {
 			if (form.getLayout() != null) {
 				layoutService.rebuildLayout(form);
 				session.save(form.getLayout());
@@ -781,55 +615,118 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	private List<FormAction> getFormActions(Form form, boolean isList) {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		final List<FormAction> result = new ArrayList<>();
-		for (FormActionType actionType : FormActionType.values()) {
-			if (actionType.isDefault && 
-				actionType.comesFirst() &&
-				((isList && actionType.isVisibleAtList) ||
-				(!isList && actionType.isVisibleAtDetail))) {
-				result.add(createAction(form, actionType));
-			}
+		// default actions that comes first
+		for (FormActionType actionType : FormActionType.defaultActionTypes(isList, true)) {
+			result.add(createAction(form, actionType));
 		}
-		if (form.hasActions()) {
-			for (FormAction action : form.getActions()) {
-				if ((isList && action.getType().isVisibleAtList) ||
-				   (!isList && action.getType().isVisibleAtDetail)) {
-					result.add(action);
-				}
-			}
-		}
-		for (FormActionType actionType : FormActionType.values()) {
-			if (actionType.isDefault && 
-				!actionType.comesFirst() &&
-				((isList && actionType.isVisibleAtList) ||
-				(!isList && actionType.isVisibleAtDetail))) {
-				
-				boolean enabled = false;
-				switch (actionType) {
-					case SELECTCOLS:
-						enabled = true;
-						break;
-					case STATUS:
-						if (form.getEntity().hasStatus()) {
-							enabled = true;
-						}
-						break;
-					case TRANSFORM:
-						if (form.hasTransformers()) {
-							enabled = true;
-						}
-						break;
-					default:
-						throw new UnsupportedOperationException(actionType.name());
-				}
-				if (enabled) {
+		
+		// form actions
+		result.addAll(form.getActions(isList));
+		
+		// default actions that comes last
+		for (FormActionType actionType : FormActionType.defaultActionTypes(isList, false)) {
+			switch (actionType) {
+				case SELECTCOLS:
 					result.add(createAction(form, actionType));
-				}
- 			}
+					break;
+				case STATUS:
+					if (form.getEntity().hasStatus()) {
+						result.add(createAction(form, actionType));
+					}
+					break;
+				case TRANSFORM:
+					if (form.hasTransformers()) {
+						result.add(createAction(form, actionType));
+					}
+					break;
+				default:
+					throw new UnsupportedOperationException(actionType.name());
+			}
 		}
 		return result;
+	}
+	
+	private void initForm(Form form, Form currentVersionForm, Session session) {
+		if (form.hasFields()) {
+			initFields(form, currentVersionForm);
+		}
+		if (form.hasFieldExtras()) {
+			initFieldExtras(session, form, currentVersionForm);
+		}
+		if (form.hasActions()) {
+			initActions(form, currentVersionForm);
+		}
+		if (form.hasTransformers()) {
+			initTransformers(session, form, currentVersionForm);
+		}
+		if (form.hasPrintouts()) {
+			initPrintouts(form, currentVersionForm);
+		}
+		if (form.hasSubForms()) {
+			initSubForms(session, form, currentVersionForm);
+		}
+		if (form.getLayout() != null) {
+			final FormLayout currentVersionLayout =
+				currentVersionForm != null ? currentVersionForm.getLayout() : null;
+			if (currentVersionLayout != null) {
+				currentVersionLayout.copySystemFieldsTo(form.getLayout());
+				session.detach(currentVersionLayout);
+			}
+			session.saveOrUpdate(form.getLayout());
+		}
+	}
+	
+	private void initFormReferences(Form form, Session session) {
+		if (form.hasFieldExtras()) {
+			initReferenceFieldExtras(form, session);
+		}
+		if (form.hasActions()) {
+			initReferenceActions(form, session);
+		}
+		if (form.hasTransformers()) {
+			initReferenceTransformers(form, session);
+		}
+	}
+	
+	private void initReferenceFieldExtras(Form form, Session session) {
+		for (FormFieldExtra fieldExtra : form.getFieldExtras()) {
+			if (fieldExtra.getDetailFormUid() != null) {
+				fieldExtra.setDetailForm(findByUid(session, fieldExtra.getDetailFormUid()));
+			}
+		}
+	}
+	
+	private void initReferenceActions(Form form, Session session) {
+		for (FormAction action : form.getActions()) {
+			if (action.getTargetFormUid() != null) {
+				action.setTargetForm(findByUid(session, action.getTargetFormUid()));
+			}
+		}
+	}
+	
+	private void initReferenceTransformers(Form form, Session session) {
+		for (FormTransformer transformer : form.getTransformers()) {
+			if (transformer.getTargetFormUid() != null) {
+				transformer.setTargetForm(findByUid(session, transformer.getTargetFormUid()));
+			}
+		}
+	}
+	
+	private void initSubFormReferences(Form form, Session session) {
+		if (form.hasSubForms()) {
+			for (SubForm subForm : form.getSubForms()) {
+				if (subForm.hasFields()) {
+					for (SubFormField subFormField : subForm.getFields()) {
+						if (subFormField.getDetailFormUid() != null) {
+							subFormField.setDetailForm(findByUid(session, subFormField.getDetailFormUid()));
+						}
+					}
+				}
+			}
+		}
 	}
 	
 	private void initFields(Form form, Form currentVersionForm) {
@@ -866,7 +763,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		}
 	}
 	
-	private void initActions(Session session, Form form, Form currentVersionForm) {
+	private void initActions(Form form, Form currentVersionForm) {
 		for (FormAction action : form.getActions()) {
 			action.setForm(form);
 			if (action.getEntityFunctionUid() != null) {
@@ -923,74 +820,103 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 					currentVersionSubForm.copySystemFieldsTo(subForm);
 				}
 			}
-			if (subForm.hasActions()) {
-				for (SubFormAction subFormAction : subForm.getActions()) {
-					subFormAction.setSubForm(subForm);
-					if (subFormAction.getEntityFunctionUid() != null) {
-						subFormAction.setEntityFunction(nested.getFunctionByUid(subFormAction.getEntityFunctionUid()));
-					}
-					if (currentVersionSubForm != null) {
-						final SubFormAction currentVersionAction =
-							currentVersionSubForm.getActionByUid(subFormAction.getUid());
-						if (currentVersionAction != null) {
-							currentVersionAction.copySystemFieldsTo(subFormAction);
-						}
-					}
-				}
+			initSubFormElements(session, nested, subForm, currentVersionSubForm);
+		}
+	}
+	
+	private void initSubFormElements(Session session, NestedEntity nested, 
+									 SubForm subForm, SubForm currentVersionSubForm) {
+		if (subForm.hasActions()) {
+			for (SubFormAction subFormAction : subForm.getActions()) {
+				initSubFormAction(nested, subFormAction, subForm, currentVersionSubForm);
 			}
-			if (subForm.hasFields()) {
-				for (SubFormField subFormField : subForm.getFields()) {
-					subFormField.setSubForm(subForm);
-					subFormField.setEntityField(nested.getFieldByUid(subFormField.getEntityFieldUid()));
-					if (subFormField.getTransformerUid() != null) {
-						subFormField.setTransformer(transformerService.findByUid(session, subFormField.getTransformerUid()));
-					}
-					if (subFormField.getFilterUid() != null) {
-						subFormField.setFilter(filterService.findByUid(session, subFormField.getFilterUid()));
-					}
-					if (currentVersionSubForm != null) {
-						final SubFormField currentVersionField = 
-								currentVersionSubForm.getFieldByUid(subFormField.getUid());
-						if (currentVersionField != null) {
-							currentVersionField.copySystemFieldsTo(subFormField);
-						}
-					}
-				}
+		}
+		if (subForm.hasFields()) {
+			for (SubFormField subFormField : subForm.getFields()) {
+				initSubFormField(session, nested, subFormField, subForm, currentVersionSubForm);
+			}
+		}
+	}
+	
+	private void initSubFormAction(NestedEntity nested, SubFormAction subFormAction, 
+								   SubForm subForm, SubForm currentVersionSubForm) {
+		subFormAction.setSubForm(subForm);
+		if (subFormAction.getEntityFunctionUid() != null) {
+			subFormAction.setEntityFunction(nested.getFunctionByUid(subFormAction.getEntityFunctionUid()));
+		}
+		if (currentVersionSubForm != null) {
+			final SubFormAction currentVersionAction =
+				currentVersionSubForm.getActionByUid(subFormAction.getUid());
+			if (currentVersionAction != null) {
+				currentVersionAction.copySystemFieldsTo(subFormAction);
+			}
+		}
+	}
+	
+	private void initSubFormField(Session session, NestedEntity nested, SubFormField subFormField, 
+								  SubForm subForm, SubForm currentVersionSubForm) {
+		subFormField.setSubForm(subForm);
+		subFormField.setEntityField(nested.getFieldByUid(subFormField.getEntityFieldUid()));
+		if (subFormField.getTransformerUid() != null) {
+			subFormField.setTransformer(transformerService.findByUid(session, subFormField.getTransformerUid()));
+		}
+		if (subFormField.getFilterUid() != null) {
+			subFormField.setFilter(filterService.findByUid(session, subFormField.getFilterUid()));
+		}
+		if (currentVersionSubForm != null) {
+			final SubFormField currentVersionField = 
+					currentVersionSubForm.getFieldByUid(subFormField.getUid());
+			if (currentVersionField != null) {
+				currentVersionField.copySystemFieldsTo(subFormField);
 			}
 		}
 	}
 	
 	private void cleanupForm(Form form) {
-		Assert.notNull(form, "form is null");
-		
 		if (form.hasFields()) {
-			for (FormField field : form.getFields()) {
-				if (field.getThumbnailWidth() != null && 
-					!field.getEntityField().getType().isBinary()) {
-					field.setThumbnailWidth(null);
-				}
-			}
+			cleanupFields(form);
 		}
 		if (form.hasActions()) {
-			for (FormAction action : form.getActions()) {
-				if (action.getEntityFunction() != null &&
-					!action.isCustom()) {
-					action.setEntityFunction(null);
-				}
-			}
+			cleanupActions(form);
 		}
 		if (form.hasFieldExtras()) {
-			final List<String> fieldIds = layoutService.getFieldIdList(form.getLayout());
-			form.getFieldExtras().removeIf(e -> !fieldIds.contains(e.getEntityField().getUid()));
+			cleanupFieldExtras(form);
 		}
 		if (form.hasSubForms()) {
-			for (SubForm subForm : form.getSubForms()) {
-				if (subForm.hasActions()) {
-					for (SubFormAction action : subForm.getActions()) {
-						if (action.getEntityFunction() != null &&
-							!action.isCustom()) {
-							action.setEntityFunction(null);
-						}
+			cleanupSubForms(form);
+		}
+	}
+	
+	private void cleanupFields(Form form) {
+		for (FormField field : form.getFields()) {
+			if (field.getThumbnailWidth() != null && 
+				!field.getEntityField().getType().isBinary()) {
+				field.setThumbnailWidth(null);
+			}
+		}
+	}
+	
+	private void cleanupFieldExtras(Form form) {
+		final List<String> fieldIds = layoutService.getFieldIdList(form.getLayout());
+		form.getFieldExtras().removeIf(extra -> !fieldIds.contains(extra.getEntityField().getUid()));
+	}
+	
+	private void cleanupActions(Form form) {
+		for (FormAction action : form.getActions()) {
+			if (action.getEntityFunction() != null &&
+				!action.isCustom()) {
+				action.setEntityFunction(null);
+			}
+		}
+	}
+	
+	private void cleanupSubForms(Form form) {
+		for (SubForm subForm : form.getSubForms()) {
+			if (subForm.hasActions()) {
+				for (SubFormAction action : subForm.getActions()) {
+					if (action.getEntityFunction() != null &&
+						!action.isCustom()) {
+						action.setEntityFunction(null);
 					}
 				}
 			}
@@ -998,9 +924,6 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	private static FormAction createAction(Form form, FormActionType actionType) {
-		Assert.notNull(form, "form is null");
-		Assert.notNull(actionType, "actionType is null");
-		
 		final FormAction action = new FormAction();
 		action.setForm(form);
 		action.setType(actionType);
@@ -1008,9 +931,6 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	private static SubFormAction createAction(SubForm subForm, FormActionType actionType) {
-		Assert.notNull(subForm, "subForm is null");
-		Assert.notNull(actionType, "actionType is null");
-		
 		final SubFormAction action = new SubFormAction();
 		action.setSubForm(subForm);
 		action.setType(actionType);
@@ -1018,9 +938,6 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	private static FormField createFormField(Form form, EntityField entityField) {
-		Assert.notNull(form, "form is null");
-		Assert.notNull(entityField, "entityField is null");
-		
 		final FormField formField = new FormField();
 		formField.setForm(form);
 		formField.setEntityField(entityField);
@@ -1028,9 +945,6 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	private static FormField createSystemFormField(Form form, SystemField systemField) {
-		Assert.notNull(form, "form is null");
-		Assert.notNull(systemField, "systemField is null");
-		
 		final FormField formField = new FormField();
 		formField.setForm(form);
 		formField.setSystemField(systemField);
@@ -1038,9 +952,6 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	private static SubFormField createSubFormField(SubForm subForm, EntityField entityField) {
-		Assert.notNull(subForm, "subForm is null");
-		Assert.notNull(entityField, "entityField is null");
-		
 		final SubFormField subFormField = new SubFormField();
 		subFormField.setSubForm(subForm);
 		subFormField.setEntityField(entityField);

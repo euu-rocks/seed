@@ -17,12 +17,14 @@
  */
 package org.seed.ui;
 
+import org.seed.C;
 import org.seed.core.data.Cursor;
+import org.seed.core.entity.value.FullTextResult;
+import org.seed.core.util.Assert;
 
-import org.springframework.util.Assert;
 import org.zkoss.util.resource.Labels;
 
-public class Tab {
+public final class Tab {
 	
 	private String tabName;
 	
@@ -38,7 +40,7 @@ public class Tab {
 	
 	private String fullTextSearchTerm;
 	
-	private Cursor fullTextSearchCursor;
+	private Cursor<FullTextResult> fullTextSearchCursor;
 	
 	public Tab(String name, Object parameter) {
 		this(name, null, null, parameter);
@@ -49,7 +51,7 @@ public class Tab {
 	}
 	
 	public Tab(String name, String path, String iconClass, Object parameter) {
-		Assert.notNull(name, "name is null");
+		Assert.notNull(name, C.NAME);
 		
 		this.name = name;
 		this.tabName = name;
@@ -110,11 +112,11 @@ public class Tab {
 		this.fullTextSearchTerm = fullTextSearchTerm;
 	}
 
-	public Cursor getFullTextSearchCursor() {
+	public Cursor<FullTextResult> getFullTextSearchCursor() {
 		return fullTextSearchCursor;
 	}
 
-	public void setFullTextSearchCursor(Cursor fullTextSearchCursor) {
+	public void setFullTextSearchCursor(Cursor<FullTextResult> fullTextSearchCursor) {
 		this.fullTextSearchCursor = fullTextSearchCursor;
 	}
 

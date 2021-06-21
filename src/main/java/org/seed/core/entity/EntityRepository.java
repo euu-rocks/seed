@@ -30,6 +30,7 @@ public class EntityRepository extends AbstractSystemEntityRepository<Entity> {
 		super(EntityMetadata.class);
 	}
 	
+	@Override
 	public Session getSession() {
 		return super.getSession();
 	}

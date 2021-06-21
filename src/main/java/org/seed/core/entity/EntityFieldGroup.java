@@ -28,16 +28,14 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import org.seed.core.application.TransferableObject;
-import org.seed.core.data.AbstractOrderedSystemObject;
+import org.seed.core.application.AbstractOrderedTransferableObject;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @javax.persistence.Entity
 @Table(name = "sys_entity_field_group")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class EntityFieldGroup extends AbstractOrderedSystemObject
-	implements TransferableObject {
+public class EntityFieldGroup extends AbstractOrderedTransferableObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "entity_id")
@@ -45,8 +43,6 @@ public class EntityFieldGroup extends AbstractOrderedSystemObject
 	private EntityMetadata entity;
 	
 	private String name;
-	
-	private String uid;
 	
 	@XmlTransient
 	public Entity getEntity() {
@@ -66,17 +62,6 @@ public class EntityFieldGroup extends AbstractOrderedSystemObject
 		this.name = name;
 	}
 
-	@Override
-	@XmlAttribute
-	public String getUid() {
-		return uid;
-	}
-
-	@Override
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
-	
 	@Override
 	public boolean isEqual(Object other) {
 		if (other == null || !EntityFieldGroup.class.isAssignableFrom(other.getClass())) {

@@ -18,9 +18,11 @@
 package org.seed.ui.zk.vm.admin;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import org.seed.core.data.SystemEntityService;
+import org.seed.core.data.FieldType;
+import org.seed.core.data.SystemObject;
 import org.seed.core.data.ValidationError;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
@@ -38,16 +40,18 @@ import org.seed.core.form.SubFormAction;
 import org.seed.core.form.layout.Alignment;
 import org.seed.core.form.layout.BorderLayoutProperties;
 import org.seed.core.form.layout.LayoutElement;
-import org.seed.core.form.layout.LayoutElementProperties;
+import org.seed.core.form.layout.LayoutElementAttributes;
 import org.seed.core.form.layout.LayoutService;
 import org.seed.core.form.layout.LayoutType;
 import org.seed.core.form.layout.Orientation;
 import org.seed.core.form.layout.SubFormProperties;
 import org.seed.core.form.layout.TextfieldType;
 import org.seed.core.form.layout.BorderLayoutProperties.LayoutAreaProperties;
+import org.seed.core.form.layout.LabelProperties;
 import org.seed.core.form.layout.SubFormProperties.SubFormColumn;
+import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
-import org.springframework.util.Assert;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.ContextParam;
@@ -61,11 +65,12 @@ import org.zkoss.zk.ui.select.annotation.Wire;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
 import org.zkoss.zul.Window;
 
-@SuppressWarnings("rawtypes")
-public class LayoutDialogViewModel extends AbstractAdminViewModel {
+public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	
 	private static final String FIELDS = "fields";
 	private static final String ACTIONS = "actions";
+	private static final String ERROR_APPLY_PROPERTIES = "admin.layout.applypropertiesfail";
+	private static final String ERROR_ADD_TAB = "admin.layout.addtabfail";
 	
 	@Wire("#layoutDialogWin")
 	private Window window;
@@ -86,17 +91,17 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel {
 	
 	private LayoutElement element;
 	
-	private LayoutElementProperties properties;
+	private LayoutElementAttributes properties;
 	
-	private LayoutElementProperties tabboxProperties;
+	private LayoutElementAttributes tabboxProperties;
 	
 	private BorderLayoutProperties borderLayoutProperties;
 	
 	private LayoutAreaProperties layoutAreaProperties;
 	
-	private List<LayoutElementProperties> columnProperties;
+	private List<LayoutElementAttributes> columnProperties;
 	
-	private LayoutElementProperties selectedColumn;
+	private LayoutElementAttributes selectedColumn;
 	
 	private LayoutType layoutType;
 	
@@ -139,14 +144,14 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel {
 	@Init
     public void init(@ContextParam(ContextType.VIEW) Component view,
     				 @ExecutionArgParam("param") LayoutDialogParameter param) {
-		Assert.notNull(param, "param is null");
+		Assert.notNull(param, "param");
 		parameter = param;
 		wireComponents(view);
 		
 		switch (parameter.command) {
 			case "addlayout":
 				element = getContextElement();
-				// no break on purpose
+				/* falls through */
 			case "newlayout":
 				borderLayoutProperties = new BorderLayoutProperties();
 				break;
@@ -164,7 +169,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel {
 				
 			case "edittab":
 				element = getContextElement();
-				tabboxProperties = new LayoutElementProperties(element.getParent().getParent());
+				tabboxProperties = new LayoutElementAttributes(element.getParent().getParent());
 				break;
 				
 			case "editcell":
@@ -180,7 +185,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel {
 				
 				columnProperties = new ArrayList<>();
 				for (LayoutElement elemColumn : element.getChild(LayoutElement.COLUMNS).getChildren()) {
-					columnProperties.add(new LayoutElementProperties(elemColumn));
+					columnProperties.add(new LayoutElementAttributes(elemColumn));
 				}
 				selectedColumn = columnProperties.get(0);
 				break;
@@ -233,17 +238,20 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel {
 				subFormProperties = new SubFormProperties(subForm);
 				break;
 				
+			default:
+				throw new UnsupportedOperationException(parameter.command);
+				
 		}
 		if (element != null) {
-			properties = new LayoutElementProperties(element);
+			properties = new LayoutElementAttributes(element);
 		}
 	}
 	
-	public LayoutElementProperties getProperties() {
+	public LayoutElementAttributes getProperties() {
 		return properties;
 	}
 
-	public LayoutElementProperties getTabboxProperties() {
+	public LayoutElementAttributes getTabboxProperties() {
 		return tabboxProperties;
 	}
 
@@ -259,15 +267,15 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel {
 		return borderLayoutProperties;
 	}
 
-	public List<LayoutElementProperties> getColumnProperties() {
+	public List<LayoutElementAttributes> getColumnProperties() {
 		return columnProperties;
 	}
 
-	public LayoutElementProperties getSelectedColumn() {
+	public LayoutElementAttributes getSelectedColumn() {
 		return selectedColumn;
 	}
 
-	public void setSelectedColumn(LayoutElementProperties selectedColumn) {
+	public void setSelectedColumn(LayoutElementAttributes selectedColumn) {
 		this.selectedColumn = selectedColumn;
 	}
 
@@ -414,7 +422,8 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel {
 	public void setBandbox(boolean bandbox) {
 		this.bandbox = bandbox;
 	}
-
+	
+	@Override
 	public String getTitle() {
 		return getLabel("admin.layout." + parameter.command);
 	}
@@ -454,39 +463,34 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel {
 	}
 	
 	public List<Filter> getAvailableFilters(SubFormColumn subFormColumn) {
-		if (subFormColumn != null) {
-			return getAvailableFilters(subFormColumn.subFormField.getEntityField());
-		}
-		return null;
+		return subFormColumn != null
+				? getAvailableFilters(subFormColumn.subFormField.getEntityField())
+				: Collections.emptyList();
 	}
 	
 	public List<Filter> getAvailableFilters(EntityField entityField) {
-		if (entityField != null && entityField.getType().isReference()) {
-			return filterService.findFilters(entityField.getReferenceEntity());
-		}
-		return null;
+		return entityField != null && entityField.getType() == FieldType.REFERENCE 
+				? filterService.findFilters(entityField.getReferenceEntity())
+				: Collections.emptyList();
 	}
 	
 	public List<Transformer> getAvailableTransformers(EntityField entityField) {
-		if (entityField != null && entityField.getType().isReference()) {
-			return transformerService.findTransformers(entityField.getReferenceEntity(),
-					   								   entityField.getEntity());
-		}
-		return null;
+		return entityField != null && entityField.getType() == FieldType.REFERENCE 
+				? transformerService.findTransformers(entityField.getReferenceEntity(),
+						   							  entityField.getEntity())
+				: Collections.emptyList();
 	}
 	
 	public List<Transformer> getAvailableTransformers(SubFormColumn subFormColumn) {
-		if (subFormColumn != null) {
-			return getAvailableTransformers(subFormColumn.subFormField.getEntityField());
-		}
-		return null;
+		return subFormColumn != null 
+				? getAvailableTransformers(subFormColumn.subFormField.getEntityField())
+				: Collections.emptyList();
 	}
 	
 	public List<Form> getDetailForms(Entity entity) {
-		if (entity != null) {
-			return formService.findForms(entity);
-		}
-		return null;
+		return entity != null 
+				? formService.findForms(entity) 
+				: Collections.emptyList();
 	}
 	
 	public String getNestedEntityName() {
@@ -509,7 +513,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel {
 	}
 	
 	@Command
-	@NotifyChange({"subFormAction", "getListManagerList"})
+	@NotifyChange({"subFormAction", LISTMANAGER_LIST})
 	public void newCustomAction() {
 		subFormAction = subFormProperties.createCustomAction();
 		removeListManager(ACTIONS);
@@ -517,7 +521,9 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel {
 	
 	@Command
 	@NotifyChange("getActionLabel")
-	public void selectEntityFunction() {}
+	public void selectEntityFunction() {
+		// do nothing, just notify
+	}
 	
 	@Command
 	@SmartNotifyChange("subFormColumn")
@@ -564,7 +570,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel {
 	@Command
 	public void addField(@BindingParam("elem") Component elem) {
 		try {
-			layoutService.addField(parameter.form, entityField, orient, align, valign,
+			layoutService.addField(parameter.form, entityField, new LabelProperties(orient, align, valign),
 					   			   width, height, parameter.layoutRoot, parameter.contextId);
 			
 			final LayoutDialogPreferences prefs = getPreferences();
@@ -587,34 +593,37 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel {
 			else if (element.is(LayoutElement.TAB)) {
 				tabboxProperties.applyTo(element.getParent().getParent());
 			}
-			// field
 			else if (entityField != null) {
-				if ((element.is(LayoutElement.COMBOBOX) && bandbox) ||
-					(element.is(LayoutElement.BANDBOX) && !bandbox)) {
-					element = layoutService.replaceCombobox(parameter.form, entityField, 
-															parameter.layoutRoot, parameter.contextId);
-				}
-				FormFieldExtra fieldExtra = parameter.form.getFieldExtra(entityField);
-				if (readonly || filter != null || transformer != null || detailForm != null) {
-					if (fieldExtra == null) {
-						fieldExtra = new FormFieldExtra();
-						fieldExtra.setEntityField(entityField);
-						parameter.form.addFieldExtra(fieldExtra);
-					}
-					fieldExtra.setReadonly(readonly);
-					fieldExtra.setFilter(filter);
-					fieldExtra.setTransformer(transformer);
-					fieldExtra.setDetailForm(detailForm);
-				}
-				else if (fieldExtra != null) {
-					parameter.form.removeFieldExtra(fieldExtra);
-				}
+				applyFieldProperties();
 			}
 			layoutService.applyProperties(element, properties);
 			refreshAndClose();
 		}
 		catch (ValidationException vex) {
-			showValidationErrors(elem, "admin.layout.applypropertiesfail", vex.getErrors());
+			showValidationErrors(elem, ERROR_APPLY_PROPERTIES, vex.getErrors());
+		}
+	}
+	
+	private void applyFieldProperties() {
+		if ((element.is(LayoutElement.COMBOBOX) && bandbox) ||
+			(element.is(LayoutElement.BANDBOX) && !bandbox)) {
+			element = layoutService.replaceCombobox(parameter.form, entityField, 
+													parameter.layoutRoot, parameter.contextId);
+		}
+		FormFieldExtra fieldExtra = parameter.form.getFieldExtra(entityField);
+		if (readonly || filter != null || transformer != null || detailForm != null) {
+			if (fieldExtra == null) {
+				fieldExtra = new FormFieldExtra();
+				fieldExtra.setEntityField(entityField);
+				parameter.form.addFieldExtra(fieldExtra);
+			}
+			fieldExtra.setReadonly(readonly);
+			fieldExtra.setFilter(filter);
+			fieldExtra.setTransformer(transformer);
+			fieldExtra.setDetailForm(detailForm);
+		}
+		else if (fieldExtra != null) {
+			parameter.form.removeFieldExtra(fieldExtra);
 		}
 	}
 	
@@ -630,7 +639,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel {
 			refreshAndClose();
 		}
 		catch (ValidationException vex) {
-			showValidationErrors(elem, "admin.layout.applypropertiesfail", vex.getErrors());
+			showValidationErrors(elem, ERROR_APPLY_PROPERTIES, vex.getErrors());
 		}
 	}
 	
@@ -642,7 +651,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel {
 			refreshAndClose();
 		}
 		catch (ValidationException vex) {
-			showValidationErrors(elem, "admin.layout.applypropertiesfail", vex.getErrors());
+			showValidationErrors(elem, ERROR_APPLY_PROPERTIES, vex.getErrors());
 		}
 	}
 	
@@ -653,7 +662,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel {
 			refreshAndClose();
 		}
 		catch (ValidationException vex) {
-			showValidationErrors(elem, "admin.layout.applypropertiesfail", vex.getErrors());
+			showValidationErrors(elem, ERROR_APPLY_PROPERTIES, vex.getErrors());
 		}
 	}
 	
@@ -686,7 +695,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel {
 			refreshAndClose();
 		}
 		catch (ValidationException vex) {
-			showValidationErrors(elem, "admin.layout.addtabfail", vex.getErrors());
+			showValidationErrors(elem, ERROR_ADD_TAB, vex.getErrors());
 		}
 	}
 	
@@ -698,7 +707,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel {
 			refreshAndClose();
 		}
 		catch (ValidationException vex) {
-			showValidationErrors(elem, "admin.layout.addtabfail", vex.getErrors());
+			showValidationErrors(elem, ERROR_ADD_TAB, vex.getErrors());
 		}
 	}
 	
@@ -706,7 +715,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel {
 	public void addLayout(@BindingParam("elem") Component elem) {
 		try {
 			if (layoutType == null) {
-				throw new ValidationException(new ValidationError("val.empty.field", "label.layouttype"));
+				throw new ValidationException(ValidationError.emptyField("label.layouttype"));
 			}
 			switch (layoutType) {
 				case BORDERLAYOUT:
@@ -725,7 +734,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel {
 			refreshAndClose();
 		}
 		catch (ValidationException vex) {
-			showValidationErrors(elem, "admin.layout.addtabfail", vex.getErrors());
+			showValidationErrors(elem, ERROR_ADD_TAB, vex.getErrors());
 		}
 	}
 
@@ -809,22 +818,22 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel {
 	}
 
 	@Override
-	protected SystemEntityService getObjectService() {
+	protected FormService getObjectService() {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	protected List getListManagerSource(String key, int listNum) {
+	protected List<SystemObject> getListManagerSource(String key, int listNum) {
 		switch (key) {
 			case FIELDS:
-				return listNum == LIST_AVAILABLE
+				return MiscUtils.cast(listNum == LIST_AVAILABLE
 						? subFormProperties.getAvailableColumns()
-						: subFormProperties.getColumns();
+						: subFormProperties.getColumns());
 			
 			case ACTIONS:
-				return listNum == LIST_AVAILABLE
+				return MiscUtils.cast(listNum == LIST_AVAILABLE
 						? subFormProperties.getAvailableActions()
-						: subFormProperties.getActions();
+						: subFormProperties.getActions());
 						
 			default:
 				throw new IllegalStateException("unknown list manager key: " + key);

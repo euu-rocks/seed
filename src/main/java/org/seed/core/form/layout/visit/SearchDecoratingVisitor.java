@@ -20,12 +20,14 @@ package org.seed.core.form.layout.visit;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.filter.CriterionOperator;
 import org.seed.core.form.Form;
 import org.seed.core.form.SubForm;
 import org.seed.core.form.layout.LayoutElement;
-import org.springframework.util.Assert;
+import org.seed.core.form.layout.LayoutElementAttributes;
+import org.seed.core.util.Assert;
 
 public class SearchDecoratingVisitor extends AbstractLayoutVisitor {
 	
@@ -41,18 +43,28 @@ public class SearchDecoratingVisitor extends AbstractLayoutVisitor {
 				break;
 			
 			case LayoutElement.FILEBOX:
-				element.removeAttribute("content");
-				element.removeAttribute("contentType");
-				element.removeAttribute("fileName");
-				element.removeAttribute("onChange");
-				element.setAttribute("disabled", "true");
+				element.removeAttribute(LayoutElementAttributes.A_CONTENT);
+				element.removeAttribute(LayoutElementAttributes.A_CONTENTTYPE);
+				element.removeAttribute(LayoutElementAttributes.A_FILENAME);
+				element.setAttribute(LayoutElementAttributes.A_DISABLED, "true");
+				createPopup(element);
+				break;
 				
 			case LayoutElement.BANDBOX:
-				element.removeAttribute("buttonVisible");
+				element.removeAttribute(LayoutElementAttributes.A_BUTTONVISIBLE);
+				createPopup(element);
+				break;
+				
 			case LayoutElement.CHECKBOX:
-				element.removeAttribute("onCheck");
+				element.removeAttribute(LayoutElementAttributes.A_DISABLED);
+				element.removeAttribute(LayoutElementAttributes.A_ONCHECK);
+				createPopup(element);
+				break;
+				
 			case LayoutElement.COMBOBOX:
-				element.removeAttribute("onSelect");
+				element.removeAttribute(LayoutElementAttributes.A_ONSELECT);
+				createPopup(element);
+				break;
 			
 			case LayoutElement.DATEBOX:
 			case LayoutElement.DECIMALBOX:
@@ -60,25 +72,37 @@ public class SearchDecoratingVisitor extends AbstractLayoutVisitor {
 			case LayoutElement.IMAGE:
 			case LayoutElement.INTBOX:
 			case LayoutElement.LONGBOX:
+				createPopup(element);
+				break;
+				
 			case LayoutElement.TEXTBOX:
-				final String context = element.getContext();
-				element.removeAttribute("instant");
-				element.removeAttribute("onChange");
-				element.removeAttribute("readonly");
-				element.removeAttribute("mandatory");
-				element.setContext(newContextId());
-				addToRoot(createSearchFieldPopup(element, context));
+				element.removeAttribute(LayoutElementAttributes.A_INSTANT);
+				createPopup(element);
+				break;
+			
+			default:
+				// do nothing
+				break;
 		}
 	}
 	
-	private LayoutElement createSearchFieldPopup(LayoutElement element, String context) {
+	private void createPopup(LayoutElement element) {
+		element.removeAttribute(LayoutElementAttributes.A_READONLY);
+		element.removeAttribute(LayoutElementAttributes.A_MANDATORY);
+		element.removeAttribute(LayoutElementAttributes.A_ONCHANGE);
+		element.setContext(newContextId());
+		addToRoot(createSearchFieldPopup(element));
+	}
+	
+	private LayoutElement createSearchFieldPopup(LayoutElement element) {
+		final String context = element.getContext();
 		EntityField field = null;
 		SubForm subForm = null;
 		if (element.getId() != null) {
 			field = form.getEntity().getFieldByUid(getId(element));
 		}
 		else { // sub form
-			Assert.notNull(context, "context is null");
+			Assert.notNull(context, C.CONTEXT);
 			final int idx = context.indexOf('_');
 			final Long nestedEntityId = Long.parseLong(context.substring(0, idx));
 			final String fieldUid = context.substring(idx + 1);
@@ -94,12 +118,12 @@ public class SearchDecoratingVisitor extends AbstractLayoutVisitor {
 			elemMenuItem.setAttribute("autocheck", "true");
 			elemMenuItem.setAttribute("checkmark", "true");
 			if (subForm != null) {
-				elemMenuItem.setAttribute("checked", load("vm.isCriterionChecked('" + operator.toString() + "','" + field.getUid() + "','" + subForm.getNestedEntity().getUid() + "')"));
-				elemMenuItem.setAttribute("onCheck", command("'checkCriterion',elem=self,type='" + operator.toString() + "',fieldId='" + field.getUid() + "',nestedEntityId=" + subForm.getNestedEntity().getId()));
+				elemMenuItem.setAttribute(LayoutElementAttributes.A_CHECKED, load("vm.isCriterionChecked('" + operator.toString() + "','" + field.getUid() + "','" + subForm.getNestedEntity().getUid() + "')"));
+				elemMenuItem.setAttribute(LayoutElementAttributes.A_ONCHECK, command("'checkCriterion',elem=self,type='" + operator.toString() + "',fieldId='" + field.getUid() + "',nestedEntityId=" + subForm.getNestedEntity().getId()));
 			}
 			else {
-				elemMenuItem.setAttribute("checked", load("vm.isCriterionChecked('" + operator.toString() + "','" + field.getUid() + "',null)"));
-				elemMenuItem.setAttribute("onCheck", command("'checkCriterion',elem=self,type='" + operator.toString() + "',fieldId='" + field.getUid() + '\''));
+				elemMenuItem.setAttribute(LayoutElementAttributes.A_CHECKED, load("vm.isCriterionChecked('" + operator.toString() + "','" + field.getUid() + "',null)"));
+				elemMenuItem.setAttribute(LayoutElementAttributes.A_ONCHECK, command("'checkCriterion',elem=self,type='" + operator.toString() + "',fieldId='" + field.getUid() + '\''));
 			}
 			items.add(elemMenuItem);
 		}

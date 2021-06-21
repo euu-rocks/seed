@@ -27,6 +27,7 @@ import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.entity.value.ValueEntity;
 import org.seed.core.user.UserService;
+import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,7 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
+import org.hibernate.Cache;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -54,7 +55,7 @@ import org.slf4j.LoggerFactory;
 public class DynamicConfiguration 
 	implements SessionFactoryProvider, UpdatableConfiguration {
 	
-	private final static Logger log = LoggerFactory.getLogger(DynamicConfiguration.class);
+	private static final Logger log = LoggerFactory.getLogger(DynamicConfiguration.class);
 	
 	@Autowired
 	private Environment environment;
@@ -116,7 +117,7 @@ public class DynamicConfiguration
 	@Override
 	public void updateConfiguration() {
 		log.info("Rebuild Configuration...");
-		getSessionFactory().close();
+		closeSessionFactory();
 		jobScheduler.unscheduleAllTasks();
 		buildBootSessionFactory();
 		buildConfiguration();
@@ -129,11 +130,13 @@ public class DynamicConfiguration
 		// create new hibernate configuration but don't build session factory yet
 		final SessionFactoryBuilder sessionFactoryBuilder = createSessionFactoryBuilder(false);
 		// close current session factory
-		getSessionFactory().close();
+		closeSessionFactory();
 		// build new session factory now
 		sessionFactory = sessionFactoryBuilder.build();
 		jobScheduler.scheduleAllTasks();
-		log.info("Configuration created in " + MiscUtils.formatDuration(startTime));
+		if (log.isInfoEnabled())  {
+			log.info("Configuration created in {}", MiscUtils.formatDuration(startTime));
+		}
 	}
 	
 	private boolean updateSchemaConfiguration() {
@@ -160,7 +163,7 @@ public class DynamicConfiguration
 					schemaConfig.setSchemaVersion(SchemaVersion.lastVersion());
 					session.saveOrUpdate(schemaConfig);
 					if (SchemaVersion.existUpdates()) {
-						log.info("System schema updated to " + schemaConfig.getSchemaVersion());
+						log.info("System schema updated to {}", schemaConfig.getSchemaVersion());
 					}
 				}
 				tx.commit();
@@ -200,7 +203,7 @@ public class DynamicConfiguration
 		scanner.addIncludeFilter(new AnnotationTypeFilter(Entity.class));
 		for (BeanDefinition beanDef : scanner.findCandidateComponents("org.seed.core")) {
 			try {
-				log.debug("Register " + beanDef.getBeanClassName());
+				log.debug("Register {}", beanDef.getBeanClassName());
 				sources.addAnnotatedClass(Class.forName(beanDef.getBeanClassName()));
 			} 
 			catch (Exception ex) {
@@ -215,7 +218,7 @@ public class DynamicConfiguration
 			for (Class<GeneratedCode> entityClass : codeManager.getGeneratedClasses(ValueEntity.class)) {
 				Assert.state(!Modifier.isAbstract(entityClass.getModifiers()), entityClass.getName() + " is abstract");
 				
-				log.debug("Register " + entityClass.getName());
+				log.debug("Register {}", entityClass.getName());
 				metadataSources.addAnnotatedClass(entityClass);
 			}
 			log.info("Generated entities registered");
@@ -223,6 +226,18 @@ public class DynamicConfiguration
 		catch (Exception ex) {
 			throw new ConfigurationException("failed to register generated entities", ex);
 		}
+	}
+	
+	private void closeSessionFactory() {
+		// evict cache 
+		final Cache cache = getSessionFactory().getCache();
+		if (cache != null) {
+			cache.evictAllRegions();
+		}
+		else {
+			log.warn("cache not available");
+		}
+		getSessionFactory().close();
 	}
 	
 	private String applicationProperty(String propertyName) {

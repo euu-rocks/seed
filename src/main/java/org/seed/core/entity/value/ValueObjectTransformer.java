@@ -20,7 +20,8 @@ package org.seed.core.entity.value;
 import java.util.List;
 
 import org.hibernate.Session;
-
+import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.api.TransformationFunction;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.codegen.GeneratedCode;
@@ -33,10 +34,11 @@ import org.seed.core.entity.transform.TransformerElement;
 import org.seed.core.entity.transform.TransformerFunction;
 import org.seed.core.entity.transform.TransformerService;
 import org.seed.core.entity.value.event.ValueObjectFunctionContext;
+import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 @Component
 public class ValueObjectTransformer {
@@ -54,9 +56,9 @@ public class ValueObjectTransformer {
 	private SessionFactoryProvider sessionFactoryProvider;
 	
 	public void transform(Transformer transformer, ValueObject sourceObject, ValueObject targetObject) {
-		Assert.notNull(transformer, "transformer is null");
-		Assert.notNull(sourceObject, "sourceObject is null");
-		Assert.notNull(targetObject, "targetObject is null");
+		Assert.notNull(transformer, C.TRANSFORMER);
+		Assert.notNull(sourceObject, "sourceObject");
+		Assert.notNull(targetObject, "targetObject");
 		Assert.state(sourceObject.getEntityId().equals(transformer.getSourceEntity().getId()), "illegal source object");
 		Assert.state(targetObject.getEntityId().equals(transformer.getTargetEntity().getId()), "illegal target object");
 		
@@ -72,9 +74,9 @@ public class ValueObjectTransformer {
 	}
 	
 	public void transform(Transformer transformer, ValueObject targetObject, EntityField sourceObjectField) {
-		Assert.notNull(transformer, "transformer is null");
-		Assert.notNull(targetObject, "targetObject is null");
-		Assert.notNull(sourceObjectField, "sourceObjectField is null");
+		Assert.notNull(transformer, C.TRANSFORMER);
+		Assert.notNull(targetObject, "targetObject");
+		Assert.notNull(sourceObjectField, "sourceObjectField");
 		Assert.state(targetObject.getEntityId().equals(transformer.getTargetEntity().getId()), "illegal target object");
 
 		final ValueObject sourceObject = (ValueObject) objectAccess.getValue(targetObject, sourceObjectField);
@@ -111,7 +113,7 @@ public class ValueObjectTransformer {
 				for (TransformerFunction function : transformer.getFunctions()) {
 					if ((beforeTransformation && function.isActiveBeforeTransformation()) || 
 						(!beforeTransformation && function.isActiveAfterTransformation())) {
-						callFunction(transformer, function, sourceObject, targetObject, functionContext);
+						callFunction(function, sourceObject, targetObject, functionContext);
 					}
 				}
 			}
@@ -119,7 +121,7 @@ public class ValueObjectTransformer {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void callFunction(Transformer transformer, TransformerFunction function,
+	private void callFunction(TransformerFunction function,
 							  ValueObject sourceObject, ValueObject targetObject,
 							  ValueObjectFunctionContext functionContext) {
 		final Class<GeneratedCode> functionClass = codeManager.getGeneratedClass(function);
@@ -128,11 +130,11 @@ public class ValueObjectTransformer {
 		}
 		try {
 			final TransformationFunction<ValueObject, ValueObject> transformationFunction = 
-					(TransformationFunction<ValueObject, ValueObject>) functionClass.getDeclaredConstructor().newInstance();
+					(TransformationFunction<ValueObject, ValueObject>) MiscUtils.instantiate(functionClass);
 			transformationFunction.transform(sourceObject, targetObject, functionContext);
 		}
 		catch (Exception ex) {
-			throw new RuntimeException(ex);
+			throw new InternalException(ex);
 		}
 	}
 	

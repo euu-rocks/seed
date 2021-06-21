@@ -24,16 +24,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import org.seed.core.application.TransferableObject;
+import org.seed.core.application.AbstractContentObject;
 import org.seed.core.codegen.GeneratedObject;
-import org.seed.core.data.AbstractOrderedSystemObject;
-import org.seed.core.util.CDATAXmlAdapter;
 import org.seed.core.util.NameUtils;
 
 import org.springframework.util.StringUtils;
@@ -43,53 +40,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Entity
 @Table(name = "sys_entity_transform_func")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class TransformerFunction extends AbstractOrderedSystemObject 
-	implements GeneratedObject, TransferableObject {
+public class TransformerFunction extends AbstractContentObject 
+	implements GeneratedObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "transform_id")
 	@JsonIgnore
 	private TransformerMetadata transformer;
 	
-	private String uid;
-	
-	private String name;
-	
-	private String content;
-	
 	private boolean isActiveBeforeTransformation;
 	
 	private boolean isActiveAfterTransformation;
 	
-	@Override
-	@XmlAttribute
-	public String getUid() {
-		return uid;
-	}
-	
-	@Override
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
-	
-	@XmlAttribute
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-	
-	@XmlJavaTypeAdapter(CDATAXmlAdapter.class)
-	public String getContent() {
-		return content;
-	}
-
-	public void setContent(String content) {
-		this.content = content;
-	}
-
 	@XmlTransient
 	public Transformer getTransformer() {
 		return transformer;
@@ -125,7 +87,7 @@ public class TransformerFunction extends AbstractOrderedSystemObject
 	@Override
 	@JsonIgnore
 	public String getGeneratedPackage() {
-		return Transformer.PACKAGE_NAME + '.' + getTransformer().getInternalName().toLowerCase();
+		return TransformerMetadata.PACKAGE_NAME + '.' + getTransformer().getInternalName().toLowerCase();
 	}
 	
 	@Override
@@ -144,8 +106,8 @@ public class TransformerFunction extends AbstractOrderedSystemObject
 		}
 		final TransformerFunction otherFunction = (TransformerFunction) other;
 		return new EqualsBuilder()
-				.append(name, otherFunction.name)
-				.append(content, otherFunction.content)
+				.append(getName(), otherFunction.getName())
+				.append(getContent(), otherFunction.getContent())
 				.append(isActiveBeforeTransformation, otherFunction.isActiveBeforeTransformation)
 				.append(isActiveAfterTransformation, otherFunction.isActiveAfterTransformation)
 				.isEquals();

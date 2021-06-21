@@ -19,11 +19,16 @@ package org.seed.core.util;
 
 import java.lang.reflect.Method;
 
-import javax.el.MethodNotFoundException;
-
+import org.seed.InternalException;
 import org.springframework.util.StringUtils;
 
 public abstract class ObjectAccess {
+	
+	protected ObjectAccess() {}
+	
+	public static Boolean callBooleanGetter(Object object, String propertyName) {
+		return (Boolean) callMethod(object, "is" + StringUtils.capitalize(propertyName));
+	}
 	
 	public static Object callGetter(Object object, String propertyName) {
 		return callMethod(object, "get" + StringUtils.capitalize(propertyName));
@@ -42,9 +47,9 @@ public abstract class ObjectAccess {
 			}
 		} 
 		catch (Exception ex) {
-			throw new RuntimeException(ex);
+			throw new InternalException(ex);
 		}
-		throw new MethodNotFoundException(object.getClass().getName() + '.' + methodName);
+		throw new IllegalStateException("method not found: " + object.getClass().getName() + '.' + methodName);
 	}
 	
 }

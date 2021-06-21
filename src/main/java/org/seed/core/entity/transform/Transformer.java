@@ -20,7 +20,6 @@ package org.seed.core.entity.transform;
 import java.util.List;
 import java.util.Set;
 
-import org.seed.core.api.EntityObject;
 import org.seed.core.api.EntityTransformer;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.entity.Entity;
@@ -28,9 +27,7 @@ import org.seed.core.entity.EntityStatus;
 import org.seed.core.user.User;
 import org.seed.core.user.UserGroup;
 
-public interface Transformer extends ApplicationEntity, EntityTransformer<EntityObject, EntityObject> {
-	
-	final static String PACKAGE_NAME = "org.seed.generated.transform";
+public interface Transformer extends ApplicationEntity, EntityTransformer {
 	
 	String getSourceEntityUid();
 	
@@ -64,6 +61,8 @@ public interface Transformer extends ApplicationEntity, EntityTransformer<Entity
 	
 	boolean hasUserGroups();
 	
+	boolean containsUserGroup(UserGroup userGroup);
+	
 	UserGroup getUserGroupByUid(String uid);
 	
 	Set<UserGroup> getUserGroups();
@@ -73,6 +72,8 @@ public interface Transformer extends ApplicationEntity, EntityTransformer<Entity
 	boolean isEnabled(EntityStatus entityStatus);
 	
 	boolean hasStatus();
+	
+	boolean containsStatus(EntityStatus status);
 	
 	EntityStatus getStatusByUid(String uid);
 	

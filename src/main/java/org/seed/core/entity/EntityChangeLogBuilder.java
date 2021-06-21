@@ -17,17 +17,19 @@
  */
 package org.seed.core.entity;
 
-import java.util.List;
-
 import javax.persistence.Table;
 
+import org.hibernate.dialect.PostgreSQL81Dialect;
+import org.seed.C;
 import org.seed.core.config.AbstractChangeLogBuilder;
 import org.seed.core.config.ChangeLog;
+import org.seed.core.config.Limits;
+import org.seed.core.config.SessionFactoryProvider;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.FileObject;
+import org.seed.core.util.Assert;
 import org.seed.core.util.TinyId;
 
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import liquibase.change.AddColumnConfig;
@@ -48,59 +50,57 @@ import liquibase.change.core.ModifyDataTypeChange;
 import liquibase.change.core.RenameColumnChange;
 import liquibase.change.core.RenameTableChange;
 
-class EntityChangeLogBuilder extends AbstractChangeLogBuilder {
+class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	
-	private final static String FIELD_ID		 = "id";
-	private final static String FIELD_STATUSID   = "status_id";
-	private final static String FIELD_VERSION	 = "version";
-	private final static String FIELD_CREATEDON  = "createdon";
-	private final static String FIELD_CREATEDBY  = "createdby";
-	private final static String FIELD_MODIFIEDON = "modifiedon";
-	private final static String FIELD_MODIFIEDBY = "modifiedby";
+	private static final String FIELD_ID		 = "id";
+	private static final String FIELD_STATUSID   = "status_id";
+	private static final String FIELD_VERSION	 = "version";
+	private static final String FIELD_CREATEDON  = "createdon";
+	private static final String FIELD_CREATEDBY  = "createdby";
+	private static final String FIELD_MODIFIEDON = "modifiedon";
+	private static final String FIELD_MODIFIEDBY = "modifiedby";
 	
-	private Entity currentVersionEntity;
+	private final Limits limits;
 	
-	private Entity nextVersionEntity;
+	private final SessionFactoryProvider sessionFactoryProvider;
 	
-	EntityChangeLogBuilder setCurrentVersionEntity(Entity currentVersionEntity) {
-		this.currentVersionEntity = currentVersionEntity;
-		return this;
-	}
-	
-	EntityChangeLogBuilder setNextVersionEntity(Entity nextVersionEntity) {
-		this.nextVersionEntity = nextVersionEntity;
-		return this;
+	EntityChangeLogBuilder(Limits limits, SessionFactoryProvider sessionFactoryProvider) {
+		Assert.notNull(limits, "limits");
+		Assert.notNull(sessionFactoryProvider, "sessionFactoryProvider");
+		
+		this.limits = limits;
+		this.sessionFactoryProvider = sessionFactoryProvider;
 	}
 	
 	@Override
-	public List<ChangeLog> build() {
+	public ChangeLog build() {
 		// create table
-		if (currentVersionEntity == null) {
-			addCreateTableChangeSet(nextVersionEntity);
+		if (currentVersionObject == null) {
+			addCreateTableChangeSet(nextVersionObject);
 		}
 		// drop table
-		else if (nextVersionEntity == null) {
-			addDropTableChangeSet(currentVersionEntity);
+		else if (nextVersionObject == null) {
+			addDropTableChangeSet(currentVersionObject);
 		}
 		else {
 			// rename table
-			if (!getTableName(currentVersionEntity).equals(getTableName(nextVersionEntity))) {
-				addRenameTableChange(currentVersionEntity, nextVersionEntity);
+			if (!getTableName(currentVersionObject).equals(getTableName(nextVersionObject))) {
+				addRenameTableChange(currentVersionObject, nextVersionObject);
 			}
 			// status field change
-			if (currentVersionEntity.hasStatus() != nextVersionEntity.hasStatus()) {
+			if (currentVersionObject.hasStatus() != nextVersionObject.hasStatus()) {
 				buildStatusFieldChange();
 			}
 			// field changes
-			if (currentVersionEntity.hasAllFields() || nextVersionEntity.hasAllFields()) {
-				buildFieldChanges();
+			if (currentVersionObject.hasAllFields() || nextVersionObject.hasAllFields()) {
+				buildFieldsChanges();
 			}
 		}
 		return super.build();
 	}
 	
 	static String getTableName(Entity entity) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
 		return entity.getTableName() != null 
 				? entity.getTableName() 
@@ -108,15 +108,15 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder {
 	}
 	
 	static String getColumnName(EntityField entityField) {
-		Assert.notNull(entityField, "entityField is null");
-		
+		Assert.notNull(entityField, C.ENTITYFIELD);
+		// column names have to be lower case
 		return entityField.getColumnName() != null 
-				? entityField.getColumnName()
+				? entityField.getColumnName().toLowerCase()
 				: entityField.getInternalName();
 	}
 	
 	private void addCreateTableChangeSet(Entity entity) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
 		final CreateTableChange createTableChange = new CreateTableChange();
 		createTableChange.setTableName(getTableName(entity));
@@ -124,11 +124,11 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder {
 		// system fields
 		createTableChange.addColumn(createColumn(FIELD_ID, FieldType.LONG)
 										.setConstraints(new ConstraintsConfig()
-											.setPrimaryKey(Boolean.TRUE)
-											.setPrimaryKeyName(getPrimaryKeyConstraintName(entity))));
+										.setPrimaryKey(Boolean.TRUE)
+										.setPrimaryKeyName(getPrimaryKeyConstraintName(entity))));
 		createTableChange.addColumn(createColumn(FIELD_VERSION, FieldType.INTEGER)
 										.setConstraints(new ConstraintsConfig()
-											.setNullable(Boolean.FALSE)));
+										.setNullable(Boolean.FALSE)));
 		createTableChange.addColumn(createColumn(FIELD_CREATEDON, FieldType.DATETIME));
 		createTableChange.addColumn(createColumn(FIELD_CREATEDBY, FieldType.TEXT, getLimit("user.name.length")));
 		createTableChange.addColumn(createColumn(FIELD_MODIFIEDON, FieldType.DATETIME));
@@ -138,7 +138,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder {
 		if (entity.hasStatus()) {
 			createTableChange.addColumn(createColumn(FIELD_STATUSID, FieldType.LONG)
 											.setConstraints(new ConstraintsConfig()
-												.setNullable(Boolean.FALSE)));
+											.setNullable(Boolean.FALSE)));
 		}
 		
 		// fields
@@ -148,8 +148,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder {
 				createTableChange.addColumn(column);
 			}
 		}
-		
-		createChangeSet().addChange(createTableChange);
+		addChange(createTableChange);
 		
 		// field constraints and index
 		if (entity.hasAllFields()) {
@@ -165,59 +164,59 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder {
 	}
 	
 	private void addDropTableChangeSet(Entity entity) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
 		final DropTableChange dropTableChange = new DropTableChange();
 		dropTableChange.setTableName(getTableName(entity));
-		createChangeSet().addChange(dropTableChange);
+		addChange(dropTableChange);
 	}
 	
 	private void addRenameTableChange(Entity oldEntity, Entity newEntity) {
-		Assert.notNull(oldEntity, "oldEntity is null");
-		Assert.notNull(newEntity, "newEntity is null");
+		Assert.notNull(oldEntity, "oldEntity");
+		Assert.notNull(newEntity, "newEntity");
 		
 		final RenameTableChange renameTableChange = new RenameTableChange();
 		renameTableChange.setOldTableName(getTableName(oldEntity));
 		renameTableChange.setNewTableName(getTableName(newEntity));
-		createChangeSet().addChange(renameTableChange);
+		addChange(renameTableChange);
 	}
 	
 	private void addDropColumChangeSet(Entity entity, EntityField field) {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(field, "field is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(field, C.FIELD);
 		
 		final DropColumnChange dropColumnChange = new DropColumnChange();
 		dropColumnChange.setTableName(getTableName(entity));
 		dropColumnChange.setColumnName(getColumnName(field));
-		createChangeSet().addChange(dropColumnChange);
+		addChange(dropColumnChange);
 	}
 	
 	private void addRenameColumnChangeSet(Entity entity, EntityField oldField, EntityField newField) {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(oldField, "oldField is null");
-		Assert.notNull(newField, "newField is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(oldField, "oldField");
+		Assert.notNull(newField, "newField");
 		
 		final RenameColumnChange renameColumnChange = new RenameColumnChange();
 		renameColumnChange.setTableName(getTableName(entity));
 		renameColumnChange.setOldColumnName(getColumnName(oldField));
 		renameColumnChange.setNewColumnName(getColumnName(newField));
-		createChangeSet().addChange(renameColumnChange);
+		addChange(renameColumnChange);
 	}
 	
 	private void addModifyDataTypeChangeSet(Entity entity, EntityField field) {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(field, "field is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(field, C.FIELD);
 		
 		final ModifyDataTypeChange modifyDataTypeChange = new ModifyDataTypeChange();
 		modifyDataTypeChange.setTableName(getTableName(entity));
 		modifyDataTypeChange.setColumnName(getColumnName(field));
 		modifyDataTypeChange.setNewDataType(getDBFieldType(field));
-		createChangeSet().addChange(modifyDataTypeChange);
+		addChange(modifyDataTypeChange);
 	}
 	
 	private void addAddMandatoryConstraintChangeSet(Entity entity, EntityField field) {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(field, "field is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(field, C.FIELD);
 		
 		final AddNotNullConstraintChange addNotNullConstraintChange = new AddNotNullConstraintChange();
 		addNotNullConstraintChange.setTableName(getTableName(entity));
@@ -239,53 +238,53 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder {
 		if (defaultValue != null) {
 			addNotNullConstraintChange.setDefaultNullValue(defaultValue);
 		}
-		createChangeSet().addChange(addNotNullConstraintChange);
+		addChange(addNotNullConstraintChange);
 	}
 	
 	private void addDropMandatoryConstraintChangeSet(Entity entity, EntityField field) {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(field, "field is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(field, C.FIELD);
 		
 		final DropNotNullConstraintChange dropNotNullConstraintChange = new DropNotNullConstraintChange();
 		dropNotNullConstraintChange.setTableName(getTableName(entity));
 		dropNotNullConstraintChange.setColumnName(getColumnName(field));
 		dropNotNullConstraintChange.setColumnDataType(getDBFieldType(field));
-		createChangeSet().addChange(dropNotNullConstraintChange);
+		addChange(dropNotNullConstraintChange);
 	}
 	
 	private void addAddUniqueConstraintChangeSet(Entity entity, EntityField ...fields) {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(fields, "fields is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(fields, "fields");
 		
 		final AddUniqueConstraintChange addUniqueConstraintChange = new AddUniqueConstraintChange();
 		addUniqueConstraintChange.setTableName(getTableName(entity));
 		addUniqueConstraintChange.setConstraintName(getUniqueConstraintName(entity, fields[0]));
 		addUniqueConstraintChange.setColumnNames(createColumnNameList(fields));
-		createChangeSet().addChange(addUniqueConstraintChange);
+		addChange(addUniqueConstraintChange);
 	}
 	
 	private void addDropUniqueConstraintChangeSet(Entity entity, EntityField ...fields) {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(fields, "fields is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(fields, "fields");
 	
 		final DropUniqueConstraintChange dropUniqueConstraintChange = new DropUniqueConstraintChange();
 		dropUniqueConstraintChange.setTableName(getTableName(entity));
 		dropUniqueConstraintChange.setConstraintName(getUniqueConstraintName(entity, fields[0]));
-		createChangeSet().addChange(dropUniqueConstraintChange);
+		addChange(dropUniqueConstraintChange);
 	}
 	
 	private void addDropIndexChangeSet(Entity entity, EntityField field) {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(field, "field is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(field, C.FIELD);
 		
 		final DropIndexChange dropIndexChange = new DropIndexChange();
 		dropIndexChange.setTableName(getTableName(entity));
 		dropIndexChange.setIndexName(getIndexName(entity, field));
-		createChangeSet().addChange(dropIndexChange);
+		addChange(dropIndexChange);
 	}
 	
-		private void buildStatusConstraintAndIndex(Entity entity) {
-		Assert.notNull(entity, "entity is null");
+	private void buildStatusConstraintAndIndex(Entity entity) {
+		Assert.notNull(entity, C.ENTITY);
 		
 		final AddForeignKeyConstraintChange addFKConstraintChange = new AddForeignKeyConstraintChange();
 		addFKConstraintChange.setBaseTableName(getTableName(entity));
@@ -293,7 +292,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder {
 		addFKConstraintChange.setBaseColumnNames(FIELD_STATUSID);
 		addFKConstraintChange.setReferencedTableName(EntityStatus.class.getAnnotation(Table.class).name());
 		addFKConstraintChange.setReferencedColumnNames(FIELD_ID);
-		createChangeSet().addChange(addFKConstraintChange);
+		addChange(addFKConstraintChange);
 		
 		final CreateIndexChange createIndexChange = new CreateIndexChange();
 		createIndexChange.setTableName(getTableName(entity));
@@ -301,107 +300,118 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder {
 		
 		final AddColumnConfig column = new AddColumnConfig();
 		column.setName(FIELD_STATUSID);
-		column.setType(FieldType.LONG.dbType);
+		column.setType(FieldType.LONG.dataType.name());
 		createIndexChange.addColumn(column);
-		createChangeSet().addChange(createIndexChange);
+		addChange(createIndexChange);
 	}
 		
 	private void addAddColumChangeSet(Entity entity, EntityField field) {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(field, "field is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(field, C.FIELD);
 		
 		final AddColumnConfig columnConfig = new AddColumnConfig();
 		initColumn(columnConfig, entity, field);
-		createChangeSet().addChange(createAddColumnChange(entity, columnConfig));
+		addChange(createAddColumnChange(entity, columnConfig));
 		
 		if (field.getType().isReference() || field.getType().isFile() || field.isIndexed()) {
 			addFieldConstraintsAndIndex(entity, field);
 		}
 	}
 	
-	private void buildFieldChanges() {
-		if (currentVersionEntity.hasAllFields()) {
-			for (EntityField field : currentVersionEntity.getAllFields()) {
+	private void buildFieldChanges(EntityField field, EntityField nextVersionField) {
+		//  drop column
+		if (nextVersionField == null) {
+			addDropColumChangeSet(nextVersionObject, field);
+			return;
+		}
+		
+		// change data type
+		if (field.getType() != nextVersionField.getType() ||
+		    !ObjectUtils.nullSafeEquals(field.getLength(), nextVersionField.getLength())) {
+			addModifyDataTypeChangeSet(nextVersionObject, nextVersionField);
+		}
+		
+		// rename column
+		if (!getColumnName(field).equals(getColumnName(nextVersionField))) {
+			addRenameColumnChangeSet(nextVersionObject, field, nextVersionField);
+		}
+		
+		// mandatory state changed
+		if (!field.isMandatory() && nextVersionField.isMandatory()) {
+			addAddMandatoryConstraintChangeSet(nextVersionObject, nextVersionField);
+		}
+		else if (field.isMandatory() && !nextVersionField.isMandatory()) {
+			addDropMandatoryConstraintChangeSet(nextVersionObject, nextVersionField);
+		}
+		
+		// unique state changed
+		if (!field.isUnique() && nextVersionField.isUnique()) {
+			addAddUniqueConstraintChangeSet(nextVersionObject, nextVersionField);
+		}
+		else if (field.isUnique() && !nextVersionField.isUnique()) {
+			addDropUniqueConstraintChangeSet(nextVersionObject, nextVersionField);
+		}
+		
+		buildFieldIndex(field, nextVersionField);
+	}
+	
+	private void buildFieldIndex(EntityField field, EntityField nextVersionField) {
+		// index state change
+		if (!field.isIndexed() && nextVersionField.isIndexed()) {
+			addCreateIndexChangeSet(nextVersionObject, nextVersionField);
+		}
+		else if (field.isIndexed() && !nextVersionField.isIndexed()) {
+			addDropIndexChangeSet(nextVersionObject, nextVersionField);
+		}
+	}
+	
+	private void buildFieldsChanges() {
+		if (currentVersionObject.hasAllFields()) {
+			for (EntityField field : currentVersionObject.getAllFields()) {
 				// ignore calculated fields
 				if (field.isCalculated()) {
 					continue;
 				}
 				
-				final EntityField nextVersionField = nextVersionEntity.getFieldById(field.getId());
-				
-				//  drop column
-				if (nextVersionField == null) {
-					addDropColumChangeSet(nextVersionEntity, field);
-					continue;
-				}
-				
-				// change data type
-				if (field.getType() != nextVersionField.getType() ||
-				    !ObjectUtils.nullSafeEquals(field.getLength(), nextVersionField.getLength())) {
-					addModifyDataTypeChangeSet(nextVersionEntity, nextVersionField);
-				}
-				
-				// rename column
-				if (!getColumnName(field).equals(getColumnName(nextVersionField))) {
-					addRenameColumnChangeSet(nextVersionEntity, field, nextVersionField);
-				}
-				
-				// mandatory state changed
-				if (!field.isMandatory() && nextVersionField.isMandatory()) {
-					addAddMandatoryConstraintChangeSet(nextVersionEntity, nextVersionField);
-				}
-				else if (field.isMandatory() && !nextVersionField.isMandatory()) {
-					addDropMandatoryConstraintChangeSet(nextVersionEntity, nextVersionField);
-				}
-				
-				// unique state changed
-				if (!field.isUnique() && nextVersionField.isUnique()) {
-					addAddUniqueConstraintChangeSet(nextVersionEntity, nextVersionField);
-				}
-				else if (field.isUnique() && !nextVersionField.isUnique()) {
-					addDropUniqueConstraintChangeSet(nextVersionEntity, nextVersionField);
-				}
-				
-				// index state change
-				if (!field.isIndexed() && nextVersionField.isIndexed()) {
-					addCreateIndexChangeSet(nextVersionEntity, nextVersionField);
-				}
-				else if (field.isIndexed() && !nextVersionField.isIndexed()) {
-					addDropIndexChangeSet(nextVersionEntity, nextVersionField);
-				}
+				final EntityField nextVersionField = nextVersionObject.getFieldById(field.getId());
+				buildFieldChanges(field, nextVersionField);
 			}
 		}
-		if (nextVersionEntity.hasAllFields()) {
-			for (EntityField field : nextVersionEntity.getAllFields()) {
-				// ignore calculated fields
-				if (field.isCalculated()) {
-					continue;
-				}
-				
-				// add column
-				if (field.isNew() || currentVersionEntity.getFieldById(field.getId()) == null) {
-					addAddColumChangeSet(nextVersionEntity, field);
-				}
+		if (nextVersionObject.hasAllFields()) {
+			buildFieldsChangesNextVersion();
+		}
+	}
+	
+	private void buildFieldsChangesNextVersion() {
+		for (EntityField field : nextVersionObject.getAllFields()) {
+			// ignore calculated fields
+			if (field.isCalculated()) {
+				continue;
+			}
+			
+			// add column
+			if (field.isNew() || currentVersionObject.getFieldById(field.getId()) == null) {
+				addAddColumChangeSet(nextVersionObject, field);
 			}
 		}
 	}
 	
 	private void buildStatusFieldChange() {
 		// add status field
-		if (nextVersionEntity.hasStatus()) {
+		if (nextVersionObject.hasStatus()) {
 			final AddColumnConfig columnConfig = new AddColumnConfig();
 			columnConfig.setName(FIELD_STATUSID);
-			columnConfig.setType(FieldType.LONG.dbType);
+			columnConfig.setType(FieldType.LONG.dataType.name());
 			columnConfig.setConstraints(new ConstraintsConfig().setNullable(Boolean.FALSE));
-			columnConfig.setDefaultValueNumeric(nextVersionEntity.getInitialStatus().getId());
-			createChangeSet().addChange(createAddColumnChange(nextVersionEntity, columnConfig));
-			buildStatusConstraintAndIndex(nextVersionEntity);
+			columnConfig.setDefaultValueNumeric(nextVersionObject.getInitialStatus().getId());
+			addChange(createAddColumnChange(nextVersionObject, columnConfig));
+			buildStatusConstraintAndIndex(nextVersionObject);
 		}
 		else { // remove status field
 			final DropColumnChange dropColumnChange = new DropColumnChange();
-			dropColumnChange.setTableName(getTableName(nextVersionEntity));
+			dropColumnChange.setTableName(getTableName(nextVersionObject));
 			dropColumnChange.setColumnName(FIELD_STATUSID);
-			createChangeSet().addChange(dropColumnChange);
+			addChange(dropColumnChange);
 		}
 	}
 	
@@ -410,20 +420,20 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder {
 	}
 	
 	private ColumnConfig createColumn(String name, FieldType fieldType, Integer length) {
-		Assert.notNull(name, "name is null");
-		Assert.notNull(fieldType, "fieldType is null");
+		Assert.notNull(name, C.NAME);
+		Assert.notNull(fieldType, C.FIELDTYPE);
 		
 		return new ColumnConfig().setName(name).setType(getDBFieldType(fieldType, length));
 	}
 	
 	private String getDBFieldType(EntityField field) {
-		Assert.notNull(field, "field is null");
+		Assert.notNull(field, C.FIELD);
 		
 		return getDBFieldType(field.getType(), field.getLength());
 	}
 	
 	private String getDBFieldType(FieldType fieldType, Integer length) {
-		Assert.notNull(fieldType, "fieldType is null");
+		Assert.notNull(fieldType, C.FIELDTYPE);
 		if (length != null) {
 			Assert.state(fieldType.isText(), "only text fields can have length");
 		}
@@ -432,15 +442,20 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder {
 		if (fieldType.isBinary() && isPostgres()) {
 			return "bytea";
 		}
+		
 		return (fieldType.isText() || fieldType.isAutonum())
-				? fieldType.dbType + '(' + (length != null ? length : getLimit("entity.stringfield.length")) + ')' 
-				: fieldType.dbType;
+				? fieldType.dataType.name() + '(' + getFieldLength(length) + ')' 
+				: fieldType.dataType.name();
+	}
+	
+	private int getFieldLength(Integer length) {
+		return length != null ? length : getLimit("entity.stringfield.length");
 	}
 	
 	private ColumnConfig initColumn(ColumnConfig column, Entity entity, EntityField field) {
-		Assert.notNull(column, "column is null");
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(field, "field is null");
+		Assert.notNull(column, "column");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(field, C.FIELD);
 		
 		column.setName(getColumnName(field));
 		column.setType(getDBFieldType(field));
@@ -449,7 +464,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder {
 			final ConstraintsConfig constraints = new ConstraintsConfig();
 			if (field.isMandatory() || field.getType().isBoolean()) {
 				constraints.setNullable(Boolean.FALSE);
-				if (currentVersionEntity != null) {
+				if (currentVersionObject != null) {
 					switch (field.getType()) {
 						case TEXT:
 						case TEXTLONG:
@@ -490,8 +505,8 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder {
 	}
 	
 	private void addCreateIndexChangeSet(Entity entity, EntityField field) {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(field, "field is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(field, C.FIELD);
 		
 		final CreateIndexChange createIndexChange = new CreateIndexChange();
 		createIndexChange.setTableName(getTableName(entity));
@@ -501,12 +516,12 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder {
 		column.setName(getColumnName(field));
 		column.setType(getDBFieldType(field));
 		createIndexChange.addColumn(column);
-		createChangeSet().addChange(createIndexChange);
+		addChange(createIndexChange);
 	}
 	
 	private void addFieldConstraintsAndIndex(Entity entity, EntityField field) {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(field, "field is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(field, C.FIELD);
 		
 		// reference / file field
 		if (field.getType().isReference() || field.getType().isFile()) {
@@ -521,13 +536,21 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder {
 			else if (field.getType().isFile()) {
 				addFKConstraintChange.setReferencedTableName(FileObject.class.getAnnotation(Table.class).name());
 			}
-			createChangeSet().addChange(addFKConstraintChange);
+			addChange(addFKConstraintChange);
 		}
 		
 		// index
 		if (field.isIndexed()) {
 			addCreateIndexChangeSet(entity, field);
 		}
+	}
+	
+	private boolean isPostgres() {
+		return sessionFactoryProvider.getDialect() instanceof PostgreSQL81Dialect;
+	}
+	
+	private int getLimit(String limitName) {
+		return limits.getLimit(limitName);
 	}
 	
 	private static String getPrimaryKeyConstraintName(Entity entity) {
@@ -555,15 +578,15 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder {
 	}
 	
 	private static String getConstraintKey(Entity entity, EntityField field) {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(field, "field is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(field, C.FIELD);
 		
 		return TinyId.get(entity.getId()) + '_' + TinyId.get(field.getId());
 	}
 	
 	private static AddColumnChange createAddColumnChange(Entity entity, AddColumnConfig columnConfig) {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(columnConfig, "columnConfig is null");
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(columnConfig, "columnConfig");
 		
 		final AddColumnChange addColumnChange = new AddColumnChange();
 		addColumnChange.setTableName(getTableName(entity));
@@ -583,3 +606,4 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder {
 	}
 	
 }
+

@@ -30,8 +30,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.seed.core.data.AbstractSystemObject;
-
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 @Entity
 @Table(name = "sys_task_run")
@@ -90,7 +89,7 @@ public class TaskRun extends AbstractSystemObject {
 	}
 	
 	public void addLog(TaskRunLog log) {
-		Assert.notNull(log, "log is null");
+		Assert.notNull(log, "log");
 		
 		if (logs == null) {
 			logs = new ArrayList<>();

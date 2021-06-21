@@ -23,16 +23,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import org.seed.core.application.TransferableObject;
+import org.seed.core.application.AbstractContentObject;
 import org.seed.core.codegen.GeneratedObject;
-import org.seed.core.data.AbstractOrderedSystemObject;
-import org.seed.core.util.CDATAXmlAdapter;
 import org.seed.core.util.NameUtils;
 
 import org.springframework.util.StringUtils;
@@ -42,19 +39,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @javax.persistence.Entity
 @Table(name = "sys_entity_function")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class EntityFunction extends AbstractOrderedSystemObject
-	implements GeneratedObject, TransferableObject {
+public class EntityFunction extends AbstractContentObject
+	implements GeneratedObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "entity_id")
 	@JsonIgnore
 	private EntityMetadata entity;
-	
-	private String uid;
-	
-	private String name;
-	
-	private String content;
 	
 	private boolean isCallback;	
 	
@@ -80,17 +71,6 @@ public class EntityFunction extends AbstractOrderedSystemObject
 	
 	private boolean isActiveOnStatusTransition;
 	
-	@Override
-	@XmlAttribute
-	public String getUid() {
-		return uid;
-	}
-	
-	@Override
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
-	
 	@XmlTransient
 	public Entity getEntity() {
 		return entity;
@@ -98,24 +78,6 @@ public class EntityFunction extends AbstractOrderedSystemObject
 
 	public void setEntity(Entity entity) {
 		this.entity = (EntityMetadata) entity;
-	}
-	
-	@XmlAttribute
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@XmlJavaTypeAdapter(CDATAXmlAdapter.class)
-	public String getContent() {
-		return content;
-	}
-
-	public void setContent(String content) {
-		this.content = content;
 	}
 	
 	@XmlAttribute
@@ -253,8 +215,8 @@ public class EntityFunction extends AbstractOrderedSystemObject
 		}
 		final EntityFunction otherFunction = (EntityFunction) other;
 		return new EqualsBuilder()
-			.append(name, otherFunction.name)
-			.append(content, otherFunction.content)
+			.append(getName(), otherFunction.getName())
+			.append(getContent(), otherFunction.getContent())
 			.append(isCallback, otherFunction.isCallback)
 			.append(isActive, otherFunction.isActive)
 			.append(isActiveOnCreate, otherFunction.isActiveOnCreate)

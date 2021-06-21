@@ -19,25 +19,26 @@ package org.seed.core.report;
 
 import java.util.Set;
 
+import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.ValidationError;
 import org.seed.core.data.ValidationException;
-import org.seed.core.data.datasource.DataSource;
+import org.seed.core.data.datasource.IDataSource;
 import org.seed.core.data.datasource.DataSourceParameter;
+import org.seed.core.util.Assert;
 
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 @Component
 public class ReportValidator extends AbstractSystemEntityValidator<Report> {
 	
 	public void validateGenerate(Report report) throws ValidationException {
-		Assert.notNull(report, "report is null");
+		Assert.notNull(report, C.REPORT);
 		final Set<ValidationError> errors = createErrorList();
 		
 		if (report.hasDataSources()) {
 			for (ReportDataSource reportDataSource : report.getDataSources()) {
-				final DataSource dataSource = reportDataSource.getDataSource();
+				final IDataSource dataSource = reportDataSource.getDataSource();
 				if (dataSource.hasParameters()) {
 					for (DataSourceParameter parameter : dataSource.getParameters()) {
 						if (isEmpty(parameter.getValue())) {
@@ -55,26 +56,24 @@ public class ReportValidator extends AbstractSystemEntityValidator<Report> {
 	
 	@Override
 	public void validateSave(Report report) throws ValidationException {
-		Assert.notNull(report, "report is null");
+		Assert.notNull(report, C.REPORT);
 		final Set<ValidationError> errors = createErrorList();
 		
 		if (isEmpty(report.getName())) {
-			errors.add(new ValidationError("val.empty.field", "label.name"));
+			errors.add(ValidationError.emptyName());
 		}
 		else if (!isNameLengthAllowed(report.getName())) {
-			errors.add(new ValidationError("val.toolong.name", String.valueOf(getMaxNameLength())));
+			errors.add(ValidationError.overlongName(getMaxNameLength()));
 		}
 		
 		if (report.hasDataSources()) {
 			for (ReportDataSource dataSource : report.getDataSources()) {
 				if (isEmpty(dataSource.getDataSource())) {
-					errors.add(new ValidationError("val.empty.field", 
-												   "label.datasource"));
+					errors.add(ValidationError.emptyField("label.datasource"));
 				}
 				if (dataSource.getLabel() != null &&
-					dataSource.getLabel().length() > getLimit("entity.stringfield.length")) {
-					errors.add(new ValidationError("val.toolong.objectfieldvalue", "label.label", "label.datasource", 
-							   					   String.valueOf(getLimit("entity.stringfield.length"))));
+					dataSource.getLabel().length() > getMaxStringLength()) {
+					errors.add(ValidationError.overlongObjectField("label.label", "label.datasource", getMaxStringLength()));
 				}
 			}
 		}

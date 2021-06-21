@@ -28,10 +28,10 @@ import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.DataException;
 import org.seed.core.data.ValidationError;
 import org.seed.core.data.ValidationException;
+import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 @Component
 public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
@@ -41,37 +41,36 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 	
 	@Override
 	public void validateCreate(DBObject dbObject) throws ValidationException {
-		Assert.notNull(dbObject, "dbObject is null");
+		Assert.notNull(dbObject, "dbObject");
 		
 		if (isEmpty(dbObject.getType())) {
-			throw new ValidationException(new ValidationError("val.empty.field", "label.type"));
+			throw new ValidationException(ValidationError.emptyField("label.type"));
 		}
 	}
 	
+	@Override
 	public void validateSave(DBObject dbObject) throws ValidationException {
-		Assert.notNull(dbObject, "dbObject is null");
+		Assert.notNull(dbObject, "dbObject");
 		final Set<ValidationError> errors = createErrorList();
 		
 		if (isEmpty(dbObject.getName())) {
-			errors.add(new ValidationError("val.empty.field", "label.name"));
+			errors.add(ValidationError.emptyName());
 		}
 		else if (!isNameLengthAllowed(dbObject.getName())) {
-			errors.add(new ValidationError("val.toolong.name", String.valueOf(getMaxNameLength())));
+			errors.add(ValidationError.overlongName(getMaxNameLength()));
 		}
 		if (isEmpty(dbObject.getType())) {
-			errors.add(new ValidationError("val.empty.field", "label.type"));
+			errors.add(ValidationError.emptyField("label.type"));
 		}
 		if (isEmpty(dbObject.getContent())) {
-			errors.add(new ValidationError("val.empty.field", "label.sqlstatement"));
+			errors.add(ValidationError.emptyField("label.sqlstatement"));
 		}
 		else { // test sql
 			try (Session session = sessionFactoryProvider.getSessionFactory().openSession()) {
-				switch (dbObject.getType()) {
-					case VIEW:
-						// test query
-						session.createSQLQuery(dbObject.getContent())
-									.setMaxResults(1).list();
-						break;
+				if (dbObject.getType() == DBObjectType.VIEW) {
+					// test query
+					session.createSQLQuery(dbObject.getContent())
+						   .setMaxResults(1).list();
 				}
 			}
 			catch (PersistenceException pex) {

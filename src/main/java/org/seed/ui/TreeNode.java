@@ -18,11 +18,12 @@
 package org.seed.ui;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
-public class TreeNode {
+public final class TreeNode {
 	
 	public final String label;
 	
@@ -43,7 +44,7 @@ public class TreeNode {
 	}
 	
 	public TreeNode(String label, String viewName, String iconClass, Long formId) {
-		Assert.notNull(label, "label is null");
+		Assert.notNull(label, "label");
 		
 		this.label = label;
 		this.viewName = viewName;
@@ -90,7 +91,7 @@ public class TreeNode {
 			result.addAll(children);
 			return result;
 		}
-		return null;
+		return Collections.emptyList();
 	}
 
 	public int countChildren() {
@@ -104,7 +105,7 @@ public class TreeNode {
 	}
 
 	public TreeNode addChild(TreeNode child) {
-		Assert.notNull(child, "child is null");
+		Assert.notNull(child, "child");
 		
 		if (children == null) {
 			children = new ArrayList<>();

@@ -21,6 +21,6 @@ import org.hibernate.Session;
 
 public interface CodeChangeAware {
 	
-	boolean processCodeChange(SourceCode<?> sourceCode, Session session);
+	boolean processCodeChange(SourceCode sourceCode, Session session);
 	
 }

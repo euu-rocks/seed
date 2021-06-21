@@ -17,10 +17,15 @@
  */
 package org.seed.core.data;
 
-import java.util.Arrays;
+import java.io.Serializable;
 
-public class ValidationError {
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
+public class ValidationError implements Serializable {
 	
+	private static final long serialVersionUID = -1116515324696240537L;
+
 	private final String error;
 	
 	private final String[] parameters;
@@ -40,30 +45,57 @@ public class ValidationError {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((error == null) ? 0 : error.hashCode());
-		result = prime * result + Arrays.hashCode(parameters);
-		return result;
+		return new HashCodeBuilder()
+				.append(error)
+				.append(parameters)
+				.hashCode();
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
+	public boolean equals(Object object) {
+		if (object == null || getClass() != object.getClass()) {
+			return false;
+		}
+		if (this == object) {
 			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ValidationError other = (ValidationError) obj;
-		if (error == null) {
-			if (other.error != null)
-				return false;
-		} else if (!error.equals(other.error))
-			return false;
-		if (!Arrays.equals(parameters, other.parameters))
-			return false;
-		return true;
+		}
+		final ValidationError otherError = (ValidationError) object;
+		return new EqualsBuilder()
+				.append(error, otherError.error)
+				.append(parameters, otherError.parameters)
+				.isEquals();
+	}
+	
+	public static ValidationError emptyName() {
+		return emptyField("label.name");
+	}
+	
+	public static ValidationError emptyField(String name) {
+		return new ValidationError("val.empty.field", name);
+	}
+	
+	public static ValidationError illegalField(String name, String value) {
+		return new ValidationError("val.illegal.field", name, value);
+	}
+	
+	public static ValidationError overlongName(int maxlength) {
+		return new ValidationError("val.toolong.name", String.valueOf(maxlength));
+	}
+	
+	public static ValidationError overlongField(String name, int maxlength) {
+		return new ValidationError("val.toolong.fieldvalue", name, String.valueOf(maxlength));
+	}
+	
+	public static ValidationError overlongObjectName(String objectName, int maxlength) {
+		return overlongObjectField("label.name", objectName, maxlength);
+	}
+	
+	public static ValidationError overlongObjectField(String fieldName, String objectName, int maxlength) {
+		return new ValidationError("val.toolong.objectfieldvalue", fieldName, objectName, String.valueOf(maxlength));
+	}
+	
+	public static ValidationError zeroField(String name) {
+		return new ValidationError("val.zero.field", name);
 	}
 	
 }

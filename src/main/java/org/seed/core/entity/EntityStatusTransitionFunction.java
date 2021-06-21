@@ -29,14 +29,12 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import org.seed.core.application.TransferableObject;
-import org.seed.core.data.AbstractOrderedSystemObject;
+import org.seed.core.application.AbstractOrderedTransferableObject;
 
 @javax.persistence.Entity
 @Table(name = "sys_entity_statustran_func")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class EntityStatusTransitionFunction extends AbstractOrderedSystemObject 
-	implements TransferableObject {
+public class EntityStatusTransitionFunction extends AbstractOrderedTransferableObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "transition_id")
@@ -46,25 +44,12 @@ public class EntityStatusTransitionFunction extends AbstractOrderedSystemObject
     @JoinColumn(name = "function_id")
 	private EntityFunction function;
 	
-	private String uid;
-	
 	private boolean isActiveBeforeTransition;
 	
 	private boolean isActiveAfterTransition;
 	
 	@Transient
 	private String functionUid;
-	
-	@Override
-	@XmlAttribute
-	public String getUid() {
-		return uid;
-	}
-	
-	@Override
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
 	
 	@XmlTransient
 	public EntityStatusTransition getStatusTransition() {

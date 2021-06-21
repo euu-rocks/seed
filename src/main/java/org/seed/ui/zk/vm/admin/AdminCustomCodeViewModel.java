@@ -66,6 +66,7 @@ public class AdminCustomCodeViewModel extends AbstractAdminViewModel<CustomCode>
 	}
 
 	@Command
+	@Override
 	public void flagDirty(@BindingParam("notify") String notify, 
 						  @BindingParam("notifyObject") String notifyObject) {
 		super.flagDirty(notify, notifyObject);
@@ -131,7 +132,7 @@ public class AdminCustomCodeViewModel extends AbstractAdminViewModel<CustomCode>
 		}
 		try {
 			getObject().setContent(code);
-			final SourceCode<CustomCode> sourceCode = customCodeProvider.getCustomCodeSource(getObject());
+			final SourceCode sourceCode = customCodeProvider.getCustomCodeSource(getObject());
 			codeManager.testCompile(sourceCode);
 			getObject().setName(sourceCode.getQualifiedName());
 			notifyObjectChange("name");

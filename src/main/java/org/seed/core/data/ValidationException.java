@@ -20,13 +20,14 @@ package org.seed.core.data;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.springframework.util.Assert;
+import org.seed.C;
+import org.seed.core.util.Assert;
 
 public class ValidationException extends Exception {
 	
 	private static final long serialVersionUID = -8839158339815075607L;
 	
-	private Set<ValidationError> errors;
+	private final Set<ValidationError> errors = new HashSet<>();
 	
 	public ValidationException(ValidationError error) {
 		addError(error);
@@ -38,14 +39,12 @@ public class ValidationException extends Exception {
 	}
 	
 	public ValidationException(Set<ValidationError> errors) {
-		this.errors = errors;
+		this.errors.addAll(errors);
 	}
 	
 	public void addError(ValidationError error) {
-		Assert.notNull(error, "error is null");
-		if (errors == null) {
-			errors = new HashSet<>();
-		}
+		Assert.notNull(error, C.ERROR);
+		
 		errors.add(error);
 	}
 

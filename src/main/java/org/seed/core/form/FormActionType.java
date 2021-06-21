@@ -17,22 +17,26 @@
  */
 package org.seed.core.form;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public enum FormActionType {
 					 // first (if default is true)
-	// 			default defsel list   detail subfrm tmpl-list	 tmpl-detail  icon
-	CUSTOM		(false, false, false, true,  true,  "select",	 null,		  "z-icon-exclamation"),
-	OVERVIEW	(true,  true,  false, true,  false, null,		 null,		  "z-icon-arrow-left"),
-	BACKSEARCH	(true,  true,  true,  false, false, "search",	 null,		  "z-icon-arrow-left"),
-	SAVE		(false, true,  false, true,  false, null,		 "dirty",	  "z-icon-save"),
-	REFRESH		(false, true,  true,  true,  false, null,		 "notnew", 	  "z-icon-refresh"),
-	SEARCH		(false, true,  true,  true,  false, null,		 null,     	  "z-icon-search"),
-	NEWOBJECT	(false, true,  true,  true,  true, 	null,		 null,     	  "z-icon-file-o"),
-	DETAIL		(false, true,  true,  false, false, "select",	 null, 		  "z-icon-edit"),
-	DELETE  	(false, true,  true,  true,  true,	"select",	 "notnew",	  "z-icon-remove"),
-	PRINT		(false, true,  true,  true,  false, "print",	 "print",	  "z-icon-print"),
-	STATUS		(true,  false, true,  true,  false, "status",	 "status",	  null),
-	TRANSFORM	(true,  false, true,  true,  false, "transform", "transform", null),
-	SELECTCOLS	(true,	false, true,  false, false,  null,		 null,		  "z-icon-columns");
+	// 			default defsel list   detail subfrm tmpl-list	 		tmpl-detail  		icon
+	CUSTOM		(false, false, false, true,  true,  Template.SELECT,	null,		  		"z-icon-exclamation"),
+	OVERVIEW	(true,  true,  false, true,  false, null,				null,		  		"z-icon-arrow-left"),
+	BACKSEARCH	(true,  true,  true,  false, false, Template.SEARCH,	null,		  		"z-icon-arrow-left"),
+	SAVE		(false, true,  false, true,  false, null,		 		Template.DIRTY,	  	"z-icon-save"),
+	REFRESH		(false, true,  true,  true,  false, null,		 		Template.NOTNEW, 	"z-icon-refresh"),
+	SEARCH		(false, true,  true,  true,  false, null,				null,     	  		"z-icon-search"),
+	NEWOBJECT	(false, true,  true,  true,  true, 	null,		 		null,     	  		"z-icon-file-o"),
+	DETAIL		(false, true,  true,  false, false, Template.SELECT,	null, 		  		"z-icon-edit"),
+	DELETE  	(false, true,  true,  true,  true,	Template.SELECT,	Template.NOTNEW,	"z-icon-remove"),
+	PRINT		(false, true,  true,  true,  false, Template.PRINT,		Template.PRINT,	    "z-icon-print"),
+	STATUS		(true,  false, true,  true,  false, Template.STATUS,	Template.STATUS,	null),
+	TRANSFORM	(true,  false, true,  true,  false, Template.TRANSFORM, Template.TRANSFORM, null),
+	SELECTCOLS	(true,	false, true,  false, false, null,		 		null,		  		"z-icon-columns");
 	
 	// if true, action is always present and can't be deseleted 
 	public final boolean isDefault;
@@ -46,16 +50,17 @@ public enum FormActionType {
 	
 	public final boolean isVisibleAtSubform;
 	
-	public final String listTemplate;
+	private final Template listTemplate;
 	
-	public final String detailTemplate;
+	private final Template detailTemplate;
 	
-	public final String icon;
+	private final String icon;
 	
 	private FormActionType(boolean isDefault, boolean isDefaultSelected,
 						   boolean isVisibleAtList, boolean isVisibleAtDetail, 
 						   boolean isVisibleAtSubform, 
-						   String listTemplate, String detailTemplate, String icon) {
+						   Template listTemplate, Template detailTemplate, 
+						   String icon) {
 		
 		this.isDefault = isDefault;
 		this.isDefaultSelected = isDefaultSelected;
@@ -68,11 +73,11 @@ public enum FormActionType {
 	}
 	
 	public String getListTemplate() {
-		return listTemplate;
+		return listTemplate != null ? listTemplate.getName() : null;
 	}
 
 	public String getDetailTemplate() {
-		return detailTemplate;
+		return detailTemplate != null ? detailTemplate.getName() : null;
 	}
 
 	public String getIcon() {
@@ -80,8 +85,34 @@ public enum FormActionType {
 	}
 	
 	// if isDefault is true
-	public boolean comesFirst() {
+	boolean comesFirst() {
 		return isDefaultSelected;
+	}
+	
+	static List<FormActionType> defaultActionTypes(boolean isList, boolean comesFirst) {
+		return Arrays.stream(values())
+					 .filter(type -> (type.isDefault && 
+									  ((comesFirst && type.comesFirst()) ||
+									  (!comesFirst && !type.comesFirst())) &&
+										  ((isList && type.isVisibleAtList) ||
+										  (!isList && type.isVisibleAtDetail))))
+					 .collect(Collectors.toList());
+	}
+	
+	private enum Template {
+		
+		DIRTY,
+		NOTNEW,
+		PRINT,
+		SEARCH,
+		SELECT,
+		STATUS,
+		TRANSFORM;
+		
+		private String getName() {
+			return name().toLowerCase();
+		}
+		
 	}
 
 }

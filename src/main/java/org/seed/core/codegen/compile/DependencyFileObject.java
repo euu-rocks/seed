@@ -28,7 +28,8 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.NestingKind;
 import javax.tools.JavaFileObject;
 
-import org.springframework.util.Assert;
+import org.seed.C;
+import org.seed.core.util.Assert;
 
 class DependencyFileObject implements JavaFileObject {
 	
@@ -37,8 +38,8 @@ class DependencyFileObject implements JavaFileObject {
 	private final URI uri;
 	
 	DependencyFileObject(String qualifiedName, URI uri) {
-		Assert.notNull(qualifiedName, "qualifiedName is null");
-		Assert.notNull(uri, "uri is null");
+		Assert.notNull(qualifiedName, C.QUALIFIEDNAME);
+		Assert.notNull(uri, "uri");
 		
 		this.qualifiedName = qualifiedName;
 		this.uri = uri;

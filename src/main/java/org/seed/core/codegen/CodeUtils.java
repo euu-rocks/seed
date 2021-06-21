@@ -25,14 +25,17 @@ import java.util.regex.Pattern;
 
 import javax.tools.JavaFileObject.Kind;
 
-import org.springframework.util.Assert;
+import org.seed.C;
+import org.seed.core.util.Assert;
 
 public abstract class CodeUtils {
 	
-	private static final String CLASS_TYPES[] = { "class ", "interface ", "enum " };
+	private static final String[] CLASS_TYPES = { "class ", "interface ", "enum " };
+	
+	private CodeUtils() { }
 	
 	public static URI createJarURI(URL packageURL, String classFileName) {
-		Assert.notNull(packageURL, "packageURL is null");
+		Assert.notNull(packageURL, "packageURL");
 		Assert.notNull(classFileName, "classFileName");
 		
 		final String packageURLString = packageURL.toExternalForm();
@@ -49,47 +52,47 @@ public abstract class CodeUtils {
 	}
 	
 	public static boolean isClassFile(String fileName) {
-		Assert.notNull(fileName, "fileName is null");
+		Assert.notNull(fileName, C.FILENAME);
 		
 		return fileName.endsWith(Kind.CLASS.extension);
 	}
 	
 	public static boolean isSourceFile(String fileName) {
-		Assert.notNull(fileName, "fileName is null");
+		Assert.notNull(fileName, C.FILENAME);
 		
 		return fileName.endsWith(Kind.SOURCE.extension);
 	}
 	
 	public static boolean isSubPackage(String path, String packagePath) {
-		Assert.notNull(path, "path is null");
-		Assert.notNull(packagePath, "packagePath is null");
+		Assert.notNull(path, C.PATH);
+		Assert.notNull(packagePath, "packagePath");
 		
 		return path.indexOf('/', packagePath.length() + 1) != -1;
 	}
 	
 	public static String getQualifiedName(String packageName, String className) {
-		Assert.notNull(packageName, "packageName is null");
-		Assert.notNull(className, "className is null");
+		Assert.notNull(packageName, C.PACKAGENAME);
+		Assert.notNull(className, C.CLASSNAME);
 		
 		return packageName + '.' + className;
 	}
 	
 	public static String extractClassName(String qualifiedName) {
-		Assert.notNull(qualifiedName, "qualifiedName is null");
+		Assert.notNull(qualifiedName, C.QUALIFIEDNAME);
 		
 		final int idx = qualifiedName.lastIndexOf('.');
 		return idx >= 0 ? qualifiedName.substring(idx + 1) : qualifiedName; 
 	}
 	
 	public static String extractPackageName(String qualifiedName) {
-		Assert.notNull(qualifiedName, "qualifiedName is null");
+		Assert.notNull(qualifiedName, C.QUALIFIEDNAME);
 		
 		final int idx = qualifiedName.lastIndexOf('.');
 		return idx >= 0 ? qualifiedName.substring(0, idx) : "java.lang"; // primitives have no package
 	}
 	
 	public static String extractQualifiedName(String code) {
-		Assert.notNull(code, "code is null");
+		Assert.notNull(code, "code");
 		
 		// extract package name
 		int startIdx = code.indexOf("package ");
@@ -126,15 +129,15 @@ public abstract class CodeUtils {
 	}
 	
 	public static String removeClassExtension(String classFileName) {
-		Assert.notNull(classFileName, "classFile is null");
+		Assert.notNull(classFileName, "classFile");
 		Assert.state(isClassFile(classFileName), "file is not a class file:" + classFileName);
 		
 		return classFileName.substring(0, classFileName.length() - Kind.CLASS.extension.length());
 	}
 	
 	public static String getPackageName(File baseDir, File dir) {
-		Assert.notNull(baseDir, "baseDir is null");
-		Assert.notNull(dir, "dir is null");
+		Assert.notNull(baseDir, "baseDir");
+		Assert.notNull(dir, C.DIR);
 		
 		return dir.getAbsolutePath()
 					.substring(baseDir.getAbsolutePath().length() + 1)
@@ -142,20 +145,20 @@ public abstract class CodeUtils {
 	}
 	
 	public static String getClassName(File file) {
-		Assert.notNull(file, "file is null");
+		Assert.notNull(file, C.FILE);
 		
 		return file.getName().substring(0, file.getName().indexOf(Kind.SOURCE.extension));
 	}
 	
 	public static String getSourceFileName(String qualifiedName) {
-		Assert.notNull(qualifiedName, "qualifiedName is null");
+		Assert.notNull(qualifiedName, "qualifiedName");
 		
 		return qualifiedName.replace(".", File.separator) + Kind.SOURCE.extension;
 	}
 	
 	public static int getLineNumber(String code, Pattern pattern) {
-		Assert.notNull(code, "code is null");
-		Assert.notNull(pattern, "pattern is null");
+		Assert.notNull(code, "code");
+		Assert.notNull(pattern, "pattern");
 		
 		int line = 0;
 		final Scanner scanner = new Scanner(code);
@@ -171,7 +174,7 @@ public abstract class CodeUtils {
 	}
 	
 	private static URI createURI(String uriString) {
-		Assert.notNull(uriString, "uriString is null");
+		Assert.notNull(uriString, "uriString");
 		
 		return URI.create(uriString);
 	}

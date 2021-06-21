@@ -17,8 +17,11 @@
  */
 package org.seed.core.customcode;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.hibernate.Session;
 
+import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -29,11 +32,11 @@ import org.seed.core.codegen.CodeChangeAware;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.data.ValidationException;
+import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 @Service
 public class CustomCodeServiceImpl extends AbstractApplicationEntityService<CustomCode>
@@ -48,15 +51,14 @@ public class CustomCodeServiceImpl extends AbstractApplicationEntityService<Cust
 	@Autowired
 	private UpdatableConfiguration configuration;
 	
+	@SuppressWarnings("unchecked")
 	@Override
-	public Class<? extends ApplicationEntityService<? extends ApplicationEntity>>[] getImportDependencies() {
-		return null; // independent
+	public Class<? extends ApplicationEntityService<ApplicationEntity>>[] getImportDependencies() {
+		return ArrayUtils.toArray(); // independent
 	}
 	
 	@Override
-	public void analyzeObjects(ImportAnalysis analysis, Module currentVersionModule) {
-		Assert.notNull(analysis, "analysis is null");
-		
+	protected void analyzeNextVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
 		if (analysis.getModule().getCustomCodes() != null) {
 			for (CustomCode customCode : analysis.getModule().getCustomCodes()) {
 				if (currentVersionModule == null) {
@@ -74,7 +76,11 @@ public class CustomCodeServiceImpl extends AbstractApplicationEntityService<Cust
 				}
 			}
 		}
-		if (currentVersionModule != null && currentVersionModule.getCustomCodes() != null) {
+	}
+	
+	@Override
+	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
+		if (currentVersionModule.getCustomCodes() != null) {
 			for (CustomCode currentVersionCode : currentVersionModule.getCustomCodes()) {
 				if (analysis.getModule().getCustomCodeByUid(currentVersionCode.getUid()) == null) {
 					analysis.addChangeDelete(currentVersionCode);
@@ -85,8 +91,8 @@ public class CustomCodeServiceImpl extends AbstractApplicationEntityService<Cust
 
 	@Override
 	public void importObjects(TransferContext context, Session session) {
-		Assert.notNull(context, "context is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(context, C.CONTEXT);
+		Assert.notNull(session, C.SESSION);
 		try {
 			if (context.getModule().getCustomCodes() != null) {
 				for (CustomCode customCode : context.getModule().getCustomCodes()) {
@@ -101,15 +107,15 @@ public class CustomCodeServiceImpl extends AbstractApplicationEntityService<Cust
 			}
 		}
 		catch (ValidationException vex) {
-			throw new RuntimeException(vex);
+			throw new InternalException(vex);
 		}
 	}
 
 	@Override
 	public void deleteObjects(Module module, Module currentVersionModule, Session session) {
-		Assert.notNull(module, "module is null");
-		Assert.notNull(currentVersionModule, "currentVersionModule is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(module, C.MODULE);
+		Assert.notNull(currentVersionModule, "currentVersionModule");
+		Assert.notNull(session, C.SESSION);
 		
 		if (currentVersionModule.getCustomCodes() != null) {
 			for (CustomCode currentVersionCode : currentVersionModule.getCustomCodes()) {
@@ -123,7 +129,7 @@ public class CustomCodeServiceImpl extends AbstractApplicationEntityService<Cust
 	@Override
 	@Secured("ROLE_ADMIN_SOURCECODE")
 	public void saveObject(CustomCode customCode) throws ValidationException {
-		Assert.notNull(customCode, "customCode is null");
+		Assert.notNull(customCode, "customCode");
 		
 		super.saveObject(customCode);
 		
@@ -137,13 +143,12 @@ public class CustomCodeServiceImpl extends AbstractApplicationEntityService<Cust
 	}
 	
 	@Override
-	public boolean processCodeChange(SourceCode<?> sourceCode, Session session) {
-		Assert.notNull(sourceCode, "sourceCode is null");
-		Assert.notNull(session, "session is null");
+	public boolean processCodeChange(SourceCode sourceCode, Session session) {
+		Assert.notNull(sourceCode, "sourceCode");
+		Assert.notNull(session, C.SESSION);
 		
 		final CustomCode customCode = findByName(sourceCode.getQualifiedName(), session);
-		if (customCode != null &&
-			!customCode.getContent().equals(sourceCode.getContent())) {
+		if (customCode != null && !customCode.getContent().equals(sourceCode.getContent())) {
 			
 			customCode.setContent(sourceCode.getContent());
 			session.saveOrUpdate(customCode);

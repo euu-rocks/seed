@@ -20,8 +20,7 @@ package org.seed.core.codegen.compile;
 import javax.tools.SimpleJavaFileObject;
 
 import org.seed.core.codegen.SourceCode;
-
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 import static org.seed.core.codegen.CodeUtils.*;
 
@@ -29,13 +28,13 @@ class JavaSourceFileObject extends SimpleJavaFileObject {
 	
 	private final CharSequence sourceCode;
 	
-	JavaSourceFileObject(SourceCode<?> sourceCode) {
+	JavaSourceFileObject(SourceCode sourceCode) {
 		this(sourceCode.getClassName(), sourceCode.getContent());
 	}
 	
 	JavaSourceFileObject(String className, CharSequence sourceCode) {
 		super(createSourceURI(className), Kind.SOURCE);
-		Assert.notNull(sourceCode, "sourceCode is null");
+		Assert.notNull(sourceCode, "sourceCode");
 		
 		this.sourceCode = sourceCode;
 	}

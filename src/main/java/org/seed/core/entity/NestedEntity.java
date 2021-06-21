@@ -32,8 +32,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import org.seed.core.application.TransferableObject;
-import org.seed.core.data.AbstractOrderedSystemObject;
+import org.seed.core.application.AbstractOrderedTransferableObject;
 import org.seed.core.util.NameUtils;
 import org.seed.core.util.ReferenceJsonSerializer;
 
@@ -43,8 +42,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @javax.persistence.Entity
 @Table(name = "sys_entity_nested")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class NestedEntity extends AbstractOrderedSystemObject
-	implements TransferableObject {
+public class NestedEntity extends AbstractOrderedTransferableObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_entity_id")
@@ -54,14 +52,12 @@ public class NestedEntity extends AbstractOrderedSystemObject
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "nested_entity_id")
 	@JsonSerialize(using = ReferenceJsonSerializer.class)
-	private EntityMetadata nestedEntity;
+	private EntityMetadata nestedEntityMeta;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ref_field_id")
 	@JsonSerialize(using = ReferenceJsonSerializer.class)
 	private EntityField referenceField;
-	
-	private String uid;
 	
 	private String name;
 	
@@ -72,17 +68,6 @@ public class NestedEntity extends AbstractOrderedSystemObject
 	@Transient
 	@JsonIgnore
 	private String referenceFieldUid;
-	
-	@Override
-	@XmlAttribute
-	public String getUid() {
-		return uid;
-	}
-	
-	@Override
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
 	
 	@XmlAttribute
 	public String getName() {
@@ -109,12 +94,12 @@ public class NestedEntity extends AbstractOrderedSystemObject
 	
 	@XmlTransient
 	public Entity getNestedEntity() {
-		return nestedEntity;
+		return nestedEntityMeta;
 	}
 	
 	@XmlAttribute
 	public String getNestedEntityUid() {
-		return nestedEntity != null ? nestedEntity.getUid() : nestedEntityUid;
+		return nestedEntityMeta != null ? nestedEntityMeta.getUid() : nestedEntityUid;
 	}
 
 	public void setNestedEntityUid(String nestedEntityUid) {
@@ -122,7 +107,7 @@ public class NestedEntity extends AbstractOrderedSystemObject
 	}
 
 	public void setNestedEntity(Entity nestedEntity) {
-		this.nestedEntity = (EntityMetadata) nestedEntity;
+		this.nestedEntityMeta = (EntityMetadata) nestedEntity;
 	}
 	
 	@XmlTransient
@@ -144,17 +129,17 @@ public class NestedEntity extends AbstractOrderedSystemObject
 	}
 	
 	public EntityField getFieldByUid(String entityFieldUid) {
-		return nestedEntity.getFieldByUid(entityFieldUid);
+		return nestedEntityMeta.getFieldByUid(entityFieldUid);
 	}
 	
 	public EntityFunction getFunctionByUid(String entityFunctionUid) {
-		return nestedEntity.getFunctionByUid(entityFunctionUid);
+		return nestedEntityMeta.getFunctionByUid(entityFunctionUid);
 	}
 	
 	public List<EntityField> getFields(boolean excludeParentRef) {
 		final List<EntityField> fields = new ArrayList<>();
-		if (nestedEntity.hasAllFields()) {
-			for (EntityField field : nestedEntity.getAllFields()) {
+		if (nestedEntityMeta.hasAllFields()) {
+			for (EntityField field : nestedEntityMeta.getAllFields()) {
 				if ((!excludeParentRef) || (!field.equals(referenceField))) {
 					fields.add(field);
 				}

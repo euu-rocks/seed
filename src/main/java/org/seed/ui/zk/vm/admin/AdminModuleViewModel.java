@@ -18,7 +18,6 @@
 package org.seed.ui.zk.vm.admin;
 
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,13 +38,12 @@ import org.seed.core.entity.transfer.TransferService;
 import org.seed.core.entity.transform.TransformerService;
 import org.seed.core.form.FormService;
 import org.seed.core.form.navigation.MenuService;
-import org.seed.core.report.ReportService;
 import org.seed.core.task.TaskService;
 import org.seed.core.user.Authorisation;
-import org.seed.core.user.UserGroupService;
+import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
 import org.springframework.oxm.UnmarshallingFailureException;
-import org.springframework.util.Assert;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.ContextParam;
@@ -105,14 +103,8 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	@WireVariable(value="taskServiceImpl")
 	private TaskService taskService;
 	
-	@WireVariable(value="reportServiceImpl")
-	private ReportService reportService;
-	
 	@WireVariable(value="customCodeServiceImpl")
 	private CustomCodeService customCodeService;
-	
-	@WireVariable(value="userGroupServiceImpl")
-	private UserGroupService groupService;
 	
 	private ModuleParameter parameter;
 	
@@ -210,7 +202,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 		existTasks = taskService.existObjects();
 		existReports = reportService.existObjects();
 		existCustomCodes = customCodeService.existObjects();
-		existUserGroups = !groupService.findNonSystemGroups().isEmpty();
+		existUserGroups = !userGroupService.findNonSystemGroups().isEmpty();
 	}
 	
 	@Command
@@ -272,7 +264,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	@Command
 	public void analyzeModule(@BindingParam("elem") Component elem,
 			 				  @ContextParam(ContextType.TRIGGER_EVENT) UploadEvent event) {
-		try (InputStream inputStream = getMediaStream(event.getMedia(), Charset.forName("UTF-8"))) {
+		try (InputStream inputStream = getMediaStream(event.getMedia())) {
 			final Module module = moduleService.readModule(inputStream);
 			final ImportAnalysis analysis = moduleService.analyzeModule(module);
 			showDialog("/admin/module/importanalysis.zul", new TransferDialogParameter(this, analysis));
@@ -289,7 +281,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	}
 	
 	void importModule(Module module) {
-		Assert.notNull(module, "module is null");
+		Assert.notNull(module, "module");
 		
 		moduleService.importModule(module);
 		switch (getViewMode()) {
@@ -308,12 +300,14 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	}
 	
 	@Command
+	@Override
 	public void flagDirty(@BindingParam("notify") String notify, 
 						  @BindingParam("notifyObject") String notifyObject) {
 		super.flagDirty(notify, notifyObject);
 	}
 	
 	@Command
+	@Override
 	public void dropToList(@BindingParam("key") String key, 
 						   @BindingParam("list") int listNum, 
 						   @BindingParam("item") SystemObject item) {
@@ -321,6 +315,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	}
 	
 	@Command
+	@Override
 	public void insertToList(@BindingParam("key") String key,
 							 @BindingParam("list") int listNum,
 							 @BindingParam("base") SystemObject base,
@@ -329,7 +324,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	}
 	
 	@GlobalCommand
-	public void _refreshObject(@BindingParam("param") Long objectId) {
+	public void globalRefreshObject(@BindingParam("param") Long objectId) {
 		refreshObject(objectId);
 	}
 	
@@ -337,58 +332,34 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	protected ModuleService getObjectService() {
 		return moduleService;
 	}
-
+	
 	@Override
-	protected List<? extends SystemObject> getListManagerSource(String key, int listNum) {
+	protected List<SystemObject> getListManagerSource(String key, int listNum) {
 		switch (key) {
 			case DBOBJECTS:
-				return listNum == LIST_SELECTED
-						? getObject().getDBObjects()
-						: dbObjectService.findObjectsWithoutModule();
+				return getListManagerSourceDBObject(listNum);
 			case DATASOURCES:
-				return listNum == LIST_SELECTED
-						? getObject().getDataSources()
-						: dataSourceService.findObjectsWithoutModule();
+				return getListManagerSourceDataSource(listNum);
 			case ENTITIES:
-				return listNum == LIST_SELECTED
-						? getObject().getEntities()
-						: entityService.findObjectsWithoutModule();
+				return getListManagerSourceEntity(listNum);
 			case FILTERS:
-				return listNum == LIST_SELECTED
-						? getObject().getFilters()
-						: filterService.findObjectsWithoutModule();
+				return getListManagerSourceFilter(listNum);
 			case TRANSFORMERS:
-				return listNum == LIST_SELECTED
-						? getObject().getTransformers()
-						: transformerService.findObjectsWithoutModule();
+				return getListManagerSourceTransformer(listNum);
 			case TRANSFERS:
-				return listNum == LIST_SELECTED
-						? getObject().getTransfers()
-						: transferService.findObjectsWithoutModule();
+				return getListManagerSourceTransfer(listNum);
 			case FORMS:
-				return listNum == LIST_SELECTED
-						? getObject().getForms()
-						: formService.findObjectsWithoutModule();
+				return getListManagerSourceForm(listNum);
 			case MENUS:
-				return listNum == LIST_SELECTED
-						? getObject().getMenus()
-						: menuService.findObjectsWithoutModule();
+				return getListManagerSourceMenu(listNum);
 			case TASKS:
-				return listNum == LIST_SELECTED
-						? getObject().getTasks()
-						: taskService.findObjectsWithoutModule();
+				return getListManagerSourceTask(listNum);
 			case REPORTS:
-				return listNum == LIST_SELECTED
-						? getObject().getReports()
-						: reportService.findObjectsWithoutModule();
+				return getListManagerSourceReport(listNum);
 			case CUSTOMCODES:
-				return listNum == LIST_SELECTED
-						? getObject().getCustomCodes()
-						: customCodeService.findObjectsWithoutModule();
+				return getListManagerSourceCustomCode(listNum);
 			case USERGROUPS:
-				return listNum == LIST_SELECTED
-						? getObject().getUserGroups()
-						: groupService.findNonSystemGroupsWithoutModule();
+				return getListManagerSourceUserGroup(listNum);
 			default:
 				throw new IllegalStateException("unknown list manager key: " + key);
 		}
@@ -397,6 +368,78 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	@Override
 	protected void resetProperties() {
 		parameter = null;
+	}
+	
+	private List<SystemObject> getListManagerSourceDBObject(int listNum) {
+		return MiscUtils.cast(listNum == LIST_SELECTED
+				? getObject().getDBObjects()
+				: dbObjectService.findObjectsWithoutModule());
+	}
+	
+	private List<SystemObject> getListManagerSourceDataSource(int listNum) {
+		return MiscUtils.cast(listNum == LIST_SELECTED
+				? getObject().getDataSources()
+				: dataSourceService.findObjectsWithoutModule());
+	}
+	
+	private List<SystemObject> getListManagerSourceEntity(int listNum) {
+		return MiscUtils.cast(listNum == LIST_SELECTED
+				? getObject().getEntities()
+				: entityService.findObjectsWithoutModule());
+	}
+	
+	private List<SystemObject> getListManagerSourceFilter(int listNum) {
+		return MiscUtils.cast(listNum == LIST_SELECTED
+				? getObject().getFilters()
+				: filterService.findObjectsWithoutModule());
+	}
+	
+	private List<SystemObject> getListManagerSourceTransformer(int listNum) {
+		return MiscUtils.cast(listNum == LIST_SELECTED
+				? getObject().getTransformers()
+				: transformerService.findObjectsWithoutModule());
+	}
+	
+	private List<SystemObject> getListManagerSourceTransfer(int listNum) {
+		return MiscUtils.cast(listNum == LIST_SELECTED
+				? getObject().getTransfers()
+				: transferService.findObjectsWithoutModule());
+	}
+	
+	private List<SystemObject> getListManagerSourceForm(int listNum) {
+		return MiscUtils.cast(listNum == LIST_SELECTED
+				? getObject().getForms()
+				: formService.findObjectsWithoutModule());
+	}
+	
+	private List<SystemObject> getListManagerSourceMenu(int listNum) {
+		return MiscUtils.cast(listNum == LIST_SELECTED
+				? getObject().getMenus()
+				: menuService.findObjectsWithoutModule());
+	}
+	
+	private List<SystemObject> getListManagerSourceTask(int listNum) {
+		return MiscUtils.cast(listNum == LIST_SELECTED
+				? getObject().getTasks()
+				: taskService.findObjectsWithoutModule());
+	}
+	
+	private List<SystemObject> getListManagerSourceReport(int listNum) {
+		return MiscUtils.cast(listNum == LIST_SELECTED
+				? getObject().getReports()
+				: reportService.findObjectsWithoutModule());
+	}
+	
+	private List<SystemObject> getListManagerSourceCustomCode(int listNum) {
+		return MiscUtils.cast(listNum == LIST_SELECTED
+				? getObject().getCustomCodes()
+				: customCodeService.findObjectsWithoutModule());
+	}
+	
+	private List<SystemObject> getListManagerSourceUserGroup(int listNum) {
+		return MiscUtils.cast(listNum == LIST_SELECTED
+				? getObject().getUserGroups()
+				: userGroupService.findNonSystemGroupsWithoutModule());
 	}
 	
 	private List<ApplicationEntity> getChangedObjects() {

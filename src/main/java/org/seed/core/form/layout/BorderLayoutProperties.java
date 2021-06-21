@@ -20,7 +20,8 @@ package org.seed.core.form.layout;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.springframework.util.Assert;
+import org.seed.C;
+import org.seed.core.util.Assert;
 
 public class BorderLayoutProperties {
 	
@@ -43,7 +44,7 @@ public class BorderLayoutProperties {
 	}
 	
 	public BorderLayoutProperties(LayoutElement element) {
-		Assert.notNull(element, "element is null");
+		Assert.notNull(element, "element");
 		Assert.state(element.is(LayoutElement.BORDERLAYOUT), "element is no borderlayout");
 		
 		north = createProperties(BorderLayoutArea.NORTH, element);
@@ -78,7 +79,7 @@ public class BorderLayoutProperties {
 	}
 	
 	void applyTo(LayoutElement element) {
-		Assert.notNull(element, "element is null");
+		Assert.notNull(element, C.ELEMENT);
 		Assert.state(element.is(LayoutElement.BORDERLAYOUT), "element is no borderlayout");
 		
 		for (LayoutAreaProperties properties : getLayoutAreaProperties()) {
@@ -190,10 +191,10 @@ public class BorderLayoutProperties {
 		}
 		
 		void applyTo(LayoutElement element) {
-			Assert.notNull(element, "element is null");
+			Assert.notNull(element, C.ELEMENT);
 			
 			element.setOrRemoveAttribute("title", title);
-			element.setOrRemoveAttribute("size", size);
+			element.setOrRemoveAttribute(LayoutElementAttributes.A_SIZE, size);
 			element.setOrRemoveAttribute("maxsize", maxsize);
 			element.setOrRemoveAttribute("splittable", splittable);
 			element.setOrRemoveAttribute("collapsible", collapsible);
@@ -201,14 +202,14 @@ public class BorderLayoutProperties {
 		}
 		
 		private void init(Map<String, String> attributeMap) {
-			Assert.notNull(attributeMap, "attributeMap is null");
+			Assert.notNull(attributeMap, "attributeMap");
 			
 			for (Entry<String, String> entry : attributeMap.entrySet()) {
 				switch (entry.getKey()) {
 					case "title":
 						title = entry.getValue();
 						break;
-					case "size":
+					case LayoutElementAttributes.A_SIZE:
 						size = entry.getValue();
 						break;
 					case "maxsize":
@@ -222,6 +223,9 @@ public class BorderLayoutProperties {
 						break;
 					case "autoscroll":
 						autoscroll = Boolean.parseBoolean(entry.getValue());
+						break;
+					default:
+						// do nothing
 						break;
 				}
 			}

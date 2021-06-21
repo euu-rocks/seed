@@ -58,7 +58,7 @@ public class UserGroupAuthorisation extends AbstractSystemObject {
 
 	public void setAuthorisation(Authorisation authorisation) {
 		this.authorisation = authorisation;
-		setRoleName(authorisation != null ? "ROLE_" + authorisation.name() : null);
+		setRoleName(authorisation != null ? authorisation.roleName() : null);
 	}
 
 	public String getRoleName() {

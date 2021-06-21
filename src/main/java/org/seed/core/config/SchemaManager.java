@@ -17,25 +17,22 @@
  */
 package org.seed.core.config;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
+import java.util.SortedSet;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.Table;
 import javax.sql.DataSource;
 
 import org.hibernate.Session;
-
+import org.seed.InternalException;
+import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 
 import org.slf4j.Logger;
@@ -45,7 +42,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import liquibase.Contexts;
 import liquibase.Liquibase;
@@ -54,6 +50,7 @@ import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.AbstractResourceAccessor;
+import liquibase.resource.InputStreamList;
 
 @Component
 public class SchemaManager {
@@ -61,6 +58,8 @@ public class SchemaManager {
 	private static final Logger log = LoggerFactory.getLogger(SchemaManager.class);
 	
 	private static final String TABLE_CHANGELOG = ChangeLog.class.getAnnotation(Table.class).name();
+	
+	private static final String FILENAME_CHANGELOG = "changelog.json"; 
 	
 	@Autowired
 	private ResourceLoader resourceLoader;
@@ -110,13 +109,15 @@ public class SchemaManager {
 		final long startTime = System.currentTimeMillis();
 		try (Connection connection = dataSource.getConnection()) {
 			final String changeLog = getChangeLog(loadCustomChangeSets(connection));
-			log.debug("changelog content:\r\n" + changeLog);
+			log.debug("changelog content:\r\n{}", changeLog);
 			createLiquibase(connection, changeLog).update(new Contexts());
 		} 
 		catch (Exception ex) {
 			throw new ConfigurationException("failed to update schema", ex);
 		}
-		log.info("Schema updated in " + MiscUtils.formatDuration(startTime));
+		if (log.isInfoEnabled()) {
+			log.info("Schema updated in {}", MiscUtils.formatDuration(startTime));
+		}
 	}
 	
 	private String getChangeLog(String customChangeSets) {
@@ -137,8 +138,7 @@ public class SchemaManager {
 		final StringBuilder buf = new StringBuilder();
 		if (existChangeLogTable(connection)) {
 			try (Statement statement = connection.createStatement();
-				 ResultSet resultSet = statement.executeQuery("SELECT changeset FROM " + 
-															  TABLE_CHANGELOG + " ORDER BY id")) {
+				 ResultSet resultSet = statement.executeQuery("SELECT changeset FROM sys_changelog ORDER BY id")) {
 				while (resultSet.next()) {
 					if (buf.length() > 0) {
 						buf.append(',');
@@ -179,45 +179,57 @@ public class SchemaManager {
 				isPostgres = DriverManager.getDriver(con.getMetaData().getURL())
 										  .getClass().getName().contains("postgresql");
 			} catch (SQLException ex) {
-				throw new RuntimeException(ex);
+				throw new InternalException(ex);
 			}
 		}
 		return isPostgres;
 	}
 	
 	private Liquibase createLiquibase(Connection connection, String changeLogAsString) 
-			throws SQLException, LiquibaseException {
+			throws LiquibaseException {
 		final Database database = DatabaseFactory.getInstance()
 				.findCorrectDatabaseImplementation(new JdbcConnection(connection));
-		return new Liquibase("changelog.json", new StringResourceAccessor(changeLogAsString), 
-																		  database);
+		return new Liquibase(FILENAME_CHANGELOG, 
+							 new StringResourceAccessor(changeLogAsString), 
+							 database);
 	}
 	
 	private class StringResourceAccessor extends AbstractResourceAccessor {
 		
 		private final String string;
 		
-		StringResourceAccessor(String string) {
-			Assert.notNull(string, "string is null");
+		private StringResourceAccessor(String string) {
+			Assert.notNull(string, "string");
+			
 			this.string = string;
 		}
 
 		@Override
-		public Set<InputStream> getResourcesAsStream(String path) throws IOException {
-			return Collections.singleton(
-					   new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8))
-				   );
+		public InputStreamList openStreams(String relativeTo, String streamPath) throws IOException {
+			Assert.state(FILENAME_CHANGELOG.equals(streamPath), "unknown path: " + streamPath);
+			
+			return new InputStreamList(null, MiscUtils.getStringAsStream(string)); 
 		}
 
 		@Override
-		public Set<String> list(String relativeTo, String path, boolean includeFiles, 
-				boolean includeDirectories, boolean recursive) throws IOException {
+		public SortedSet<String> list(String relativeTo, String path, boolean recursive, 
+									  boolean includeFiles, boolean includeDirectories) throws IOException {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		public ClassLoader toClassLoader() {
-			return null;
+		public SortedSet<String> describeLocations() {
+			throw new UnsupportedOperationException();
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			return super.equals(obj);
+		}
+		
+		@Override
+		public int hashCode() {
+			return super.hashCode();
 		}
 
 	}

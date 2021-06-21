@@ -22,18 +22,18 @@ import org.hibernate.Transaction;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
+import org.seed.C;
 import org.seed.core.api.Job;
-import org.seed.core.api.JobContext;
-
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 public abstract class AbstractJob implements Job, org.quartz.Job {
 	
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
+		final Session session = (Session) context.get(DefaultJobContext.RUN_SESSION);
+		Assert.stateAvailable(session, C.SESSION);
+		
 		Transaction tx = null;
-		Session session = (Session) context.get(DefaultJobContext.RUN_SESSION);
-		Assert.state(session != null, "no session available");
 		try {
 			tx = session.beginTransaction();
 			execute(new DefaultJobContext(context));
@@ -46,12 +46,8 @@ public abstract class AbstractJob implements Job, org.quartz.Job {
 			throw new JobExecutionException(ex);
 		}
 		finally {
-			if (session != null) {
-				session.close();
-			}
+			session.close();
 		}
 	}
 	
-	abstract public void execute(JobContext context);
-
 }

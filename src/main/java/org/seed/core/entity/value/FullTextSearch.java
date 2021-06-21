@@ -30,11 +30,14 @@ import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.CommonParams;
 import org.hibernate.Session;
 
+import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.config.FullTextSearchProvider;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityChangeAware;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.NestedEntity;
+import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 import org.seed.core.util.Tupel;
 
@@ -42,19 +45,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
-import org.springframework.util.ObjectUtils;
 
 @Component
 public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware {
 	
-	private final static Logger log = LoggerFactory.getLogger(FullTextSearch.class);
+	private static final Logger log = LoggerFactory.getLogger(FullTextSearch.class);
 	
-	private final static String FIELD_ID = "id";
+	private static final String FIELD_ID = "id";
 	
-	private final static String FIELD_ENTITY_ID = "entity_id";
+	private static final String FIELD_ENTITY_ID = "entity_id";
 	
-	private final static String FIELD_TEXT = "text";
+	private static final String FIELD_TEXT = "text";
 	
 	@Autowired
 	private FullTextSearchProvider provider;
@@ -106,7 +107,7 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 	// tupel.x = entityId
 	// tupel.y = valueObjectId
 	List<Tupel<Long, Long>> query(String queryString, @Nullable Entity entity) {
-		Assert.notNull(queryString, "queryString is null");
+		Assert.notNull(queryString, "queryString");
 		
 		final SolrClient solrClient = provider.getSolrClient();
 		final SolrQuery query = new SolrQuery(queryString);
@@ -116,20 +117,20 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 		}
 		query.addField(FIELD_ID);
 		query.addField(FIELD_ENTITY_ID);
-		log.debug("Querying solr: " + query);
+		log.debug("Querying solr: {}", query);
 		try {
 			return solrClient.query(query).getResults().stream()
-						   	 .map(doc -> createResultEntry(doc))
+						   	 .map(FullTextSearch::createResultEntry)
 						     .collect(Collectors.toList());
 		}
 		catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new InternalException(e);
 		}
 	}
 	
 	Map<Long, String> getTextMap(List<ValueObject> objectList, String fullTextQuery) {
-		Assert.notNull(objectList, "objectList is null");
-		Assert.notNull(fullTextQuery, "fullTextQuery is null");
+		Assert.notNull(objectList, "objectList");
+		Assert.notNull(fullTextQuery, "fullTextQuery");
 		// collect object ids
 		final List<String> listIds = objectList.stream()
 											   .map(o -> o.getId().toString())
@@ -144,18 +145,18 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 															   					 fullTextKey)));
 		} 
 		catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new InternalException(e);
 		}
 	}
 	
 	private void index(ValueObject object) {
-		Assert.notNull(object, "object is null");
+		Assert.notNull(object, C.OBJECT);
 		
 		final Entity entity = repository.getEntity(object);
 		if (entity.hasFullTextSearchFields()) {
 			final SolrClient solrClient = provider.getSolrClient();
 			final SolrInputDocument solrDocument = buildDocument(entity, object);
-			log.debug("Indexing solr document: " + solrDocument);
+			log.debug("Indexing solr document: {}", solrDocument);
 			try {
 				solrClient.add(solrDocument);
 				solrClient.commit();
@@ -168,7 +169,7 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 	}
 	
 	private void delete(ValueObject object) {
-		Assert.notNull(object, "object is null");
+		Assert.notNull(object, C.OBJECT);
 		
 		final Entity entity = repository.getEntity(object);
 		if (entity.hasFullTextSearchFields()) {
@@ -185,7 +186,7 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 	}
 	
 	private void delete(Entity entity) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
 		if (entity.hasFullTextSearchFields()) {
 			final SolrClient solrClient = provider.getSolrClient();
@@ -202,7 +203,17 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 	
 	private SolrInputDocument buildDocument(Entity entity, ValueObject object) {
 		final StringBuilder buf = new StringBuilder();
-		// fields
+		buildFields(entity, object, buf);
+		buildNesteds(entity, object, buf);
+		
+		final SolrInputDocument solrDoc = new SolrInputDocument();
+		solrDoc.addField(FIELD_ID, object.getId());
+		solrDoc.addField(FIELD_ENTITY_ID, entity.getId());
+		solrDoc.addField(FIELD_TEXT, buf.toString().trim());
+		return solrDoc;
+	}
+	
+	private void buildFields(Entity entity, ValueObject object, StringBuilder buf) {
 		for (EntityField field : entity.getFullTextSearchFields()) {
 			Object value = objectAccess.getValue(object, field); 
 			if (field.getType().isReference()) {
@@ -212,44 +223,40 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 				buf.append(value).append(' ');
 			}
 		}
-		// nesteds
-		if (entity.hasNesteds()) {
-			for (NestedEntity nested : entity.getNesteds()) {
-				if (!nested.getNestedEntity().hasFullTextSearchFields()) {
-					continue;
-				}
+	}
+	
+	private void buildNesteds(Entity entity, ValueObject object, StringBuilder buf) {
+		for (NestedEntity nested : entity.getNesteds()) {
+			if (nested.getNestedEntity().hasFullTextSearchFields()) {
 				final List<ValueObject> nestedObjects = objectAccess.getNestedObjects(object, nested);
-				if (ObjectUtils.isEmpty(nestedObjects)) {
-					continue;
-				}
-				for (ValueObject nestedObject : nestedObjects) {
+				if (nestedObjects != null) {
+					buildNestedObjects(nested, nestedObjects, buf);
 					buf.append('\n');
-					for (EntityField entityField : nested.getNestedEntity().getFullTextSearchFields()) {
-						Object nestedFieldValue = objectAccess.getValue(nestedObject, entityField);
-						if (entityField.getType().isReference()) {
-							nestedFieldValue = repository.getIdentifier((ValueObject) nestedFieldValue);
-						}
-						if (nestedFieldValue != null) {
-							buf.append(nestedFieldValue).append('|');
-						}
-					}
 				}
-				buf.append('\n');
 			}
 		}
-		// solr document
-		final SolrInputDocument solrDoc = new SolrInputDocument();
-		solrDoc.addField(FIELD_ID, object.getId());
-		solrDoc.addField(FIELD_ENTITY_ID, object.getEntityId());
-		solrDoc.addField(FIELD_TEXT, buf.toString().trim());
-		return solrDoc;
+	}
+	
+	private void buildNestedObjects(NestedEntity nested, List<ValueObject> nestedObjects, StringBuilder buf) {
+		for (ValueObject nestedObject : nestedObjects) {
+			buf.append('\n');
+			for (EntityField entityField : nested.getNestedEntity().getFullTextSearchFields()) {
+				Object nestedFieldValue = objectAccess.getValue(nestedObject, entityField);
+				if (entityField.getType().isReference()) {
+					nestedFieldValue = repository.getIdentifier((ValueObject) nestedFieldValue);
+				}
+				if (nestedFieldValue != null) {
+					buf.append(nestedFieldValue).append('|');
+				}
+			}
+		}
 	}
 	
 	private static String decorateResultText(String text, String fullTextKey) {
 		return MiscUtils.replaceAllIgnoreCase(text, fullTextKey, "<b>" + fullTextKey + "</b>");
 	}
 	
-	private static Tupel<Long,Long> createResultEntry(SolrDocument document) {
+	private static Tupel<Long, Long> createResultEntry(SolrDocument document) {
 		return new Tupel<>((Long) document.getFirstValue(FIELD_ENTITY_ID), 
 							Long.valueOf((String) document.getFirstValue(FIELD_ID)));
 	}

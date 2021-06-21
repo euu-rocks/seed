@@ -17,7 +17,9 @@
  */
 package org.seed.core.data;
 
-public class DataException extends RuntimeException {
+import org.seed.InternalException;
+
+public class DataException extends InternalException {
 
 	private static final long serialVersionUID = -7573210269917095541L;
 	

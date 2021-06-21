@@ -25,9 +25,9 @@ import org.seed.core.entity.transfer.Transfer;
 import org.seed.core.entity.transfer.TransferError;
 import org.seed.core.entity.transfer.TransferResult;
 import org.seed.core.entity.transfer.TransferService;
+import org.seed.core.util.Assert;
 import org.seed.ui.zk.vm.AbstractApplicationViewModel;
 
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
@@ -41,6 +41,9 @@ import org.zkoss.zk.ui.select.annotation.WireVariable;
 import org.zkoss.zul.Window;
 
 public class TransferDialogViewModel extends AbstractApplicationViewModel {
+	
+	private static final String IMPORT_FAILED  = "admin.transfer.importfail";
+	private static final String IMPORT_SUCCESS = "admin.transfer.importsuccess";
 	
 	@Wire("#transferDialogWin")
 	private Window window;
@@ -65,7 +68,7 @@ public class TransferDialogViewModel extends AbstractApplicationViewModel {
 	@Init
     public void init(@ContextParam(ContextType.VIEW) Component view,
     				 @ExecutionArgParam("param") TransferDialogParameter param) {
-		Assert.notNull(param, "param is null");
+		Assert.notNull(param, "param");
 		wireComponents(view);
 		
 		if (param.parentViewModel instanceof AdminTransferViewModel) {
@@ -128,18 +131,18 @@ public class TransferDialogViewModel extends AbstractApplicationViewModel {
 	public String getResultText() {
 		if (importOptions.isAllOrNothing()) {
 			return transferResult.hasErrors()
-					? getLabel("admin.transfer.importfail")
-					: getLabel("admin.transfer.importsuccess");
+					? getLabel(IMPORT_FAILED)
+					: getLabel(IMPORT_SUCCESS);
 		}
 		if (transferResult.getSuccessfulTransfers() > 0) {
 			return transferResult.hasErrors()
 					? getLabel("admin.transfer.importpartlysuccess")
-					: getLabel("admin.transfer.importsuccess");
+					: getLabel(IMPORT_SUCCESS);
 		}
 		else if (transferResult.getFailedTransfers() == 0) {
 			return getLabel("admin.transfer.importnothing");
 		}
-		return getLabel("admin.transfer.importfail");
+		return getLabel(IMPORT_FAILED);
 	}
 	
 	public String getErrorDetail(TransferError error) {
@@ -194,7 +197,7 @@ public class TransferDialogViewModel extends AbstractApplicationViewModel {
 			transferViewModel.setTransferResult(result);
 		}
 		catch (ValidationException vex) {
-			showValidationErrors(component, "admin.transfer.importfail", vex.getErrors());
+			showValidationErrors(component, IMPORT_FAILED, vex.getErrors());
 		}
 	}
 	

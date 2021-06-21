@@ -19,7 +19,7 @@ package org.seed.core.application;
 
 import java.util.List;
 
-public interface ApprovableObject<T extends Permission> {
+public interface ApprovableObject<T extends Permission<?>> {
 	
 	boolean hasPermissions();
 	

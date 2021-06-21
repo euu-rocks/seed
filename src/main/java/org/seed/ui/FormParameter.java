@@ -17,11 +17,12 @@
  */
 package org.seed.ui;
 
+import org.seed.C;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.form.Form;
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
-public class FormParameter {
+public final class FormParameter {
 	
 	public final Form form;
 	
@@ -42,7 +43,7 @@ public class FormParameter {
 	}
 	
 	public FormParameter(Form form, Long objectId, ValueObject object) {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		this.form = form;
 		this.objectId = objectId;

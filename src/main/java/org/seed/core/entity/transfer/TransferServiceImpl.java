@@ -26,6 +26,8 @@ import javax.annotation.Nullable;
 
 import org.hibernate.Session;
 
+import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -46,15 +48,15 @@ import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.entity.value.ValueObjectService;
+import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 @Service
 public class TransferServiceImpl extends AbstractApplicationEntityService<Transfer>
-	implements TransferService, EntityDependent {
+	implements TransferService, EntityDependent<Transfer> {
 	
 	@Autowired
 	private EntityService entityService;
@@ -90,7 +92,7 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	
 	@Override
 	public ImportOptions createImportOptions(Transfer transfer) {
-		Assert.notNull(transfer, "transfer is null");
+		Assert.notNull(transfer, C.TRANSFER);
 		
 		final ImportOptions options = new ImportOptions();
 		options.setAllOrNothing(true);
@@ -104,47 +106,37 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	
 	@Override
 	public void initObject(Transfer transfer) throws ValidationException {
-		Assert.notNull(transfer, "transfer is null");
+		Assert.notNull(transfer, C.TRANSFER);
 		
 		super.initObject(transfer);
 		final TransferMetadata transferMeta = (TransferMetadata) transfer;
-		switch (transfer.getFormat()) {
-			case CSV:
-				transferMeta.setQuoteAll(true);
-				transferMeta.setEncoding(CharEncoding.UTF8);
-				transferMeta.setNewline(Newline.systemDefault());
-				break;
-				
-			default:
-				throw new UnsupportedOperationException(transfer.getFormat().name());
+		
+		if (TransferFormat.CSV == transfer.getFormat()) {
+			transferMeta.setQuoteAll(true);
+			transferMeta.setEncoding(CharEncoding.UTF8);
+			transferMeta.setNewline(Newline.systemDefault());
+		}
+		else {
+			throw new UnsupportedOperationException(transfer.getFormat().name());
 		}
 	}
 	
 	@Override
 	public List<Transfer> findTransfers(Entity entity) {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		
-		return transferRepository.find(queryParam("entity", entity));
+		return transferRepository.find(queryParam(C.ENTITY, entity));
 	}
 	
 	@Override
 	public List<TransferElement> getAvailableElements(Transfer transfer) {
-		Assert.notNull(transfer, "transfer is null");
+		Assert.notNull(transfer, C.TRANSFER);
 		
 		final Entity entity = transfer.getEntity();
 		final List<TransferElement> result = new ArrayList<>();
 		if (entity.hasAllFields()) {
 			for (EntityField entityField : entity.getAllFields()) {
-				boolean found = false;
-				if (transfer.hasElements()) {
-					for (TransferElement element : transfer.getElements()) {
-						if (entityField.equals(element.getEntityField())) {
-							found = true;
-							break;
-						}
-					}
-				}
-				if (!found) {
+				if (!transfer.containsField(entityField)) {
 					result.add(createElement(transfer, entityField));
 				}
 			}
@@ -155,7 +147,7 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	@Override
 	@Secured("ROLE_ADMIN_ENTITY")
 	public byte[] doExport(Transfer transfer) {
-		Assert.notNull(transfer, "transfer is null");
+		Assert.notNull(transfer, C.TRANSFER);
 		
 		return getProcessor(transfer).doExport();
 	}
@@ -164,9 +156,9 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	@Secured("ROLE_ADMIN_ENTITY")
 	public TransferResult doImport(Transfer transfer, ImportOptions options, 
 								   FileObject importFile) throws ValidationException {
-		Assert.notNull(transfer, "transfer is null");
-		Assert.notNull(transfer, "options are null");
-		Assert.notNull(importFile, "importFile is null");
+		Assert.notNull(transfer, C.TRANSFER);
+		Assert.notNull(transfer, "options");
+		Assert.notNull(importFile, "importFile");
 		
 		validator.validateImport(importFile);
 		
@@ -181,7 +173,7 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 
 	@Override
 	public List<Transfer> findUsage(EntityField entityField) {
-		Assert.notNull(entityField, "entityField is null");
+		Assert.notNull(entityField, C.ENTITYFIELD);
 		
 		final List<Transfer> result = new ArrayList<>();
 		for (Transfer transfer : findTransfers(entityField.getEntity())) {
@@ -230,9 +222,7 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	}
 	
 	@Override
-	public void analyzeObjects(ImportAnalysis analysis, Module currentVersionModule) {
-		Assert.notNull(analysis, "analysis is null");
-		
+	protected void analyzeNextVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
 		if (analysis.getModule().getTransfers() != null) {
 			for (Transfer transfer : analysis.getModule().getTransfers()) {
 				if (currentVersionModule == null) {
@@ -250,7 +240,11 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 				}
 			}
 		}
-		if (currentVersionModule != null && currentVersionModule.getTransfers() != null) {
+	}
+	
+	@Override
+	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
+		if (currentVersionModule.getTransfers() != null) {
 			for (Transfer currentVersionTransfer : currentVersionModule.getTransfers()) {
 				if (analysis.getModule().getTransferByUid(currentVersionTransfer.getUid()) == null) {
 					analysis.addChangeDelete(currentVersionTransfer);
@@ -261,53 +255,61 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public Class<? extends ApplicationEntityService<? extends ApplicationEntity>>[] getImportDependencies() {
-		return (Class<? extends ApplicationEntityService<? extends ApplicationEntity>>[]) 
-				new Class[] { EntityService.class };
+	public Class<? extends ApplicationEntityService<ApplicationEntity>>[] getImportDependencies() {
+		return new Class[] { EntityService.class };
 	}
 	
 	@Override
 	public void importObjects(TransferContext context, Session session) {
-		Assert.notNull(context, "context is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(context, C.CONTEXT);
+		Assert.notNull(session, C.SESSION);
 		try {
 			if (context.getModule().getTransfers() != null) {
 				for (Transfer transfer : context.getModule().getTransfers()) {
-					final Transfer currentVersionTransfer = findByUid(session, transfer.getUid());
-					final Entity entity = entityService.findByUid(session, transfer.getEntityUid());
-					((TransferMetadata) transfer).setModule(context.getModule());
-					((TransferMetadata) transfer).setEntity(entity);
-					if (currentVersionTransfer != null) {
-						((TransferMetadata) currentVersionTransfer).copySystemFieldsTo(transfer);
-						session.detach(currentVersionTransfer);
-					}
-					if (transfer.hasElements()) {
-						for (TransferElement element : transfer.getElements()) {
-							element.setTransfer(transfer);
-							element.setEntityField(entity.findFieldByUid(element.getFieldUid()));
-							final TransferElement currentVersionElement =
-								currentVersionTransfer != null 
-									? currentVersionTransfer.getElementByUid(element.getUid()) 
-									: null;
-							if (currentVersionElement != null) {
-								currentVersionElement.copySystemFieldsTo(element);
-							}
-						}
-					}
+					initTransfer(transfer, context, session);
 					saveObject(transfer, session);
 				}
 			}
 		}
 		catch (ValidationException vex) {
-			throw new RuntimeException(vex);
+			throw new InternalException(vex);
+		}
+	}
+	
+	private void initTransfer(Transfer transfer, TransferContext context, Session session) {
+		final Transfer currentVersionTransfer = findByUid(session, transfer.getUid());
+		final Entity entity = entityService.findByUid(session, transfer.getEntityUid());
+		((TransferMetadata) transfer).setModule(context.getModule());
+		((TransferMetadata) transfer).setEntity(entity);
+		if (currentVersionTransfer != null) {
+			((TransferMetadata) currentVersionTransfer).copySystemFieldsTo(transfer);
+			session.detach(currentVersionTransfer);
+		}
+		if (transfer.hasElements()) {
+			for (TransferElement element : transfer.getElements()) {
+				initTransferElement(element, entity, transfer, currentVersionTransfer);
+			}
+		}
+	}
+	
+	private void initTransferElement(TransferElement element, Entity entity, 
+									 Transfer transfer, Transfer currentVersionTransfer) {
+		element.setTransfer(transfer);
+		element.setEntityField(entity.findFieldByUid(element.getFieldUid()));
+		final TransferElement currentVersionElement =
+			currentVersionTransfer != null 
+				? currentVersionTransfer.getElementByUid(element.getUid()) 
+				: null;
+		if (currentVersionElement != null) {
+			currentVersionElement.copySystemFieldsTo(element);
 		}
 	}
 	
 	@Override
 	public void deleteObjects(Module module, Module currentVersionModule, Session session) {
-		Assert.notNull(module, "module is null");
-		Assert.notNull(currentVersionModule, "currentVersionModule is null");
-		Assert.notNull(session, "session is null");
+		Assert.notNull(module, C.MODULE);
+		Assert.notNull(currentVersionModule, "currentVersionModule");
+		Assert.notNull(session, C.SESSION);
 		
 		if (currentVersionModule.getTransfers() != null) {
 			for (Transfer currentVersionTransfer : currentVersionModule.getTransfers()) {
@@ -322,18 +324,16 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	private TransferProcessor getProcessor(Transfer transfer) {
 		final Class<?> objectClass = codeManager.getGeneratedClass(transfer.getEntity());
 		final Class<? extends ValueObject> valueObjectClass = (Class<? extends ValueObject>) objectClass;
-		switch (transfer.getFormat()) {
-			case CSV:
-				return new CSVProcessor(valueObjectService, valueObjectClass, transfer);
-			
-			default:
-				throw new UnsupportedOperationException(transfer.getFormat().name());
+		
+		if (TransferFormat.CSV == transfer.getFormat()) {
+			return new CSVProcessor(valueObjectService, valueObjectClass, transfer);
 		}
+		throw new UnsupportedOperationException(transfer.getFormat().name());
 	}
 	
 	private static TransferElement createElement(Transfer transfer, EntityField entityField) {
-		Assert.notNull(transfer, "transfer is null");
-		Assert.notNull(entityField, "entityField is null");
+		Assert.notNull(transfer, C.TRANSFER);
+		Assert.notNull(entityField, C.ENTITYFIELD);
 		
 		final TransferElement element = new TransferElement();
 		element.setTransfer(transfer);

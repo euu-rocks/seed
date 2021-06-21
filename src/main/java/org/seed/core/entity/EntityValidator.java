@@ -21,280 +21,75 @@ import java.util.List;
 import java.util.Set;
 
 import org.hibernate.Session;
+import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationError;
 import org.seed.core.data.ValidationException;
+import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 @Component
 public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 	
+	private static final String LABEL_CALCULATIONFORMULA = "label.calculationformula";
+	
 	@Autowired
 	private EntityRepository repository;
 	
 	@Autowired
-	private List<EntityDependent> entityDependents;
+	private List<EntityDependent<? extends SystemEntity>> entityDependents;
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public void validateSave(Entity entity) throws ValidationException {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		final Set<ValidationError> errors = createErrorList();
 		
 		// name
-		if (isEmpty(entity.getName())) {
-			errors.add(new ValidationError("val.empty.field", "label.name"));
-		}
-		else if (!isNameLengthAllowed(entity.getName())) {
-			errors.add(new ValidationError("val.toolong.name", String.valueOf(getMaxNameLength())));
-		}
-		else if ((entity.getTableName() == null && entity.getInternalName().toLowerCase().startsWith("sys_")) || 
-				 !isNameAllowed(entity.getInternalName())) {
-			errors.add(new ValidationError("val.illegal.field", "label.name", entity.getName()));
-		}
-		
-		// table name
-		if (entity.getTableName() != null) {
-			if (entity.getTableName().toLowerCase().startsWith("sys_")) {
-				errors.add(new ValidationError("val.illegal.field", "label.tablename", entity.getTableName()));
-			}
-			else if (!isNameLengthAllowed(entity.getTableName())) {
-				errors.add(new ValidationError("val.toolong.fieldvalue", "label.tablename", 
-						   String.valueOf(getMaxNameLength())));
-			}
-		}
+		validateName(entity, errors);
 		
 		// identifier
 		if (entity.getIdentifierPattern() != null && 
 			!isNameLengthAllowed(entity.getIdentifierPattern())) {
-			errors.add(new ValidationError("val.toolong.fieldvalue", "label.identifier", 
-					   						String.valueOf(getMaxNameLength())));
+			errors.add(ValidationError.overlongField("label.identifier", getMaxNameLength()));
 		}
 		
 		// field groups
 		if (entity.hasFieldGroups()) {
-			for (EntityFieldGroup fieldGroup : entity.getFieldGroups()) {
-				if (isEmpty(fieldGroup.getName())) {
-					errors.add(new ValidationError("val.empty.field", "label.fieldgroupname"));
-				}
-				else if (!isNameLengthAllowed(fieldGroup.getName())) {
-					errors.add(new ValidationError("val.toolong.objectfieldvalue", "label.name", "label.fieldgroup",
-												   String.valueOf(getMaxNameLength())));
-				}
-				else if (!isNameUnique(fieldGroup.getName(), entity.getAllFieldGroups())) {
-					errors.add(new ValidationError("val.ambiguous.fieldgroup", fieldGroup.getName()));
-				}
-			}
+			validateFieldGroups(entity, errors);
 		}
 		
 		// fields
 		if (entity.hasFields()) {
-			boolean foundAutonum = false;
-			for (EntityField field : entity.getFields()) {
-				if (isEmpty(field.getName())) {
-					errors.add(new ValidationError("val.empty.field", "label.fieldname"));
-				}
-				else if (!isNameLengthAllowed(field.getName())) {
-					errors.add(new ValidationError("val.toolong.objectfieldvalue", "label.name", "label.field", 
-							   					   String.valueOf(getMaxNameLength())));
-				}
-				else if (!isNameAllowed(field.getInternalName())) {
-					errors.add(new ValidationError("val.illegal.field", "label.fieldname", field.getName()));
-				}
- 				else if (!isNameUnique(field.getName(), entity.getAllFields(), entity.getAllNesteds())) {
-					errors.add(new ValidationError("val.ambiguous.fieldornested", field.getName()));
-				}
-				if (field.getColumnName() != null) {
-					if (!isNameLengthAllowed(field.getColumnName())) {
-						errors.add(new ValidationError("val.toolong.fieldvalue", "label.columnname", 
-													   String.valueOf(getMaxNameLength())));
-					}
-					else if (!isUnique(field.getColumnName(), "columnName", entity.getAllFields())) {
-						errors.add(new ValidationError("val.ambiguous.columnname", field.getColumnName()));
-					}
-				}
-				if (field.isCalculated()) {
-					if (isEmpty(field.getFormula())) {
-						errors.add(new ValidationError("val.empty.field", "label.calculationformula"));
-					}
-					else if (field.getFormula().length() > getLimit("entity.stringfield.length")) {
-						errors.add(new ValidationError("val.toolong.objectfieldvalue", "label.calculationformula", "label.field",
-								   					   String.valueOf(getLimit("entity.stringfield.length"))));
-					}
-					else if (!testFormula(entity, field.getFormula())) {
-						errors.add(new ValidationError("val.illegal.formula", field.getName()));
-					}
-				}
-				if (isEmpty(field.getType())) {
-					errors.add(new ValidationError("val.empty.field", "label.datatype"));
-				}
-				else if (field.getType().isAutonum()) {
-					if (!foundAutonum) {
-						foundAutonum = true;
-					}
-					else {
-						errors.add(new ValidationError("val.ambiguous.autonum"));
-					}
-				}
-				else if (field.getType().isReference()) {
-					if (isEmpty(field.getReferenceEntity())) {
-						errors.add(new ValidationError("val.empty.field", "label.refentity"));
-					}
-				}
-				if (field.isCalculated() && isEmpty(field.getFormula())) {
-					errors.add(new ValidationError("val.empty.field", "label.calculationformula"));
-				}
-			}
+			validateFields(entity, errors);
 		}
 		
 		// functions
 		if (entity.hasFunctions()) {
-			for (EntityFunction function : entity.getFunctions()) {
-				if (isEmpty(function.getName())) {
-					errors.add(new ValidationError("val.empty.field", "label.functionname"));
-				}
-				else if (!isNameLengthAllowed(function.getName())) {
-					errors.add(new ValidationError("val.toolong.objectfieldvalue", "label.name", "label.function", 
-												   String.valueOf(getMaxNameLength())));
-				}
-				else if (!isNameAllowed(function.getInternalName())) {
-					errors.add(new ValidationError("val.illegal.field", "label.functionname", function.getName()));
-				}
- 				else if (!isNameUnique(function.getName(), entity.getAllFunctions())) {
-					errors.add(new ValidationError("val.ambiguous.functionname", function.getName()));
-				}
-			}
+			validateFunctions(entity, errors);
 		}
 		
 		// nesteds
 		if (entity.hasNesteds()) {
-			for (NestedEntity nested : entity.getNesteds()) {
-				if (isEmpty(nested.getName())) {
-					errors.add(new ValidationError("val.empty.field", "label.nestedname"));
-				}
-				else if (!isNameLengthAllowed(nested.getName())) {
-					errors.add(new ValidationError("val.toolong.objectfieldvalue", "label.name", "label.nested", 
-												   String.valueOf(getMaxNameLength())));
-				}
-				else if (!isNameAllowed(nested.getInternalName())) {
-					errors.add(new ValidationError("val.illegal.field", "label.nestedname", nested.getName()));
-				}
-				else if (!isNameUnique(nested.getName(), entity.getAllNesteds(), entity.getAllFields())) {
-					errors.add(new ValidationError("val.ambiguous.fieldornested", nested.getName()));
-				}
-				if (isEmpty(nested.getNestedEntity())) {
-					errors.add(new ValidationError("val.empty.field", "label.nested"));
-				}
-				if (isEmpty(nested.getReferenceField())) {
-					errors.add(new ValidationError("val.empty.field", "label.reffield"));
-				}
-			}
+			validateNesteds(entity, errors);
 		}
 		
 		// status
 		if (entity.hasStatus()) {
-			int counterInitialStatus = 0;
-			for (EntityStatus status : entity.getStatusList()) {
-				if (status.isInitial()) {
-					counterInitialStatus++;
-				}
-				if (isEmpty(status.getName())) {
-					errors.add(new ValidationError("val.empty.field", "label.statusname"));
-				}
-				else if (!isNameLengthAllowed(status.getName())) {
-					errors.add(new ValidationError("val.toolong.objectfieldvalue", "label.name", "label.status", 
-												   String.valueOf(getMaxNameLength())));
-				}
-				else if (!isNameUnique(status.getName(), entity.getStatusList())) {
-					errors.add(new ValidationError("val.ambiguous.statusname", status.getName()));
-				}
-				if (isEmpty(status.getStatusNumber())) {
-					errors.add(new ValidationError("val.empty.field", "label.statusnumber"));
-				}
-				else if (!isUnique(status.getStatusNumber(), "statusNumber", entity.getStatusList())) {
-					errors.add(new ValidationError("val.ambiguous.statusnumber", status.getStatusNumber().toString()));
-				}
-			}
-			if (counterInitialStatus == 0) {
-				errors.add(new ValidationError("val.empty.initialstate"));
-			}
-			else if (counterInitialStatus > 1) {
-				errors.add(new ValidationError("val.ambiguous.initialstate"));
-			}
+			validateStatus(entity, errors);
 		}
 		
 		// status transitions
 		if (entity.hasStatusTransitions()) {
-			for (EntityStatusTransition transition : entity.getStatusTransitions()) {
-				boolean fieldMissing = false;
-				if (isEmpty(transition.getSourceStatus())) {
-					errors.add(new ValidationError("val.empty.field", "label.sourcestatus"));
-					fieldMissing = true;
-				}
-				if (isEmpty(transition.getTargetStatus())) {
-					errors.add(new ValidationError("val.empty.field", "label.targetstatus"));
-					fieldMissing = true;
-				}
-				if (fieldMissing) {
-					continue;
-				}
-				if (transition.getSourceStatus().equals(transition.getTargetStatus())) {
-					errors.add(new ValidationError("val.same.status"));
-					continue;
-				}
-				for (EntityStatusTransition tran : entity.getStatusTransitions()) {
-					if (transition != tran && 
-						ObjectUtils.nullSafeEquals(transition.getSourceStatus(), tran.getSourceStatus()) &&
-						ObjectUtils.nullSafeEquals(transition.getTargetStatus(), tran.getTargetStatus())) {
-						errors.add(new ValidationError("val.ambiguous.statustransition", 
-													   transition.getSourceStatus().getStatusNumber().toString(),
-													   transition.getTargetStatus().getStatusNumber().toString()));
-						break;
-					}
-				}
- 			}
+			validateStatusTransitions(entity, errors);
 		}
 		
 		// field constraints
 		if (entity.hasFieldConstraints()) {
-			for (EntityFieldConstraint constraint : entity.getFieldConstraints()) {
-				boolean fieldMissing = false;
-				if (isEmpty(constraint.getField()) && isEmpty(constraint.getFieldGroup())) {
-					errors.add(new ValidationError("val.empty.constraintfieldorgroup"));
-					fieldMissing = true;
-				}
-				else if (!isEmpty(constraint.getField()) && !isEmpty(constraint.getFieldGroup())) {
-					errors.add(new ValidationError("val.ambiguous.constraintfieldorgroup"));
-					fieldMissing = true;
-				}
-				if (isEmpty(constraint.getAccess())) {
-					errors.add(new ValidationError("val.empty.constraintfield", "label.access"));
-					fieldMissing = true;
-				}
-				if (isEmpty(constraint.getStatus()) && isEmpty(constraint.getUserGroup())) {
-					errors.add(new ValidationError("val.empty.constraintincomplete"));
-					fieldMissing = true;
-				}
-				// find duplicate
-				if (!fieldMissing) {
-					for (EntityFieldConstraint constr : entity.getFieldConstraints()) {
-						if (constraint != constr &&
-							ObjectUtils.nullSafeEquals(constraint.getField(), constr.getField()) &&
-							ObjectUtils.nullSafeEquals(constraint.getFieldGroup(), constr.getFieldGroup()) &&
-							ObjectUtils.nullSafeEquals(constraint.getStatus(), constr.getStatus()) &&
-							ObjectUtils.nullSafeEquals(constraint.getUserGroup(), constr.getUserGroup())) {
-							errors.add(new ValidationError("val.ambiguous.fieldconstraint", 
-														   constraint.getField().getName()));
-							break;
-						}
-					}
-				}
-			}
+			validateFieldConstraints(entity, errors);
 		}
 		
 		validate(errors);
@@ -302,10 +97,10 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 	
 	@Override
 	public void validateDelete(Entity entity) throws ValidationException {
-		Assert.notNull(entity, "entity is null");
+		Assert.notNull(entity, C.ENTITY);
 		final Set<ValidationError> errors = createErrorList();
 		
-		for (EntityDependent dependent : entityDependents) {
+		for (EntityDependent<? extends SystemEntity> dependent : entityDependents) {
 			for (SystemEntity systemEntity : dependent.findUsage(entity)) {
 				switch (getEntityType(systemEntity)) {
 					case "datasource":
@@ -327,7 +122,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 						errors.add(new ValidationError("val.inuse.entityvalue"));
 						break;
 					default:
-						throw new IllegalStateException("unhandled entity: " + getEntityType(systemEntity));
+						unhandledEntity(systemEntity);
 				}
 			}
 		}
@@ -336,7 +131,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 	}
 	
 	public void validateRemoveField(EntityField field) throws ValidationException {
-		Assert.notNull(field, "field is null");
+		Assert.notNull(field, C.FIELD);
 		final Set<ValidationError> errors = createErrorList();
 		
 		// check if field is used in field formula
@@ -347,7 +142,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 					errors.add(new ValidationError("val.inuse.fieldformula", entityField.getName()));
 			}
 		}
-		for (EntityDependent dependent : entityDependents) {
+		for (EntityDependent<? extends SystemEntity> dependent : entityDependents) {
 			for (SystemEntity systemEntity : dependent.findUsage(field)) {
 				switch (getEntityType(systemEntity)) {
 					case "entity":
@@ -363,7 +158,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 						errors.add(new ValidationError("val.inuse.fieldtransform", systemEntity.getName()));
 						break;
 					default:
-						throw new IllegalStateException("unhandled entity: " + getEntityType(systemEntity));
+						unhandledEntity(systemEntity);
 				}
 			}
 		}
@@ -372,10 +167,10 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 	}
 	
 	public void validateRemoveFieldGroup(EntityFieldGroup fieldGroup) throws ValidationException {
-		Assert.notNull(fieldGroup, "fieldGroup is null");
+		Assert.notNull(fieldGroup, C.FIELDGROUP);
 		final Set<ValidationError> errors = createErrorList();
 		
-		for (EntityDependent dependent : entityDependents) {
+		for (EntityDependent<? extends SystemEntity> dependent : entityDependents) {
 			if (dependent instanceof EntityService) {
 				for (SystemEntity systemEntity : dependent.findUsage(fieldGroup)) {
 					errors.add(new ValidationError("val.inuse.fieldgroupentity", systemEntity.getName()));
@@ -388,17 +183,13 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 	}
 	
 	public void validateRemoveFunction(EntityFunction function) throws ValidationException {
-		Assert.notNull(function, "function is null");
+		Assert.notNull(function, C.FUNCTION);
 		final Set<ValidationError> errors = createErrorList();
 		
-		for (EntityDependent dependent : entityDependents) {
+		for (EntityDependent<? extends SystemEntity> dependent : entityDependents) {
 			for (SystemEntity systemEntity : dependent.findUsage(function)) {
-				switch (getEntityType(systemEntity)) {
-					case "form":
-						errors.add(new ValidationError("val.inuse.functionform", systemEntity.getName()));
-						break;
-					default:
-						throw new IllegalStateException("unhandled entity: " + getEntityType(systemEntity));
+				if (C.FORM.equals(getEntityType(systemEntity))) {
+					errors.add(new ValidationError("val.inuse.functionform", systemEntity.getName()));
 				}
 			}
 		}
@@ -407,17 +198,13 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 	}
 	
 	public void validateRemoveStatus(EntityStatus status) throws ValidationException {
-		Assert.notNull(status, "status is null");
+		Assert.notNull(status, C.STATUS);
 		final Set<ValidationError> errors = createErrorList();
 		
-		for (EntityDependent dependent : entityDependents) {
+		for (EntityDependent<? extends SystemEntity> dependent : entityDependents) {
 			for (SystemEntity systemEntity : dependent.findUsage(status)) {
-				switch (getEntityType(systemEntity)) {
-					case "value":
-						errors.add(new ValidationError("val.inuse.status"));
-						break;
-					default:
-						throw new IllegalStateException("unhandled entity: " + getEntityType(systemEntity));
+				if (C.VALUE.equals(getEntityType(systemEntity))) {
+					errors.add(new ValidationError("val.inuse.status"));
 				}
 			}
 		}
@@ -426,15 +213,13 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 	}
 	
 	public void validateRemoveNested(NestedEntity nestedEntity) throws ValidationException {
-		Assert.notNull(nestedEntity, "nestedEntity is null");
+		Assert.notNull(nestedEntity, C.NESTEDENTITY);
 		final Set<ValidationError> errors = createErrorList();
 		
-		for (EntityDependent dependent : entityDependents) {
+		for (EntityDependent<? extends SystemEntity> dependent : entityDependents) {
 			for (SystemEntity systemEntity : dependent.findUsage(nestedEntity)) {
-				switch (getEntityType(systemEntity)) {
-					case "form":
-						errors.add(new ValidationError("val.inuse.nestedform", systemEntity.getName()));
-						break;
+				if (C.FORM.equals(getEntityType(systemEntity))) {
+					errors.add(new ValidationError("val.inuse.nestedform", systemEntity.getName()));
 				}
 			}
 		}
@@ -442,13 +227,255 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		validate(errors);
 	}
 	
-	private boolean testFormula(Entity entity, String formula) {
-		Assert.notNull(entity, "entity is null");
-		Assert.notNull(formula, "formula is null");
+	private void validateFields(Entity entity, Set<ValidationError> errors) {
+		int numAutonums = 0;
+		for (EntityField field : entity.getFields()) {
+			validateFieldName(entity, field, errors);
+			if (field.getColumnName() != null) {
+				validateColumnName(entity, field, errors);
+			}
+			if (field.isCalculated()) {
+				validateCalculatedField(entity, field, errors);
+			}
+			if (isEmpty(field.getType())) {
+				errors.add(ValidationError.emptyField("label.datatype"));
+			}
+			else if (field.getType().isAutonum()) {
+				if (++numAutonums > 1) {
+					errors.add(new ValidationError("val.ambiguous.autonum"));
+				}
+			}
+			else if (field.getType().isReference() && 
+				     isEmpty(field.getReferenceEntity())) {
+				errors.add(ValidationError.emptyField("label.refentity"));
+			}
+		}
+	}
+	
+	private void validateName(Entity entity, Set<ValidationError> errors) {
+		// name
+		if (isEmpty(entity.getName())) {
+			errors.add(ValidationError.emptyName());
+		}
+		else if (!isNameLengthAllowed(entity.getName())) {
+			errors.add(ValidationError.overlongName(getMaxNameLength()));
+		}
+		else if ((entity.getTableName() == null && entity.getInternalName().toLowerCase().startsWith("sys_")) || 
+				 !isNameAllowed(entity.getInternalName())) {
+			errors.add(ValidationError.illegalField("label.name", entity.getName()));
+		}
 		
+		// table name
+		if (entity.getTableName() != null) {
+			if (entity.getTableName().toLowerCase().startsWith("sys_")) {
+				errors.add(ValidationError.illegalField("label.tablename", entity.getTableName()));
+			}
+			else if (!isNameLengthAllowed(entity.getTableName())) {
+				errors.add(ValidationError.overlongField("label.tablename", getMaxNameLength()));
+			}
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void validateFieldGroups(Entity entity, Set<ValidationError> errors) {
+		for (EntityFieldGroup fieldGroup : entity.getFieldGroups()) {
+			if (isEmpty(fieldGroup.getName())) {
+				errors.add(ValidationError.emptyField("label.fieldgroupname"));
+			}
+			else if (!isNameLengthAllowed(fieldGroup.getName())) {
+				errors.add(ValidationError.overlongObjectName("label.fieldgroup", getMaxNameLength()));
+			}
+			else if (!isNameUnique(fieldGroup.getName(), entity.getAllFieldGroups())) {
+				errors.add(new ValidationError("val.ambiguous.fieldgroup", fieldGroup.getName()));
+			}
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void validateFieldName(Entity entity, EntityField field, Set<ValidationError> errors) {
+		if (isEmpty(field.getName())) {
+			errors.add(ValidationError.emptyField("label.fieldname"));
+		}
+		else if (!isNameLengthAllowed(field.getName())) {
+			errors.add(ValidationError.overlongObjectName("label.field", getMaxNameLength()));
+		}
+		else if (!isNameAllowed(field.getInternalName())) {
+			errors.add(ValidationError.illegalField("label.fieldname", field.getName()));
+		}
+			else if (!isNameUnique(field.getName(), entity.getAllFields(), entity.getAllNesteds())) {
+			errors.add(new ValidationError("val.ambiguous.fieldornested", field.getName()));
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void validateColumnName(Entity entity, EntityField field, Set<ValidationError> errors) {
+		if (!isNameLengthAllowed(field.getColumnName())) {
+			errors.add(ValidationError.overlongField("label.columnname", getMaxNameLength()));
+		}
+		else if (!isUnique(field.getColumnName(), "columnName", entity.getAllFields())) {
+			errors.add(new ValidationError("val.ambiguous.columnname", field.getColumnName()));
+		}
+	}
+	
+	private void validateCalculatedField(Entity entity, EntityField field, Set<ValidationError> errors) {
+		if (isEmpty(field.getFormula())) {
+			errors.add(ValidationError.emptyField(LABEL_CALCULATIONFORMULA));
+		}
+		else if (field.getFormula().length() > getMaxStringLength()) {
+			errors.add(ValidationError.overlongField(LABEL_CALCULATIONFORMULA, getMaxStringLength()));
+		}
+		else if (!testFormula(entity, field.getFormula())) {
+			errors.add(new ValidationError("val.illegal.formula", field.getName()));
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void validateFunctions(Entity entity, Set<ValidationError> errors) {
+		for (EntityFunction function : entity.getFunctions()) {
+			if (isEmpty(function.getName())) {
+				errors.add(ValidationError.emptyField("label.functionname"));
+			}
+			else if (!isNameLengthAllowed(function.getName())) {
+				errors.add(ValidationError.overlongObjectName("label.function", getMaxNameLength()));
+			}
+			else if (!isNameAllowed(function.getInternalName())) {
+				errors.add(ValidationError.illegalField("label.functionname", function.getName()));
+			}
+				else if (!isNameUnique(function.getName(), entity.getAllFunctions())) {
+				errors.add(new ValidationError("val.ambiguous.functionname", function.getName()));
+			}
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void validateNesteds(Entity entity, Set<ValidationError> errors) {
+		for (NestedEntity nested : entity.getNesteds()) {
+			if (isEmpty(nested.getName())) {
+				errors.add(ValidationError.emptyField("label.nestedname"));
+			}
+			else if (!isNameLengthAllowed(nested.getName())) {
+				errors.add(ValidationError.overlongObjectName("label.nested", getMaxNameLength()));
+			}
+			else if (!isNameAllowed(nested.getInternalName())) {
+				errors.add(ValidationError.illegalField("label.nestedname", nested.getName()));
+			}
+			else if (!isNameUnique(nested.getName(), entity.getAllNesteds(), entity.getAllFields())) {
+				errors.add(new ValidationError("val.ambiguous.fieldornested", nested.getName()));
+			}
+			if (isEmpty(nested.getNestedEntity())) {
+				errors.add(ValidationError.emptyField("label.nested"));
+			}
+			if (isEmpty(nested.getReferenceField())) {
+				errors.add(ValidationError.emptyField("label.reffield"));
+			}
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void validateStatus(Entity entity, Set<ValidationError> errors) {
+		int counterInitialStatus = 0;
+		for (EntityStatus status : entity.getStatusList()) {
+			if (status.isInitial()) {
+				counterInitialStatus++;
+			}
+			if (isEmpty(status.getName())) {
+				errors.add(ValidationError.emptyField("label.statusname"));
+			}
+			else if (!isNameLengthAllowed(status.getName())) {
+				errors.add(ValidationError.overlongObjectName("label.status", getMaxNameLength()));
+			}
+			else if (!isNameUnique(status.getName(), entity.getStatusList())) {
+				errors.add(new ValidationError("val.ambiguous.statusname", status.getName()));
+			}
+			if (isEmpty(status.getStatusNumber())) {
+				errors.add(ValidationError.emptyField("label.statusnumber"));
+			}
+			else if (!isUnique(status.getStatusNumber(), "statusNumber", entity.getStatusList())) {
+				errors.add(new ValidationError("val.ambiguous.statusnumber", status.getStatusNumber().toString()));
+			}
+		}
+		if (counterInitialStatus == 0) {
+			errors.add(new ValidationError("val.empty.initialstate"));
+		}
+		else if (counterInitialStatus > 1) {
+			errors.add(new ValidationError("val.ambiguous.initialstate"));
+		}
+	}
+	
+	private void validateStatusTransitions(Entity entity, Set<ValidationError> errors) {
+		for (EntityStatusTransition transition : entity.getStatusTransitions()) {
+			boolean fieldMissing = false;
+			if (isEmpty(transition.getSourceStatus())) {
+				errors.add(ValidationError.emptyField("label.sourcestatus"));
+				fieldMissing = true;
+			}
+			if (isEmpty(transition.getTargetStatus())) {
+				errors.add(ValidationError.emptyField("label.targetstatus"));
+				fieldMissing = true;
+			}
+			if (fieldMissing) {
+				continue;
+			}
+			if (transition.getSourceStatus().equals(transition.getTargetStatus())) {
+				errors.add(new ValidationError("val.same.status"));
+			}
+			else if (!entity.isUnique(transition)) {
+				errors.add(new ValidationError("val.ambiguous.statustransition", 
+						   transition.getSourceStatus().getStatusNumber().toString(),
+						   transition.getTargetStatus().getStatusNumber().toString()));
+			}
+		}
+	}
+	
+	private void validateFieldConstraints(Entity entity, Set<ValidationError> errors) {
+		for (EntityFieldConstraint constraint : entity.getFieldConstraints()) {
+			boolean fieldMissing = false;
+			if (isEmpty(constraint.getField()) && isEmpty(constraint.getFieldGroup())) {
+				errors.add(new ValidationError("val.empty.constraintfieldorgroup"));
+				fieldMissing = true;
+			}
+			else if (!isEmpty(constraint.getField()) && !isEmpty(constraint.getFieldGroup())) {
+				errors.add(new ValidationError("val.ambiguous.constraintfieldorgroup"));
+				fieldMissing = true;
+			}
+			if (isEmpty(constraint.getAccess())) {
+				errors.add(new ValidationError("val.empty.constraintfield", "label.access"));
+				fieldMissing = true;
+			}
+			if (isEmpty(constraint.getStatus()) && isEmpty(constraint.getUserGroup())) {
+				errors.add(new ValidationError("val.empty.constraintincomplete"));
+				fieldMissing = true;
+			}
+			// find duplicate
+			if (!fieldMissing) {
+				validateContraintDuplicate(entity, constraint, errors);
+			}
+		}
+	}
+	
+	private void validateContraintDuplicate(Entity entity, EntityFieldConstraint constraint, Set<ValidationError> errors) {
+		for (EntityFieldConstraint constr : entity.getFieldConstraints()) {
+			if (constraint != constr &&
+				ObjectUtils.nullSafeEquals(constraint.getField(), constr.getField()) &&
+				ObjectUtils.nullSafeEquals(constraint.getFieldGroup(), constr.getFieldGroup()) &&
+				ObjectUtils.nullSafeEquals(constraint.getStatus(), constr.getStatus()) &&
+				ObjectUtils.nullSafeEquals(constraint.getUserGroup(), constr.getUserGroup())) {
+				errors.add(new ValidationError("val.ambiguous.fieldconstraint", 
+											   constraint.getField().getName()));
+				break;
+			}
+		}
+	}
+	
+	private boolean testFormula(Entity entity, String formula) {
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(formula, "formula");
+		
+		final StringBuilder buf = new StringBuilder()
+									.append("select ").append(formula).append(" from ")
+									.append(EntityChangeLogBuilder.getTableName(entity));
 		try (Session session = repository.getSession()) {
-			session.createSQLQuery("select " + formula + " from " + 
-								   EntityChangeLogBuilder.getTableName(entity))
+			session.createSQLQuery(buf.toString())
 					.setMaxResults(0).list();
 			return true;
 		}
@@ -456,5 +483,5 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 			return false;
 		}
 	}
-
+	
 }

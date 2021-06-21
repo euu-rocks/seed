@@ -34,16 +34,13 @@ public class QuartzConfig {
     private Resource propertiyResource;
 	
 	@Bean
-	public SchedulerFactoryBean quartzScheduler() {
+	public SchedulerFactoryBean quartzScheduler() throws IOException {
 		final SchedulerFactoryBean quartzScheduler = new SchedulerFactoryBean();
 		
 		// load properties
 		final Properties properties = new Properties();
 		try (InputStream inputStream = propertiyResource.getInputStream()) {
 			properties.load(inputStream);
-		}
-		catch (IOException ioex) {
-			throw new RuntimeException("failed to load quartz.properties", ioex);
 		}
 		quartzScheduler.setQuartzProperties(properties);
 		return quartzScheduler;

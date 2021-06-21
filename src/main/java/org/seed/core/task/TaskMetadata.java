@@ -39,9 +39,9 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.core.application.AbstractApplicationEntity;
+import org.seed.core.util.Assert;
 import org.seed.core.util.CDATAXmlAdapter;
 
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
@@ -52,6 +52,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class TaskMetadata extends AbstractApplicationEntity 
 	implements Task {
+	
+	static final String PACKAGE_NAME = "org.seed.generated.task";
 	
 	private Date startTime;
 	
@@ -195,7 +197,7 @@ public class TaskMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public void addParameter(TaskParameter parameter) {
-		Assert.notNull(parameter, "parameter is null");
+		Assert.notNull(parameter, "parameter");
 		
 		if (parameters == null) {
 			parameters = new ArrayList<>();
@@ -206,7 +208,7 @@ public class TaskMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public void removeParameter(TaskParameter parameter) {
-		Assert.notNull(parameter, "parameter is null");
+		Assert.notNull(parameter, "parameter");
 		
 		getParameters().remove(parameter);
 	}
@@ -250,7 +252,7 @@ public class TaskMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public void addNotification(TaskNotification notification) {
-		Assert.notNull(notification, "notification is null");
+		Assert.notNull(notification, "notification");
 		
 		if (notifications == null) {
 			notifications = new ArrayList<>();
@@ -261,7 +263,7 @@ public class TaskMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public void removeNotification(TaskNotification notification) {
-		Assert.notNull(notification, "notification is null");
+		Assert.notNull(notification, "notification");
 		
 		getNotifications().remove(notification);
 	}
@@ -284,7 +286,7 @@ public class TaskMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public void addRun(TaskRun run) {
-		Assert.notNull(run, "run is null");
+		Assert.notNull(run, "run");
 		
 		if (runs == null) {
 			runs = new ArrayList<>();
@@ -324,7 +326,11 @@ public class TaskMetadata extends AbstractApplicationEntity
 				.isEquals()) {
 			return false;
 		}
-		
+		return isEqualParameters(otherTask) &&
+			   isEqualPermissions(otherTask);
+	}
+	
+	private boolean isEqualParameters(Task otherTask) {
 		if (hasParameters()) {
 			for (TaskParameter parameter : getParameters()) {
 				if (!parameter.isEqual(otherTask.getParameterByUid(parameter.getUid()))) {
@@ -339,6 +345,10 @@ public class TaskMetadata extends AbstractApplicationEntity
 				}
 			}
 		}
+		return true;
+	}
+	
+	private boolean isEqualPermissions(Task otherTask) {
 		if (hasPermissions()) {
 			for (TaskPermission permission : getPermissions()) {
 				if (!permission.isEqual(otherTask.getPermissionByUid(permission.getUid()))) {

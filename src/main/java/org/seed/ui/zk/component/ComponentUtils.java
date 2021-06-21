@@ -26,6 +26,8 @@ abstract class ComponentUtils {
 	
 	static final String STYLE_MANDATORY = "border:1px solid #FF8888;border-radius:3px";
 	
+	private ComponentUtils() {}
+	
 	static void setMandatoryStatus(InputElement inputElement) {
 		inputElement.setClass(StringUtils.hasText(inputElement.getText()) ? null : CLASS_MANDATORY);
 	}

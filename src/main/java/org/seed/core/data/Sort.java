@@ -17,7 +17,7 @@
  */
 package org.seed.core.data;
 
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 public final class Sort {
 
@@ -26,7 +26,7 @@ public final class Sort {
 	private final String columnName;
 
 	public Sort(String columnName, boolean ascending) {
-		Assert.notNull(columnName, "columnName is null");
+		Assert.notNull(columnName, "columnName");
 		
 		this.columnName = columnName;
 		this.ascending = ascending;

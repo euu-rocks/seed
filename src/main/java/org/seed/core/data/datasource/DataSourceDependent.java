@@ -21,8 +21,8 @@ import java.util.List;
 
 import org.seed.core.data.SystemEntity;
 
-public interface DataSourceDependent {
+public interface DataSourceDependent<T extends SystemEntity> {
 	
-	List<? extends SystemEntity> findUsage(DataSource dataSource);
+	List<T> findUsage(IDataSource dataSource);
 	
 }

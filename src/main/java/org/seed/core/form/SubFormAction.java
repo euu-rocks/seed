@@ -22,48 +22,17 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
-import org.seed.core.application.TransferableObject;
-import org.seed.core.data.AbstractOrderedSystemObject;
-import org.seed.core.entity.EntityFunction;
-
 @Entity
 @Table(name = "sys_subform_action")
-public class SubFormAction extends AbstractOrderedSystemObject
-	implements TransferableObject {
+public class SubFormAction extends AbstractFormAction {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subform_id")
 	private SubForm subForm;
-	
-	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "entity_function_id")
-	private EntityFunction entityFunction;
-	
-	private String uid;
-	
-	private FormActionType type;
-	
-	private String label;
-	
-	@Transient
-	private String entityFunctionUid;
-	
-	@Override
-	@XmlAttribute
-	public String getUid() {
-		return uid;
-	}
-	
-	@Override
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
 	
 	@XmlTransient
 	public SubForm getSubForm() {
@@ -72,46 +41,6 @@ public class SubFormAction extends AbstractOrderedSystemObject
 
 	public void setSubForm(SubForm subForm) {
 		this.subForm = subForm;
-	}
-	
-	@XmlTransient
-	public EntityFunction getEntityFunction() {
-		return entityFunction;
-	}
-
-	public void setEntityFunction(EntityFunction entityFunction) {
-		this.entityFunction = entityFunction;
-	}
-
-	@XmlAttribute
-	public FormActionType getType() {
-		return type;
-	}
-
-	public void setType(FormActionType type) {
-		this.type = type;
-	}
-	
-	@XmlAttribute
-	public String getLabel() {
-		return label;
-	}
-
-	public void setLabel(String label) {
-		this.label = label;
-	}
-	
-	@XmlAttribute
-	public String getEntityFunctionUid() {
-		return entityFunction != null ? entityFunction.getUid() : entityFunctionUid;
-	}
-
-	public void setEntityFunctionUid(String entityFunctionUid) {
-		this.entityFunctionUid = entityFunctionUid;
-	}
-	
-	public boolean isCustom() {
-		return type == FormActionType.CUSTOM;
 	}
 	
 	@Override
@@ -124,10 +53,10 @@ public class SubFormAction extends AbstractOrderedSystemObject
 		}
 		final SubFormAction otherAction = (SubFormAction) other;
 		return new EqualsBuilder()
-			.append(entityFunctionUid, otherAction.getEntityFunctionUid())
-			.append(type, otherAction.type)
-			.append(label, otherAction.label)
-			.isEquals();
+				.append(getEntityFunctionUid(), otherAction.getEntityFunctionUid())
+				.append(getType(), otherAction.getType())
+				.append(getLabel(), otherAction.getLabel())
+				.isEquals();
 	}
 	
 }

@@ -21,9 +21,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.data.SystemObject;
-
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 public class DragDropListManager {
 	
@@ -58,7 +58,7 @@ public class DragDropListManager {
     }
 	
 	public void insert(SystemObject base, SystemObject item, int listNum) {
-		Assert.notNull(base, "base is null");
+		Assert.notNull(base, C.BASE);
 		
 		final List<SystemObject> list = getList(listNum);
 		final int curListNum = getListNum(item);
@@ -79,7 +79,7 @@ public class DragDropListManager {
 	}
 	
 	private int getListNum(SystemObject item) { 
-		Assert.notNull(item, "item is null");
+		Assert.notNull(item, C.ITEM);
 		
 		for (int i = 0; i < lists.length; i++) {
     		if (lists[i].contains(item)) {

@@ -26,7 +26,7 @@
 					 model="@load(vm.getListManagerList('usergroups',0))"
 					 droppable="true" onDrop="@command('dropToGroupList',item=event.dragged.attributes.item,list=0)"
 					 hflex="1" vflex="1"
-					 class="alpha-noborder" 
+					 class="alpha-noborder alpha-nobg"
 					 oddRowSclass="non-odd">
 				<template name="model" var="group">
 					<listitem attributes.item="@init(group)" 
@@ -45,7 +45,7 @@
 			<listbox mold="paging" autopaging="true" 
 					 model="@load(vm.getListManagerList('usergroups',1))"
 					 droppable="true" onDrop="@command('dropToGroupList',item=event.dragged.attributes.item,list=1)"
-					 class="alpha-noborder"
+					 class="alpha-noborder alpha-nobg"
 					 hflex="1" vflex="1"
 					 oddRowSclass="non-odd">
 				<template name="model" var="group">

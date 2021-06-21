@@ -17,17 +17,18 @@
  */
 package org.seed.core.form.layout;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.springframework.util.Assert;
+import org.seed.C;
+import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
+
 import org.springframework.util.StringUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -35,15 +36,18 @@ import org.xml.sax.helpers.DefaultHandler;
 
 abstract class LayoutParser {
 	
-	private final static SAXParserFactory PARSER_FACTORY = SAXParserFactory.newInstance();
+	private static final SAXParserFactory PARSER_FACTORY = SAXParserFactory.newInstance();
+	
+	private LayoutParser() {}
 	
 	public static LayoutElement parse(String content) throws SAXException, IOException, ParserConfigurationException {
-		Assert.notNull(content, "content is null");
-		return parse(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));
+		Assert.notNull(content, C.CONTENT);
+		
+		return parse(MiscUtils.getStringAsStream(content));
 	}
 	
 	public static LayoutElement parse(InputStream inputStream) throws SAXException, IOException, ParserConfigurationException {
-		Assert.notNull(inputStream, "inputStream is null");
+		Assert.notNull(inputStream, "inputStream");
 		
 		final LayoutHandler layoutHandler = new LayoutHandler();
 		PARSER_FACTORY.newSAXParser().parse(inputStream, layoutHandler);

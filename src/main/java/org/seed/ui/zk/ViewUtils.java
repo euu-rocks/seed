@@ -17,22 +17,25 @@
  */
 package org.seed.ui.zk;
 
+import org.seed.C;
+import org.seed.core.util.Assert;
 import org.seed.ui.settings.ViewSettings;
 
-import org.springframework.util.Assert;
 import org.zkoss.zk.ui.Session;
 import org.zkoss.zk.ui.Sessions;
 
 public abstract class ViewUtils {
 	
-	private final static String SESSION_VIEWSETTINGS = "viewSettings";
+	private static final String SESSION_VIEWSETTINGS = "viewSettings";
+	
+	private ViewUtils() {}
 	
 	public static ViewSettings getSettings() {
 		return getSettings(Sessions.getCurrent());
 	}
 	
 	public static ViewSettings getSettings(Session session) {
-		Assert.notNull(session, "session is null");
+		Assert.notNull(session, C.SESSION);
 		
 		ViewSettings settings = (ViewSettings) session.getAttribute(SESSION_VIEWSETTINGS);
 		if (settings == null) {

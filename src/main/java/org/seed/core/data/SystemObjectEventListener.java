@@ -19,7 +19,6 @@ package org.seed.core.data;
 
 import java.util.Date;
 
-import org.hibernate.HibernateException;
 import org.hibernate.event.spi.SaveOrUpdateEvent;
 import org.hibernate.event.spi.SaveOrUpdateEventListener;
 
@@ -29,7 +28,7 @@ import org.seed.core.util.MiscUtils;
 public class SystemObjectEventListener implements SaveOrUpdateEventListener {
 
 	@Override
-	public void onSaveOrUpdate(SaveOrUpdateEvent event) throws HibernateException {
+	public void onSaveOrUpdate(SaveOrUpdateEvent event) {
 		final AbstractSystemObject object = (AbstractSystemObject) event.getEntity();
 		final String userName = MiscUtils.geUserName(); 
 		
@@ -42,7 +41,6 @@ public class SystemObjectEventListener implements SaveOrUpdateEventListener {
 			object.setModifiedOn(new Date());
 			object.setModifiedBy(userName);
 		}
-		
 	}
 
 }

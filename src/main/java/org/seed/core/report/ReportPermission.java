@@ -22,49 +22,24 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import org.seed.core.application.AbstractPermissionObject;
 import org.seed.core.application.Permission;
-import org.seed.core.application.TransferableObject;
-import org.seed.core.data.AbstractSystemObject;
-import org.seed.core.user.UserGroup;
-import org.seed.core.user.UserGroupMetadata;
 
 @Entity
 @Table(name = "sys_report_permission")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class ReportPermission extends AbstractSystemObject
-	implements Permission, TransferableObject {
+public class ReportPermission extends AbstractPermissionObject
+	implements Permission<ReportPermission.ReportAccess> {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "report_id")
 	private ReportMetadata report;
-	
-	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usergroup_id")
-	private UserGroupMetadata userGroup;
-	
-	private String uid;
-	
-	@Transient
-	private String userGroupUid;
-	
-	@Override
-	@XmlAttribute
-	public String getUid() {
-		return uid;
-	}
-
-	@Override
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
 	
 	@XmlTransient
 	public Report getReport() {
@@ -76,26 +51,8 @@ public class ReportPermission extends AbstractSystemObject
 	}
 	
 	@Override
-	@XmlTransient
-	public UserGroup getUserGroup() {
-		return userGroup;
-	}
-
-	public void setUserGroup(UserGroup userGroup) {
-		this.userGroup = (UserGroupMetadata) userGroup;
-	}
-	
-	@Override
-	public Enum<?> getAccess() {
+	public ReportAccess getAccess() {
 		return null;
-	}
-	
-	public String getUserGroupUid() {
-		return userGroup != null ? userGroup.getUid() : userGroupUid;
-	}
-
-	public void setUserGroupUid(String userGroupUid) {
-		this.userGroupUid = userGroupUid;
 	}
 	
 	@Override
@@ -108,8 +65,12 @@ public class ReportPermission extends AbstractSystemObject
 		}
 		final ReportPermission otherPermission = (ReportPermission) other;
 		return new EqualsBuilder()
-			.append(userGroupUid, otherPermission.getUserGroupUid())
+			.append(getUserGroupUid(), otherPermission.getUserGroupUid())
 			.isEquals();
+	}
+	
+	enum ReportAccess  {
+		// dummy access
 	}
 
 }

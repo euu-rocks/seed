@@ -21,8 +21,8 @@ import java.util.List;
 
 import org.seed.core.data.SystemEntity;
 
-public interface TransformerDependent {
+public interface TransformerDependent<T extends SystemEntity> {
 
-	List<? extends SystemEntity> findUsage(Transformer transformer);
+	List<T> findUsage(Transformer transformer);
 	
 }

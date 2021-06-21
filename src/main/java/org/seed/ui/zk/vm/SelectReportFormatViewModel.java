@@ -24,9 +24,9 @@ import org.seed.core.data.ValidationException;
 import org.seed.core.data.datasource.DataSourceParameter;
 import org.seed.core.report.Report;
 import org.seed.core.report.ReportFormat;
+import org.seed.core.util.Assert;
 import org.seed.ui.Tab;
 
-import org.springframework.util.Assert;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.ContextParam;
@@ -53,7 +53,7 @@ public class SelectReportFormatViewModel extends AbstractViewModel  {
 	@Init
     public void init(@ContextParam(ContextType.VIEW) Component view,
     				 @ExecutionArgParam("param") SelectReportFormatParameter param) {
-		Assert.notNull(param, "param is null");
+		Assert.notNull(param, "param");
 		
 		report = param.report;
 		parentVM = param.parentVM;

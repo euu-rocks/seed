@@ -36,18 +36,18 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-
+import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntity;
+import org.seed.core.util.Assert;
 import org.seed.core.util.CDATAXmlAdapter;
 
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 @Entity
 @Table(name = "sys_datasource")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class DataSourceMetadata extends AbstractApplicationEntity
-	implements DataSource {
+	implements IDataSource {
 	
 	/*  \\{: escape character '{'
 	    (  : start match group
@@ -57,7 +57,7 @@ public class DataSourceMetadata extends AbstractApplicationEntity
 	    )  : stop match group
 	    \\}: escape character '}'  
 	*/
-	private final static Pattern PARAM_PATTERN = Pattern.compile("\\{([^}]+)\\}");
+	private static final Pattern PARAM_PATTERN = Pattern.compile("\\{([^}]+)\\}");
 	
 	private String content;
 	
@@ -102,7 +102,7 @@ public class DataSourceMetadata extends AbstractApplicationEntity
 
 	@Override
 	public void addParameter(DataSourceParameter parameter) {
-		Assert.notNull(parameter, "parameter is null");
+		Assert.notNull(parameter, C.PARAMETER);
 		
 		if (parameters == null) {
 			parameters = new ArrayList<>();
@@ -113,7 +113,7 @@ public class DataSourceMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public void removeParameter(DataSourceParameter parameter) {
-		Assert.notNull(parameter, "parameter is null");
+		Assert.notNull(parameter, C.PARAMETER);
 		
 		getParameters().remove(parameter);
 	}
@@ -136,20 +136,23 @@ public class DataSourceMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public boolean isEqual(Object other) {
-		if (other == null || !DataSource.class.isAssignableFrom(other.getClass())) {
+		if (other == null || !IDataSource.class.isAssignableFrom(other.getClass())) {
 			return false;
 		}
 		if (other == this) {
 			return true;
 		}
-		final DataSource otherDataSource = (DataSource) other;
+		final IDataSource otherDataSource = (IDataSource) other;
 		if (!new EqualsBuilder()
 			.append(getName(), otherDataSource.getName())
 			.append(content, otherDataSource.getContent())
 			.isEquals()) {
 			return false;
 		}
-		
+		return isEqualParameters(otherDataSource);
+	}
+	
+	private boolean isEqualParameters(IDataSource otherDataSource) {
 		if (hasParameters()) {
 			for (DataSourceParameter parameter : getParameters()) {
 				if (!parameter.isEqual(otherDataSource.getParameterByUid(parameter.getUid()))) {

@@ -19,7 +19,7 @@ package org.seed.core.form.layout.visit;
 
 import org.seed.core.form.layout.LayoutElement;
 import org.seed.core.form.layout.LayoutVisitor;
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 public class FindElementVisitor implements LayoutVisitor {
 	
@@ -28,7 +28,7 @@ public class FindElementVisitor implements LayoutVisitor {
 	private LayoutElement element;
 	
 	public FindElementVisitor(String contextId) {
-		Assert.notNull(contextId, "contextId is null");
+		Assert.notNull(contextId, "contextId");
 		this.contextId = contextId;
 	}
 

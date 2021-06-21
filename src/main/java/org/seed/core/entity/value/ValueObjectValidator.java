@@ -21,7 +21,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.seed.C;
 import org.seed.core.config.Limits;
+import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationError;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
@@ -30,10 +32,10 @@ import org.seed.core.entity.EntityFieldConstraint;
 import org.seed.core.entity.EntityRepository;
 import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.NestedEntity;
+import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 @Component
@@ -49,31 +51,19 @@ public class ValueObjectValidator {
 	private Limits limits;
 	
 	@Autowired
-	private List<ValueObjectDependent> valueObjectDependents;
+	private List<ValueObjectDependent<? extends SystemEntity>> valueObjectDependents;
 	
 	public void validateChangeStatus(ValueObject object, EntityStatus targetStatus) throws ValidationException {
-		Assert.notNull(object, "object is null");
-		Assert.notNull(targetStatus, "targetStatus is null");
+		Assert.notNull(object, C.OBJECT);
+		Assert.notNull(targetStatus, "targetStatus");
 		
 		final Entity entity = entityRepository.get(object.getEntityId());
 		final Set<ValidationError> errors = new LinkedHashSet<>();
 		if (entity.hasFieldConstraints()) {
 			for (EntityFieldConstraint constraint : entity.getFieldConstraints()) {
-				if (targetStatus.equals(constraint.getStatus()) && constraint.isMandatory()) {
-					if (constraint.getField() != null &&
-						isEmpty(objectAccess.getValue(object, constraint.getField()))) {
-						errors.add(new ValidationError("val.empty.statusfield", constraint.getField().getName()));
-					}
-					else if (constraint.getFieldGroup() != null) {
-						for (EntityField groupField : entity.getAllFieldsByGroup(constraint.getFieldGroup())) {
-							if (isEmpty(objectAccess.getValue(object, groupField))) {
-								errors.add(new ValidationError("val.empty.statusfield", groupField.getName()));
-							}
-						}
-					}
-					else {
-						throw new IllegalStateException("constraint has no field or group");
-					}
+				if (targetStatus.equals(constraint.getStatus()) && 
+					constraint.isMandatory()) {
+					validateMandatoryConstraints(entity, constraint, object, errors);
 				}
 			}
 		}
@@ -84,14 +74,17 @@ public class ValueObjectValidator {
 	}
 	
 	public void validateDelete(ValueObject object) throws ValidationException {
-		Assert.notNull(object, "object is null");
+		Assert.notNull(object, C.OBJECT);
 		
 		final Entity objectEntity = entityRepository.get(object.getEntityId());
 		final Set<ValidationError> errors = new LinkedHashSet<>();
-		for (ValueObjectDependent dependent : valueObjectDependents) {
-			for (Entity entity : dependent.findUsage(object)) {
-				if (!objectEntity.isNestedEntity(entity)) {
-					errors.add(new ValidationError("val.inuse.valueobject", entity.getName()));
+		for (ValueObjectDependent<? extends SystemEntity> dependent : valueObjectDependents) {
+			for (SystemEntity systemEntity : dependent.findUsage(object)) {
+				if (systemEntity instanceof Entity) {
+					final Entity entity = (Entity) systemEntity;
+					if (!objectEntity.isNestedEntity(entity)) {
+						errors.add(new ValidationError("val.inuse.valueobject", entity.getName()));
+					}
 				}
 			}
 		}
@@ -101,28 +94,14 @@ public class ValueObjectValidator {
 	}
 	
 	public void validateSave(ValueObject object) throws ValidationException {
-		Assert.notNull(object, "object is null");
+		Assert.notNull(object, C.OBJECT);
 	
 		final Entity entity = entityRepository.get(object.getEntityId());
 		final Set<ValidationError> errors = new LinkedHashSet<>();
 		
 		// fields
 		if (entity.hasAllFields()) {
-			for (EntityField field : entity.getAllFields()) {
-				final Object value = objectAccess.getValue(object, field);
-				if (field.isMandatory() && !field.getType().isAutonum()) {
-					if (isEmpty(value)) {
-						errors.add(new ValidationError("val.empty.field", field.getName()));
-					}
-				}
-				else if (field.getType().isText()) {
-					final String text = (String) value;
-					if (text != null && text.length() > getMaxFieldLength(field)) {
-						errors.add(new ValidationError("val.toolong.fieldvalue", field.getName(),
-								   					   String.valueOf(getMaxFieldLength(field))));
-					}
-				}
-			}
+			validateFields(entity, object, errors);
 		}
 		
 		// nesteds
@@ -131,23 +110,7 @@ public class ValueObjectValidator {
 				if (nested.getNestedEntity().hasFields()) {
 					final List<ValueObject> nestedObjects = objectAccess.getNestedObjects(object, nested);
 					if (nestedObjects != null) {
-						for (ValueObject nestedObject : nestedObjects) {
-							for (EntityField field : nested.getFields(true)) {
-								final Object value = objectAccess.getValue(nestedObject, field);
-								if (field.isMandatory() && isEmpty(value)) {
-									errors.add(new ValidationError("val.empty.subfield", 
-											   field.getName(), nested.getName()));
-								}
-								else if (field.getType().isText()) {
-									final String stringValue = (String) value;
-									if (stringValue != null && stringValue.length() > getMaxFieldLength(field)) {
-										errors.add(new ValidationError("val.toolong.objectfieldvalue", 
-																	   field.getName(), nested.getName(),
-																	   String.valueOf(getMaxFieldLength(field))));
-									}
-								}
-							}
-						}
+						validateNestedObjects(nested, nestedObjects, errors);
 					}
 				}
 			}
@@ -170,6 +133,59 @@ public class ValueObjectValidator {
 			return !StringUtils.hasText((String) object);
 		}
 		return object == null;
+	}
+	
+	private void validateMandatoryConstraints(Entity entity, EntityFieldConstraint constraint, 
+			  								  ValueObject object, Set<ValidationError> errors) {
+		if (constraint.getField() != null &&
+			isEmpty(objectAccess.getValue(object, constraint.getField()))) {
+			errors.add(new ValidationError("val.empty.statusfield", constraint.getField().getName()));
+		}
+		else if (constraint.getFieldGroup() != null) {
+			for (EntityField groupField : entity.getAllFieldsByGroup(constraint.getFieldGroup())) {
+				if (isEmpty(objectAccess.getValue(object, groupField))) {
+					errors.add(new ValidationError("val.empty.statusfield", groupField.getName()));
+				}
+			}
+		}
+		else {
+			throw new IllegalStateException("constraint has no field or group");
+		}
+	}
+	
+	private void validateFields(Entity entity, ValueObject object, Set<ValidationError> errors) {
+		for (EntityField field : entity.getAllFields()) {
+			final Object value = objectAccess.getValue(object, field);
+			if (field.isMandatory() && !field.getType().isAutonum() && isEmpty(value)) {
+				errors.add(ValidationError.emptyField(field.getName()));
+			}
+			if (field.getType().isText()) {
+				final String text = (String) value;
+				if (text != null && text.length() > getMaxFieldLength(field)) {
+					errors.add(ValidationError.overlongField(field.getName(), getMaxFieldLength(field)));
+				}
+			}
+		}
+	}
+	
+	private void validateNestedObjects(NestedEntity nested, List<ValueObject> nestedObjects, 
+									   Set<ValidationError> errors) {
+		for (ValueObject nestedObject : nestedObjects) {
+			for (EntityField field : nested.getFields(true)) {
+				final Object value = objectAccess.getValue(nestedObject, field);
+				if (field.isMandatory() && isEmpty(value)) {
+					errors.add(new ValidationError("val.empty.subfield", 
+							   field.getName(), nested.getName()));
+				}
+				else if (field.getType().isText()) {
+					final String stringValue = (String) value;
+					if (stringValue != null && stringValue.length() > getMaxFieldLength(field)) {
+						errors.add(ValidationError.overlongObjectField(field.getName(), nested.getName(),
+													   				  getMaxFieldLength(field)));
+					}
+				}
+			}
+		}
 	}
 	
 }

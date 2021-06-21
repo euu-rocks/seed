@@ -26,7 +26,7 @@ import org.seed.core.form.navigation.Menu;
 import org.seed.core.form.navigation.MenuMetadata;
 import org.seed.core.form.navigation.MenuService;
 import org.seed.core.user.Authorisation;
-
+import org.seed.core.util.MiscUtils;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.ExecutionArgParam;
@@ -132,6 +132,7 @@ public class AdminMenuViewModel extends AbstractAdminViewModel<Menu> {
 	}
 	
 	@Command
+	@Override
 	public void flagDirty(@BindingParam("notify") String notify, 
 						  @BindingParam("notifyObject") String notifyObject) {
 		super.flagDirty(notify, notifyObject);
@@ -144,17 +145,17 @@ public class AdminMenuViewModel extends AbstractAdminViewModel<Menu> {
 	}
 	
 	@GlobalCommand
-	public void _refreshObject(@BindingParam("param") Long objectId) {
+	public void globalRefreshObject(@BindingParam("param") Long objectId) {
 		refreshObject(objectId);
 	}
 
 	@Override
-	protected List<? extends SystemObject> getListSorterSource(String key) {
-		switch (key) {
-			case ENTRIES:
-				return getObject().getSubMenus();
-			default:
-				throw new IllegalStateException("unknown list sorter key: " + key);
+	protected List<SystemObject> getListSorterSource(String key) {
+		if (ENTRIES.equals(key)) {
+			return MiscUtils.cast(getObject().getSubMenus());
+		}
+		else {
+			throw new IllegalStateException("unknown list sorter key: " + key);
 		}
 	}
 

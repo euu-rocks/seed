@@ -29,8 +29,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import org.seed.core.application.TransferableObject;
-import org.seed.core.data.AbstractSystemObject;
+import org.seed.core.application.AbstractTransferableObject;
 import org.seed.core.entity.EntityField;
 import org.seed.core.util.ReferenceJsonSerializer;
 
@@ -40,8 +39,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @javax.persistence.Entity
 @Table(name = "sys_entity_transform_elem")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class TransformerElement extends AbstractSystemObject
-	implements TransferableObject {
+public class TransformerElement extends AbstractTransferableObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "transform_id")
@@ -58,8 +56,6 @@ public class TransformerElement extends AbstractSystemObject
 	@JsonSerialize(using = ReferenceJsonSerializer.class)
 	private EntityField targetField;
 	
-	private String uid;
-	
 	@Transient
 	@JsonIgnore
 	private String sourceFieldUid;
@@ -67,17 +63,6 @@ public class TransformerElement extends AbstractSystemObject
 	@Transient
 	@JsonIgnore
 	private String targetFieldUid;
-	
-	@Override
-	@XmlAttribute
-	public String getUid() {
-		return uid;
-	}
-	
-	@Override
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
 	
 	@XmlTransient
 	public Transformer getTransformer() {

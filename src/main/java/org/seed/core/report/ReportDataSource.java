@@ -30,16 +30,14 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import org.seed.core.application.TransferableObject;
-import org.seed.core.data.AbstractOrderedSystemObject;
-import org.seed.core.data.datasource.DataSource;
+import org.seed.core.application.AbstractOrderedTransferableObject;
+import org.seed.core.data.datasource.IDataSource;
 import org.seed.core.data.datasource.DataSourceMetadata;
 
 @Entity
 @Table(name = "sys_report_datasource")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class ReportDataSource extends AbstractOrderedSystemObject
-	implements TransferableObject {
+public class ReportDataSource extends AbstractOrderedTransferableObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "report_id")
@@ -50,8 +48,6 @@ public class ReportDataSource extends AbstractOrderedSystemObject
 	private DataSourceMetadata dataSource;
 	
 	private String label;
-	
-	private String uid;
 	
 	@Transient
 	private String dataSourceUid;
@@ -65,17 +61,6 @@ public class ReportDataSource extends AbstractOrderedSystemObject
 		this.label = label;
 	}
 
-	@Override
-	@XmlAttribute
-	public String getUid() {
-		return uid;
-	}
-
-	@Override
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
-	
 	@XmlTransient
 	public Report getReport() {
 		return report;
@@ -86,11 +71,11 @@ public class ReportDataSource extends AbstractOrderedSystemObject
 	}
 	
 	@XmlTransient
-	public DataSource getDataSource() {
+	public IDataSource getDataSource() {
 		return dataSource;
 	}
 
-	public void setDataSource(DataSource dataSource) {
+	public void setDataSource(IDataSource dataSource) {
 		this.dataSource = (DataSourceMetadata) dataSource;
 	}
 	

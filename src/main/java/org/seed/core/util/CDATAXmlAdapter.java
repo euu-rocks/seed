@@ -19,12 +19,10 @@ package org.seed.core.util;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-import org.springframework.util.Assert;
-
 public class CDATAXmlAdapter extends XmlAdapter<String, String> {
 	
-	private final static String CDATA_BEGIN = "<![CDATA[";
-	private final static String CDATA_END 	= "]]>";
+	private static final String CDATA_BEGIN = "<![CDATA[";
+	private static final String CDATA_END 	= "]]>";
 	
 	@Override
 	public String marshal(String value) throws Exception {

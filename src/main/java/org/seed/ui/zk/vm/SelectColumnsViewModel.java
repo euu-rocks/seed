@@ -24,12 +24,12 @@ import java.util.List;
 import org.seed.core.data.ValidationError;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormField;
+import org.seed.core.util.Assert;
 import org.seed.ui.DragDropListManager;
 import org.seed.ui.settings.ColumnSetting;
 import org.seed.ui.settings.ListFormSettings;
 import org.seed.ui.zk.ViewUtils;
 
-import org.springframework.util.Assert;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.ContextParam;
@@ -51,8 +51,6 @@ public class SelectColumnsViewModel extends AbstractViewModel {
 	
 	private final DragDropListManager listManager = new DragDropListManager();
 	
-	private Form form;
-	
 	private AbstractFormViewModel parentVM;
 	
 	private ListFormSettings listSettings;
@@ -60,10 +58,10 @@ public class SelectColumnsViewModel extends AbstractViewModel {
 	@Init
     public void init(@ContextParam(ContextType.VIEW) Component view,
     				 @ExecutionArgParam("param") AbstractFormViewModel param) {
-		Assert.notNull(param, "param is null");
+		Assert.notNull(param, "param");
 		
 		parentVM = param;
-		form = parentVM.getForm();
+		final Form form = parentVM.getForm();
 		listSettings = ViewUtils.getSettings().getListFormSettings(form.getId());
 		listSettings.sortFields(form.getFields());
 		
@@ -98,7 +96,7 @@ public class SelectColumnsViewModel extends AbstractViewModel {
 	@NotifyChange({"availableFields", "selectedFields"})
 	public void dropToList(@BindingParam("item") FormField field, 
 						   @BindingParam("list") int listNum) {
-		Assert.notNull(field, "field is null");
+		Assert.notNull(field, "field");
 		
 		listManager.drop(field, listNum);
 	}
@@ -108,8 +106,8 @@ public class SelectColumnsViewModel extends AbstractViewModel {
 	public void insertToList(@BindingParam("base") FormField base, 
 							 @BindingParam("item") FormField field, 
 							 @BindingParam("list") int listNum) {
-		Assert.notNull(base, "base is null");
-		Assert.notNull(field, "field is null");
+		Assert.notNull(base, "base");
+		Assert.notNull(field, "field");
 		
 		listManager.insert(base, field, listNum);
 	}

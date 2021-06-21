@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.seed.core.data.SystemObject;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.filter.CriterionOperator;
 import org.seed.core.entity.value.AbstractValueObject;
@@ -31,10 +30,10 @@ import org.seed.core.entity.value.ValueObject;
 import org.seed.core.form.FormActionType;
 import org.seed.core.form.SubForm;
 import org.seed.core.form.SubFormAction;
+import org.seed.core.util.Assert;
 import org.seed.core.util.MultiKey;
 import org.seed.ui.FormParameter;
-
-import org.springframework.util.Assert;
+import org.seed.ui.SearchParameter;
 import org.springframework.util.StringUtils;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
@@ -47,15 +46,16 @@ import org.zkoss.zul.Menuitem;
 
 public class SearchFormViewModel extends AbstractFormViewModel {
 	
-	private final Map<MultiKey, ListModel<SystemObject>> listModelMap = Collections.synchronizedMap(new HashMap<>());
+	private final Map<MultiKey, ListModel<ValueObject>> listModelMap = Collections.synchronizedMap(new HashMap<>());
 	
 	private Map<Long, Map<String, CriterionOperator>> fieldOperatorsMap;
 	
 	@Init
+	@Override
 	public void init(@ExecutionArgParam("param") FormParameter param) {
 		super.init(param);
 		
-		final SearchParameter searchParam = getSessionObject("searchParameter");
+		final SearchParameter searchParam = getSessionObject(SEARCH_PARAMETER);
 		if (searchParam != null) {
 			setObject(searchParam.searchObject);
 			fieldOperatorsMap = searchParam.mapOperators;
@@ -66,8 +66,8 @@ public class SearchFormViewModel extends AbstractFormViewModel {
 	}
 	
 	public boolean isCriterionChecked(String type, String fieldUid, String nestedEntityUid) {
-		Assert.notNull(type, "type is null");
-		Assert.notNull(fieldUid, "fieldUid is null");
+		Assert.notNull(type, "type");
+		Assert.notNull(fieldUid, FIELD_UID);
 		
 		final ValueObject object = StringUtils.hasText(nestedEntityUid)
 									? getSubForm(nestedEntityUid).getSelectedObject()
@@ -83,30 +83,30 @@ public class SearchFormViewModel extends AbstractFormViewModel {
 	}
 	
 	public boolean isFieldVisible(String fieldUid) {
-		Assert.notNull(fieldUid, "fieldUid is null");
+		Assert.notNull(fieldUid, FIELD_UID);
 		
 		final EntityField field = getForm().getEntity().getFieldByUid(fieldUid);
 		return getForm().isFieldVisible(field, null, getUser());
 	}
 	
-	public ListModel<SystemObject> getReferenceListModel(String referenceFieldUid) {
-		Assert.notNull(referenceFieldUid, "referenceFieldUid is null");
+	public ListModel<ValueObject> getReferenceListModel(String referenceFieldUid) {
+		Assert.notNull(referenceFieldUid, REFERENCE_FIELD_UID);
 		
 		final MultiKey key = MultiKey.valueOf(0L, referenceFieldUid);
 		if (listModelMap.containsKey(key)) {
 			return listModelMap.get(key);
 		}
 		final EntityField referenceField = getForm().getEntity().getFieldByUid(referenceFieldUid);
-		Assert.state(referenceField != null, "referenceField not found " + referenceFieldUid);
+		checkReferenceField(referenceField, referenceFieldUid);
 		
-		final ListModel<SystemObject> model = createReferenceListModel(referenceField, null);
+		final ListModel<ValueObject> model = createReferenceListModel(referenceField, null);
 		listModelMap.put(key, model);
 		return model;
 	}
 	
-	public ListModel<SystemObject> getNestedReferenceListModel(String nestedEntityUid, String referenceFieldUid) {
-		Assert.notNull(nestedEntityUid, "nestedEntityUid is null");
-		Assert.notNull(referenceFieldUid, "referenceFieldUid is null");
+	public ListModel<ValueObject> getNestedReferenceListModel(String nestedEntityUid, String referenceFieldUid) {
+		Assert.notNull(nestedEntityUid, "nestedEntityUid");
+		Assert.notNull(referenceFieldUid, REFERENCE_FIELD_UID);
 		
 		final MultiKey key = MultiKey.valueOf(nestedEntityUid, referenceFieldUid);
 		if (listModelMap.containsKey(key)) {
@@ -114,24 +114,24 @@ public class SearchFormViewModel extends AbstractFormViewModel {
 		}
 		final SubForm subForm = getSubForm(nestedEntityUid);
 		final EntityField referenceField = subForm.getNestedEntity().getNestedEntity().getFieldByUid(referenceFieldUid);
-		Assert.state(referenceField != null, "referenceField not found " + referenceFieldUid);
+		checkReferenceField(referenceField, referenceFieldUid);
 		
-		final ListModel<SystemObject> model = createReferenceListModel(referenceField, null);
+		final ListModel<ValueObject> model = createReferenceListModel(referenceField, null);
 		listModelMap.put(key, model);
 		return model;
 	}
 	
 	public List<ValueObject> getReferenceValues(String referenceFieldUid) {
-		Assert.notNull(referenceFieldUid, "referenceFieldUid is null");
+		Assert.notNull(referenceFieldUid, REFERENCE_FIELD_UID);
 		
 		final EntityField referenceField = getForm().getEntity().getFieldByUid(referenceFieldUid);
-		Assert.state(referenceField != null, "referenceField not found " + referenceFieldUid);
+		checkReferenceField(referenceField, referenceFieldUid);
 		return getReferenceValues(referenceField, null);
 	}
 	
 	public List<ValueObject> getNestedReferenceValues(String nestedEntityUid, String referenceFieldUid) {
-		Assert.notNull(nestedEntityUid, "nestedEntityUid is null");
-		Assert.notNull(referenceFieldUid, "referenceFieldUid is null");
+		Assert.notNull(nestedEntityUid, "nestedEntityUid");
+		Assert.notNull(referenceFieldUid, REFERENCE_FIELD_UID);
 		
 		final SubForm subForm = getSubForm(nestedEntityUid);
 		final EntityField referenceField = subForm.getNestedEntity().getNestedEntity().getFieldByUid(referenceFieldUid);
@@ -152,7 +152,9 @@ public class SearchFormViewModel extends AbstractFormViewModel {
 	
 	@Command
 	@NotifyChange({"getSubForm", "isCriterionChecked"})
-	public void selectSubFormObject() {}
+	public void selectSubFormObject() {
+		// do nothing, just notify
+	}
 	
 	@Command
 	public void objectChanged(@BindingParam("fieldId") String fieldUid,
@@ -173,14 +175,14 @@ public class SearchFormViewModel extends AbstractFormViewModel {
 							   @BindingParam("type") String type,
 							   @BindingParam("fieldId") String fieldUid,
 							   @BindingParam("nestedEntityId") String nestedEntityUid) {
-		Assert.notNull(elem, "elem is null");
-		Assert.notNull(type, "type is null");
-		Assert.notNull(fieldUid, "fieldUid is null");
+		Assert.notNull(elem, "elem");
+		Assert.notNull(type, "type");
+		Assert.notNull(fieldUid, FIELD_UID);
 		
 		final ValueObject object = nestedEntityUid != null
 									? getSubForm(nestedEntityUid).getSelectedObject()
 									: getObject();
-		Assert.state(object != null, "object not available");
+		Assert.stateAvailable(object, "object");
 		
 		if (elem.isChecked()) {
 			getObjectCriteriaMap(object).put(fieldUid, CriterionOperator.valueOf(type));
@@ -206,13 +208,13 @@ public class SearchFormViewModel extends AbstractFormViewModel {
 	@Command
 	@NotifyChange("*")
 	public void clearSearch() {
-		removeSessionObject("searchParameter");
+		removeSessionObject(SEARCH_PARAMETER);
 		initNewSearch();
 	}
 	
 	@Command
 	public void search() {
-		setSessionObject("searchParameter", new SearchParameter(getObject(), fieldOperatorsMap));
+		setSessionObject(SEARCH_PARAMETER, new SearchParameter(getObject(), fieldOperatorsMap));
 		showListForm();
 	}
 	
@@ -231,12 +233,8 @@ public class SearchFormViewModel extends AbstractFormViewModel {
 		if (objectId == null) {
 			objectId = 0L; // main object has no tmpId and gets id 0
 		}
-		Map<String, CriterionOperator> objectCriteriaMap = fieldOperatorsMap.get(objectId);
-		if (objectCriteriaMap == null) {
-			objectCriteriaMap = Collections.synchronizedMap(new HashMap<>());
-			fieldOperatorsMap.put(objectId, objectCriteriaMap);
-		}
-		return objectCriteriaMap;
+		fieldOperatorsMap.computeIfAbsent(objectId, o -> Collections.synchronizedMap(new HashMap<>()));
+		return fieldOperatorsMap.get(objectId);
 	}
-
+	
 }

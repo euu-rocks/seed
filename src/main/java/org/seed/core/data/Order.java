@@ -17,17 +17,9 @@
  */
 package org.seed.core.data;
 
-import java.util.Comparator;
 import java.util.List;
 
 public interface Order {
-	
-	static final Comparator<Order> COMPARATOR = new Comparator<Order>() {
-		@Override
-		public int compare(Order order1, Order order2) {
-			return Integer.compare(order1.getOrder(), order2.getOrder());
-		}
-	};
 	
 	int getOrder();
 	
@@ -38,6 +30,13 @@ public interface Order {
 			for (int i = 0; i < list.size(); i++) {
 				list.get(i).setOrder(i + 1);
 			}
+		}
+	}
+	
+	static void sort(List<? extends Order> list) {
+		if (list != null) {
+			list.sort((Order order1, Order order2) -> Integer.compare(order1.getOrder(), 
+																	  order2.getOrder()));
 		}
 	}
 	

@@ -30,14 +30,15 @@ import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.apache.xmlbeans.XmlException;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTRow;
-
+import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.form.FormPrintout;
 import org.seed.core.form.LabelProvider;
+import org.seed.core.util.Assert;
 
-import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 class DOCXPrintoutProcessor extends AbstractPrintoutProcessor {
@@ -45,11 +46,39 @@ class DOCXPrintoutProcessor extends AbstractPrintoutProcessor {
 	public DOCXPrintoutProcessor(Entity entity, LabelProvider labelProvider) {
 		super(entity, labelProvider); 
 	}
+	
+	private int processNestedRow(ValueObject valueObject, NestedEntity nestedEntity,
+								 XWPFTable table, XWPFTableRow row, int rowIdx, 
+								 List<XWPFTableRow> newRows) throws XmlException, IOException {
+		int removeRowIdx = -1;
+		final List<ValueObject> nestedObjects = getNestedObjects(valueObject, nestedEntity);
+		// no objects -> remove template row
+		if (ObjectUtils.isEmpty(nestedObjects)) {
+			removeRowIdx = rowIdx;
+		}
+		// exacly one object -> replace template row
+		else if (nestedObjects.size() == 1) {
+			processRow(row, valueObject, nestedEntity, nestedObjects.get(0));
+		}
+		// multiple objects
+		else {
+			// remove template row 
+			removeRowIdx = rowIdx;
+			// create n new rows
+			for (ValueObject nestedObject : nestedObjects) {
+				final XWPFTableRow newRow = new XWPFTableRow(
+						CTRow.Factory.parse(row.getCtRow().newInputStream()), table);
+				processRow(newRow, valueObject, nestedEntity, nestedObject);
+				newRows.add(newRow);
+			}
+		}
+		return removeRowIdx;
+	}
 
 	@Override
 	public byte[] process(FormPrintout printout, ValueObject valueObject) {
-		Assert.notNull(printout, "printout is null");
-		Assert.notNull(valueObject, "valueObject is null");
+		Assert.notNull(printout, C.PRINTOUT);
+		Assert.notNull(valueObject, "valueObject");
 		
 		try (XWPFDocument document = new XWPFDocument(getInputStream(printout))) {
 			for (XWPFParagraph paragraph : document.getParagraphs()) {
@@ -58,33 +87,14 @@ class DOCXPrintoutProcessor extends AbstractPrintoutProcessor {
 			for (XWPFTable table : document.getTables()) {
 				int rowIdx = 0;
 				int removeRowIdx = -1;
-				List<XWPFTableRow> newRows = null;
+				
+				List<XWPFTableRow> newRows = new ArrayList<>();
 				for (XWPFTableRow row : table.getRows()) {
 					final NestedEntity nestedEntity = findNestedProperty(row);
 					// row contains nested entity properties
 					if (nestedEntity != null) {
-						final List<ValueObject> nestedObjects = getNestedObjects(valueObject, nestedEntity);
-						// no objects -> remove template row
-						if (ObjectUtils.isEmpty(nestedObjects)) {
-							removeRowIdx = rowIdx;
-						}
-						// exacly one object -> replace template row
-						else if (nestedObjects.size() == 1) {
-							processRow(row, valueObject, nestedEntity, nestedObjects.get(0));
-						}
-						// multiple objects
-						else {
-							// remove template row 
-							removeRowIdx = rowIdx;
-							newRows = new ArrayList<>();
-							// create n new rows
-							for (ValueObject nestedObject : nestedObjects) {
-								final XWPFTableRow newRow = new XWPFTableRow(
-										CTRow.Factory.parse(row.getCtRow().newInputStream()), table);
-								processRow(newRow, valueObject, nestedEntity, nestedObject);
-								newRows.add(newRow);
-							}
-						}
+						removeRowIdx = processNestedRow(valueObject, nestedEntity, table, 
+														row, rowIdx, newRows);
 					}
 					// row without nested entity properties
 					else {
@@ -97,10 +107,8 @@ class DOCXPrintoutProcessor extends AbstractPrintoutProcessor {
 				if (removeRowIdx != -1) {
 					table.removeRow(removeRowIdx);
 				}
-				if (newRows != null) {
-					for (XWPFTableRow row : newRows) {
-						table.addRow(row, removeRowIdx++);
-					}
+				for (XWPFTableRow row : newRows) {
+					table.addRow(row, removeRowIdx++);
 				}
 			}
 			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -108,7 +116,7 @@ class DOCXPrintoutProcessor extends AbstractPrintoutProcessor {
 			return baos.toByteArray();
 		} 
 		catch (IOException | XmlException ex) {
-			throw new RuntimeException(ex);
+			throw new InternalException(ex);
 		}
 	}
 	

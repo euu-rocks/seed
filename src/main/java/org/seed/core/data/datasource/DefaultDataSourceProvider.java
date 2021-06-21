@@ -20,11 +20,11 @@ package org.seed.core.data.datasource;
 import java.util.List;
 import java.util.Map;
 
+import org.seed.C;
+import org.seed.Seed;
 import org.seed.core.api.AbstractFunctionContext;
 import org.seed.core.api.DataSourceProvider;
-import org.seed.core.config.ApplicationContextProvider;
-
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 public class DefaultDataSourceProvider implements DataSourceProvider {
 	
@@ -33,23 +33,23 @@ public class DefaultDataSourceProvider implements DataSourceProvider {
 	private final DataSourceService dataSourceService;
 	
 	public DefaultDataSourceProvider(AbstractFunctionContext functionContext) {
-		Assert.notNull(functionContext, "context is null");
+		Assert.notNull(functionContext, C.CONTEXT);
 		
 		this.functionContext = functionContext;
-		dataSourceService = ApplicationContextProvider.getBean(DataSourceService.class);
+		dataSourceService = Seed.getBean(DataSourceService.class);
 	}
 	
 	@Override
-	public DataSource getDataSource(String dataSourceName) {
-		Assert.notNull(dataSourceName, "dataSourceName is null");
+	public IDataSource getDataSource(String dataSourceName) {
+		Assert.notNull(dataSourceName, "dataSourceName");
 		
 		return dataSourceService.findByName(dataSourceName);
 	}
 
 	@Override
-	public List<Object[]> query(DataSource dataSource, Map<String, Object> parameters) {
-		Assert.notNull(dataSource, "dataSource is null");
-		Assert.notNull(parameters, "parameters is null");
+	public List<Object[]> query(IDataSource dataSource, Map<String, Object> parameters) {
+		Assert.notNull(dataSource, C.DATASOURCE);
+		Assert.notNull(parameters, "parameters");
 		
 		return dataSourceService.query(dataSource, parameters, functionContext.getSession())
 								.getResultList();

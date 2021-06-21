@@ -20,44 +20,44 @@ package org.seed.core.application;
 import java.util.List;
 
 import org.hibernate.Session;
-
+import org.seed.C;
+import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.ModuleDependent;
 import org.seed.core.application.module.TransferContext;
 import org.seed.core.data.AbstractSystemEntityService;
 import org.seed.core.data.QueryParameter;
 import org.seed.core.data.ValidationException;
-
-import org.springframework.util.Assert;
+import org.seed.core.util.Assert;
 
 public abstract class AbstractApplicationEntityService<T extends ApplicationEntity> extends AbstractSystemEntityService<T> 
-	implements ApplicationEntityService<T>, ModuleDependent {
+	implements ApplicationEntityService<T>, ModuleDependent<T> {
 	
 	@Override
 	public T findByUid(String uid) {
-		Assert.notNull(uid, "uid is null");
+		Assert.notNull(uid, C.UID);
 		
-		return getRepository().findUnique(queryParam("uid", uid));
+		return getRepository().findUnique(queryParam(C.UID, uid));
 	}
 	
 	@Override
 	public T findByUid(Session session, String uid) {
-		Assert.notNull(session, "session is null");
-		Assert.notNull(uid, "uid is null");
+		Assert.notNull(session, C.SESSION);
+		Assert.notNull(uid, C.UID);
 		
-		return getRepository().findUnique(session, queryParam("uid", uid));
+		return getRepository().findUnique(session, queryParam(C.UID, uid));
 	}
 	
 	@Override
 	public List<T> findObjectsWithoutModule() {
-		return getRepository().find(queryParam("module", QueryParameter.IS_NULL));
+		return getRepository().find(queryParam(C.MODULE, QueryParameter.IS_NULL));
 	}
 	
 	@Override
 	public List<T> findUsage(Module module) {
-		Assert.notNull(module, "module is null");
+		Assert.notNull(module, C.MODULE);
 		
-		return getRepository().find(queryParam("module", module));
+		return getRepository().find(queryParam(C.MODULE, module));
 	}
 	
 	@Override
@@ -65,9 +65,23 @@ public abstract class AbstractApplicationEntityService<T extends ApplicationEnti
 		// do nothing by default
 	}
 	
+	protected abstract void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule); 
+	
+	protected abstract void analyzeNextVersionObjects(ImportAnalysis analysis, Module currentVersionModule); 
+	
+	@Override
+	public void analyzeObjects(ImportAnalysis analysis, Module currentVersionModule) {
+		Assert.notNull(analysis, C.ANALYSIS);
+		
+		analyzeNextVersionObjects(analysis, currentVersionModule);
+		if (currentVersionModule != null) {
+			analyzeCurrentVersionObjects(analysis, currentVersionModule);
+		}
+	}
+	
 	@Override
 	public void saveObject(T object, Session session) throws ValidationException {
-		Assert.notNull(object, "object is null");
+		Assert.notNull(object, C.OBJECT);
 		
 		((AbstractApplicationEntity) object).initUids();
 		super.saveObject(object, session);

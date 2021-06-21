@@ -23,11 +23,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.springframework.util.Assert;
+import org.seed.C;
+import org.seed.core.util.Assert;
+
 import org.springframework.util.ObjectUtils;
 import org.xml.sax.Attributes;
 
-public class LayoutElement {
+public final class LayoutElement {
 	
 	public static final String A				= "a";
 	public static final String ATTRIBUTE		= "attribute";
@@ -91,13 +93,13 @@ public class LayoutElement {
 	private boolean decorated;
 	
 	public LayoutElement(String name) {
-		Assert.notNull(name, "name is null");
-		
-		this.name = name;
+		this(name, null);
 	}
 	
 	LayoutElement(String name, Attributes attributes) {
-		this(name);
+		Assert.notNull(name, C.NAME);
+		
+		this.name = name;
 		if (attributes != null) {
 			for (int i = 0; i < attributes.getLength(); i++) {
 				setAttribute(attributes.getQName(i), attributes.getValue(i));
@@ -136,7 +138,7 @@ public class LayoutElement {
 	}
 
 	private void setParent(LayoutElement parent) {
-		Assert.notNull(parent, "parent is null");
+		Assert.notNull(parent, "parent");
 		Assert.state(this.parent == null, "parent reassigned");
 		
 		this.parent = parent;
@@ -151,70 +153,70 @@ public class LayoutElement {
 	}
 	
 	public String getId() {
-		return getAttribute("id");
+		return getAttribute(LayoutElementAttributes.A_ID);
 	}
 	
 	public String getContext() {
-		return getAttribute("context");
+		return getAttribute(LayoutElementAttributes.A_CONTEXT);
 	}
 	
 	public LayoutElement setContext(String contextId) {
-		Assert.notNull(contextId, "contextId is null");
+		Assert.notNull(contextId, "contextId");
 		
-		setAttribute("context", contextId);
+		setAttribute(LayoutElementAttributes.A_CONTEXT, contextId);
 		return this;
 	}
 	
 	public LayoutElement setAlign(String align) {
-		Assert.notNull(align, "align is null");
+		Assert.notNull(align, LayoutElementAttributes.A_ALIGN);
 		
-		setAttribute("align", align);
+		setAttribute(LayoutElementAttributes.A_ALIGN, align);
 		return this;
 	}
 	
 	public LayoutElement setValign(String valign) {
-		Assert.notNull(valign, "valign is null");
+		Assert.notNull(valign, LayoutElementAttributes.A_VALIGN);
 		
-		setAttribute("valign", valign);
+		setAttribute(LayoutElementAttributes.A_VALIGN, valign);
 		return this;
 	}
 	
 	public LayoutElement setClass(String className) {
-		Assert.notNull(className, "className is null");
+		Assert.notNull(className, "className");
 		
-		setAttribute("class", className);
+		setAttribute(LayoutElementAttributes.A_CLASS, className);
 		return this;
 	}
 	
 	public LayoutElement setIcon(String icon) {
-		Assert.notNull(icon, "icon is null");
+		Assert.notNull(icon, "icon");
 		
-		setAttribute("iconSclass", icon + " alpha-icon-lg");
+		setAttribute(LayoutElementAttributes.A_ICONSCLASS, icon + " alpha-icon-lg");
 		return this;
 	}
 	
 	public LayoutElement setLabel(String label) {
-		Assert.notNull(label, "label is null");
+		Assert.notNull(label, LABEL);
 		
-		setAttribute("label", label);
+		setAttribute(LABEL, label);
 		return this;
 	}
 	
 	public LayoutElement setOnClick(String onClick) {
-		Assert.notNull(onClick, "onClick is null");
+		Assert.notNull(onClick, "onClick");
 		
-		setAttribute("onClick", onClick);
+		setAttribute(LayoutElementAttributes.A_ONCLICK, onClick);
 		return this;
 	}
 	
 	public boolean is(String name) {
-		Assert.notNull(name, "name is null");
+		Assert.notNull(name, C.NAME);
 		
 		return this.name.equals(name);
 	}
 	
 	public boolean parentIs(String name) {
-		Assert.notNull(name, "name is null");
+		Assert.notNull(name, C.NAME);
 		
 		return parent != null && parent.is(name);
 	}
@@ -228,24 +230,26 @@ public class LayoutElement {
 	}
 	
 	public boolean hasAttribute(String name) {
-		Assert.notNull(name, "name is null");
+		Assert.notNull(name, C.NAME);
 		
-		return attributes != null ? attributes.keySet().contains(name) : false;
+		return attributes != null && attributes.keySet().contains(name);
 	}
 	
 	public Map<String, String> getAttributes() {
-		return attributes != null ? Collections.unmodifiableMap(attributes) : null;
+		return attributes != null 
+				? Collections.unmodifiableMap(attributes) 
+				: null;
 	}
 	
 	public String getAttribute(String name) {
-		Assert.notNull(name, "name is null");
+		Assert.notNull(name, C.NAME);
 		
 		return attributes != null ? attributes.get(name) : null;
 	}
 	
 	public LayoutElement setAttribute(String name, Object value) {
-		Assert.notNull(name, "name is null");
-		Assert.notNull(value, "value is null");
+		Assert.notNull(name, C.NAME);
+		Assert.notNull(value, C.VALUE);
 		
 		if (attributes == null) {
 			attributes = new HashMap<>();
@@ -255,7 +259,7 @@ public class LayoutElement {
 	}
 	
 	public void removeAttribute(String name) {
-		Assert.notNull(name, "name is null");
+		Assert.notNull(name, C.NAME);
 		
 		if (attributes != null) {
 			attributes.remove(name);
@@ -271,12 +275,14 @@ public class LayoutElement {
 	}
 
 	public List<LayoutElement> getChildren() {
-		return children != null ? Collections.unmodifiableList(children) : null;
+		return children != null 
+				? Collections.unmodifiableList(children) 
+				: null;
 	}
 	
 	public LayoutElement getChild(String elementName) {
-		Assert.notNull(elementName, "elementName is null");
-		Assert.state(hasChildren(), "element has no children");
+		Assert.notNull(elementName, "elementName");
+		checkChildren();
 		
 		for (LayoutElement child : children) {
 			if (child.is(elementName)) {
@@ -287,7 +293,7 @@ public class LayoutElement {
 	}
 	
 	public LayoutElement getChildAt(int index) {
-		Assert.state(hasChildren(), "element has no children");
+		checkChildren();
 		
 		return children.get(index);
 	}
@@ -297,8 +303,8 @@ public class LayoutElement {
 	}
 	
 	public int getChildIndex(LayoutElement element) {
-		Assert.notNull(element, "element is null");
-		Assert.state(hasChildren(), "element has no children");
+		Assert.notNull(element, C.ELEMENT);
+		checkChildren();
 		
 		return children.indexOf(element);
 	}
@@ -308,7 +314,7 @@ public class LayoutElement {
 	}
 	
 	public LayoutElement addChild(LayoutElement element, Integer index) {
-		Assert.notNull(element, "element is null");
+		Assert.notNull(element, C.ELEMENT);
 		
 		element.setParent(this);
 		if (children == null) {
@@ -324,14 +330,14 @@ public class LayoutElement {
 	}
 	
 	public void removeChild(LayoutElement element) {
-		Assert.notNull(element, "element is null");
-		Assert.state(hasChildren(), "element has no children");
+		Assert.notNull(element, C.ELEMENT);
+		checkChildren();
 	
 		children.remove(element);
 	}
 	
 	public void removeChildAt(int index) {
-		Assert.state(hasChildren(), "element has no children");
+		checkChildren();
 		
 		children.remove(index);
 	}
@@ -341,7 +347,7 @@ public class LayoutElement {
 	}
 	
 	public void removeChildren(String name) {
-		Assert.notNull(name, "name is null");
+		Assert.notNull(name, C.NAME);
 		
 		if (children != null) {
 			children.removeIf(c -> c.is(name));
@@ -353,8 +359,8 @@ public class LayoutElement {
 	}
 	
 	public LayoutElement getCellNeighbor(Orientation orient) {
-		Assert.notNull(orient, "orient is null");
-		Assert.state(is(CELL), "element is not a cell");
+		Assert.notNull(orient, LayoutElementAttributes.A_ORIENT);
+		checkCell();
 		
 		final int idxRow = getRowIndex();
 		final int idxCol = getColumnIndex();
@@ -387,11 +393,11 @@ public class LayoutElement {
 	}
 	
 	public void accept(LayoutVisitor visitor) {
-		Assert.notNull(visitor, "visitor is null");
+		Assert.notNull(visitor, "visitor");
 		
 		visitor.visit(this);
 		if (hasChildren()) {
-			for (LayoutElement child : children) {
+			for (LayoutElement child : getChildren()) {
 				child.accept(visitor);
 			}
 		}
@@ -403,19 +409,22 @@ public class LayoutElement {
 	}
 	
 	public LayoutElement getGrid() {
-		Assert.state(is(CELL), "element is not a cell");
+		checkCell();
 		//     row		   //rows	   grid
 		return getParent().getParent().getParent();
 	}
 	
 	public LayoutElement getGridCell(int column, int row) {
-		Assert.state(is(GRID), "element is not a cell");
+		Assert.state(is(GRID), "element is not a grid");
 		
-		return getChild(ROWS).getChildAt(row).getChildAt(column);
+		final LayoutElement elemRows = getChild(ROWS);
+		return elemRows != null 
+				? elemRows.getChildAt(row).getChildAt(column) 
+				: null;
 	}
 	
 	public LayoutElement getGridContainer() {
-		Assert.state(is(CELL), "element is not a cell");
+		checkCell();
 		
 		final LayoutElement elemGrid = getGrid();
 		if (elemGrid.parentIs(GROUPBOX)) {
@@ -428,8 +437,10 @@ public class LayoutElement {
 		Assert.state(is(TABPANEL), "element is not a tabpanel");
 		
 		final int idx = getParent().getChildIndex(this);
-		//     tabpanels tabbox
-		return getParent().getParent().getChild(TABS).getChildAt(idx);
+		final LayoutElement elemTabs = getParent().getParent().getChild(TABS);
+		return elemTabs != null 
+				? elemTabs.getChildAt(idx) 
+				: null;
 	}
 	
 	public LayoutElement getTabboxContainer() {
@@ -439,19 +450,19 @@ public class LayoutElement {
 	}
 	
 	public int getColumnIndex() {
-		Assert.state(is(CELL), "element is not a cell");
+		checkCell();
 		//     row
 		return getParent().getChildIndex(this);
 	}
 	
 	public int getRowIndex() {
-		Assert.state(is(CELL), "element is not a cell");
+		checkCell();
 		//     row		   rows
 		return getParent().getParent().getChildIndex(getParent());
 	}
 	
 	void setOrRemoveAttribute(String name, Object value) {
-		Assert.notNull(name, "name is null");
+		Assert.notNull(name, C.NAME);
 		
 		if (ObjectUtils.isEmpty(value) || Boolean.FALSE.equals(value)) {
 			removeAttribute(name);
@@ -462,6 +473,14 @@ public class LayoutElement {
 			}
 			setAttribute(name, value);
 		}
+	}
+	
+	private void checkChildren() {
+		Assert.state(hasChildren(), "element has no children");
+	}
+	
+	private void checkCell() {
+		Assert.state(is(CELL), "element is not a cell");
 	}
 	
 }

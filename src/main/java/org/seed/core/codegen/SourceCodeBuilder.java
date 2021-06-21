@@ -19,9 +19,10 @@ package org.seed.core.codegen;
 
 import java.util.Date;
 
-import org.springframework.util.Assert;
+import org.seed.C;
+import org.seed.core.util.Assert;
 
-public interface SourceCodeBuilder<T> {
+public interface SourceCodeBuilder {
 	
 	enum BuildMode {
 		
@@ -35,9 +36,9 @@ public interface SourceCodeBuilder<T> {
 		
 		final String name;
 		
-		MemberMetadata(TypeClass typeClass, String name) {
-			Assert.notNull(typeClass, "typeClass is null");
-			Assert.notNull(name, "name is null");
+		MemberMetadata(String name, TypeClass typeClass) {
+			Assert.notNull(name, C.NAME);
+			Assert.notNull(typeClass, C.TYPECLASS);
 			
 			this.typeClass = typeClass;
 			this.name = name;
@@ -58,8 +59,8 @@ public interface SourceCodeBuilder<T> {
 		}
 		
 		ParameterMetadata(String name, TypeClass typeClass, AnnotationMetadata annotation) {
-			Assert.notNull(name, "name is null");
-			Assert.notNull(typeClass, "typeClass is null");
+			Assert.notNull(name, C.NAME);
+			Assert.notNull(typeClass, C.TYPECLASS);
 			
 			this.name = name;
 			this.typeClass = typeClass;
@@ -70,8 +71,8 @@ public interface SourceCodeBuilder<T> {
 	
 	Date getLastModified();
 	
-	SourceCode<T> build();
+	SourceCode build();
 	
-	SourceCode<T> build(BuildMode buildMode);
+	SourceCode build(BuildMode buildMode);
 	
 }

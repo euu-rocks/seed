@@ -21,23 +21,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.seed.core.application.setting.ApplicationSettingService;
+import org.seed.C;
 import org.seed.core.application.setting.Setting;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormService;
-import org.seed.core.form.navigation.Menu;
-import org.seed.core.form.navigation.MenuService;
-import org.seed.core.report.ReportService;
 import org.seed.core.task.TaskService;
-import org.seed.core.user.Authorisation;
+import org.seed.core.util.Assert;
 import org.seed.ui.FormParameter;
+import org.seed.ui.MenuManager;
 import org.seed.ui.Tab;
 import org.seed.ui.TabParameterMap;
 import org.seed.ui.TreeNode;
 import org.seed.ui.ViewParameterMap;
 import org.seed.ui.zk.TreeModel;
 
-import org.springframework.util.Assert;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.ContextParam;
@@ -53,24 +50,14 @@ import org.zkoss.zk.ui.util.Clients;
 
 public class MainViewModel extends AbstractApplicationViewModel {
 	
-	private static final String REDIRECT_LOGOUT = "/logout";
-	
-	private static final String URL_FULLTEXTSEARCH = "/form/fulltextsearch.zul";
-	
-	@WireVariable(value="applicationSettingServiceImpl")
-	private ApplicationSettingService settingService;
-	
-	@WireVariable(value="menuServiceImpl")
-	private MenuService menuService;
-	
 	@WireVariable(value="formServiceImpl")
 	private FormService formService;
 	
 	@WireVariable(value="taskServiceImpl")
 	private TaskService taskService;
 	
-	@WireVariable(value="reportServiceImpl")
-	private ReportService reportService;
+	@WireVariable(value="menuManager")
+	private MenuManager menuManager;
 	
 	private final List<String> openNodes = new ArrayList<>();
 	
@@ -83,12 +70,12 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	private Tab popupTab;
 	
 	public String getApplicationName() {
-		final String appName = settingService.getSettingOrNull(Setting.APPLICATION_NAME);
+		final String appName = getSettingOrNull(Setting.APPLICATION_NAME);
 		return appName != null ? appName : "Seed";
 	}
 	
 	public boolean isMenuMode(String mode) {
-		return settingService.getSetting(Setting.MENU_MODE).equals(mode);
+		return getSetting(Setting.MENU_MODE).equals(mode);
 	}
 	
 	public List<Tab> getTabs() {
@@ -112,137 +99,10 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	}
 
 	public List<TreeNode> getMenuList() {
-		final List<TreeNode> result = new ArrayList<>();
-		
-		// admin
-		if (getUser().hasAdminAuthorisations()) {
-			final TreeNode nodeAdmin = new TreeNode(getLabel("label.administration"), null, null);
-			nodeAdmin.setTop(true);
-			result.add(nodeAdmin);
-			
-			if (getUser().isAuthorised(Authorisation.ADMIN_ENTITY)) {
-				final TreeNode nodeEntities = nodeAdmin.addChild(new TreeNode(getLabel("label.entities"), 
-						  												"/admin/entity/entitylist.zul", 
-						  												"z-icon-table z-icon-fw"));
-				nodeEntities.addChild(new TreeNode(getLabel("label.filter"), 
-											"/admin/filter/filterlist.zul", 
-											"z-icon-filter z-icon-fw"));
-				nodeEntities.addChild(new TreeNode(getLabel("label.transfers"), 
-											"/admin/transfer/transferlist.zul", 
-											"z-icon-exchange z-icon-fw"));
-				nodeEntities.addChild(new TreeNode(getLabel("label.transformers"), 
-											"/admin/transform/transformerlist.zul", 
-											"z-icon-random z-icon-fw"));
-			}
-			if (getUser().isAuthorised(Authorisation.ADMIN_FORM)) {
-				nodeAdmin.addChild(new TreeNode(getLabel("label.forms"), 
-											"/admin/form/formlist.zul", 
-											"z-icon-list-alt z-icon-fw"));
-			}
-			if (getUser().isAuthorised(Authorisation.ADMIN_MENU)) {
-				nodeAdmin.addChild(new TreeNode(getLabel("label.menus"), 
-											"/admin/menu/menulist.zul", 
-											"z-icon-navicon z-icon-fw"));
-			}
-			if (getUser().isAuthorised(Authorisation.ADMIN_JOB)) {
-				nodeAdmin.addChild(new TreeNode(getLabel("label.jobs"), 
-											"/admin/task/tasklist.zul", 
-											"z-icon-cog z-icon-fw"));
-			}
-			if (getUser().isAuthorised(Authorisation.ADMIN_DBOBJECT)) {
-				nodeAdmin.addChild(new TreeNode(getLabel("label.dbobjects"), 
-											"/admin/dbobject/dbobjectlist.zul", 
-											"z-icon-database z-icon-fw"));
-			}
-			if (getUser().isAuthorised(Authorisation.ADMIN_DATASOURCE)) {
-				nodeAdmin.addChild(new TreeNode(getLabel("label.datasources"), 
-											"/admin/datasource/datasourcelist.zul", 
-											"z-icon-share-alt z-icon-fw"));
-			}
-			if (getUser().isAuthorised(Authorisation.ADMIN_REPORT)) {
-				nodeAdmin.addChild(new TreeNode(getLabel("label.reports"), 
-											"/admin/report/reportlist.zul", 
-											"z-icon-book z-icon-fw"));
-			}
-			if (getUser().isAuthorised(Authorisation.ADMIN_SOURCECODE)) {
-				nodeAdmin.addChild(new TreeNode(getLabel("label.customcode"), 
-											"/admin/customcode/customcodelist.zul", 
-											"z-icon-code z-icon-fw"));
-			}
-			if (getUser().isAuthorised(Authorisation.ADMIN_USER)) {
-				final TreeNode nodeUsers = nodeAdmin.addChild(new TreeNode(getLabel("label.user"), 
-																	"/admin/user/userlist.zul", 
-																	"z-icon-user z-icon-fw"));
-				nodeUsers.addChild(new TreeNode(getLabel("label.usergroups"), 
-											"/admin/user/usergrouplist.zul", 
-											"z-icon-users z-icon-fw"));
-			}
-			if (getUser().isAuthorised(Authorisation.ADMIN_MODULE)) {
-				nodeAdmin.addChild(new TreeNode(getLabel("label.modules"), 
-											"/admin/module/modulelist.zul", 
-											"z-icon-cube z-icon-fw"));
-			}
-			if (getUser().isAuthorised(Authorisation.ADMIN_SETTINGS)) {
-				nodeAdmin.addChild(new TreeNode(getLabel("label.systemsettings"), 
-											"/admin/setting/settings.zul", 
-											"z-icon-wrench z-icon-fw"));
-			}
-		}
-		
-		// user menus
-		for (Menu menu : menuService.getMenus(getUser())) {
-			final TreeNode menuNode = menu.getForm() != null 
-										? new TreeNode(menu.getName(), 
-													   "/form/listform.zul", 
-													   menu.getIcon(),
-													   menu.getForm().getId())
-										: new TreeNode(menu.getName(), null, 
-													   menu.getIcon());
-			menuNode.setTop(true);
-			result.add(menuNode);
-			if (menu.hasSubMenus()) {
-				for (Menu subMenu : menu.getSubMenus()) {
-					menuNode.addChild(new TreeNode(subMenu.getName(), 
-												   "/form/listform.zul", 
-												   subMenu.getIcon(), 
-												   subMenu.getForm().getId()));
-				}
-			}
-		}
-		
-		// jobs
-		if (getUser().isAuthorised(Authorisation.RUN_JOBS) && 
-			!taskService.getTasks(getUser()).isEmpty()) {
-			result.add(new TreeNode(getLabel("label.runjobs"), 
-									"/task/tasklist.zul", 
-									"z-icon-cogs z-icon-fw"));
-		}
-		
-		// reports
-		if (getUser().isAuthorised(Authorisation.PRINT_REPORTS) &&
-			!reportService.getReports(getUser()).isEmpty()) {
-			result.add(new TreeNode(getLabel("label.reports"), 
-									"/report/reportlist.zul", 
-									"z-icon-book z-icon-fw"));
-		}
-		
-		// full-text search
-		if (isFullTextSearchAvailable() &&
-			getUser().isAuthorised(Authorisation.SEARCH_FULLTEXT)) {
-			result.add(new TreeNode(getLabel("label.fulltextsearch"), 
-									URL_FULLTEXTSEARCH, 
-									"z-icon-search z-icon-fw"));
-		}
-		
-		// account
-		final TreeNode nodeAccount = new TreeNode(getUserName(), 
-				 								 null, 
-				 								 "z-icon-user z-icon-fw");
-		nodeAccount.addChild(new TreeNode(getLabel("label.logout"), 
-										  REDIRECT_LOGOUT, 
-				 						  "z-icon-sign-out z-icon-fw"));
-		result.add(nodeAccount);
-		return result;
+		return menuManager.getMenuList(getUser(), 
+									   !getUserReports().isEmpty(), 
+									   !taskService.getTasks(getUser()).isEmpty(), 
+									   isFullTextSearchAvailable());
 	}
 	
 	public TreeModel getMenuTree() {
@@ -273,7 +133,7 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	public void selectTab(@BindingParam("tab") Tab tab) {
 		selectedTab = tab;
 		if (selectedTab.getObjectId() != null) {
-			globalCommand("_refreshObject", selectedTab.getObjectId());
+			globalCommand("globalRefreshObject", selectedTab.getObjectId());
 		}
 	}
 	
@@ -326,8 +186,8 @@ public class MainViewModel extends AbstractApplicationViewModel {
 			if (selectedNode.isLink()) {
 				redirect(selectedNode.viewName);
 			}
-			else if (REDIRECT_LOGOUT.equals(selectedNode.viewName)) {
-				confirm("question.logout", null, REDIRECT_LOGOUT);
+			else if (MenuManager.REDIRECT_LOGOUT.equals(selectedNode.viewName)) {
+				confirm("question.logout", null, MenuManager.REDIRECT_LOGOUT);
 			}
 			else if (selectedNode.viewName != null) {
 				FormParameter param = null;
@@ -335,14 +195,14 @@ public class MainViewModel extends AbstractApplicationViewModel {
 					final Form form = formService.getObject(selectedNode.formId);
 					param = new FormParameter(form);
 				}
-				_openTab(selectedNode.label, selectedNode.viewName, selectedNode.iconClass, param);
+				globalOpenTab(selectedNode.label, selectedNode.viewName, selectedNode.iconClass, param);
 			}
 		}
 	}
 	
 	@Override
 	protected void confirmed(boolean confirmed, Component elem, Object confirmParam) {
-		if (confirmed && REDIRECT_LOGOUT.equals(confirmParam)) {
+		if (confirmed && MenuManager.REDIRECT_LOGOUT.equals(confirmParam)) {
 			Clients.confirmClose(null);
 			logout();
 		}
@@ -358,19 +218,19 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	// ------ global commands ---------------------------------------
 	
 	@GlobalCommand
-	public void _refreshMenu() {
+	public void globalRefreshMenu() {
 		notifyChange("isMenuMode", "menuTree", "menuList");
 	}
 	
 	@GlobalCommand
-	public void _openTab(@BindingParam(TabParameterMap.NAME) String name, 
-						 @BindingParam(TabParameterMap.VIEW) String view, 
-						 @BindingParam(TabParameterMap.ICON) String icon, 
-						 @BindingParam(TabParameterMap.PARAMETER) FormParameter parameter) {
-		Assert.notNull(name, "name is null");
-		Assert.notNull(view, "view is null");
+	public void globalOpenTab(@BindingParam(TabParameterMap.NAME) String name, 
+							  @BindingParam(TabParameterMap.VIEW) String view, 
+							  @BindingParam(TabParameterMap.ICON) String icon, 
+							  @BindingParam(TabParameterMap.PARAMETER) FormParameter parameter) {
+		Assert.notNull(name, C.NAME);
+		Assert.notNull(view, "view");
 		
-		if (URL_FULLTEXTSEARCH.equals(view)) {
+		if (MenuManager.URL_FULLTEXTSEARCH.equals(view)) {
 			selectedTab = new Tab(name, ZUL_PATH + view, icon);
 			selectedTab.setParameter(selectedTab);
 		}
@@ -383,9 +243,9 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	}
 	
 	@GlobalCommand
-	public void _showView(@BindingParam(ViewParameterMap.VIEW) String view,
-						  @BindingParam(ViewParameterMap.PARAM) Object param) {
-		Assert.notNull(view, "view is null");
+	public void globalShowView(@BindingParam(ViewParameterMap.VIEW) String view,
+							   @BindingParam(ViewParameterMap.PARAM) Object param) {
+		Assert.notNull(view, "view");
 		Assert.state(selectedTab != null, "no tab selected");
 		
 		if (param instanceof Long) {

@@ -30,6 +30,8 @@ import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.data.Order;
 import org.seed.core.data.SystemField;
 import org.seed.core.data.ValidationException;
@@ -52,20 +54,20 @@ import org.seed.core.form.layout.visit.DecoratingVisitor;
 import org.seed.core.form.layout.visit.FindElementVisitor;
 import org.seed.core.form.layout.visit.SearchDecoratingVisitor;
 import org.seed.core.form.layout.visit.UndecoratingVisitor;
+import org.seed.core.util.Assert;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.xml.sax.SAXException;
 
 @Service
 public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	
-	private final static Logger log = LoggerFactory.getLogger(LayoutServiceImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(LayoutServiceImpl.class);
 	
 	@Autowired
 	private FormService formService;
@@ -77,9 +79,9 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	
 	@Override
 	public void registerEditLayout(Form form, String username, LayoutElement layoutRoot) {
-		Assert.notNull(form, "form is null");
-		Assert.notNull(username, "username is null");
-		Assert.notNull(layoutRoot, "layoutRoot is null");
+		Assert.notNull(form, C.FORM);
+		Assert.notNull(username, C.USERNAME);
+		Assert.notNull(layoutRoot, C.LAYOUTROOT);
 		
 		decorateLayout(form, layoutRoot);
 		editLayoutMap.put(username, layoutRoot);
@@ -87,7 +89,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	
 	@Override
 	public String getLayout(String path, FormSettings settings) {
-		Assert.notNull(path, "path is null");
+		Assert.notNull(path, "path");
 		
 		String content = null;
 		if (path.startsWith("/edit/")) {
@@ -119,13 +121,13 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 			throw new UnsupportedOperationException(path);
 		}
 		if (log.isDebugEnabled()) {
-			log.debug(path + '\n' + content);
+			log.debug("{}\n{}", path, content);
 		}
 		return content;
 	}
 	
 	private LayoutElement getSearchLayout(Form form) {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		if (form.getLayout() != null) {
 			final LayoutElement layoutRoot = parseLayout(form.getLayout());
@@ -137,7 +139,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	
 	@Override
 	public LayoutElement getEditLayout(String username) {
-		Assert.notNull(username, "username is null");
+		Assert.notNull(username, C.USERNAME);
 		
 		return editLayoutMap.get(username);
 	}
@@ -145,49 +147,49 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public void resetEditLayout(String username) {
-		Assert.notNull(username, "username is null");
+		Assert.notNull(username, C.USERNAME);
 		
 		editLayoutMap.remove(username);
 	}
 	
 	@Override
 	public LayoutElement parseLayout(FormLayout layout) {
-		Assert.notNull(layout, "layout is null");
+		Assert.notNull(layout, "layout");
 		Assert.notNull(layout.getContent(), "layout content is null");
 		
 		try {
 			return LayoutParser.parse(layout.getContent());
 		} 
 		catch (SAXException | IOException | ParserConfigurationException ex) {
-			throw new RuntimeException(layout.getContent(), ex);
+			throw new InternalException(ex);
 		}
 	}
 	
 	@Override
 	public String buildLayout(LayoutElement layoutRoot) {
-		Assert.notNull(layoutRoot, "layoutRoot is null");
+		Assert.notNull(layoutRoot, C.LAYOUTROOT);
 		
 		return LayoutBuilder.build(layoutRoot);
 	}
 	
 	@Override
 	public void decorateLayout(Form form, LayoutElement layoutRoot) {
-		Assert.notNull(layoutRoot, "layoutRoot is null");
+		Assert.notNull(layoutRoot, C.LAYOUTROOT);
 		
 		layoutRoot.accept(new DecoratingVisitor(form));
 	}
 	
 	@Override
 	public void undecorateLayout(Form form, LayoutElement layoutRoot) {
-		Assert.notNull(layoutRoot, "layoutRoot is null");
+		Assert.notNull(layoutRoot, C.LAYOUTROOT);
 		
 		layoutRoot.accept(new UndecoratingVisitor(form));
 	}
 	
 	@Override
 	public LayoutElement getElementByContextId(LayoutElement layoutRoot, String contextId) {
-		Assert.notNull(layoutRoot, "layoutRoot is null");
-		Assert.notNull(contextId, "contextId is null");
+		Assert.notNull(layoutRoot, C.LAYOUTROOT);
+		Assert.notNull(contextId, "contextId");
 		
 		final FindElementVisitor visitor = new FindElementVisitor(contextId);
 		layoutRoot.accept(visitor);
@@ -198,7 +200,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	
 	@Override
 	public List<String> getFieldIdList(FormLayout formLayout) {
-		Assert.notNull(formLayout, "formLayout is null");
+		Assert.notNull(formLayout, "formLayout");
 		
 		if (formLayout.getContent() != null) {
 			final CollectFieldIdVisitor visitor = new CollectFieldIdVisitor();
@@ -210,16 +212,16 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	
 	@Override
 	public boolean containsField(FormLayout formLayout, EntityField entityField) {
-		Assert.notNull(formLayout, "formLayout is null");
-		Assert.notNull(entityField, "entityField is null");
+		Assert.notNull(formLayout, "formLayout");
+		Assert.notNull(entityField, C.ENTITYFIELD);
 		
 		return getFieldIdList(formLayout).contains(entityField.getUid());
 	}
 	
 	@Override
 	public List<EntityField> getAvailableEntityFields(Form form, LayoutElement layoutRoot) {
-		Assert.notNull(form, "form is null");
-		Assert.notNull(layoutRoot, "layoutRoot is null");
+		Assert.notNull(form, C.FORM);
+		Assert.notNull(layoutRoot, C.LAYOUTROOT);
 		
 		final List<EntityField> fields = new ArrayList<>();
 		final CollectFieldIdVisitor visitor = new CollectFieldIdVisitor();
@@ -234,8 +236,8 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	
 	@Override
 	public List<NestedEntity> getAvailableNesteds(Form form, LayoutElement layoutRoot) {
-		Assert.notNull(form, "form is null");
-		Assert.notNull(layoutRoot, "layoutRoot is null");
+		Assert.notNull(form, C.FORM);
+		Assert.notNull(layoutRoot, C.LAYOUTROOT);
 		
 		final List<NestedEntity> nesteds = new ArrayList<>();
 		if (form.getEntity().hasAllNesteds()) {
@@ -269,11 +271,11 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public void addText(Form form, String text, LayoutElement layoutRoot, String contextId) throws ValidationException {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		layoutValidator.validateText(text);
 		
 		final LayoutElement elemCell = getElementByContextId(layoutRoot, contextId);
-		elemCell.removeAttribute("align");
+		elemCell.removeAttribute(LayoutElementAttributes.A_ALIGN);
 		elemCell.removeAttribute("text");
 		elemCell.addChild(createLabel(text));
 		redecorateLayout(form, layoutRoot);
@@ -282,7 +284,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public void removeText(Form form, LayoutElement layoutRoot, String contextId) {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		final LayoutElement elemCell = getElementByContextId(layoutRoot, contextId);
 		elemCell.removeFromParent();
@@ -291,10 +293,9 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
-	public void addField(Form form, EntityField entityField, Orientation labelOrient, 
-						 Alignment labelAlign, Alignment labelValign, String width, String height,
-						 LayoutElement layoutRoot, String contextId) throws ValidationException {
-		Assert.notNull(form, "form is null");
+	public void addField(Form form, EntityField entityField, LabelProperties labelProperties, 
+						 String width, String height, LayoutElement layoutRoot, String contextId) throws ValidationException {
+		Assert.notNull(form, C.FORM);
 		layoutValidator.validateEntityField(entityField);
 		if (entityField.getType().isBinary()) {
 			layoutValidator.validateBinaryField(width, height);
@@ -306,16 +307,16 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		
 		// image field
 		if (entityField.getType().isBinary()) {
-			elemField.setAttribute("width", width);
-			elemField.setAttribute("height", height);
+			elemField.setAttribute(LayoutElementAttributes.A_WIDTH, width);
+			elemField.setAttribute(LayoutElementAttributes.A_HEIGHT, height);
 		}
 		
 		// add label
-		if (labelOrient != null) {
-			final LayoutElement neighborCell = elemCell.getCellNeighbor(labelOrient);
+		if (labelProperties.orient != null) {
+			final LayoutElement neighborCell = elemCell.getCellNeighbor(labelProperties.orient);
 			if (neighborCell != null && !neighborCell.hasChildren()) {
-				neighborCell.setOrRemoveAttribute("align", labelAlign);
-				neighborCell.setOrRemoveAttribute("valign", labelValign);
+				neighborCell.setOrRemoveAttribute(LayoutElementAttributes.A_ALIGN, labelProperties.align);
+				neighborCell.setOrRemoveAttribute(LayoutElementAttributes.A_VALIGN, labelProperties.valign);
 				neighborCell.addChild(createLabel(entityField.getName()));
 			}
 		}
@@ -325,7 +326,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public void removeField(Form form, LayoutElement layoutRoot, String contextId) {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		final LayoutElement elemField = getElementByContextId(layoutRoot, contextId);
 		elemField.removeFromParent();
@@ -335,7 +336,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public LayoutElement replaceCombobox(Form form, EntityField entityField, LayoutElement layoutRoot, String contextId) {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		final LayoutElement elemField = getElementByContextId(layoutRoot, contextId);
 		final LayoutElement elemParent = elemField.getParent();
@@ -351,7 +352,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public void addGrid(Form form, Integer columns, Integer rows, String title, LayoutElement layoutRoot, String contextId) throws ValidationException {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		layoutValidator.validateNewGrid(columns, rows);
 		
 		final LayoutElement element = getElementByContextId(layoutRoot, contextId);
@@ -362,7 +363,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public void removeGrid(Form form, LayoutElement layoutRoot, String contextId) {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		final LayoutElement elemGrid = getElementByContextId(layoutRoot, contextId).getGrid();
 		if (elemGrid.parentIs(LayoutElement.GROUPBOX)) {
@@ -377,7 +378,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public void addTabbox(Form form, String title, LayoutElement layoutRoot, String contextId) throws ValidationException {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		layoutValidator.validateText(title, "label.title");
 		
 		final LayoutElement element = getElementByContextId(layoutRoot, contextId);
@@ -388,7 +389,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public void addTab(Form form, String title, LayoutElement layoutRoot, String contextId) throws ValidationException {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		layoutValidator.validateText(title, "label.title");
 		
 		final LayoutElement elemTab = getElementByContextId(layoutRoot, contextId);
@@ -400,7 +401,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public void removeTab(Form form, LayoutElement layoutRoot, String contextId) {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		final LayoutElement elemTab = getElementByContextId(layoutRoot, contextId);
 		final LayoutElement elemTabbox = elemTab.getParent().getParent();
@@ -419,7 +420,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Secured("ROLE_ADMIN_FORM")
 	public void addBorderLayout(Form form, BorderLayoutProperties layoutProperties,
 						  		LayoutElement layoutRoot, String contextId) {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		Assert.notNull(layoutProperties, "layoutProperties is null");
 		
 		final LayoutElement elemArea = getElementByContextId(layoutRoot, contextId);
@@ -430,7 +431,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public void removeBorderLayout(Form form, LayoutElement layoutRoot, String contextId) {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		final LayoutElement elemLayout = getElementByContextId(layoutRoot, contextId).getParent();
 		elemLayout.removeFromParent();
@@ -440,7 +441,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public void addSubForm(Form form, NestedEntity nested, LayoutElement layoutRoot, String contextId) throws ValidationException {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		final SubForm subForm = formService.addSubForm(form, nested);
 		buildSubForm(subForm, getElementByContextId(layoutRoot, contextId));
@@ -450,7 +451,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public void removeSubForm(Form form, LayoutElement layoutRoot, String contextId) {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		final LayoutElement elemListbox = getElementByContextId(layoutRoot, contextId);
 		final LayoutElement elemBorderlayout = elemListbox.getParent().getParent();
@@ -487,7 +488,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public void removeColumn(Form form, LayoutElement layoutRoot, String contextId) {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		final LayoutElement elemCell = getElementByContextId(layoutRoot, contextId);
 		final LayoutElement elemRows = elemCell.getParent().getParent();
@@ -503,7 +504,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public void removeRow(Form form, LayoutElement layoutRoot, String contextId) {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		final LayoutElement elemRow = getElementByContextId(layoutRoot, contextId).getParent();
 		elemRow.removeFromParent();
@@ -513,7 +514,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public void removeBorderLayoutArea(Form form, LayoutElement layoutRoot, String contextId) {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		final LayoutElement elemArea = getElementByContextId(layoutRoot, contextId);
 		elemArea.removeFromParent();
@@ -522,9 +523,9 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
-	public void applyProperties(LayoutElement element, LayoutElementProperties properties) throws ValidationException {
-		Assert.notNull(element, "element is null");
-		Assert.notNull(properties, "properties is null");
+	public void applyProperties(LayoutElement element, LayoutElementAttributes properties) throws ValidationException {
+		Assert.notNull(element, C.ELEMENT);
+		Assert.notNull(properties, C.PROPERTIES);
 		
 		layoutValidator.validateProperties(element, properties);
 		properties.applyTo(element);
@@ -533,8 +534,8 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public void applyBorderLayoutAreaProperties(LayoutElement element, LayoutAreaProperties properties) throws ValidationException {
-		Assert.notNull(element, "element is null");
-		Assert.notNull(properties, "properties is null");
+		Assert.notNull(element, C.ELEMENT);
+		Assert.notNull(properties, C.PROPERTIES);
 		
 		layoutValidator.validateBorderLayoutAreaProperties(properties);
 		properties.applyTo(element);
@@ -544,10 +545,10 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Secured("ROLE_ADMIN_FORM")
 	public void applyBorderLayoutProperties(Form form, LayoutElement layoutRoot, 
 											LayoutElement element, BorderLayoutProperties properties) throws ValidationException {
-		Assert.notNull(form, "form is null");
-		Assert.notNull(layoutRoot, "layoutRoot is null");
-		Assert.notNull(element, "element is null");
-		Assert.notNull(properties, "properties is null");
+		Assert.notNull(form, C.FORM);
+		Assert.notNull(layoutRoot, C.LAYOUTROOT);
+		Assert.notNull(element, C.ELEMENT);
+		Assert.notNull(properties, C.PROPERTIES);
 		Assert.state(element.is(LayoutElement.BORDERLAYOUT), "element is no borderlayout");
 		
 		layoutValidator.validateBorderLayoutProperties(properties);
@@ -576,10 +577,10 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Secured("ROLE_ADMIN_FORM")
 	public void applySubFormProperties(Form form, LayoutElement layoutRoot,
 									   LayoutElement element, SubFormProperties properties) {
-		Assert.notNull(form, "form is null");
-		Assert.notNull(layoutRoot, "layoutRoot is null");
-		Assert.notNull(element, "element is null");
-		Assert.notNull(properties, "properties is null");
+		Assert.notNull(form, C.FORM);
+		Assert.notNull(layoutRoot, C.LAYOUTROOT);
+		Assert.notNull(element, C.ELEMENT);
+		Assert.notNull(properties, C.PROPERTIES);
 		Assert.state(element.is(LayoutElement.LISTBOX), "element is no listbox");
 		
 		properties.applyToSubForm();
@@ -592,13 +593,13 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public void setLabelText(LayoutElement element, String text) throws ValidationException {
-		Assert.notNull(element, "element is null");
+		Assert.notNull(element, C.ELEMENT);
 		Assert.state(element.is(LayoutElement.LABEL), "element is no label");
 		
 		layoutValidator.validateText(text);
 		if (text.contains("\n")) {
 			element.setAttribute("pre", "true");
-			element.removeAttribute("value");
+			element.removeAttribute(LayoutElementAttributes.A_VALUE);
 			if (element.hasChildren()) {
 				element.getChildAt(0).setText(text);
 			}
@@ -609,21 +610,22 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		else {
 			element.removeChildren();
 			element.removeAttribute("pre");
-			element.setAttribute("value", text);
+			element.setAttribute(LayoutElementAttributes.A_VALUE, text);
 		}
 	}
 	
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public void setGridTitle(Form form, LayoutElement layoutRoot, LayoutElement element, String title) {
-		Assert.notNull(element, "element is null");
+		Assert.notNull(element, C.ELEMENT);
 		Assert.state(element.is(LayoutElement.GRID), "element is no grid");
 		
 		boolean hasStructureChanged = false;
 		final boolean hasGroupbox = element.parentIs(LayoutElement.GROUPBOX);
 		if (StringUtils.hasText(title)) {
 			if (hasGroupbox) {
-				element.getParent().getChild(LayoutElement.CAPTION).setAttribute("label", title);
+				element.getParent().getChild(LayoutElement.CAPTION)
+								   .setAttribute(LayoutElementAttributes.A_LABEL, title);
 			}
 			else {
 				final LayoutElement parent = element.getParent();
@@ -651,61 +653,76 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	
 	@Override
 	public LayoutElement createAutoLayout(Form form) {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		// analyze and init field and field groups
 		final Entity entity = form.getEntity();
-		List<EntityField> fieldsWithoutGroup = null;
-		Set<EntityFieldGroup> usedFieldGroups = null;
+		List<EntityField> fieldsWithoutGroup = new ArrayList<>();
+		Set<EntityFieldGroup> usedFieldGroups = new HashSet<>();
 		if (entity.hasAllFields()) {
-			for (EntityField entityField : entity.getAllFields()) {
-				if (entityField.getFieldGroup() != null) {
-					if (usedFieldGroups == null) {
-						usedFieldGroups = new HashSet<>();
-					}
-					usedFieldGroups.add(entityField.getFieldGroup());
-				}
-				else {
-					if (fieldsWithoutGroup == null) {
-						fieldsWithoutGroup = new ArrayList<>();
-					}
-					fieldsWithoutGroup.add(entityField);
-				}
-				if (entityField.getType().isReference()) {
-					final List<Form> forms = formService.findForms(entityField.getReferenceEntity());
-					if (!forms.isEmpty()) {
-						FormFieldExtra fieldExtra = form.getFieldExtra(entityField);
-						if (fieldExtra == null) {
-							fieldExtra = new FormFieldExtra();
-							fieldExtra.setEntityField(entityField);
-							form.addFieldExtra(fieldExtra);
-						}
-						fieldExtra.setDetailForm(forms.get(0));
-					}
-				}
-			}
+			analyzeAutoLayoutFields(form, fieldsWithoutGroup, usedFieldGroups);
 		}
 		
 		// build field group grids
+		final LayoutElement elemMainGrid = buildAutoLayoutFieldGroupGrids(entity, fieldsWithoutGroup, usedFieldGroups);
+		
+		// build layout
+		((FormMetadata) form).clearSubForms();
+		final LayoutElement elemZK = createZK();
+		if (entity.hasAllNesteds()) {
+			buildAutoLayoutSubForms(form, elemZK, elemMainGrid);
+		}
+		else if (elemMainGrid != null) {
+			elemZK.addChild(elemMainGrid);
+		}
+		return elemZK;
+	}
+	
+	private void analyzeAutoLayoutFields(Form form, List<EntityField> fieldsWithoutGroup, Set<EntityFieldGroup> usedFieldGroups) {
+		for (EntityField entityField : form.getEntity().getAllFields()) {
+			if (entityField.getFieldGroup() != null) {
+				usedFieldGroups.add(entityField.getFieldGroup());
+			}
+			else {
+				fieldsWithoutGroup.add(entityField);
+			}
+			if (entityField.getType().isReference()) {
+				final List<Form> forms = formService.findForms(entityField.getReferenceEntity());
+				if (!forms.isEmpty()) {
+					FormFieldExtra fieldExtra = form.getFieldExtra(entityField);
+					if (fieldExtra == null) {
+						fieldExtra = new FormFieldExtra();
+						fieldExtra.setEntityField(entityField);
+						form.addFieldExtra(fieldExtra);
+					}
+					fieldExtra.setDetailForm(forms.get(0));
+				}
+			}
+		}
+	}
+	
+	private LayoutElement buildAutoLayoutFieldGroupGrids(Entity entity, List<EntityField> fieldsWithoutGroup, Set<EntityFieldGroup> usedFieldGroups) {
 		LayoutElement elemMainGrid = null;
-		final int numFieldGroups = usedFieldGroups != null 
-				? usedFieldGroups.size() + (fieldsWithoutGroup != null ? 1 : 0) 
-				: fieldsWithoutGroup != null ? 1 : 0;
+		int numFieldGroups = usedFieldGroups.size();
+		if (!fieldsWithoutGroup.isEmpty()) {
+			numFieldGroups++;
+		}
 		if (numFieldGroups > 0) {
 			final int numGridRows = numFieldGroups / 2 + numFieldGroups % 2;
 			elemMainGrid = createGrid(2, numGridRows, null);
-			int col = 0, row = 0;
+			int col = 0;
+			int row = 0;
 			// fields without group
-			if (fieldsWithoutGroup != null) {
+			if (!fieldsWithoutGroup.isEmpty()) {
 				elemMainGrid.getGridCell(0, 0)
 							.setValign("top")
 							.addChild(buildFieldGrid(fieldsWithoutGroup, entity.getName()));
-				col = 1;
+				col++;
 			}
 			// field groups
-			if (usedFieldGroups != null) {
+			if (!usedFieldGroups.isEmpty()) {
 				final List<EntityFieldGroup> fieldGroups = new ArrayList<>(usedFieldGroups);
-				fieldGroups.sort(Order.COMPARATOR);
+				Order.sort(fieldGroups);
 				for (EntityFieldGroup fieldGroup : fieldGroups) {
 					elemMainGrid.getGridCell(col, row)
 								.setValign("top")
@@ -717,42 +734,36 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 				}
 			}
 		}
-		
-		// build layout
-		((FormMetadata) form).clearSubForms();
-		final LayoutElement elemZK = createZK();
-		if (entity.hasAllNesteds()) {
-			final LayoutElement elemLayout = elemZK.addChild(new LayoutElement(LayoutElement.BORDERLAYOUT));
-			if (elemMainGrid != null) {
-				elemLayout.addChild(createBorderLayoutArea(BorderLayoutArea.NORTH)).addChild(elemMainGrid);
-			}
-			final LayoutElement elemTabbox = new LayoutElement(LayoutElement.TABBOX);
-			elemTabbox.setAttribute("vflex", "1");
-			elemTabbox.setAttribute("hflex", "1");
-			elemTabbox.setClass("alpha-tabbox");
-			final LayoutElement elemTabs = elemTabbox.addChild(new LayoutElement(LayoutElement.TABS));
-			final LayoutElement elemPanels = elemTabbox.addChild(new LayoutElement(LayoutElement.TABPANELS));
-			for (NestedEntity nested : entity.getAllNesteds()) {
-				try {
-					final SubForm subForm = formService.addSubForm(form, nested);
-					elemTabs.addChild(createTab(nested.getName()));
-					buildSubForm(subForm, elemPanels.addChild(createTabpanel()));
-				}
-				catch (ValidationException ve) {
-					throw new RuntimeException(ve);
-				}
-			}
-			elemLayout.addChild(createBorderLayoutArea(BorderLayoutArea.CENTER)).addChild(elemTabbox);
+		return elemMainGrid;
+	}
+	
+	private void buildAutoLayoutSubForms(Form form, LayoutElement elemZK, LayoutElement elemMainGrid) {
+		final LayoutElement elemLayout = elemZK.addChild(new LayoutElement(LayoutElement.BORDERLAYOUT));
+		if (elemMainGrid != null) {
+			elemLayout.addChild(createBorderLayoutArea(BorderLayoutArea.NORTH)).addChild(elemMainGrid);
 		}
-		else if (elemMainGrid != null) {
-			elemZK.addChild(elemMainGrid);
+		final LayoutElement elemTabbox = new LayoutElement(LayoutElement.TABBOX);
+		elemTabbox.setAttribute(LayoutElementAttributes.A_HFLEX, "1");
+		elemTabbox.setAttribute(LayoutElementAttributes.A_VFLEX, "1");
+		elemTabbox.setClass(LayoutElementClass.TABBOX);
+		final LayoutElement elemTabs = elemTabbox.addChild(new LayoutElement(LayoutElement.TABS));
+		final LayoutElement elemPanels = elemTabbox.addChild(new LayoutElement(LayoutElement.TABPANELS));
+		for (NestedEntity nested : form.getEntity().getAllNesteds()) {
+			try {
+				final SubForm subForm = formService.addSubForm(form, nested);
+				elemTabs.addChild(createTab(nested.getName()));
+				buildSubForm(subForm, elemPanels.addChild(createTabpanel()));
+			}
+			catch (ValidationException ve) {
+				throw new InternalException(ve);
+			}
 		}
-		return elemZK;
+		elemLayout.addChild(createBorderLayoutArea(BorderLayoutArea.CENTER)).addChild(elemTabbox);
 	}
 	
 	@Override
 	public void rebuildLayout(Form form) {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		Assert.notNull(form.getLayout() != null, "form has no layout");
 		
 		final FormLayout formLayout = form.getLayout();
@@ -763,7 +774,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	}
 	
 	private void newColumn(Form form, LayoutElement layoutRoot, String contextId, boolean right) {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		final LayoutElement elemCell = getElementByContextId(layoutRoot, contextId);
 		final LayoutElement elemRow = elemCell.getParent();
@@ -776,7 +787,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	}
 	
 	private void newRow(Form form, LayoutElement layoutRoot, String contextId, boolean below) {
-		Assert.notNull(form, "form is null");
+		Assert.notNull(form, C.FORM);
 		
 		final LayoutElement elemRow = getElementByContextId(layoutRoot, contextId).getParent();
 		final LayoutElement elemRows = elemRow.getParent();
@@ -788,15 +799,14 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	private static final String OBJECT_LIST = "obj";
 	
 	private String buildListFormLayout(Form form, FormSettings formSettings) {
-		Assert.notNull(form, "form is null");
-		Assert.notNull(formSettings, "formSettings is null");
+		Assert.notNull(form, C.FORM);
+		Assert.notNull(formSettings, "formSettings");
 		
 		final LayoutElement elemListbox = createListFormList();
 		final LayoutElement elemListhead = elemListbox.addChild(createListHead(true));
-		final LayoutElement elemTemplate = elemListbox.addChild(createTemplate("model", OBJECT_LIST));
+		final LayoutElement elemTemplate = elemListbox.addChild(createTemplate(LayoutElementAttributes.A_MODEL, OBJECT_LIST));
 		final LayoutElement elemListitem = elemTemplate.addChild(createListItem("'callAction',action=vm.editAction,elem=self"));
 		if (form.hasFields()) {
-			// sort fields
 			formSettings.sortFields(form.getFields());
 			for (FormField field : form.getFields()) {
 				// check visibility
@@ -809,60 +819,60 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 																	  	? field.getHflex() 
 																	  	: "1", 
 																	  field.getLabelStyle());
-				elemListheader.setAttribute("style", "cursor:pointer");
-				elemListheader.setAttribute("iconSclass", load("vm.getSortIcon(" + field.getId() + ")"));
-				elemListheader.setAttribute("onClick", command("'sort',fieldId=" + field.getId()));
+				elemListheader.setAttribute(LayoutElementAttributes.A_STYLE, "cursor:pointer");
+				elemListheader.setAttribute(LayoutElementAttributes.A_ICONSCLASS, load("vm.getSortIcon(" + field.getId() + ")"));
+				elemListheader.setAttribute(LayoutElementAttributes.A_ONCLICK, command("'sort',fieldId=" + field.getId()));
 				elemListhead.addChild(elemListheader);
-				// system field
-				if (field.isSystem()) {
-					if (field.getSystemField() == SystemField.ENTITYSTATUS) {
-						elemListitem.addChild(createListCell(load(listPropertyName(field) + ".numberAndName"), 
-															 null, field.getStyle()));
-					}
-					else {
-						elemListitem.addChild(createListCell(load(listPropertyName(field)), 
-															 null, field.getStyle()));
-					}
-				}
-				// reference field
-				else if (field.getEntityField().getType().isReference()) {
-					elemListitem.addChild(createListCell(load("vm.getIdentifier(" + listPropertyName(field) + ')'), 
-														 null,  field.getStyle()));
-				}
-				// binary field
-				else if (field.getEntityField().getType().isBinary()) {
-					final String converter = field.getThumbnailWidth() != null
-												? "vm.getThumbnailConverter(" + field.getId() + ')'
-												: "vm.valueConverter";
-					elemListitem.addChild(createImageListCell(load(listPropertyName(field)) + ' ' + 
-							  								  converter(converter)));
-				}
-				// every other field
-				else {
-					final String icon = field.getEntityField().getType().isFile() 
-										 ? load(listPropertyName(field) + ".contentType") + ' ' + 
-										   	  converter("vm.fileIconConverter")
-										 : null;
-					final String converter = field.getEntityField().getType().isDateTime()
-												? "vm.dateTimeConverter" 
-												: "vm.valueConverter";
-					elemListitem.addChild(createListCell(load(listPropertyName(field)) + ' ' + 
-												   		 converter(converter), icon, field.getStyle()));
-				}
+				// field
+				elemListitem.addChild(buildListFormField(field));
 			}
 		}
 		return buildLayout(elemListbox);
 	}
 	
-	private LayoutElement buildFieldGrid(List<EntityField> fields, String name) {
-		Assert.notNull(fields, "fields is null");
-		Assert.notNull(name, "name is null");
+	private static LayoutElement buildListFormField(FormField field) {
+		// system field
+		if (field.isSystem()) {
+			if (field.getSystemField() == SystemField.ENTITYSTATUS) {
+				return createListCell(load(listPropertyName(field) + ".numberAndName"), null, field.getStyle());
+			}
+			else {
+				return createListCell(load(listPropertyName(field)), null, field.getStyle());
+			}
+		}
+		// reference field
+		else if (field.getEntityField().getType().isReference()) {
+			return createListCell(load("vm.getIdentifier(" + listPropertyName(field) + ')'), null, field.getStyle());
+		}
+		// binary field
+		else if (field.getEntityField().getType().isBinary()) {
+			final String converter = field.getThumbnailWidth() != null
+										? "vm.getThumbnailConverter(" + field.getId() + ')'
+										: "vm.valueConverter";
+			return createImageListCell(load(listPropertyName(field)) + ' ' + converter(converter));
+		}
+		// every other field
+		else {
+			final String icon = field.getEntityField().getType().isFile() 
+								 ? load(listPropertyName(field) + ".contentType") + ' ' + 
+								   	  converter("vm.fileIconConverter")
+								 : null;
+			final String converter = field.getEntityField().getType().isDateTime()
+										? "vm.dateTimeConverter" 
+										: "vm.valueConverter";
+			return createListCell(load(listPropertyName(field)) + ' ' + converter(converter), icon, field.getStyle());
+		}
+	}
+	
+	private static LayoutElement buildFieldGrid(List<EntityField> fields, String name) {
+		Assert.notNull(fields, "fields");
+		Assert.notNull(name, C.NAME);
 		
 		final LayoutElement elemGrid = new LayoutElement(LayoutElement.GRID);
 		final LayoutElement elemRows = elemGrid.addChild(new LayoutElement(LayoutElement.ROWS));
 		final LayoutElement elemColumns = createColumns(2);
-		elemColumns.getChildAt(0).setAttribute("hflex", "min");
-		elemGrid.setClass("alpha-noborder").addChild(elemColumns);
+		elemColumns.getChildAt(0).setAttribute(LayoutElementAttributes.A_HFLEX, "min");
+		elemGrid.setClass(LayoutElementClass.NO_BORDER).addChild(elemColumns);
 		for (EntityField entityField : fields) {
 			if (entityField.getType().isBinary()) {
 				continue;
@@ -880,18 +890,18 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		return createGroupbox(name, elemGrid);
 	}
 	
-	private void buildSubForm(SubForm subForm, LayoutElement elemArea) {
-		Assert.notNull(subForm, "subForm is null");
-		Assert.notNull(elemArea, "elemArea is null");
+	private static void buildSubForm(SubForm subForm, LayoutElement elemArea) {
+		Assert.notNull(subForm, C.SUBFORM);
+		Assert.notNull(elemArea, "elemArea");
 		
 		final LayoutElement elemLayout = elemArea.addChild(new LayoutElement(LayoutElement.BORDERLAYOUT));
-		elemLayout.setAttribute("id", subForm.getNestedEntity().getUid());
+		elemLayout.setAttribute(LayoutElementAttributes.A_ID, subForm.getNestedEntity().getUid());
 		final LayoutElement elemCenter = elemLayout.addChild(createBorderLayoutArea(BorderLayoutArea.CENTER));
 		final LayoutElement elemListbox = elemCenter.addChild(createListBox());
 		final LayoutElement elemListhead = elemListbox.addChild(createListHead(true));
-		elemListbox.setClass("alpha-noborder");
-		elemListbox.setAttribute("vflex", "1");
-		elemListbox.setAttribute("hflex", "1");
+		elemListbox.setClass(LayoutElementClass.NO_BORDER);
+		elemListbox.setAttribute(LayoutElementAttributes.A_HFLEX, "1");
+		elemListbox.setAttribute(LayoutElementAttributes.A_VFLEX, "1");
 		
 		if (subForm.hasFields()) {
 			for (SubFormField field : subForm.getFields()) {
