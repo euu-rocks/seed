@@ -90,7 +90,6 @@ public class SearchDecoratingVisitor extends AbstractLayoutVisitor {
 		element.removeAttribute(LayoutElementAttributes.A_READONLY);
 		element.removeAttribute(LayoutElementAttributes.A_MANDATORY);
 		element.removeAttribute(LayoutElementAttributes.A_ONCHANGE);
-		element.setContext(newContextId());
 		addToRoot(createSearchFieldPopup(element));
 	}
 	
@@ -99,6 +98,7 @@ public class SearchDecoratingVisitor extends AbstractLayoutVisitor {
 		EntityField field = null;
 		SubForm subForm = null;
 		if (element.getId() != null) {
+			element.setContext(newContextId());
 			field = form.getEntity().getFieldByUid(getId(element));
 		}
 		else { // sub form

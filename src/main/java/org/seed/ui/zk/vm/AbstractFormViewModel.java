@@ -44,6 +44,7 @@ import org.seed.core.form.printout.PrintoutService;
 import org.seed.core.util.Assert;
 
 import org.seed.ui.FormParameter;
+import org.seed.ui.Tab;
 import org.seed.ui.zk.LoadOnDemandListModel;
 
 import org.zkoss.zk.ui.Component;
@@ -58,7 +59,6 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 	
 	protected static final String FIELD_UID           = "fieldUid";
 	protected static final String REFERENCE_FIELD_UID = "referenceFieldUid";
-	protected static final String SEARCH_PARAMETER    = "searchParameter";
 	
 	@WireVariable(value="entityServiceImpl")
 	private EntityService entityService;
@@ -76,6 +76,8 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 	
 	private Form form;
 	
+	private Tab tab;
+	
 	private ValueObject object;
 	
 	private EntityStatus status;
@@ -86,8 +88,8 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 		return form;
 	}
 
-	public void setForm(Form form) {
-		this.form = form;
+	public Tab getTab() {
+		return tab;
 	}
 
 	public ValueObject getObject() {
@@ -199,23 +201,25 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 		
 		this.formParameter = formParameter;
 		form = formParameter.form;
-		Assert.notNull(form, "form not avaialable");
+		tab = formParameter.getTab();
+		Assert.stateAvailable(form, C.FORM);
+		Assert.stateAvailable(tab, "tab");
 	}
 	
 	protected void showListForm() {
-		showView("/form/listform.zul", new FormParameter(form));
+		showView("/form/listform.zul", new FormParameter(form, tab));
 	}
 	
 	protected void showSearchForm() {
-		showView("/form/searchform.zul", new FormParameter(form));
+		showView("/form/searchform.zul", new FormParameter(form, tab));
 	}
 	
 	protected void showDetailForm(Long objectId) {
-		showView("/form/detailform.zul", new FormParameter(form, objectId));
+		showView("/form/detailform.zul", new FormParameter(form, tab, objectId));
 	}
 	
 	protected void showDetailForm(Form form, ValueObject object) {
-		showView("/form/detailform.zul", new FormParameter(form, object));
+		showView("/form/detailform.zul", new FormParameter(form, tab, object));
 	}
 	
 	protected void showSelectFieldsDialog() {
@@ -350,7 +354,7 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 	}
 	
 	protected static void checkReferenceField(EntityField referenceField, String referenceFieldUid) {
-		Assert.state(referenceField != null, "referenceField not available " + referenceFieldUid);
+		Assert.stateAvailable(referenceField, "referenceField: " + referenceFieldUid);
 	}
 	
 }

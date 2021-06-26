@@ -42,6 +42,8 @@ public final class Tab {
 	
 	private Cursor<FullTextResult> fullTextSearchCursor;
 	
+	private SearchParameter searchParameter;
+	
 	public Tab(String name, Object parameter) {
 		this(name, null, null, parameter);
 	}
@@ -118,6 +120,18 @@ public final class Tab {
 
 	public void setFullTextSearchCursor(Cursor<FullTextResult> fullTextSearchCursor) {
 		this.fullTextSearchCursor = fullTextSearchCursor;
+	}
+
+	public SearchParameter getSearchParameter() {
+		return searchParameter;
+	}
+
+	public void setSearchParameter(SearchParameter searchParameter) {
+		this.searchParameter = searchParameter;
+	}
+	
+	public void clearSearch() {
+		searchParameter = null;
 	}
 
 }

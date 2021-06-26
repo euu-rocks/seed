@@ -15,32 +15,23 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.ui.zk;
+package org.seed.ui.zk.convert;
 
-import org.seed.core.form.LabelProvider;
-import org.seed.core.util.Assert;
+import org.seed.ui.zk.FileTypeIcons;
 
 import org.zkoss.bind.BindContext;
 import org.zkoss.bind.Converter;
 import org.zkoss.zk.ui.Component;
 
-abstract class AbstractConverter<U, B, C extends Component> 
-	implements Converter<U, B, C>  {
-	
-	private LabelProvider labelProvider;
-
-	AbstractConverter(LabelProvider labelProvider) {
-		Assert.notNull(labelProvider, "labelProvider");
-		
-		this.labelProvider = labelProvider;
-	}
-	
-	protected LabelProvider labelProvider() {
-		return labelProvider;
-	}
+public class FileIconConverter implements Converter<String, String, Component> {
 	
 	@Override
-	public B coerceToBean(U u, C c, BindContext ctx) {
+	public String coerceToUi(String beanProp, Component component, BindContext ctx) {
+		return FileTypeIcons.getIcon(beanProp);
+	}
+
+	@Override
+	public String coerceToBean(String compAttr, Component component, BindContext ctx) {
 		throw new UnsupportedOperationException("only meant for reading");
 	}
 	

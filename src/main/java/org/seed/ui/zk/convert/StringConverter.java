@@ -15,24 +15,25 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.ui.zk;
+package org.seed.ui.zk.convert;
 
-import java.util.Date;
-
-import org.seed.core.form.LabelProvider;
-
+import org.springframework.util.StringUtils;
 import org.zkoss.bind.BindContext;
+import org.zkoss.bind.Converter;
 import org.zkoss.zk.ui.Component;
 
-public class TimeConverter extends AbstractConverter<String, Date, Component> {
-	
-	public TimeConverter(LabelProvider labelProvider) {
-		super(labelProvider);
-	} 
+public class StringConverter implements Converter<String, String, Component> {
 	
 	@Override
-	public String coerceToUi(Date beanProp, Component component, BindContext ctx) {
-		return labelProvider().formatTime(beanProp);
+	public String coerceToUi(String beanProp, Component component, BindContext ctx) {
+		return beanProp;
 	}
 
+	@Override
+	public String coerceToBean(String compAttr, Component component, BindContext ctx) {
+		return StringUtils.hasText(compAttr) 
+				? compAttr.trim() 
+				: null;
+	}
+	
 }

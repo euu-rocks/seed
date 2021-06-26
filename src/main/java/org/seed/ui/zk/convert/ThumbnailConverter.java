@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.ui.zk;
+package org.seed.ui.zk.convert;
 
 import org.zkoss.bind.BindContext;
 import org.zkoss.bind.Converter;

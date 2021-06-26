@@ -31,7 +31,7 @@ import org.seed.core.form.FormField;
 import org.seed.ui.FormParameter;
 import org.seed.ui.SearchParameter;
 import org.seed.ui.zk.LoadOnDemandListModel;
-import org.seed.ui.zk.ThumbnailConverter;
+import org.seed.ui.zk.convert.ThumbnailConverter;
 
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
@@ -80,7 +80,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	}
 
 	public ListModel<ValueObject> getListModel() {
-		final SearchParameter searchParam = getSessionObject(SEARCH_PARAMETER);
+		final SearchParameter searchParam = getTab().getSearchParameter();
 		Cursor<ValueObject> cursor;
 		if (searchParam != null) {
 			cursor = valueObjectService().createCursor(searchParam.searchObject, searchParam.mapOperators);
@@ -144,7 +144,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	}
 	
 	public boolean isResultList() {
-		return hasSessionObject(SEARCH_PARAMETER);
+		return getTab().getSearchParameter() != null;
 	}
 
 	@Command
@@ -181,7 +181,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 				break;
 				
 			case SEARCH:
-				removeSessionObject(SEARCH_PARAMETER);
+				getTab().clearSearch();
 				/* falls through */
 			case BACKSEARCH:
 				showSearchForm();

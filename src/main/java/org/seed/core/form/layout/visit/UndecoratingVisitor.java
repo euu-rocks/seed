@@ -108,9 +108,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 				element.setAttribute(LayoutElementAttributes.A_VISIBLE, load(isVisible(entityField)));
 				element.setAttribute(LayoutElementAttributes.A_READONLY, load(isReadonly(entityField)));
 				element.setAttribute(LayoutElementAttributes.A_MANDATORY, load(isMandatory(entityField)));
-				element.setAttribute(LayoutElementAttributes.A_VALUE, entityField.isCalculated() 
-																	? load(propertyName(entityField)) 
-																	: bind(propertyName(entityField)));
+				element.setAttribute(LayoutElementAttributes.A_VALUE, value(entityField, propertyName(entityField)));
 				if (!(entityField.isCalculated() || entityField.getType().isAutonum())) {
 					element.setAttribute(LayoutElementAttributes.A_ONCHANGE, command(onChange(entityField)));
 					element.setAttribute(LayoutElementAttributes.A_INSTANT, "true");
@@ -277,9 +275,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 			case LONG:
 			case TEXT:
 			case TEXTLONG:
-				elemField.setAttribute(LayoutElementAttributes.A_VALUE, nestedEntityField.isCalculated() 
-																		? load(subFormPropertyName) 
-																		: bind(subFormPropertyName));
+				elemField.setAttribute(LayoutElementAttributes.A_VALUE, value(nestedEntityField, subFormPropertyName));
 				elemField.setAttribute(LayoutElementAttributes.A_READONLY, load(isReadonly(nestedEntityField)));
 				elemField.setAttribute(LayoutElementAttributes.A_MANDATORY, load(isMandatory(nestedEntityField)));
 				if (!nestedEntityField.isCalculated()) {
@@ -381,6 +377,17 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 	
 	private static String subFormContext(SubForm subForm, LayoutElement element) {
 		return subForm.getNestedEntity().getId() + "_" + element.getId();
+	}
+	
+	private static String value(EntityField entityField, String propertyName) {
+		if (entityField.isCalculated()) {
+			return load(propertyName);
+		}
+		final String value = bind(propertyName);
+		if (entityField.isTextField()) {
+			return value + ' ' + converter("vm.stringConverter");
+		}
+		return value;
 	}
 	
 	private static String identifier(String name) {

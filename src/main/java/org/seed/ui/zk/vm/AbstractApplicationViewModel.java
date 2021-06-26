@@ -37,12 +37,13 @@ import org.seed.core.util.MiscUtils;
 import org.seed.ui.FormParameter;
 import org.seed.ui.TabParameterMap;
 import org.seed.ui.ViewParameterMap;
-import org.seed.ui.zk.DateTimeConverter;
-import org.seed.ui.zk.FileIconConverter;
-import org.seed.ui.zk.ImageConverter;
-import org.seed.ui.zk.StringConverter;
-import org.seed.ui.zk.TimeConverter;
-import org.seed.ui.zk.ValueConverter;
+import org.seed.ui.zk.convert.Converters;
+import org.seed.ui.zk.convert.DateTimeConverter;
+import org.seed.ui.zk.convert.FileIconConverter;
+import org.seed.ui.zk.convert.ImageConverter;
+import org.seed.ui.zk.convert.StringConverter;
+import org.seed.ui.zk.convert.TimeConverter;
+import org.seed.ui.zk.convert.ValueConverter;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -54,18 +55,6 @@ import org.zkoss.zul.Filedownload;
 public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	
 	protected static final String ZUL_PATH = "~./zul";
-	
-	private StringConverter stringConverter;
-	
-	private ValueConverter valueConverter;
-	
-	private DateTimeConverter dateTimeConverter;
-	
-	private TimeConverter timeConverter;
-	
-	private ImageConverter imageConverter;
-	
-	private FileIconConverter fileIconConverter;
 	
 	@WireVariable(value="applicationSettingServiceImpl")
 	protected ApplicationSettingService settingService;
@@ -97,45 +86,27 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	}
 	
 	public final StringConverter getStringConverter() {
-		if (stringConverter == null) {
-			stringConverter = new StringConverter();
-		}
-		return stringConverter;
-	}
-	
-	public final ValueConverter getValueConverter() {
-		if (valueConverter == null) {
-			valueConverter = new ValueConverter(getLabelProvider());
-		}
-		return valueConverter;
-	}
-	
-	public final DateTimeConverter getDateTimeConverter() {
-		if (dateTimeConverter == null) {
-			dateTimeConverter = new DateTimeConverter(getLabelProvider());
-		}
-		return dateTimeConverter;
-	}
-	
-	public final TimeConverter getTimeConverter() {
-		if (timeConverter == null) {
-			timeConverter = new TimeConverter(getLabelProvider());
-		}
-		return timeConverter;
+		return Converters.STRING_CONVERTER;
 	}
 	
 	public final ImageConverter getImageConverter() {
-		if (imageConverter == null) {
-			imageConverter = new ImageConverter();
-		}
-		return imageConverter;
+		return Converters.IMAGE_CONVERTER;
 	}
 	
 	public final FileIconConverter getFileIconConverter() {
-		if (fileIconConverter == null) {
-			fileIconConverter = new FileIconConverter();
-		}
-		return fileIconConverter;
+		return Converters.FILEICON_CONVERTER;
+	}
+	
+	public final ValueConverter getValueConverter() {
+		return Converters.getValueConverter();
+	}
+	
+	public final DateTimeConverter getDateTimeConverter() {
+		return Converters.getDateTimeConverter();
+	}
+	
+	public final TimeConverter getTimeConverter() {
+		return Converters.getTimeConverter();
 	}
 	
 	public final List<Report> getUserReports() {

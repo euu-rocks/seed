@@ -237,7 +237,10 @@ public class MainViewModel extends AbstractApplicationViewModel {
 		else {
 			selectedTab = new Tab(name, ZUL_PATH + view, icon, parameter);
 		}
-		selectedTab.setObjectId(parameter != null ? parameter.getObjectId() : null);
+		if (parameter != null) {
+			parameter.setTab(selectedTab);
+			selectedTab.setObjectId(parameter.getObjectId());
+		}
 		tabs.add(selectedTab);
 		notifyChange("tabs", "selectedTab");
 	}

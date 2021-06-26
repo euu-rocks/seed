@@ -69,6 +69,7 @@ import org.seed.core.util.MiscUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 @Repository
 public class ValueObjectRepository {
@@ -508,7 +509,7 @@ public class ValueObjectRepository {
 		// entity reload is necessary because entity could be renamed but not saved yet
 		entity = getEntity(entity.getId());
 		final Class<?> entityClass = codeManager.getGeneratedClass(entity);
-		Assert.state(entityClass != null, "no class available for entity: " + entity.getName());
+		Assert.stateAvailable(entityClass, "class for entity: " + entity.getName());
 		return entityClass;
 	}
 	
@@ -553,10 +554,17 @@ public class ValueObjectRepository {
 		}
 	}
 	
-	private static FilterCriterion createCriterion(Entity entity, String fieldUid, 
-			   CriterionOperator operator, Object value) {
+	private static FilterCriterion createCriterion(Entity entity, String fieldUid, CriterionOperator operator, Object value) {
 		final EntityField field = entity.getFieldByUid(fieldUid);
-		Assert.state(field != null, "field " + fieldUid + " not available");
+		Assert.stateAvailable(field, "field " + fieldUid);
+		
+		// value ends with * -> use LIKE
+		if (operator == CriterionOperator.EQUAL && 
+			value instanceof String && 
+			((String) value).endsWith("*")) {
+			value = StringUtils.trimTrailingCharacter((String) value, '*');
+			operator = CriterionOperator.LIKE;
+		}
 		
 		final FilterCriterion criterion = new FilterCriterion();
 		criterion.setEntityField(field);

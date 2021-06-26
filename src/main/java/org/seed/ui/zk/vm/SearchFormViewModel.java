@@ -55,7 +55,7 @@ public class SearchFormViewModel extends AbstractFormViewModel {
 	public void init(@ExecutionArgParam("param") FormParameter param) {
 		super.init(param);
 		
-		final SearchParameter searchParam = getSessionObject(SEARCH_PARAMETER);
+		final SearchParameter searchParam = getTab().getSearchParameter();
 		if (searchParam != null) {
 			setObject(searchParam.searchObject);
 			fieldOperatorsMap = searchParam.mapOperators;
@@ -208,13 +208,13 @@ public class SearchFormViewModel extends AbstractFormViewModel {
 	@Command
 	@NotifyChange("*")
 	public void clearSearch() {
-		removeSessionObject(SEARCH_PARAMETER);
+		getTab().clearSearch();
 		initNewSearch();
 	}
 	
 	@Command
 	public void search() {
-		setSessionObject(SEARCH_PARAMETER, new SearchParameter(getObject(), fieldOperatorsMap));
+		getTab().setSearchParameter(new SearchParameter(getObject(), fieldOperatorsMap));
 		showListForm();
 	}
 	
