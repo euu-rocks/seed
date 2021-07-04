@@ -18,12 +18,11 @@
 package org.seed.core.entity.filter;
 
 import java.util.List;
-import java.util.Set;
 
 import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.SystemEntity;
-import org.seed.core.data.ValidationError;
+import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
 
@@ -41,26 +40,26 @@ public class FilterValidator extends AbstractSystemEntityValidator<Filter> {
 		Assert.notNull(filter, C.FILTER);
 		
 		if (isEmpty(filter.getEntity())) {
-			throw new ValidationException(ValidationError.emptyField("label.entity"));
+			throw new ValidationException(new ValidationErrors().addEmptyField("label.entity"));
 		}
 	}
 	
 	@Override
 	public void validateSave(Filter filter) throws ValidationException {
 		Assert.notNull(filter, C.FILTER);
-		final Set<ValidationError> errors = createErrorList();
+		final ValidationErrors errors = new ValidationErrors();
 		
 		if (isEmpty(filter.getName())) {
-			errors.add(ValidationError.emptyName());
+			errors.addEmptyName();
 		}
 		else if (!isNameLengthAllowed(filter.getName())) {
-			errors.add(ValidationError.overlongName(getMaxNameLength()));
+			errors.addOverlongName(getMaxNameLength());
 		}
 		
 		// HQL
 		if (((FilterMetadata) filter).isHqlInput()) {
 			if (isEmpty(filter.getHqlQuery())) {
-				errors.add(ValidationError.emptyField("label.hqlinput"));
+				errors.addEmptyField("label.hqlinput");
 			}
 		}
 		// criterias
@@ -71,21 +70,20 @@ public class FilterValidator extends AbstractSystemEntityValidator<Filter> {
 		validate(errors);
 	}
 	
-	private void validateCriterias(Filter filter, Set<ValidationError> errors) {
+	private void validateCriterias(Filter filter, ValidationErrors errors) {
 		for (FilterCriterion criterion : filter.getCriteria()) {
 			if (isEmpty(criterion.getElement())) {
-				errors.add(emptyCriterionField("label.field"));
+				errors.addEmptyCriterionField("label.field");
 			}
 			if (isEmpty(criterion.getOperator())) {
-				errors.add(emptyCriterionField("label.oparator"));
+				errors.addEmptyCriterionField("label.oparator");
 			}
 			if (criterion.needsValue() && !criterion.hasValue()) {
-				errors.add(emptyCriterionField("label.value"));
+				errors.addEmptyCriterionField("label.value");
 			}
 			else if (criterion.getStringValue() != null &&
 					 criterion.getStringValue().length() > getMaxStringLength()) {
-				errors.add(ValidationError.overlongObjectField("label.value", "label.criteria", 
-															   getMaxStringLength()));
+				errors.addOverlongObjectField("label.value", "label.criteria", getMaxStringLength());
 			}
 		}
 	}
@@ -93,12 +91,12 @@ public class FilterValidator extends AbstractSystemEntityValidator<Filter> {
 	@Override
 	public void validateDelete(Filter filter) throws ValidationException {
 		Assert.notNull(filter, C.FILTER);
-		final Set<ValidationError> errors = createErrorList();
+		final ValidationErrors errors = new ValidationErrors();
 		
 		for (FilterDependent<? extends SystemEntity> dependent : filterDependents) {
 			for (SystemEntity systemEntity : dependent.findUsage(filter)) {
 				if (C.FORM.equals(getEntityType(systemEntity))) {
-					errors.add(new ValidationError("val.inuse.filterform", systemEntity.getName()));
+					errors.addError("val.inuse.filterform", systemEntity.getName());
 				}
 				else {
 					unhandledEntity(systemEntity);
@@ -107,10 +105,6 @@ public class FilterValidator extends AbstractSystemEntityValidator<Filter> {
 		}
 		
 		validate(errors);
-	}
-	
-	private static ValidationError emptyCriterionField(String name) {
-		return new ValidationError("val.empty.criterionfield", name);
 	}
 	
 }

@@ -17,9 +17,7 @@
  */
 package org.seed.core.data;
 
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.seed.C;
 import org.seed.core.config.Limits;
@@ -50,13 +48,13 @@ public abstract class AbstractSystemEntityValidator<T extends SystemEntity>
 	@Override
 	public void validateSave(T object) throws ValidationException {
 		Assert.notNull(object, C.OBJECT);
-		final Set<ValidationError> errors = createErrorList();
 		
+		final ValidationErrors errors = new ValidationErrors();
 		if (isEmpty(object.getName())) {
-			errors.add(ValidationError.emptyName());
+			errors.addEmptyName();
 		}
 		else if (!isNameLengthAllowed(object.getName())) {
-			errors.add(ValidationError.overlongName(getMaxNameLength()));
+			errors.addOverlongName(getMaxNameLength());
 		}
 		validate(errors);
 	}
@@ -81,11 +79,7 @@ public abstract class AbstractSystemEntityValidator<T extends SystemEntity>
 		return name.length() <= getMaxNameLength();
 	}
 	
-	protected static Set<ValidationError> createErrorList() {
-		return new LinkedHashSet<>();
-	}
-	
-	protected static void validate(Set<ValidationError> errors) throws ValidationException {
+	protected static void validate(ValidationErrors errors) throws ValidationException {
 		Assert.notNull(errors, C.ERRORS);
 		
 		if (!errors.isEmpty()) {

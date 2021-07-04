@@ -17,7 +17,6 @@
  */
 package org.seed.ui.zk.convert;
 
-import org.springframework.util.StringUtils;
 import org.zkoss.bind.BindContext;
 import org.zkoss.bind.Converter;
 import org.zkoss.zk.ui.Component;
@@ -31,9 +30,11 @@ public class StringConverter implements Converter<String, String, Component> {
 
 	@Override
 	public String coerceToBean(String compAttr, Component component, BindContext ctx) {
-		return StringUtils.hasText(compAttr) 
-				? compAttr.trim() 
-				: null;
+		if (compAttr != null) {
+			final String trimedAttr = compAttr.trim();
+			return trimedAttr.isEmpty() ? null : trimedAttr;
+		}
+		return null;
 	}
 	
 }

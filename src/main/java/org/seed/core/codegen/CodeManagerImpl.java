@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -109,7 +108,7 @@ public class CodeManagerImpl implements CodeManager {
 			}
 			// init upload changes
 			final String propUploadChanges = environment.getProperty("codegen.external.uploadchanges");
-			if (MiscUtils.booleanProperty(propUploadChanges)) {
+			if (MiscUtils.booleanValue(propUploadChanges)) {
 				log.info("Enable code uploads on change");
 				try {
 					watchService = FileSystems.getDefault().newWatchService();
@@ -302,7 +301,7 @@ public class CodeManagerImpl implements CodeManager {
 			log.warn("Couldn't create external source dir {}", dir.getAbsolutePath());
 			return;
 		}
-		try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
+		try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(file), MiscUtils.CHARSET)) {
 			osw.append(sourceCode.getContent());
 		}
 	}

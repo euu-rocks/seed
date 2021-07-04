@@ -31,9 +31,9 @@ import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
-import org.seed.core.config.ChangeLog;
 import org.seed.core.config.SessionFactoryProvider;
 import org.seed.core.config.UpdatableConfiguration;
+import org.seed.core.config.changelog.ChangeLog;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
 
@@ -176,7 +176,7 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 	@Override
 	@Secured("ROLE_ADMIN_DBOBJECT")
 	public void deleteObject(DBObject dbObject) throws ValidationException {
-		Assert.notNull(dbObject, "dbObject");
+		Assert.notNull(dbObject, C.DBOBJECT);
 		
 		try (Session session = sessionFactoryProvider.getSessionFactory().openSession()) {
 			Transaction tx = null;
@@ -201,7 +201,7 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 	@Override
 	@Secured("ROLE_ADMIN_DBOBJECT")
 	public void saveObject(DBObject dbObject) throws ValidationException {
-		Assert.notNull(dbObject, "dbObject");
+		Assert.notNull(dbObject, C.DBOBJECT);
 		
 		final boolean isInsert = dbObject.isNew();
 		final DBObject currentVersionObject = !isInsert ? getObject(dbObject.getId()) : null;

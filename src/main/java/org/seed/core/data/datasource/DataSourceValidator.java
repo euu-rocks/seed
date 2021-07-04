@@ -22,7 +22,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.persistence.PersistenceException;
 
@@ -31,6 +30,7 @@ import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.DataException;
 import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationError;
+import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.form.LabelProvider;
 import org.seed.core.util.Assert;
@@ -53,12 +53,12 @@ public class DataSourceValidator extends AbstractSystemEntityValidator<IDataSour
 	@Override
 	public void validateDelete(IDataSource dataSource) throws ValidationException {
 		Assert.notNull(dataSource, C.DATASOURCE);
-		final Set<ValidationError> errors = createErrorList();
+		final ValidationErrors errors = new ValidationErrors();
 		
 		for (DataSourceDependent<? extends SystemEntity> dependent : dataSourceDependents) {
 			for (SystemEntity systemEntity : dependent.findUsage(dataSource)) {
 				if (C.REPORT.equals(getEntityType(systemEntity))) {
-					errors.add(new ValidationError("val.inuse.datasourcereport", systemEntity.getName()));
+					errors.addError("val.inuse.datasourcereport", systemEntity.getName());
 				}
 			}
 		}
@@ -68,19 +68,19 @@ public class DataSourceValidator extends AbstractSystemEntityValidator<IDataSour
 	@Override
 	public void validateSave(IDataSource dataSource) throws ValidationException {
 		Assert.notNull(dataSource, C.DATASOURCE);
-		final Set<ValidationError> errors = createErrorList();
+		final ValidationErrors errors = new ValidationErrors();
 		
 		if (isEmpty(dataSource.getName())) {
-			errors.add(ValidationError.emptyName());
+			errors.addEmptyName();
 		}
 		else if (!isNameLengthAllowed(dataSource.getName())) {
-			errors.add(ValidationError.overlongName(getMaxNameLength()));
+			errors.addOverlongName(getMaxNameLength());
 		}
 		if (isEmpty(dataSource.getContent())) {
-			errors.add(ValidationError.emptyField("label.sqlstatement"));
+			errors.addEmptyField("label.sqlstatement");
 		}
 		else if (!dataSource.getContent().toLowerCase().contains("select ")) {
-			errors.add(new ValidationError("val.query.noselect"));
+			errors.addError("val.query.noselect");
 		}
 		else {
 			if (dataSource.hasParameters()) {
@@ -88,7 +88,7 @@ public class DataSourceValidator extends AbstractSystemEntityValidator<IDataSour
 			}
 			for (String contentParameter : dataSource.getContentParameterSet()) {
 				if (dataSource.getParameterByName(contentParameter) == null) {
-					errors.add(new ValidationError("val.query.noparam", contentParameter));
+					errors.addError("val.query.noparam", contentParameter);
 				}
 			}
 		}
@@ -107,22 +107,22 @@ public class DataSourceValidator extends AbstractSystemEntityValidator<IDataSour
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void validateParameters(IDataSource dataSource, Set<ValidationError> errors) {
+	private void validateParameters(IDataSource dataSource, final ValidationErrors errors) {
 		for (DataSourceParameter parameter : dataSource.getParameters()) {
 			// validate name
 			if (isEmpty(parameter.getName())) {
-				errors.add(ValidationError.emptyField("label.paramname"));
+				errors.addEmptyField("label.paramname");
 			}
 			else if (!isNameUnique(parameter.getName(), dataSource.getParameters())) {
-				errors.add(new ValidationError("val.ambiguous.param", parameter.getName()));
+				errors.addError("val.ambiguous.param", parameter.getName());
 			}
 			// validate type
 			if (isEmpty(parameter.getType())) {
-				errors.add(ValidationError.emptyField("label.paramtype"));
+				errors.addEmptyField("label.paramtype");
 			}
 			else if (parameter.getType().isReference() && 
 					 isEmpty(parameter.getReferenceEntity())) {
-				errors.add(ValidationError.emptyField("label.refentity"));
+				errors.addEmptyField("label.refentity");
 			}
 		}
 	}

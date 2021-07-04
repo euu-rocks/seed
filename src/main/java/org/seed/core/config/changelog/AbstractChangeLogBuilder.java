@@ -15,14 +15,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.config;
+package org.seed.core.config.changelog;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,9 +32,11 @@ import org.seed.core.util.MiscUtils;
 import org.seed.core.util.UID;
 
 import liquibase.change.Change;
+import liquibase.change.custom.CustomChangeWrapper;
 import liquibase.changelog.ChangeLogChild;
 import liquibase.changelog.ChangeSet;
 import liquibase.changelog.DatabaseChangeLog;
+import liquibase.exception.CustomChangeException;
 import liquibase.serializer.core.yaml.YamlChangeLogSerializer;
 
 public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
@@ -69,22 +70,45 @@ public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 		return null;
 	}
 	
+	protected void checkValid() {
+		Assert.state(currentVersionObject != null || nextVersionObject != null, 
+					 "no current or next version object available");
+	}
+	
 	protected void addChange(Change change) {
 		Assert.notNull(change, "change");
 		
+		getChangeSet().addChange(change);
+	}
+	
+	protected void addChange(AbstractCustomChange customChange) {
+		Assert.notNull(customChange, "customChange");
+		try {
+			final CustomChangeWrapper changeWrapper = new CustomChangeWrapper();
+			changeWrapper.setClass(customChange.getClass().getName());
+			changeWrapper.setParam("name", customChange.getParameterName());
+			changeWrapper.setParam("value", customChange.getParameterValue());
+			getChangeSet().addChange(changeWrapper);
+		}
+		catch (CustomChangeException ccex) {
+			throw new InternalException(ccex);
+		}
+	}
+	
+	private ChangeSet getChangeSet() {
 		if (changeSet == null) {
 			changeSet = new ChangeSet(UID.createUID(), MiscUtils.geUserName(), 
 									  false, false, "", null, null, 
 									  true, null, new DatabaseChangeLog());
 		}
-		changeSet.addChange(change);
+		return changeSet;
 	}
 	
 	private static String toJson(ChangeSet changeSet) {
 		try {
 			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			new JsonChangeLogSerializer().write(Collections.singletonList(changeSet), baos);
-			return baos.toString(StandardCharsets.UTF_8);
+			return baos.toString(MiscUtils.CHARSET);
 		} 
 		catch (IOException ioex) {
 			throw new InternalException(ioex);
@@ -99,7 +123,7 @@ public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 		
 		@Override
 	    public <T extends ChangeLogChild> void write(List<T> children, OutputStream out) throws IOException {
-	        final Writer writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
+	        final Writer writer = new OutputStreamWriter(out, MiscUtils.CHARSET);
 	        int i = 0;
 	        for (T child : children) {
 	            String serialized = serialize(child, true);

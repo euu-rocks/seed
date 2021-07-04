@@ -17,14 +17,12 @@
  */
 package org.seed.core.form;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.SystemEntity;
-import org.seed.core.data.ValidationError;
+import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.util.Assert;
@@ -40,17 +38,17 @@ public class FormValidator extends AbstractSystemEntityValidator<Form> {
 	
 	public void validateAddSubForm(NestedEntity nested) throws ValidationException {
 		if (isEmpty(nested)) {
-			validate(Collections.singleton(ValidationError.emptyField("label.nested")));
+			validate(new ValidationErrors().addEmptyField("label.nested"));
 		}
 	}
 	
 	@Override
 	public void validateCreate(Form form) throws ValidationException {
 		Assert.notNull(form, C.FORM);
-		final Set<ValidationError> errors = createErrorList();
+		final ValidationErrors errors = new ValidationErrors();
 		
 		if (isEmpty(form.getEntity())) {
-			errors.add(ValidationError.emptyField("label.entity"));
+			errors.addEmptyField("label.entity");
 		}
 		
 		validate(errors);
@@ -59,13 +57,13 @@ public class FormValidator extends AbstractSystemEntityValidator<Form> {
 	@Override
 	public void validateSave(Form form) throws ValidationException {
 		Assert.notNull(form, C.FORM);
-		final Set<ValidationError> errors = createErrorList();
+		final ValidationErrors errors = new ValidationErrors();
 		
 		if (isEmpty(form.getName())) {
-			errors.add(ValidationError.emptyName());
+			errors.addEmptyName();
 		}
 		else if (!isNameLengthAllowed(form.getName())) {
-			errors.add(ValidationError.overlongName(getMaxNameLength()));
+			errors.addOverlongName(getMaxNameLength());
 		}
 		
 		if (form.hasFields()) {
@@ -92,12 +90,12 @@ public class FormValidator extends AbstractSystemEntityValidator<Form> {
 	@Override
 	public void validateDelete(Form form) throws ValidationException {
 		Assert.notNull(form, C.FORM);
-		final Set<ValidationError> errors = createErrorList();
+		final ValidationErrors errors = new ValidationErrors();
 		
 		for (FormDependent<? extends SystemEntity> dependent : formDependents) {
 			for (SystemEntity systemEntity : dependent.findUsage(form)) {
 				if (C.FORM.equals(getEntityType(systemEntity))) {
-					errors.add(new ValidationError("val.inuse.formform", systemEntity.getName()));
+					errors.addError("val.inuse.formform", systemEntity.getName());
 				}
 			}
 		}
@@ -105,77 +103,77 @@ public class FormValidator extends AbstractSystemEntityValidator<Form> {
 		validate(errors);
 	}
 	
-	private void validateField(FormField field, Set<ValidationError> errors) {
+	private void validateField(FormField field, ValidationErrors errors) {
 		if (field.getLabel() != null && 
 			field.getLabel().length() > getMaxStringLength()) {
-			errors.add(errorOverlongFormField(LABEL_LABEL));
+			errors.addOverlongObjectField(LABEL, FIELD, getMaxStringLength());
 		}
 		if (field.getStyle() != null && 
 			field.getStyle().length() > getMaxStringLength()) {
-			errors.add(errorOverlongFormField("label.style"));
+			errors.addOverlongObjectField("label.style", FIELD, getMaxStringLength());
 		}
 		if (field.getLabelStyle() != null && 
 			field.getLabelStyle().length() > getMaxStringLength()) {
-			errors.add(errorOverlongFormField("label.labelstyle"));
+			errors.addOverlongObjectField("label.labelstyle", FIELD, getMaxStringLength());
 		}
 		if (field.getWidth() != null && 
 			field.getWidth().length() > getMaxStringLength()) {
-			errors.add(errorOverlongFormField("label.width"));
+			errors.addOverlongObjectField("label.width", FIELD, getMaxStringLength());
 		}
 		if (field.getHeight() != null && 
 			field.getHeight().length() > getMaxStringLength()) {
-			errors.add(errorOverlongFormField("label.height"));
+			errors.addOverlongObjectField("label.height", FIELD, getMaxStringLength());
 		}
 		final String hflex = field.getHflex();
 		if (hflex != null && !(hflex.equals("min") || hflex.equals("max")) && 
 			!isPositiveInteger(hflex)) {
-			errors.add(ValidationError.illegalField("hflex", hflex));
+			errors.addIllegalField("hflex", hflex);
 		}
 	}
 	
-	private void validateActions(Form form, Set<ValidationError> errors) {
+	private void validateActions(Form form, ValidationErrors errors) {
 		for (FormAction action : form.getActions()) {
 			if (action.isCustom() && isEmpty(action.getEntityFunction())) {
-				errors.add(new ValidationError("val.empty.actionfunction"));
+				errors.addError("val.empty.actionfunction");
 			}
 			if (action.getLabel() != null &&
 				action.getLabel().length() > getMaxStringLength()) {
-				errors.add(ValidationError.overlongObjectField(LABEL_LABEL, "label.action", getMaxStringLength()));
+				errors.addOverlongObjectField(LABEL, "label.action", getMaxStringLength());
 			}
 		}
 	}
 	
-	private void validateTransformers(Form form, Set<ValidationError> errors) {
+	private void validateTransformers(Form form, ValidationErrors errors) {
 		for (FormTransformer transformer : form.getTransformers()) {
 			if (transformer.getLabel() != null &&
 				transformer.getLabel().length() > getMaxStringLength()) {
-				errors.add(ValidationError.overlongObjectField(LABEL_LABEL, "label.transformer", getMaxStringLength()));
+				errors.addOverlongObjectField(LABEL, "label.transformer", getMaxStringLength());
 			}
 			if (isEmpty(transformer.getTargetForm())) {
-				errors.add(new ValidationError("val.empty.transformtarget", transformer.getName()));
+				errors.addError("val.empty.transformtarget", transformer.getName());
 			}
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void validatePrintouts(Form form, Set<ValidationError> errors) {
+	private void validatePrintouts(Form form, ValidationErrors errors) {
 		for (FormPrintout printout : form.getPrintouts()) {
 			if (isEmpty(printout.getName())) {
-				errors.add(new ValidationError("val.empty.printoutfield", "label.name"));
+				errors.addError("val.empty.printoutfield", "label.name");
 			}
 			else if (!isNameLengthAllowed(printout.getName())) {
-				errors.add(ValidationError.overlongObjectName("label.printout", getMaxNameLength()));
+				errors.addOverlongObjectName("label.printout", getMaxNameLength());
 			}
 			else if (!isNameUnique(printout.getName(), form.getPrintouts())) {
-				errors.add(new ValidationError("val.ambiguous.fieldgroup", printout.getName()));
+				errors.addError("val.ambiguous.fieldgroup", printout.getName());
 			}
 			if (isEmpty(printout.getContent())) {
-				errors.add(new ValidationError("val.empty.printoutfield", "label.file"));
+				errors.addError("val.empty.printoutfield", "label.file");
 			}
 		}
 	}
 	
-	private void validateSubForms(Form form, Set<ValidationError> errors) {
+	private void validateSubForms(Form form, ValidationErrors errors) {
 		for (SubForm subForm : form.getSubForms()) {
 			if (subForm.hasFields()) {
 				for (SubFormField subFormField : subForm.getFields()) {
@@ -190,49 +188,43 @@ public class FormValidator extends AbstractSystemEntityValidator<Form> {
 		}
 	}
 	
-	private void validateSubFormField(SubFormField subFormField, Set<ValidationError> errors) {
+	private void validateSubFormField(SubFormField subFormField, ValidationErrors errors) {
 		if (subFormField.getLabel() != null &&
 			subFormField.getLabel().length() > getMaxStringLength()) {
-			errors.add(errorOverlongSubFormField(LABEL_LABEL));
+			errors.addOverlongObjectField(LABEL, SUBFORMFIELD, getMaxStringLength());
 		}
 		if (subFormField.getWidth() != null &&
 			subFormField.getWidth().length() > getMaxStringLength()) {
-			errors.add(errorOverlongSubFormField("label.width"));
+			errors.addOverlongObjectField("label.width", SUBFORMFIELD, getMaxStringLength());
 		}
 		if (subFormField.getHeight() != null &&
 			subFormField.getHeight().length() > getMaxStringLength()) {
-			errors.add(errorOverlongSubFormField("label.height"));
+			errors.addOverlongObjectField("label.height", SUBFORMFIELD, getMaxStringLength());
 		}
 		if (subFormField.getStyle() != null &&
 			subFormField.getStyle().length() > getMaxStringLength()) {
-			errors.add(errorOverlongSubFormField("label.style"));
+			errors.addOverlongObjectField("label.style", SUBFORMFIELD, getMaxStringLength());
 		}
 		if (subFormField.getLabelStyle() != null &&
 			subFormField.getLabelStyle().length() > getMaxStringLength()) {
-			errors.add(errorOverlongSubFormField("label.labelstyle"));
+			errors.addOverlongObjectField("label.labelstyle", SUBFORMFIELD, getMaxStringLength());
 		}
 		final String hflex = subFormField.getHflex();
 		if (hflex != null && !(hflex.equals("min") || hflex.equals("max")) && 
 			!isPositiveInteger(hflex)) {
-			errors.add(ValidationError.illegalField("hflex", hflex));
+			errors.addIllegalField("hflex", hflex);
 		}
 	}
 	
-	private void validateSubFormAction(SubFormAction action, Set<ValidationError> errors) {
+	private void validateSubFormAction(SubFormAction action, ValidationErrors errors) {
 		if (action.getLabel() != null &&
 			action.getLabel().length() > getMaxStringLength()) {
-			errors.add(ValidationError.overlongObjectField(LABEL_LABEL, "label.subformaction", getMaxStringLength()));
+			errors.addOverlongObjectField(LABEL, "label.subformaction", getMaxStringLength());
 		}
 	}
 	
-	private ValidationError errorOverlongFormField(String name) {
-		return ValidationError.overlongObjectField(name, "label.field", getMaxStringLength());
-	}
-	
-	private ValidationError errorOverlongSubFormField(String name) {
-		return ValidationError.overlongObjectField(name, "label.subformfield", getMaxStringLength());
-	}
-	
-	private static final String LABEL_LABEL = "label.label";
+	private static final String LABEL = "label.label";
+	private static final String FIELD = "label.field";
+	private static final String SUBFORMFIELD = "label.subformfield";
 	
 }

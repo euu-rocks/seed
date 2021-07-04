@@ -31,6 +31,7 @@ public final class C {
 	public static final String CONTEXT          = "context";
 	public static final String CRITERION        = "criterion";
 	public static final String DATASOURCE       = "dataSource";
+	public static final String DBOBJECT			= "dbObject";
 	public static final String DIR              = "dir";
 	public static final String ELEMENT          = "element";
 	public static final String ENTITY           = "entity";

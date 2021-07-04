@@ -17,12 +17,9 @@
  */
 package org.seed.core.form.layout;
 
-import java.util.Collections;
-import java.util.Set;
-
 import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityValidator;
-import org.seed.core.data.ValidationError;
+import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.EntityField;
 import org.seed.core.form.Form;
@@ -49,47 +46,47 @@ public class LayoutValidator extends AbstractSystemEntityValidator<Form> {
 		validateText(text, null);
 	}
 	
-	public void validateText(String text, String field) throws ValidationException {
-		if (field == null) {
-			field = "label.text";
+	public void validateText(String text, String fieldName) throws ValidationException {
+		if (fieldName == null) {
+			fieldName = "label.text";
 		}
 		if (isEmpty(text)) {
-			validate(Collections.singleton(ValidationError.emptyField(field)));
+			validate(new ValidationErrors().addEmptyField(fieldName));
 		}
 	}
 	
 	public void validateEntityField(EntityField field) throws ValidationException {
 		if (isEmpty(field)) {
-			validate(Collections.singleton(ValidationError.emptyField(LABEL_FIELD)));
+			validate(new ValidationErrors().addEmptyField(LABEL_FIELD));
 		}
 	}
 	
 	public void validateBinaryField(String width, String height) throws ValidationException {
-		final Set<ValidationError> errors = createErrorList();
+		final ValidationErrors errors = new ValidationErrors();
 		
 		if (isEmpty(width)) {
-			errors.add(ValidationError.emptyField(LABEL_WIDTH));
+			errors.addEmptyField(LABEL_WIDTH);
 		}
 		if (isEmpty(height)) {
-			errors.add(ValidationError.emptyField(LABEL_HEIGHT));
+			errors.addEmptyField(LABEL_HEIGHT);
 		}
 		validate(errors);
 	}
 	
 	public void validateNewGrid(Integer columns, Integer rows) throws ValidationException {
-		final Set<ValidationError> errors = createErrorList();
+		final ValidationErrors errors = new ValidationErrors();
 		
 		if (isEmpty(columns)) {
-			errors.add(ValidationError.emptyField(LABEL_COLUMNS));
+			errors.addEmptyField(LABEL_COLUMNS);
 		}
 		else if (isZeroOrBelow(columns)) {
-			errors.add(ValidationError.zeroField(LABEL_COLUMNS));
+			errors.addZeroField(LABEL_COLUMNS);
 		}
 		if (isEmpty(rows)) {
-			errors.add(ValidationError.emptyField(LABEL_ROWS));
+			errors.addEmptyField(LABEL_ROWS);
 		}
 		else if (isZeroOrBelow(rows)) {
-			errors.add(ValidationError.zeroField(LABEL_ROWS));
+			errors.addZeroField(LABEL_ROWS);
 		}
 		
 		validate(errors);
@@ -99,22 +96,22 @@ public class LayoutValidator extends AbstractSystemEntityValidator<Form> {
 		Assert.notNull(element, C.ELEMENT);
 		Assert.notNull(properties, C.PROPERTIES);
 		
-		final Set<ValidationError> errors = createErrorList();
+		final ValidationErrors errors = new ValidationErrors();
 		if (!isEmpty(properties.getColumns()) && isZeroOrBelow(properties.getColumns())) {
-			errors.add(ValidationError.zeroField(LABEL_COLUMNS));
+			errors.addZeroField(LABEL_COLUMNS);
 		}
 		if (!isEmpty(properties.getRows()) && isZeroOrBelow(properties.getRows())) {
-			errors.add(ValidationError.zeroField(LABEL_ROWS));
+			errors.addZeroField(LABEL_ROWS);
 		}
 		if (!isEmpty(properties.getMaxlength()) && isZeroOrBelow(properties.getMaxlength())) {
-			errors.add(ValidationError.zeroField("label.maxlength"));
+			errors.addZeroField("label.maxlength");
 		}
 		if (element.is(LayoutElement.IMAGE)) {
 			if (isEmpty(properties.getWidth())) {
-				errors.add(ValidationError.emptyField(LABEL_WIDTH));
+				errors.addEmptyField(LABEL_WIDTH);
 			}
 			if (isEmpty(properties.getHeight())) {
-				errors.add(ValidationError.emptyField(LABEL_HEIGHT));
+				errors.addEmptyField(LABEL_HEIGHT);
 			}
 		}
 		validate(errors);
@@ -123,11 +120,11 @@ public class LayoutValidator extends AbstractSystemEntityValidator<Form> {
 	public void validateBorderLayoutProperties(BorderLayoutProperties properties) throws ValidationException {
 		Assert.notNull(properties, C.PROPERTIES);
 		
-		final Set<ValidationError> errors = createErrorList();
+		final ValidationErrors errors = new ValidationErrors();
 		for (LayoutAreaProperties areaProperties : properties.getLayoutAreaProperties()) {
 			if (areaProperties.isVisible() && isZeroOrBelow(areaProperties.getMaxsize())) {
-				errors.add(new ValidationError("val.zero.fieldinarea", "label.maxsize", 
-											   labelProvider.getEnumLabel(areaProperties.getLayoutArea())));
+				errors.addError("val.zero.fieldinarea", "label.maxsize", 
+								labelProvider.getEnumLabel(areaProperties.getLayoutArea()));
 			}
 		}
 		validate(errors);
@@ -137,7 +134,7 @@ public class LayoutValidator extends AbstractSystemEntityValidator<Form> {
 		Assert.notNull(properties, C.PROPERTIES);
 		
 		if (isZeroOrBelow(properties.getMaxsize())) {
-			validate(Collections.singleton(ValidationError.emptyField(LABEL_FIELD)));
+			validate(new ValidationErrors().addEmptyField(LABEL_FIELD));
 		}
 	}
 	

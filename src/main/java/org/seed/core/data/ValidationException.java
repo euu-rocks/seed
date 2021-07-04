@@ -17,37 +17,28 @@
  */
 package org.seed.core.data;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
-
-import org.seed.C;
-import org.seed.core.util.Assert;
 
 public class ValidationException extends Exception {
 	
 	private static final long serialVersionUID = -8839158339815075607L;
 	
-	private final Set<ValidationError> errors = new HashSet<>();
+	private final Set<ValidationError> errors;
 	
 	public ValidationException(ValidationError error) {
-		addError(error);
+		this.errors = Collections.singleton(error);
 	}
 	
 	public ValidationException(ValidationError error, Throwable cause) {
 		super(cause);
-		addError(error);
+		this.errors = Collections.singleton(error);
 	}
 	
-	public ValidationException(Set<ValidationError> errors) {
-		this.errors.addAll(errors);
+	public ValidationException(ValidationErrors errors) {
+		this.errors = errors.getErrors();
 	}
 	
-	public void addError(ValidationError error) {
-		Assert.notNull(error, C.ERROR);
-		
-		errors.add(error);
-	}
-
 	public Set<ValidationError> getErrors() {
 		return errors;
 	}

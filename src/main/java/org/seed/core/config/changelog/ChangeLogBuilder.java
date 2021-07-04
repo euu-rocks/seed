@@ -15,25 +15,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.config;
+package org.seed.core.config.changelog;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import org.seed.core.data.SystemEntity;
 
-import org.seed.core.data.AbstractSystemObject;
-
-@Entity
-@Table(name = "sys_changelog")
-public class ChangeLog extends AbstractSystemObject {
+public interface ChangeLogBuilder<T extends SystemEntity> {
 	
-	private String changeSet;
-
-	public String getChangeSet() {
-		return changeSet;
-	}
-
-	public void setChangeSet(String changeSet) {
-		this.changeSet = changeSet;
-	}
+	ChangeLogBuilder<T> setCurrentVersionObject(T currentVersionObject);
+	
+	ChangeLogBuilder<T> setNextVersionObject(T nextVersionObject);
+	
+	ChangeLog build();
 	
 }

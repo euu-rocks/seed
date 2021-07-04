@@ -17,12 +17,10 @@
  */
 package org.seed.core.entity.transfer;
 
-import java.util.Set;
-
 import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.FileObject;
-import org.seed.core.data.ValidationError;
+import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
 
@@ -34,13 +32,13 @@ public class TransferValidator extends AbstractSystemEntityValidator<Transfer> {
 	@Override
 	public void validateCreate(Transfer transfer) throws ValidationException {
 		Assert.notNull(transfer, C.TRANSFER);
-		final Set<ValidationError> errors = createErrorList();
+		final ValidationErrors errors = new ValidationErrors();
 		
 		if (isEmpty(transfer.getEntity())) {
-			errors.add(ValidationError.emptyField("label.entity"));
+			errors.addEmptyField("label.entity");
 		}
 		if (isEmpty(transfer.getFormat())) {
-			errors.add(ValidationError.emptyField("label.type"));
+			errors.addEmptyField("label.type");
 		}
 	
 		validate(errors);
@@ -48,10 +46,10 @@ public class TransferValidator extends AbstractSystemEntityValidator<Transfer> {
 	
 	public void validateImport(FileObject importFile) throws ValidationException {
 		Assert.notNull(importFile, "importFile");
-		final Set<ValidationError> errors = createErrorList();
+		final ValidationErrors errors = new ValidationErrors();
 		
 		if (importFile.isEmpty()) {
-			errors.add(ValidationError.emptyField("label.file"));
+			errors.addEmptyField("label.file");
 		}
 		
 		validate(errors);
@@ -60,13 +58,13 @@ public class TransferValidator extends AbstractSystemEntityValidator<Transfer> {
 	@Override
 	public void validateSave(Transfer transfer) throws ValidationException {
 		Assert.notNull(transfer, C.TRANSFER);
-		final Set<ValidationError> errors = createErrorList();
+		final ValidationErrors errors = new ValidationErrors();
 		
 		if (isEmpty(transfer.getName())) {
-			errors.add(ValidationError.emptyName());
+			errors.addEmptyName();
 		}
 		else if (!isNameLengthAllowed(transfer.getName())) {
-			errors.add(ValidationError.overlongName(getMaxNameLength()));
+			errors.addOverlongName(getMaxNameLength());
 		}
 		
 		if (transfer.hasElements()) {
@@ -77,7 +75,7 @@ public class TransferValidator extends AbstractSystemEntityValidator<Transfer> {
 						identifierFound = true;
 					}
 					else {
-						errors.add(new ValidationError("val.ambiguous.identifier"));
+						errors.addError("val.ambiguous.identifier");
 						break;
 					}
 				}

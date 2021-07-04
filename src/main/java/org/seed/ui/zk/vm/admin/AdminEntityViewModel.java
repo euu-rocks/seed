@@ -19,14 +19,12 @@ package org.seed.ui.zk.vm.admin;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.seed.core.data.FieldAccess;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.SystemObject;
-import org.seed.core.data.ValidationError;
+import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityAccess;
@@ -910,13 +908,13 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	
 	private void validateMandatoryDefaultValues() throws ValidationException {
 		if (getObject().hasFields() && existValueObjects()) {
-			final Set<ValidationError> errors = new HashSet<>();
+			final ValidationErrors errors = new ValidationErrors();
 			for (EntityField entityField : getObject().getFields()) {
 				if (entityField.isMandatory() && !isAlreadyMandatory(entityField) &&
 					!entityField.getType().isAutonum() && !entityField.getType().isBinary() &&
 					!entityField.getType().isBoolean() && !entityField.getType().isFile() &&
 					!entityField.hasDefaultValue()) {
-					errors.add(new ValidationError("val.empty.default", entityField.getName()));
+					errors.addError("val.empty.default", entityField.getName());
 				}
 			}
 			if (!errors.isEmpty()) {

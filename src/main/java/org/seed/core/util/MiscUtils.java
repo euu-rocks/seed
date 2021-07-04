@@ -18,23 +18,32 @@
 package org.seed.core.util;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.InflaterOutputStream;
+
+import org.seed.InternalException;
 
 import org.springframework.core.io.Resource;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StreamUtils;
 
 public abstract class MiscUtils {
+	
+	public static final Charset CHARSET = StandardCharsets.UTF_8;
 	
 	private static final String USERNAME_SYSTEM = "system";
 	
@@ -96,24 +105,71 @@ public abstract class MiscUtils {
 	
 	public static String getFileAsText(File file) throws IOException {
 		try (InputStream inputStream = new FileInputStream(file)) {
-			return StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
+			return StreamUtils.copyToString(inputStream, CHARSET);
 		} 
 	}
 	
 	public static String getResourceAsText(Resource resource) throws IOException {
 		try (InputStream inputStream = resource.getInputStream()) {
-			return StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
+			return StreamUtils.copyToString(inputStream, CHARSET);
 		} 
 	}
 	
 	public static InputStream getStringAsStream(String string) {
-		return new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
+		return new ByteArrayInputStream(string.getBytes(CHARSET));
 	}
 	
-	public static boolean booleanProperty(String property) {
+	public static boolean booleanValue(String property) {
 		return "true".equalsIgnoreCase(property) ||
 			   "yes".equalsIgnoreCase(property) ||
+			   "on".equalsIgnoreCase(property) ||
 			   "1".equals(property);
+	}
+	
+	public static String compress(String text) {
+		if (text != null) {
+			try {
+				final byte[] compressedBytes = compress(text.getBytes(CHARSET));
+				return new String(Base64.getEncoder().encode(compressedBytes), CHARSET);
+			} 
+			catch (IOException ex) {
+				throw new InternalException(ex);
+			}
+		}
+		return text;
+	}
+	
+	public static String decompress(String compressedText) {
+		if (compressedText != null) {
+			try {
+				final byte[] decompressedBytes = decompress(Base64.getDecoder().decode(compressedText));
+				return new String(decompressedBytes, CHARSET);
+			} 
+			catch (IOException ex) {
+				throw new InternalException(ex);
+			}  
+		}
+		return compressedText;
+	}
+	
+	public static byte[] compress(byte[] bytes) throws IOException {
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		if (bytes != null) {
+			try (DeflaterOutputStream deflaterStream = new DeflaterOutputStream(out)) {
+		        deflaterStream.write(bytes);    
+		    }
+		}
+	    return out.toByteArray();
+	}
+	
+	public static byte[] decompress(byte[] bytes) throws IOException {
+	    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    if (bytes != null) {
+		    try (InflaterOutputStream inflaterStream = new InflaterOutputStream(out)) {
+		        inflaterStream.write(bytes);    
+		    }
+	    }
+	    return out.toByteArray();
 	}
 	
 }

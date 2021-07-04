@@ -17,12 +17,11 @@
  */
 package org.seed.core.task;
 
-import java.util.Set;
-
 import org.quartz.CronExpression;
+
 import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityValidator;
-import org.seed.core.data.ValidationError;
+import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
 
@@ -34,28 +33,28 @@ public class TaskValidator extends AbstractSystemEntityValidator<Task> {
 	@Override
 	public void validateSave(Task task) throws ValidationException {
 		Assert.notNull(task, C.TASK);
-		final Set<ValidationError> errors = createErrorList();
+		final ValidationErrors errors = new ValidationErrors();
 		
 		if (isEmpty(task.getName())) {
-			errors.add(ValidationError.emptyName());
+			errors.addEmptyName();
 		}
 		else if (!isNameLengthAllowed(task.getName())) {
-			errors.add(ValidationError.overlongName(getMaxNameLength()));
+			errors.addOverlongName(getMaxNameLength());
 		}
 		else if (!isNameAllowed(task.getInternalName())) {
-			errors.add(ValidationError.illegalField("label.name", task.getName()));
+			errors.addIllegalField("label.name", task.getName());
 		}
 		if (!isEmpty(task.getCronExpression())) {
 			if (task.getCronExpression().length() > getMaxStringLength()) {
-				errors.add(ValidationError.overlongField("label.cronexpression", getMaxStringLength()));
+				errors.addOverlongField("label.cronexpression", getMaxStringLength());
 			}
 			else if (!CronExpression.isValidExpression(task.getCronExpression())) {
-				errors.add(new ValidationError("val.illegal.cronexpression"));	
+				errors.addError("val.illegal.cronexpression");	
 			}
 		}
 		if (task.isActive()) {
 			if (isEmpty(task.getContent())) {
-				errors.add(ValidationError.emptyField("label.sourcecode"));
+				errors.addEmptyField("label.sourcecode");
 			}
 			validateTrigger(task, errors);
 		}
@@ -69,45 +68,44 @@ public class TaskValidator extends AbstractSystemEntityValidator<Task> {
 	}
 	
 	// check whether a cron expression or interval properties exist but not both
-	private void validateTrigger(Task task, Set<ValidationError> errors) {
+	private void validateTrigger(Task task, ValidationErrors errors) {
 		if (isEmpty(task.getCronExpression())) {
 			if (isEmpty(task.getRepeatInterval()) && !isEmpty(task.getRepeatIntervalUnit())) {
-				errors.add(ValidationError.emptyField("label.interval"));
+				errors.addEmptyField("label.interval");
 			}
 			if (isEmpty(task.getRepeatIntervalUnit()) && !isEmpty(task.getRepeatInterval())) {
-				errors.add(ValidationError.emptyField("label.intervalunit"));
+				errors.addEmptyField("label.intervalunit");
 			}
 		}
 		else if (!isEmpty(task.getRepeatInterval()) ||
 				 !isEmpty(task.getRepeatIntervalUnit())) {
-			errors.add(new ValidationError("val.ambiguous.tasktrigger"));
+			errors.addError("val.ambiguous.tasktrigger");
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void validateParameters(Task task, Set<ValidationError> errors) {
+	private void validateParameters(Task task, ValidationErrors errors) {
 		for (TaskParameter parameter : task.getParameters()) {
 			if (isEmpty(parameter.getName())) {
-				errors.add(ValidationError.emptyField("label.paramname"));
+				errors.addEmptyField("label.paramname");
 			}
 			else if (!isNameUnique(parameter.getName(), task.getParameters())) {
-				errors.add(new ValidationError("val.ambiguous.param", parameter.getName()));
+				errors.addError("val.ambiguous.param", parameter.getName());
 			}
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void validateNotifications(Task task, Set<ValidationError> errors) {
+	private void validateNotifications(Task task, ValidationErrors errors) {
 		for (TaskNotification notification : task.getNotifications()) {
 			if (isEmpty(notification.getUser())) {
-				errors.add(new ValidationError("val.empty.notificationfield", "label.user"));
+				errors.addError("val.empty.notificationfield", "label.user");
 			}
 			else if (!isUnique(notification.getUser(), "user", task.getNotifications())) {
-				errors.add(new ValidationError("val.ambiguous.notificationuser", 
-											   notification.getUser().getName()));
+				errors.addError("val.ambiguous.notificationuser", notification.getUser().getName());
 			}
 			if (isEmpty(notification.getResult())) {
-				errors.add(new ValidationError("val.empty.notificationfield", "label.result"));
+				errors.addError("val.empty.notificationfield", "label.result");
 			}
 		}
 	}

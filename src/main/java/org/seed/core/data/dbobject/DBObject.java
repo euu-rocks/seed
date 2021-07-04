@@ -29,4 +29,6 @@ public interface DBObject extends ApplicationEntity {
 	
 	String getContent();
 	
+	boolean contains(String text);
+	
 }

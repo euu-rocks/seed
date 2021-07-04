@@ -17,10 +17,8 @@
  */
 package org.seed.core.customcode;
 
-import java.util.Set;
-
 import org.seed.core.data.AbstractSystemEntityValidator;
-import org.seed.core.data.ValidationError;
+import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
 
@@ -32,19 +30,19 @@ public class CustomCodeValidator extends AbstractSystemEntityValidator<CustomCod
 	@Override
 	public void validateSave(CustomCode code) throws ValidationException {
 		Assert.notNull(code, "code");
-		final Set<ValidationError> errors = createErrorList();
+		final ValidationErrors errors = new ValidationErrors();
 		
 		if (isEmpty(code.getName())) {
-			errors.add(ValidationError.emptyName());
+			errors.addEmptyName();
 		}
 		else if (!isNameAllowed(code.getInternalName())) {
-			errors.add(ValidationError.illegalField("label.name", code.getName()));
+			errors.addIllegalField("label.name", code.getName());
 		}
 		else if (code.getName().length() > 512) {
-			errors.add(ValidationError.overlongName(512));
+			errors.addOverlongName(512);
 		}
 		if (isEmpty(code.getContent())) {
-			errors.add(ValidationError.emptyField("label.sourcecode"));
+			errors.addEmptyField("label.sourcecode");
 		}
 		
 		validate(errors);

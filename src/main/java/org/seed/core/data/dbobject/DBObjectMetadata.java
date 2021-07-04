@@ -74,6 +74,12 @@ public class DBObjectMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
+	public boolean contains(String text) {
+		return content != null && text != null &&
+			   content.toLowerCase().contains(text.toLowerCase());
+	}
+	
+	@Override
 	public boolean isEqual(Object other) {
 		if (other == null || !DBObject.class.isAssignableFrom(other.getClass())) {
 			return false;

@@ -18,12 +18,11 @@
 package org.seed.core.entity.transform;
 
 import java.util.List;
-import java.util.Set;
 
 import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.SystemEntity;
-import org.seed.core.data.ValidationError;
+import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
 
@@ -39,13 +38,13 @@ public class TransformerValidator extends AbstractSystemEntityValidator<Transfor
 	@Override
 	public void validateCreate(Transformer transformer) throws ValidationException {
 		Assert.notNull(transformer, C.TRANSFORMER);
-		final Set<ValidationError> errors = createErrorList();
+		final ValidationErrors errors = new ValidationErrors();
 		
 		if (isEmpty(transformer.getSourceEntity())) {
-			errors.add(ValidationError.emptyField("label.sourceentity"));
+			errors.addEmptyField("label.sourceentity");
 		}
 		if (isEmpty(transformer.getTargetEntity())) {
-			errors.add(ValidationError.emptyField("label.targetentity"));
+			errors.addEmptyField("label.targetentity");
 		}
 		
 		validate(errors);
@@ -54,23 +53,23 @@ public class TransformerValidator extends AbstractSystemEntityValidator<Transfor
 	@Override
 	public void validateSave(Transformer transformer) throws ValidationException {
 		Assert.notNull(transformer, C.TRANSFORMER);
-		final Set<ValidationError> errors = createErrorList();
+		final ValidationErrors errors = new ValidationErrors();
 		
 		if (isEmpty(transformer.getName())) {
-			errors.add(ValidationError.emptyName());
+			errors.addEmptyName();
 		}
 		else if (!isNameLengthAllowed(transformer.getName())) {
-			errors.add(ValidationError.overlongName(getMaxNameLength()));
+			errors.addOverlongName(getMaxNameLength());
 		}
 		
 		// elements
 		if (transformer.hasElements()) {
 			for (TransformerElement element : transformer.getElements()) {
 				if (isEmpty(element.getSourceField())) {
-					errors.add(new ValidationError("val.empty.elementfield", "label.sourcefield"));
+					errors.addError("val.empty.elementfield", "label.sourcefield");
 				}
 				if (isEmpty(element.getTargetField())) {
-					errors.add(new ValidationError("val.empty.elementfield", "label.targetfield"));
+					errors.addError("val.empty.elementfield", "label.targetfield");
 				}
 			}
 		}
@@ -81,12 +80,12 @@ public class TransformerValidator extends AbstractSystemEntityValidator<Transfor
 	@Override
 	public void validateDelete(Transformer transformer) throws ValidationException {
 		Assert.notNull(transformer, C.TRANSFORMER);
-		final Set<ValidationError> errors = createErrorList();
+		final ValidationErrors errors = new ValidationErrors();
 		
 		for (TransformerDependent<? extends SystemEntity> dependent : transformerDependents) {
 			for (SystemEntity systemEntity : dependent.findUsage(transformer)) {
 				if (C.FORM.equals(getEntityType(systemEntity))) {
-					errors.add(new ValidationError("val.inuse.transformform", systemEntity.getName()));
+					errors.addError("val.inuse.transformform", systemEntity.getName());
 				}
 				else {
 					unhandledEntity(systemEntity);

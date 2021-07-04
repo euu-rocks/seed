@@ -21,10 +21,10 @@ import javax.persistence.Table;
 
 import org.hibernate.dialect.PostgreSQL81Dialect;
 import org.seed.C;
-import org.seed.core.config.AbstractChangeLogBuilder;
-import org.seed.core.config.ChangeLog;
 import org.seed.core.config.Limits;
 import org.seed.core.config.SessionFactoryProvider;
+import org.seed.core.config.changelog.AbstractChangeLogBuilder;
+import org.seed.core.config.changelog.ChangeLog;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.FileObject;
 import org.seed.core.util.Assert;
@@ -74,6 +74,8 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	
 	@Override
 	public ChangeLog build() {
+		checkValid();
+		
 		// create table
 		if (currentVersionObject == null) {
 			addCreateTableChangeSet(nextVersionObject);

@@ -17,11 +17,9 @@
  */
 package org.seed.core.user;
 
-import java.util.Set;
-
 import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityValidator;
-import org.seed.core.data.ValidationError;
+import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
 
@@ -33,43 +31,43 @@ public class UserValidator extends AbstractSystemEntityValidator<User> {
 	@Override
 	public void validateSave(User user) throws ValidationException {
 		Assert.notNull(user, C.USER);
-		final Set<ValidationError> errors = createErrorList();
+		final ValidationErrors errors = new ValidationErrors();
 		
 		if (isEmpty(user.getName())) {
-			errors.add(ValidationError.emptyField("label.name"));
+			errors.addEmptyField("label.name");
 		}
 		else if (user.getName().length() > getLimit("user.name.length")) {
-			errors.add(ValidationError.overlongField("label.username", getLimit("user.name.length")));
+			errors.addOverlongField("label.username", getLimit("user.name.length"));
 		}
 		if (isEmpty(user.getEmail())) {
-			errors.add(ValidationError.emptyField("label.email"));
+			errors.addEmptyField("label.email");
 		}
 		else if (user.getEmail().length() > getMaxStringLength()) {
-			errors.add(ValidationError.overlongField("label.email", getMaxStringLength()));
+			errors.addOverlongField("label.email", getMaxStringLength());
 		}
 		if (user.getFirstname() != null &&
 			user.getFirstname().length() > getMaxStringLength()) {
-			errors.add(ValidationError.overlongField("label.firstname", getMaxStringLength()));
+			errors.addOverlongField("label.firstname", getMaxStringLength());
 		}
 		if (user.getLastname() != null &&
 			user.getLastname().length() > getMaxStringLength()) {
-			errors.add(ValidationError.overlongField("label.lastname", getMaxStringLength()));
+			errors.addOverlongField("label.lastname", getMaxStringLength());
 		}
 		
 		validate(errors);
 	}
 	
 	void validatePassword(String password, String passwordRepeated) throws ValidationException {
-		final Set<ValidationError> errors = createErrorList();
+		final ValidationErrors errors = new ValidationErrors();
 		
 		if (isEmpty(password)) {
-			errors.add(ValidationError.emptyField("label.password"));
+			errors.addEmptyField("label.password");
 		}
 		if (isEmpty(passwordRepeated)) {
-			errors.add(ValidationError.emptyField("label.passwordrepeated"));
+			errors.addEmptyField("label.passwordrepeated");
 		}
 		if (errors.isEmpty() && !password.equals(passwordRepeated)) {
-			errors.add(new ValidationError("val.ambiguous.password"));
+			errors.addError("val.ambiguous.password");
 		}
 		
 		validate(errors);

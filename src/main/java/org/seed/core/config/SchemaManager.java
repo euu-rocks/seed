@@ -31,7 +31,9 @@ import javax.persistence.Table;
 import javax.sql.DataSource;
 
 import org.hibernate.Session;
+
 import org.seed.InternalException;
+import org.seed.core.config.changelog.ChangeLog;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 
@@ -196,19 +198,17 @@ public class SchemaManager {
 	
 	private class StringResourceAccessor extends AbstractResourceAccessor {
 		
-		private final String string;
+		private final String text;
 		
-		private StringResourceAccessor(String string) {
-			Assert.notNull(string, "string");
-			
-			this.string = string;
+		private StringResourceAccessor(String text) {
+			this.text = text;
 		}
 
 		@Override
 		public InputStreamList openStreams(String relativeTo, String streamPath) throws IOException {
 			Assert.state(FILENAME_CHANGELOG.equals(streamPath), "unknown path: " + streamPath);
 			
-			return new InputStreamList(null, MiscUtils.getStringAsStream(string)); 
+			return new InputStreamList(null, MiscUtils.getStringAsStream(text)); 
 		}
 
 		@Override

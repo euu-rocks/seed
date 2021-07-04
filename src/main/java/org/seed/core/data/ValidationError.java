@@ -65,37 +65,5 @@ public class ValidationError implements Serializable {
 				.append(parameters, otherError.parameters)
 				.isEquals();
 	}
-	
-	public static ValidationError emptyName() {
-		return emptyField("label.name");
-	}
-	
-	public static ValidationError emptyField(String name) {
-		return new ValidationError("val.empty.field", name);
-	}
-	
-	public static ValidationError illegalField(String name, String value) {
-		return new ValidationError("val.illegal.field", name, value);
-	}
-	
-	public static ValidationError overlongName(int maxlength) {
-		return new ValidationError("val.toolong.name", String.valueOf(maxlength));
-	}
-	
-	public static ValidationError overlongField(String name, int maxlength) {
-		return new ValidationError("val.toolong.fieldvalue", name, String.valueOf(maxlength));
-	}
-	
-	public static ValidationError overlongObjectName(String objectName, int maxlength) {
-		return overlongObjectField("label.name", objectName, maxlength);
-	}
-	
-	public static ValidationError overlongObjectField(String fieldName, String objectName, int maxlength) {
-		return new ValidationError("val.toolong.objectfieldvalue", fieldName, objectName, String.valueOf(maxlength));
-	}
-	
-	public static ValidationError zeroField(String name) {
-		return new ValidationError("val.zero.field", name);
-	}
-	
+
 }

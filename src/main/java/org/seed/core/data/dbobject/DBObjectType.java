@@ -19,6 +19,9 @@ package org.seed.core.data.dbobject;
 
 public enum DBObjectType {
 	
-	VIEW
+	VIEW,
+	PROCEDURE,
+	FUNCTION,
+	TRIGGER;
 	
 }

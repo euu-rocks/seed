@@ -24,6 +24,7 @@ import java.util.List;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.SystemObject;
 import org.seed.core.data.ValidationError;
+import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
@@ -715,7 +716,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	public void addLayout(@BindingParam("elem") Component elem) {
 		try {
 			if (layoutType == null) {
-				throw new ValidationException(ValidationError.emptyField("label.layouttype"));
+				throw new ValidationException(new ValidationErrors().addEmptyField("label.layouttype"));
 			}
 			switch (layoutType) {
 				case BORDERLAYOUT:

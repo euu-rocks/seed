@@ -17,11 +17,9 @@
  */
 package org.seed.core.form.navigation;
 
-import java.util.Set;
-
 import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityValidator;
-import org.seed.core.data.ValidationError;
+import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
 
@@ -33,28 +31,28 @@ public class MenuValidator extends AbstractSystemEntityValidator<Menu> {
 	@Override
 	public void validateSave(Menu menu) throws ValidationException {
 		Assert.notNull(menu, C.MENU);
-		final Set<ValidationError> errors = createErrorList();
+		final ValidationErrors errors = new ValidationErrors();
 		
 		if (isEmpty(menu.getName())) {
-			errors.add(ValidationError.emptyName());
+			errors.addEmptyName();
 		}
 		else if (!isNameLengthAllowed(menu.getName())) {
-			errors.add(ValidationError.overlongName(getMaxNameLength()));
+			errors.addOverlongName(getMaxNameLength());
 		}
 		if (menu.getIcon() != null &&
 		    menu.getIcon().length() > getMaxStringLength()) {
-			errors.add(ValidationError.overlongField("label.icon", getMaxStringLength()));
+			errors.addOverlongField("label.icon", getMaxStringLength());
 		}
 		if (menu.hasSubMenus()) {
 			for (Menu subMenu : menu.getSubMenus()) {
 				if (isEmpty(subMenu.getName())) {
-					errors.add(new ValidationError("val.empty.menufield", "label.name"));
+					errors.addError("val.empty.menufield", "label.name");
 				}
 				else if (!isNameLengthAllowed(subMenu.getName())) {
-					errors.add(new ValidationError("val.toolong.name", String.valueOf(getMaxNameLength())));
+					errors.addError("val.toolong.name", String.valueOf(getMaxNameLength()));
 				}
 				if (isEmpty(subMenu.getForm())) {
-					errors.add(new ValidationError("val.empty.menufield", "label.form"));
+					errors.addError("val.empty.menufield", "label.form");
 				}
 			}
 		}

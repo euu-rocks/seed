@@ -17,12 +17,10 @@
  */
 package org.seed.core.application.module;
 
-import java.util.Set;
-
 import org.seed.C;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.data.AbstractSystemEntityValidator;
-import org.seed.core.data.ValidationError;
+import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityService;
@@ -75,7 +73,7 @@ public class ModuleValidator extends AbstractSystemEntityValidator<Module> {
 	
 	public void validateImport(Module module, Module existingModule) throws ValidationException {
 		Assert.notNull(module, C.MODULE);
-		final Set<ValidationError> errors = createErrorList();
+		final ValidationErrors errors = new ValidationErrors();
 		
 		// entities
 		if (module.getEntities() != null) {
@@ -117,22 +115,22 @@ public class ModuleValidator extends AbstractSystemEntityValidator<Module> {
 	@SuppressWarnings("unchecked")
 	public void validateSave(Module module) throws ValidationException {
 		Assert.notNull(module, C.MODULE);
-		final Set<ValidationError> errors = createErrorList();
+		final ValidationErrors errors = new ValidationErrors();
 		
 		if (isEmpty(module.getName())) {
-			errors.add(ValidationError.emptyName());
+			errors.addEmptyName();
 		}
 		else if (!isNameLengthAllowed(module.getName())) {
-			errors.add(ValidationError.overlongName(getMaxNameLength()));
+			errors.addOverlongName(getMaxNameLength());
 		}
 		
 		if (module.hasParameters()) {
 			for (ModuleParameter parameter : module.getParameters()) {
 				if (isEmpty(parameter.getName())) {
-					errors.add(ValidationError.emptyField("label.paramname"));
+					errors.addEmptyField("label.paramname");
 				}
 				else if (!isNameUnique(parameter.getName(), module.getParameters())) {
-					errors.add(new ValidationError("val.ambiguous.param", parameter.getName()));
+					errors.addError("val.ambiguous.param", parameter.getName());
 				}
 			}
 		}
@@ -140,74 +138,74 @@ public class ModuleValidator extends AbstractSystemEntityValidator<Module> {
 		validate(errors);
 	}
 	
-	private void validateEntities(Module module, Module existingModule, Set<ValidationError> errors) {
+	private void validateEntities(Module module, Module existingModule, ValidationErrors errors) {
 		for (Entity entity : module.getEntities()) {
 			final Entity existingEntity = entityService.findByName(entity.getName());
 			if (existingEntity != null && !checkModule(existingEntity, existingModule)) {
-				errors.add(new ValidationError("val.transfer.illegalentity", entity.getName(), module.getName()));
+				errors.addError("val.transfer.illegalentity", entity.getName(), module.getName());
 			}
 		}
 	}
 	
-	private void validateFilters(Module module, Module existingModule, Set<ValidationError> errors) {
+	private void validateFilters(Module module, Module existingModule, ValidationErrors errors) {
 		for (Filter filter : module.getFilters()) {
 			final Filter existingFilter = filterService.findByName(filter.getName());
 			if (existingFilter != null && !checkModule(existingFilter, existingModule)) {
-				errors.add(new ValidationError("val.transfer.illegalfilter", filter.getName(), module.getName()));
+				errors.addError("val.transfer.illegalfilter", filter.getName(), module.getName());
 			}
 		}
 	}
 	
-	private void validateTransformers(Module module, Module existingModule, Set<ValidationError> errors) {
+	private void validateTransformers(Module module, Module existingModule, ValidationErrors errors) {
 		for (Transformer transformer : module.getTransformers()) {
 			final Transformer existingTransformer = transformerService.findByName(transformer.getName());
 			if (existingTransformer != null && !checkModule(existingTransformer, existingModule)) {
-				errors.add(new ValidationError("val.transfer.illegaltransformer", transformer.getName(), module.getName()));
+				errors.addError("val.transfer.illegaltransformer", transformer.getName(), module.getName());
 			}
 		}
 	}
 	
-	private void validateTransfers(Module module, Module existingModule, Set<ValidationError> errors) {
+	private void validateTransfers(Module module, Module existingModule, ValidationErrors errors) {
 		for (Transfer transfer : module.getTransfers()) {
 			final Transfer existingTransfer = transferService.findByName(transfer.getName());
 			if (existingTransfer != null && !checkModule(existingTransfer, existingModule)) {
-				errors.add(new ValidationError("val.transfer.illegaltransfer", transfer.getName(), module.getName()));
+				errors.addError("val.transfer.illegaltransfer", transfer.getName(), module.getName());
 			}
 		}
 	}
 	
-	private void validateForms(Module module, Module existingModule, Set<ValidationError> errors) {
+	private void validateForms(Module module, Module existingModule, ValidationErrors errors) {
 		for (Form form : module.getForms()) {
 			final Form existingForm = formService.findByName(form.getName());
 			if (existingForm != null && !checkModule(existingForm, existingModule)) {
-				errors.add(new ValidationError("val.transfer.illegalform", form.getName(), module.getName()));
+				errors.addError("val.transfer.illegalform", form.getName(), module.getName());
 			}
 		}
 	}
 	
-	private void validateMenus(Module module, Module existingModule, Set<ValidationError> errors) {
+	private void validateMenus(Module module, Module existingModule, ValidationErrors errors) {
 		for (Menu menu : module.getMenus()) {
 			final Menu existingMenu = menuService.findByName(menu.getName());
 			if (existingMenu != null && !checkModule(existingMenu, existingModule)) {
-				errors.add(new ValidationError("val.transfer.illegalmenu", menu.getName(), module.getName()));
+				errors.addError("val.transfer.illegalmenu", menu.getName(), module.getName());
 			}
 		}
 	}
 	
-	private void validateTasks(Module module, Module existingModule, Set<ValidationError> errors) {
+	private void validateTasks(Module module, Module existingModule, ValidationErrors errors) {
 		for (Task task : module.getTasks()) {
 			final Task existingTask = taskService.findByName(task.getName());
 			if (existingTask != null && !checkModule(existingTask, existingModule)) {
-				errors.add(new ValidationError("val.transfer.illegaltask", task.getName(), module.getName()));
+				errors.addError("val.transfer.illegaltask", task.getName(), module.getName());
 			}
 		}
 	}
 	
-	private void validateUserGroups(Module module, Module existingModule, Set<ValidationError> errors) {
+	private void validateUserGroups(Module module, Module existingModule, ValidationErrors errors) {
 		for (UserGroup group : module.getUserGroups()) {
 			final UserGroup existingGroup = userGroupService.findByName(group.getName());
 			if (existingGroup != null && !checkModule(existingGroup, existingModule)) {
-				errors.add(new ValidationError("val.transfer.illegalusergroup", group.getName(), module.getName()));
+				errors.addError("val.transfer.illegalusergroup", group.getName(), module.getName());
 			}
 		}
 	}

@@ -17,11 +17,9 @@
  */
 package org.seed.core.report;
 
-import java.util.Set;
-
 import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityValidator;
-import org.seed.core.data.ValidationError;
+import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.data.datasource.IDataSource;
 import org.seed.core.data.datasource.DataSourceParameter;
@@ -34,7 +32,7 @@ public class ReportValidator extends AbstractSystemEntityValidator<Report> {
 	
 	public void validateGenerate(Report report) throws ValidationException {
 		Assert.notNull(report, C.REPORT);
-		final Set<ValidationError> errors = createErrorList();
+		final ValidationErrors errors = new ValidationErrors();
 		
 		if (report.hasDataSources()) {
 			for (ReportDataSource reportDataSource : report.getDataSources()) {
@@ -42,9 +40,7 @@ public class ReportValidator extends AbstractSystemEntityValidator<Report> {
 				if (dataSource.hasParameters()) {
 					for (DataSourceParameter parameter : dataSource.getParameters()) {
 						if (isEmpty(parameter.getValue())) {
-							errors.add(new ValidationError("val.empty.parameter", 
-														   parameter.getName(),
-														   dataSource.getName()));
+							errors.addError("val.empty.parameter", parameter.getName(), dataSource.getName());
 						}
 					}
 				}
@@ -57,23 +53,23 @@ public class ReportValidator extends AbstractSystemEntityValidator<Report> {
 	@Override
 	public void validateSave(Report report) throws ValidationException {
 		Assert.notNull(report, C.REPORT);
-		final Set<ValidationError> errors = createErrorList();
+		final ValidationErrors errors = new ValidationErrors();
 		
 		if (isEmpty(report.getName())) {
-			errors.add(ValidationError.emptyName());
+			errors.addEmptyName();
 		}
 		else if (!isNameLengthAllowed(report.getName())) {
-			errors.add(ValidationError.overlongName(getMaxNameLength()));
+			errors.addOverlongName(getMaxNameLength());
 		}
 		
 		if (report.hasDataSources()) {
 			for (ReportDataSource dataSource : report.getDataSources()) {
 				if (isEmpty(dataSource.getDataSource())) {
-					errors.add(ValidationError.emptyField("label.datasource"));
+					errors.addEmptyField("label.datasource");
 				}
 				if (dataSource.getLabel() != null &&
 					dataSource.getLabel().length() > getMaxStringLength()) {
-					errors.add(ValidationError.overlongObjectField("label.label", "label.datasource", getMaxStringLength()));
+					errors.addOverlongObjectField("label.label", "label.datasource", getMaxStringLength());
 				}
 			}
 		}
