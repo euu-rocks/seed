@@ -398,8 +398,8 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
-	public void initUids() {
-		super.initUids();
+	public void initUid() {
+		super.initUid();
 		initUids(getElements());
 		initUids(getFunctions());
 	}

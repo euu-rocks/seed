@@ -176,8 +176,8 @@ public class DataSourceMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
-	public void initUids() {
-		super.initUids();
+	public void initUid() {
+		super.initUid();
 		initUids(getParameters());
 	}
 	

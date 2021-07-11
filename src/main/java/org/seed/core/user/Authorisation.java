@@ -28,17 +28,17 @@ public enum Authorisation {
 	ADMIN_DATASOURCE,
 	ADMIN_REPORT,
 	ADMIN_SOURCECODE,
+	ADMIN_REST,
 	ADMIN_MODULE,
 	ADMIN_SETTINGS,
 	
 	RUN_JOBS,
 	PRINT_REPORTS,
-	SEARCH_FULLTEXT;
-	
-	private static final String ROLE_PREFIX = "ROLE_";
+	SEARCH_FULLTEXT,
+	CALL_REST;
 	
 	String roleName() {
-		return ROLE_PREFIX.concat(name());
+		return "ROLE_" + name();
 	}
 	
 }

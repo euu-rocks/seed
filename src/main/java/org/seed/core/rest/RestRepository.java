@@ -15,33 +15,17 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.config;
+package org.seed.core.rest;
 
-/**
- * For schema update, a new version must be added 
- * and a new file named system-update-<Version>.json 
- * must be created in the folder resources/liquibase
- * that contains a changeset 
- * (e.g. V_1_01 -> system-update-V_1_01.json)
- */
-public enum SchemaVersion {
-	
-	V_0_90; // add new versions below
-	
-	static boolean existUpdates() {
-		return values().length > 1;
+import org.seed.core.data.AbstractSystemEntityRepository;
+
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class RestRepository extends AbstractSystemEntityRepository<Rest> {
+
+	protected RestRepository() {
+		super(RestMetadata.class);
 	}
-	
-	static SchemaVersion getVersion(int idx) {
-		return values()[idx];
-	}
-	
-	static SchemaVersion firstVersion() {
-		return getVersion(0);
-	}
-	
-	static SchemaVersion lastVersion() {
-		return getVersion(values().length - 1);
-	}
-	
+
 }

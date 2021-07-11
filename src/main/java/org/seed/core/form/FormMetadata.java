@@ -890,8 +890,8 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	}
 	
 	@Override
-	public void initUids() {
-		super.initUids();
+	public void initUid() {
+		super.initUid();
 		initUids(getFields());
 		initUids(getFieldExtras());
 		initUids(getActions());

@@ -105,7 +105,7 @@ public abstract class AbstractApplicationEntity extends AbstractSystemEntity
 		return null;
 	}
 	
-	protected void initUids() {
+	protected void initUid() {
 		initUid(this);
 	}
 	

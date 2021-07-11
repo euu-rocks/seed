@@ -32,7 +32,6 @@ import javax.sql.DataSource;
 
 import org.hibernate.Session;
 
-import org.seed.InternalException;
 import org.seed.core.config.changelog.ChangeLog;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
@@ -110,7 +109,8 @@ public class SchemaManager {
 	void updateSchema() {
 		final long startTime = System.currentTimeMillis();
 		try (Connection connection = dataSource.getConnection()) {
-			final String changeLog = getChangeLog(loadCustomChangeSets(connection));
+			final String customChangeSets = loadCustomChangeSets(connection);
+			final String changeLog = replaceLimits(systemChangeLog.replace("<#CHANGE_SETS#>", customChangeSets));
 			log.debug("changelog content:\r\n{}", changeLog);
 			createLiquibase(connection, changeLog).update(new Contexts());
 		} 
@@ -122,18 +122,16 @@ public class SchemaManager {
 		}
 	}
 	
-	private String getChangeLog(String customChangeSets) {
-		return systemChangeLog
-				.replace("<#UID_LEN#>", String.valueOf(limits.getLimit("field.uid.length")))
-				.replace("<#IDENT_LEN#>", String.valueOf(limits.getLimit("entity.identifier.length")))
-				.replace("<#STRING_LEN#>", String.valueOf(limits.getLimit("entity.stringfield.length")))
-				.replace("<#USERNAME_LEN#>", String.valueOf(limits.getLimit("user.name.length")))
-				.replace("<#USERROLE_LEN#>", String.valueOf(limits.getLimit("user.role.length")))
-				.replace("<#PWD_LEN#>", String.valueOf(limits.getLimit("user.pwd.length")))
-				.replace("<#PARAMNAME_LEN#>", String.valueOf(limits.getLimit("parameter.name.length")))
-				.replace("<#PARAM_LEN#>", String.valueOf(limits.getLimit("parameter.value.length")))
-				.replace("<#BLOB_TYPE#>", isPostgres() ? "bytea" : "BLOB")
-				.replace("<#CHANGE_SETS#>", customChangeSets);
+	private String replaceLimits(String text) {
+		return text.replace("<#UID_LEN#>", String.valueOf(limits.getLimit("field.uid.length")))
+				   .replace("<#IDENT_LEN#>", String.valueOf(limits.getLimit("entity.identifier.length")))
+				   .replace("<#STRING_LEN#>", String.valueOf(limits.getLimit("entity.stringfield.length")))
+				   .replace("<#USERNAME_LEN#>", String.valueOf(limits.getLimit("user.name.length")))
+				   .replace("<#USERROLE_LEN#>", String.valueOf(limits.getLimit("user.role.length")))
+				   .replace("<#PWD_LEN#>", String.valueOf(limits.getLimit("user.pwd.length")))
+				   .replace("<#PARAMNAME_LEN#>", String.valueOf(limits.getLimit("parameter.name.length")))
+				   .replace("<#PARAM_LEN#>", String.valueOf(limits.getLimit("parameter.value.length")))
+				   .replace("<#BLOB_TYPE#>", isPostgres() ? "bytea" : "BLOB");
 	}
 	
 	private String loadCustomChangeSets(Connection connection) throws SQLException {
@@ -158,14 +156,14 @@ public class SchemaManager {
 			return MiscUtils.getResourceAsText(resourceLoader.getResource(resourceName));
 		} 
 		catch (Exception ex) {
-			throw new ConfigurationException("failed to load " + resourceName, ex);
+			throw new ConfigurationException("failed to load: " + resourceName, ex);
 		}
 	}
 	
 	private boolean existChangeLogTable(Connection connection) throws SQLException {
 		try (ResultSet resultSet = connection.getMetaData().getTables(null, null, 
 																	  TABLE_CHANGELOG, 
-																	  new String[] {"TABLE"})) {
+																	  new String[] { "TABLE" })) {
 			while (resultSet.next()) { 
 				if (TABLE_CHANGELOG.equalsIgnoreCase(resultSet.getString("TABLE_NAME"))) {
 					return true;
@@ -180,14 +178,15 @@ public class SchemaManager {
 			try (Connection con = dataSource.getConnection()) {
 				isPostgres = DriverManager.getDriver(con.getMetaData().getURL())
 										  .getClass().getName().contains("postgresql");
-			} catch (SQLException ex) {
-				throw new InternalException(ex);
+			} 
+			catch (Exception ex) {
+				throw new ConfigurationException("postgres detection failed", ex);
 			}
 		}
 		return isPostgres;
 	}
 	
-	private Liquibase createLiquibase(Connection connection, String changeLogAsString) 
+	private static Liquibase createLiquibase(Connection connection, String changeLogAsString) 
 			throws LiquibaseException {
 		final Database database = DatabaseFactory.getInstance()
 				.findCorrectDatabaseImplementation(new JdbcConnection(connection));
@@ -196,7 +195,7 @@ public class SchemaManager {
 							 database);
 	}
 	
-	private class StringResourceAccessor extends AbstractResourceAccessor {
+	private static class StringResourceAccessor extends AbstractResourceAccessor {
 		
 		private final String text;
 		

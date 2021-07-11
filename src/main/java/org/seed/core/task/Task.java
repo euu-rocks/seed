@@ -24,7 +24,8 @@ import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApprovableObject;
 import org.seed.core.codegen.GeneratedObject;
 
-public interface Task extends ApplicationEntity, GeneratedObject, ApprovableObject<TaskPermission> {
+public interface Task 
+	extends ApplicationEntity, GeneratedObject, ApprovableObject<TaskPermission> {
 	
 	String getInternalName();
 	

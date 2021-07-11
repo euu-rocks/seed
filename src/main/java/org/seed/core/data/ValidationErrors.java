@@ -18,7 +18,6 @@
 package org.seed.core.data;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -26,15 +25,7 @@ public class ValidationErrors implements Serializable {
 
 	private static final long serialVersionUID = 5038795516523393867L;
 	
-	private final Set<ValidationError> errors;
-	
-	public ValidationErrors() {
-		errors = new LinkedHashSet<>();
-	}
-	
-	public ValidationErrors(ValidationError error) {
-		errors = Collections.singleton(error);
-	}
+	private final Set<ValidationError> errors = new LinkedHashSet<>();
 	
 	Set<ValidationError> getErrors() {
 		return errors;

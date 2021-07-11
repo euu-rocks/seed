@@ -198,8 +198,8 @@ public class MenuMetadata extends AbstractApplicationEntity implements Menu {
 	}
 	
 	@Override
-	public void initUids() {
-		super.initUids();
+	public void initUid() {
+		super.initUid();
 		initUids(getChildren());
 	}
 

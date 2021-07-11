@@ -2075,7 +2075,7 @@
                },
                {
                   "addUniqueConstraint": {
-                     "columnNames": "name",
+                     "columnNames": "entity_id,name",
                      "constraintName": "uni_sys_entity_transfer",
                      "tableName": "sys_entity_transfer"
                   }
@@ -4836,7 +4836,7 @@
                },
                {
                   "addUniqueConstraint": {
-                     "columnNames": "label",
+                     "columnNames": "report_id,label",
                      "constraintName": "uni_sys_report_datasource",
                      "tableName": "sys_report_datasource"
                   }
@@ -5412,6 +5412,310 @@
                }
             ]
         }
+     },
+    {
+    "changeSet": {
+        "id": "system rest",
+        "author": "seed",
+        "changes": [
+           {
+              "createTable": {
+                 "tableName": "sys_rest",
+                 "columns": [
+                   {
+                       "column": {
+                          "name": "id",
+                          "type": "BIGINT",
+                          "constraints": {
+                              "primaryKey": "true",
+                              "primaryKeyName": "pk_sys_rest"
+                          }
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "uid",
+                          "type": "VARCHAR(<#UID_LEN#>)",
+                          "constraints": {
+                              "nullable": "false"
+                          }
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "createdby",
+                          "type": "VARCHAR(<#USERNAME_LEN#>)"
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "createdon",
+                          "type": "DATETIME"
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "modifiedby",
+                          "type": "VARCHAR(<#USERNAME_LEN#>)"
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "modifiedon",
+                          "type": "DATETIME"
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "version",
+                          "type": "INT",
+                          "constraints": {
+                              "nullable": "false"
+                          }
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "module_id",
+                          "type": "BIGINT"
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "name",
+                          "type": "VARCHAR(<#IDENT_LEN#>)",
+                          "constraints": {
+                              "nullable": "false"
+                          }
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "mapping",
+                          "type": "VARCHAR(<#IDENT_LEN#>)",
+                          "constraints": {
+                              "nullable": "false"
+                          }
+                       }
+                   }
+                ]
+              }
+           },
+           {
+              "addUniqueConstraint": {
+                 "columnNames": "name",
+                 "constraintName": "uni_sys_rest_name",
+                 "tableName": "sys_rest"
+              }
+           },
+           {
+              "addUniqueConstraint": {
+                 "columnNames": "mapping",
+                 "constraintName": "uni_sys_rest_mapping",
+                 "tableName": "sys_rest"
+              }
+           },
+           {
+              "createTable": {
+                 "tableName": "sys_rest_mapping",
+                 "columns": [
+                   {
+                       "column": {
+                          "name": "id",
+                          "type": "BIGINT",
+                          "constraints": {
+                              "primaryKey": "true",
+                              "primaryKeyName": "pk_sys_rest_mapping"
+                          }
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "uid",
+                          "type": "VARCHAR(<#UID_LEN#>)",
+                          "constraints": {
+                              "nullable": "false"
+                          }
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "createdby",
+                          "type": "VARCHAR(<#USERNAME_LEN#>)"
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "createdon",
+                          "type": "DATETIME"
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "modifiedby",
+                          "type": "VARCHAR(<#USERNAME_LEN#>)"
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "modifiedon",
+                          "type": "DATETIME"
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "version",
+                          "type": "INT",
+                          "constraints": {
+                              "nullable": "false"
+                          }
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "rest_id",
+                          "type": "BIGINT",
+                          "constraints": {
+                              "nullable": "false"
+                          }
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "name",
+                          "type": "VARCHAR(<#IDENT_LEN#>)",
+                          "constraints": {
+                              "nullable": "false"
+                          }
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "mapping",
+                          "type": "VARCHAR(<#IDENT_LEN#>)",
+                          "constraints": {
+                              "nullable": "false"
+                          }
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "type",
+                          "type": "INT",
+                          "constraints": {
+                              "nullable": "false"
+                          }
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "content",
+                          "type": "CLOB"
+                       }
+                   }
+                ]
+              }
+           },
+           {
+              "addUniqueConstraint": {
+                 "columnNames": "rest_id,name",
+                 "constraintName": "uni_sys_rest_mapping_name",
+                 "tableName": "sys_rest_mapping"
+              }
+           },
+           {
+              "addUniqueConstraint": {
+                 "columnNames": "rest_id,mapping",
+                 "constraintName": "uni_sys_rest_mapping_mapping",
+                 "tableName": "sys_rest_mapping"
+              }
+           },
+           {
+              "createTable": {
+                 "tableName": "sys_rest_permission",
+                 "columns": [
+                   {
+                       "column": {
+                          "name": "id",
+                          "type": "BIGINT",
+                          "constraints": {
+                              "primaryKey": "true",
+                              "primaryKeyName": "pk_sys_rest_permission"
+                          }
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "uid",
+                          "type": "VARCHAR(<#UID_LEN#>)",
+                          "constraints": {
+                              "nullable": "false"
+                          }
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "createdby",
+                          "type": "VARCHAR(<#USERNAME_LEN#>)"
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "createdon",
+                          "type": "DATETIME"
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "modifiedby",
+                          "type": "VARCHAR(<#USERNAME_LEN#>)"
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "modifiedon",
+                          "type": "DATETIME"
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "version",
+                          "type": "INT",
+                          "constraints": {
+                              "nullable": "false"
+                          }
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "rest_id",
+                          "type": "BIGINT",
+                          "constraints": {
+                              "nullable": "false"
+                          }
+                       }
+                   },
+                   {
+                       "column": {
+                          "name": "usergroup_id",
+                          "type": "BIGINT",
+                          "constraints": {
+                              "nullable": "false"
+                          }
+                       }
+                   }
+                 ]
+              }
+           },
+           {
+              "addUniqueConstraint": {
+                 "columnNames": "rest_id,usergroup_id",
+                 "constraintName": "uni_sys_rest_permission",
+                 "tableName": "sys_rest_permission"
+              }
+           }
+        ]
+    }
      },
      {
         "changeSet": {
@@ -6731,6 +7035,48 @@
                      "onUpdate": "NO ACTION",
                      "referencedColumnNames": "id",
                      "referencedTableName": "sys_module",
+                     "validate": "true"
+                  }
+               },
+               {
+                  "addForeignKeyConstraint": {
+                     "baseColumnNames": "rest_id",
+                     "baseTableName": "sys_rest_mapping",
+                     "constraintName": "fk_sys_rest_mapping_rest",
+                     "deferrable": "false",
+                     "initiallyDeferred": "false",
+                     "onDelete": "NO ACTION",
+                     "onUpdate": "NO ACTION",
+                     "referencedColumnNames": "id",
+                     "referencedTableName": "sys_rest",
+                     "validate": "true"
+                  }
+               },
+               {
+                  "addForeignKeyConstraint": {
+                     "baseColumnNames": "rest_id",
+                     "baseTableName": "sys_rest_permission",
+                     "constraintName": "fk_sys_rest_permission_rest",
+                     "deferrable": "false",
+                     "initiallyDeferred": "false",
+                     "onDelete": "NO ACTION",
+                     "onUpdate": "NO ACTION",
+                     "referencedColumnNames": "id",
+                     "referencedTableName": "sys_rest",
+                     "validate": "true"
+                  }
+               },
+               {
+                  "addForeignKeyConstraint": {
+                     "baseColumnNames": "usergroup_id",
+                     "baseTableName": "sys_rest_permission",
+                     "constraintName": "fk_sys_rest_permission_group",
+                     "deferrable": "false",
+                     "initiallyDeferred": "false",
+                     "onDelete": "NO ACTION",
+                     "onUpdate": "NO ACTION",
+                     "referencedColumnNames": "id",
+                     "referencedTableName": "sys_usergroup",
                      "validate": "true"
                   }
                }

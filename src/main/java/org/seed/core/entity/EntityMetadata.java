@@ -1047,8 +1047,8 @@ public class EntityMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
-	public void initUids() {
-		super.initUids();
+	public void initUid() {
+		super.initUid();
 		initUids(getFields());
 		initUids(getFieldGroups());
 		initUids(getNesteds());

@@ -65,7 +65,8 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 		if (isEmpty(dbObject.getContent())) {
 			errors.addEmptyField("label.sqlstatement");
 		}
-		else if (!dbObject.contains(dbObject.getInternalName())) {
+		else if (dbObject.getType() != null && dbObject.getType() != DBObjectType.VIEW && 
+				!dbObject.contains(dbObject.getInternalName())) {
 			errors.addNotContains(dbObject.getInternalName());
 		}
 		if (errors.isEmpty()) {

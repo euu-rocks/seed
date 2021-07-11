@@ -29,8 +29,6 @@ import org.seed.core.user.User;
 public interface Entity 
 	extends ApplicationEntity, GeneratedObject, ApprovableObject<EntityPermission> {
 	
-	String getInternalName();
-	
 	boolean isGeneric();
 	
 	boolean hasFields();

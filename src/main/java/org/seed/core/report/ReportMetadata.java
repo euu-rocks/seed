@@ -196,8 +196,8 @@ public class ReportMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
-	public void initUids() {
-		super.initUids();
+	public void initUid() {
+		super.initUid();
 		initUids(getDataSources());
 		initUids(getPermissions());
 	}

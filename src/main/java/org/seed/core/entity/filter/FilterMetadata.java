@@ -190,8 +190,8 @@ public class FilterMetadata extends AbstractApplicationEntity implements Filter 
 	}
 	
 	@Override
-	public void initUids() {
-		super.initUids();
+	public void initUid() {
+		super.initUid();
 		initUids(getCriteria());
 	} 
 	

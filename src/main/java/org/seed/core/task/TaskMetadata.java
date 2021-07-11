@@ -374,8 +374,8 @@ public class TaskMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
-	public void initUids() {
-		super.initUids();
+	public void initUid() {
+		super.initUid();
 		initUids(getParameters());
 		initUids(getPermissions());
 	}

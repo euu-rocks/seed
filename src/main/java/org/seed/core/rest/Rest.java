@@ -15,33 +15,25 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.config;
+package org.seed.core.rest;
 
-/**
- * For schema update, a new version must be added 
- * and a new file named system-update-<Version>.json 
- * must be created in the folder resources/liquibase
- * that contains a changeset 
- * (e.g. V_1_01 -> system-update-V_1_01.json)
- */
-public enum SchemaVersion {
+import java.util.List;
+
+import org.seed.core.application.ApplicationEntity;
+import org.seed.core.application.ApprovableObject;
+import org.seed.core.codegen.GeneratedObject;
+
+public interface Rest
+	extends ApplicationEntity, GeneratedObject, ApprovableObject<RestPermission> {
 	
-	V_0_90; // add new versions below
+	String getMapping();
 	
-	static boolean existUpdates() {
-		return values().length > 1;
-	}
+	boolean hasMappings();
 	
-	static SchemaVersion getVersion(int idx) {
-		return values()[idx];
-	}
+	List<RestMapping> getMappings();
 	
-	static SchemaVersion firstVersion() {
-		return getVersion(0);
-	}
+	RestMapping getMappingByUid(String uid);
 	
-	static SchemaVersion lastVersion() {
-		return getVersion(values().length - 1);
-	}
+	RestPermission getPermissionByUid(String uid);
 	
 }

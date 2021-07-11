@@ -83,7 +83,7 @@ public abstract class AbstractApplicationEntityService<T extends ApplicationEnti
 	public void saveObject(T object, Session session) throws ValidationException {
 		Assert.notNull(object, C.OBJECT);
 		
-		((AbstractApplicationEntity) object).initUids();
+		((AbstractApplicationEntity) object).initUid();
 		super.saveObject(object, session);
 	}
 	
