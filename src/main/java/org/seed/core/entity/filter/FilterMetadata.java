@@ -35,7 +35,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.seed.C;
+
 import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityMetadata;
@@ -133,7 +133,7 @@ public class FilterMetadata extends AbstractApplicationEntity implements Filter 
 	
 	@Override
 	public void addCriterion(FilterCriterion criterion) {
-		Assert.notNull(criterion, C.CRITERION);
+		Assert.notNull(criterion, "criterion");
 		
 		criterion.setFilter(this);
 		if (criteria == null) {
@@ -144,7 +144,7 @@ public class FilterMetadata extends AbstractApplicationEntity implements Filter 
 	
 	@Override
 	public void removeCriterion(FilterCriterion criterion) {
-		Assert.notNull(criterion, C.CRITERION);
+		Assert.notNull(criterion, "criterion");
 		
 		getCriteria().remove(criterion);
 	}

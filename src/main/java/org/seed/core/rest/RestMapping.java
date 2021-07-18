@@ -30,11 +30,17 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.core.application.AbstractContentObject;
+import org.seed.core.codegen.GeneratedObject;
+
+import org.springframework.util.StringUtils;
 
 @Entity
 @Table(name = "sys_rest_mapping")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class RestMapping extends AbstractContentObject {
+public class RestMapping extends AbstractContentObject
+	implements GeneratedObject {
+	
+	static final String PACKAGE_NAME = "org.seed.generated.rest";
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rest_id")
@@ -49,8 +55,8 @@ public class RestMapping extends AbstractContentObject {
 		return rest;
 	}
 
-	public void setRest(RestMetadata rest) {
-		this.rest = rest;
+	public void setRest(Rest rest) {
+		this.rest = (RestMetadata) rest;
 	}
 
 	@XmlAttribute
@@ -86,6 +92,16 @@ public class RestMapping extends AbstractContentObject {
 				.append(method, otherMapping.getMethod())
 				.append(getContent(), otherMapping.getContent())
 				.isEquals();
+	}
+
+	@Override
+	public String getGeneratedPackage() {
+		return PACKAGE_NAME + '.' + rest.getInternalName();
+	}
+
+	@Override
+	public String getGeneratedClass() {
+		return StringUtils.capitalize(getInternalName());
 	}
 
 }

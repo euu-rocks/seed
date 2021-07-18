@@ -19,6 +19,8 @@ package org.seed.ui.zk.vm.admin;
 
 import java.util.List;
 
+import org.seed.core.application.ContentObject;
+import org.seed.core.codegen.SourceCode;
 import org.seed.core.data.SystemObject;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityService;
@@ -595,6 +597,11 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	@GlobalCommand
 	public void globalRefreshObject(@BindingParam("param") Long objectId) {
 		refreshObject(objectId);
+	}
+	
+	@Override
+	protected SourceCode getSourceCode(ContentObject contentObject) {
+		throw new UnsupportedOperationException();
 	}
 	
 	void setLayout(LayoutElement layoutRoot) {

@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.seed.core.application.ContentObject;
+import org.seed.core.codegen.SourceCode;
 import org.seed.core.data.FieldAccess;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.SystemObject;
@@ -39,6 +41,8 @@ import org.seed.core.entity.EntityStatusTransitionPermission;
 import org.seed.core.entity.EntityFieldConstraint;
 import org.seed.core.entity.EntityFieldGroup;
 import org.seed.core.entity.NestedEntity;
+import org.seed.core.entity.codegen.EntityFunctionCodeProvider;
+import org.seed.core.entity.codegen.EntitySourceCodeProvider;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.entity.value.ValueObjectService;
 import org.seed.core.form.FormOptions;
@@ -89,6 +93,12 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	
 	@WireVariable(value="valueObjectServiceImpl")
 	private ValueObjectService valueObjectService;
+	
+	@WireVariable(value="entitySourceCodeProvider")
+	private EntitySourceCodeProvider entitySourceCodeProvider;
+	
+	@WireVariable(value="entityFunctionCodeProvider")
+	private EntityFunctionCodeProvider entityFunctionCodeProvider;
 	
 	private EntityField field;
 	
@@ -603,12 +613,19 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	
 	@Command
 	public void editFunction() {
-		showCodeDialog(new CodeDialogParameter(this, function));
+		editFunction(function);
 	}
 	
 	@Command
 	public void editCallbackFunction() {
-		showCodeDialog(new CodeDialogParameter(this, callbackFunction));
+		editFunction(callbackFunction);
+	}
+	
+	private void editFunction(EntityFunction function) {
+		if (function.getContent() == null) {
+			function.setContent(entityFunctionCodeProvider.getFunctionTemplate(function));
+		}
+		showCodeDialog(new CodeDialogParameter(this, function));
 	}
 	
 	@Command
@@ -778,10 +795,9 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
-	@Override
 	public void flagDirty(@BindingParam("notify") String notify, 
 						  @BindingParam("notifyObject") String notifyObject) {
-		super.flagDirty(notify, notifyObject);
+		super.flagDirty(notify, null, notifyObject);
 	}
 	
 	@Command
@@ -920,6 +936,17 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 			if (!errors.isEmpty()) {
 				throw new ValidationException(errors);
 			}
+		}
+	}
+
+	@Override
+	protected SourceCode getSourceCode(ContentObject contentObject) {
+		final EntityFunction function = (EntityFunction) contentObject;
+		if (function.isCallback()) {
+			return entityFunctionCodeProvider.getFunctionSource(function);
+		}
+		else {
+			return entitySourceCodeProvider.getEntitySource(getObject());
 		}
 	}
 

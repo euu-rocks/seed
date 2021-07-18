@@ -25,6 +25,8 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.JobListener;
 
+import org.seed.core.application.ContentObject;
+import org.seed.core.codegen.SourceCode;
 import org.seed.core.config.JobScheduler;
 import org.seed.core.data.SystemObject;
 import org.seed.core.task.AbstractJob;
@@ -37,6 +39,7 @@ import org.seed.core.task.TaskPermission;
 import org.seed.core.task.TaskResult;
 import org.seed.core.task.TaskRun;
 import org.seed.core.task.TaskService;
+import org.seed.core.task.codegen.TaskCodeProvider;
 import org.seed.core.user.Authorisation;
 import org.seed.core.user.User;
 import org.seed.core.util.MiscUtils;
@@ -66,6 +69,9 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	
 	@WireVariable(value="taskServiceImpl")
 	private TaskService taskService;
+	
+	@WireVariable(value="taskCodeProvider")
+	private TaskCodeProvider taskCodeProvider;
 	
 	@WireVariable(value="jobScheduler")
 	private JobScheduler jobScheduler;
@@ -263,6 +269,9 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	
 	@Command
 	public void editCode() {
+		if (getObject().getContent() == null) {
+			getObject().setContent(taskCodeProvider.getFunctionTemplate(getObject()));
+		}
 		showCodeDialog(new CodeDialogParameter(this, getObject()));
 	}
 	
@@ -313,10 +322,9 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	}
 	
 	@Command
-	@Override
 	public void flagDirty(@BindingParam("notify") String notify, 
 						  @BindingParam("notifyObject") String notifyObject) {
-		super.flagDirty(notify, notifyObject);
+		super.flagDirty(notify, null, notifyObject);
 	}
 	
 	@GlobalCommand
@@ -388,6 +396,12 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 			default:
 				throw new UnsupportedOperationException(getViewMode().name());
 		}
+	}
+
+	@Override
+	protected SourceCode getSourceCode(ContentObject contentObject) {
+		final Task task = (Task) contentObject;
+		return taskCodeProvider.getTaskSource(task);
 	}
 
 }

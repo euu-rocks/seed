@@ -56,6 +56,8 @@ import org.seed.core.form.navigation.Menu;
 import org.seed.core.form.navigation.MenuMetadata;
 import org.seed.core.report.Report;
 import org.seed.core.report.ReportMetadata;
+import org.seed.core.rest.Rest;
+import org.seed.core.rest.RestMetadata;
 import org.seed.core.task.Task;
 import org.seed.core.task.TaskMetadata;
 import org.seed.core.user.UserGroup;
@@ -115,6 +117,9 @@ public class ModuleMetadata extends AbstractSystemEntity
 	
 	@OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
 	private List<CustomCodeMetadata> customCodes;
+	
+	@OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
+	private List<RestMetadata> rests;
 	
 	private String uid;
 	
@@ -343,6 +348,23 @@ public class ModuleMetadata extends AbstractSystemEntity
 	public void setCustomCodeMetadata(List<CustomCodeMetadata> customCodes) {
 		this.customCodes = customCodes;
 	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<Rest> getRests() {
+		final List<?> list = getRestMetadata();
+		return (List<Rest>) list;
+	}
+	
+	@XmlElement(name="restservice")
+	@XmlElementWrapper(name="restservices")
+	public List<RestMetadata> getRestMetadata() {
+		return rests;
+	}
+	
+	public void setRestMetadata(List<RestMetadata> rests) {
+		this.rests = rests;
+	}
 
 	@Override
 	@XmlElement(name="parameter")
@@ -479,6 +501,13 @@ public class ModuleMetadata extends AbstractSystemEntity
 		Assert.notNull(reportUid, "reportUid");
 		
 		return getObjectByUid(getReports(), reportUid);
+	}
+	
+	@Override
+	public Rest getRestByUid(String restUid) {
+		Assert.notNull(restUid, "restUid");
+		
+		return getObjectByUid(getRests(), restUid);
 	}
 	
 }

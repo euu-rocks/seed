@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.seed.core.application.ContentObject;
+import org.seed.core.codegen.SourceCode;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.SystemObject;
 import org.seed.core.data.ValidationError;
@@ -819,11 +821,6 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	}
 
 	@Override
-	protected FormService getObjectService() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	protected List<SystemObject> getListManagerSource(String key, int listNum) {
 		switch (key) {
 			case FIELDS:
@@ -842,7 +839,18 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Override
+	protected FormService getObjectService() {
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
 	protected void resetProperties() {
 		throw new UnsupportedOperationException();
 	}
+	
+	@Override
+	protected SourceCode getSourceCode(ContentObject contentObject) {
+		throw new UnsupportedOperationException();
+	}
+	
 }

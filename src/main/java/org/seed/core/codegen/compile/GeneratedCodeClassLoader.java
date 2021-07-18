@@ -27,7 +27,7 @@ class GeneratedCodeClassLoader extends ClassLoader {
 	}
 	
 	@SuppressWarnings("unchecked")
-	Class<GeneratedCode> defineClass(JavaClassFileObject classFileObject) {
+	final Class<GeneratedCode> defineClass(JavaClassFileObject classFileObject) {
 		Assert.notNull(classFileObject, "classFileObject");
 		
 		return (Class<GeneratedCode>) 

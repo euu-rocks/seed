@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.jar.JarEntry;
+import java.util.stream.Collectors;
 
 import javax.tools.FileObject;
 import javax.tools.ForwardingJavaFileManager;
@@ -73,9 +74,8 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	List<JavaSourceFileObject> createSourceFileObjects(List<SourceCode> sourceCodes) {
 		Assert.notNull(sourceCodes, "sourceCodes");
 		
-		final List<JavaSourceFileObject> sourceFileObjects = new ArrayList<>(sourceCodes.size());
-		sourceCodes.forEach(sourceCode -> sourceFileObjects.add(new JavaSourceFileObject(sourceCode)));
-		return sourceFileObjects;
+		return sourceCodes.stream().map(sourceCode -> new JavaSourceFileObject(sourceCode))
+				   		  .collect(Collectors.toList());
 	}
 	
 	@Override
@@ -90,14 +90,14 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	}
 	
 	@Override
-	public String inferBinaryName(Location location, JavaFileObject file) {
-		if (file instanceof DependencyFileObject) {
-			return ((DependencyFileObject) file).getQualifiedName();
+	public String inferBinaryName(Location location, JavaFileObject fileObject) {
+		if (fileObject instanceof DependencyFileObject) {
+			return ((DependencyFileObject) fileObject).getQualifiedName();
 		}
-		if (file instanceof JavaClassFileObject) {
-			return ((JavaClassFileObject) file).getQualifiedName();
+		if (fileObject instanceof JavaClassFileObject) {
+			return ((JavaClassFileObject) fileObject).getQualifiedName();
 		}
-		return super.inferBinaryName(location, file);
+		return super.inferBinaryName(location, fileObject);
 	}
 	
 	@Override

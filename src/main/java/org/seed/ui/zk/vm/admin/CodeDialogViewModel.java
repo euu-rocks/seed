@@ -19,18 +19,12 @@ package org.seed.ui.zk.vm.admin;
 
 import java.util.regex.Pattern;
 
+import org.seed.core.application.ContentObject;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.codegen.CodeUtils;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.codegen.compile.CompilerException;
-import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityFunction;
-import org.seed.core.entity.codegen.EntityFunctionCodeProvider;
-import org.seed.core.entity.codegen.EntitySourceCodeProvider;
-import org.seed.core.entity.transform.TransformerFunction;
-import org.seed.core.entity.transform.codegen.TransformerFunctionCodeProvider;
-import org.seed.core.task.Task;
-import org.seed.core.task.codegen.TaskCodeProvider;
 import org.seed.core.util.Assert;
 import org.seed.ui.zk.vm.AbstractApplicationViewModel;
 
@@ -54,28 +48,12 @@ public class CodeDialogViewModel extends AbstractApplicationViewModel {
 	@Wire("#codeDialogWin")
 	private Window window;
 	
-	@WireVariable(value="entitySourceCodeProvider")
-	private EntitySourceCodeProvider entitySourceCodeProvider;
-	
-	@WireVariable(value="entityFunctionCodeProvider")
-	private EntityFunctionCodeProvider entityFunctionCodeProvider;
-	
-	@WireVariable(value="transformerFunctionCodeProvider")
-	private TransformerFunctionCodeProvider transformerFunctionCodeProvider;
-	
-	@WireVariable(value="taskCodeProvider")
-	private TaskCodeProvider taskCodeProvider;
-	
 	@WireVariable(value="codeManagerImpl")
 	private CodeManager codeManager;
 	
 	private AbstractAdminViewModel<?> parentViewModel;
 	
-	private TransformerFunction transformerFunction;
-	
-	private EntityFunction entityFunction;
-	
-	private Task task;
+	private ContentObject contentObject;
 	
 	private String errorMessage;
 	
@@ -87,22 +65,8 @@ public class CodeDialogViewModel extends AbstractApplicationViewModel {
 		return errorMessage;
 	}
 	
-	public EntityFunction getFunction() {
-		return entityFunction;
-	}
-	
 	public String getContent() {
-		if(entityFunction != null) {
-			return entityFunction.getContent();
-		}
-		if (transformerFunction != null) {
-			return transformerFunction.getContent();
-		}
-		if (task != null) {
-			return task.getContent();
-		}
-		
-		return null;
+		return contentObject.getContent();
 	}
 
 	@Init
@@ -112,43 +76,15 @@ public class CodeDialogViewModel extends AbstractApplicationViewModel {
 		wireComponents(view);
 		
 		parentViewModel = param.parentViewModel;
-		transformerFunction = param.transformerFunction;
-		entityFunction = param.entityFunction;
-		task = param.task;
-		
-		if (entityFunction != null) {
-			if (entityFunction.getContent() == null) {
-				entityFunction.setContent(entityFunctionCodeProvider.getFunctionTemplate(entityFunction));
-			}
-			originalContent = entityFunction.getContent();
-		}
-		else if (transformerFunction != null) {
-			if (transformerFunction.getContent() == null) {
-				transformerFunction.setContent(transformerFunctionCodeProvider.getFunctionTemplate(transformerFunction));
-			}
-			originalContent = transformerFunction.getContent();
-		}
-		else if (task != null) {
-			if (task.getContent() == null) {
-				task.setContent(taskCodeProvider.getFunctionTemplate(task));
-			}
-			originalContent = task.getContent();
-		}
+		contentObject = param.contentObject;
+		originalContent = contentObject.getContent();
 	}
 	
 	@Command
 	@NotifyChange({"content", "errorMessage"})
 	public void reset() {
 		errorMessage = null;
-		if (entityFunction != null) {
-			entityFunction.setContent(originalContent);
-		}
-		if (transformerFunction != null) {
-			transformerFunction.setContent(originalContent);
-		}
-		else if (task != null) {
-			task.setContent(originalContent);
-		}
+		contentObject.setContent(originalContent);
 	}
 	
 	@Command
@@ -194,43 +130,19 @@ public class CodeDialogViewModel extends AbstractApplicationViewModel {
 	
 	@Command
 	public void cancel() {
-		if (entityFunction != null) {
-			entityFunction.setContent(originalContent);
-		}
-		else if (transformerFunction != null) {
-			transformerFunction.setContent(originalContent);
-		}
-		else if (task != null) {
-			task.setContent(originalContent);
-		}
+		contentObject.setContent(originalContent);
 		window.detach();
 	}
 	
 	private SourceCode createSourceCode(String code) {
 		functionStartRow = -1;
-		SourceCode sourceCode = null;
-		Pattern pattern = null;
-		if (entityFunction != null) {
-			entityFunction.setContent(code);
-			if (entityFunction.isCallback()) {
-				return entityFunctionCodeProvider.getFunctionSource(entityFunction);
-			}
-			else {
-				sourceCode = entitySourceCodeProvider.getEntitySource((Entity) parentViewModel.getObject());
-				pattern = Pattern.compile(FUNC_PRE + entityFunction.getInternalName() + FUNC_POST);
-			}
-		}
-		else if (transformerFunction != null) {
-			transformerFunction.setContent(code);
-			return transformerFunctionCodeProvider.getFunctionSource(transformerFunction);
-		}
-		else if (task != null) {
-			task.setContent(code);
-			return taskCodeProvider.getTaskSource(task);
-		}
-		if (sourceCode != null && pattern != null) {
+		contentObject.setContent(code);
+		final SourceCode sourceCode = parentViewModel.getSourceCode(contentObject);
+		if (contentObject instanceof EntityFunction) {
+			final EntityFunction entityFunction = (EntityFunction) contentObject;
+			final Pattern pattern = Pattern.compile(FUNC_PRE + entityFunction.getInternalName() + FUNC_POST);
 			functionStartRow = CodeUtils.getLineNumber(sourceCode.getContent(), pattern) - 
-			   		   		   CodeUtils.getLineNumber(code, pattern);
+	   		   		   		   CodeUtils.getLineNumber(code, pattern);
 		}
 		return sourceCode;
 	}

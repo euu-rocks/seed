@@ -49,7 +49,7 @@ public abstract class AbstractSystemEntityService<T extends SystemEntity>
 	
 	@Override
 	public boolean isEntityType(Class<?> clas) {
-		Assert.notNull(clas, C.CLASS);
+		Assert.notNull(clas, "class");
 		
 		return clas.isAssignableFrom(getRepository().getEntityTypeClass());
 	}

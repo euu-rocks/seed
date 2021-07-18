@@ -27,8 +27,10 @@ import javax.persistence.PersistenceException;
 
 import org.seed.C;
 import org.seed.core.application.ApplicationEntity;
+import org.seed.core.application.ContentObject;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.ModuleService;
+import org.seed.core.codegen.SourceCode;
 import org.seed.core.data.DataException;
 import org.seed.core.data.SystemEntity;
 import org.seed.core.data.SystemEntityService;
@@ -99,6 +101,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	
 	protected abstract SystemEntityService<T> getObjectService();
 	protected abstract void resetProperties();
+	protected abstract SourceCode getSourceCode(ContentObject contentObject);
 	
 	protected AbstractAdminViewModel() {
 		authorisation = null;
@@ -223,13 +226,18 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		notifyObjectChange(object, property);
 	}
 
-	protected void flagDirty(String notify, String notifyObject) {
+	protected void flagDirty(String notify, Object object, String notifyObject) {
 		flagDirty();
 		if (notify != null) {
 			notifyChange(notify);
 		}
 		if (notifyObject != null) {
-			notifyObjectChange(notifyObject);
+			if (object != null) {
+				notifyObjectChange(object, notifyObject);
+			}
+			else {
+				notifyObjectChange(notifyObject);
+			}
 		}
 	}
 	

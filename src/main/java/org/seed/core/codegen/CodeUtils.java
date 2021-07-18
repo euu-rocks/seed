@@ -52,19 +52,19 @@ public abstract class CodeUtils {
 	}
 	
 	public static boolean isClassFile(String fileName) {
-		Assert.notNull(fileName, C.FILENAME);
+		Assert.notNull(fileName, "fileName");
 		
 		return fileName.endsWith(Kind.CLASS.extension);
 	}
 	
 	public static boolean isSourceFile(String fileName) {
-		Assert.notNull(fileName, C.FILENAME);
+		Assert.notNull(fileName, "fileName");
 		
 		return fileName.endsWith(Kind.SOURCE.extension);
 	}
 	
 	public static boolean isSubPackage(String path, String packagePath) {
-		Assert.notNull(path, C.PATH);
+		Assert.notNull(path, "path");
 		Assert.notNull(packagePath, "packagePath");
 		
 		return path.indexOf('/', packagePath.length() + 1) != -1;
@@ -137,7 +137,7 @@ public abstract class CodeUtils {
 	
 	public static String getPackageName(File baseDir, File dir) {
 		Assert.notNull(baseDir, "baseDir");
-		Assert.notNull(dir, C.DIR);
+		Assert.notNull(dir, "dir");
 		
 		return dir.getAbsolutePath()
 					.substring(baseDir.getAbsolutePath().length() + 1)
@@ -145,7 +145,7 @@ public abstract class CodeUtils {
 	}
 	
 	public static String getClassName(File file) {
-		Assert.notNull(file, C.FILE);
+		Assert.notNull(file, "file");
 		
 		return file.getName().substring(0, file.getName().indexOf(Kind.SOURCE.extension));
 	}

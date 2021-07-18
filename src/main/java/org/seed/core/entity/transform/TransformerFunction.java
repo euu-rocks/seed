@@ -31,7 +31,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.core.application.AbstractContentObject;
 import org.seed.core.codegen.GeneratedObject;
-import org.seed.core.util.NameUtils;
 
 import org.springframework.util.StringUtils;
 
@@ -77,11 +76,6 @@ public class TransformerFunction extends AbstractContentObject
 
 	public void setActiveAfterTransformation(boolean isActiveAfterTransformation) {
 		this.isActiveAfterTransformation = isActiveAfterTransformation;
-	}
-	
-	@JsonIgnore
-	public String getInternalName() {
-		return NameUtils.getInternalName(getName());
 	}
 	
 	@Override

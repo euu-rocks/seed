@@ -19,6 +19,8 @@ package org.seed.ui.zk.vm.admin;
 
 import java.util.List;
 
+import org.seed.core.application.ContentObject;
+import org.seed.core.codegen.SourceCode;
 import org.seed.core.data.SystemObject;
 import org.seed.core.data.datasource.IDataSource;
 import org.seed.core.data.datasource.DataSourceService;
@@ -97,10 +99,9 @@ public class AdminReportViewModel extends AbstractAdminViewModel<Report> {
 	}
 	
 	@Command
-	@Override
 	public void flagDirty(@BindingParam("notify") String notify, 
 						  @BindingParam("notifyObject") String notifyObject) {
-		super.flagDirty(notify, notifyObject);
+		super.flagDirty(notify, null, notifyObject);
 	}
 	
 	@Command
@@ -214,6 +215,11 @@ public class AdminReportViewModel extends AbstractAdminViewModel<Report> {
 	protected void resetProperties() {
 		dataSource = null;
 		permission = null;
+	}
+	
+	@Override
+	protected SourceCode getSourceCode(ContentObject contentObject) {
+		throw new UnsupportedOperationException();
 	}
 
 }

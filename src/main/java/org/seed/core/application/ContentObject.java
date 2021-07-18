@@ -15,26 +15,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.rest;
+package org.seed.core.application;
 
-import java.util.List;
-
-import org.seed.core.application.ApplicationEntity;
-import org.seed.core.application.ApprovableObject;
-
-public interface Rest
-	extends ApplicationEntity, ApprovableObject<RestPermission> {
+public interface ContentObject {
 	
-	String getMapping();
+	String getContent();
 	
-	boolean hasMappings();
-	
-	List<RestMapping> getMappings();
-	
-	void addMapping(RestMapping mapping);
-	
-	RestMapping getMappingByUid(String uid);
-	
-	RestPermission getPermissionByUid(String uid);
+	void setContent(String content);
 	
 }

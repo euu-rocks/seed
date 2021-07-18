@@ -22,9 +22,13 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.seed.core.util.CDATAXmlAdapter;
+import org.seed.core.util.NameUtils;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @MappedSuperclass
-public class AbstractContentObject extends AbstractOrderedTransferableObject {
+public abstract class AbstractContentObject extends AbstractOrderedTransferableObject
+	implements ContentObject {
 	
 	private String name;
 	
@@ -38,12 +42,19 @@ public class AbstractContentObject extends AbstractOrderedTransferableObject {
 	public void setName(String name) {
 		this.name = name;
 	}
-
+	
+	@JsonIgnore
+	public final String getInternalName() {
+		return NameUtils.getInternalName(getName());
+	}
+	
+	@Override
 	@XmlJavaTypeAdapter(CDATAXmlAdapter.class)
 	public String getContent() {
 		return content;
 	}
-
+	
+	@Override
 	public void setContent(String content) {
 		this.content = content;
 	}

@@ -31,6 +31,7 @@ import org.seed.core.entity.transform.Transformer;
 import org.seed.core.form.Form;
 import org.seed.core.form.navigation.Menu;
 import org.seed.core.report.Report;
+import org.seed.core.rest.Rest;
 import org.seed.core.task.Task;
 import org.seed.core.user.UserGroup;
 
@@ -57,6 +58,8 @@ public interface Module extends SystemEntity, TransferableObject {
 	List<Report> getReports();
 	
 	List<CustomCode> getCustomCodes();
+	
+	List<Rest> getRests();
 	
 	List<UserGroup> getUserGroups();
 	
@@ -93,5 +96,7 @@ public interface Module extends SystemEntity, TransferableObject {
 	CustomCode getCustomCodeByUid(String customCodeUid);
 	
 	Report getReportByUid(String reportUid);
+	
+	Rest getRestByUid(String restUid);
 	
 }

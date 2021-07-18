@@ -17,52 +17,24 @@
  */
 package org.seed.ui.zk.vm.admin;
 
-import org.seed.core.entity.EntityFunction;
-import org.seed.core.entity.transform.TransformerFunction;
-import org.seed.core.task.Task;
+import org.seed.core.application.ContentObject;
 import org.seed.core.util.Assert;
+
+import org.springframework.util.StringUtils;
 
 class CodeDialogParameter {
 	
-	private static final String PARENT_VIEWMODEL = "parentViewModel"; 
-	private static final String ENTITY_FUNCTION  = "entityFunction"; 
-	
 	final AbstractAdminViewModel<?> parentViewModel;
 	
-	final EntityFunction entityFunction;
+	final ContentObject contentObject;
 	
-	final TransformerFunction transformerFunction;
-	
-	final Task task;
-	
-	public CodeDialogParameter(AbstractAdminViewModel<?> parentViewModel, EntityFunction entityFunction) {
-		Assert.notNull(parentViewModel, PARENT_VIEWMODEL);
-		Assert.notNull(entityFunction, ENTITY_FUNCTION);
+	public CodeDialogParameter(AbstractAdminViewModel<?> parentViewModel, ContentObject contentObject) {
+		Assert.notNull(parentViewModel, "parentViewModel");
+		Assert.notNull(contentObject, "contentObject");
+		Assert.state(StringUtils.hasText(contentObject.getContent()), "no content");
 		
 		this.parentViewModel = parentViewModel;
-		this.entityFunction = entityFunction;
-		this.transformerFunction = null;
-		this.task = null;
-	}
-	
-	public CodeDialogParameter(AbstractAdminViewModel<?> parentViewModel, TransformerFunction transformerFunction) {
-		Assert.notNull(parentViewModel, PARENT_VIEWMODEL);
-		Assert.notNull(transformerFunction, ENTITY_FUNCTION);
-		
-		this.parentViewModel = parentViewModel;
-		this.entityFunction = null;
-		this.transformerFunction = transformerFunction;
-		this.task = null;
-	}
-	
-	public CodeDialogParameter(AbstractAdminViewModel<?> parentViewModel, Task task) {
-		Assert.notNull(parentViewModel, PARENT_VIEWMODEL);
-		Assert.notNull(task, "task");
-		
-		this.parentViewModel = parentViewModel;
-		this.entityFunction = null;
-		this.transformerFunction = null;
-		this.task = task;
+		this.contentObject = contentObject;
 	}
 	
 }

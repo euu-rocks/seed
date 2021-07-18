@@ -5492,10 +5492,7 @@
                    {
                        "column": {
                           "name": "mapping",
-                          "type": "VARCHAR(<#IDENT_LEN#>)",
-                          "constraints": {
-                              "nullable": "false"
-                          }
+                          "type": "VARCHAR(<#IDENT_LEN#>)"
                        }
                    }
                 ]
@@ -5592,10 +5589,7 @@
                    {
                        "column": {
                           "name": "mapping",
-                          "type": "VARCHAR(<#IDENT_LEN#>)",
-                          "constraints": {
-                              "nullable": "false"
-                          }
+                          "type": "VARCHAR(<#IDENT_LEN#>)"
                        }
                    },
                    {

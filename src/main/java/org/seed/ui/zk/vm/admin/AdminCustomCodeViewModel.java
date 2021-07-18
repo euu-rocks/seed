@@ -17,6 +17,7 @@
  */
 package org.seed.ui.zk.vm.admin;
 
+import org.seed.core.application.ContentObject;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.codegen.compile.CompilerException;
@@ -66,10 +67,9 @@ public class AdminCustomCodeViewModel extends AbstractAdminViewModel<CustomCode>
 	}
 
 	@Command
-	@Override
 	public void flagDirty(@BindingParam("notify") String notify, 
 						  @BindingParam("notifyObject") String notifyObject) {
-		super.flagDirty(notify, notifyObject);
+		super.flagDirty(notify, null, notifyObject);
 	}
 	
 	@Command
@@ -123,6 +123,11 @@ public class AdminCustomCodeViewModel extends AbstractAdminViewModel<CustomCode>
 	@Override
 	protected void resetProperties() {
 		errorMessage = null;
+	}
+	
+	@Override
+	protected SourceCode getSourceCode(ContentObject contentObject) {
+		throw new UnsupportedOperationException();
 	}
 	
 	private boolean compileCode(String code, Component component) {

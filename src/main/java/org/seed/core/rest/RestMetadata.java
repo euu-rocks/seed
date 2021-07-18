@@ -33,9 +33,9 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.core.application.AbstractApplicationEntity;
+import org.seed.core.util.Assert;
 
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 
 @Entity
 @Table(name = "sys_rest")
@@ -74,16 +74,6 @@ public class RestMetadata extends AbstractApplicationEntity
 	}
 
 	@Override
-	public String getGeneratedPackage() {
-		return PACKAGE_NAME;
-	}
-
-	@Override
-	public String getGeneratedClass() {
-		return StringUtils.capitalize(getInternalName());
-	}
-	
-	@Override
 	public boolean hasMappings() {
 		return !ObjectUtils.isEmpty(getMappings());
 	}
@@ -109,6 +99,17 @@ public class RestMetadata extends AbstractApplicationEntity
 	@XmlElementWrapper(name="permissions")
 	public List<RestPermission> getPermissions() {
 		return permissions;
+	}
+	
+	@Override
+	public void addMapping(RestMapping mapping) {
+		Assert.notNull(mapping, "mapping");
+		
+		if (mappings == null) {
+			mappings = new ArrayList<>();
+		}
+		mapping.setRest(this);
+		mappings.add(mapping);
 	}
 	
 	@Override

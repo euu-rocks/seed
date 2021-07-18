@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.seed.core.application.ContentObject;
+import org.seed.core.codegen.SourceCode;
 import org.seed.core.data.SystemObject;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
@@ -31,6 +33,7 @@ import org.seed.core.entity.transform.Transformer;
 import org.seed.core.entity.transform.TransformerElement;
 import org.seed.core.entity.transform.TransformerFunction;
 import org.seed.core.entity.transform.TransformerService;
+import org.seed.core.entity.transform.codegen.TransformerFunctionCodeProvider;
 import org.seed.core.user.Authorisation;
 import org.seed.core.user.UserGroup;
 import org.seed.core.util.MiscUtils;
@@ -62,6 +65,9 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	
 	@WireVariable(value="transformerServiceImpl")
 	private TransformerService transformerService;
+	
+	@WireVariable(value="transformerFunctionCodeProvider")
+	private TransformerFunctionCodeProvider transformerFunctionCodeProvider;
 	
 	@WireVariable(value="entityServiceImpl")
 	private EntityService entityService;
@@ -225,6 +231,9 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	
 	@Command
 	public void editFunction() {
+		if (function.getContent() == null) {
+			function.setContent(transformerFunctionCodeProvider.getFunctionTemplate(function));
+		}
 		showCodeDialog(new CodeDialogParameter(this, function));
 	}
 	
@@ -326,10 +335,9 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	}
 	
 	@Command
-	@Override
 	public void flagDirty(@BindingParam("notify") String notify, 
 						  @BindingParam("notifyObject") String notifyObject) {
-		super.flagDirty(notify, notifyObject);
+		super.flagDirty(notify, null, notifyObject);
 	}
 	
 	@Command
@@ -404,6 +412,12 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 		function = null;
 		nested = null;
 		nestedElement = null;
+	}
+
+	@Override
+	protected SourceCode getSourceCode(ContentObject contentObject) {
+		final TransformerFunction function = (TransformerFunction) contentObject;
+		return transformerFunctionCodeProvider.getFunctionSource(function);
 	}
 	
 }

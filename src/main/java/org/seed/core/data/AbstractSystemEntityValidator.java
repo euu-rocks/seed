@@ -80,7 +80,7 @@ public abstract class AbstractSystemEntityValidator<T extends SystemEntity>
 	}
 	
 	protected static void validate(ValidationErrors errors) throws ValidationException {
-		Assert.notNull(errors, C.ERRORS);
+		Assert.notNull(errors, "errors");
 		
 		if (!errors.isEmpty()) {
 			throw new ValidationException(errors);

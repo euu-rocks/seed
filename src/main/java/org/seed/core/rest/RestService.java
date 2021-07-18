@@ -20,5 +20,7 @@ package org.seed.core.rest;
 import org.seed.core.application.ApplicationEntityService;
 
 public interface RestService extends ApplicationEntityService<Rest> {
-
+	
+	RestMapping createMapping(Rest rest);
+	
 }

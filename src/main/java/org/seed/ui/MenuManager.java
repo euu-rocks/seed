@@ -126,6 +126,11 @@ public class MenuManager {
 										"/admin/customcode/customcodelist.zul", 
 										"z-icon-code z-icon-fw"));
 		}
+		if (user.isAuthorised(Authorisation.ADMIN_REST)) {
+			nodeAdmin.addChild(new TreeNode(getLabel("label.restservice"), 
+										"/admin/rest/restlist.zul", 
+										"z-icon-server z-icon-fw"));
+		}
 		if (user.isAuthorised(Authorisation.ADMIN_USER)) {
 			createUserMenu(nodeAdmin);
 		}

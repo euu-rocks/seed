@@ -46,39 +46,49 @@ public abstract class NameUtils {
 		if (name == null) {
 			return null;
 		}
-		name = name.trim();
-		final StringBuilder buf = new StringBuilder();
+		final StringBuilder buf = new StringBuilder(name.length());
 		for (int i = 0; i < name.length(); i++) {
 			final char ch = name.charAt(i);
 			switch (ch) {
 				case 'Ä':
 					buf.append("Ae");
 					break;
+					
 				case 'Ö':
 					buf.append("Oe");
 					break;
+					
 				case 'Ü':
 					buf.append("Ue");
 					break;
+					
 				case 'ä':
 					buf.append("ae");
 					break;
+					
 				case 'ö':
 					buf.append("oe");
 					break;
+					
 				case 'ü':
 					buf.append("ue");
 					break;
+					
 				case 'ß':
 					buf.append("ss");
 					break;
+					
 				case ' ':
+				case '.':
+				case '-':
+				case '_':
 					buf.append('_');
 					break;
+					
 				default:
 					if ((ch >= 'a' && ch <= 'z') ||
 					    (ch >= 'A' && ch <= 'Z') ||
-					    (ch >= '0' && ch <= '9') || ch == '_') {
+					    (ch >= '0' && ch <= '9')) {
 						buf.append(ch);
 					}
 			}

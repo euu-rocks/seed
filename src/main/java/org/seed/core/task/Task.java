@@ -22,12 +22,11 @@ import java.util.List;
 
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApprovableObject;
+import org.seed.core.application.ContentObject;
 import org.seed.core.codegen.GeneratedObject;
 
 public interface Task 
-	extends ApplicationEntity, GeneratedObject, ApprovableObject<TaskPermission> {
-	
-	String getInternalName();
+	extends ApplicationEntity, ContentObject, GeneratedObject, ApprovableObject<TaskPermission> {
 	
 	Date getStartTime();
 	
@@ -36,10 +35,6 @@ public interface Task
 	IntervalUnit getRepeatIntervalUnit();
 	
 	String getCronExpression();
-	
-	String getContent();
-	
-	void setContent(String content);
 	
 	boolean isActive();
 	

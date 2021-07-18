@@ -58,7 +58,8 @@ class JavaClassFileObject extends SimpleJavaFileObject {
 	
 	byte[] getByteCode() {
 		if (byteCode == null) {
-			Assert.state(byteCodeOutputStream != null, "byte code not available");
+			Assert.stateAvailable(byteCodeOutputStream, "byte code");
+			
 			byteCode = byteCodeOutputStream.toByteArray();
 			byteCodeOutputStream = null;
 		}
