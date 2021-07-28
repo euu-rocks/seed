@@ -64,7 +64,7 @@
 							<label value="${labels.label.name}:"/>
 						</cell>
 						<cell style="padding: 4px 4px">
-							<textbox value="@bind(vm.object.name)"
+							<textbox value="@bind(vm.object.name) @converter(vm.stringConverter)"
 									 mandatory="true"
 									 onChange="@command('flagDirty',notifyObject='internalName')"
 									 tooltiptext="@load(vm.object.internalName)"
@@ -74,7 +74,7 @@
 							<label value="${labels.label.identifier}:"/>
 						</cell>
 						<cell style="padding: 4px 4px">
-							<textbox value="@bind(vm.object.identifierPattern)" 
+							<textbox value="@bind(vm.object.identifierPattern) @converter(vm.stringConverter)" 
 									 placeholder="@load(vm.object.defaultIdentifierPattern)"
 									 onChange="@command('flagDirty')"
 									 instant="true"

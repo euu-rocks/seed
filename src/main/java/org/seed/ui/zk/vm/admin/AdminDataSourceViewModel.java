@@ -19,8 +19,6 @@ package org.seed.ui.zk.vm.admin;
 
 import java.util.List;
 
-import org.seed.core.application.ContentObject;
-import org.seed.core.codegen.SourceCode;
 import org.seed.core.data.DataException;
 import org.seed.core.data.datasource.IDataSource;
 import org.seed.core.data.datasource.DataSourceParameter;
@@ -157,11 +155,6 @@ public class AdminDataSourceViewModel extends AbstractAdminViewModel<IDataSource
 	protected void resetProperties() {
 		parameter = null;
 		errorMessage = null;
-	}
-	
-	@Override
-	protected SourceCode getSourceCode(ContentObject contentObject) {
-		throw new UnsupportedOperationException();
 	}
 	
 }

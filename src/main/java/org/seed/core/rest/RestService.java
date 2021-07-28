@@ -17,10 +17,20 @@
  */
 package org.seed.core.rest;
 
+import java.util.List;
+
+import org.seed.core.api.RestFunction.MethodType;
 import org.seed.core.application.ApplicationEntityService;
 
 public interface RestService extends ApplicationEntityService<Rest> {
 	
-	RestMapping createMapping(Rest rest);
+	Rest findByMapping(String mapping);
+	
+	RestFunction createFunction(Rest rest);
+	
+	List<RestPermission> getAvailablePermissions(Rest rest);
+	
+	Object callFunction(RestFunction function, MethodType method, 
+						Object body, String[] parameters);
 	
 }

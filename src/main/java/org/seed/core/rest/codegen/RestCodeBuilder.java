@@ -20,23 +20,22 @@ package org.seed.core.rest.codegen;
 import java.util.Date;
 
 import org.seed.C;
-import org.seed.core.api.RestFunction;
 import org.seed.core.api.RestFunctionContext;
 import org.seed.core.codegen.AbstractSourceCodeBuilder;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.codegen.TypeClass;
-import org.seed.core.rest.RestMapping;
+import org.seed.core.rest.RestFunction;
 import org.seed.core.util.Assert;
 
 class RestCodeBuilder extends AbstractSourceCodeBuilder {
 	
-	private final RestMapping mapping;
+	private final RestFunction mapping;
 
-	RestCodeBuilder(RestMapping mapping) {
+	RestCodeBuilder(RestFunction mapping) {
 		super(mapping, 
 			  false, 
 			  null, 
-			  new TypeClass[] { newTypeClass(RestFunction.class) });
+			  getInterfaceTypes());
 		this.mapping = mapping;
 	}
 
@@ -64,6 +63,10 @@ class RestCodeBuilder extends AbstractSourceCodeBuilder {
 			default:
 				throw new UnsupportedOperationException(buildMode.name());
 		}
+	}
+	
+	private static TypeClass[] getInterfaceTypes() {
+		return new TypeClass[] { newTypeClass(org.seed.core.api.RestFunction.class) };
 	}
 
 }

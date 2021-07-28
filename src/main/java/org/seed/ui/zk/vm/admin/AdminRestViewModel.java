@@ -17,13 +17,20 @@
  */
 package org.seed.ui.zk.vm.admin;
 
+import java.util.List;
+
+import org.seed.core.api.RestFunction.MethodType;
 import org.seed.core.application.ContentObject;
 import org.seed.core.codegen.SourceCode;
+import org.seed.core.data.SystemObject;
 import org.seed.core.rest.Rest;
-import org.seed.core.rest.RestMapping;
+import org.seed.core.rest.RestFunction;
+import org.seed.core.rest.RestPermission;
 import org.seed.core.rest.RestService;
 import org.seed.core.rest.codegen.RestCodeProvider;
 import org.seed.core.user.Authorisation;
+import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
@@ -32,12 +39,14 @@ import org.zkoss.bind.annotation.ContextType;
 import org.zkoss.bind.annotation.ExecutionArgParam;
 import org.zkoss.bind.annotation.Init;
 import org.zkoss.bind.annotation.NotifyChange;
+import org.zkoss.bind.annotation.SmartNotifyChange;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
 
 public class AdminRestViewModel extends AbstractAdminViewModel<Rest> {
 	
-	private static final String MAPPINGS = "mappings";
+	private static final String FUNCTIONS = "functions";
+	private static final String PERMISSIONS = "permissions";
 	
 	@WireVariable(value="restServiceImpl")
 	private RestService restService;
@@ -45,7 +54,9 @@ public class AdminRestViewModel extends AbstractAdminViewModel<Rest> {
 	@WireVariable(value="restCodeProvider")
 	private RestCodeProvider restCodeProvider;
 	
-	private RestMapping mapping;
+	private RestFunction function;
+	
+	private RestPermission permission;
 	
 	public AdminRestViewModel() {
 		super(Authorisation.ADMIN_REST, "rest",
@@ -53,12 +64,24 @@ public class AdminRestViewModel extends AbstractAdminViewModel<Rest> {
 			  "/admin/rest/rest.zul");
 	}
 	
-	public RestMapping getMapping() {
-		return mapping;
+	public RestFunction getFunction() {
+		return function;
 	}
 
-	public void setMapping(RestMapping mapping) {
-		this.mapping = mapping;
+	public void setFunction(RestFunction function) {
+		this.function = function;
+	}
+	
+	public RestPermission getPermission() {
+		return permission;
+	}
+
+	public void setPermission(RestPermission permission) {
+		this.permission = permission;
+	}
+
+	public MethodType[] getMethodTypes() {
+		return MethodType.values();
 	}
 
 	@Init
@@ -75,6 +98,39 @@ public class AdminRestViewModel extends AbstractAdminViewModel<Rest> {
 		super.flagDirty(notify, object, notifyObject);
 	}
 	
+	@Override
+	protected List<SystemObject> getListManagerSource(String key, int listNum) {
+		if (PERMISSIONS.equals(key)) {
+			return MiscUtils.cast(listNum == LIST_AVAILABLE 
+					? restService.getAvailablePermissions(getObject()) 
+					: getObject().getPermissions());
+		}
+		else {
+			throw new UnsupportedOperationException(key);
+		}
+	}
+	
+	@Command
+	@SmartNotifyChange("permission")
+	public void insertToPermissionList(@BindingParam("base") RestPermission base,
+									   @BindingParam("item") RestPermission item,
+									   @BindingParam("list") int listNum) {
+		insertToList(PERMISSIONS, listNum, base, item);
+		if (listNum == LIST_AVAILABLE && item == permission) {
+			this.permission = null;
+		}
+	}
+	
+	@Command
+	@SmartNotifyChange("permission")
+	public void dropToPermissionList(@BindingParam("item") RestPermission item,
+									 @BindingParam("list") int listNum) {
+		dropToList(PERMISSIONS, listNum, item);
+		if (listNum == LIST_AVAILABLE && item == permission) {
+			this.permission = null;
+		}
+	}
+	
 	@Command
 	public void back() {
 		cmdBack();
@@ -86,19 +142,34 @@ public class AdminRestViewModel extends AbstractAdminViewModel<Rest> {
 	}
 	
 	@Command
-	@NotifyChange("mapping")
-	public void newMapping() {
-		mapping = restService.createMapping(getObject());
-		notifyObjectChange(MAPPINGS);
+	public void editRest() {
+		cmdEditObject();
+	}
+	
+	@Command
+	public void refreshRest(@BindingParam("elem") Component component) {
+		cmdRefresh();
+	}
+	
+	@Command
+	public void deleteRest(@BindingParam("elem") Component component) {
+		cmdDeleteObject(component);
+	}
+	
+	@Command
+	@NotifyChange("function")
+	public void newFunction() {
+		function = restService.createFunction(getObject());
+		notifyObjectChange(FUNCTIONS);
 		flagDirty();
 	}
 	
 	@Command
-	public void editFunction() {
-		if (mapping.getContent() == null) {
-			mapping.setContent(restCodeProvider.getFunctionTemplate(mapping));
+	public void editFunctionSource() {
+		if (function.getContent() == null) {
+			function.setContent(restCodeProvider.getFunctionTemplate(function));
 		}
-		showCodeDialog(new CodeDialogParameter(this, mapping));
+		showCodeDialog(new CodeDialogParameter(this, function));
 	}
 
 	@Override
@@ -108,13 +179,22 @@ public class AdminRestViewModel extends AbstractAdminViewModel<Rest> {
 
 	@Override
 	protected void resetProperties() {
-		mapping = null;
+		function = null;
+		permission = null;
 	}
 
 	@Override
 	protected SourceCode getSourceCode(ContentObject contentObject) {
-		final RestMapping mapping = (RestMapping) contentObject;
+		Assert.notNull(contentObject, "contentObject");
+		final RestFunction mapping = (RestFunction) contentObject;
+		
 		return restCodeProvider.getRestSource(mapping);
+	}
+	
+	@Command
+	public void saveRest(@BindingParam("elem") Component elem) {
+		adjustLists(getObject().getPermissions(), getListManagerList(PERMISSIONS, LIST_SELECTED));
+		cmdSaveObject(elem);
 	}
 	
 }

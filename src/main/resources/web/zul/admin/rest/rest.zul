@@ -18,7 +18,8 @@
 
 -->
 <!DOCTYPE xml>
-<?component name="rest-mappings" macroURI="~./zul/admin/rest/rest_mappings.zul" inline="true"?>
+<?component name="rest-functions" macroURI="~./zul/admin/rest/rest_functions.zul" inline="true"?>
+<?component name="rest-permissions" macroURI="~./zul/admin/rest/rest_permissions.zul" inline="true"?>
 <borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminRestViewModel')">
 	<north border="0">
 		<toolbar>
@@ -57,17 +58,17 @@
 							<label value="${labels.label.name}:"/>
 						</cell>
 						<cell style="padding: 4px 4px">
-							<textbox value="@bind(vm.object.name)"
+							<textbox value="@bind(vm.object.name) @converter(vm.stringConverter)"
 									 mandatory="true"
-									 onChange="@command('flagDirty',notifyObject='internalName')"
+									 onChange="@command('flagDirty',notifyObject='nameMapping')"
 									 hflex="1"/> 
 						</cell>
 						<cell style="padding: 4px 10px" align="right">
 							<label value="${labels.label.mapping}:"/>
 						</cell>
 						<cell style="padding: 4px 4px">
-							<textbox value="@bind(vm.object.mapping)" 
-									 placeholder="@load(empty vm.object.internalName ? '' : ('/' += vm.object.internalName)))"
+							<textbox value="@bind(vm.object.mapping) @converter(vm.stringConverter)" 
+									 placeholder="@load(vm.object.nameMapping)"
 									 onChange="@command('flagDirty')"
 									 instant="true"
 									 hflex="1"/>
@@ -82,10 +83,10 @@
 				</tabs>
 				<tabpanels> 
 					<tabpanel>
-						<rest-mappings/>
+						<rest-functions/>
 					</tabpanel>
 					<tabpanel fulfill="tabPermissions.onSelect">
-						<!-- <rest-permissions/>  --> permissions
+						<rest-permissions/>
 					</tabpanel>
 				</tabpanels>
 			</tabbox>

@@ -27,13 +27,15 @@ public interface Rest
 	
 	String getMapping();
 	
-	boolean hasMappings();
+	boolean hasFunctions();
 	
-	List<RestMapping> getMappings();
+	List<RestFunction> getFunctions();
 	
-	void addMapping(RestMapping mapping);
+	void addFunction(RestFunction mapping);
 	
-	RestMapping getMappingByUid(String uid);
+	RestFunction getFunctionByMapping(String mapping);
+	
+	RestFunction getFunctionByUid(String uid);
 	
 	RestPermission getPermissionByUid(String uid);
 	

@@ -17,13 +17,14 @@
  */
 package org.seed.core.application.setting;
 
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.data.ValidationException;
@@ -157,7 +158,7 @@ public class ApplicationSettingServiceImpl implements ApplicationSettingService 
 			if (!map.containsKey(Setting.MENU_MODE)) {
 				map.put(Setting.MENU_MODE, "NAVIGATION");
 			}
-			settingMap = Collections.synchronizedMap(map);
+			settingMap = new ConcurrentHashMap<>(map);
 		}
 		return settingMap;
 	}

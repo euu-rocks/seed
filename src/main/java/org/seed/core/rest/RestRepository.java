@@ -17,6 +17,8 @@
  */
 package org.seed.core.rest;
 
+import org.hibernate.Session;
+
 import org.seed.core.data.AbstractSystemEntityRepository;
 
 import org.springframework.stereotype.Repository;
@@ -26,6 +28,10 @@ public class RestRepository extends AbstractSystemEntityRepository<Rest> {
 
 	protected RestRepository() {
 		super(RestMetadata.class);
+	}
+	
+	Session openSession() {
+		return super.getSession();
 	}
 
 }

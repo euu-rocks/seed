@@ -25,6 +25,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 
@@ -32,8 +33,10 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.util.Assert;
+import org.seed.core.util.NameUtils;
 
 import org.springframework.util.ObjectUtils;
 
@@ -50,7 +53,7 @@ public class RestMetadata extends AbstractApplicationEntity
 			   orphanRemoval = true,
 			   fetch = FetchType.LAZY)
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-	private List<RestMapping> mappings;
+	private List<RestFunction> functions;
 	
 	@OneToMany(mappedBy = "rest",
 			   cascade = CascadeType.ALL,
@@ -60,7 +63,9 @@ public class RestMetadata extends AbstractApplicationEntity
 	private List<RestPermission> permissions;
 	
 	private String mapping;
-
+	
+	@Override
+	@XmlAttribute
 	public String getMapping() {
 		return mapping;
 	}
@@ -68,25 +73,25 @@ public class RestMetadata extends AbstractApplicationEntity
 	public void setMapping(String mapping) {
 		this.mapping = mapping;
 	}
-
-	public void setPermissions(List<RestPermission> permissions) {
-		this.permissions = permissions;
-	}
-
-	@Override
-	public boolean hasMappings() {
-		return !ObjectUtils.isEmpty(getMappings());
+	
+	public String getNameMapping() {
+		return getMapping(getInternalName());
 	}
 	
 	@Override
-	@XmlElement(name="restmapping")
-	@XmlElementWrapper(name="restmappings")
-	public List<RestMapping> getMappings() {
-		return mappings;
+	public boolean hasFunctions() {
+		return !ObjectUtils.isEmpty(getFunctions());
+	}
+	
+	@Override
+	@XmlElement(name="function")
+	@XmlElementWrapper(name="functions")
+	public List<RestFunction> getFunctions() {
+		return functions;
 	}
 
-	public void setMappings(List<RestMapping> mappings) {
-		this.mappings = mappings;
+	public void setFunctions(List<RestFunction> functions) {
+		this.functions = functions;
 	}
 
 	@Override
@@ -101,20 +106,45 @@ public class RestMetadata extends AbstractApplicationEntity
 		return permissions;
 	}
 	
-	@Override
-	public void addMapping(RestMapping mapping) {
-		Assert.notNull(mapping, "mapping");
-		
-		if (mappings == null) {
-			mappings = new ArrayList<>();
-		}
-		mapping.setRest(this);
-		mappings.add(mapping);
+	public void setPermissions(List<RestPermission> permissions) {
+		this.permissions = permissions;
 	}
 	
 	@Override
-	public RestMapping getMappingByUid(String uid) {
-		return getObjectByUid(getMappings(), uid);
+	public void addFunction(RestFunction function) {
+		Assert.notNull(function, C.FUNCTION);
+		
+		if (functions == null) {
+			functions = new ArrayList<>();
+		}
+		function.setRest(this);
+		functions.add(function);
+	}
+	
+	@Override
+	public RestFunction getFunctionByMapping(String mapping) {
+		Assert.notNull("mapping", mapping);
+		
+		if (hasFunctions()) {
+			final String mappingStr = '/' + mapping;
+			for (RestFunction function : getFunctions()) {
+				if (mappingStr.equals(function.getMapping())) {
+					return function;
+				}
+			}
+			// fallback: internal name
+			for (RestFunction function : getFunctions()) {
+				if (function.getInternalName().equalsIgnoreCase(mapping)) {
+					return function;
+				}
+			}
+		}
+		return null;
+	}
+	
+	@Override
+	public RestFunction getFunctionByUid(String uid) {
+		return getObjectByUid(getFunctions(), uid);
 	}
 	
 	@Override
@@ -136,21 +166,21 @@ public class RestMetadata extends AbstractApplicationEntity
 				.isEquals()) {
 			return false;
 		}
-		return isEqualsMappings(otherRest) && 
+		return isEqualFunctions(otherRest) && 
 			   isEqualPermissions(otherRest);
 	}
 	
-	private boolean isEqualsMappings(Rest otherRest) {
-		if (hasMappings()) {
-			for (RestMapping mapping : getMappings()) {
-				if (!mapping.isEqual(otherRest.getMappingByUid(mapping.getUid()))) {
+	private boolean isEqualFunctions(Rest otherRest) {
+		if (hasFunctions()) {
+			for (RestFunction function : getFunctions()) {
+				if (!function.isEqual(otherRest.getFunctionByUid(function.getUid()))) {
 					return false;
 				}
 			}
 		}
-		if (otherRest.hasMappings()) {
-			for (RestMapping otherMapping : otherRest.getMappings()) {
-				if (getMappingByUid(otherMapping.getUid()) == null) {
+		if (otherRest.hasFunctions()) {
+			for (RestFunction otherFunction : otherRest.getFunctions()) {
+				if (getFunctionByUid(otherFunction.getUid()) == null) {
 					return false;
 				}
 			}
@@ -178,19 +208,25 @@ public class RestMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public void removeNewObjects() {
-		removeNewObjects(getMappings());
+		removeNewObjects(getFunctions());
 		removeNewObjects(getPermissions());
 	}
 	
 	@Override
 	public void initUid() {
 		super.initUid();
-		initUids(getMappings());
+		initUids(getFunctions());
 		initUids(getPermissions());
 	}
 	
 	void createLists() {
 		permissions = new ArrayList<>();
+	}
+	
+	static String getMapping(String name) {
+		return name != null 
+				? '/' + NameUtils.getInternalName(name).toLowerCase() 
+				: null;
 	}
 
 }

@@ -26,7 +26,8 @@ package org.seed.core.config;
  */
 public enum SchemaVersion {
 	
-	V_0_90; // add new versions below
+	V_0_9,
+	V_0_9_19; // add new versions below
 	
 	static boolean existUpdates() {
 		return values().length > 1;

@@ -22,12 +22,11 @@ import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.stream.Collectors;
@@ -48,7 +47,7 @@ import static org.seed.core.codegen.CodeUtils.*;
 
 class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	
-	private final Map<String, JavaClassFileObject> classFileObjectMap = Collections.synchronizedMap(new HashMap<>());
+	private final Map<String, JavaClassFileObject> classFileObjectMap = new ConcurrentHashMap<>();
 	
 	CompilerFileManager(StandardJavaFileManager standardFileManager) {
 		super(standardFileManager);
@@ -74,13 +73,14 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	List<JavaSourceFileObject> createSourceFileObjects(List<SourceCode> sourceCodes) {
 		Assert.notNull(sourceCodes, "sourceCodes");
 		
-		return sourceCodes.stream().map(sourceCode -> new JavaSourceFileObject(sourceCode))
-				   		  .collect(Collectors.toList());
+		return sourceCodes.stream()
+						  .map(JavaSourceFileObject::new)
+						  .collect(Collectors.toList());
 	}
 	
 	@Override
 	public JavaFileObject getJavaFileForOutput(Location location, String qualifiedName,
-	         Kind kind, FileObject sibling) throws IOException  {
+											   Kind kind, FileObject sibling) throws IOException  {
 		if (kind == Kind.CLASS) {
 			final JavaClassFileObject classFileObject = new JavaClassFileObject(qualifiedName);
 			classFileObjectMap.put(qualifiedName, classFileObject);
@@ -102,7 +102,7 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	
 	@Override
 	public Iterable<JavaFileObject> list(Location location, String packageName, 
-			Set<JavaFileObject.Kind> kinds, boolean recurse) throws IOException {
+										 Set<JavaFileObject.Kind> kinds, boolean recurse) throws IOException {
 		if (location == StandardLocation.CLASS_PATH && 
 			kinds.contains(Kind.CLASS)) {
 			if (packageName.contains(".generated")) {
@@ -116,8 +116,6 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	}
 	
 	private Iterable<JavaFileObject> listGeneratedClasses(String packageName) {
-		Assert.notNull(packageName, C.PACKAGENAME);
-		
 		final List<JavaFileObject> result = new ArrayList<>();
 		for (Entry<String, JavaClassFileObject> entry : classFileObjectMap.entrySet()) {
 			if (packageName.equals(extractPackageName(entry.getKey()))) {
@@ -128,8 +126,6 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	}
 	
 	private Iterable<JavaFileObject> listDependencies(String packageName) throws IOException {
-		Assert.notNull(packageName, C.PACKAGENAME);
-		
 		final List<JavaFileObject> result = new ArrayList<>();
 		final Enumeration<URL> urlEnum = getClass().getClassLoader().getResources(packageName.replace('.', '/'));
 		while (urlEnum.hasMoreElements()) {
@@ -146,10 +142,6 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	}
 	
 	private void listDirectory(List<JavaFileObject> result, String packageName, File directory) {
-		Assert.notNull(result, C.RESULT);
-		Assert.notNull(packageName, C.PACKAGENAME);
-		Assert.notNull(directory, "directory");
-		
 		for (File file : directory.listFiles()) {
 			if (file.isFile() && isClassFile(file.getName())) {
 				final String qualifiedName = getQualifiedName(packageName, removeClassExtension(file.getName()));
@@ -159,9 +151,6 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	}
 	
 	private void listJar(List<JavaFileObject> result, URL packageURL) throws IOException {
-		Assert.notNull(result, C.RESULT);
-		Assert.notNull(packageURL, "packageURL");
-		
 		final JarURLConnection jarCon = (JarURLConnection) packageURL.openConnection();
 		final String packagePath = jarCon.getEntryName();
 		final Enumeration<JarEntry> entryEnum = jarCon.getJarFile().entries();

@@ -20,18 +20,18 @@ package org.seed.ui.zk;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.PostConstruct;
 
 import org.seed.C;
 import org.seed.core.form.LabelProvider;
 import org.seed.core.util.Assert;
+
 import org.springframework.stereotype.Component;
 import org.zkoss.math.BigDecimals;
 import org.zkoss.text.DateFormats;
@@ -46,7 +46,7 @@ public class ZKLabelProvider implements LabelProvider {
 	
 	private static final TimeZone TIMEZONE = TimeZone.getDefault();
 	
-	private static final Map<Enum<?>, String> cacheEnumLabel = Collections.synchronizedMap(new HashMap<>());
+	private static final Map<Enum<?>, String> enumLabelCache = new ConcurrentHashMap<>();
 	
 	private final DateFormat dateFormat = new SimpleDateFormat(
 			DateFormats.getDateFormat(DateFormat.DEFAULT, LOCALE, "yyyy/MM/dd"),
@@ -84,14 +84,12 @@ public class ZKLabelProvider implements LabelProvider {
 		if (enm == null) {
 			return null;
 		}
-		synchronized (this) {
-			String label = cacheEnumLabel.get(enm);
-			if (label == null) {
-				label = getLabel(getEnumKey(enm));
-				cacheEnumLabel.put(enm, label);
-			}
-			return label;
+		String label = enumLabelCache.get(enm);
+		if (label == null) {
+			label = getLabel(getLabelKey(enm));
+			enumLabelCache.put(enm, label);
 		}
+		return label;
 	}
 	
 	@Override
@@ -140,7 +138,7 @@ public class ZKLabelProvider implements LabelProvider {
 		return BigDecimals.toLocaleString(decimal, LOCALE);
 	}
 	
-	private static String getEnumKey(Enum<?> enm) {
+	private static String getLabelKey(Enum<?> enm) {
 		final String[] parts = enm.getClass().getName().toLowerCase().split("\\.");
 		return parts[parts.length - 2] + '.' + 
 			   parts[parts.length - 1] + '.' + 

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.entity;
+package org.seed.core.entity.autonum;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -28,6 +28,7 @@ import org.seed.InternalException;
 import org.seed.core.data.AbstractSystemEntityService;
 import org.seed.core.data.SystemEntityValidator;
 import org.seed.core.data.ValidationException;
+import org.seed.core.entity.EntityField;
 import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,8 +115,8 @@ public class AutonumberServiceImpl extends AbstractSystemEntityService<Autonumbe
 		final Date now = new Date();
 		final StringBuilder buf = new StringBuilder();
 		int idx = 0;
-		
-		while (idx < pattern.length()) {
+		boolean run = true;
+		while (run && idx < pattern.length()) {
 			// find next '{'
 			final int idxStart = pattern.indexOf('{', idx);
 			if (idxStart >= 0) {
@@ -130,11 +131,11 @@ public class AutonumberServiceImpl extends AbstractSystemEntityService<Autonumbe
 					idx = idxEnd + 1;
 				}
 				else { // '}' not found
-					break;
+					run = false;
 				}
 			}
 			else { // no (further) '{' found
-				break;
+				run = false;
 			}
 		}
 		if (idx > 0) {

@@ -29,15 +29,16 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import org.seed.core.api.RestFunction.MethodType;
 import org.seed.core.application.AbstractContentObject;
 import org.seed.core.codegen.GeneratedObject;
 
 import org.springframework.util.StringUtils;
 
 @Entity
-@Table(name = "sys_rest_mapping")
+@Table(name = "sys_rest_function")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class RestMapping extends AbstractContentObject
+public class RestFunction extends AbstractContentObject
 	implements GeneratedObject {
 	
 	static final String PACKAGE_NAME = "org.seed.generated.rest";
@@ -48,7 +49,7 @@ public class RestMapping extends AbstractContentObject
 	
 	private String mapping;
 	
-	private RestMethodType method;
+	private MethodType method;
 	
 	@XmlTransient
 	public RestMetadata getRest() {
@@ -68,24 +69,28 @@ public class RestMapping extends AbstractContentObject
 		this.mapping = mapping;
 	}
 	
+	public String getNameMapping() {
+		return RestMetadata.getMapping(getInternalName());
+	}
+	
 	@XmlAttribute
-	public RestMethodType getMethod() {
+	public MethodType getMethod() {
 		return method;
 	}
 
-	public void setMethod(RestMethodType method) {
+	public void setMethod(MethodType method) {
 		this.method = method;
 	}
 	
 	@Override
 	public boolean isEqual(Object other) {
-		if (other == null || !RestMapping.class.isAssignableFrom(other.getClass())) {
+		if (other == null || !RestFunction.class.isAssignableFrom(other.getClass())) {
 			return false;
 		}
 		if (other == this) {
 			return true;
 		}
-		final RestMapping otherMapping = (RestMapping) other;
+		final RestFunction otherMapping = (RestFunction) other;
 		return new EqualsBuilder()
 				.append(getName(), otherMapping.getName())
 				.append(mapping, otherMapping.getMapping())

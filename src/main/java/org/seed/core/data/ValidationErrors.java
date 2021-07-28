@@ -25,17 +25,20 @@ public class ValidationErrors implements Serializable {
 
 	private static final long serialVersionUID = 5038795516523393867L;
 	
-	private final Set<ValidationError> errors = new LinkedHashSet<>();
+	private Set<ValidationError> errors;
 	
 	Set<ValidationError> getErrors() {
 		return errors;
 	}
 	
 	public boolean isEmpty() {
-		return errors.isEmpty();
+		return errors == null;
 	}
 
 	public ValidationErrors addError(String error, String ...parameters) {
+		if (errors == null) {
+			errors = new LinkedHashSet<>();
+		}
 		errors.add(new ValidationError(error, parameters));
 		return this;
 	}
@@ -78,6 +81,14 @@ public class ValidationErrors implements Serializable {
 	
 	public ValidationErrors addNotContains(String term) {
 		return addError("val.query.noterm", term);
+	}
+	
+	public ValidationErrors addNotStartsWith(String name, String term) {
+		return addError("val.notstartswith.field", name, term);
+	}
+	
+	public ValidationErrors addNotStartsWith(String name, String objectName, String term) {
+		return addError("val.notstartswith.objectfield", name, objectName, term);
 	}
 	
 }

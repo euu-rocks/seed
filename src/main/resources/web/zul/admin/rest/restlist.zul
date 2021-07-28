@@ -48,9 +48,9 @@
 		         selectedItem="@bind(vm.object)" 
 		         visible="@load(vm.existObjects())">
 			<listhead sizable="true">
-	            <listheader hflex="2" label="${labels.label.restservice}" 
+	            <listheader hflex="1" label="${labels.label.restservice}" 
 	            			sort="auto(name)" onCreate="self.sort(true)"/>
-	            <listheader hflex="min" label="${labels.label.mapping}"
+	            <listheader hflex="1" label="${labels.label.mapping}"
 	            			sort="auto(mapping)"/>			
 	            <listheader hflex="1" label="${labels.label.module}"
 	            			visible="@load(vm.existModules())"/>
@@ -84,7 +84,6 @@
 	            		<label value="@init(rest.name)" style="margin-left:3px"/>
 	            	</listcell>
 	            	<listcell>
-	            		<checkbox checked="@load(rest.mapping)" disabled="true"/>
 	            		<label value="@init(rest.mapping)" style="margin-left:3px"/>
 	            	</listcell>
 	            	<listcell iconSclass="@load(empty rest.module ? '' : 'z-icon-cube alpha-icon-lg')">

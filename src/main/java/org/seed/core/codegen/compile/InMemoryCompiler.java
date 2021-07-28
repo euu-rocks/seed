@@ -18,10 +18,9 @@
 package org.seed.core.codegen.compile;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.PostConstruct;
 import javax.tools.DiagnosticCollector;
@@ -45,7 +44,7 @@ public class InMemoryCompiler implements Compiler {
 	
 	private static final Logger log = LoggerFactory.getLogger(InMemoryCompiler.class);
 	
-	private final Map<String, Class<GeneratedCode>> mapClasses = Collections.synchronizedMap(new HashMap<>());
+	private final Map<String, Class<GeneratedCode>> mapClasses = new ConcurrentHashMap<>();
 	
 	private JavaCompiler javaCompiler;
 	

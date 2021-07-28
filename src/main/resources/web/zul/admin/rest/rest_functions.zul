@@ -23,56 +23,72 @@
 		<toolbar width="100%">
 			<toolbarbutton label="${labels.admin.entity.newfunction}" 
 						   iconSclass="z-icon-file-o alpha-icon-lg" 
-					   	   onClick="@command('newMapping')"/>
+					   	   onClick="@command('newFunction')"/>
 			<toolbarbutton label="${labels.admin.entity.removefunction}" 
 						   iconSclass="z-icon-remove alpha-icon-lg" 
-					   	   onClick="@command('removeMapping',elem=self)"
-					   	   visible="@load(not empty vm.mapping)"/>
+					   	   onClick="@command('removeFunction',elem=self)"
+					   	   visible="@load(not empty vm.function)"/>
 		</toolbar>
 	</north>
 	<center border="0">
 		<listbox mold="paging" autopaging="true" 
-				 model="@load(vm.object.mappings)" 
-		         selectedItem="@bind(vm.mapping)"
-		         visible="@load(!empty vm.object.mappings)"
+				 model="@load(vm.object.functions)" 
+		         selectedItem="@bind(vm.function)"
+		         visible="@load(!empty vm.object.functions)"
 		         class="alpha-noborder"
 		         hflex="1" vflex="1">
 			<listhead sizable="true">
-	            <listheader label="${labels.label.name}" hflex="8"/>
-	            <listheader label="${labels.label.mapping}" hflex="8"/>
+				<listheader label="${labels.label.method}" hflex="min"/>
+	            <listheader label="${labels.label.name}" hflex="max"/>
+	            <listheader label="${labels.label.mapping}" hflex="max"/>
 	        </listhead> 
-	        <template name="model" var="mapping">
-	            <listitem attributes.item="@load(mapping)" 
-	            		  onDoubleClick="@command('editFunction')"> 
+	        <template name="model" var="function">
+	            <listitem attributes.item="@load(function)" 
+	            		  onDoubleClick="@command('editFunctionSource')"> 
 	            	<listcell>
-	            		<label value="@load(mapping.name)" 
+	            		<label value="@load(vm.getEnumLabel(function.method))"/>
+	            	</listcell>
+	            	<listcell>
+	            		<label value="@load(function.name)" 
 	            			   style="margin-left:3px"/>
 	            	</listcell>
 	            	<listcell>
-	            		<label value="@load(mapping.mapping)"/>
+	            		<label value="@load(function.mapping)"/>
 	            	</listcell>
 	            </listitem>
 		    </template> 
 		</listbox>
 	</center>
 	<east title="${labels.label.properties}" 
-		  visible="@load(!empty vm.mapping)"
+		  visible="@load(!empty vm.function)"
 		  width="275px" border="0" collapsible="true" 
 		  class="alpha-properties">
 		<vlayout class="alpha-properties-content" hflex="1">
+			<label value="${labels.label.method}:"/>
+			<combobox model="@load(vm.methodTypes)"
+					  mandatory="true"
+					  selectedItem="@bind(vm.function.method)"
+					  value="@load(vm.getEnumLabel(vm.function.method))"
+					  onSelect="@command('flagDirty')"
+					  hflex="1">
+                <template name="model" var="methodType">
+                    <comboitem label="@load(vm.getEnumLabel(methodType))"/>
+                </template>
+            </combobox>
 			<label value="${labels.label.functionname}:"/>
             <textbox hflex="1"
-            		 value="@bind(vm.mapping.name)"
+            		 value="@bind(vm.function.name) @converter(vm.stringConverter)"
             		 mandatory="true"
-            		 onChange="@command('flagDirty', object=vm.mapping, notifyObject='internalName')"/>
+            		 onChange="@command('flagDirty', object=vm.function, notifyObject='nameMapping')"/>
             <label value="${labels.label.mapping}:"/>
             <textbox hflex="1"
-            		 value="@bind(vm.mapping.mapping)"
-            		 placeholder="@load(empty vm.mapping.internalName ? '' : ('/' += vm.mapping.internalName)))"
-            		 onChange="@command('flagDirty')"/>
+            		 value="@bind(vm.function.mapping) @converter(vm.stringConverter)"
+            		 placeholder="@load(vm.function.nameMapping)"
+            		 onChange="@command('flagDirty')"
+            		 instant="true"/>
             <button label="${labels.admin.entity.editsource}..."
-            		onClick="@command('editFunction')"
-            		disabled="@load(empty vm.mapping.name)"
+            		onClick="@command('editFunctionSource')"
+            		disabled="@load(empty vm.function.name)"
             		style="margin-top:8px;margin-bottom:8px"/>
         </vlayout>
     </east>

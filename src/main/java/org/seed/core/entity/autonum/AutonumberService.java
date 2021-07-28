@@ -15,11 +15,19 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.rest;
+package org.seed.core.entity.autonum;
 
-public enum RestMethodType {
+import javax.annotation.Nullable;
+
+import org.hibernate.Session;
+
+import org.seed.core.data.SystemEntityService;
+import org.seed.core.entity.EntityField;
+
+public interface AutonumberService extends SystemEntityService<Autonumber> {
 	
-	GET,
-	PUT
+	String getNextValue(EntityField entityField, @Nullable Session session);
+	
+	void deleteAutonumber(EntityField entityField, Session session);
 	
 }

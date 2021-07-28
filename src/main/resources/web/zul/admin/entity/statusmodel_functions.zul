@@ -95,7 +95,7 @@
 		<vlayout class="alpha-properties-content">
         	<label value="${labels.label.function}:"/>
             <textbox readonly="true" hflex="1"
-              		 value="@bind(vm.transitionFunction.function.name)"/>
+              		 value="@bind(vm.transitionFunction.function.name) @converter(vm.stringConverter)"/>
             <space/>
             <label value="${labels.admin.entity.functiontrigger}:"/>
             <hlayout>

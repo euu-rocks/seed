@@ -19,9 +19,9 @@ package org.seed.ui.zk.vm;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.persistence.OptimisticLockException;
 
@@ -50,7 +50,7 @@ import org.zkoss.zul.ListModel;
 
 public class DetailFormViewModel extends AbstractFormViewModel {
 	
-	private final Map<MultiKey, ListModel<ValueObject>> listModelMap = Collections.synchronizedMap(new HashMap<>());
+	private final Map<MultiKey, ListModel<ValueObject>> listModelMap = new ConcurrentHashMap<>();
 	
 	private List<FileObject> fileObjects; // initial file objects
 	

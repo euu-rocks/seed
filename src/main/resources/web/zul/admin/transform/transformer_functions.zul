@@ -60,7 +60,7 @@
 		<vlayout class="alpha-properties-content" hflex="1">
 			<label value="${labels.label.functionname}:"/>
             <textbox hflex="1"
-            		 value="@bind(vm.function.name)"
+            		 value="@bind(vm.function.name) @converter(vm.stringConverter)"
             		 mandatory="true"
             		 onChange="@command('flagDirty')"/>
             <button label="${labels.admin.transformer.editsource}..."

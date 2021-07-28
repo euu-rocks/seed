@@ -64,7 +64,7 @@
 		<vlayout class="alpha-properties-content">
         	<label value="${labels.label.name}:"/>
             <textbox hflex="1"
-            		 value="@bind(vm.subMenu.name)"
+            		 value="@bind(vm.subMenu.name) @converter(vm.stringConverter)"
             		 mandatory="true"
             		 onChange="@command('flagDirty')"/>
             		 

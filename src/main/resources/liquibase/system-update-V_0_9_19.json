@@ -1,0 +1,94 @@
+    {
+        "changeSet": {
+            "id": "system update 0.9.19",
+            "author": "seed",
+            "changes": [
+               {
+                  "dropPrimaryKey":   {
+                    "constraintName":  "pk_sys_rest_mapping",
+                    "tableName":       "sys_rest_mapping"
+                  }
+               },
+               {
+                  "dropUniqueConstraint":  {
+                    "constraintName":  "uni_sys_rest_mapping_name",
+                    "tableName":       "sys_rest_mapping"
+                  }
+               },
+               {
+                  "dropUniqueConstraint":  {
+                    "constraintName":  "uni_sys_rest_mapping_mapping",
+                    "tableName":       "sys_rest_mapping"
+                  }
+               },
+               {
+                  "dropForeignKeyConstraint":  {
+                     "baseTableName":  "sys_rest_mapping",
+                     "constraintName": "fk_sys_rest_mapping_rest"
+                  }
+               },
+               {
+                  "renameTable":  {
+                     "oldTableName":   "sys_rest_mapping",
+                     "newTableName":   "sys_rest_function"
+                  }
+               },
+               {
+                  "renameColumn":  {
+                     "columnDataType": "INT",
+                     "oldColumnName":  "type",
+                     "newColumnName":  "method",
+                     "tableName":      "sys_rest_function"
+                  }
+               },
+               {
+                  "addColumn":  {
+                     "columns":[
+                        {
+                           "column":  {
+                           "name":  "ordernum",
+                           "type":  "INT"
+                           } 
+                        }
+                     ],
+                     "tableName":  "sys_rest_function"
+                  } 
+               },
+               {
+                  "addPrimaryKey":   {
+                     "columnNames":    "id",
+                     "constraintName": "pk_sys_rest_function",
+                     "tableName":      "sys_rest_function"
+                  }
+               },
+               {
+                  "addUniqueConstraint": {
+                     "columnNames":    "rest_id,name",
+                     "constraintName": "uni_sys_rest_function_name",
+                     "tableName":      "sys_rest_function"
+                  }               
+               },
+               {
+                  "addUniqueConstraint": {
+                     "columnNames":    "rest_id,mapping",
+                     "constraintName": "uni_sys_rest_function_mapping",
+                     "tableName":      "sys_rest_function"
+                  }               
+               },
+               {
+                  "addForeignKeyConstraint": {
+                     "baseColumnNames":       "rest_id",
+                     "baseTableName":         "sys_rest_function",
+                     "constraintName":        "fk_sys_rest_function_rest",
+                     "deferrable":            "false",
+                     "initiallyDeferred":     "false",
+                     "onDelete":              "NO ACTION",
+                     "onUpdate":              "NO ACTION",
+                     "referencedColumnNames": "id",
+                     "referencedTableName":   "sys_rest",
+                     "validate":              "true"
+                  }
+               }
+            ]
+        }
+    }

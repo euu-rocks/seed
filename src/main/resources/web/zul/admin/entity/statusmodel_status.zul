@@ -65,7 +65,7 @@
 		<vlayout class="alpha-properties-content">
         	<label value="${labels.label.statusname}:"/>
             <textbox mandatory="true" hflex="1"
-               		 value="@bind(vm.status.name)"
+               		 value="@bind(vm.status.name) @converter(vm.stringConverter)"
                		 onChange="@command('flagDirty')"/>
             <label value="${labels.label.statusnumber}:"/>
 			<intbox mandatory="true" cols="4"
@@ -78,7 +78,7 @@
 	        </hlayout>
 	        <label value="${labels.label.description}:"/>
             <textbox hflex="1" rows="5"
-               		 value="@bind(vm.status.description)"
+               		 value="@bind(vm.status.description) @converter(vm.stringConverter)"
                		 onChanging="@command('flagDirty')"/>
        	</vlayout>
 	</east>

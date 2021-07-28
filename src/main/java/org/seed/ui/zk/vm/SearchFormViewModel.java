@@ -18,10 +18,9 @@
 package org.seed.ui.zk.vm;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.filter.CriterionOperator;
@@ -34,6 +33,7 @@ import org.seed.core.util.Assert;
 import org.seed.core.util.MultiKey;
 import org.seed.ui.FormParameter;
 import org.seed.ui.SearchParameter;
+
 import org.springframework.util.StringUtils;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
@@ -46,7 +46,7 @@ import org.zkoss.zul.Menuitem;
 
 public class SearchFormViewModel extends AbstractFormViewModel {
 	
-	private final Map<MultiKey, ListModel<ValueObject>> listModelMap = Collections.synchronizedMap(new HashMap<>());
+	private final Map<MultiKey, ListModel<ValueObject>> listModelMap = new ConcurrentHashMap<>();
 	
 	private Map<Long, Map<String, CriterionOperator>> fieldOperatorsMap;
 	
@@ -225,7 +225,7 @@ public class SearchFormViewModel extends AbstractFormViewModel {
 	
 	private void initNewSearch() {
 		setObject(valueObjectService().createInstance(getForm().getEntity()));
-		fieldOperatorsMap = Collections.synchronizedMap(new HashMap<>());
+		fieldOperatorsMap = new ConcurrentHashMap<>();
 	}
 	
 	private Map<String, CriterionOperator> getObjectCriteriaMap(ValueObject object) {
@@ -233,7 +233,7 @@ public class SearchFormViewModel extends AbstractFormViewModel {
 		if (objectId == null) {
 			objectId = 0L; // main object has no tmpId and gets id 0
 		}
-		fieldOperatorsMap.computeIfAbsent(objectId, o -> Collections.synchronizedMap(new HashMap<>()));
+		fieldOperatorsMap.computeIfAbsent(objectId, o -> new ConcurrentHashMap<>());
 		return fieldOperatorsMap.get(objectId);
 	}
 	

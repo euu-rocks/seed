@@ -67,7 +67,7 @@
 		  class="alpha-properties">
 		<vlayout class="alpha-properties-content">
 			<label value="${labels.label.name}:"/>
-            <textbox value="@bind(vm.nested.name)"
+            <textbox value="@bind(vm.nested.name) @converter(vm.stringConverter)"
             		 tooltiptext="@load(vm.nested.internalName)"
             		 onChange="@command('flagDirty',notify='nested')"
             		 mandatory="true"

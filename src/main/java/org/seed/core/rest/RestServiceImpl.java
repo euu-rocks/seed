@@ -17,19 +17,36 @@
  */
 package org.seed.core.rest;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Nullable;
+
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import org.seed.C;
+import org.seed.InternalException;
+import org.seed.core.api.RestFunction.MethodType;
+import org.seed.core.api.RestFunctionContext;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
+import org.seed.core.codegen.CodeManager;
+import org.seed.core.codegen.GeneratedCode;
+import org.seed.core.config.UpdatableConfiguration;
+import org.seed.core.data.Options;
+import org.seed.core.data.ValidationException;
+import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupService;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -45,19 +62,111 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 	@Autowired
 	private UserGroupService userGroupService;
 	
+	@Autowired
+	private UpdatableConfiguration configuration;
+	
+	@Autowired
+	private CodeManager codeManager;
+	
 	@Override
-	public RestMapping createMapping(Rest rest) {
+	public Rest createInstance(@Nullable Options options) {
+		final RestMetadata rest =  (RestMetadata) super.createInstance(options);
+		rest.createLists();
+		return rest;
+	}
+	
+	@Override
+	public RestFunction createFunction(Rest rest) {
 		Assert.notNull(rest, "rest");
 		
-		final RestMapping mapping = new RestMapping();
-		rest.addMapping(mapping);
-		return mapping;
+		final RestFunction function = new RestFunction();
+		rest.addFunction(function);
+		return function;
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<? extends ApplicationEntityService<ApplicationEntity>>[] getImportDependencies() {
 		return new Class[] { UserGroupService.class };
+	}
+	
+	@Override
+	public Rest findByMapping(String mapping) {
+		Assert.notNull(mapping, "mapping");
+		
+		Rest rest = repository.findUnique(queryParam("mapping", '/' + mapping));
+		if (rest == null) {
+			for (Rest tmpRest : repository.find()) {
+				if (mapping.equalsIgnoreCase(tmpRest.getInternalName())) {
+					rest = tmpRest;
+					break;
+				}
+			}
+		}
+		return rest;
+	}
+	
+	@Override
+	public Object callFunction(RestFunction function, MethodType method, 
+							   Object body, String[] parameters) {
+		Assert.notNull(function, C.FUNCTION);
+		Assert.notNull(method, "method");
+		
+		final Class<GeneratedCode> functionClass = codeManager.getGeneratedClass(function);
+		Assert.stateAvailable(functionClass, "function class");
+		
+		Object result = null;
+		try (Session session = repository.openSession()) {
+			Transaction tx = null;
+			try {
+				tx = session.beginTransaction();
+				
+				// create context
+				final RestFunctionContext context = 
+						new DefaultRestFunctionContext(method, parameters, body, 
+													   session, function.getRest().getModule());
+				// create instance
+				final org.seed.core.api.RestFunction functionInstance = 
+						(org.seed.core.api.RestFunction) MiscUtils.instantiate(functionClass);
+				
+				// call function
+				result = functionInstance.call(context);
+				
+				tx.commit();
+			}
+			catch (Exception ex) {
+				if (tx != null) {
+					tx.rollback();
+				}
+				throw new InternalException(ex);
+			}
+		}
+		return result;
+	}
+	
+	@Override
+	public List<RestPermission> getAvailablePermissions(Rest rest) {
+		Assert.notNull(rest, "rest");
+		
+		final List<RestPermission> result = new ArrayList<>();
+		for (UserGroup group : userGroupService.findAllObjects()) {
+			boolean found = false;
+			if (rest.hasPermissions()) {
+				for (RestPermission permission : rest.getPermissions()) {
+					if (permission.getUserGroup().equals(group)) {
+						found = true;
+						break;
+					}
+				}
+			}
+			if (!found) {
+				final RestPermission permission = new RestPermission();
+				permission.setRest(rest);
+				permission.setUserGroup(group);
+				result.add(permission);
+			}
+		}
+		return result;
 	}
 
 	@Override
@@ -78,9 +187,9 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 	}
 	
 	private void initRest(Rest rest, Rest currentVersionRest, Session session) {
-		if (rest.hasMappings()) {
-			for (RestMapping mapping : rest.getMappings()) {
-				initRestMapping(mapping, rest, currentVersionRest);
+		if (rest.hasFunctions()) {
+			for (RestFunction function : rest.getFunctions()) {
+				initRestFunction(function, rest, currentVersionRest);
 			}
 		}
 		if (rest.hasPermissions()) {
@@ -90,14 +199,14 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 		}
 	}
 	
-	private void initRestMapping(RestMapping mapping, Rest rest, Rest currentVersionRest) {
-		mapping.setRest(rest);
-		final RestMapping currentVersionMapping = 
+	private void initRestFunction(RestFunction function, Rest rest, Rest currentVersionRest) {
+		function.setRest(rest);
+		final RestFunction currentVersionFunction = 
 				currentVersionRest != null 
-				? currentVersionRest.getMappingByUid(mapping.getUid())
+				? currentVersionRest.getFunctionByUid(function.getUid())
 				: null;
-		if (currentVersionMapping != null) {
-			currentVersionMapping.copySystemFieldsTo(mapping);
+		if (currentVersionFunction != null) {
+			currentVersionFunction.copySystemFieldsTo(function);
 		}
 	}
 	
@@ -126,6 +235,15 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 				}
 			}
 		}
+	}
+	
+	@Override
+	@Secured("ROLE_ADMIN_JOB")
+	public void saveObject(Rest rest) throws ValidationException {
+		Assert.notNull(rest, "rest");
+		
+		super.saveObject(rest);
+		configuration.updateConfiguration();
 	}
 
 	@Override

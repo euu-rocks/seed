@@ -18,10 +18,79 @@
 package org.seed.core.rest;
 
 import org.seed.core.data.AbstractSystemEntityValidator;
+import org.seed.core.data.ValidationErrors;
+import org.seed.core.data.ValidationException;
+import org.seed.core.util.Assert;
 
 import org.springframework.stereotype.Component;
 
 @Component
 public class RestValidator extends AbstractSystemEntityValidator<Rest> {
+	
+	private static final String LABEL_FUNCTION = "label.function";
+	private static final String LABEL_FUNCTIONNAME = "label.functionname";
+	private static final String LABEL_MAPPING = "label.mapping";
 
+	@Override
+	public void validateSave(Rest rest) throws ValidationException {
+		Assert.notNull(rest, "rest");
+		final ValidationErrors errors = new ValidationErrors();
+		
+		// name
+		if (isEmpty(rest.getName())) {
+			errors.addEmptyName();
+		}
+		else if (!isNameLengthAllowed(rest.getName())) {
+			errors.addOverlongName(getMaxNameLength());
+		}
+		// mapping
+		if (!isEmpty(rest.getMapping())) {
+			if (!isNameLengthAllowed(rest.getMapping())) {
+				errors.addOverlongField(LABEL_MAPPING, getMaxNameLength());
+			}
+			else if (!rest.getMapping().startsWith("/")) {
+				errors.addNotStartsWith(LABEL_MAPPING, "/");
+			}
+		}
+		// functions
+		if (rest.hasFunctions()) {
+			validateFunctions(rest, errors);
+		}
+		
+		validate(errors);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void validateFunctions(Rest rest, ValidationErrors errors) {
+		for (RestFunction function : rest.getFunctions()) {
+			if (isEmpty(function.getMethod())) {
+				errors.addEmptyField("label.method");
+			}
+			if (isEmpty(function.getName())) {
+				errors.addEmptyField(LABEL_FUNCTIONNAME);
+			}
+			else if (!isNameLengthAllowed(function.getName())) {
+				errors.addOverlongObjectName(LABEL_FUNCTION, getMaxNameLength());
+			}
+			else if (!isNameAllowed(function.getInternalName())) {
+				errors.addIllegalField(LABEL_FUNCTIONNAME, function.getName());
+			}
+			else if (!isNameUnique(function.getName(), rest.getFunctions())) {
+				errors.addError("val.ambiguous.functionname", function.getName());
+			}
+			// mapping
+			if (!isEmpty(function.getMapping())) {
+				if (!isNameLengthAllowed(function.getMapping())) {
+					errors.addOverlongObjectField(LABEL_MAPPING, LABEL_FUNCTION, getMaxNameLength());
+				}
+				else if (!function.getMapping().startsWith("/")) {
+					errors.addNotStartsWith(LABEL_MAPPING, LABEL_FUNCTION, "/");
+				}
+				else if (!isUnique(function.getMapping(), "mapping", rest.getFunctions())) {
+					errors.addError("val.ambiguous.functionmapping", function.getMapping());
+				}
+			}
+		}
+	}
+	
 }

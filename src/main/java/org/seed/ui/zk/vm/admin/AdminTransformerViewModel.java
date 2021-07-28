@@ -36,6 +36,7 @@ import org.seed.core.entity.transform.TransformerService;
 import org.seed.core.entity.transform.codegen.TransformerFunctionCodeProvider;
 import org.seed.core.user.Authorisation;
 import org.seed.core.user.UserGroup;
+import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 import org.seed.ui.ListFilter;
 
@@ -416,8 +417,9 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 
 	@Override
 	protected SourceCode getSourceCode(ContentObject contentObject) {
-		final TransformerFunction function = (TransformerFunction) contentObject;
-		return transformerFunctionCodeProvider.getFunctionSource(function);
+		Assert.notNull(contentObject, "contentObject");
+		
+		return transformerFunctionCodeProvider.getFunctionSource((TransformerFunction) contentObject);
 	}
 	
 }

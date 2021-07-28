@@ -17,8 +17,6 @@
  */
 package org.seed.ui.zk.vm.admin;
 
-import org.seed.core.application.ContentObject;
-import org.seed.core.codegen.SourceCode;
 import org.seed.core.data.DataException;
 import org.seed.core.data.dbobject.DBObject;
 import org.seed.core.data.dbobject.DBObjectService;
@@ -140,11 +138,6 @@ public class AdminDBObjectViewModel extends AbstractAdminViewModel<DBObject> {
 	@Override
 	protected void resetProperties() {
 		errorMessage = null;
-	}
-	
-	@Override
-	protected SourceCode getSourceCode(ContentObject contentObject) {
-		throw new UnsupportedOperationException();
 	}
 	
 }

@@ -63,7 +63,7 @@
 		<vlayout class="alpha-properties-content">
         	<label value="${labels.label.name}:"/>
             <textbox hflex="1"
-            		 value="@bind(vm.printout.name)"
+            		 value="@bind(vm.printout.name) @converter(vm.stringConverter)"
             		 mandatory="true"
             		 onChange="@command('flagDirty')"/>
             <label value="${labels.label.file}:"/>

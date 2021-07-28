@@ -349,7 +349,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 			else if (!isNameAllowed(function.getInternalName())) {
 				errors.addIllegalField("label.functionname", function.getName());
 			}
-				else if (!isNameUnique(function.getName(), entity.getAllFunctions())) {
+			else if (!isNameUnique(function.getName(), entity.getAllFunctions())) {
 				errors.addError("val.ambiguous.functionname", function.getName());
 			}
 		}

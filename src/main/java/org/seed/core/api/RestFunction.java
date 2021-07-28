@@ -19,6 +19,12 @@ package org.seed.core.api;
 
 public interface RestFunction {
 	
+	public enum MethodType {
+		
+		GET,
+		POST
+	}
+	
 	Object call(RestFunctionContext context);
 	
 }

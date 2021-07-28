@@ -19,18 +19,36 @@ package org.seed.core.rest;
 
 import org.hibernate.Session;
 
+import org.seed.core.api.RestFunction.MethodType;
 import org.seed.core.api.RestFunctionContext;
 import org.seed.core.application.module.Module;
 import org.seed.core.entity.value.event.ValueObjectFunctionContext;
 
-public class DefaultRestFunctionContext extends ValueObjectFunctionContext
+class DefaultRestFunctionContext extends ValueObjectFunctionContext
 	implements RestFunctionContext {
+	
+	private final MethodType methodType;
+	
+	private final Object body; 
 	
 	private final String[] parameters;
 
-	DefaultRestFunctionContext(String[] parameters, Session session, Module module) {
+	DefaultRestFunctionContext(MethodType methodType, String[] parameters, Object body, 
+							   Session session, Module module) {
 		super(session, module);
+		this.methodType = methodType;
+		this.body = body;
 		this.parameters = parameters;
+	}
+	
+	@Override
+	public MethodType getMethodType() {
+		return methodType;
+	}
+	
+	@Override
+	public Object getBody() {
+		return body;
 	}
 
 	@Override

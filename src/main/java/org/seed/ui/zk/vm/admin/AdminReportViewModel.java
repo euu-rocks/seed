@@ -19,8 +19,6 @@ package org.seed.ui.zk.vm.admin;
 
 import java.util.List;
 
-import org.seed.core.application.ContentObject;
-import org.seed.core.codegen.SourceCode;
 import org.seed.core.data.SystemObject;
 import org.seed.core.data.datasource.IDataSource;
 import org.seed.core.data.datasource.DataSourceService;
@@ -217,9 +215,4 @@ public class AdminReportViewModel extends AbstractAdminViewModel<Report> {
 		permission = null;
 	}
 	
-	@Override
-	protected SourceCode getSourceCode(ContentObject contentObject) {
-		throw new UnsupportedOperationException();
-	}
-
 }

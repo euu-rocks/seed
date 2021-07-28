@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.entity;
+package org.seed.core.entity.autonum;
 
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -26,6 +26,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.core.data.AbstractSystemEntity;
+import org.seed.core.entity.EntityField;
 
 @javax.persistence.Entity
 @Table(name = "sys_entity_autonum")

@@ -17,7 +17,13 @@
  */
 package org.seed.core.api;
 
+import org.seed.core.api.RestFunction.MethodType;
+
 public interface RestFunctionContext extends CallbackFunctionContext {
+	
+	MethodType getMethodType();
+	
+	Object getBody();
 	
 	String[] getParameters();
 	

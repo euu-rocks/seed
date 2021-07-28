@@ -61,7 +61,7 @@
 							<label value="${labels.label.username}:"/>
 						</cell>
 						<cell style="padding: 4px 4px">
-							<textbox value="@bind(vm.object.name)"
+							<textbox value="@bind(vm.object.name) @converter(vm.stringConverter)"
 									 mandatory="true"
 									 onChange="@command('flagDirty')"
 									 hflex="1"/> 
@@ -70,7 +70,7 @@
 							<label value="${labels.label.email}:"/>
 						</cell>
 						<cell style="padding: 4px 4px">
-							<textbox value="@bind(vm.object.email)"
+							<textbox value="@bind(vm.object.email) @converter(vm.stringConverter)"
 									 mandatory="true"
 									 onChange="@command('flagDirty')"
 									 type="email"
@@ -82,7 +82,7 @@
 							<label value="${labels.label.firstname}:"/>
 						</cell>
 						<cell style="padding: 4px 4px">
-							<textbox value="@bind(vm.object.firstname)"
+							<textbox value="@bind(vm.object.firstname) @converter(vm.stringConverter)"
 									 onChange="@command('flagDirty')"
 									 hflex="1"/> 
 						</cell>
@@ -90,7 +90,7 @@
 							<label value="${labels.label.lastname}:"/>
 						</cell>
 						<cell style="padding: 4px 4px">
-							<textbox value="@bind(vm.object.lastname)"
+							<textbox value="@bind(vm.object.lastname) @converter(vm.stringConverter)"
 									 onChange="@command('flagDirty')"
 									 hflex="1"/>
 						</cell>

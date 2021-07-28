@@ -49,6 +49,7 @@ import org.seed.core.form.FormOptions;
 import org.seed.core.form.navigation.Menu;
 import org.seed.core.form.navigation.MenuService;
 import org.seed.core.user.Authorisation;
+import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 import org.seed.ui.ListFilter;
 
@@ -916,6 +917,16 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 		return Collections.emptyList();
 	}
 	
+	@Override
+	protected SourceCode getSourceCode(ContentObject contentObject) {
+		Assert.notNull(contentObject, "contentObject");
+		final EntityFunction entityFunction = (EntityFunction) contentObject;
+		
+		return entityFunction.isCallback()
+				? entityFunctionCodeProvider.getFunctionSource(entityFunction)
+				: entitySourceCodeProvider.getEntitySource(getObject());
+	}
+	
 	private void setDefaultTransition() {
 		if (getObject().hasStatusTransitions()) {
 			statusTransition = getObject().getStatusTransitions().get(0);
@@ -936,17 +947,6 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 			if (!errors.isEmpty()) {
 				throw new ValidationException(errors);
 			}
-		}
-	}
-
-	@Override
-	protected SourceCode getSourceCode(ContentObject contentObject) {
-		final EntityFunction function = (EntityFunction) contentObject;
-		if (function.isCallback()) {
-			return entityFunctionCodeProvider.getFunctionSource(function);
-		}
-		else {
-			return entitySourceCodeProvider.getEntitySource(getObject());
 		}
 	}
 

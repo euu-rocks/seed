@@ -22,11 +22,11 @@ import static org.seed.core.form.layout.LayoutUtils.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -75,7 +75,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Autowired
 	private LayoutValidator layoutValidator;
 	
-	private final Map<String, LayoutElement> editLayoutMap = Collections.synchronizedMap(new HashMap<>());
+	private final Map<String, LayoutElement> editLayoutMap = new ConcurrentHashMap<>();
 	
 	@Override
 	public void registerEditLayout(Form form, String username, LayoutElement layoutRoot) {

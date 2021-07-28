@@ -101,7 +101,6 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	
 	protected abstract SystemEntityService<T> getObjectService();
 	protected abstract void resetProperties();
-	protected abstract SourceCode getSourceCode(ContentObject contentObject);
 	
 	protected AbstractAdminViewModel() {
 		authorisation = null;
@@ -287,6 +286,10 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	
 	protected UserGroupService userGroupService() {
 		return userGroupService;
+	}
+	
+	protected SourceCode getSourceCode(ContentObject contentObject) {
+		throw new UnsupportedOperationException();
 	}
 	
 	public String getTitle() {

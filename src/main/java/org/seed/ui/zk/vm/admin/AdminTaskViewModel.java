@@ -42,6 +42,7 @@ import org.seed.core.task.TaskService;
 import org.seed.core.task.codegen.TaskCodeProvider;
 import org.seed.core.user.Authorisation;
 import org.seed.core.user.User;
+import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 
 import org.springframework.util.ObjectUtils;
@@ -400,6 +401,7 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 
 	@Override
 	protected SourceCode getSourceCode(ContentObject contentObject) {
+		Assert.notNull(contentObject, "contentObject");
 		final Task task = (Task) contentObject;
 		return taskCodeProvider.getTaskSource(task);
 	}

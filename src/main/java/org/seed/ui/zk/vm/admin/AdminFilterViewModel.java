@@ -20,8 +20,6 @@ package org.seed.ui.zk.vm.admin;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.seed.core.application.ContentObject;
-import org.seed.core.codegen.SourceCode;
 import org.seed.core.data.SystemField;
 import org.seed.core.data.SystemObject;
 import org.seed.core.entity.Entity;
@@ -336,11 +334,6 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 		criterion = null;
 		nested = null;
 		hqlInput = false;
-	}
-	
-	@Override
-	protected SourceCode getSourceCode(ContentObject contentObject) {
-		throw new UnsupportedOperationException();
 	}
 	
 }

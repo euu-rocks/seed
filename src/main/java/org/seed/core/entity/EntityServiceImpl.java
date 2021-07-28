@@ -42,6 +42,7 @@ import org.seed.core.config.changelog.ChangeLog;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.Options;
 import org.seed.core.data.ValidationException;
+import org.seed.core.entity.autonum.AutonumberService;
 import org.seed.core.user.User;
 import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupService;

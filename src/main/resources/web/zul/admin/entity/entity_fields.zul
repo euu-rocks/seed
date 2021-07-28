@@ -75,7 +75,7 @@
 		<vlayout class="alpha-properties-content">
         	<label value="${labels.label.fieldname}:"/>
             <textbox hflex="1"
-            		 value="@bind(vm.field.name)"
+            		 value="@bind(vm.field.name) @converter(vm.stringConverter)"
             		 tooltiptext="@load(vm.field.internalName)"
             		 mandatory="true"
             		 onChange="@command('flagDirty',notify='field')"/>

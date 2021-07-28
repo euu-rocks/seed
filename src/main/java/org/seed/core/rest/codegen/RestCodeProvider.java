@@ -25,7 +25,7 @@ import org.seed.core.codegen.SourceCodeBuilder;
 import org.seed.core.codegen.SourceCodeBuilder.BuildMode;
 import org.seed.core.codegen.SourceCodeProvider;
 import org.seed.core.rest.Rest;
-import org.seed.core.rest.RestMapping;
+import org.seed.core.rest.RestFunction;
 import org.seed.core.rest.RestRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,11 +37,11 @@ public class RestCodeProvider implements SourceCodeProvider {
 	@Autowired
 	private RestRepository repository;
 	
-	public String getFunctionTemplate(RestMapping mapping) {
+	public String getFunctionTemplate(RestFunction mapping) {
 		return new RestCodeBuilder(mapping).build(BuildMode.TEMPLATE).getContent();
 	}
 	
-	public SourceCode getRestSource(RestMapping mapping) {
+	public SourceCode getRestSource(RestFunction mapping) {
 		return new RestCodeBuilder(mapping).build();
 	}
 	
@@ -49,8 +49,8 @@ public class RestCodeProvider implements SourceCodeProvider {
 	public List<SourceCodeBuilder> getSourceCodeBuilders() {
 		final List<SourceCodeBuilder> result = new ArrayList<>();
 		for (Rest rest : repository.find()) {
-			if (rest.hasMappings()) {
-				for (RestMapping mapping : rest.getMappings()) {
+			if (rest.hasFunctions()) {
+				for (RestFunction mapping : rest.getFunctions()) {
 					result.add(new RestCodeBuilder(mapping));
 				}
 			}

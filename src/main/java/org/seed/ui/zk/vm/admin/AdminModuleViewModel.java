@@ -22,13 +22,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.seed.core.application.ApplicationEntity;
-import org.seed.core.application.ContentObject;
 import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.ModuleMetadata;
 import org.seed.core.application.module.ModuleParameter;
 import org.seed.core.application.module.ModuleService;
-import org.seed.core.codegen.SourceCode;
 import org.seed.core.customcode.CustomCodeService;
 import org.seed.core.data.SystemObject;
 import org.seed.core.data.ValidationException;
@@ -369,11 +367,6 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	@Override
 	protected void resetProperties() {
 		parameter = null;
-	}
-	
-	@Override
-	protected SourceCode getSourceCode(ContentObject contentObject) {
-		throw new UnsupportedOperationException();
 	}
 	
 	private List<SystemObject> getListManagerSourceDBObject(int listNum) {
