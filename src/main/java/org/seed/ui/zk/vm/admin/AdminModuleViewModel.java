@@ -38,6 +38,7 @@ import org.seed.core.entity.transfer.TransferService;
 import org.seed.core.entity.transform.TransformerService;
 import org.seed.core.form.FormService;
 import org.seed.core.form.navigation.MenuService;
+import org.seed.core.rest.RestService;
 import org.seed.core.task.TaskService;
 import org.seed.core.user.Authorisation;
 import org.seed.core.util.Assert;
@@ -70,6 +71,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	private static final String PARAMETERS = "parameters";
 	private static final String TASKS = "tasks";
 	private static final String REPORTS = "reports";
+	private static final String RESTS = "rests";
 	private static final String CUSTOMCODES = "customcodes";
 	private static final String USERGROUPS = "usergroups";
 	
@@ -103,6 +105,9 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	@WireVariable(value="taskServiceImpl")
 	private TaskService taskService;
 	
+	@WireVariable(value="restServiceImpl")
+	private RestService restService;
+	
 	@WireVariable(value="customCodeServiceImpl")
 	private CustomCodeService customCodeService;
 	
@@ -118,6 +123,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	private boolean existMenus;
 	private boolean existTasks;
 	private boolean existReports;
+	private boolean existRests;
 	private boolean existCustomCodes;
 	private boolean existUserGroups;
 	
@@ -175,6 +181,10 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 		return existReports;
 	}
 	
+	public boolean existRests() {
+		return existRests;
+	}
+	
 	public boolean existCustomCodes() {
 		return existCustomCodes;
 	}
@@ -201,6 +211,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 		existMenus = menuService.existObjects();
 		existTasks = taskService.existObjects();
 		existReports = reportService.existObjects();
+		existRests = restService.existObjects();
 		existCustomCodes = customCodeService.existObjects();
 		existUserGroups = !userGroupService.findNonSystemGroups().isEmpty();
 	}
@@ -355,6 +366,8 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 				return getListManagerSourceTask(listNum);
 			case REPORTS:
 				return getListManagerSourceReport(listNum);
+			case RESTS:
+				return getListManagerSourceRest(listNum);
 			case CUSTOMCODES:
 				return getListManagerSourceCustomCode(listNum);
 			case USERGROUPS:
@@ -429,6 +442,12 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 				: reportService.findObjectsWithoutModule());
 	}
 	
+	private List<SystemObject> getListManagerSourceRest(int listNum) {
+		return MiscUtils.cast(listNum == LIST_SELECTED
+				? getObject().getRests()
+				: restService.findObjectsWithoutModule());
+	}
+	
 	private List<SystemObject> getListManagerSourceCustomCode(int listNum) {
 		return MiscUtils.cast(listNum == LIST_SELECTED
 				? getObject().getCustomCodes()
@@ -453,6 +472,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 		collectChangedObjects(changedObjects, MENUS);
 		collectChangedObjects(changedObjects, TASKS);
 		collectChangedObjects(changedObjects, REPORTS);
+		collectChangedObjects(changedObjects, RESTS);
 		collectChangedObjects(changedObjects, CUSTOMCODES);
 		collectChangedObjects(changedObjects, USERGROUPS);
 		return changedObjects;

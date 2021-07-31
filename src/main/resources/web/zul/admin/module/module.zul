@@ -29,6 +29,7 @@
 <?component name="module-params" macroURI="~./zul/admin/module/module_params.zul" inline="true"?>
 <?component name="module-tasks" macroURI="~./zul/admin/module/module_tasks.zul" inline="true"?>
 <?component name="module-reports" macroURI="~./zul/admin/module/module_reports.zul" inline="true"?>
+<?component name="module-rests" macroURI="~./zul/admin/module/module_rests.zul" inline="true"?>
 <?component name="module-customcodes" macroURI="~./zul/admin/module/module_customcodes.zul" inline="true"?>
 <?component name="module-usergroups" macroURI="~./zul/admin/module/module_usergroups.zul" inline="true"?>
 <borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminModuleViewModel')">
@@ -113,6 +114,8 @@
 						 visible="@load(vm.existDataSources())"/>
 					<tab id="tabReports" label="${labels.label.reports}"
 						 visible="@load(vm.existReports())"/>
+					<tab id="tabRests" label="${labels.label.restservice}"
+						 visible="@load(vm.existRests())"/>
 					<tab id="tabCustomCodes" label="${labels.label.customcode}"
 						 visible="@load(vm.existCustomCodes())"/>
 					<tab id="tabGroups" label="${labels.label.usergroups}"
@@ -151,6 +154,9 @@
 					</tabpanel>
 					<tabpanel fulfill="tabReports.onSelect">
 						<module-reports/>
+					</tabpanel>
+					<tabpanel fulfill="tabRests.onSelect">
+						<module-rests/>
 					</tabpanel>
 					<tabpanel fulfill="tabCustomCodes.onSelect">
 						<module-customcodes/>

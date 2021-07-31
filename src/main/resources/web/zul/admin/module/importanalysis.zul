@@ -48,6 +48,8 @@
 						 visible="@init(!empty vm.importAnalysis.dataSourceChanges)"/>
 					<tab label="${labels.label.reports}"
 						 visible="@init(!empty vm.importAnalysis.reportChanges)"/>
+					<tab label="${labels.label.restservice}"
+						 visible="@init(!empty vm.importAnalysis.restChanges)"/>
 					<tab label="${labels.label.customcode}"
 						 visible="@init(!empty vm.importAnalysis.customCodeChanges)"/>
 					<tab label="${labels.label.usergroups}"
@@ -297,6 +299,27 @@
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
 					            <listheader label="${labels.label.report}" hflex="max"/>
+					        </listhead>
+					        <template name="model" var="change">
+					        	<listitem>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(vm.getEnumLabel(change.type))" />
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.entity.name)"/>
+					        		</listcell>
+					        	</listitem>
+					        </template>
+		         		</listbox>
+					</tabpanel>
+					<tabpanel>
+						<listbox mold="paging" autopaging="true" 
+				 				 model="@init(vm.importAnalysis.restChanges)"
+				 				 class="alpha-noborder"
+		         				 hflex="1" vflex="1">
+		         			<listhead sizable="true">
+					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.rest}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
 					        	<listitem>

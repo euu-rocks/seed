@@ -131,6 +131,16 @@ public class MenuManager {
 										"/admin/rest/restlist.zul", 
 										"z-icon-server z-icon-fw"));
 		}
+		if (user.isAuthorised(Authorisation.ADMIN_MODULE)) {
+			nodeAdmin.addChild(new TreeNode(getLabel("label.modules"), 
+										"/admin/module/modulelist.zul", 
+										"z-icon-cube z-icon-fw"));
+		}
+		if (user.isAuthorised(Authorisation.ADMIN_SETTINGS)) {
+			nodeAdmin.addChild(new TreeNode(getLabel("label.settings"), 
+										"/admin/setting/settings.zul", 
+										"z-icon-wrench z-icon-fw"));
+		}
 		if (user.isAuthorised(Authorisation.ADMIN_USER)) {
 			createUserMenu(nodeAdmin);
 		}

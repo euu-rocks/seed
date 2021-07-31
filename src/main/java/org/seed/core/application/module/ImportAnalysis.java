@@ -33,6 +33,7 @@ import org.seed.core.entity.transform.Transformer;
 import org.seed.core.form.Form;
 import org.seed.core.form.navigation.Menu;
 import org.seed.core.report.Report;
+import org.seed.core.rest.Rest;
 import org.seed.core.task.Task;
 import org.seed.core.user.UserGroup;
 import org.seed.core.util.Assert;
@@ -129,6 +130,10 @@ public class ImportAnalysis {
 	
 	public List<Change> getReportChanges() {
 		return getChanges(Report.class);
+	}
+	
+	public List<Change> getRestChanges() {
+		return getChanges(Rest.class);
 	}
 	
 	public List<Change> getCustomCodeChanges() {

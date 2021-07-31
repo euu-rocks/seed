@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.seed.C;
+import org.seed.Seed;
 import org.seed.core.application.setting.Setting;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormService;
@@ -59,6 +60,9 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	@WireVariable(value="menuManager")
 	private MenuManager menuManager;
 	
+	@WireVariable(value="seed")
+	private Seed seed;
+	
 	private final List<String> openNodes = new ArrayList<>();
 	
 	private final List<Tab> tabs = new ArrayList<>();
@@ -71,7 +75,14 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	
 	public String getApplicationName() {
 		final String appName = getSettingOrNull(Setting.APPLICATION_NAME);
-		return appName != null ? appName : "Seed";
+		if (appName != null) {
+			return appName;
+		}
+		final String seedVersion = seed.getVersion();
+		if (seedVersion != null) {
+			return "seed " + seedVersion;
+		}
+		return "seed";
 	}
 	
 	public boolean isMenuMode(String mode) {

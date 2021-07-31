@@ -18,9 +18,12 @@
 package org.seed;
 
 import org.seed.config.ZKCEApplication;
+import org.seed.core.util.Assert;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -36,6 +39,9 @@ public class Seed {
 	
 	private static ApplicationContext applicationContext;
 	
+	@Autowired
+	private BuildProperties buildProperties;
+	
 	public static void main(String[] args) {
 		applicationContext = SpringApplication.run(Seed.class, args);
 	}
@@ -45,14 +51,17 @@ public class Seed {
 		return "seed";
 	}
 	
-	// beans only available after startup completed
+	public String getVersion() {
+		return buildProperties != null
+				? buildProperties.getVersion()
+				: null;
+	}
+	
 	public static <T> T getBean(Class<T> typeClass) {
-    	if (typeClass == null) {
-    		throw new IllegalArgumentException("typeClass is null");
-    	}
-		if (applicationContext == null) {
-    		throw new IllegalStateException("applicationContext not avalable");
-    	}
+		Assert.notNull(typeClass, "typeClass");
+    	// context only available after startup completed
+		Assert.stateAvailable(applicationContext, "applicationContext");
+		
     	return applicationContext.getBean(typeClass);
 	}
 	

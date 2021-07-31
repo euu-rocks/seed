@@ -43,7 +43,7 @@ public final class TreeNode {
 		this (label, viewName, iconClass, null);
 	}
 	
-	public TreeNode(String label, String viewName, String iconClass, Long formId) {
+	TreeNode(String label, String viewName, String iconClass, Long formId) {
 		Assert.notNull(label, "label");
 		
 		this.label = label;
