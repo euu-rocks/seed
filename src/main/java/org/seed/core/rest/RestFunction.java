@@ -101,7 +101,7 @@ public class RestFunction extends AbstractContentObject
 
 	@Override
 	public String getGeneratedPackage() {
-		return PACKAGE_NAME + '.' + rest.getInternalName();
+		return PACKAGE_NAME + '.' + rest.getInternalName().toLowerCase();
 	}
 
 	@Override

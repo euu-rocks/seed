@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping("/rest/entity")
+@RequestMapping("/seed/rest/entity")
 public class EntityRestController extends AbstractRestController<Entity> {
 	
 	@Autowired

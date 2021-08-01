@@ -42,7 +42,7 @@ public class TaskValidator extends AbstractSystemEntityValidator<Task> {
 			errors.addOverlongName(getMaxNameLength());
 		}
 		else if (!isNameAllowed(task.getInternalName())) {
-			errors.addIllegalField("label.name", task.getName());
+			errors.addIllegalName(task.getName());
 		}
 		if (!isEmpty(task.getCronExpression())) {
 			if (task.getCronExpression().length() > getMaxStringLength()) {

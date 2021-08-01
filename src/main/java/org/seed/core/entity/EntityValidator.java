@@ -270,7 +270,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		}
 		else if ((entity.getTableName() == null && entity.getInternalName().toLowerCase().startsWith("sys_")) || 
 				 !isNameAllowed(entity.getInternalName())) {
-			errors.addIllegalField("label.name", entity.getName());
+			errors.addIllegalName(entity.getName());
 		}
 		
 		// table name

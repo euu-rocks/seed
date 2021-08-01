@@ -36,7 +36,7 @@ public class CustomCodeValidator extends AbstractSystemEntityValidator<CustomCod
 			errors.addEmptyName();
 		}
 		else if (!isNameAllowed(code.getInternalName())) {
-			errors.addIllegalField("label.name", code.getName());
+			errors.addIllegalName(code.getName());
 		}
 		else if (code.getName().length() > 512) {
 			errors.addOverlongName(512);

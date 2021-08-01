@@ -59,6 +59,10 @@ public class ValidationErrors implements Serializable {
 		return addError("val.illegal.field", name, value);
 	}
 	
+	public ValidationErrors addIllegalName(String value) {
+		return addIllegalField("label.name", value);
+	}
+	
 	public ValidationErrors addOverlongName(int maxlength) {
 		return addError("val.toolong.name", String.valueOf(maxlength));
 	}

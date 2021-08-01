@@ -46,7 +46,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping("/rest")
+@RequestMapping("/seed/rest/object")
 public class ValueObjectRestController {
 	
 	@Autowired

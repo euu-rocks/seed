@@ -34,11 +34,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-@RestController
-@RequestMapping("/custom")
-public class CustomRestController {
+@org.springframework.web.bind.annotation.RestController
+@RequestMapping("/seed/rest")
+public class RestController {
 	
 	@Autowired
 	private RestService restService;
@@ -57,7 +56,7 @@ public class CustomRestController {
 	}
 	
 	private ResponseEntity<Object> handleRequest(MethodType method, HttpServletRequest request, Object body) {
-		final String uri = request.getRequestURI().substring(7);
+		final String uri = request.getRequestURI().substring(10);
 		if (!uri.isEmpty()) {
 			final String[] uriParts = uri.substring(1).split("/"); 
 			if (uriParts.length >= 2) {
