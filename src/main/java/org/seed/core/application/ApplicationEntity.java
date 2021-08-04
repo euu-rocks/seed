@@ -21,6 +21,14 @@ import org.seed.core.application.module.Module;
 import org.seed.core.data.SystemEntity;
 import org.seed.core.user.User;
 
+/** 
+ * An ApplicationEntity represents a SystemEntity, 
+ * that is transferable and can be part of a module.
+ * It also supports a permission management to restrict access.
+ * 
+ * @author seed-master
+ *
+ */
 public interface ApplicationEntity extends SystemEntity, TransferableObject {
 	
 	Module getModule();

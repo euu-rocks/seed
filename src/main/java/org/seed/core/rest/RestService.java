@@ -28,6 +28,8 @@ public interface RestService extends ApplicationEntityService<Rest> {
 	
 	RestFunction createFunction(Rest rest);
 	
+	void removeFunction(Rest rest, RestFunction function);
+	
 	List<RestPermission> getAvailablePermissions(Rest rest);
 	
 	Object callFunction(RestFunction function, MethodType method, 

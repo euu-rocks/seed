@@ -165,6 +165,14 @@ public class AdminRestViewModel extends AbstractAdminViewModel<Rest> {
 	}
 	
 	@Command
+	@NotifyChange("function")
+	public void removeFunction(@BindingParam("elem") Component component) {
+		restService.removeFunction(getObject(), function);
+		notifyObjectChange(FUNCTIONS);
+		flagDirty();
+	}
+	
+	@Command
 	public void editFunctionSource() {
 		if (function.getContent() == null) {
 			function.setContent(restCodeProvider.getFunctionTemplate(function));

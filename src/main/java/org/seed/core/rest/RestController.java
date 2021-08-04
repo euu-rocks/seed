@@ -56,7 +56,7 @@ public class RestController {
 	}
 	
 	private ResponseEntity<Object> handleRequest(MethodType method, HttpServletRequest request, Object body) {
-		final String uri = request.getRequestURI().substring(10);
+		final String uri = request.getRequestURI().substring(10); // "/seed/rest" - length
 		if (!uri.isEmpty()) {
 			final String[] uriParts = uri.substring(1).split("/"); 
 			if (uriParts.length >= 2) {
@@ -78,7 +78,7 @@ public class RestController {
 			!rest.checkPermissions(user, null)) {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
-		// rest function
+		// call function
 		final RestFunction function = rest.getFunctionByMapping(functionMapping);
 		if (function != null && function.getMethod() == method) {
 			try {

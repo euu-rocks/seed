@@ -21,6 +21,15 @@ import org.seed.core.api.EntityObject;
 import org.seed.core.data.SystemObject;
 import org.seed.core.entity.EntityStatus;
 
+/**
+ * A ValueObject represents a SystemEntity that was generated 
+ * based on custom entity metadata definition.
+ * It provides the ID of the entity on which this object is based 
+ * and the current entity status value.
+ * 
+ * @author seed-master
+ *
+ */
 public interface ValueObject extends SystemObject, EntityObject {
 	
 	Long getEntityId();

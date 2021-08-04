@@ -46,8 +46,6 @@ import org.springframework.util.ObjectUtils;
 public class RestMetadata extends AbstractApplicationEntity
 	implements Rest {
 	
-	static final String PACKAGE_NAME = "org.seed.generated.rest";
-	
 	@OneToMany(mappedBy = "rest",
 			   cascade = CascadeType.ALL,
 			   orphanRemoval = true,
@@ -119,6 +117,13 @@ public class RestMetadata extends AbstractApplicationEntity
 		}
 		function.setRest(this);
 		functions.add(function);
+	}
+	
+	@Override
+	public void removeFunction(RestFunction function) {
+		Assert.notNull(function, C.FUNCTION);
+		
+		getFunctions().remove(function);
 	}
 	
 	@Override

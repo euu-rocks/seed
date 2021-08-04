@@ -33,6 +33,8 @@ public interface Rest
 	
 	void addFunction(RestFunction mapping);
 	
+	void removeFunction(RestFunction function);
+	
 	RestFunction getFunctionByMapping(String mapping);
 	
 	RestFunction getFunctionByUid(String uid);

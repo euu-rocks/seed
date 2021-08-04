@@ -19,6 +19,14 @@ package org.seed.core.data;
 
 import java.util.Date;
 
+/**
+ * The root interface in the database object hierarchy.
+ * A SystemObject represents a database table entry identified by an unique id.
+ * Every SystemObject keeps track of version, creation time and author 
+ * as well as last change time and author information.
+ * 
+ * @author seed-master
+ */
 public interface SystemObject {
 	
 	Long getId();

@@ -17,6 +17,13 @@
  */
 package org.seed.core.application;
 
+/**
+ * A TransferableObject represents an object that has a universally unique id.
+ * Every object that is part of a module must implement this interface.
+ * 
+ * @author seed-master
+ *
+ */
 public interface TransferableObject {
 	
 	String getUid();

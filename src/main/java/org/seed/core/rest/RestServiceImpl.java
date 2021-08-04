@@ -84,6 +84,13 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 		return function;
 	}
 	
+	@Override
+	public void removeFunction(Rest rest, RestFunction function) {
+		Assert.notNull(rest, "rest");
+		
+		rest.removeFunction(function);
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<? extends ApplicationEntityService<ApplicationEntity>>[] getImportDependencies() {

@@ -17,6 +17,14 @@
  */
 package org.seed.core.data;
 
+/**
+ * A SystemEntity represents a SystemObject that has a name and therefore a 'meaning'. 
+ * It also provides additional Options for creation and an internal name,
+ * which only consists of valid characters and contains no keywords.
+ * 
+ * @author seed-master
+ * 
+ */
 public interface SystemEntity extends SystemObject {
 	
 	<T extends Options> T getOptions();

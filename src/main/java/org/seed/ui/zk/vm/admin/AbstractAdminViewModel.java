@@ -442,7 +442,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		Assert.notNull(objectList, OBJECT_LIST);
 		Assert.notNull(viewList, "viewList");
 		
-		final List<Object> dest = (List<Object>) objectList;
+		final Collection<Object> dest = (Collection<Object>) objectList;
 		dest.clear();
 		dest.addAll(viewList);
 	}
