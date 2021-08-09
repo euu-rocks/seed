@@ -17,26 +17,34 @@
  */
 package org.seed.core.rest;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.seed.core.api.RestFunction.MethodType;
-import org.seed.core.application.ApplicationEntityService;
+import org.seed.Seed;
+import org.seed.core.api.RestClient;
+import org.seed.core.api.RestProvider;
+import org.seed.core.util.Assert;
 
-import org.springframework.web.client.RestTemplate;
-
-public interface RestService extends ApplicationEntityService<Rest> {
+public class DefaultRestProvider implements RestProvider {
 	
-	Rest findByMapping(String mapping);
+	private final RestService restService;
 	
-	RestTemplate createTemplate(String url);
+	private final Map<String, RestClient> mapClients = new HashMap<>();
 	
-	RestFunction createFunction(Rest rest);
+	public DefaultRestProvider() {
+		restService = Seed.getBean(RestService.class);
+	}
 	
-	void removeFunction(Rest rest, RestFunction function);
+	@Override
+	public RestClient getClient(String url) {
+		Assert.notNull(url, "url");
+		
+		mapClients.computeIfAbsent(url, c -> createClient(url));
+		return mapClients.get(url);
+	}
 	
-	List<RestPermission> getAvailablePermissions(Rest rest);
-	
-	Object callFunction(RestFunction function, MethodType method, 
-						Object body, String[] parameters);
+	private RestClient createClient(String url) {
+		return new DefaultRestClient(restService.createTemplate(url));
+	}
 	
 }

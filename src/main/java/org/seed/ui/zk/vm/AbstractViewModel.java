@@ -136,7 +136,7 @@ abstract class AbstractViewModel {
 	}
 	
 	protected static Component getComponent(String path) {
-		Assert.notNull(path, "path");
+		Assert.notNull(path, C.PATH);
 		
 		return Path.getComponent(path);
 	}

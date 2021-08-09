@@ -17,22 +17,8 @@
  */
 package org.seed.core.api;
 
-public interface CallbackFunctionContext extends FunctionContext {
+public interface RestProvider {
 	
-	ClientProvider getClientProvider();
-	
-	ParameterProvider getParameterProvider();
-	
-	MailProvider getMailProvider();
-	
-	EntityObjectProvider getObjectProvider();
-	
-	DataSourceProvider getDataSourceProvider();
-	
-	RestProvider getRestProvider();
-	
-	Status getSourceStatus();
-	
-	Status getTargetStatus();
+	RestClient getClient(String url);
 	
 }

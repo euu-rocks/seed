@@ -46,8 +46,11 @@ import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 
 @Service
 public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
@@ -68,11 +71,23 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 	@Autowired
 	private CodeManager codeManager;
 	
+	@Autowired
+	private HttpComponentsClientHttpRequestFactory clientHttpRequestFactory;
+	
 	@Override
 	public Rest createInstance(@Nullable Options options) {
-		final RestMetadata rest =  (RestMetadata) super.createInstance(options);
+		final RestMetadata rest = (RestMetadata) super.createInstance(options);
 		rest.createLists();
 		return rest;
+	}
+	
+	@Override
+	public RestTemplate createTemplate(String url) {
+		Assert.notNull(url, "url");
+		
+		final RestTemplate template = new RestTemplate(clientHttpRequestFactory);
+		template.setUriTemplateHandler(new DefaultUriBuilderFactory(url));
+		return template;
 	}
 	
 	@Override
@@ -193,42 +208,6 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 		}
 	}
 	
-	private void initRest(Rest rest, Rest currentVersionRest, Session session) {
-		if (rest.hasFunctions()) {
-			for (RestFunction function : rest.getFunctions()) {
-				initRestFunction(function, rest, currentVersionRest);
-			}
-		}
-		if (rest.hasPermissions()) {
-			for (RestPermission permission : rest.getPermissions()) {
-				initRestPermission(permission, rest, currentVersionRest, session);
-			}
-		}
-	}
-	
-	private void initRestFunction(RestFunction function, Rest rest, Rest currentVersionRest) {
-		function.setRest(rest);
-		final RestFunction currentVersionFunction = 
-				currentVersionRest != null 
-				? currentVersionRest.getFunctionByUid(function.getUid())
-				: null;
-		if (currentVersionFunction != null) {
-			currentVersionFunction.copySystemFieldsTo(function);
-		}
-	}
-	
-	private void initRestPermission(RestPermission permission, Rest rest, Rest currentVersionRest, Session session) {
-		permission.setRest(rest);
-		permission.setUserGroup(userGroupService.findByUid(session, permission.getUserGroupUid()));
-		final RestPermission currentVersionPermission =
-				currentVersionRest != null
-					? currentVersionRest.getPermissionByUid(permission.getUid())
-					: null;
-		if (currentVersionPermission != null) {
-			currentVersionPermission.copySystemFieldsTo(permission);
-		}
-	}
-	
 	@Override
 	public void deleteObjects(Module module, Module currentVersionModule, Session session) {
 		Assert.notNull(module, C.MODULE);
@@ -292,6 +271,42 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 	@Override
 	protected RestValidator getValidator() {
 		return validator;
+	}
+	
+	private void initRest(Rest rest, Rest currentVersionRest, Session session) {
+		if (rest.hasFunctions()) {
+			for (RestFunction function : rest.getFunctions()) {
+				initRestFunction(function, rest, currentVersionRest);
+			}
+		}
+		if (rest.hasPermissions()) {
+			for (RestPermission permission : rest.getPermissions()) {
+				initRestPermission(permission, rest, currentVersionRest, session);
+			}
+		}
+	}
+	
+	private void initRestFunction(RestFunction function, Rest rest, Rest currentVersionRest) {
+		function.setRest(rest);
+		final RestFunction currentVersionFunction = 
+				currentVersionRest != null 
+				? currentVersionRest.getFunctionByUid(function.getUid())
+				: null;
+		if (currentVersionFunction != null) {
+			currentVersionFunction.copySystemFieldsTo(function);
+		}
+	}
+	
+	private void initRestPermission(RestPermission permission, Rest rest, Rest currentVersionRest, Session session) {
+		permission.setRest(rest);
+		permission.setUserGroup(userGroupService.findByUid(session, permission.getUserGroupUid()));
+		final RestPermission currentVersionPermission =
+				currentVersionRest != null
+					? currentVersionRest.getPermissionByUid(permission.getUid())
+					: null;
+		if (currentVersionPermission != null) {
+			currentVersionPermission.copySystemFieldsTo(permission);
+		}
 	}
 
 }

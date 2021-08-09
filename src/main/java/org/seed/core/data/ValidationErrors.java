@@ -25,6 +25,8 @@ public class ValidationErrors implements Serializable {
 
 	private static final long serialVersionUID = 5038795516523393867L;
 	
+	private static final String LABEL_NAME = "label.name";
+	
 	private Set<ValidationError> errors;
 	
 	Set<ValidationError> getErrors() {
@@ -44,7 +46,7 @@ public class ValidationErrors implements Serializable {
 	}
 	
 	public ValidationErrors addEmptyName() {
-		return addEmptyField("label.name");
+		return addEmptyField(LABEL_NAME);
 	}
 	
 	public ValidationErrors addEmptyField(String name) {
@@ -60,7 +62,7 @@ public class ValidationErrors implements Serializable {
 	}
 	
 	public ValidationErrors addIllegalName(String value) {
-		return addIllegalField("label.name", value);
+		return addIllegalField(LABEL_NAME, value);
 	}
 	
 	public ValidationErrors addOverlongName(int maxlength) {
@@ -72,7 +74,7 @@ public class ValidationErrors implements Serializable {
 	}
 	
 	public ValidationErrors addOverlongObjectName(String objectName, int maxlength) {
-		return addOverlongObjectField("label.name", objectName, maxlength);
+		return addOverlongObjectField(LABEL_NAME, objectName, maxlength);
 	}
 	
 	public ValidationErrors addOverlongObjectField(String fieldName, String objectName, int maxlength) {

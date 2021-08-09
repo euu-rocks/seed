@@ -64,7 +64,7 @@ public abstract class CodeUtils {
 	}
 	
 	public static boolean isSubPackage(String path, String packagePath) {
-		Assert.notNull(path, "path");
+		Assert.notNull(path, C.PATH);
 		Assert.notNull(packagePath, "packagePath");
 		
 		return path.indexOf('/', packagePath.length() + 1) != -1;

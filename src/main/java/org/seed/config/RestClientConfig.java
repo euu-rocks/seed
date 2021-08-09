@@ -15,24 +15,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.api;
+package org.seed.config;
 
-public interface CallbackFunctionContext extends FunctionContext {
+import org.apache.http.impl.client.HttpClientBuilder;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+
+@Configuration
+public class RestClientConfig {
 	
-	ClientProvider getClientProvider();
+	private final HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
 	
-	ParameterProvider getParameterProvider();
-	
-	MailProvider getMailProvider();
-	
-	EntityObjectProvider getObjectProvider();
-	
-	DataSourceProvider getDataSourceProvider();
-	
-	RestProvider getRestProvider();
-	
-	Status getSourceStatus();
-	
-	Status getTargetStatus();
-	
+	@Bean
+	public HttpComponentsClientHttpRequestFactory clientHttpRequestFactory() {
+	    return new HttpComponentsClientHttpRequestFactory(httpClientBuilder.build());
+	}
+
 }

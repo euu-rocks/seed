@@ -89,7 +89,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	
 	@Override
 	public String getLayout(String path, FormSettings settings) {
-		Assert.notNull(path, "path");
+		Assert.notNull(path, C.PATH);
 		
 		String content = null;
 		if (path.startsWith("/edit/")) {

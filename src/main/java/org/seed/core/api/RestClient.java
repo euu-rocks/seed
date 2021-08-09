@@ -17,22 +17,20 @@
  */
 package org.seed.core.api;
 
-public interface CallbackFunctionContext extends FunctionContext {
+import java.util.Map;
+
+import org.springframework.lang.Nullable;
+
+public interface RestClient {
 	
-	ClientProvider getClientProvider();
+	String get(String path);
 	
-	ParameterProvider getParameterProvider();
+	String get(String path, Map<String, Object> params);
 	
-	MailProvider getMailProvider();
+	<T> T get(String path, Class<T> responseType, Map<String, Object> params);
 	
-	EntityObjectProvider getObjectProvider();
+	<T> T post(String path, Class<T> responseType, @Nullable Object request);
 	
-	DataSourceProvider getDataSourceProvider();
-	
-	RestProvider getRestProvider();
-	
-	Status getSourceStatus();
-	
-	Status getTargetStatus();
+	<T> T post(String path, Class<T> responseType, @Nullable Object request, Map<String, Object> params);
 	
 }

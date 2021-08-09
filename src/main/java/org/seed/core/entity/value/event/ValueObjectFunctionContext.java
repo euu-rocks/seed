@@ -20,6 +20,7 @@ package org.seed.core.entity.value.event;
 import javax.annotation.Nullable;
 
 import org.hibernate.Session;
+
 import org.seed.C;
 import org.seed.Seed;
 import org.seed.core.api.AbstractFunctionContext;
@@ -29,12 +30,14 @@ import org.seed.core.api.DataSourceProvider;
 import org.seed.core.api.EntityObjectProvider;
 import org.seed.core.api.MailProvider;
 import org.seed.core.api.ParameterProvider;
+import org.seed.core.api.RestProvider;
 import org.seed.core.api.Status;
 import org.seed.core.application.module.DefaultParameterProvider;
 import org.seed.core.application.module.Module;
 import org.seed.core.data.datasource.DefaultDataSourceProvider;
 import org.seed.core.entity.EntityStatusTransition;
 import org.seed.core.mail.DefaultMailProvider;
+import org.seed.core.rest.DefaultRestProvider;
 import org.seed.core.util.Assert;
 
 public class ValueObjectFunctionContext extends AbstractFunctionContext 
@@ -55,6 +58,8 @@ public class ValueObjectFunctionContext extends AbstractFunctionContext
 	private EntityObjectProvider objectProvider;
 	
 	private DataSourceProvider dataSourceProvider;
+	
+	private RestProvider restProvider;
 	
 	public ValueObjectFunctionContext(Session session, Module module) {
 		this(session, module, null);
@@ -113,6 +118,14 @@ public class ValueObjectFunctionContext extends AbstractFunctionContext
 			dataSourceProvider = new DefaultDataSourceProvider(this);
 		}
 		return dataSourceProvider;
+	}
+	
+	@Override
+	public RestProvider getRestProvider() {
+		if (restProvider == null) {
+			restProvider = new DefaultRestProvider();
+		}
+		return restProvider;
 	}
 	
 	@Override

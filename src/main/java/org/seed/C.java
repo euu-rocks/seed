@@ -57,6 +57,7 @@ public final class C {
 	public static final String OBJECTCLASS      = "objectClass";
 	public static final String PACKAGENAME      = "packageName";
 	public static final String PARAMETER        = "parameter";
+	public static final String PATH				= "path";
 	public static final String PERMISSION       = "permission";
 	public static final String PRINTOUT         = "printout";
 	public static final String PROPERTY         = "property";

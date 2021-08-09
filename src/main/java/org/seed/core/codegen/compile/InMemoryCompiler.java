@@ -17,10 +17,10 @@
  */
 package org.seed.core.codegen.compile;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.tools.DiagnosticCollector;
@@ -73,7 +73,7 @@ public class InMemoryCompiler implements Compiler {
 	@Override
 	public Class<GeneratedCode> getGeneratedClass(String qualifiedName) {
 		Assert.notNull(qualifiedName, C.QUALIFIEDNAME);
-		Assert.state(!mapClasses.isEmpty(), "no classes available");
+		Assert.stateAvailable(!mapClasses.isEmpty(), "classes");
 		
 		return mapClasses.get(qualifiedName);
 	}
@@ -82,13 +82,9 @@ public class InMemoryCompiler implements Compiler {
 	public List<Class<GeneratedCode>> getGeneratedClasses(Class<?> typeClass) {
 		Assert.notNull(typeClass, C.TYPECLASS);
 		
-		final List<Class<GeneratedCode>> generatedClasses = new ArrayList<>();
-		for (Class<GeneratedCode> generatedClass : mapClasses.values()) {
-			if (typeClass.isAssignableFrom(generatedClass)) {
-				generatedClasses.add(generatedClass);
-			}
-		}
-		return generatedClasses;
+		return mapClasses.values().stream()
+						 .filter(typeClass::isAssignableFrom)
+						 .collect(Collectors.toList());
 	}
 	
 	@Override
