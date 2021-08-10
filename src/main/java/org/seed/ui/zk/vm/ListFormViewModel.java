@@ -24,6 +24,8 @@ import java.util.Map;
 import org.seed.core.data.Cursor;
 import org.seed.core.data.Sort;
 import org.seed.core.data.ValidationException;
+import org.seed.core.entity.filter.Filter;
+import org.seed.core.entity.filter.FilterService;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.form.FormAction;
 import org.seed.core.form.FormActionType;
@@ -39,13 +41,21 @@ import org.zkoss.bind.annotation.ExecutionArgParam;
 import org.zkoss.bind.annotation.Init;
 import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.select.annotation.WireVariable;
 import org.zkoss.zul.ListModel;
 
 public class ListFormViewModel extends AbstractFormViewModel {
 	
+	@WireVariable(value="filterServiceImpl")
+	private FilterService filterService;
+	
 	private Map<Long, ThumbnailConverter> thumbnailConverterMap;
 	
 	private Map<Long, Boolean> sortMap;
+	
+	private List<Filter> filterList;
+	
+	private Filter currentFilter;
 	
 	private FormAction editAction;
 	
@@ -62,6 +72,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	public void init(@ExecutionArgParam("param") FormParameter param) {
 		super.init(param);
 		
+		filterList = filterService.findFilters(getForm().getEntity());
 		editAction = getForm().getActionByType(FormActionType.DETAIL);
 	}
 	
@@ -78,6 +89,22 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	public void setFullTextSearchTerm(String fullTextSearchTerm) {
 		this.fullTextSearchTerm = fullTextSearchTerm;
 	}
+	
+	public boolean isFiltersAvailable() {
+		return !filterList.isEmpty();
+	}
+	
+	public List<Filter> getFilters() {
+		return filterList;
+	}
+	
+	public Filter getCurrentFilter() {
+		return currentFilter;
+	}
+
+	public void setCurrentFilter(Filter currentFilter) {
+		this.currentFilter = currentFilter;
+	}
 
 	public ListModel<ValueObject> getListModel() {
 		final SearchParameter searchParam = getTab().getSearchParameter();
@@ -91,10 +118,10 @@ public class ListFormViewModel extends AbstractFormViewModel {
 		}
 		else {
 			if (sort != null) {
-				cursor = valueObjectService().createCursor(getForm().getEntity(), null, sort);
+				cursor = valueObjectService().createCursor(getForm().getEntity(), currentFilter, sort);
 			}
 			else {
-				cursor = valueObjectService().createCursor(getForm().getEntity(), null);
+				cursor = valueObjectService().createCursor(getForm().getEntity(), currentFilter);
 			}
 		}
 		
@@ -107,8 +134,6 @@ public class ListFormViewModel extends AbstractFormViewModel {
 			}
 		};
 	}
-	
-	
 	
 	public ThumbnailConverter getThumbnailConverter(Long fieldId) {
 		ThumbnailConverter converter = null;
@@ -153,6 +178,12 @@ public class ListFormViewModel extends AbstractFormViewModel {
 		if (getForm().getEntity().hasStatus()) {
 			setStatus(getObject().getEntityStatus());
 		}
+	}
+	
+	@Command
+	@NotifyChange("listModel")
+	public void selectFilter() {
+		// do nothing, just notify
 	}
 	
 	@Command

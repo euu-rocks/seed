@@ -25,7 +25,7 @@
 							   @template(empty each.type.listTemplate ? 'default' : each.type.listTemplate)" 
 					 overflowPopup="false"
 					 align="start" hflex="2"
-					 vflex="1">
+					 height="30px">
 				<template name="default" var="action">
 					<toolbarbutton label="@init(vm.getActionLabel(action))"
 								   enable="@init(vm.isActionEnabled(action))"
@@ -81,14 +81,34 @@
 					</combobox>
 				</template>
 			</toolbar>
+			<toolbar visible="@load(vm.filtersAvailable)"
+					 overflowPopup="false"
+					 align="end" hflex="min" 
+					 height="30px">
+				<combobox model="@load(vm.filters) @template(empty each.name ? 'empty' : 'filter')"
+						  selectedItem="@bind(vm.currentFilter)"
+						  value="@load(vm.currentFilter.name)"
+						  onSelect="@command('selectFilter')"
+						  placeholder="${labels.label.filter}"
+						  style="margin-top:2px">
+					<template name="empty">
+                    	<comboitem/>
+                	</template>	
+					<template name="filter" var="filter">
+	                    <comboitem label="@load(filter.name)"
+	                    		   iconSclass="z-icon-filter alpha-icon-lg"/>
+	                </template>	  
+				</combobox>		 
+			</toolbar>
 			<toolbar visible="@init(vm.fullTextSearchAvailable)"
 					 overflowPopup="false"
-					 align="end" hflex="1">
+					 align="end" hflex="min" 
+					 height="30px">
 				<hbox hflex="1">
 					<textbox value="@bind(vm.fullTextSearchTerm) @converter(vm.stringConverter)"
 							 onOK="@command('searchFullText')"
 							 placeholder="${labels.label.fulltextsearch}"
-							 cols="32"/>
+							 cols="24" style="margin-top:2px"/>
 					<toolbarbutton onClick="@command('searchFullText')"
 								   disabled="@load(empty vm.fullTextSearchTerm)"
 								   tooltiptext="${labels.label.fulltextsearch}"
