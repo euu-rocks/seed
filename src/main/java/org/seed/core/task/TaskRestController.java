@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping("/rest/job")
+@RequestMapping("/seed/rest/job")
 public class TaskRestController extends AbstractRestController<Task> {
 	
 	@Autowired

@@ -72,6 +72,11 @@ public abstract class AbstractApplicationEntity extends AbstractSystemEntity
 	}
 	
 	@Override
+	public final boolean checkPermissions(User user) {
+		return checkPermissions(user, null);
+	}
+	
+	@Override
 	public final boolean checkPermissions(User user, @Nullable Enum<?> access) {
 		Assert.notNull(user, C.USER);
 		Assert.state(this instanceof ApprovableObject, "object is not approvable");
@@ -111,9 +116,7 @@ public abstract class AbstractApplicationEntity extends AbstractSystemEntity
 	
 	protected static void initUids(List<? extends TransferableObject> transferableList) {
 		if (transferableList != null) {
-			for (TransferableObject transferable : transferableList) {
-				initUid(transferable);
-			}
+			transferableList.forEach(AbstractApplicationEntity::initUid);
 		}
 	}
 	

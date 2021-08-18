@@ -22,12 +22,12 @@ import java.util.Set;
 
 import org.seed.core.api.EntityTransformer;
 import org.seed.core.application.ApplicationEntity;
+import org.seed.core.application.ApprovableObject;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityStatus;
-import org.seed.core.user.User;
-import org.seed.core.user.UserGroup;
 
-public interface Transformer extends ApplicationEntity, EntityTransformer {
+public interface Transformer 
+	extends ApplicationEntity, EntityTransformer, ApprovableObject<TransformerPermission> {
 	
 	String getSourceEntityUid();
 	
@@ -59,16 +59,6 @@ public interface Transformer extends ApplicationEntity, EntityTransformer {
 	
 	void removeFunction(TransformerFunction function);
 	
-	boolean hasUserGroups();
-	
-	boolean containsUserGroup(UserGroup userGroup);
-	
-	UserGroup getUserGroupByUid(String uid);
-	
-	Set<UserGroup> getUserGroups();
-	
-	boolean isAuthorized(User user);
-	
 	boolean isEnabled(EntityStatus entityStatus);
 	
 	boolean hasStatus();
@@ -78,5 +68,7 @@ public interface Transformer extends ApplicationEntity, EntityTransformer {
 	EntityStatus getStatusByUid(String uid);
 	
 	Set<EntityStatus> getStatus();
+	
+	TransformerPermission getPermissionByUid(String uid);
 	
 }

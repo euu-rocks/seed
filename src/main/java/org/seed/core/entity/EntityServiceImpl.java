@@ -45,6 +45,7 @@ import org.seed.core.data.ValidationException;
 import org.seed.core.entity.autonum.AutonumberService;
 import org.seed.core.user.User;
 import org.seed.core.user.UserGroup;
+import org.seed.core.user.UserGroupDependent;
 import org.seed.core.user.UserGroupService;
 import org.seed.core.util.Assert;
 
@@ -54,7 +55,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class EntityServiceImpl extends AbstractApplicationEntityService<Entity> 
-	implements EntityService, EntityDependent<Entity>, CodeChangeAware { 
+	implements EntityService, EntityDependent<Entity>, UserGroupDependent<Entity>, CodeChangeAware { 
 	
 	@Autowired
 	private EntityValidator entityValidator;
@@ -231,6 +232,46 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		return result;
 	}
 	
+	@Override
+	public List<Entity> findUsage(UserGroup userGroup) {
+		Assert.notNull(userGroup, C.USERNAME);
+		
+		final List<Entity> result = new ArrayList<>();
+		for (Entity entity : findAllObjects()) {
+			if ((entity.hasPermissions() && checkPermissions(entity, userGroup)) ||
+				(entity.hasStatusTransitions() && checkStatusTransitions(entity, userGroup))) {
+				result.add(entity);
+			}
+		}
+		return result;
+	}
+	
+	private boolean checkPermissions(Entity entity, UserGroup userGroup) {
+		if (entity.hasPermissions()) {
+			for (EntityPermission permission : entity.getPermissions()) {
+				if (userGroup.equals(permission.getUserGroup())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	private boolean checkStatusTransitions(Entity entity, UserGroup userGroup) {
+		if (entity.hasStatusTransitions()) {
+			for (EntityStatusTransition transition : entity.getStatusTransitions()) {
+				if (transition.hasPermissions()) {
+					for (EntityStatusTransitionPermission permission : transition.getPermissions()) {
+						if (userGroup.equals(permission.getUserGroup())) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+
 	@Override
 	public List<Entity> findUsage(EntityField entityField) {
 		return Collections.emptyList();

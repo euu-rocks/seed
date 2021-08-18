@@ -107,8 +107,11 @@ public class RestValidator extends AbstractSystemEntityValidator<Rest> {
 	
 	private static boolean isRestNameAllowed(String name) {
 		return isNameAllowed(name) &&					// prevent illegal package name
-				!(name.equalsIgnoreCase("entity") || 	// prevent ambiguous mapping
-				  name.equalsIgnoreCase("object"));		// prevent ambiguous mapping
+				!(name.equalsIgnoreCase("entity") 	 || // prevent ambiguous mappings
+				  name.equalsIgnoreCase("filter") 	 ||
+				  name.equalsIgnoreCase("task")   	 ||
+				  name.equalsIgnoreCase("transform") ||
+				  name.equalsIgnoreCase("object"));
 		
 	}
 	

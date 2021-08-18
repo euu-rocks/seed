@@ -168,6 +168,9 @@ public class ValueObjectRestController {
 		if (filter == null) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "filter:" + id);
 		}
+		if (!filter.checkPermissions(userService.getCurrentUser())) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "filter:" + id);
+		}
 		return filter;
 	}
 	
@@ -184,7 +187,7 @@ public class ValueObjectRestController {
 		if (transformer == null) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "transformation:" + id);
 		}
-		if (!transformer.checkPermissions(userService.getCurrentUser(), null)) {
+		if (!transformer.checkPermissions(userService.getCurrentUser())) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "transformation:" + id);
 		}
 		return transformer;

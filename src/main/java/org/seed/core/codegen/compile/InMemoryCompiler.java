@@ -17,9 +17,9 @@
  */
 package org.seed.core.codegen.compile;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -44,7 +44,7 @@ public class InMemoryCompiler implements Compiler {
 	
 	private static final Logger log = LoggerFactory.getLogger(InMemoryCompiler.class);
 	
-	private final Map<String, Class<GeneratedCode>> mapClasses = new ConcurrentHashMap<>();
+	private final Map<String, Class<GeneratedCode>> mapClasses = new HashMap<>();
 	
 	private JavaCompiler javaCompiler;
 	
@@ -63,9 +63,10 @@ public class InMemoryCompiler implements Compiler {
 	@Override
 	public ClassLoader createClassLoader() {
 		final GeneratedCodeClassLoader classLoader = new GeneratedCodeClassLoader(getClass().getClassLoader());
-		for (JavaClassFileObject classFileObject : fileManager.getClassFileObjects()) {
-			final Class<GeneratedCode> generatedClass = classLoader.defineClass(classFileObject);
-			mapClasses.put(classFileObject.getQualifiedName(), generatedClass);
+		synchronized (mapClasses) {
+			mapClasses.clear();
+			fileManager.getClassFileObjects()
+					   .forEach(c -> mapClasses.put(c.getQualifiedName(), classLoader.defineClass(c)));
 		}
 		return classLoader;
 	}
@@ -73,18 +74,21 @@ public class InMemoryCompiler implements Compiler {
 	@Override
 	public Class<GeneratedCode> getGeneratedClass(String qualifiedName) {
 		Assert.notNull(qualifiedName, C.QUALIFIEDNAME);
-		Assert.stateAvailable(!mapClasses.isEmpty(), "classes");
 		
-		return mapClasses.get(qualifiedName);
+		synchronized (mapClasses) {
+			return mapClasses.get(qualifiedName);
+		}
 	}
 	
 	@Override
 	public List<Class<GeneratedCode>> getGeneratedClasses(Class<?> typeClass) {
 		Assert.notNull(typeClass, C.TYPECLASS);
 		
-		return mapClasses.values().stream()
-						 .filter(typeClass::isAssignableFrom)
-						 .collect(Collectors.toList());
+		synchronized (mapClasses) {
+			return mapClasses.values().stream()
+							 .filter(typeClass::isAssignableFrom)
+							 .collect(Collectors.toList());
+		}
 	}
 	
 	@Override

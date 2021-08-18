@@ -20,7 +20,6 @@ package org.seed.core.entity.filter;
 import java.util.List;
 
 import org.seed.core.application.AbstractRestController;
-import org.seed.core.entity.EntityAccess;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping("/rest/filter")
+@RequestMapping("/seed/rest/filter")
 public class FilterRestController extends AbstractRestController<Filter> {
 	
 	@Autowired
@@ -43,13 +42,13 @@ public class FilterRestController extends AbstractRestController<Filter> {
 	
 	@Override
 	public List<Filter> findAll() {
-		return findAll(f -> checkPermissions(f.getEntity(), EntityAccess.READ));
+		return findAll(this::checkPermissions);
 	}
 	
 	@Override
 	public Filter get(@PathVariable("id") Long id) {
 		final Filter filter = super.get(id);
-		if (!checkPermissions(filter.getEntity(), EntityAccess.READ)) {
+		if (!checkPermissions(filter)) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN);
 		}
 		return filter;

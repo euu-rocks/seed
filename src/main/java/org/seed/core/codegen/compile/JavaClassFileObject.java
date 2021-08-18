@@ -21,12 +21,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 
 import javax.tools.SimpleJavaFileObject;
 
 import org.seed.core.util.Assert;
-
-import static org.seed.core.codegen.CodeUtils.*;
 
 class JavaClassFileObject extends SimpleJavaFileObject {
 	
@@ -37,7 +36,7 @@ class JavaClassFileObject extends SimpleJavaFileObject {
 	private byte[] byteCode;
 
 	JavaClassFileObject(String qualifiedName) {
-		super(createClassURI(qualifiedName), Kind.CLASS);
+		super(URI.create(qualifiedName), Kind.CLASS);
 		this.qualifiedName = qualifiedName;
 	}
 	

@@ -90,8 +90,9 @@ public class SchemaManager {
 	}
 	
 	SchemaConfiguration loadSchemaConfiguration(Session session) {
-		final List<SchemaConfiguration> list = session.createQuery("SELECT c FROM SchemaConfiguration c", 
-		   		 SchemaConfiguration.class).getResultList();
+		final List<SchemaConfiguration> list = 
+				session.createQuery("select c from SchemaConfiguration c", SchemaConfiguration.class)
+					   .getResultList();
 		Assert.state(list.size() <= 1, "ambiguous configuration");
 		return list.isEmpty() ? null : list.get(0);
 	}
@@ -138,7 +139,7 @@ public class SchemaManager {
 		final StringBuilder buf = new StringBuilder();
 		if (existChangeLogTable(connection)) {
 			try (Statement statement = connection.createStatement();
-				 ResultSet resultSet = statement.executeQuery("SELECT changeset FROM sys_changelog ORDER BY id")) {
+				 ResultSet resultSet = statement.executeQuery("select changeset from sys_changelog order by id")) {
 				while (resultSet.next()) {
 					if (buf.length() > 0) {
 						buf.append(',');

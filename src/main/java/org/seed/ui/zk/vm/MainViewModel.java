@@ -193,7 +193,7 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	
 	@Command
 	public void nodeClicked() {
-		if (selectedNode != null) {
+		if (!isDoubleClick("nodeClicked") && selectedNode != null) {
 			if (selectedNode.isLink()) {
 				redirect(selectedNode.viewName);
 			}

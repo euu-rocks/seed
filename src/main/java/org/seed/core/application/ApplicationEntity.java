@@ -33,6 +33,8 @@ public interface ApplicationEntity extends SystemEntity, TransferableObject {
 	
 	Module getModule();
 	
+	boolean checkPermissions(User user);
+	
 	boolean checkPermissions(User user, Enum<?> access);
 	
 }

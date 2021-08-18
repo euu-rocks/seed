@@ -72,7 +72,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	public void init(@ExecutionArgParam("param") FormParameter param) {
 		super.init(param);
 		
-		filterList = filterService.findFilters(getForm().getEntity());
+		filterList = filterService.getFilters(getForm().getEntity(), getUser());
 		editAction = getForm().getActionByType(FormActionType.DETAIL);
 	}
 	

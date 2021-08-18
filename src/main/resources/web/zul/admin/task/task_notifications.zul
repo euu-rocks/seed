@@ -68,7 +68,7 @@
 					  mandatory="true"
 					  hflex="1">
 				<template name="empty">
-                    <comboitem label="@load(user.name)"/>
+                    <comboitem/>
                 </template>
                 <template name="user" var="user">
                     <comboitem label="@load(user.name)"

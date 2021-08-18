@@ -20,7 +20,6 @@ package org.seed.core.entity.transform;
 import java.util.List;
 
 import org.seed.core.application.AbstractRestController;
-import org.seed.core.entity.EntityAccess;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping("/rest/transform")
+@RequestMapping("/seed/rest/transform")
 public class TransformerRestController extends AbstractRestController<Transformer> {
 	
 	@Autowired
@@ -43,15 +42,13 @@ public class TransformerRestController extends AbstractRestController<Transforme
 	
 	@Override
 	public List<Transformer> findAll() {
-		return findAll(t -> checkPermissions(t.getSourceEntity(), EntityAccess.READ) &&
-							checkPermissions(t.getTargetEntity(), EntityAccess.READ));
+		return findAll(this::checkPermissions);
 	}
 	
 	@Override
 	public Transformer get(@PathVariable("id") Long id) {
 		final Transformer transformer = super.get(id);
-		if (!(checkPermissions(transformer.getSourceEntity(), EntityAccess.READ) &&
-			  checkPermissions(transformer.getTargetEntity(), EntityAccess.READ))) {
+		if (!checkPermissions(transformer)) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN);
 		}
 		return transformer;

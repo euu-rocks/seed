@@ -20,6 +20,7 @@ package org.seed.core.task;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -43,6 +44,7 @@ import org.seed.core.mail.MailBuilder;
 import org.seed.core.mail.MailService;
 import org.seed.core.user.User;
 import org.seed.core.user.UserGroup;
+import org.seed.core.user.UserGroupDependent;
 import org.seed.core.user.UserGroupService;
 import org.seed.core.util.Assert;
 
@@ -52,7 +54,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TaskServiceImpl extends AbstractApplicationEntityService<Task> 
-	implements TaskService, CodeChangeAware {
+	implements TaskService, UserGroupDependent<Task>, CodeChangeAware {
 	
 	@Autowired
 	private TaskRepository taskRepository;
@@ -97,13 +99,9 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	public List<Task> getTasks(User user) {
 		Assert.notNull(user, C.USER);
 		
-		final List<Task> result = new ArrayList<>();
-		for (Task task : findAllObjects()) {
-			if (task.checkPermissions(user, null)) {
-				result.add(task);
-			}
-		}
-		return result;
+		return findAllObjects().stream()
+							   .filter(t -> t.checkPermissions(user))
+							   .collect(Collectors.toList());
 	}
 	
 	@Override
@@ -135,6 +133,24 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		notification.setResult(TaskResult.SUCCESS);
 		task.addNotification(notification);
 		return notification;
+	}
+	
+	@Override
+	public List<Task> findUsage(UserGroup userGroup) {
+		Assert.notNull(userGroup, C.USERGROUP);
+		
+		final List<Task> result = new ArrayList<>();
+		for (Task task : findAllObjects()) {
+			if (task.hasPermissions()) {
+				for (TaskPermission permission : task.getPermissions()) {
+					if (userGroup.equals(permission.getUserGroup())) {
+						result.add(task);
+						break;
+					}
+				}
+			}
+		}
+		return result;
 	}
 	
 	@Override

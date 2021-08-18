@@ -22,7 +22,6 @@ import java.util.List;
 import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityStatus;
-import org.seed.core.user.UserGroup;
 
 public interface TransformerService extends ApplicationEntityService<Transformer> {
 	
@@ -38,7 +37,7 @@ public interface TransformerService extends ApplicationEntityService<Transformer
 	
 	List<NestedTransformer> getNestedTransformers(Transformer transformer);
 	
-	List<UserGroup> getAvailableUserGroups(Transformer transformer);
+	List<TransformerPermission> getAvailablePermissions(Transformer transformer);
 	
 	List<EntityStatus> getAvailableStatus(Transformer transformer);
 	

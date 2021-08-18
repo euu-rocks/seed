@@ -20,10 +20,12 @@ package org.seed.core.entity.filter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
 import org.hibernate.Session;
+
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.application.AbstractApplicationEntityService;
@@ -32,6 +34,7 @@ import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
+import org.seed.core.data.Options;
 import org.seed.core.data.SystemField;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
@@ -42,6 +45,10 @@ import org.seed.core.entity.EntityFunction;
 import org.seed.core.entity.EntityService;
 import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.NestedEntity;
+import org.seed.core.user.User;
+import org.seed.core.user.UserGroup;
+import org.seed.core.user.UserGroupDependent;
+import org.seed.core.user.UserGroupService;
 import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,10 +57,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
-	implements FilterService, EntityDependent<Filter> {
+	implements FilterService, EntityDependent<Filter>, UserGroupDependent<Filter> {
 	
 	@Autowired
 	private EntityService entityService;
+	
+	@Autowired
+	private UserGroupService userGroupService;
 	
 	@Autowired
 	private FilterRepository filterRepository;
@@ -69,6 +79,13 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	@Override
 	protected FilterValidator getValidator() {
 		return validator;
+	}
+	
+	@Override
+	public Filter createInstance(@Nullable Options options) {
+		final FilterMetadata filter = (FilterMetadata) super.createInstance(options);
+		filter.createLists();
+		return filter;
 	}
 	
 	@Override
@@ -90,6 +107,16 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		final List<Filter> list = filterRepository.find(queryParam(C.ENTITY, entity),
 														queryParam(C.NAME, name));
 		return !list.isEmpty() ? list.get(0) : null;
+	}
+	
+	@Override
+	public List<Filter> getFilters(Entity entity, User user) {
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(user, C.USER);
+		
+		return findFilters(entity).stream()
+							   	  .filter(f -> f.checkPermissions(user))
+							   	  .collect(Collectors.toList());
 	}
 	
 	@Override
@@ -161,6 +188,31 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	}
 	
 	@Override
+	public List<FilterPermission> getAvailablePermissions(Filter filter) {
+		Assert.notNull(filter, C.FILTER);
+		
+		final List<FilterPermission> result = new ArrayList<>();
+		for (UserGroup group : userGroupService.findAllObjects()) {
+			boolean found = false;
+			if (filter.hasPermissions()) {
+				for (FilterPermission permission : filter.getPermissions()) {
+					if (permission.getUserGroup().equals(group)) {
+						found = true;
+						break;
+					}
+				}
+			}
+			if (!found) {
+				final FilterPermission permission = new FilterPermission();
+				permission.setFilter(filter);
+				permission.setUserGroup(group);
+				result.add(permission);
+			}
+		}
+		return result;
+	}
+	
+	@Override
 	protected void analyzeNextVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
 		if (analysis.getModule().getFilters() != null) {
 			for (Filter filter : analysis.getModule().getFilters()) {
@@ -213,29 +265,13 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 						((FilterMetadata) currentVersionFilter).copySystemFieldsTo(filter);
 						session.detach(currentVersionFilter);
 					}
-					if (filter.hasCriteria()) {
-						importCriteria(entity, filter, currentVersionFilter);
-					}
+					initFilter(entity, filter, currentVersionFilter, session);
 					saveObject(filter, session);
 				}
 			}
 		}
 		catch (ValidationException vex) {
 			throw new InternalException(vex);
-		}
-	}
-	
-	private void importCriteria(Entity entity, Filter filter, Filter currentVersionFilter) {
-		for (FilterCriterion criterion : filter.getCriteria()) {
-			criterion.setFilter(filter);
-			criterion.setEntityField(entity.findFieldByUid(criterion.getEntityFieldUid()));
-			final FilterCriterion currentVersionCriterion = 
-				currentVersionFilter != null 
-					? currentVersionFilter.getCriterionByUid(criterion.getUid()) 
-					: null;
-			if (currentVersionCriterion != null) {
-				currentVersionCriterion.copySystemFieldsTo(criterion);
-			}
 		}
 	}
 	
@@ -310,6 +346,24 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	}
 	
 	@Override
+	public List<Filter> findUsage(UserGroup userGroup) {
+		Assert.notNull(userGroup, C.USERGROUP);
+		
+		final List<Filter> result = new ArrayList<>();
+		for (Filter filter : findAllObjects()) {
+			if (filter.hasPermissions()) {
+				for (FilterPermission permission : filter.getPermissions()) {
+					if (userGroup.equals(permission.getUserGroup())) {
+						result.add(filter);
+						break;
+					}
+				}
+			}
+		}
+		return result;
+	}
+	
+	@Override
 	public List<Filter> findUsage(EntityFieldGroup fieldGroup) {
 		return Collections.emptyList();
 	}
@@ -327,6 +381,43 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	@Override
 	public List<Filter> findUsage(NestedEntity nestedEntity) {
 		return Collections.emptyList();
+	}
+	
+	private void initFilter(Entity entity, Filter filter, Filter currentVersionFilter, Session session) {
+		if (filter.hasCriteria()) {
+			for (FilterCriterion criterion : filter.getCriteria()) {
+				initFilterCriterion(entity, criterion, filter, currentVersionFilter);
+			}
+		}
+		if (filter.hasPermissions()) {
+			for (FilterPermission permission : filter.getPermissions()) {
+				initFilterPermission(permission, filter, currentVersionFilter, session);
+			}
+		}
+	}
+	
+	private void initFilterCriterion(Entity entity, FilterCriterion criterion, Filter filter, Filter currentVersionFilter) {
+		criterion.setFilter(filter);
+		criterion.setEntityField(entity.findFieldByUid(criterion.getEntityFieldUid()));
+		final FilterCriterion currentVersionCriterion = 
+			currentVersionFilter != null 
+				? currentVersionFilter.getCriterionByUid(criterion.getUid()) 
+				: null;
+		if (currentVersionCriterion != null) {
+			currentVersionCriterion.copySystemFieldsTo(criterion);
+		}
+	}
+	
+	private void initFilterPermission(FilterPermission permission, Filter filter, Filter currentVersionFilter, Session session) {
+		permission.setFilter(filter);
+		permission.setUserGroup(userGroupService.findByUid(session, permission.getUserGroupUid()));
+		final FilterPermission currentVersionPermission =
+			currentVersionFilter != null
+				? currentVersionFilter.getPermissionByUid(permission.getUid())
+				: null;
+		if (currentVersionPermission != null) {
+			currentVersionPermission.copySystemFieldsTo(permission);
+		}
 	}
 	
 	private static FilterElement createElement(EntityField entityField, SystemField systemField)  {

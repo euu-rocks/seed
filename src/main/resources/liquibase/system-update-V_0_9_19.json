@@ -4,6 +4,12 @@
             "author": "seed",
             "changes": [
                {
+                  "dropTable":  {
+                    "cascadeConstraints": true,
+                    "tableName":          "sys_entity_transform_group"
+                  }
+               },
+               {
                   "dropPrimaryKey":   {
                     "constraintName":  "pk_sys_rest_mapping",
                     "tableName":       "sys_rest_mapping"
@@ -88,7 +94,231 @@
                      "referencedTableName":   "sys_rest",
                      "validate":              "true"
                   }
-               }
-            ]
+               },
+               {
+                  "createTable": {
+                     "tableName": "sys_entity_filter_perm",
+                     "columns": [
+                      {
+                             "column": {
+                             "name": "id",
+                             "type": "BIGINT",
+                             "constraints": {
+                                 "primaryKey": "true",
+                                 "primaryKeyName": "pk_sys_entity_filter_perm"
+                             }
+                          }
+                      },
+                      {
+                             "column": {
+                             "name": "uid",
+                             "type": "VARCHAR(<#UID_LEN#>)",
+                             "constraints": {
+                                 "nullable": "false"
+                             }
+                          }
+                      },
+                      {
+                          "column": {
+                             "name": "createdby",
+                             "type": "VARCHAR(<#USERNAME_LEN#>)"
+                          }
+                      },
+                      {
+                          "column": {
+                             "name": "createdon",
+                             "type": "DATETIME"
+                          }
+                      },
+                      {
+                             "column": {
+                             "name": "modifiedby",
+                             "type": "VARCHAR(<#USERNAME_LEN#>)"
+                          }
+                      },
+                      {
+                             "column": {
+                             "name": "modifiedon",
+                             "type": "DATETIME"
+                          }
+                      },
+                      {
+                             "column": {
+                             "name": "version",
+                             "type": "INT",
+                             "constraints": {
+                                 "nullable": "false"
+                             }
+                          }
+                      },
+                      {
+                             "column": {
+                             "name": "filter_id",
+                             "type": "BIGINT",
+                             "constraints": {
+                                 "nullable": "false"
+                             }
+                          }
+                      },
+                      {
+                             "column": {
+                             "name": "usergroup_id",
+                             "type": "BIGINT",
+                             "constraints": {
+                                 "nullable": "false"
+                             }
+                          }
+                      }
+                    ]
+                 }
+              },
+              {
+                 "addUniqueConstraint": {
+                    "columnNames": "filter_id,usergroup_id",
+                    "constraintName": "uni_sys_entity_filter_perm",
+                    "tableName": "sys_entity_filter_perm"
+                 }
+              },
+              {
+                  "addForeignKeyConstraint": {
+                     "baseColumnNames":       "filter_id",
+                     "baseTableName":         "sys_entity_filter_perm",
+                     "constraintName":        "fk_sys_entity_filter_perm_f",
+                     "deferrable":            "false",
+                     "initiallyDeferred":     "false",
+                     "onDelete":              "NO ACTION",
+                     "onUpdate":              "NO ACTION",
+                     "referencedColumnNames": "id",
+                     "referencedTableName":   "sys_entity_filter",
+                     "validate":              "true"
+                  }
+              },
+              {
+                  "addForeignKeyConstraint": {
+                     "baseColumnNames":       "usergroup_id",
+                     "baseTableName":         "sys_entity_filter_perm",
+                     "constraintName":        "fk_sys_entity_filter_perm_g",
+                     "deferrable":            "false",
+                     "initiallyDeferred":     "false",
+                     "onDelete":              "NO ACTION",
+                     "onUpdate":              "NO ACTION",
+                     "referencedColumnNames": "id",
+                     "referencedTableName":   "sys_usergroup",
+                     "validate":              "true"
+                  }
+              },
+              {
+                  "createTable": {
+                     "tableName": "sys_entity_transform_perm",
+                     "columns": [
+                      {
+                             "column": {
+                             "name": "id",
+                             "type": "BIGINT",
+                             "constraints": {
+                                 "primaryKey": "true",
+                                 "primaryKeyName": "pk_sys_entity_trans_perm"
+                             }
+                          }
+                      },
+                      {
+                             "column": {
+                             "name": "uid",
+                             "type": "VARCHAR(<#UID_LEN#>)",
+                             "constraints": {
+                                 "nullable": "false"
+                             }
+                          }
+                      },
+                      {
+                          "column": {
+                             "name": "createdby",
+                             "type": "VARCHAR(<#USERNAME_LEN#>)"
+                          }
+                      },
+                      {
+                          "column": {
+                             "name": "createdon",
+                             "type": "DATETIME"
+                          }
+                      },
+                      {
+                             "column": {
+                             "name": "modifiedby",
+                             "type": "VARCHAR(<#USERNAME_LEN#>)"
+                          }
+                      },
+                      {
+                             "column": {
+                             "name": "modifiedon",
+                             "type": "DATETIME"
+                          }
+                      },
+                      {
+                             "column": {
+                             "name": "version",
+                             "type": "INT",
+                             "constraints": {
+                                 "nullable": "false"
+                             }
+                          }
+                      },
+                      {
+                             "column": {
+                             "name": "transform_id",
+                             "type": "BIGINT",
+                             "constraints": {
+                                 "nullable": "false"
+                             }
+                          }
+                      },
+                      {
+                             "column": {
+                             "name": "usergroup_id",
+                             "type": "BIGINT",
+                             "constraints": {
+                                 "nullable": "false"
+                             }
+                          }
+                      }
+                    ]
+                 }
+              },
+              {
+                 "addUniqueConstraint": {
+                    "columnNames": "transform_id,usergroup_id",
+                    "constraintName": "uni_sys_entity_trans_perm",
+                    "tableName": "sys_entity_transform_perm"
+                 }
+              },
+              {
+                  "addForeignKeyConstraint": {
+                     "baseColumnNames":       "transform_id",
+                     "baseTableName":         "sys_entity_transform_perm",
+                     "constraintName":        "fk_sys_entity_trans_perm_t",
+                     "deferrable":            "false",
+                     "initiallyDeferred":     "false",
+                     "onDelete":              "NO ACTION",
+                     "onUpdate":              "NO ACTION",
+                     "referencedColumnNames": "id",
+                     "referencedTableName":   "sys_entity_transform",
+                     "validate":              "true"
+                  }
+              },
+              {
+                  "addForeignKeyConstraint": {
+                     "baseColumnNames":       "usergroup_id",
+                     "baseTableName":         "sys_entity_transform_perm",
+                     "constraintName":        "fk_sys_entity_trans_perm_g",
+                     "deferrable":            "false",
+                     "initiallyDeferred":     "false",
+                     "onDelete":              "NO ACTION",
+                     "onUpdate":              "NO ACTION",
+                     "referencedColumnNames": "id",
+                     "referencedTableName":   "sys_usergroup",
+                     "validate":              "true"
+                  }
+              }
+           ]
         }
     }

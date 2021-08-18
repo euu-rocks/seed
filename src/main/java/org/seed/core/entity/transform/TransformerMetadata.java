@@ -47,9 +47,6 @@ import org.seed.core.data.Order;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityMetadata;
 import org.seed.core.entity.EntityStatus;
-import org.seed.core.user.User;
-import org.seed.core.user.UserGroup;
-import org.seed.core.user.UserGroupMetadata;
 import org.seed.core.util.Assert;
 import org.seed.core.util.ReferenceJsonSerializer;
 
@@ -91,14 +88,12 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	@OrderBy("order")
 	private List<TransformerFunction> functions;
 	
-	@ManyToMany(fetch = FetchType.LAZY, 
-				cascade = CascadeType.ALL)
-	@JoinTable(name = "sys_entity_transform_group", 
-			   joinColumns = { 
-					   @JoinColumn(name = "transformer_id", nullable = false, updatable = false) }, 
-			   inverseJoinColumns = { 
-					   @JoinColumn(name = "group_id", nullable = false, updatable = false) })
-	private Set<UserGroupMetadata> userGroups;
+	@OneToMany(mappedBy = "transformer",
+			   cascade = CascadeType.ALL,
+			   orphanRemoval = true,
+			   fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+	private List<TransformerPermission> permissions;
 	
 	@ManyToMany(fetch = FetchType.LAZY, 
 				cascade = CascadeType.ALL)
@@ -180,8 +175,8 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
-	public UserGroup getUserGroupByUid(String uid) {
-		return getObjectByUid(getUserGroups(), uid);
+	public TransformerPermission getPermissionByUid(String uid) {
+		return getObjectByUid(getPermissions(), uid);
 	}
 	
 	@Override
@@ -201,13 +196,6 @@ public class TransformerMetadata extends AbstractApplicationEntity
 		Assert.notNull(status, C.STATUS);
 		
 		return hasStatus() && getStatus().contains(status);
-	}
-	
-	@Override
-	public boolean containsUserGroup(UserGroup userGroup) {
-		Assert.notNull(userGroup, C.USERGROUP);
-		
-		return hasUserGroups() && getUserGroups().contains(userGroup);
 	}
 	
 	@Override
@@ -261,26 +249,23 @@ public class TransformerMetadata extends AbstractApplicationEntity
 		
 		getFunctions().remove(function);
 	}
+	
+	@Override
+	public boolean hasPermissions() {
+		return !ObjectUtils.isEmpty(getPermissions());
+	}
+	
+	@Override
+	@XmlElement(name="permission")
+	@XmlElementWrapper(name="permissions")
+	public List<TransformerPermission> getPermissions() {
+		return permissions;
+	}
 
-	@Override
-	public boolean hasUserGroups() {
-		return !ObjectUtils.isEmpty(getUserGroups());
+	public void setPermissions(List<TransformerPermission> permissions) {
+		this.permissions = permissions;
 	}
-	
-	@Override
-	@SuppressWarnings("unchecked")
-	public Set<UserGroup> getUserGroups() {
-		final Set<?> groups = userGroups;
-		return (Set<UserGroup>) groups;
-	}
-	
-	@Override
-	public boolean isAuthorized(User user) {
-		Assert.notNull(user, C.USER);
-		
-		return user.belongsToOneOf(getUserGroups());
-	}
-	
+
 	@Override
 	public boolean isEnabled(EntityStatus entityStatus) {
 		Assert.notNull(entityStatus, "entityStatus");
@@ -315,7 +300,7 @@ public class TransformerMetadata extends AbstractApplicationEntity
 		}
 		return isEqualElements(otherTransformer) &&
 			   isEqualFunctions(otherTransformer) &&
-			   isEqualUserGroups(otherTransformer) &&
+			   isEqualPermissions(otherTransformer) &&
 			   isEqualStatus(otherTransformer);
 	}
 	
@@ -355,17 +340,17 @@ public class TransformerMetadata extends AbstractApplicationEntity
 		return true;
 	}
 	
-	private boolean isEqualUserGroups(Transformer otherTransformer) {
-		if (hasUserGroups()) {
-			for (UserGroup group : getUserGroups()) {
-				if (otherTransformer.getUserGroupByUid(group.getUid()) == null) {
+	private boolean isEqualPermissions(Transformer otherTransformer) {
+		if (hasPermissions()) {
+			for (TransformerPermission permission : getPermissions()) {
+				if (otherTransformer.getPermissionByUid(permission.getUid()) == null) {
 					return false;
 				}
 			}
 		}
-		if (otherTransformer.hasUserGroups()) {
-			for (UserGroup otherGroup : otherTransformer.getUserGroups()) {
-				if (getUserGroupByUid(otherGroup.getUid()) == null) {
+		if (otherTransformer.hasPermissions()) {
+			for (TransformerPermission otherPermission : otherTransformer.getPermissions()) {
+				if (getPermissionByUid(otherPermission.getUid()) == null) {
 					return false;
 				}
 			}
@@ -395,6 +380,7 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	public void removeNewObjects() {
 		removeNewObjects(getElements());
 		removeNewObjects(getFunctions());
+		removeNewObjects(getPermissions());
 	}
 	
 	@Override
@@ -402,6 +388,7 @@ public class TransformerMetadata extends AbstractApplicationEntity
 		super.initUid();
 		initUids(getElements());
 		initUids(getFunctions());
+		initUids(getPermissions());
 	}
 	
 	@Override
@@ -410,8 +397,8 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	}
 	
 	void createLists() {
-		userGroups = new HashSet<>();
 		statusSet = new HashSet<>();
+		permissions = new ArrayList<>();
 	}
 	
 }

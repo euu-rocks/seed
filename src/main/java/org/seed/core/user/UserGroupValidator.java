@@ -17,11 +17,62 @@
  */
 package org.seed.core.user;
 
-import org.seed.core.data.AbstractSystemEntityValidator;
+import java.util.List;
 
+import org.seed.C;
+import org.seed.core.data.AbstractSystemEntityValidator;
+import org.seed.core.data.SystemEntity;
+import org.seed.core.data.ValidationErrors;
+import org.seed.core.data.ValidationException;
+import org.seed.core.util.Assert;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserGroupValidator extends AbstractSystemEntityValidator<UserGroup> {
-
+	
+	@Autowired
+	private List<UserGroupDependent<? extends SystemEntity>> userGroupDependents;
+	
+	@Override
+	public void validateDelete(UserGroup userGroup) throws ValidationException {
+		Assert.notNull(userGroup, C.USERGROUP);
+		
+		final ValidationErrors errors = new ValidationErrors();
+		for (UserGroupDependent<? extends SystemEntity> dependent : userGroupDependents) {
+			for (SystemEntity systemEntity : dependent.findUsage(userGroup)) {
+				switch (getEntityType(systemEntity)) {
+					case "entity":
+						errors.addError("val.inuse.groupentity", systemEntity.getName());
+						break;
+						
+					case "filter":
+						errors.addError("val.inuse.groupfilter", systemEntity.getName());
+						break;
+						
+					case "transform":
+						errors.addError("val.inuse.grouptransform", systemEntity.getName());
+						break;
+						
+					case "report":
+						errors.addError("val.inuse.groupreport", systemEntity.getName());
+						break;
+						
+					case "rest":
+						errors.addError("val.inuse.grouprest", systemEntity.getName());
+						break;
+						
+					case "task":
+						errors.addError("val.inuse.grouptask", systemEntity.getName());
+						break;
+					
+					default:
+						unhandledEntity(systemEntity);
+				}
+			}
+		}
+		validate(errors);
+	}
+	
 }

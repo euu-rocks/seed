@@ -22,7 +22,7 @@
 <?component name="transformer-functions" macroURI="~./zul/admin/transform/transformer_functions.zul" inline="true"?>
 <?component name="transformer-nesteds" macroURI="~./zul/admin/transform/transformer_nesteds.zul" inline="true"?>
 <?component name="transformer-status" macroURI="~./zul/admin/transform/transformer_status.zul" inline="true"?>
-<?component name="transformer-groups" macroURI="~./zul/admin/transform/transformer_groups.zul" inline="true"?>
+<?component name="transformer-permissions" macroURI="~./zul/admin/transform/transformer_permissions.zul" inline="true"?>
 <borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminTransformerViewModel')">
 	<north border="0">
 		<toolbar>
@@ -113,7 +113,7 @@
 						<transformer-functions/>
 					</tabpanel>
 					<tabpanel fulfill="tab5.onSelect">
-						<transformer-groups/>
+						<transformer-permissions/>
 					</tabpanel>
 				</tabpanels>
 			</tabbox>

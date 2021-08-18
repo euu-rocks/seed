@@ -201,7 +201,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 					first = false;
 				}
 				else {
-					codeBuffer.append(", ");
+					codeBuffer.append(',');
 				}
 				if (parameter.annotation != null) {
 					addImport(parameter.annotation);
@@ -283,7 +283,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		if (classMetadata.interfaceClasses != null) {
 			for (TypeClass interfaceClass : classMetadata.interfaceClasses) {
 				if (!first) {
-					buf.append(", ");
+					buf.append(',');
 				}
 				buildTypeClass(buf, interfaceClass);
 				first = false;
@@ -341,7 +341,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 					first = false;
 				}
 				else {
-					buf.append(", ");
+					buf.append(',');
 				}
 				buf.append(entry.getKey()).append('=');
 				if (entry.getValue() instanceof Enum) {

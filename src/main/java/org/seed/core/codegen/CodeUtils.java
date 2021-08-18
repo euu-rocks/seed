@@ -40,15 +40,13 @@ public abstract class CodeUtils {
 		
 		final String packageURLString = packageURL.toExternalForm();
 		final String jarURI = packageURLString.substring(0, packageURLString.lastIndexOf('!'));
-		return createURI(jarURI + "!/" + classFileName);
-	}
-	
-	public static URI createClassURI(String className) {
-		return createURI(className);
+		return URI.create(jarURI + "!/" + classFileName);
 	}
 	
 	public static URI createSourceURI(String className) {
-		return createURI(className != null ? className + Kind.SOURCE.extension : null);
+		return className != null 
+				? URI.create(className + Kind.SOURCE.extension) 
+				: null;
 	}
 	
 	public static boolean isClassFile(String fileName) {
@@ -171,12 +169,6 @@ public abstract class CodeUtils {
 		}
 		scanner.close();
 		return line;
-	}
-	
-	private static URI createURI(String uriString) {
-		Assert.notNull(uriString, "uriString");
-		
-		return URI.create(uriString);
 	}
 	
 }

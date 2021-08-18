@@ -18,6 +18,8 @@
 package org.seed.ui.zk.vm;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.seed.C;
 import org.seed.core.application.setting.ApplicationSettingService;
@@ -34,6 +36,7 @@ import org.seed.core.user.User;
 import org.seed.core.user.UserService;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
+import org.seed.ui.DoubleClickDetector;
 import org.seed.ui.FormParameter;
 import org.seed.ui.TabParameterMap;
 import org.seed.ui.ViewParameterMap;
@@ -70,6 +73,8 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	
 	@WireVariable(value="limits")
 	private Limits limits;
+	
+	private Map<String, DoubleClickDetector> mapDblClickDetector;
 	
 	private boolean dirty;
 	
@@ -141,6 +146,16 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 			setSessionObject(C.USER, user);
 		}
 		return user;
+	}
+	
+	protected final boolean isDoubleClick(String key) {
+		Assert.notNull(key, "key");
+		
+		if (mapDblClickDetector == null) {
+			mapDblClickDetector = new ConcurrentHashMap<>();
+		}
+		return mapDblClickDetector.computeIfAbsent(key, d -> new DoubleClickDetector())
+								  .detect();
 	}
 	
 	@SuppressWarnings("unchecked")

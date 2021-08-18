@@ -26,10 +26,13 @@ import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.NestedEntity;
+import org.seed.core.user.User;
 
 public interface FilterService extends ApplicationEntityService<Filter> {
 	
 	List<Filter> findFilters(Entity entity);
+	
+	List<Filter> getFilters(Entity entity, User user);
 	
 	Filter getFilterByName(Entity entity, String name);
 	
@@ -38,5 +41,7 @@ public interface FilterService extends ApplicationEntityService<Filter> {
 	Filter createStatusFilter(Entity entity, EntityStatus status);
 	
 	List<FilterElement> getFilterElements(Filter filter, @Nullable NestedEntity nestedEntity);
+	
+	List<FilterPermission> getAvailablePermissions(Filter filter);
 	
 }

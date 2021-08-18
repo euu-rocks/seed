@@ -40,11 +40,11 @@
 		            	</listcell>
 		            	<listcell>
 		            		<label value="@load(run.startTime)
-		            					  @converter(vm.valueConverter)"/>
+		            					  @converter(vm.dateTimeConverter)"/>
 		            	</listcell>
 		            	<listcell>
 		            		<label value="@load(run.endTime)
-		            					  @converter(vm.valueConverter)"/>
+		            					  @converter(vm.dateTimeConverter)"/>
 		            	</listcell>
 		            </listitem>
 		        </template>

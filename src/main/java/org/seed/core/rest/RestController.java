@@ -75,7 +75,7 @@ public class RestController {
 		// check access
 		final User user = userService.getCurrentUser();
 		if (user == null || !user.isAuthorised(Authorisation.CALL_REST) ||
-			!rest.checkPermissions(user, null)) {
+			!rest.checkPermissions(user)) {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
 		// call function

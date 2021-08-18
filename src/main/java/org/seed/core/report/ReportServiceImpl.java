@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -42,6 +43,7 @@ import org.seed.core.data.datasource.DataSourceResult;
 import org.seed.core.data.datasource.DataSourceService;
 import org.seed.core.user.User;
 import org.seed.core.user.UserGroup;
+import org.seed.core.user.UserGroupDependent;
 import org.seed.core.user.UserGroupService;
 import org.seed.core.util.Assert;
 
@@ -51,7 +53,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
-	implements ReportService, DataSourceDependent<Report> {
+	implements ReportService, DataSourceDependent<Report>, UserGroupDependent<Report> {
 	
 	@Autowired
 	private ReportRepository repository;
@@ -79,13 +81,9 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 	public List<Report> getReports(User user) {
 		Assert.notNull(user, C.USER);
 		
-		final List<Report> result = new ArrayList<>();
-		for (Report report : findAllObjects()) {
-			if (report.checkPermissions(user, null)) {
-				result.add(report);
-			}
-		}
-		return result;
+		return findAllObjects().stream()
+							   .filter(r -> r.checkPermissions(user))
+							   .collect(Collectors.toList());
 	}
 	
 	@Override
@@ -273,7 +271,27 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 
 	@Override
 	public List<Report> findUsage(IDataSource dataSource) {
+		Assert.notNull(dataSource, C.DATASOURCE);
+		
 		return repository.find(queryParam("dataSource", dataSource));
+	}
+	
+	@Override
+	public List<Report> findUsage(UserGroup userGroup) {
+		Assert.notNull(userGroup, C.USERGROUP);
+		
+		final List<Report> result = new ArrayList<>();
+		for (Report report : findAllObjects()) {
+			if (report.hasPermissions()) {
+				for (ReportPermission permission : report.getPermissions()) {
+					if (userGroup.equals(permission.getUserGroup())) {
+						result.add(report);
+						break;
+					}
+				}
+			}
+		}
+		return result;
 	}
 
 	@Override
@@ -285,5 +303,5 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 	protected ReportValidator getValidator() {
 		return validator;
 	}
-	
+
 }

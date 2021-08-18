@@ -23,10 +23,10 @@ import java.net.JarURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.stream.Collectors;
@@ -47,35 +47,31 @@ import static org.seed.core.codegen.CodeUtils.*;
 
 class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	
-	private final Map<String, JavaClassFileObject> classFileObjectMap = new ConcurrentHashMap<>();
+	private final Map<String, JavaClassFileObject> classFileObjectMap = new HashMap<>();
 	
 	CompilerFileManager(StandardJavaFileManager standardFileManager) {
 		super(standardFileManager);
 	}
 	
 	List<JavaClassFileObject> getClassFileObjects() {
-		return new ArrayList<>(classFileObjectMap.values());
-	}
-	
-	JavaClassFileObject getClassFileObject(String qualifiedName) {
-		Assert.notNull(qualifiedName, C.QUALIFIEDNAME);
-		Assert.state(classFileObjectMap.containsKey(qualifiedName), "class file not available for: " + qualifiedName);
-		
-		return classFileObjectMap.get(qualifiedName); 
+		synchronized (classFileObjectMap) {
+			return classFileObjectMap.values().stream().collect(Collectors.toList());
+		}
 	}
 	
 	JavaClassFileObject removeClassFileObject(String qualifiedName) {
 		Assert.notNull(qualifiedName, C.QUALIFIEDNAME);
 		
-		return classFileObjectMap.remove(qualifiedName); 
+		synchronized (classFileObjectMap) {
+			return classFileObjectMap.remove(qualifiedName); 
+		}
 	}
 	
 	List<JavaSourceFileObject> createSourceFileObjects(List<SourceCode> sourceCodes) {
 		Assert.notNull(sourceCodes, "sourceCodes");
 		
-		return sourceCodes.stream()
-						  .map(JavaSourceFileObject::new)
-						  .collect(Collectors.toList());
+		return sourceCodes.stream().map(JavaSourceFileObject::new)
+								   .collect(Collectors.toList());
 	}
 	
 	@Override
@@ -83,7 +79,9 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 											   Kind kind, FileObject sibling) throws IOException  {
 		if (kind == Kind.CLASS) {
 			final JavaClassFileObject classFileObject = new JavaClassFileObject(qualifiedName);
-			classFileObjectMap.put(qualifiedName, classFileObject);
+			synchronized (classFileObjectMap) {
+				classFileObjectMap.put(qualifiedName, classFileObject);
+			}
 			return classFileObject;
 		}
 		return super.getJavaFileForOutput(location, qualifiedName, kind, sibling);
@@ -117,9 +115,11 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	
 	private Iterable<JavaFileObject> listGeneratedClasses(String packageName) {
 		final List<JavaFileObject> result = new ArrayList<>();
-		for (Entry<String, JavaClassFileObject> entry : classFileObjectMap.entrySet()) {
-			if (packageName.equals(extractPackageName(entry.getKey()))) {
-				result.add(entry.getValue());
+		synchronized (classFileObjectMap) {
+			for (Entry<String, JavaClassFileObject> entry : classFileObjectMap.entrySet()) {
+				if (packageName.equals(extractPackageName(entry.getKey()))) {
+					result.add(entry.getValue());
+				}
 			}
 		}
 		return result;

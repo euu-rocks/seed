@@ -204,7 +204,8 @@ public class ValueObjectRepository {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(entityClass, C.ENTITYCLASS);
 		
-		final CriteriaQuery<ValueObject> query = (CriteriaQuery<ValueObject>) session.getCriteriaBuilder().createQuery(entityClass);
+		final CriteriaQuery<ValueObject> query = (CriteriaQuery<ValueObject>) 
+				session.getCriteriaBuilder().createQuery(entityClass);
 		return find(session, query.select((Selection<? extends ValueObject>) query.from(entityClass)));
 	}
 	
@@ -212,6 +213,7 @@ public class ValueObjectRepository {
 	public List<ValueObject> find(Entity entity, Filter filter) {
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(filter, C.FILTER);
+		checkFilter(entity, filter);
 		
 		try (Session session = getSession()) {
 			if (filter.getHqlQuery() != null) {
@@ -237,7 +239,9 @@ public class ValueObjectRepository {
 	public boolean exist(Session session, Entity entity, @Nullable Filter filter) {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(entity, C.ENTITY);
-		
+		if (filter != null) {
+			checkFilter(entity, filter);
+		}
 		return !session.createQuery(buildQuery(session, entity, filter))
 					   .setMaxResults(1)
 					   .getResultList().isEmpty();
@@ -253,6 +257,7 @@ public class ValueObjectRepository {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(filter, C.FILTER);
+		checkFilter(entity, filter);
 		
 		return findUnique(session, buildQuery(session, entity, filter));
 	}
@@ -774,11 +779,15 @@ public class ValueObjectRepository {
 		}
 	}
 	
-	private void checkGeneric(Entity entity) {
+	private static void checkFilter(Entity entity, Filter filter) {
+		Assert.state(entity.equals(filter.getEntity()), "filter is not suitable for  " + entity.getName());
+	}
+	
+	private static void checkGeneric(Entity entity) {
 		Assert.state(!entity.isGeneric(), "entity is generic");
 	}
 	
-	private void checkSessionAndContext(Session session, ValueObjectFunctionContext functionContext) {
+	private static void checkSessionAndContext(Session session, ValueObjectFunctionContext functionContext) {
 		Assert.state(!(session == null && functionContext == null), "no session or functionContext provided");
 		Assert.state(!(session != null && functionContext != null), "only session or functionContext allowed");
 	}

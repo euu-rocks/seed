@@ -38,7 +38,7 @@
 			</menubar>
 		</north>
 		<west visible="@load(vm.isMenuMode('NAVIGATION'))"
-			  title="@load(vm.applicationName)" size="20%" 
+			  title="@load(vm.applicationName)" size="220px" 
 			  splittable="true" collapsible="true" border="0">
 			<tree model="@load(vm.menuTree)" 
 				  selectedItem="@bind(vm.selectedNode)"

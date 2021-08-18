@@ -29,6 +29,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 import org.hibernate.Session;
+
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.application.AbstractApplicationEntityService;
@@ -49,6 +50,7 @@ import org.seed.core.entity.EntityService;
 import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.user.UserGroup;
+import org.seed.core.user.UserGroupDependent;
 import org.seed.core.user.UserGroupService;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MultiKey;
@@ -59,7 +61,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TransformerServiceImpl extends AbstractApplicationEntityService<Transformer>
-	implements TransformerService, EntityDependent<Transformer> {
+	implements TransformerService, EntityDependent<Transformer>, UserGroupDependent<Transformer> {
 	
 	@Autowired
 	private EntityService entityService;
@@ -141,14 +143,25 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		return new ArrayList<>(result);
 	}
 	
-	@Override
-	public List<UserGroup> getAvailableUserGroups(Transformer transformer) {
+	public List<TransformerPermission> getAvailablePermissions(Transformer transformer) {
 		Assert.notNull(transformer, C.TRANSFORMER);
 		
-		final List<UserGroup> result = new ArrayList<>();
+		final List<TransformerPermission> result = new ArrayList<>();
 		for (UserGroup group : userGroupService.findAllObjects()) {
-			if (!transformer.containsUserGroup(group)) {
-				result.add(group);
+			boolean found = false;
+			if (transformer.hasPermissions()) {
+				for (TransformerPermission permission : transformer.getPermissions()) {
+					if (permission.getUserGroup().equals(group)) {
+						found = true;
+						break;
+					}
+				}
+			}
+			if (!found) {
+				final TransformerPermission permission = new TransformerPermission();
+				permission.setTransformer(transformer);
+				permission.setUserGroup(group);
+				result.add(permission);
 			}
 		}
 		return result;
@@ -286,6 +299,24 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	}
 	
 	@Override
+	public List<Transformer> findUsage(UserGroup userGroup) {
+		Assert.notNull(userGroup, C.USERGROUP);
+		
+		final List<Transformer> result = new ArrayList<>();
+		for (Transformer transformer : findAllObjects()) {
+			if (transformer.hasPermissions()) {
+				for (TransformerPermission permission : transformer.getPermissions()) {
+					if (userGroup.equals(permission.getUserGroup())) {
+						result.add(transformer);
+						break;
+					}
+				}
+			}
+		}
+		return result;
+	}
+	
+	@Override
 	public List<Transformer> findUsage(EntityFieldGroup fieldGroup) {
 		return Collections.emptyList();
 	}
@@ -382,6 +413,12 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 				initTransformerFunction(function, transformer, currentVersionTransformer);
 			}
 		}
+		if (transformer.hasPermissions()) {
+			for (TransformerPermission permission : transformer.getPermissions()) {
+				initTransformerPermission(permission, transformer, 
+										  currentVersionTransformer, session);
+			}
+		}
 	}
 	
 	private void initTransformerElement(TransformerElement element, Transformer transformer,
@@ -408,6 +445,19 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 				: null;
 		if (currentVersionFunction != null) {
 			currentVersionFunction.copySystemFieldsTo(function);
+		}
+	}
+	
+	private void initTransformerPermission(TransformerPermission permission, Transformer transformer,
+										   Transformer currentVersionTransformer, Session session) {
+		permission.setTransformer(transformer);
+		permission.setUserGroup(userGroupService.findByUid(session, permission.getUserGroupUid()));
+		final TransformerPermission currentVersionPermission = 
+			currentVersionTransformer != null
+				? currentVersionTransformer.getPermissionByUid(permission.getUid())
+				: null;
+		if (currentVersionPermission != null) {
+			currentVersionPermission.copySystemFieldsTo(permission);
 		}
 	}
 	

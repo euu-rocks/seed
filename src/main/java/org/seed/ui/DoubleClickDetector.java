@@ -15,34 +15,20 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.entity.filter;
+package org.seed.ui;
 
-import java.util.List;
-
-import org.seed.core.api.EntityFilter;
-import org.seed.core.application.ApplicationEntity;
-import org.seed.core.application.ApprovableObject;
-import org.seed.core.entity.Entity;
-
-public interface Filter 
-	extends ApplicationEntity, EntityFilter, ApprovableObject<FilterPermission> {
+public class DoubleClickDetector {
 	
-	Entity getEntity();
+	// Every click faster than 500 ms is counted as double click 
+	private static final long DELAY = 500; 
 	
-	String getEntityUid();
+	private long timeLastClick = 0;
 	
-	String getHqlQuery();
-	
-	List<FilterCriterion> getCriteria();
-	
-	boolean hasCriteria();
-	
-	FilterCriterion getCriterionByUid(String uid);
-	
-	void addCriterion(FilterCriterion criterion);
-	
-	void removeCriterion(FilterCriterion criterion);
-	
-	FilterPermission getPermissionByUid(String uid);
+	public synchronized boolean detect() {
+		final long timeNow = System.currentTimeMillis();
+		final boolean result = (timeNow - timeLastClick) < DELAY;
+		timeLastClick = timeNow;
+		return result;
+	}
 	
 }

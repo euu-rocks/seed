@@ -41,6 +41,7 @@ import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.data.Options;
 import org.seed.core.data.ValidationException;
 import org.seed.core.user.UserGroup;
+import org.seed.core.user.UserGroupDependent;
 import org.seed.core.user.UserGroupService;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
@@ -54,7 +55,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 
 @Service
 public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
-	implements RestService {
+	implements RestService, UserGroupDependent<Rest> {
 	
 	@Autowired
 	private RestRepository repository;
@@ -126,6 +127,24 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 			}
 		}
 		return rest;
+	}
+	
+	@Override
+	public List<Rest> findUsage(UserGroup userGroup) {
+		Assert.notNull(userGroup, C.USERGROUP);
+		
+		final List<Rest> result = new ArrayList<>();
+		for (Rest rest : findAllObjects()) {
+			if (rest.hasPermissions()) {
+				for (RestPermission permission : rest.getPermissions()) {
+					if (userGroup.equals(permission.getUserGroup())) {
+						result.add(rest);
+						break;
+					}
+				}
+			}
+		}
+		return result;
 	}
 	
 	@Override

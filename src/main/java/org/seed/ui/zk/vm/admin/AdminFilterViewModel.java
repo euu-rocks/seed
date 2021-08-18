@@ -31,11 +31,13 @@ import org.seed.core.entity.filter.Filter;
 import org.seed.core.entity.filter.FilterCriterion;
 import org.seed.core.entity.filter.FilterElement;
 import org.seed.core.entity.filter.FilterMetadata;
+import org.seed.core.entity.filter.FilterPermission;
 import org.seed.core.entity.filter.FilterService;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.entity.value.ValueObjectService;
 import org.seed.core.user.Authorisation;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 import org.seed.ui.ListFilter;
 
 import org.zkoss.bind.annotation.BindingParam;
@@ -46,6 +48,7 @@ import org.zkoss.bind.annotation.ExecutionArgParam;
 import org.zkoss.bind.annotation.GlobalCommand;
 import org.zkoss.bind.annotation.Init;
 import org.zkoss.bind.annotation.NotifyChange;
+import org.zkoss.bind.annotation.SmartNotifyChange;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.select.annotation.Wire;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
@@ -54,6 +57,7 @@ import org.zkoss.zul.Window;
 public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 	
 	private static final String CRITERIA = "criteria";
+	private static final String PERMISSIONS = "permissions";
 	
 	@Wire("#newFilterWin")
 	private Window window;
@@ -70,6 +74,8 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 	private NestedEntity nested;
 	
 	private FilterCriterion criterion;
+	
+	private FilterPermission permission;
 	
 	private boolean hqlInput;
 	
@@ -104,10 +110,39 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 		this.criterion = criterion;
 	}
 	
+	public FilterPermission getPermission() {
+		return permission;
+	}
+
+	public void setPermission(FilterPermission permission) {
+		this.permission = permission;
+	}
+
 	@Init
 	public void init(@ContextParam(ContextType.VIEW) Component view,
 					 @ExecutionArgParam("param") Object object) {
 		super.init(object, view);
+	}
+	
+	@Command
+	@SmartNotifyChange("permission")
+	public void insertToPermissionList(@BindingParam("base") FilterPermission base,
+									   @BindingParam("item") FilterPermission item,
+									   @BindingParam("list") int listNum) {
+		insertToList(PERMISSIONS, listNum, base, item);
+		if (listNum == LIST_AVAILABLE && item == permission) {
+			this.permission = null;
+		}
+	}
+	
+	@Command
+	@SmartNotifyChange("permission")
+	public void dropToPermissionList(@BindingParam("item") FilterPermission item,
+									 @BindingParam("list") int listNum) {
+		dropToList(PERMISSIONS, listNum, item);
+		if (listNum == LIST_AVAILABLE && item == permission) {
+			this.permission = null;
+		}
 	}
 	
 	@Override
@@ -261,6 +296,18 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 		super.flagDirty(notify, null, notifyObject);
 	}
 	
+	@Override
+	protected List<SystemObject> getListManagerSource(String key, int listNum) {
+		if (PERMISSIONS.equals(key)) {
+			return MiscUtils.cast(listNum == LIST_AVAILABLE 
+					? filterService.getAvailablePermissions(getObject()) 
+					: getObject().getPermissions());
+		}
+		else {
+			throw new UnsupportedOperationException(key);
+		}
+	}
+	
 	@Command
 	public void back() {
 		cmdBack();
@@ -296,6 +343,7 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 	@Command
 	public void saveFilter(@BindingParam("elem") Component component) {
 		((FilterMetadata) getObject()).setHqlInput(hqlInput);
+		adjustLists(getObject().getPermissions(), getListManagerList(PERMISSIONS, LIST_SELECTED));
 		cmdSaveObject(component);
 	}
 
@@ -332,6 +380,7 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 	@Override
 	protected void resetProperties() {
 		criterion = null;
+		permission = null;
 		nested = null;
 		hqlInput = false;
 	}

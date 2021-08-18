@@ -63,6 +63,13 @@ public class FilterMetadata extends AbstractApplicationEntity implements Filter 
 			   fetch = FetchType.LAZY)
 	private List<FilterCriterion> criteria;
 	
+	@OneToMany(mappedBy = "filter",
+			   cascade = CascadeType.ALL,
+			   orphanRemoval = true,
+			   fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+	private List<FilterPermission> permissions;
+	
 	private String hqlQuery;
 	
 	@Transient
@@ -150,6 +157,27 @@ public class FilterMetadata extends AbstractApplicationEntity implements Filter 
 	}
 	
 	@Override
+	@XmlElement(name="permission")
+	@XmlElementWrapper(name="permissions")
+	public List<FilterPermission> getPermissions() {
+		return permissions;
+	}
+
+	public void setPermissions(List<FilterPermission> permissions) {
+		this.permissions = permissions;
+	}
+	
+	@Override
+	public boolean hasPermissions() {
+		return !ObjectUtils.isEmpty(getPermissions());
+	}
+	
+	@Override
+	public FilterPermission getPermissionByUid(String uid) {
+		return getObjectByUid(getPermissions(), uid);
+	}
+
+	@Override
 	public boolean isEqual(Object other) {
 		if (other == null || !Filter.class.isAssignableFrom(other.getClass())) {
 			return false;
@@ -163,7 +191,8 @@ public class FilterMetadata extends AbstractApplicationEntity implements Filter 
 			.isEquals()) {
 			return false;
 		}
-		return isEqualCriteria(otherFilter);
+		return isEqualCriteria(otherFilter) &&
+			   isEqualPermissions(otherFilter);
 	}
 	
 	private boolean isEqualCriteria(Filter otherFilter) {
@@ -184,15 +213,39 @@ public class FilterMetadata extends AbstractApplicationEntity implements Filter 
 		return true;
 	}
 	
+	private boolean isEqualPermissions(Filter otherFilter) {
+		if (hasPermissions()) {
+			for (FilterPermission criterion : getPermissions()) {
+				if (!criterion.isEqual(otherFilter.getPermissionByUid(criterion.getUid()))) {
+					return false;
+				}
+			}
+		}
+		if (otherFilter.hasPermissions()) {
+			for (FilterPermission otherPermission : otherFilter.getPermissions()) {
+				if (getPermissionByUid(otherPermission.getUid()) == null) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
 	@Override
 	public void removeNewObjects() {
 		removeNewObjects(getCriteria());
+		removeNewObjects(getPermissions());
 	}
 	
 	@Override
 	public void initUid() {
 		super.initUid();
 		initUids(getCriteria());
-	} 
+		initUids(getPermissions());
+	}
+	
+	void createLists() {
+		permissions = new ArrayList<>();
+	}
 	
 }

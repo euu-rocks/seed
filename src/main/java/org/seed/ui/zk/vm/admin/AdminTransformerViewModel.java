@@ -32,10 +32,10 @@ import org.seed.core.entity.transform.NestedTransformer;
 import org.seed.core.entity.transform.Transformer;
 import org.seed.core.entity.transform.TransformerElement;
 import org.seed.core.entity.transform.TransformerFunction;
+import org.seed.core.entity.transform.TransformerPermission;
 import org.seed.core.entity.transform.TransformerService;
 import org.seed.core.entity.transform.codegen.TransformerFunctionCodeProvider;
 import org.seed.core.user.Authorisation;
-import org.seed.core.user.UserGroup;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 import org.seed.ui.ListFilter;
@@ -58,7 +58,7 @@ import org.zkoss.zul.Window;
 public class AdminTransformerViewModel extends AbstractAdminViewModel<Transformer> {
 	
 	private static final String FUNCTIONS = "functions";
-	private static final String USERGROUPS = "usergroups";
+	private static final String PERMISSIONS = "permissions";
 	private static final String STATUS = "status";
 	
 	@Wire("#newTransformerWin")
@@ -84,6 +84,8 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	private NestedTransformer nested;
 	
 	private TransformerElement nestedElement;
+	
+	private TransformerPermission permission;
 	
 	public AdminTransformerViewModel() {
 		super(Authorisation.ADMIN_ENTITY, "transformer",
@@ -163,6 +165,14 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 		this.nestedElement = nestedElement;
 	}
 	
+	public TransformerPermission getPermission() {
+		return permission;
+	}
+
+	public void setPermission(TransformerPermission permission) {
+		this.permission = permission;
+	}
+
 	public List<Entity> getEntities() {
 		return entityService.findNonGenericEntities();
 	}
@@ -327,7 +337,7 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	
 	@Command
 	public void saveTransformer(@BindingParam("elem") Component component) {
-		adjustLists(getObject().getUserGroups(), getListManagerList(USERGROUPS, LIST_SELECTED));
+		adjustLists(getObject().getPermissions(), getListManagerList(PERMISSIONS, LIST_SELECTED));
 		adjustLists(getObject().getStatus(), getListManagerList(STATUS, LIST_SELECTED));
 		transformerService.adjustElements(getObject(), elements, nesteds);
 		
@@ -342,16 +352,16 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	}
 	
 	@Command
-	public void dropToGroupList(@BindingParam("item") UserGroup item,
-								@BindingParam("list") int listNum) {
-		dropToList(USERGROUPS, listNum, item);
+	public void dropToPermissionList(@BindingParam("item") TransformerPermission item,
+									 @BindingParam("list") int listNum) {
+		dropToList(PERMISSIONS, listNum, item);
 	}
 	
 	@Command
-	public void insertToGroupList(@BindingParam("base") UserGroup base,
-								  @BindingParam("item") UserGroup item,
-								  @BindingParam("list") int listNum) {
-		insertToList(USERGROUPS, listNum, base, item);
+	public void insertToPermissionList(@BindingParam("base") TransformerPermission base,
+									   @BindingParam("item") TransformerPermission item,
+									   @BindingParam("list") int listNum) {
+		insertToList(PERMISSIONS, listNum, base, item);
 	}
 	
 	@Command
@@ -391,10 +401,10 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	@Override
 	protected List<SystemObject> getListManagerSource(String key, int listNum) {
 		switch (key) {
-			case USERGROUPS:
+			case PERMISSIONS:
 				return MiscUtils.cast(listNum == LIST_AVAILABLE
-							? transformerService.getAvailableUserGroups(getObject())
-							: new ArrayList<>(getObject().getUserGroups()));
+							? transformerService.getAvailablePermissions(getObject())
+							: new ArrayList<>(getObject().getPermissions()));
 						
 			case STATUS:
 				return MiscUtils.cast(listNum == LIST_AVAILABLE
@@ -413,6 +423,7 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 		function = null;
 		nested = null;
 		nestedElement = null;
+		permission = null;
 	}
 
 	@Override

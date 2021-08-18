@@ -39,6 +39,9 @@ public class UserValidator extends AbstractSystemEntityValidator<User> {
 		else if (user.getName().length() > getLimit("user.name.length")) {
 			errors.addOverlongField("label.username", getLimit("user.name.length"));
 		}
+		else if (user.getInternalName().equalsIgnoreCase("system")) {
+			errors.addIllegalName(user.getInternalName());
+		}
 		if (isEmpty(user.getEmail())) {
 			errors.addEmptyField("label.email");
 		}
