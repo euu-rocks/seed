@@ -43,6 +43,4 @@ public interface Filter
 	
 	void removeCriterion(FilterCriterion criterion);
 	
-	FilterPermission getPermissionByUid(String uid);
-	
 }

@@ -69,6 +69,4 @@ public interface Transformer
 	
 	Set<EntityStatus> getStatus();
 	
-	TransformerPermission getPermissionByUid(String uid);
-	
 }

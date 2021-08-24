@@ -48,8 +48,6 @@ public interface Task
 	
 	void removeParameter(TaskParameter parameter);
 	
-	TaskPermission getPermissionByUid(String uid);
-	
 	boolean hasNotifications();
 	
 	List<TaskNotification> getNotifications();

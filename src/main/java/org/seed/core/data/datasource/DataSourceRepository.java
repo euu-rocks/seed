@@ -17,11 +17,13 @@
  */
 package org.seed.core.data.datasource;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +31,7 @@ import org.hibernate.Session;
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.data.AbstractSystemEntityRepository;
+import org.seed.core.form.LabelProvider;
 import org.seed.core.util.Assert;
 
 import org.slf4j.Logger;
@@ -41,8 +44,13 @@ public class DataSourceRepository extends AbstractSystemEntityRepository<IDataSo
 	
 	private static final Logger log = LoggerFactory.getLogger(DataSourceRepository.class);
 	
+	private static final String QUOTE = "'";
+	
 	@Autowired
 	private javax.sql.DataSource sqlDataSource;
+	
+	@Autowired
+	private LabelProvider labelProvider;
 	
 	public DataSourceRepository() {
 		super(DataSourceMetadata.class);
@@ -98,20 +106,32 @@ public class DataSourceRepository extends AbstractSystemEntityRepository<IDataSo
 				: session.createSQLQuery(sql).list();
 	}
 	
-	private static String buildSQLQuery(IDataSource dataSource, Map<String, Object> parameters) {
+	private String buildSQLQuery(IDataSource dataSource, Map<String, Object> parameters) {
 		String sql = dataSource.getContent();
 		Assert.stateAvailable(sql, C.CONTENT);
 		
 		for (String contentParameter : dataSource.getContentParameterSet()) {
 			final Object paramValue = parameters.get(contentParameter);
 			Assert.stateAvailable(paramValue, "parameter value " + contentParameter);
-			
-			sql = sql.replace('{' + contentParameter + '}', paramValue.toString());
+			sql = sql.replace('{' + contentParameter + '}', formatParameter(paramValue));
 		}
 		if (log.isDebugEnabled()) {
 			log.debug("[{}] {}", dataSource.getName(), sql);
 		}
 		return sql;
+	}
+	
+	private String formatParameter(Object parameter) {
+		if (parameter instanceof String) {
+			return QUOTE + parameter + QUOTE;
+		}
+		if (parameter instanceof BigDecimal) {
+			return labelProvider.formatBigDecimal((BigDecimal) parameter);
+		}
+		if (parameter instanceof Date) {
+			return labelProvider.formatDate((Date) parameter);
+		}
+		return parameter.toString();
 	}
 	
 }

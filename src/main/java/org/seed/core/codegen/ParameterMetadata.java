@@ -15,27 +15,30 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.report;
+package org.seed.core.codegen;
 
-import java.util.List;
-import java.util.Map;
+import org.seed.C;
+import org.seed.core.util.Assert;
 
-import org.seed.core.application.ApplicationEntity;
-import org.seed.core.application.ApprovableObject;
-import org.seed.core.data.datasource.DataSourceParameter;
-
-public interface Report extends ApplicationEntity, ApprovableObject<ReportPermission> {
+public final class ParameterMetadata {
 	
-	boolean hasDataSources();
+	final TypeClass typeClass;
 	
-	List<ReportDataSource> getDataSources();
+	final AnnotationMetadata annotation;
 	
-	ReportDataSource getDataSourceByUid(String uid);
+	final String name;
 	
-	void addDataSource(ReportDataSource reprtDataSource);
+	ParameterMetadata(String name, TypeClass typeClass) {
+		this(name, typeClass, null);
+	}
 	
-	void removeDataSource(ReportDataSource reprtDataSource);
-	
-	Map<String, List<DataSourceParameter>> getDataSourceParameterMap();
+	ParameterMetadata(String name, TypeClass typeClass, AnnotationMetadata annotation) {
+		Assert.notNull(name, C.NAME);
+		Assert.notNull(typeClass, C.TYPECLASS);
+		
+		this.name = name;
+		this.typeClass = typeClass;
+		this.annotation = annotation;
+	}
 	
 }

@@ -25,4 +25,6 @@ public interface ApprovableObject<T extends Permission<?>> {
 	
 	List<T> getPermissions();
 	
+	T getPermissionByUid(String uid);
+	
 }

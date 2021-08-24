@@ -33,6 +33,22 @@ import org.springframework.util.StringUtils;
 
 public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 	
+	private class MemberMetadata {
+		
+		final TypeClass typeClass;
+		
+		final String name;
+		
+		MemberMetadata(String name, TypeClass typeClass) {
+			Assert.notNull(name, C.NAME);
+			Assert.notNull(typeClass, C.TYPECLASS);
+			
+			this.typeClass = typeClass;
+			this.name = name;
+		}
+		
+	}
+	
 	protected static final String LF = System.lineSeparator();
 	
 	protected static final String LFLF = LF + LF;

@@ -32,7 +32,6 @@ import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationError;
 import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
-import org.seed.core.form.LabelProvider;
 import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +42,6 @@ public class DataSourceValidator extends AbstractSystemEntityValidator<IDataSour
 	
 	@Autowired
 	private DataSourceRepository repository;
-	
-	@Autowired
-	private LabelProvider labelProvider;
 	
 	@Autowired
 	private List<DataSourceDependent<? extends SystemEntity>> dataSourceDependents;
@@ -133,22 +129,22 @@ public class DataSourceValidator extends AbstractSystemEntityValidator<IDataSour
 			final DataSourceParameter parameter = dataSource.getParameterByName(contentParameter);
 			Assert.stateAvailable(parameterMap, "parameterMap");
 			
-			String value;
+			Object value;
 			switch (parameter.getType()) {
 				case TEXT:
 					value = "text";
 					break;
 				case INTEGER:
-					value = "1";
+					value = 1;
 					break;
 				case DOUBLE:
-					value = "1.234";
+					value = 1.23d;
 					break;
 				case DECIMAL:
-					value = labelProvider.formatBigDecimal(BigDecimal.valueOf(1.23d));
+					value = BigDecimal.valueOf(1.23d);
 					break;
 				case DATE:
-					value = labelProvider.formatDate(new Date());
+					value = new Date();
 					break;
 				default:
 					throw new UnsupportedOperationException(parameter.getType().name());

@@ -34,9 +34,11 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Formula;
+
 import org.seed.C;
 import org.seed.core.codegen.AbstractSourceCodeBuilder;
 import org.seed.core.codegen.AnnotationMetadata;
+import org.seed.core.codegen.ParameterMetadata;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.codegen.TypeClass;
 import org.seed.core.entity.Entity;

@@ -22,6 +22,7 @@ import java.util.Date;
 import org.seed.C;
 import org.seed.core.api.JobContext;
 import org.seed.core.codegen.AbstractSourceCodeBuilder;
+import org.seed.core.codegen.ParameterMetadata;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.task.AbstractJob;
 import org.seed.core.task.Task;

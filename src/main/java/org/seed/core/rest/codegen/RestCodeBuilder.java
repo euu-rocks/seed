@@ -22,6 +22,7 @@ import java.util.Date;
 import org.seed.C;
 import org.seed.core.api.RestFunctionContext;
 import org.seed.core.codegen.AbstractSourceCodeBuilder;
+import org.seed.core.codegen.ParameterMetadata;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.codegen.TypeClass;
 import org.seed.core.rest.RestFunction;

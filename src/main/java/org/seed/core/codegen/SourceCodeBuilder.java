@@ -19,54 +19,12 @@ package org.seed.core.codegen;
 
 import java.util.Date;
 
-import org.seed.C;
-import org.seed.core.util.Assert;
-
 public interface SourceCodeBuilder {
 	
 	enum BuildMode {
 		
 		COMPLETE,
 		TEMPLATE
-	}
-	
-	class MemberMetadata {
-		
-		final TypeClass typeClass;
-		
-		final String name;
-		
-		MemberMetadata(String name, TypeClass typeClass) {
-			Assert.notNull(name, C.NAME);
-			Assert.notNull(typeClass, C.TYPECLASS);
-			
-			this.typeClass = typeClass;
-			this.name = name;
-		}
-		
-	}
-	
-	class ParameterMetadata {
-		
-		final TypeClass typeClass;
-		
-		final AnnotationMetadata annotation;
-		
-		final String name;
-		
-		ParameterMetadata(String name, TypeClass typeClass) {
-			this(name, typeClass, null);
-		}
-		
-		ParameterMetadata(String name, TypeClass typeClass, AnnotationMetadata annotation) {
-			Assert.notNull(name, C.NAME);
-			Assert.notNull(typeClass, C.TYPECLASS);
-			
-			this.name = name;
-			this.typeClass = typeClass;
-			this.annotation = annotation;
-		}
-		
 	}
 	
 	Date getLastModified();

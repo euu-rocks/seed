@@ -143,8 +143,6 @@ public interface Entity
 	
 	void removeStatusTransition(EntityStatusTransition statusTransition);
 	
-	EntityPermission getPermissionByUid(String uid);
-	
 	boolean hasFieldConstraints();
 	
 	List<EntityFieldConstraint> getFieldConstraints();
