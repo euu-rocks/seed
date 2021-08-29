@@ -99,7 +99,7 @@ public abstract class AbstractSystemEntityService<T extends SystemEntity>
 	}
 	
 	@Override
-	public List<T> findAllObjects() {
+	public List<T> getObjects() {
 		return getRepository().find();
 	}
 	

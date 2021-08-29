@@ -81,7 +81,7 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 	public List<Report> getReports(User user) {
 		Assert.notNull(user, C.USER);
 		
-		return findAllObjects().stream()
+		return getObjects().stream()
 							   .filter(r -> r.checkPermissions(user))
 							   .collect(Collectors.toList());
 	}
@@ -126,7 +126,7 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 		Assert.notNull(report, C.REPORT);
 		
 		final List<ReportPermission> result = new ArrayList<>();
-		for (UserGroup group : userGroupService.findAllObjects()) {
+		for (UserGroup group : userGroupService.getObjects()) {
 			boolean found = false;
 			if (report.hasPermissions()) {
 				for (ReportPermission permission : report.getPermissions()) {
@@ -281,7 +281,7 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 		Assert.notNull(userGroup, C.USERGROUP);
 		
 		final List<Report> result = new ArrayList<>();
-		for (Report report : findAllObjects()) {
+		for (Report report : getObjects()) {
 			if (report.hasPermissions()) {
 				for (ReportPermission permission : report.getPermissions()) {
 					if (userGroup.equals(permission.getUserGroup())) {

@@ -194,7 +194,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(entity, C.ENTITY);
 		
 		final List<Entity> result = new ArrayList<>();
-		for (Entity otherEntity : findAllObjects()) {
+		for (Entity otherEntity : getObjects()) {
 			if (entity.equals(otherEntity)) {
 				continue;
 			}
@@ -221,7 +221,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(fieldGroup, C.FIELDGROUP);
 		
 		final List<Entity> result = new ArrayList<>();
-		for (Entity entity : findAllObjects()) {
+		for (Entity entity : getObjects()) {
 			if (entity.equals(fieldGroup.getEntity())) {
 				continue;
 			}
@@ -237,7 +237,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(userGroup, C.USERNAME);
 		
 		final List<Entity> result = new ArrayList<>();
-		for (Entity entity : findAllObjects()) {
+		for (Entity entity : getObjects()) {
 			if ((entity.hasPermissions() && checkPermissions(entity, userGroup)) ||
 				(entity.hasStatusTransitions() && checkStatusTransitions(entity, userGroup))) {
 				result.add(entity);
@@ -349,7 +349,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(entity, C.ENTITY);
 		
 		final List<EntityPermission> result = new ArrayList<>();
-		for (UserGroup group : userGroupService.findAllObjects()) {
+		for (UserGroup group : userGroupService.getObjects()) {
 			boolean found = false;
 			if (entity.hasPermissions()) {
 				for (EntityPermission permission : entity.getPermissions()) {
@@ -375,7 +375,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(transition, C.TRANSITION);
 		
 		final List<EntityStatusTransitionPermission> result = new ArrayList<>();
-		for (UserGroup group : userGroupService.findAllObjects()) {
+		for (UserGroup group : userGroupService.getObjects()) {
 			boolean found = false;
 			if (transition.hasPermissions()) {
 				for (EntityStatusTransitionPermission permission : transition.getPermissions()) {
@@ -747,7 +747,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	private boolean processCallbackFunctionChange(SourceCode sourceCode, Session session) {
 		final String entityName = sourceCode.getPackageName().substring(EntityMetadata.PACKAGE_NAME.length() + 1);
-		for (Entity entity : findAllObjects()) {
+		for (Entity entity : getObjects()) {
 			if (entity.getName().equalsIgnoreCase(entityName)) {
 				for (EntityFunction function : entity.getFunctions()) {
 					if (function.isCallback() && 

@@ -192,7 +192,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		Assert.notNull(filter, C.FILTER);
 		
 		final List<FilterPermission> result = new ArrayList<>();
-		for (UserGroup group : userGroupService.findAllObjects()) {
+		for (UserGroup group : userGroupService.getObjects()) {
 			boolean found = false;
 			if (filter.hasPermissions()) {
 				for (FilterPermission permission : filter.getPermissions()) {
@@ -350,7 +350,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		Assert.notNull(userGroup, C.USERGROUP);
 		
 		final List<Filter> result = new ArrayList<>();
-		for (Filter filter : findAllObjects()) {
+		for (Filter filter : getObjects()) {
 			if (filter.hasPermissions()) {
 				for (FilterPermission permission : filter.getPermissions()) {
 					if (userGroup.equals(permission.getUserGroup())) {

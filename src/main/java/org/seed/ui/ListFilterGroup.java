@@ -27,7 +27,7 @@ import org.seed.core.data.SystemObject;
 import org.seed.core.util.Assert;
 import org.seed.core.util.ObjectAccess;
 
-public final class ListFilterGroup implements ListFilterListener {
+public class ListFilterGroup implements ListFilterListener {
 	
 	private final Map<String, ListFilter<?>> filterMap = new ConcurrentHashMap<>();
 	

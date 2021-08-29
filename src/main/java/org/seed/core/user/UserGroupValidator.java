@@ -66,6 +66,10 @@ public class UserGroupValidator extends AbstractSystemEntityValidator<UserGroup>
 					case "task":
 						errors.addError("val.inuse.grouptask", systemEntity.getName());
 						break;
+						
+					case "user":
+						errors.addError("val.inuse.groupuser", systemEntity.getName());
+						break;
 					
 					default:
 						unhandledEntity(systemEntity);

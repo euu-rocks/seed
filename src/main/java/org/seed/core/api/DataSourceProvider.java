@@ -20,12 +20,10 @@ package org.seed.core.api;
 import java.util.List;
 import java.util.Map;
 
-import org.seed.core.data.datasource.IDataSource;
-
 public interface DataSourceProvider {
 	
-	IDataSource getDataSource(String dataSourceName);
+	DataSource getDataSource(String dataSourceName);
 	
-	List<Object[]> query(IDataSource dataSource, Map<String, Object> parameters);
+	List<Object[]> query(DataSource dataSource, Map<String, Object> parameters);
 	
 }

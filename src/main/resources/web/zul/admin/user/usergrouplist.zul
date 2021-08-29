@@ -29,6 +29,9 @@
 			<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
 						   label="${labels.admin.usergroup.create}" 
 						   onClick="@command('newUserGroup')"/>
+			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+						   label="${labels.button.refresh}" 
+						   onClick="@command('refreshUserGroup')"/>
 			<toolbarbutton iconSclass="z-icon-wrench alpha-icon-lg" 
 						   label="${labels.admin.usergroup.edit}" 
 						   onClick="@command('editUserGroup')"

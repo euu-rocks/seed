@@ -259,7 +259,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	}
 	
 	protected List<T> loadObjectList() {
-		return getObjectService().findAllObjects();
+		return getObjectService().getObjects();
 	}
 	
 	public final boolean existObjects() {
@@ -273,11 +273,11 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	}
 	
 	public final List<Module> getModules() {
-		return moduleService.findAllObjects();
+		return moduleService.getObjects();
 	}
 	
 	public final List<UserGroup> getUserGroups() {
-		return userGroupService.findAllObjects();
+		return userGroupService.getObjects();
 	}
 	
 	public final boolean existUserGroups() {

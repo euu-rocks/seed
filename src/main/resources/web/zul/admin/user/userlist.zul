@@ -29,6 +29,9 @@
 			<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
 						   label="${labels.admin.user.create}" 
 						   onClick="@command('newUser')"/>
+			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+						   label="${labels.button.refresh}" 
+						   onClick="@command('refreshUser')"/>
 			<toolbarbutton iconSclass="z-icon-wrench alpha-icon-lg" 
 						   label="${labels.admin.user.edit}" 
 						   onClick="@command('editUser')"
@@ -45,7 +48,7 @@
 		         selectedItem="@bind(vm.object)" 
 		         visible="@load(vm.existObjects())">
 			<listhead sizable="true">
-	            <listheader hflex="1" label="${labels.label.usergroup}" 
+	            <listheader hflex="1" label="${labels.label.user}" 
 	            			sort="auto(name)" onCreate="self.sort(true)"/>
 		    </listhead> 
 		    <auxhead visible="@load(vm.listViewFilterGroup.visible)">

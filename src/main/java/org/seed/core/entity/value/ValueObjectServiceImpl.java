@@ -594,7 +594,7 @@ public class ValueObjectServiceImpl
 	public List<Entity> findUsage(ValueObject object) {
 		final List<Entity> result = new ArrayList<>();
 		final Entity entity = repository.getEntity(object);
-		for (Entity otherEntity : entityService.findAllObjects()) {
+		for (Entity otherEntity : entityService.getObjects()) {
 			if (otherEntity.isGeneric() || entity.equals(otherEntity)) {
 				continue;
 			}

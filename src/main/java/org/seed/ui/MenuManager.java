@@ -54,9 +54,6 @@ public class MenuManager {
 			menuList.add(createAdminMenu(user));
 		}
 		
-		// user menus
-		menuList.addAll(getMenusForUser(user));
-		
 		// jobs
 		if (user.isAuthorised(Authorisation.RUN_JOBS) && tasksExist) {
 			menuList.add(new TreeNode(getLabel("label.runjobs"), 
@@ -70,6 +67,9 @@ public class MenuManager {
 									"/report/reportlist.zul", 
 									"z-icon-book z-icon-fw"));
 		}
+		
+		// user menus
+		menuList.addAll(getMenusForUser(user));
 		
 		// full-text search
 		if (fullTextSearchAvailable &&

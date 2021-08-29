@@ -41,8 +41,8 @@ public class FilterRestController extends AbstractRestController<Filter> {
 	}
 	
 	@Override
-	public List<Filter> findAll() {
-		return findAll(this::checkPermissions);
+	public List<Filter> getAll() {
+		return getAll(this::checkPermissions);
 	}
 	
 	@Override

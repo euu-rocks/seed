@@ -36,12 +36,12 @@ public abstract class AbstractRestController<T extends ApplicationEntity> {
 	private UserService userService;
 	
 	@GetMapping
-	public List<T> findAll() {
-		return getService().findAllObjects();
+	public List<T> getAll() {
+		return getService().getObjects();
 	}
 	
-	protected List<T> findAll(Predicate<T> filter) {
-		return getService().findAllObjects().stream()
+	protected List<T> getAll(Predicate<T> filter) {
+		return getService().getObjects().stream()
 						   .filter(filter).collect(Collectors.toList());
 	}
 	

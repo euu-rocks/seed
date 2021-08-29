@@ -80,7 +80,7 @@ public class AdminMenuViewModel extends AbstractAdminViewModel<Menu> {
 	}
 	
 	public List<Form> getForms() {
-		return formService.findAllObjects();
+		return formService.getObjects();
 	}
 
 	@Command

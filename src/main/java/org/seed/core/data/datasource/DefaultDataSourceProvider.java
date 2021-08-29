@@ -23,6 +23,7 @@ import java.util.Map;
 import org.seed.C;
 import org.seed.Seed;
 import org.seed.core.api.AbstractFunctionContext;
+import org.seed.core.api.DataSource;
 import org.seed.core.api.DataSourceProvider;
 import org.seed.core.util.Assert;
 
@@ -40,18 +41,18 @@ public class DefaultDataSourceProvider implements DataSourceProvider {
 	}
 	
 	@Override
-	public IDataSource getDataSource(String dataSourceName) {
+	public DataSource getDataSource(String dataSourceName) {
 		Assert.notNull(dataSourceName, "dataSourceName");
 		
 		return dataSourceService.findByName(dataSourceName);
 	}
 
 	@Override
-	public List<Object[]> query(IDataSource dataSource, Map<String, Object> parameters) {
+	public List<Object[]> query(DataSource dataSource, Map<String, Object> parameters) {
 		Assert.notNull(dataSource, C.DATASOURCE);
 		Assert.notNull(parameters, "parameters");
 		
-		return dataSourceService.query(dataSource, parameters, functionContext.getSession())
+		return dataSourceService.query((IDataSource) dataSource, parameters, functionContext.getSession())
 								.getResultList();
 	}
 

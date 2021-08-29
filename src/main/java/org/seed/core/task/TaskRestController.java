@@ -47,8 +47,8 @@ public class TaskRestController extends AbstractRestController<Task> {
 	}
 	
 	@Override
-	public List<Task> findAll() {
-		return findAll(this::checkPermissions);
+	public List<Task> getAll() {
+		return getAll(this::checkPermissions);
 	}
 	
 	@Override

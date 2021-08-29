@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.data.AbstractSystemEntityService;
@@ -47,7 +48,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserServiceImpl extends AbstractSystemEntityService<User> 
-	implements UserService, ApplicationListener<AuthenticationSuccessEvent> {
+	implements UserService, UserGroupDependent<User>, ApplicationListener<AuthenticationSuccessEvent> {
 	
 	private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
 	
@@ -153,7 +154,7 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 		Assert.notNull(user, C.USER);
 		
 		final List<UserGroup> result = new ArrayList<>();
-		for (UserGroup group : userGroupService.findAllObjects()) {
+		for (UserGroup group : userGroupService.getObjects()) {
 			boolean found = false;
 			if (user.hasUserGroups()) {
 				for (UserGroup existingGroup : user.getUserGroups()) {
@@ -165,6 +166,24 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 			}
 			if (!found) {
 				result.add(group);
+			}
+		}
+		return result;
+	}
+	
+	@Override
+	public List<User> findUsage(UserGroup userGroup) {
+		Assert.notNull(userGroup, C.USERGROUP);
+		
+		final List<User> result = new ArrayList<>();
+		for (User user : getObjects()) {
+			if (user.hasUserGroups()) {
+				for (UserGroup group : user.getUserGroups()) {
+					if (userGroup.equals(group)) {
+						result.add(user);
+						break;
+					}
+				}
 			}
 		}
 		return result;

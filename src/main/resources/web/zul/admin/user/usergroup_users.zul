@@ -19,7 +19,7 @@
 -->
 <!DOCTYPE xml>
 <borderlayout>
-	<west width="30%" border="0" style="padding:5px">
+	<west width="50%" border="0" style="padding:5px">
 		<groupbox hflex="1" vflex="1">
 			<caption label="${labels.label.usersavailable}"/>
 			<listbox mold="paging" autopaging="true"
@@ -59,4 +59,9 @@
 			</listbox>
 		</groupbox>
 	</center>
+	<south border="0">
+		<div align="center">
+			<label value="${labels.info.dragndropinfo}"/>
+		</div>
+	</south>
 </borderlayout>

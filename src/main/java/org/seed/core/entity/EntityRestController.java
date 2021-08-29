@@ -41,8 +41,8 @@ public class EntityRestController extends AbstractRestController<Entity> {
 	}
 	
 	@Override
-	public List<Entity> findAll() {
-		return findAll(e -> checkPermissions(e, EntityAccess.READ));
+	public List<Entity> getAll() {
+		return getAll(e -> checkPermissions(e, EntityAccess.READ));
 	}
 	
 	@Override

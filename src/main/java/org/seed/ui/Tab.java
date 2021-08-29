@@ -24,7 +24,7 @@ import org.seed.core.util.Assert;
 
 import org.zkoss.util.resource.Labels;
 
-public final class Tab {
+public class Tab {
 	
 	private String tabName;
 	

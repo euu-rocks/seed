@@ -147,7 +147,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		Assert.notNull(transformer, C.TRANSFORMER);
 		
 		final List<TransformerPermission> result = new ArrayList<>();
-		for (UserGroup group : userGroupService.findAllObjects()) {
+		for (UserGroup group : userGroupService.getObjects()) {
 			boolean found = false;
 			if (transformer.hasPermissions()) {
 				for (TransformerPermission permission : transformer.getPermissions()) {
@@ -284,7 +284,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		Assert.notNull(entityField, C.ENTITYFIELD);
 		
 		final List<Transformer> result = new ArrayList<>();
-		for (Transformer transformer : findAllObjects()) {
+		for (Transformer transformer : getObjects()) {
 			if (transformer.hasElements()) {
 				for (TransformerElement element : transformer.getElements()) {
 					if (entityField.equals(element.getSourceField()) ||
@@ -303,7 +303,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		Assert.notNull(userGroup, C.USERGROUP);
 		
 		final List<Transformer> result = new ArrayList<>();
-		for (Transformer transformer : findAllObjects()) {
+		for (Transformer transformer : getObjects()) {
 			if (transformer.hasPermissions()) {
 				for (TransformerPermission permission : transformer.getPermissions()) {
 					if (userGroup.equals(permission.getUserGroup())) {

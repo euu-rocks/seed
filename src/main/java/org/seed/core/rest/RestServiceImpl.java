@@ -134,7 +134,7 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 		Assert.notNull(userGroup, C.USERGROUP);
 		
 		final List<Rest> result = new ArrayList<>();
-		for (Rest rest : findAllObjects()) {
+		for (Rest rest : getObjects()) {
 			if (rest.hasPermissions()) {
 				for (RestPermission permission : rest.getPermissions()) {
 					if (userGroup.equals(permission.getUserGroup())) {
@@ -190,7 +190,7 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 		Assert.notNull(rest, "rest");
 		
 		final List<RestPermission> result = new ArrayList<>();
-		for (UserGroup group : userGroupService.findAllObjects()) {
+		for (UserGroup group : userGroupService.getObjects()) {
 			boolean found = false;
 			if (rest.hasPermissions()) {
 				for (RestPermission permission : rest.getPermissions()) {

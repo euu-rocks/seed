@@ -28,7 +28,7 @@ import org.seed.core.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-public final class ListFilter<T extends SystemObject> {
+public class ListFilter<T extends SystemObject> {
 	
 	private final ListFilterListener listener;
 	

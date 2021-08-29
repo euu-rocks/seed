@@ -25,12 +25,12 @@ import org.seed.core.data.FieldType;
 
 public enum CriterionOperator {
 				  // fieldTypes must be sorted for Arrays.binarySearch
-	EMPTY		  (FieldType.AUTONUM, FieldType.BINARY, FieldType.BOOLEAN, FieldType.DATE, FieldType.DATETIME, 
-				   FieldType.DECIMAL, FieldType.DOUBLE, FieldType.FILE, FieldType.INTEGER, FieldType.LONG,
-				   FieldType.REFERENCE, FieldType.TEXT, FieldType.TEXTLONG),
-	NOT_EMPTY	  (FieldType.AUTONUM, FieldType.BINARY, FieldType.BOOLEAN, FieldType.DATE, FieldType.DATETIME, 
-				   FieldType.DECIMAL, FieldType.DOUBLE, FieldType.FILE, FieldType.INTEGER, FieldType.LONG,
-				   FieldType.REFERENCE, FieldType.TEXT, FieldType.TEXTLONG),
+	EMPTY		  (FieldType.AUTONUM, FieldType.BINARY, FieldType.DATE, FieldType.DATETIME, 
+				   FieldType.DECIMAL, FieldType.DOUBLE, FieldType.FILE, FieldType.INTEGER, 
+				   FieldType.LONG,    FieldType.REFERENCE, FieldType.TEXT, FieldType.TEXTLONG),
+	NOT_EMPTY	  (FieldType.AUTONUM, FieldType.BINARY, FieldType.DATE, FieldType.DATETIME, 
+				   FieldType.DECIMAL, FieldType.DOUBLE, FieldType.FILE, FieldType.INTEGER, 
+				   FieldType.LONG,    FieldType.REFERENCE, FieldType.TEXT, FieldType.TEXTLONG),
 	EQUAL 		  (FieldType.AUTONUM, FieldType.BOOLEAN, FieldType.DATE, FieldType.DATETIME, 
 				   FieldType.DECIMAL, FieldType.DOUBLE, FieldType.INTEGER, FieldType.LONG,
 				   FieldType.REFERENCE, FieldType.TEXT, FieldType.TEXTLONG),

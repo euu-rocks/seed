@@ -42,7 +42,7 @@ public class CustomCodeProvider implements SourceCodeProvider {
 	@Override
 	public List<SourceCodeBuilder> getSourceCodeBuilders() {
 		final List<SourceCodeBuilder> result = new ArrayList<>();
-		for (CustomCode customCode : customCodeService.findAllObjects()) {
+		for (CustomCode customCode : customCodeService.getObjects()) {
 			result.add(new CustomCodeBuilder(customCode));
 		}
 		return result;

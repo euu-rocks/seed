@@ -41,8 +41,8 @@ public class TransformerRestController extends AbstractRestController<Transforme
 	}
 	
 	@Override
-	public List<Transformer> findAll() {
-		return findAll(this::checkPermissions);
+	public List<Transformer> getAll() {
+		return getAll(this::checkPermissions);
 	}
 	
 	@Override

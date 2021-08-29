@@ -87,7 +87,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		Assert.notNull(job, "job");
 		
 		final String jobName = job.getClass().getSimpleName();
-		for (Task task : findAllObjects()) {
+		for (Task task : getObjects()) {
 			if (jobName.equalsIgnoreCase(task.getInternalName())) {
 				return task;
 			}
@@ -99,7 +99,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	public List<Task> getTasks(User user) {
 		Assert.notNull(user, C.USER);
 		
-		return findAllObjects().stream()
+		return getObjects().stream()
 							   .filter(t -> t.checkPermissions(user))
 							   .collect(Collectors.toList());
 	}
@@ -140,7 +140,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		Assert.notNull(userGroup, C.USERGROUP);
 		
 		final List<Task> result = new ArrayList<>();
-		for (Task task : findAllObjects()) {
+		for (Task task : getObjects()) {
 			if (task.hasPermissions()) {
 				for (TaskPermission permission : task.getPermissions()) {
 					if (userGroup.equals(permission.getUserGroup())) {
@@ -158,7 +158,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		Assert.notNull(task, C.TASK);
 		
 		final List<TaskPermission> result = new ArrayList<>();
-		for (UserGroup group : userGroupService.findAllObjects()) {
+		for (UserGroup group : userGroupService.getObjects()) {
 			boolean found = false;
 			if (task.hasPermissions()) {
 				for (TaskPermission permission : task.getPermissions()) {
@@ -321,7 +321,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		Assert.notNull(session, C.SESSION);
 		
 		if (sourceCode.getPackageName().equals(TaskMetadata.PACKAGE_NAME)) {
-			for (Task task : findAllObjects()) {
+			for (Task task : getObjects()) {
 				if (task.getInternalName().equalsIgnoreCase(sourceCode.getClassName())) {
 					if (!task.getContent().equals(sourceCode.getContent())) {
 						task.setContent(sourceCode.getContent());

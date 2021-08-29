@@ -190,7 +190,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		Assert.notNull(entityField, C.ENTITYFIELD);
 		
 		final List<Form> result = new ArrayList<>();
-		for (Form form : findAllObjects()) {
+		for (Form form : getObjects()) {
 			// check fields
 			if (form.containsEntityField(entityField) || 
 				(form.getLayout() != null && layoutService.containsField(form.getLayout(), entityField))) {
@@ -224,7 +224,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		Assert.notNull(nestedEntity, C.NESTEDENTITY);
 		final List<Form> result = new ArrayList<>();
 		
-		for (Form form : findAllObjects()) {
+		for (Form form : getObjects()) {
 			if (form.hasSubForms()) {
 				for (SubForm subForm : form.getSubForms()) {
 					if (nestedEntity.equals(subForm.getNestedEntity())) {
@@ -242,7 +242,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		Assert.notNull(entityFunction, "entityFunction");
 		final List<Form> result = new ArrayList<>();
 		
-		for (Form form : findAllObjects()) {
+		for (Form form : getObjects()) {
 			if (form.containsEntityFunction(entityFunction)) {
 				result.add(form);
 			}
@@ -263,7 +263,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		Assert.notNull(form, C.FORM);
 		final List<Form> result = new ArrayList<>();
 		
-		for (Form otherForm : findAllObjects()) {
+		for (Form otherForm : getObjects()) {
 			if (form.equals(otherForm)) {
 				continue; // ignore same form
 			}
@@ -287,7 +287,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		Assert.notNull(transformer, C.TRANSFORMER);
 		final List<Form> result = new ArrayList<>();
 		
-		for (Form form : findAllObjects()) {
+		for (Form form : getObjects()) {
 			if (form.containsTransformer(transformer)) {
 				result.add(form);
 			}
@@ -308,7 +308,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		Assert.notNull(filter, C.FILTER);
 		final List<Form> result = new ArrayList<>();
 		
-		for (Form form : findAllObjects()) {
+		for (Form form : getObjects()) {
 			if (form.containsFilter(filter)) {
 				result.add(form);
 			}

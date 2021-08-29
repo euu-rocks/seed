@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.seed.core.util.Assert;
 
-public final class TreeNode {
+public class TreeNode {
 	
 	public final String label;
 	

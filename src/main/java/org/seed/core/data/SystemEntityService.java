@@ -39,7 +39,7 @@ public interface SystemEntityService<T extends SystemEntity> {
 	
 	long countObjects();
 	
-	List<T> findAllObjects();
+	List<T> getObjects();
 	
 	void saveObject(T object) throws ValidationException;
 	
