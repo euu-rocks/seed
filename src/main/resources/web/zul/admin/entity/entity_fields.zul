@@ -81,7 +81,7 @@
             		 onChange="@command('flagDirty',notify='field')"/>
             <label value="${labels.label.columnname}:"/>   		 
             <textbox hflex="1"
-            		 value="@bind(vm.field.columnName)"
+            		 value="@bind(vm.field.columnName) @converter(vm.stringConverter)"
             		 placeholder="@load(vm.field.internalName.toLowerCase())"
             		 onChange="@command('flagDirty')"/>
             <vlayout visible="@load(!empty vm.object.allFieldGroups)">

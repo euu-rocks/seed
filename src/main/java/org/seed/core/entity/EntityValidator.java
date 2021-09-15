@@ -27,6 +27,7 @@ import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
+import org.seed.core.util.NameUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -307,10 +308,11 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		else if (!isNameLengthAllowed(field.getName())) {
 			errors.addOverlongObjectName("label.field", getMaxNameLength());
 		}
-		else if (!isNameAllowed(field.getInternalName())) {
+		else if (!isNameAllowed(field.getInternalName()) ||
+				 NameUtils.isIllegalFieldName(field.getInternalName())) {
 			errors.addIllegalField("label.fieldname", field.getName());
 		}
-			else if (!isNameUnique(field.getName(), entity.getAllFields(), entity.getAllNesteds())) {
+		else if (!isNameUnique(field.getName(), entity.getAllFields(), entity.getAllNesteds())) {
 			errors.addError("val.ambiguous.fieldornested", field.getName());
 		}
 	}
@@ -322,6 +324,9 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		}
 		else if (!isUnique(field.getColumnName(), "columnName", entity.getAllFields())) {
 			errors.addError("val.ambiguous.columnname", field.getColumnName());
+		}
+		else if (NameUtils.isIllegalFieldName(field.getColumnName())) {
+			errors.addIllegalField("label.columnname", field.getColumnName());
 		}
 	}
 	

@@ -27,7 +27,7 @@ public abstract class NameUtils {
 
 		"abstract", "assert", "boolean", "break", "byte", "case", "catch", 
 		"char", "class", "const", "continue", "default", "do", "double", 
-		"else", "extends", "false", "final", "finally", "float", "for", 
+		"else", "enum", "extends", "false", "final", "finally", "float", "for", 
 		"goto", "if", "implements", "import", "instanceof", "int", "interface", 
 		"long", "native", "new", "null", "package", "private", "protected", 
 		"public", "return", "short", "static", "strictfp", "super", "switch",
@@ -35,11 +35,22 @@ public abstract class NameUtils {
         "void", "volatile", "while" 
     };
 	
+	private static final String[] ILLEGAL_FIELDNAMES = {
+
+		"createdby", "createdon", "entityid", "entitystatus", "id", 
+		"modifiedby", "modifiedon", "status_id", "version"
+    };
+	
 	private NameUtils() {}
 	
 	public static boolean isKeyword(String name) {
 		return name != null && 
 			   Arrays.binarySearch(KEYWORDS, name.toLowerCase()) >= 0;
+	}
+	
+	public static boolean isIllegalFieldName(String name) {
+		return name != null && 
+			   Arrays.binarySearch(ILLEGAL_FIELDNAMES, name.toLowerCase()) >= 0;
 	}
 	
 	public static String getInternalName(String name) {
