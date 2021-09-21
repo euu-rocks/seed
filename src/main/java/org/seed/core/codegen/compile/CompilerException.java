@@ -36,6 +36,10 @@ public class CompilerException extends InternalException {
 	CompilerException(Throwable cause) {
 		super(cause);
 	}
+	
+	CompilerException(String string, Throwable cause) {
+		super(string, cause);
+	}
 
 	CompilerException(List<Diagnostic<? extends JavaFileObject>> diagnostics) {
 		this(createDiagnosticsMessage(diagnostics));

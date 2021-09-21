@@ -155,7 +155,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Override
 	public LayoutElement parseLayout(FormLayout layout) {
 		Assert.notNull(layout, "layout");
-		Assert.notNull(layout.getContent(), "layout content is null");
+		Assert.notNull(layout.getContent(), "layout content");
 		
 		try {
 			return LayoutParser.parse(layout.getContent());

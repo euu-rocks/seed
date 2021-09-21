@@ -84,9 +84,9 @@ public class TreeNode {
 		return children;
 	}
 	
-	public List<TreeNode> getChildrenWithParent() {
+	public List<TreeNode> getParentWithChildren() {
 		if (children != null) {
-			final List<TreeNode> result = new ArrayList<>();
+			final List<TreeNode> result = new ArrayList<>(children.size() + 1);
 			result.add(new TreeNode(label, viewName, iconClass, formId));
 			result.addAll(children);
 			return result;

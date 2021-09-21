@@ -142,7 +142,7 @@ public class AdminDataSourceViewModel extends AbstractAdminViewModel<IDataSource
 			errorMessage = null;
 		}
 		catch (DataException dex) {
-			errorMessage = ExceptionUtils.getOriginalCauseMessage(dex.getCause());
+			errorMessage = ExceptionUtils.getRootCauseMessage(dex.getCause());
 		}
 	}
 

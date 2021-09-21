@@ -37,6 +37,7 @@ import org.seed.core.util.Assert;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -44,11 +45,16 @@ public class InMemoryCompiler implements Compiler {
 	
 	private static final Logger log = LoggerFactory.getLogger(InMemoryCompiler.class);
 	
+	@Autowired
+	private CustomJarProvider customJarProvider;
+	
 	private final Map<String, Class<GeneratedCode>> mapClasses = new HashMap<>();
 	
 	private JavaCompiler javaCompiler;
 	
 	private CompilerFileManager fileManager;
+	
+	private List<CustomJar> customJars;
 	
 	@PostConstruct
 	private void init() {
@@ -63,10 +69,28 @@ public class InMemoryCompiler implements Compiler {
 	@Override
 	public ClassLoader createClassLoader() {
 		final GeneratedCodeClassLoader classLoader = new GeneratedCodeClassLoader(getClass().getClassLoader());
+		// define custom jar classes
+		for (CustomJar jar : getCustomJars()) {
+			try {
+				classLoader.defineJar(jar);
+			}
+			catch (CustomJarException ex) {
+				log.error("Can't load {} {}", jar.getName(), ex.getMessage());
+			}
+		}
+		
+		// define generated classes
 		synchronized (mapClasses) {
 			mapClasses.clear();
-			fileManager.getClassFileObjects()
-					   .forEach(c -> mapClasses.put(c.getQualifiedName(), classLoader.defineClass(c)));
+			for (JavaClassFileObject classFile : fileManager.getClassFileObjects()) {
+				try {
+					final Class<GeneratedCode> clas = classLoader.defineClass(classFile);
+					mapClasses.put(classFile.getQualifiedName(), clas);
+				}
+				catch (Throwable th) {
+					log.error("Can't load {} {}", classFile.getQualifiedName(), th.getMessage());
+				}
+			}
 		}
 		return classLoader;
 	}
@@ -92,10 +116,23 @@ public class InMemoryCompiler implements Compiler {
 	}
 	
 	@Override
+	public void testCustomJar(CustomJar customJar) {
+		Assert.notNull(customJar, "customJar");
+		
+		new GeneratedCodeClassLoader(getClass().getClassLoader()).defineJar(customJar);
+	}
+	
+	@Override
+	public void resetCustomJars() {
+		customJars = null;
+	}
+	
+	@Override
 	public void compile(List<SourceCode> sourceCodes) {
 		Assert.notNull(sourceCodes, "sourceCodes");
 		
 		log.info("Compiling: {}", sourceCodes);
+		getCustomJars(); // load jars and init fileManager
 		final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
 		final CompilationTask task = javaCompiler.getTask(null, fileManager, diagnostics, null, null, 
 														  fileManager.createSourceFileObjects(sourceCodes));
@@ -108,4 +145,20 @@ public class InMemoryCompiler implements Compiler {
 		}
 	}
 	
+	private List<CustomJar> getCustomJars() {
+		if (customJars == null) {
+			customJars = customJarProvider.getCustomJars();
+			if (!customJars.isEmpty()) {
+				customJars.sort((CustomJar jar1, CustomJar jar2) -> 
+									Integer.compare(jar1.getOrder() != null ? jar1.getOrder() : 0, 
+													jar2.getOrder() != null ? jar2.getOrder() : 0));
+				fileManager.setCustomJars(customJars);
+				log.info("Custom libraries loaded.");
+			}
+			else {
+				fileManager.setCustomJars(null);
+			}
+		}
+		return customJars;
+	}
 }

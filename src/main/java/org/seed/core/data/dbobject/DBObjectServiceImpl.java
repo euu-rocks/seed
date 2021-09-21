@@ -20,7 +20,6 @@ package org.seed.core.data.dbobject;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -36,6 +35,7 @@ import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.config.changelog.ChangeLog;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
@@ -102,7 +102,7 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<? extends ApplicationEntityService<ApplicationEntity>>[] getImportDependencies() {
-		return ArrayUtils.toArray(); // independent
+		return MiscUtils.toArray(); // independent
 	}
 
 	@Override

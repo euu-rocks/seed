@@ -38,6 +38,8 @@ import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.TransferableObject;
 import org.seed.core.customcode.CustomCode;
 import org.seed.core.customcode.CustomCodeMetadata;
+import org.seed.core.customcode.CustomLib;
+import org.seed.core.customcode.CustomLibMetadata;
 import org.seed.core.data.AbstractSystemEntity;
 import org.seed.core.data.datasource.IDataSource;
 import org.seed.core.data.datasource.DataSourceMetadata;
@@ -64,6 +66,7 @@ import org.seed.core.task.TaskMetadata;
 import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupMetadata;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
 import org.springframework.util.ObjectUtils;
 
@@ -120,6 +123,9 @@ public class ModuleMetadata extends AbstractSystemEntity
 	private List<CustomCodeMetadata> customCodes;
 	
 	@OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
+	private List<CustomLibMetadata> customLibs;
+	
+	@OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
 	private List<RestMetadata> rests;
 	
 	private String uid;
@@ -139,11 +145,9 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	@XmlTransient
 	public List<Entity> getEntities() {
-		final List<?> list = getEntityMetadata();
-		return (List<Entity>) list;
+		return MiscUtils.cast(getEntityMetadata());
 	}
 	
 	@XmlElement(name="entity")
@@ -157,11 +161,9 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	@XmlTransient
 	public List<Filter> getFilters() {
-		final List<?> list =  getFilterMetadata();
-		return (List<Filter>) list;
+		return MiscUtils.cast(getFilterMetadata());
 	}
 	
 	@XmlElement(name="filter")
@@ -175,11 +177,9 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	@XmlTransient
 	public List<Transformer> getTransformers() {
-		final List<?> list =  getTransformerMetadata();
-		return (List<Transformer>) list;
+		return MiscUtils.cast(getTransformerMetadata());
 	}
 	
 	@XmlElement(name="transformer")
@@ -193,11 +193,9 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	@XmlTransient
 	public List<Transfer> getTransfers() {
-		final List<?> list = getTransferMetadata();
-		return (List<Transfer>) list;
+		return MiscUtils.cast(getTransferMetadata());
 	}
 	
 	@XmlElement(name="transfer")
@@ -211,11 +209,9 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@XmlTransient
 	public List<Form> getForms() {
-		final List<?> list = getFormMetadata();
-		return (List<Form>) list;
+		return MiscUtils.cast(getFormMetadata());
 	}
 	
 	@XmlElement(name="form")
@@ -229,11 +225,9 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	@XmlTransient
 	public List<Menu> getMenus() {
-		final List<?> list = getMenuMetadata();
-		return (List<Menu>) list;
+		return MiscUtils.cast(getMenuMetadata());
 	}
 	
 	@XmlElement(name="menu")
@@ -247,11 +241,9 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	@XmlTransient
 	public List<Task> getTasks() {
-		final List<?> list = getTaskMetadata();
-		return (List<Task>) list;
+		return MiscUtils.cast(getTaskMetadata());
 	}
 	
 	@XmlElement(name="task")
@@ -265,11 +257,9 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	@XmlTransient
 	public List<UserGroup> getUserGroups() {
-		final List<?> list = getUserGroupMetadata();
-		return (List<UserGroup>) list;
+		return MiscUtils.cast(getUserGroupMetadata());
 	}
 	
 	@XmlElement(name="usergroup")
@@ -283,10 +273,8 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public List<DBObject> getDBObjects() {
-		final List<?> list = getDbObjectMetadata();
-		return (List<DBObject>) list;
+		return MiscUtils.cast(getDbObjectMetadata());
 	}
 	
 	@XmlElement(name="dbobject")
@@ -300,10 +288,8 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public List<IDataSource> getDataSources() {
-		final List<?> list = getDataSourceMetadata();
-		return (List<IDataSource>) list;
+		return MiscUtils.cast(getDataSourceMetadata());
 	}
 
 	@XmlElement(name="datasource")
@@ -317,10 +303,8 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public List<Report> getReports() {
-		final List<?> list = getReportMetadata();
-		return (List<Report>) list;
+		return MiscUtils.cast(getReportMetadata());
 	}
 	
 	@XmlElement(name="report")
@@ -334,10 +318,8 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public List<CustomCode> getCustomCodes() {
-		final List<?> list = getCustomCodeMetadata();
-		return (List<CustomCode>) list;
+		return MiscUtils.cast(getCustomCodeMetadata());
 	}
 	
 	@XmlElement(name="customcode")
@@ -351,10 +333,23 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
+	public List<CustomLib> getCustomLibs() {
+		return MiscUtils.cast(getCustomLibMetadata());
+	}
+	
+	@XmlElement(name="customlib")
+	@XmlElementWrapper(name="customlibs")
+	public List<CustomLibMetadata> getCustomLibMetadata() {
+		return customLibs;
+	}
+
+	public void setCustomLibMetadata(List<CustomLibMetadata> customLibs) {
+		this.customLibs = customLibs;
+	}
+
+	@Override
 	public List<Rest> getRests() {
-		final List<?> list = getRestMetadata();
-		return (List<Rest>) list;
+		return MiscUtils.cast(getRestMetadata());
 	}
 	
 	@XmlElement(name="restservice")
@@ -495,6 +490,13 @@ public class ModuleMetadata extends AbstractSystemEntity
 		Assert.notNull(customCodeUid, "customCodeUid");
 		
 		return getObjectByUid(getCustomCodes(), customCodeUid);
+	}
+	
+	@Override
+	public CustomLib getCustomLibByUid(String customLibUid) {
+		Assert.notNull(customLibUid, "customLibUid");
+		
+		return getObjectByUid(getCustomLibs(), customLibUid);
 	}
 	
 	@Override

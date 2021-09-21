@@ -22,7 +22,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.NestingKind;
@@ -35,14 +38,27 @@ class DependencyFileObject implements JavaFileObject {
 	
 	private final String qualifiedName;
 	
-	private final URI uri;
+	private final URL url;
 	
 	DependencyFileObject(String qualifiedName, URI uri) {
 		Assert.notNull(qualifiedName, C.QUALIFIEDNAME);
 		Assert.notNull(uri, "uri");
 		
 		this.qualifiedName = qualifiedName;
-		this.uri = uri;
+		try {
+			this.url = uri.toURL();
+		}
+		catch (MalformedURLException muex) {
+			throw new CompilerException(muex);
+		}
+	}
+	
+	DependencyFileObject(String qualifiedName, URL url) {
+		Assert.notNull(qualifiedName, C.QUALIFIEDNAME);
+		Assert.notNull(url, "url");
+		
+		this.qualifiedName = qualifiedName;
+		this.url = url;
 	}
 
 	public String getQualifiedName() {
@@ -71,7 +87,7 @@ class DependencyFileObject implements JavaFileObject {
 
 	@Override
 	public InputStream openInputStream() throws IOException {
-		return uri.toURL().openStream();
+		return url.openStream();
 	}
 
 	@Override
@@ -91,7 +107,12 @@ class DependencyFileObject implements JavaFileObject {
 
 	@Override
 	public URI toUri() {
-		return uri;
+		try {
+			return url.toURI();
+		} 
+		catch (URISyntaxException usex) {
+			throw new CompilerException(usex);
+		}
 	}
 
 	@Override

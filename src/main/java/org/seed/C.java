@@ -23,6 +23,7 @@ public final class C {
 	public static final String ANALYSIS         = "analysis";
 	public static final String ANNOTATION       = "annotation";
 	public static final String BASE             = "base";
+	public static final String CHUNKSIZE		= "chunkSize";
 	public static final String CLASSNAME        = "className";
 	public static final String COMMAND          = "command";
 	public static final String COMPONENT        = "component";

@@ -17,13 +17,16 @@
  */
 package org.seed.core.application.module;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+
 import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.data.AbstractSystemEntityService;
@@ -63,15 +66,32 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 	}
 	
 	@Override
+	public String getFileName(Module module) {
+		Assert.notNull(module, C.MODULE);
+		
+		return module.getInternalName() + ModuleTransfer.MODULE_FILE_EXTENSION;
+	}
+	
+	@Override
 	@Secured("ROLE_ADMIN_MODULE")
 	public Module readModule(InputStream inputStream) {
-		return transfer.readModule(inputStream);
+		try {
+			return transfer.readModule(inputStream);
+		} 
+		catch (IOException ioex) {
+			throw new InternalException(ioex);
+		}	
 	}
 	
 	@Override
 	@Secured("ROLE_ADMIN_MODULE")
 	public byte[] exportModule(Module module) {
-		return transfer.exportModule(module);
+		try {
+			return transfer.exportModule(module);
+		} 
+		catch (IOException ioex) {
+			throw new InternalException(ioex);
+		}
 	}
 	
 	@Override

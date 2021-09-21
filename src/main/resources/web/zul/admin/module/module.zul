@@ -31,6 +31,7 @@
 <?component name="module-reports" macroURI="~./zul/admin/module/module_reports.zul" inline="true"?>
 <?component name="module-rests" macroURI="~./zul/admin/module/module_rests.zul" inline="true"?>
 <?component name="module-customcodes" macroURI="~./zul/admin/module/module_customcodes.zul" inline="true"?>
+<?component name="module-customlibs" macroURI="~./zul/admin/module/module_customlibs.zul" inline="true"?>
 <?component name="module-usergroups" macroURI="~./zul/admin/module/module_usergroups.zul" inline="true"?>
 <borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminModuleViewModel')">
 	<north border="0">
@@ -118,6 +119,8 @@
 						 visible="@load(vm.existRests())"/>
 					<tab id="tabCustomCodes" label="${labels.label.customcode}"
 						 visible="@load(vm.existCustomCodes())"/>
+					<tab id="tabCustomLibs" label="${labels.label.customlibs}"
+						 visible="@load(vm.existCustomLibs())"/>
 					<tab id="tabGroups" label="${labels.label.usergroups}"
 						 visible="@load(vm.existNonSystemUserGroups())"/>
 				</tabs>
@@ -160,6 +163,9 @@
 					</tabpanel>
 					<tabpanel fulfill="tabCustomCodes.onSelect">
 						<module-customcodes/>
+					</tabpanel>
+					<tabpanel fulfill="tabCustomLibs.onSelect">
+						<module-customlibs/>
 					</tabpanel>
 					<tabpanel fulfill="tabGroups.onSelect">
 						<module-usergroups/>

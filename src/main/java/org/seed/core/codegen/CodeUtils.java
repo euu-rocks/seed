@@ -17,11 +17,13 @@
  */
 package org.seed.core.codegen;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.util.Scanner;
 import java.util.regex.Pattern;
+import java.util.zip.ZipInputStream;
 
 import javax.tools.JavaFileObject.Kind;
 
@@ -49,16 +51,22 @@ public abstract class CodeUtils {
 				: null;
 	}
 	
-	public static boolean isClassFile(String fileName) {
-		Assert.notNull(fileName, "fileName");
+	public static ZipInputStream createZipStream(byte[] bytes) {
+		Assert.notNull(bytes, "bytes");
 		
-		return fileName.endsWith(Kind.CLASS.extension);
+		return new ZipInputStream(new ByteArrayInputStream(bytes));
+	}
+	
+	public static boolean isClassFile(String fileName) {
+		return isKind(fileName, Kind.CLASS);
 	}
 	
 	public static boolean isSourceFile(String fileName) {
-		Assert.notNull(fileName, "fileName");
-		
-		return fileName.endsWith(Kind.SOURCE.extension);
+		return isKind(fileName, Kind.SOURCE);
+	}
+	
+	public static boolean isJarFile(String fileName) {
+		return fileName != null && fileName.endsWith(".jar");
 	}
 	
 	public static boolean isSubPackage(String path, String packagePath) {
@@ -66,6 +74,18 @@ public abstract class CodeUtils {
 		Assert.notNull(packagePath, "packagePath");
 		
 		return path.indexOf('/', packagePath.length() + 1) != -1;
+	}
+	
+	public static String getPackagePath(String packageName) {
+		Assert.notNull(packageName, C.PACKAGENAME);
+		
+		return packageName.replace('.', '/');
+	}
+	
+	public static String getQualifiedName(String entryName) {
+		Assert.notNull(entryName, "entryName");
+		
+		return removeClassExtension(entryName).replace('/', '.');
 	}
 	
 	public static String getQualifiedName(String packageName, String className) {
@@ -138,8 +158,8 @@ public abstract class CodeUtils {
 		Assert.notNull(dir, "dir");
 		
 		return dir.getAbsolutePath()
-					.substring(baseDir.getAbsolutePath().length() + 1)
-					.replace(File.separator, ".");
+				  .substring(baseDir.getAbsolutePath().length() + 1)
+				  .replace(File.separator, ".");
 	}
 	
 	public static String getClassName(File file) {
@@ -169,6 +189,12 @@ public abstract class CodeUtils {
 		}
 		scanner.close();
 		return line;
+	}
+	
+	private static boolean isKind(String fileName, Kind kind) {
+		Assert.notNull(fileName, "fileName");
+		
+		return fileName != null && fileName.endsWith(kind.extension);
 	}
 	
 }

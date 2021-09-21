@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import org.seed.C;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.customcode.CustomCode;
+import org.seed.core.customcode.CustomLib;
 import org.seed.core.data.datasource.IDataSource;
 import org.seed.core.data.dbobject.DBObject;
 import org.seed.core.entity.Entity;
@@ -138,6 +139,10 @@ public class ImportAnalysis {
 	
 	public List<Change> getCustomCodeChanges() {
 		return getChanges(CustomCode.class);
+	}
+	
+	public List<Change> getCustomLibChanges() {
+		return getChanges(CustomLib.class);
 	}
 	
 	public List<Change> getUserGroupChanges() {

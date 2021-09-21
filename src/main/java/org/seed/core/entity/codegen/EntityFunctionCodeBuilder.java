@@ -19,8 +19,6 @@ package org.seed.core.entity.codegen;
 
 import java.util.Date;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import org.seed.C;
 import org.seed.core.api.CallbackFunction;
 import org.seed.core.api.CallbackFunctionContext;
@@ -30,6 +28,7 @@ import org.seed.core.codegen.SourceCode;
 import org.seed.core.codegen.TypeClass;
 import org.seed.core.entity.EntityFunction;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
 class EntityFunctionCodeBuilder extends AbstractSourceCodeBuilder {
 	
@@ -42,7 +41,7 @@ class EntityFunctionCodeBuilder extends AbstractSourceCodeBuilder {
 			  new TypeClass[] {
 				newTypeClass(entityFunction.getEntity(), CallbackFunction.class)
 			  }, 
-			  ArrayUtils.toArray());
+			  MiscUtils.toArray());
 		this.entityFunction = entityFunction;
 	}
 

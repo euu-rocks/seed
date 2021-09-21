@@ -77,6 +77,11 @@ public abstract class MiscUtils {
 		return (List<T>) list;
 	}
 	
+	@SuppressWarnings("unchecked")
+	public static <T> T[] toArray(T... objects) {
+        return objects;
+    }
+	
 	public static <T> T instantiate(Class<T> clas) 
 			throws InstantiationException, IllegalAccessException,
 				   InvocationTargetException, NoSuchMethodException {
@@ -122,6 +127,7 @@ public abstract class MiscUtils {
 	public static boolean booleanValue(String property) {
 		return "true".equalsIgnoreCase(property) ||
 			   "yes".equalsIgnoreCase(property) ||
+			   "ja".equalsIgnoreCase(property) ||
 			   "on".equalsIgnoreCase(property) ||
 			   "1".equals(property);
 	}

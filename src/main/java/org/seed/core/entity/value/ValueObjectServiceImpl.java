@@ -242,8 +242,8 @@ public class ValueObjectServiceImpl
 		}
 		try (Session session = repository.getSession()) {
 			@SuppressWarnings("unchecked")
-			final Query<ValueObject> query = cursor.getHqlQuery() != null
-								? session.createQuery(cursor.getHqlQuery())
+			final Query<ValueObject> query = cursor.getQueryText() != null
+								? session.createQuery(cursor.getQueryText())
 								: session.createQuery(cursor.getQuery());
 			query.setFirstResult(cursor.getStartIndex());
 			query.setMaxResults(cursor.getChunkSize());
@@ -256,7 +256,7 @@ public class ValueObjectServiceImpl
 		Assert.notNull(cursor, "cursor");
 		
 		final List<ValueObject> listObjects = loadFullTextObjects(cursor);
-		final Map<Long, String> mapTexts = fullTextSearch.getTextMap(listObjects, cursor.getFullTextQuery());
+		final Map<Long, String> mapTexts = fullTextSearch.getTextMap(listObjects, cursor.getQueryText());
 		return listObjects.stream()
 						  .map(obj -> new FullTextResult(obj, getIdentifier(obj), mapTexts.get(obj.getId())))
 						  .collect(Collectors.toList());

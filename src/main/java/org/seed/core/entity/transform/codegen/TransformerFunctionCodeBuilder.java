@@ -19,8 +19,6 @@ package org.seed.core.entity.transform.codegen;
 
 import java.util.Date;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import org.seed.C;
 import org.seed.core.api.CallbackFunctionContext;
 import org.seed.core.api.TransformationFunction;
@@ -30,6 +28,7 @@ import org.seed.core.codegen.SourceCode;
 import org.seed.core.codegen.TypeClass;
 import org.seed.core.entity.transform.TransformerFunction;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
 class TransformerFunctionCodeBuilder extends AbstractSourceCodeBuilder {
 	
@@ -44,7 +43,7 @@ class TransformerFunctionCodeBuilder extends AbstractSourceCodeBuilder {
 							   newTypeClass(transformerFunction.getTransformer().getSourceEntity()),
 							   newTypeClass(transformerFunction.getTransformer().getTargetEntity()))
 			  },
-			  ArrayUtils.toArray());
+			  MiscUtils.toArray());
 		
 		this.transformerFunction = transformerFunction;
 	}

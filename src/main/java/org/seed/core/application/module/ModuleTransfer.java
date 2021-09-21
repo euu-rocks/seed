@@ -17,11 +17,18 @@
  */
 package org.seed.core.application.module;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import javax.annotation.PostConstruct;
 import javax.xml.transform.stream.StreamResult;
@@ -29,11 +36,16 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+
 import org.seed.C;
 import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.config.SessionFactoryProvider;
 import org.seed.core.config.UpdatableConfiguration;
+import org.seed.core.customcode.CustomLib;
+import org.seed.core.customcode.CustomLibMetadata;
 import org.seed.core.util.Assert;
+
+import static org.seed.core.codegen.CodeUtils.isJarFile;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
@@ -45,6 +57,10 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ModuleTransfer {
+	
+	static final String MODULE_META_FILENAME = "module.xml";
+	
+	static final String MODULE_FILE_EXTENSION = ".seed"; 
 	
 	@Autowired
 	private ModuleRepository moduleRepository;
@@ -69,34 +85,68 @@ public class ModuleTransfer {
 		sortedServices = sortByDependencies(applicationServices);
 	}
 	
-	public Module readModule(InputStream inputStream) {
-		Assert.notNull(inputStream, "inputStream");
+	
+	
+	public Module readModule(InputStream inputStream) throws IOException {
+		Assert.notNull(inputStream, "input stream");
+		Map<String, byte[]> mapJars = null;
+		Module module = null;
 		
-		return (Module) marshaller.unmarshal(new StreamSource(inputStream));
+		try (ZipInputStream zis = new ZipInputStream(inputStream)) {
+			ZipEntry entry;
+			while ((entry = zis.getNextEntry()) != null) {
+				// read module
+				if (MODULE_META_FILENAME.equals(entry.getName())) {
+					module = (Module) marshaller.unmarshal(
+							new StreamSource(new ByteArrayInputStream(zis.readAllBytes())));
+				}
+				// read jar
+				else if (isJarFile(entry.getName())) {
+					if (mapJars == null) {
+						mapJars = new HashMap<>();
+					}
+					mapJars.put(entry.getName(), zis.readAllBytes());
+				}
+			}
+		}
+		Assert.stateAvailable(module, MODULE_META_FILENAME);
+		
+		// init custom libs content
+		if (module != null && mapJars != null && module.getCustomLibs() != null) {
+			for (CustomLib customLib : module.getCustomLibs()) {
+				Assert.stateAvailable(mapJars.containsKey(customLib.getFilename()), customLib.getFilename());
+				((CustomLibMetadata) customLib).setContent(mapJars.get(customLib.getFilename()));
+			}
+		}
+		return module;
 	}
 	
-	public byte[] exportModule(Module module) {
+	public byte[] exportModule(Module module) throws IOException {
 		Assert.notNull(module, C.MODULE);
 		
-		final ByteArrayOutputStream out = new ByteArrayOutputStream();
-		marshaller.marshal(module, new StreamResult(out));
-		return out.toByteArray();
+		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	    try (ZipOutputStream zos = new ZipOutputStream(baos)) {
+		    // write module
+		    writeEntry(zos, MODULE_META_FILENAME, getModuleContent(module));
+		    // write custom libs
+		    for (CustomLib customLib : module.getCustomLibs()) {
+		    	writeEntry(zos, customLib.getFilename(), customLib.getContent());
+		    }
+	    }
+	    return baos.toByteArray();
 	}
 	
 	public ImportAnalysis analyzeModule(Module module) {
 		Assert.notNull(module, C.MODULE);
-		
 		final ImportAnalysis analysis = new ImportAnalysis(module);
 		final Module currentVersionModule = getCurrentVersionModule(module);
 		
 		sortedServices.forEach(service -> service.analyzeObjects(analysis, currentVersionModule));
-
 		return analysis;
 	}
 	
 	public void importModule(Module module) {
 		Assert.notNull(module, C.MODULE);
-		
 		final Module currentVersionModule = getCurrentVersionModule(module);
 		final TransferContext context = new DefaultTransferContext(module);
 		
@@ -144,6 +194,20 @@ public class ModuleTransfer {
 		final List<ApplicationEntityService<?>> services = new ArrayList<>(sortedServices);
 		Collections.reverse(services);
 		services.forEach(service -> service.deleteObjects(module, currentVersionModule, session));
+	}
+	
+	private byte[] getModuleContent(Module module) {
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		marshaller.marshal(module, new StreamResult(out));
+		return out.toByteArray();
+	}
+	
+	private static void writeEntry(ZipOutputStream zos, String name, byte[] content) throws IOException {
+		final ZipEntry entry = new ZipEntry(name);
+		entry.setSize(content.length);
+		zos.putNextEntry(entry);
+		zos.write(content);
+		zos.closeEntry();
 	}
 	
 	private static List<ApplicationEntityService<?>> sortByDependencies(List<ApplicationEntityService<?>> applicationServices) {

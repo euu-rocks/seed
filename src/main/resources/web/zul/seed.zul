@@ -27,7 +27,7 @@
 			<menubar children="@load(vm.menuList) @template(empty each.children ? 'menuitem' : 'menu')">
 			    <template name="menu" var="node">
 			        <menu label="@load(node.label)" iconSclass="@init(node.iconClass)">
-			            <menupopup children="@load(node.top ? node.children : node.childrenWithParent) @template(empty each.children ? 'menuitem' : 'menu')"/>
+			            <menupopup children="@load(node.top ? node.children : node.parentWithChildren) @template(empty each.children ? 'menuitem' : 'menu')"/>
 			        </menu>
 			    </template>
 			    <template name="menuitem" var="node">

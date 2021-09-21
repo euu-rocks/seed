@@ -1,0 +1,113 @@
+    {
+        "changeSet": {
+            "id": "system update 0.9.20",
+            "author": "seed",
+            "changes": [
+               {
+                  "createTable": {
+                     "tableName": "sys_customlib",
+                     "columns": [
+                      {
+                             "column": {
+                             "name": "id",
+                             "type": "BIGINT",
+                             "constraints": {
+                                 "primaryKey": "true",
+                                 "primaryKeyName": "pk_sys_customlib"
+                             }
+                          }
+                      },
+                      {
+                             "column": {
+                             "name": "uid",
+                             "type": "VARCHAR(<#UID_LEN#>)",
+                             "constraints": {
+                                 "nullable": "false"
+                             }
+                          }
+                      },
+                      {
+                          "column": {
+                             "name": "createdby",
+                             "type": "VARCHAR(<#USERNAME_LEN#>)"
+                          }
+                      },
+                      {
+                          "column": {
+                             "name": "createdon",
+                             "type": "DATETIME"
+                          }
+                      },
+                      {
+                             "column": {
+                             "name": "modifiedby",
+                             "type": "VARCHAR(<#USERNAME_LEN#>)"
+                          }
+                      },
+                      {
+                             "column": {
+                             "name": "modifiedon",
+                             "type": "DATETIME"
+                          }
+                      },
+                      {
+                             "column": {
+                             "name": "version",
+                             "type": "INT",
+                             "constraints": {
+                                 "nullable": "false"
+                             }
+                          }
+                      },
+                      {
+                           "column": {
+                              "name": "module_id",
+                              "type": "BIGINT"
+                           }
+                      },
+                      {
+                           "column": {
+                              "name": "ordernum",
+                              "type": "INT"
+                           }
+                      },
+                      {
+                           "column": {
+                              "name": "name",
+                              "type": "VARCHAR(<#IDENT_LEN#>)",
+                              "constraints": {
+                                  "nullable": "false"
+                              }
+                           }
+                      },
+                      {
+                           "column": {
+                              "name": "filename",
+                              "type": "VARCHAR(<#STRING_LEN#>)",
+                              "constraints": {
+                                  "nullable": "false"
+                              }
+                           }
+                      },
+                      {
+                           "column": {
+                              "name": "content",
+                              "type": "<#BLOB_TYPE#>",
+                              "constraints": {
+                                  "nullable": "false"
+                              }
+                           }
+                      }
+                    ]
+                 }
+              },
+              {
+                 "addUniqueConstraint": {
+                    "columnNames": "name",
+                    "constraintName": "uni_sys_customlib",
+                    "tableName": "sys_customlib"
+                 }
+              }
+           ]
+        }
+    }

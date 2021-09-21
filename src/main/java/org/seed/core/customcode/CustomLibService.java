@@ -17,11 +17,8 @@
  */
 package org.seed.core.customcode;
 
-import org.seed.core.application.ApplicationEntity;
-import org.seed.core.application.ContentObject;
+import org.seed.core.application.ApplicationEntityService;
 
-public interface CustomCode extends ApplicationEntity, ContentObject {
-	
-	String getQualifiedName();
-	
+public interface CustomLibService extends ApplicationEntityService<CustomLib> {
+
 }

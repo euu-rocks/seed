@@ -30,6 +30,7 @@
 	    <value>false</value>
 	</library-property>
 	<system-config>
+		<max-upload-size>102400</max-upload-size>
         <ui-factory-class>org.seed.ui.zk.DelegatingUiFactory</ui-factory-class>
     </system-config>
 </zk>

@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.seed.core.application.TransferableObject;
 import org.seed.core.customcode.CustomCode;
+import org.seed.core.customcode.CustomLib;
 import org.seed.core.data.SystemEntity;
 import org.seed.core.data.datasource.IDataSource;
 import org.seed.core.data.dbobject.DBObject;
@@ -59,6 +60,8 @@ public interface Module extends SystemEntity, TransferableObject {
 	
 	List<CustomCode> getCustomCodes();
 	
+	List<CustomLib> getCustomLibs();
+	
 	List<Rest> getRests();
 	
 	List<UserGroup> getUserGroups();
@@ -94,6 +97,8 @@ public interface Module extends SystemEntity, TransferableObject {
 	IDataSource getDataSourceByUid(String dataSourceUid);
 	
 	CustomCode getCustomCodeByUid(String customCodeUid);
+	
+	CustomLib getCustomLibByUid(String customLibUid);
 	
 	Report getReportByUid(String reportUid);
 	

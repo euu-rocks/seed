@@ -30,6 +30,8 @@ public interface ModuleService extends SystemEntityService<Module> {
 	
 	ImportAnalysis analyzeModule(Module module) throws ValidationException;
 	
+	String getFileName(Module module);
+	
 	byte[] exportModule(Module module);
 	
 	void importModule(Module module);

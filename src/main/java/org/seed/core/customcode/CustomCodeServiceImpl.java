@@ -17,7 +17,6 @@
  */
 package org.seed.core.customcode;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.hibernate.Session;
 
 import org.seed.C;
@@ -33,6 +32,7 @@ import org.seed.core.codegen.SourceCode;
 import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
@@ -54,7 +54,7 @@ public class CustomCodeServiceImpl extends AbstractApplicationEntityService<Cust
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<? extends ApplicationEntityService<ApplicationEntity>>[] getImportDependencies() {
-		return ArrayUtils.toArray(); // independent
+		return MiscUtils.toArray(); // independent
 	}
 	
 	@Override
@@ -132,14 +132,16 @@ public class CustomCodeServiceImpl extends AbstractApplicationEntityService<Cust
 		Assert.notNull(customCode, "customCode");
 		
 		super.saveObject(customCode);
-		
 		configuration.updateConfiguration();
 	}
 	
 	@Override
 	@Secured("ROLE_ADMIN_SOURCECODE")
 	public void deleteObject(CustomCode customCode) throws ValidationException {
+		Assert.notNull(customCode, "customCode");
+		
 		super.deleteObject(customCode);
+		configuration.updateConfiguration();
 	}
 	
 	@Override

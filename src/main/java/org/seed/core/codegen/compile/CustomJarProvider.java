@@ -15,13 +15,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.customcode;
+package org.seed.core.codegen.compile;
 
-import org.seed.core.application.ApplicationEntity;
-import org.seed.core.application.ContentObject;
+import java.util.List;
 
-public interface CustomCode extends ApplicationEntity, ContentObject {
+public interface CustomJarProvider {
 	
-	String getQualifiedName();
+	List<CustomJar> getCustomJars();
 	
 }

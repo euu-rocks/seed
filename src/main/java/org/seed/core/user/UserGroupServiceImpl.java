@@ -22,7 +22,6 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -38,6 +37,7 @@ import org.seed.core.data.Options;
 import org.seed.core.data.QueryParameter;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -156,7 +156,7 @@ public class UserGroupServiceImpl extends AbstractApplicationEntityService<UserG
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<? extends ApplicationEntityService<ApplicationEntity>>[] getImportDependencies() {
-		return ArrayUtils.toArray(); // independent
+		return MiscUtils.toArray(); // independent
 	}
 	
 	@Override

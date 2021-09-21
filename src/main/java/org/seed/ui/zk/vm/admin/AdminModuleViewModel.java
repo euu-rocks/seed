@@ -28,6 +28,7 @@ import org.seed.core.application.module.ModuleMetadata;
 import org.seed.core.application.module.ModuleParameter;
 import org.seed.core.application.module.ModuleService;
 import org.seed.core.customcode.CustomCodeService;
+import org.seed.core.customcode.CustomLibService;
 import org.seed.core.data.SystemObject;
 import org.seed.core.data.ValidationException;
 import org.seed.core.data.datasource.DataSourceService;
@@ -73,6 +74,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	private static final String REPORTS = "reports";
 	private static final String RESTS = "rests";
 	private static final String CUSTOMCODES = "customcodes";
+	private static final String CUSTOMLIBS = "customlibs";
 	private static final String USERGROUPS = "usergroups";
 	
 	@WireVariable(value="moduleServiceImpl")
@@ -111,6 +113,9 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	@WireVariable(value="customCodeServiceImpl")
 	private CustomCodeService customCodeService;
 	
+	@WireVariable(value="customLibServiceImpl")
+	private CustomLibService customLibService;
+	
 	private ModuleParameter parameter;
 	
 	private boolean existDBObjects;
@@ -125,6 +130,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	private boolean existReports;
 	private boolean existRests;
 	private boolean existCustomCodes;
+	private boolean existCustomLibs;
 	private boolean existUserGroups;
 	
 	public AdminModuleViewModel() {
@@ -189,6 +195,10 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 		return existCustomCodes;
 	}
 	
+	public boolean existCustomLibs() {
+		return existCustomLibs;
+	}
+	
 	public boolean existNonSystemUserGroups() {
 		return existUserGroups;
 	}
@@ -213,6 +223,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 		existReports = reportService.existObjects();
 		existRests = restService.existObjects();
 		existCustomCodes = customCodeService.existObjects();
+		existCustomLibs = customLibService.existObjects();
 		existUserGroups = !userGroupService.findNonSystemGroups().isEmpty();
 	}
 	
@@ -266,10 +277,10 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	}
 	
 	@Command
-	public void exportModule(@BindingParam("elem") Component elem) {
+	public void exportModule(@BindingParam("elem") Component component) {
 		Filedownload.save(moduleService.exportModule(getObject()),
-						  "application/xml",
-						  getObject().getName() + ".module");
+						  "application/zip",
+						  moduleService.getFileName(getObject()));
 	}
 	
 	@Command
@@ -370,6 +381,8 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 				return getListManagerSourceRest(listNum);
 			case CUSTOMCODES:
 				return getListManagerSourceCustomCode(listNum);
+			case CUSTOMLIBS:
+				return getListManagerSourceCustomLib(listNum);
 			case USERGROUPS:
 				return getListManagerSourceUserGroup(listNum);
 			default:
@@ -454,6 +467,12 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 				: customCodeService.findObjectsWithoutModule());
 	}
 	
+	private List<SystemObject> getListManagerSourceCustomLib(int listNum) {
+		return MiscUtils.cast(listNum == LIST_SELECTED
+				? getObject().getCustomLibs()
+				: customLibService.findObjectsWithoutModule());
+	}
+	
 	private List<SystemObject> getListManagerSourceUserGroup(int listNum) {
 		return MiscUtils.cast(listNum == LIST_SELECTED
 				? getObject().getUserGroups()
@@ -474,6 +493,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 		collectChangedObjects(changedObjects, REPORTS);
 		collectChangedObjects(changedObjects, RESTS);
 		collectChangedObjects(changedObjects, CUSTOMCODES);
+		collectChangedObjects(changedObjects, CUSTOMLIBS);
 		collectChangedObjects(changedObjects, USERGROUPS);
 		return changedObjects;
 	}

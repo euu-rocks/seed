@@ -40,10 +40,17 @@ class JavaClassFileObject extends SimpleJavaFileObject {
 		this.qualifiedName = qualifiedName;
 	}
 	
+	JavaClassFileObject(String qualifiedName, byte[] byteCode) {
+		this(qualifiedName);
+		Assert.notNull(byteCode, "byteCode");
+		
+		this.byteCode = byteCode;
+	}
+	
 	String getQualifiedName() {
 		return qualifiedName;
 	}
-
+	
 	@Override
 	public InputStream openInputStream() {
 		return new ByteArrayInputStream(getByteCode());

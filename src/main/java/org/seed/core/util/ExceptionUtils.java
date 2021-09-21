@@ -28,11 +28,15 @@ public abstract class ExceptionUtils {
 	
 	private ExceptionUtils() {}
 	
-	public static String getOriginalCauseMessage(Throwable th) {
-		 if (th.getCause() == null || th.getCause() == th) {
-			 return th.getLocalizedMessage();
-		 }
-		 return getOriginalCauseMessage(th.getCause());
+	public static Throwable getRootCause(Throwable th) {
+		if (th.getCause() == null || th.getCause() == th) {
+			return th;
+		}
+		return getRootCause(th.getCause());
+	}
+	
+	public static String getRootCauseMessage(Throwable th) {
+		return getRootCause(th).getLocalizedMessage();
 	}
 	
 	public static String stackTraceAsString(Throwable th) {
@@ -45,7 +49,8 @@ public abstract class ExceptionUtils {
 		try (Scanner scanner = new Scanner(stackTraceAsString(th))) {
 			if (scanner.hasNextLine()) {
 				scanner.nextLine(); // skip first line
-				if (scanner.hasNextLine() && scanner.nextLine().contains(pattern)) {
+				if (scanner.hasNextLine() && 
+					scanner.nextLine().contains(pattern)) {
 					return true;
 				}
 			}

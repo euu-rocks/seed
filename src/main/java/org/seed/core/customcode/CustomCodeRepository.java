@@ -18,6 +18,7 @@
 package org.seed.core.customcode;
 
 import org.seed.core.data.AbstractSystemEntityRepository;
+
 import org.springframework.stereotype.Repository;
 
 @Repository

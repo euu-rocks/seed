@@ -21,6 +21,7 @@ import java.util.List;
 
 import javax.persistence.criteria.CriteriaQuery;
 
+import org.seed.C;
 import org.seed.core.util.Assert;
 import org.seed.core.util.Tupel;
 
@@ -28,9 +29,7 @@ public final class Cursor<T extends SystemObject> {
 	
 	private final CriteriaQuery<T> query;
 	
-	private final String hqlQuery;
-	
-	private final String fullTextQuery;
+	private final String queryText;
 	
 	private final List<Tupel<Long, Long>> fullTextResult;
 	
@@ -43,11 +42,10 @@ public final class Cursor<T extends SystemObject> {
 	public Cursor(String fullTextQuery, List<Tupel<Long, Long>> fullTextResult, int chunkSize) {
 		Assert.notNull(fullTextQuery, "fullTextQuery");
 		Assert.notNull(fullTextResult, "fullTextResult");
-		checkChunkSize(chunkSize);
+		Assert.greaterThanZero(chunkSize, C.CHUNKSIZE);
 		
 		this.query = null;
-		this.hqlQuery = null;
-		this.fullTextQuery = fullTextQuery;
+		this.queryText = fullTextQuery;
 		this.fullTextResult = fullTextResult;
 		this.totalCount = fullTextResult.size();
 		this.chunkSize = chunkSize;
@@ -55,22 +53,20 @@ public final class Cursor<T extends SystemObject> {
 	
 	public Cursor(String hqlQuery, int totalCount, int chunkSize) {
 		Assert.notNull(hqlQuery, "hqlQuery");
-		checkChunkSize(chunkSize);
+		Assert.greaterThanZero(chunkSize, C.CHUNKSIZE);
 		
 		this.query = null;
-		this.fullTextQuery = null;
 		this.fullTextResult = null;
-		this.hqlQuery = hqlQuery;
+		this.queryText = hqlQuery;
 		this.totalCount = totalCount;
 		this.chunkSize = chunkSize;
 	}
 	
 	public Cursor(CriteriaQuery<T> query, int totalCount, int chunkSize) {
 		Assert.notNull(query, "query");
-		checkChunkSize(chunkSize);
+		Assert.greaterThanZero(chunkSize, C.CHUNKSIZE);
 		
-		this.hqlQuery = null;
-		this.fullTextQuery = null;
+		this.queryText = null;
 		this.fullTextResult = null;
 		this.query = query;
 		this.totalCount = totalCount;
@@ -82,7 +78,7 @@ public final class Cursor<T extends SystemObject> {
 	}
 	
 	public Tupel<Long, Long> getFullTextResult(int index) {
-		Assert.state(isFullTextSearch(), "full-text search not available");
+		Assert.stateAvailable(isFullTextSearch(), "full-text search");
 		Assert.state(index >= 0 && index < fullTextResult.size(), "illegal full-text result index: " + index);
 		
 		return fullTextResult.get(index);
@@ -92,12 +88,8 @@ public final class Cursor<T extends SystemObject> {
 		return query;
 	}
 
-	public String getHqlQuery() {
-		return hqlQuery;
-	}
-
-	public String getFullTextQuery() {
-		return fullTextQuery;
+	public String getQueryText() {
+		return queryText;
 	}
 
 	public int getTotalCount() {
@@ -117,10 +109,6 @@ public final class Cursor<T extends SystemObject> {
 		
 		startIndex = chunkIndex * chunkSize;
 		Assert.state(startIndex < totalCount, "chunk index too big: " + chunkIndex);
-	}
-	
-	private static void checkChunkSize(int chunkSize) {
-		Assert.greaterThanZero(chunkSize, "chunk size");
 	}
 	
 }

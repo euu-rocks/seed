@@ -30,6 +30,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.tools.FileObject;
 import javax.tools.ForwardingJavaFileManager;
@@ -48,6 +50,8 @@ import static org.seed.core.codegen.CodeUtils.*;
 class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	
 	private final Map<String, JavaClassFileObject> classFileObjectMap = new HashMap<>();
+	
+	private List<CustomJarInfo> customJars;
 	
 	CompilerFileManager(StandardJavaFileManager standardFileManager) {
 		super(standardFileManager);
@@ -70,8 +74,15 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	List<JavaSourceFileObject> createSourceFileObjects(List<SourceCode> sourceCodes) {
 		Assert.notNull(sourceCodes, "sourceCodes");
 		
-		return sourceCodes.stream().map(JavaSourceFileObject::new)
-								   .collect(Collectors.toList());
+		return sourceCodes.stream().map(JavaSourceFileObject::new).collect(Collectors.toList());
+	}
+	
+	void setCustomJars(List<CustomJar> customJars) {
+		this.customJars = customJars != null 
+							? customJars.stream()
+										.map(CustomJarInfo::new)
+										.collect(Collectors.toList())
+							: null;
 	}
 	
 	@Override
@@ -101,8 +112,7 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	@Override
 	public Iterable<JavaFileObject> list(Location location, String packageName, 
 										 Set<JavaFileObject.Kind> kinds, boolean recurse) throws IOException {
-		if (location == StandardLocation.CLASS_PATH && 
-			kinds.contains(Kind.CLASS)) {
+		if (location == StandardLocation.CLASS_PATH && kinds.contains(Kind.CLASS)) {
 			if (packageName.contains(".generated")) {
 				return listGeneratedClasses(packageName);
 			}
@@ -127,7 +137,9 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	
 	private Iterable<JavaFileObject> listDependencies(String packageName) throws IOException {
 		final List<JavaFileObject> result = new ArrayList<>();
-		final Enumeration<URL> urlEnum = getClass().getClassLoader().getResources(packageName.replace('.', '/'));
+		
+		// list class loader resources 
+		final Enumeration<URL> urlEnum = getClass().getClassLoader().getResources(getPackagePath(packageName));
 		while (urlEnum.hasMoreElements()) {
 			final URL packageURL = urlEnum.nextElement();
 			final File packageURLFile = new File(packageURL.getFile());
@@ -136,6 +148,15 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 			} 
 			else {
 				listJar(result, packageURL);
+			}
+		}
+		
+		// list custom libraries
+		if (customJars != null) {
+			for (CustomJarInfo jar : customJars) {
+				if (jar.containsPackage(packageName)) {
+					listCustomJar(result, packageName, jar);
+				}
 			}
 		}
 		return result;
@@ -159,9 +180,28 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 			if (isClassFile(entryName) &&
 				entryName.startsWith(packagePath) && 
 				!isSubPackage(entryName, packagePath)) {
-					final String qualifiedName = removeClassExtension(entryName.replace('/', '.'));
-					result.add(new DependencyFileObject(qualifiedName, createJarURI(packageURL, entryName)));
+					result.add(new DependencyFileObject(getQualifiedName(entryName), 
+														createJarURI(packageURL, entryName)));
 			}
+		}
+	}
+	
+	private void listCustomJar(List<JavaFileObject> result, String packageName, CustomJarInfo customJar) {
+		final String packagePath = getPackagePath(packageName);
+		try (ZipInputStream zis = createZipStream(customJar.getContent())) {
+			ZipEntry entry;
+			while ((entry = zis.getNextEntry()) != null) {
+				final String entryName = entry.getName();
+				if (isClassFile(entryName) &&
+					entryName.startsWith(packagePath) && 
+					!isSubPackage(entryName, packagePath)) {
+						result.add(new JavaClassFileObject(getQualifiedName(entryName), 
+														   zis.readAllBytes()));
+				}
+			}
+		}
+		catch (IOException ioex) {
+			throw new CompilerException(ioex);
 		}
 	}
 	

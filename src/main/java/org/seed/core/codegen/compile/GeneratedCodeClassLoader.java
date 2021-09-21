@@ -17,6 +17,14 @@
  */
 package org.seed.core.codegen.compile;
 
+import static org.seed.core.codegen.CodeUtils.*;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
 import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.util.Assert;
 
@@ -32,8 +40,57 @@ class GeneratedCodeClassLoader extends ClassLoader {
 		
 		return (Class<GeneratedCode>) 
 					defineClass(classFileObject.getQualifiedName(), 
-								classFileObject.getByteCode(), 0, 
+								classFileObject.getByteCode(), 0,
 								classFileObject.getByteCode().length);
+	}
+	
+	final void defineJar(CustomJar customJar) {
+		Assert.notNull(customJar, "customJar");
+		
+		final List<JavaClassFileObject> notDefinedClasses = defineJarClasses(customJar);
+		int lastErrorNum = notDefinedClasses.size();
+		// if errors exist -> try again
+		while (lastErrorNum > 0) {
+			notDefinedClasses.removeIf(clas -> defineClassFile(clas));
+			if (notDefinedClasses.size() < lastErrorNum) {
+				lastErrorNum = notDefinedClasses.size();
+			}
+			else { // no progress -> quit
+				throw new CustomJarException(notDefinedClasses.get(0).getQualifiedName());
+			}
+		}
+	}
+	
+	private List<JavaClassFileObject> defineJarClasses(CustomJar customJar) {
+		final List<JavaClassFileObject> notDefinedClasses = new ArrayList<>();
+		try (ZipInputStream zis = createZipStream(customJar.getContent())) {
+			ZipEntry entry;
+			while ((entry = zis.getNextEntry()) != null) {
+				if (isClassFile(entry.getName())) {
+					final String qualifiedName = getQualifiedName(entry.getName());
+					if (findLoadedClass(qualifiedName) == null) {
+						final JavaClassFileObject classFile = new JavaClassFileObject(qualifiedName, zis.readAllBytes());
+						if (!defineClassFile(classFile)) {
+							notDefinedClasses.add(classFile);
+						}
+					}
+				}
+			}
+			return notDefinedClasses;
+		}
+		catch (IOException ioex) {
+			throw new CompilerException(ioex);
+		}
+	}
+	
+	private boolean defineClassFile(JavaClassFileObject classFile) {
+		try {
+			defineClass(classFile);
+			return true;
+		}
+		catch (Throwable th) {
+			return false;
+		}
 	}
 	
 }

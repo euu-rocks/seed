@@ -28,31 +28,33 @@
 			<tabbox id="mainTabbox" hflex="1" vflex="1" class="alpha-tabbox">
 				<tabs>
 					<tab label="${labels.label.overview}"/>
-					<tab label="${labels.label.entities}"
+					<tab id="tabEntities" label="${labels.label.entities}"
 						 visible="@init(!empty vm.importAnalysis.entityChanges)"/>
-					<tab label="${labels.label.filter}"
+					<tab id="tabFilter" label="${labels.label.filter}"
 						 visible="@init(!empty vm.importAnalysis.filterChanges)"/>
-					<tab label="${labels.label.transformer}"
+					<tab id="tabTransformer" label="${labels.label.transformer}"
 						 visible="@init(!empty vm.importAnalysis.transformerChanges)"/>
-					<tab label="${labels.label.transfer}"
+					<tab id="tabTransfer" label="${labels.label.transfer}"
 						 visible="@init(!empty vm.importAnalysis.transferChanges)"/>
-					<tab label="${labels.label.forms}"
+					<tab id="tabForms" label="${labels.label.forms}"
 						 visible="@init(!empty vm.importAnalysis.formChanges)"/>
-					<tab label="${labels.label.menus}"
+					<tab id="tabMenus" label="${labels.label.menus}"
 						 visible="@init(!empty vm.importAnalysis.menuChanges)"/>
-					<tab label="${labels.label.jobs}"
+					<tab id="tabJobs" label="${labels.label.jobs}"
 						 visible="@init(!empty vm.importAnalysis.taskChanges)"/>
-					<tab label="${labels.label.dbobjects}"
+					<tab id="tabDBObjects" label="${labels.label.dbobjects}"
 						 visible="@init(!empty vm.importAnalysis.DBObjectChanges)"/>
-					<tab label="${labels.label.datasources}"
+					<tab id="tabDataSources" label="${labels.label.datasources}"
 						 visible="@init(!empty vm.importAnalysis.dataSourceChanges)"/>
-					<tab label="${labels.label.reports}"
+					<tab id="tabReports" label="${labels.label.reports}"
 						 visible="@init(!empty vm.importAnalysis.reportChanges)"/>
-					<tab label="${labels.label.restservice}"
+					<tab id="tabRestServices" label="${labels.label.restservice}"
 						 visible="@init(!empty vm.importAnalysis.restChanges)"/>
-					<tab label="${labels.label.customcode}"
+					<tab id="tabCustomCode" label="${labels.label.customcode}"
 						 visible="@init(!empty vm.importAnalysis.customCodeChanges)"/>
-					<tab label="${labels.label.usergroups}"
+					<tab id="tabCustomLib" label="${labels.label.customlib}"
+						 visible="@init(!empty vm.importAnalysis.customLibChanges)"/>
+					<tab id="tabUserGroup" label="${labels.label.usergroups}"
 						 visible="@init(!empty vm.importAnalysis.userGroupChanges)"/>
 				</tabs>
 				<tabpanels> 
@@ -102,7 +104,7 @@
 				            </rows>
 				        </grid>
 				    </tabpanel>
-					<tabpanel>
+					<tabpanel fulfill="tabEntities.onSelect">
 						<listbox mold="paging" autopaging="true" 
 				 				 model="@init(vm.importAnalysis.entityChanges)"
 				 				 class="alpha-noborder"
@@ -123,7 +125,7 @@
 					        </template>
 		         		</listbox>
 					</tabpanel>
-					<tabpanel>
+					<tabpanel fulfill="tabFilter.onSelect">
 						<listbox mold="paging" autopaging="true" 
 				 				 model="@init(vm.importAnalysis.filterChanges)"
 				 				 class="alpha-noborder"
@@ -144,7 +146,7 @@
 					        </template>
 		         		</listbox>
 					</tabpanel>
-					<tabpanel>
+					<tabpanel fulfill="tabTransformer.onSelect">
 						<listbox mold="paging" autopaging="true" 
 				 				 model="@init(vm.importAnalysis.transformerChanges)"
 				 				 class="alpha-noborder"
@@ -165,7 +167,7 @@
 					        </template>
 		         		</listbox>
 					</tabpanel>
-					<tabpanel>
+					<tabpanel fulfill="tabTransfer.onSelect">
 						<listbox mold="paging" autopaging="true" 
 				 				 model="@init(vm.importAnalysis.transferChanges)"
 				 				 class="alpha-noborder"
@@ -186,7 +188,7 @@
 					        </template>
 		         		</listbox>
 					</tabpanel>
-					<tabpanel>
+					<tabpanel fulfill="tabForms.onSelect">
 						<listbox mold="paging" autopaging="true" 
 				 				 model="@init(vm.importAnalysis.formChanges)"
 				 				 class="alpha-noborder"
@@ -207,7 +209,7 @@
 					        </template>
 		         		</listbox>
 					</tabpanel>
-					<tabpanel>
+					<tabpanel fulfill="tabMenus.onSelect">
 						<listbox mold="paging" autopaging="true" 
 				 				 model="@init(vm.importAnalysis.menuChanges)"
 				 				 class="alpha-noborder"
@@ -228,7 +230,7 @@
 					        </template>
 		         		</listbox>
 					</tabpanel>
-					<tabpanel>
+					<tabpanel fulfill="tabJobs.onSelect">
 						<listbox mold="paging" autopaging="true" 
 				 				 model="@init(vm.importAnalysis.taskChanges)"
 				 				 class="alpha-noborder"
@@ -249,7 +251,7 @@
 					        </template>
 		         		</listbox>
 					</tabpanel>
-					<tabpanel>
+					<tabpanel fulfill="tabDBObjects.onSelect">
 						<listbox mold="paging" autopaging="true" 
 				 				 model="@init(vm.importAnalysis.DBObjectChanges)"
 				 				 class="alpha-noborder"
@@ -270,7 +272,7 @@
 					        </template>
 		         		</listbox>
 					</tabpanel>
-					<tabpanel>
+					<tabpanel fulfill="tabDataSources.onSelect">
 						<listbox mold="paging" autopaging="true" 
 				 				 model="@init(vm.importAnalysis.dataSourceChanges)"
 				 				 class="alpha-noborder"
@@ -291,7 +293,7 @@
 					        </template>
 		         		</listbox>
 					</tabpanel>
-					<tabpanel>
+					<tabpanel fulfill="tabReports.onSelect">
 						<listbox mold="paging" autopaging="true" 
 				 				 model="@init(vm.importAnalysis.reportChanges)"
 				 				 class="alpha-noborder"
@@ -312,7 +314,7 @@
 					        </template>
 		         		</listbox>
 					</tabpanel>
-					<tabpanel>
+					<tabpanel fulfill="tabRestServices.onSelect">
 						<listbox mold="paging" autopaging="true" 
 				 				 model="@init(vm.importAnalysis.restChanges)"
 				 				 class="alpha-noborder"
@@ -333,7 +335,7 @@
 					        </template>
 		         		</listbox>
 					</tabpanel>
-					<tabpanel>
+					<tabpanel fulfill="tabCustomCode.onSelect">
 						<listbox mold="paging" autopaging="true" 
 				 				 model="@init(vm.importAnalysis.customCodeChanges)"
 				 				 class="alpha-noborder"
@@ -354,7 +356,28 @@
 					        </template>
 		         		</listbox>
 					</tabpanel>
-					<tabpanel>
+					<tabpanel fulfill="tabCustomLib.onSelect">
+						<listbox mold="paging" autopaging="true" 
+				 				 model="@init(vm.importAnalysis.customLibChanges)"
+				 				 class="alpha-noborder"
+		         				 hflex="1" vflex="1">
+		         			<listhead sizable="true">
+					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.customlib}" hflex="max"/>
+					        </listhead>
+					        <template name="model" var="change">
+					        	<listitem>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(vm.getEnumLabel(change.type))" />
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.entity.name)"/>
+					        		</listcell>
+					        	</listitem>
+					        </template>
+		         		</listbox>
+					</tabpanel>
+					<tabpanel fulfill="tabUserGroup.onSelect">
 						<listbox mold="paging" autopaging="true" 
 				 				 model="@init(vm.importAnalysis.userGroupChanges)"
 				 				 class="alpha-noborder"

@@ -1,0 +1,89 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminCustomLibViewModel')">
+	<north border="0">
+		<toolbar>
+			<toolbarbutton iconSclass="z-icon-arrow-left alpha-icon-lg" 
+						   label="${labels.button.back}" 
+						   onClick="@command('back')"/>
+			<toolbarbutton iconSclass="z-icon-save alpha-icon-lg" 
+						   label="${labels.button.save}" 
+						   onClick="@command('saveLib',elem=self)"/>
+			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+						   label="${labels.button.refresh}" 
+						   onClick="@command('refreshLib',elem=self)"
+						   visible="@load(!vm.object.isNew())"/>
+			<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
+						   label="${labels.button.newobject}" 
+						   onClick="@command('newLib')"/>
+			<toolbarbutton iconSclass="z-icon-remove alpha-icon-lg" 
+						   label="${labels.button.delete}" 
+						   onClick="@command('deleteLib', elem=self)"
+						   visible="@load(!vm.object.isNew())"/>
+		</toolbar>
+	</north>
+	<center border="0">
+		<grid hflex="1" class="alpha-noborder">
+			<columns>
+            	<column hflex="min"/>
+              	<column hflex="max"/>
+              	<column hflex="min"/>
+              	<column hflex="max"/>
+            </columns>
+			<rows>
+				<row>
+					<cell style="padding: 4px 10px" align="right">
+						<label value="${labels.label.name}:"/>
+					</cell>
+					<cell style="padding: 4px 4px">
+						<textbox value="@bind(vm.object.name) @converter(vm.stringConverter)"
+								 onChange="@command('flagDirty')"
+								 mandatory="true"
+								 hflex="1"/>
+					</cell>
+					<cell style="padding: 4px 10px" align="right">
+						<label value="${labels.label.order}:"/>
+					</cell>
+					<cell style="padding: 4px 4px">
+						<intbox value="@bind(vm.object.order)"
+								onChange="@command('flagDirty')"
+								hflex="1"/> 
+					</cell>
+				</row>
+				<row>
+					<cell style="padding: 4px 10px" align="right">
+						<label value="${labels.label.file}:"/>
+					</cell>
+					<cell style="padding: 4px 4px">
+						<filebox content="@bind(vm.object.content)"
+            		 			 fileName="@bind(vm.object.filename)"
+            		 			 onChange="@command('selectFile')"
+            		 			 contentType="application/x-jar"
+            		 			 mandatory="true" 
+            		 			 hflex="1"/>
+					</cell>
+					<cell/>
+					<cell/>
+				</row>
+			</rows>
+		</grid>
+	</center>
+</borderlayout>
