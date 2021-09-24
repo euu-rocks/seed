@@ -20,6 +20,7 @@ package org.seed.core.customcode;
 import org.seed.core.codegen.CodeUtils;
 import org.seed.core.codegen.Compiler;
 import org.seed.core.codegen.compile.CustomJarException;
+import org.seed.core.codegen.compile.InMemoryCompiler;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
@@ -64,7 +65,7 @@ public class CustomLibValidator extends AbstractSystemEntityValidator<CustomLib>
 	
 	private String testCustomLib(CustomLib customLib) {
 		try {
-			compiler.testCustomJar(customLib);
+			((InMemoryCompiler) compiler).testCustomJar(customLib);
 		}
 		catch (CustomJarException cjex) {
 			return cjex.getMessage();

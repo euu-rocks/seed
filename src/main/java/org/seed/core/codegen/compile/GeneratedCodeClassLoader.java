@@ -17,8 +17,6 @@
  */
 package org.seed.core.codegen.compile;
 
-import static org.seed.core.codegen.CodeUtils.*;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +25,8 @@ import java.util.zip.ZipInputStream;
 
 import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.util.Assert;
+
+import static org.seed.core.codegen.CodeUtils.*;
 
 class GeneratedCodeClassLoader extends ClassLoader {
 	
@@ -51,7 +51,7 @@ class GeneratedCodeClassLoader extends ClassLoader {
 		int lastErrorNum = notDefinedClasses.size();
 		// if errors exist -> try again
 		while (lastErrorNum > 0) {
-			notDefinedClasses.removeIf(clas -> defineClassFile(clas));
+			notDefinedClasses.removeIf(this::defineClassFile);
 			if (notDefinedClasses.size() < lastErrorNum) {
 				lastErrorNum = notDefinedClasses.size();
 			}
@@ -69,7 +69,8 @@ class GeneratedCodeClassLoader extends ClassLoader {
 				if (isClassFile(entry.getName())) {
 					final String qualifiedName = getQualifiedName(entry.getName());
 					if (findLoadedClass(qualifiedName) == null) {
-						final JavaClassFileObject classFile = new JavaClassFileObject(qualifiedName, zis.readAllBytes());
+						final JavaClassFileObject classFile = 
+								new JavaClassFileObject(qualifiedName, zis.readAllBytes());
 						if (!defineClassFile(classFile)) {
 							notDefinedClasses.add(classFile);
 						}

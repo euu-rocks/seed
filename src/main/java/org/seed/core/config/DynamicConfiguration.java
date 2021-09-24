@@ -84,11 +84,6 @@ public class DynamicConfiguration
 		userService.createDefaultUserAndGroup();
 	}
 	
-	private void buildBootSessionFactory() {
-		schemaManager.updateSchema();
-		sessionFactory = createSessionFactoryBuilder(true).build();
-	}
-	
 	// called by ConfigurationInitiator
 	void initConfiguration() {
 		if (updateSchemaConfiguration()) { // new system schema version detected
@@ -100,14 +95,14 @@ public class DynamicConfiguration
 	}
 	
 	@Override
-	public SessionFactory getSessionFactory() {
+	public synchronized SessionFactory getSessionFactory() {
 		Assert.state(sessionFactory != null, "no session factory available");
 		
 		return sessionFactory;
 	}
 	
 	@Override
-	public Dialect getDialect() {
+	public synchronized Dialect getDialect() {
 		if (dialect == null) {
 			dialect = ((SessionFactoryImplementor) getSessionFactory()).getJdbcServices().getDialect();
 		}
@@ -115,12 +110,19 @@ public class DynamicConfiguration
 	}
 	
 	@Override
-	public void updateConfiguration() {
+	public synchronized void updateConfiguration() {
 		log.info("Rebuild Configuration...");
 		closeSessionFactory();
 		jobScheduler.unscheduleAllTasks();
 		buildBootSessionFactory();
 		buildConfiguration();
+	}
+	
+	private void buildBootSessionFactory() {
+		Assert.state(sessionFactory == null, "session factory already exist");
+		
+		schemaManager.updateSchema();
+		sessionFactory = createSessionFactoryBuilder(true).build();
 	}
 	
 	private void buildConfiguration() {
@@ -229,6 +231,7 @@ public class DynamicConfiguration
 	}
 	
 	private void closeSessionFactory() {
+		Assert.stateAvailable(sessionFactory, "session factory");
 		// evict cache 
 		final Cache cache = getSessionFactory().getCache();
 		if (cache != null) {
@@ -238,6 +241,8 @@ public class DynamicConfiguration
 			log.warn("cache not available");
 		}
 		getSessionFactory().close();
+		sessionFactory = null;
+		dialect = null;
 	}
 	
 	private String applicationProperty(String propertyName) {

@@ -64,8 +64,7 @@
 					</cell>
 					<cell style="padding: 4px 4px">
 						<intbox value="@bind(vm.object.order)"
-								onChange="@command('flagDirty')"
-								hflex="1"/> 
+								onChange="@command('flagDirty')"/> 
 					</cell>
 				</row>
 				<row>

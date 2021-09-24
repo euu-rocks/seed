@@ -67,7 +67,7 @@ public class InMemoryCompiler implements Compiler {
 	}
 	
 	@Override
-	public ClassLoader createClassLoader() {
+	public synchronized ClassLoader createClassLoader() {
 		final GeneratedCodeClassLoader classLoader = new GeneratedCodeClassLoader(getClass().getClassLoader());
 		// define custom jar classes
 		for (CustomJar jar : getCustomJars()) {
@@ -80,55 +80,43 @@ public class InMemoryCompiler implements Compiler {
 		}
 		
 		// define generated classes
-		synchronized (mapClasses) {
-			mapClasses.clear();
-			for (JavaClassFileObject classFile : fileManager.getClassFileObjects()) {
-				try {
-					final Class<GeneratedCode> clas = classLoader.defineClass(classFile);
-					mapClasses.put(classFile.getQualifiedName(), clas);
-				}
-				catch (Throwable th) {
-					log.error("Can't load {} {}", classFile.getQualifiedName(), th.getMessage());
-				}
+		mapClasses.clear();
+		for (JavaClassFileObject classFile : fileManager.getClassFileObjects()) {
+			try {
+				final Class<GeneratedCode> clas = classLoader.defineClass(classFile);
+				mapClasses.put(classFile.getQualifiedName(), clas);
+			}
+			catch (Throwable th) {
+				log.error("Can't load {} {}", classFile.getQualifiedName(), th.getMessage());
 			}
 		}
 		return classLoader;
 	}
 	
 	@Override
-	public Class<GeneratedCode> getGeneratedClass(String qualifiedName) {
+	public synchronized Class<GeneratedCode> getGeneratedClass(String qualifiedName) {
 		Assert.notNull(qualifiedName, C.QUALIFIEDNAME);
 		
-		synchronized (mapClasses) {
-			return mapClasses.get(qualifiedName);
-		}
+		return mapClasses.get(qualifiedName);
 	}
 	
 	@Override
-	public List<Class<GeneratedCode>> getGeneratedClasses(Class<?> typeClass) {
+	public synchronized List<Class<GeneratedCode>> getGeneratedClasses(Class<?> typeClass) {
 		Assert.notNull(typeClass, C.TYPECLASS);
 		
-		synchronized (mapClasses) {
-			return mapClasses.values().stream()
-							 .filter(typeClass::isAssignableFrom)
-							 .collect(Collectors.toList());
-		}
+		return mapClasses.values().stream()
+						 .filter(typeClass::isAssignableFrom)
+						 .collect(Collectors.toList());
 	}
 	
 	@Override
-	public void testCustomJar(CustomJar customJar) {
-		Assert.notNull(customJar, "customJar");
-		
-		new GeneratedCodeClassLoader(getClass().getClassLoader()).defineJar(customJar);
-	}
-	
-	@Override
-	public void resetCustomJars() {
+	public synchronized void resetCustomJars() {
 		customJars = null;
+		fileManager.setCustomJars(null);
 	}
 	
 	@Override
-	public void compile(List<SourceCode> sourceCodes) {
+	public synchronized void compile(List<SourceCode> sourceCodes) {
 		Assert.notNull(sourceCodes, "sourceCodes");
 		
 		log.info("Compiling: {}", sourceCodes);
@@ -143,6 +131,12 @@ public class InMemoryCompiler implements Compiler {
 			}
 			throw new CompilerException(diagnostics.getDiagnostics());
 		}
+	}
+	
+	public void testCustomJar(CustomJar customJar) {
+		Assert.notNull(customJar, "customJar");
+		
+		new GeneratedCodeClassLoader(getClass().getClassLoader()).defineJar(customJar);
 	}
 	
 	private List<CustomJar> getCustomJars() {

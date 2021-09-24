@@ -74,7 +74,9 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	List<JavaSourceFileObject> createSourceFileObjects(List<SourceCode> sourceCodes) {
 		Assert.notNull(sourceCodes, "sourceCodes");
 		
-		return sourceCodes.stream().map(JavaSourceFileObject::new).collect(Collectors.toList());
+		return sourceCodes.stream()
+						  .map(JavaSourceFileObject::new)
+						  .collect(Collectors.toList());
 	}
 	
 	void setCustomJars(List<CustomJar> customJars) {

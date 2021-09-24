@@ -19,8 +19,6 @@ package org.seed.core.codegen;
 
 import java.util.List;
 
-import org.seed.core.codegen.compile.CustomJar;
-
 public interface Compiler {
 	
 	ClassLoader createClassLoader();
@@ -30,8 +28,6 @@ public interface Compiler {
 	List<Class<GeneratedCode>> getGeneratedClasses(Class<?> type);
 	
 	void compile(List<SourceCode> sourceCodes);
-	
-	void testCustomJar(CustomJar customJar);
 	
 	void resetCustomJars();
 
