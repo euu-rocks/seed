@@ -239,7 +239,7 @@ abstract class AbstractViewModel {
 	protected final void showError(Component component, Exception ex) {
 		final String msg = StringUtils.hasText(ex.getMessage()) 
 							? ex.getMessage()
-							: ExceptionUtils.stackTraceAsString(ex);
+							: ExceptionUtils.getStackTraceAsString(ex);
 		showError(component, msg);
 	}
 	

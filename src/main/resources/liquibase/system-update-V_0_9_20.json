@@ -97,8 +97,14 @@
                                   "nullable": "false"
                               }
                            }
+                      },
+                      {
+                           "column": {
+                              "name": "error",
+                              "type": "VARCHAR(1024)"
+                           }
                       }
-                    ]
+                   ]
                  }
               },
               {

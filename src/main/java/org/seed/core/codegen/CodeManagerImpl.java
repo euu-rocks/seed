@@ -211,9 +211,7 @@ public class CodeManagerImpl implements CodeManager {
 	
 	@Override
 	public void generateClasses() {
-		
-		final List<SourceCodeBuilder> builderList = collectCodeBuilders();
-		final List<SourceCode> sourceCodeList = buildSources(builderList);
+		final List<SourceCode> sourceCodeList = buildSources(collectCodeBuilders());
 		
 		// compile
 		if (!sourceCodeList.isEmpty()) {

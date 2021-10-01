@@ -45,6 +45,8 @@ public class InMemoryCompiler implements Compiler {
 	
 	private static final Logger log = LoggerFactory.getLogger(InMemoryCompiler.class);
 	
+	private static final String JAR_ERROR_MSG = "Can't load {} {}";
+	
 	@Autowired
 	private CustomJarProvider customJarProvider;
 	
@@ -67,30 +69,8 @@ public class InMemoryCompiler implements Compiler {
 	}
 	
 	@Override
-	public synchronized ClassLoader createClassLoader() {
-		final GeneratedCodeClassLoader classLoader = new GeneratedCodeClassLoader(getClass().getClassLoader());
-		// define custom jar classes
-		for (CustomJar jar : getCustomJars()) {
-			try {
-				classLoader.defineJar(jar);
-			}
-			catch (CustomJarException ex) {
-				log.error("Can't load {} {}", jar.getName(), ex.getMessage());
-			}
-		}
-		
-		// define generated classes
-		mapClasses.clear();
-		for (JavaClassFileObject classFile : fileManager.getClassFileObjects()) {
-			try {
-				final Class<GeneratedCode> clas = classLoader.defineClass(classFile);
-				mapClasses.put(classFile.getQualifiedName(), clas);
-			}
-			catch (Throwable th) {
-				log.error("Can't load {} {}", classFile.getQualifiedName(), th.getMessage());
-			}
-		}
-		return classLoader;
+	public ClassLoader createClassLoader() {
+		return createClassLoader(true);
 	}
 	
 	@Override
@@ -136,16 +116,13 @@ public class InMemoryCompiler implements Compiler {
 	public void testCustomJar(CustomJar customJar) {
 		Assert.notNull(customJar, "customJar");
 		
-		new GeneratedCodeClassLoader(getClass().getClassLoader()).defineJar(customJar);
+		((GeneratedCodeClassLoader) createClassLoader(false)).defineJar(customJar);
 	}
 	
 	private List<CustomJar> getCustomJars() {
 		if (customJars == null) {
 			customJars = customJarProvider.getCustomJars();
 			if (!customJars.isEmpty()) {
-				customJars.sort((CustomJar jar1, CustomJar jar2) -> 
-									Integer.compare(jar1.getOrder() != null ? jar1.getOrder() : 0, 
-													jar2.getOrder() != null ? jar2.getOrder() : 0));
 				fileManager.setCustomJars(customJars);
 				log.info("Custom libraries loaded.");
 			}
@@ -155,4 +132,40 @@ public class InMemoryCompiler implements Compiler {
 		}
 		return customJars;
 	}
+	
+	private synchronized ClassLoader createClassLoader(boolean saveErrors) {
+		final GeneratedCodeClassLoader classLoader = new GeneratedCodeClassLoader(getClass().getClassLoader());
+		// define custom jar classes
+		for (CustomJar customJar : getCustomJars()) {
+			try {
+				classLoader.defineJar(customJar);
+				if (saveErrors && customJar.getError() != null) {
+					customJarProvider.resetError(customJar);
+				}
+			}
+			catch (CustomJarException cjex) {
+				if (saveErrors) {
+					customJarProvider.reportError(customJar, cjex.getMessage());
+				}
+				log.error(JAR_ERROR_MSG, customJar.getName(), cjex.getMessage());
+			}
+			catch (LinkageError error) {
+				log.error(JAR_ERROR_MSG, customJar.getName(), error.getMessage());
+			}
+		}
+		
+		// define generated classes
+		mapClasses.clear();
+		for (JavaClassFileObject classFile : fileManager.getClassFileObjects()) {
+			try {
+				final Class<GeneratedCode> clas = classLoader.defineClass(classFile);
+				mapClasses.put(classFile.getQualifiedName(), clas);
+			}
+			catch (LinkageError error) {
+				log.error(JAR_ERROR_MSG, classFile.getQualifiedName(), error.getMessage());
+			}
+		}
+		return classLoader;
+	}
+	
 }

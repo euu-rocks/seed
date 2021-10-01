@@ -61,7 +61,11 @@ public class CustomLibServiceImpl extends AbstractApplicationEntityService<Custo
 	
 	@Override
 	public List<CustomJar> getCustomJars() {
-		return MiscUtils.cast(getObjects());
+		final List<CustomJar> jars = MiscUtils.cast(getObjects());
+		jars.sort((CustomJar jar1, CustomJar jar2) -> 
+					Integer.compare(jar1.getOrder() != null ? jar1.getOrder() : 0, 
+									jar2.getOrder() != null ? jar2.getOrder() : 0));
+		return jars;
 	}
 	
 	@Override
@@ -135,6 +139,18 @@ public class CustomLibServiceImpl extends AbstractApplicationEntityService<Custo
 	}
 	
 	@Override
+	public void reportError(CustomJar customJar, String error) {
+		Assert.notNull(error, "error");
+		
+		saveError(customJar, error);
+	}
+	
+	@Override
+	public void resetError(CustomJar customJar) {
+		saveError(customJar, null);
+	}
+	
+	@Override
 	@Secured("ROLE_ADMIN_SOURCECODE")
 	public void saveObject(CustomLib customLib) throws ValidationException {
 		Assert.notNull(customLib, "customLib");
@@ -160,6 +176,15 @@ public class CustomLibServiceImpl extends AbstractApplicationEntityService<Custo
 	@Override
 	protected CustomLibValidator getValidator() {
 		return validator;
+	}
+	
+	private void saveError(CustomJar customJar, String error) {
+		Assert.notNull(customJar, "customJar");
+		final CustomLibMetadata libMeta = (CustomLibMetadata) customJar;
+		Assert.state(!libMeta.isNew(), "customJar is new");
+		
+		libMeta.setError(error);
+		saveObjectDirectly(libMeta);
 	}
 
 }

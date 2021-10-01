@@ -21,6 +21,8 @@ import org.seed.C;
 import org.seed.core.customcode.CustomLib;
 import org.seed.core.customcode.CustomLibMetadata;
 import org.seed.core.customcode.CustomLibService;
+import org.seed.core.data.ValidationError;
+import org.seed.core.data.ValidationException;
 import org.seed.core.user.Authorisation;
 
 import org.zkoss.bind.annotation.BindingParam;
@@ -64,7 +66,8 @@ public class AdminCustomLibViewModel extends AbstractAdminViewModel<CustomLib> {
 		}
 		else if(customLib.getFilename() == null) {
 			customLib.setName(null);
-			notifyObjectChange(C.NAME);
+			customLib.setError(null);
+			notifyObjectChange(C.NAME, "error");
 		}
 	}
 	
@@ -91,11 +94,23 @@ public class AdminCustomLibViewModel extends AbstractAdminViewModel<CustomLib> {
 	@Command
 	public void saveLib(@BindingParam("elem") Component component) {
 		cmdSaveObject(component);
+		notifyObjectChange("error");
 	}
 	
 	@Command
 	public void deleteLib(@BindingParam("elem") Component component) {
 		cmdDeleteObject(component);
+	}
+	
+	@Override
+	protected void handleValidationException(ValidationException vex, Component component, String msgKey) {
+		for (ValidationError error : vex.getErrors()) {
+			if ("val.illegal.jar".equals(error.getError())) {
+				((CustomLibMetadata) getObject()).setError(error.getParameters()[0]);
+				break;
+			}
+		}
+		super.handleValidationException(vex, component, msgKey);
 	}
 
 	@Override

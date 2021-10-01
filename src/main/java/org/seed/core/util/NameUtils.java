@@ -37,8 +37,8 @@ public abstract class NameUtils {
 	
 	private static final String[] ILLEGAL_FIELDNAMES = {
 
-		"createdby", "createdon", "entityid", "entitystatus", "id", 
-		"modifiedby", "modifiedon", "status_id", "version"
+		"createdby", "createdon", "entityid", "entitystatus", "equal", "id",
+		"lastmodified", "modifiedby", "modifiedon", "new", "status_id", "version"
     };
 	
 	private NameUtils() {}
@@ -57,7 +57,7 @@ public abstract class NameUtils {
 		if (name == null) {
 			return null;
 		}
-		final StringBuilder buf = new StringBuilder(name.length());
+		final StringBuilder buf = new StringBuilder();
 		for (int i = 0; i < name.length(); i++) {
 			final char ch = name.charAt(i);
 			switch (ch) {

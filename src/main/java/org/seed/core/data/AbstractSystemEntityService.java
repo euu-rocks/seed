@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.util.Assert;
@@ -106,6 +107,11 @@ public abstract class AbstractSystemEntityService<T extends SystemEntity>
 	@Override
 	public void saveObject(T object) throws ValidationException {
 		saveObject(object, null);
+	}
+	
+	// save without validation
+	protected void saveObjectDirectly(T object) {
+		getRepository().save(object);
 	}
 
 	protected void saveObject(T object, Session session) throws ValidationException {

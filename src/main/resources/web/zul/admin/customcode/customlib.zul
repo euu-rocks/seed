@@ -82,6 +82,21 @@
 					<cell/>
 					<cell/>
 				</row>
+				<row visible="@load(!empty vm.object.error)">
+					<cell style="padding: 4px 10px" valign="top" align="right"/>
+					<cell style="padding: 4px 4px" colspan="3">
+						<label value="${labels.label.missingdependencies}"
+							   style="color:red"/>	
+					</cell>	
+				</row>
+				<row visible="@load(!empty vm.object.error)">
+					<cell style="padding: 4px 10px" valign="top" align="right"/>
+					<cell style="padding: 4px 4px" colspan="3">
+						<textbox value="@load(vm.object.error.replace(',',' '))"
+								 rows="15"
+								 hflex="1"/>
+					</cell>
+				</row>
 			</rows>
 		</grid>
 	</center>

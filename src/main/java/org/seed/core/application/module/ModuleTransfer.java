@@ -161,8 +161,7 @@ public class ModuleTransfer {
 					((ModuleMetadata) currentVersionModule).copySystemFieldsTo(module);
 					session.detach(currentVersionModule);
 				}
-				session.saveOrUpdate(module);
-				
+				moduleRepository.save(module, session);
 				sortedServices.forEach(service -> service.importObjects(context, session));
 				
 				// changelogs

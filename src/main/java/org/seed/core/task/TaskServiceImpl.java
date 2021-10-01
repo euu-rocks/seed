@@ -306,7 +306,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	
 	@Override
 	public void saveTaskDirectly(Task task) {
-		getRepository().save(task);
+		saveObjectDirectly(task);
 	}
 	
 	@Override
@@ -325,7 +325,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 				if (task.getInternalName().equalsIgnoreCase(sourceCode.getClassName())) {
 					if (!task.getContent().equals(sourceCode.getContent())) {
 						task.setContent(sourceCode.getContent());
-						session.saveOrUpdate(task);
+						taskRepository.save(task, session);
 						return true;
 					}
 					break;

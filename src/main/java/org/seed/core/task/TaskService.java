@@ -37,8 +37,8 @@ public interface TaskService extends ApplicationEntityService<Task> {
 	
 	List<TaskPermission> getAvailablePermissions(Task task);
 	
-	void sendNotifications(Task task, TaskRun run);
-	
 	void saveTaskDirectly(Task task);
+	
+	void sendNotifications(Task task, TaskRun run);
 	
 }

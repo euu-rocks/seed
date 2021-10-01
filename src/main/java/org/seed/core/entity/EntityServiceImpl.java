@@ -589,7 +589,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				context.addNewEntity(entity);
 			}
 			initEntity(entity, currentVersionEntity, session);
-			session.saveOrUpdate(entity);
+			entityRepository.save(entity, session);
 		}
 	}
 	

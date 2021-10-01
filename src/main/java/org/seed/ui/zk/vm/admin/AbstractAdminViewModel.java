@@ -614,7 +614,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 			return true;
 		}
 		catch (ValidationException vex) {
-			showValidationErrors(component, msgKey + KEY_FAIL, vex.getErrors());
+			handleValidationException(vex, component, msgKey);
 			if (vex.getCause() instanceof DataException) {
 				throw (DataException) vex.getCause();
 			}
@@ -634,6 +634,10 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 				throw persitenceException;
 		}
 		return false;
+	}
+	
+	protected void handleValidationException(ValidationException vex, Component component, String msgKey) {
+		showValidationErrors(component, msgKey + KEY_FAIL, vex.getErrors());
 	}
 	
 	@Override

@@ -153,7 +153,7 @@ public class CustomCodeServiceImpl extends AbstractApplicationEntityService<Cust
 		if (customCode != null && !customCode.getContent().equals(sourceCode.getContent())) {
 			
 			customCode.setContent(sourceCode.getContent());
-			session.saveOrUpdate(customCode);
+			repository.save(customCode);
 			return true;
 		}
 		return false;

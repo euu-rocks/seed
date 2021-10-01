@@ -19,43 +19,33 @@ package org.seed.core.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Scanner;
 
 public abstract class ExceptionUtils {
 	
-	@SuppressWarnings("unused")
-	private static final long serialVersionUID = -3338292458819471313L;
-	
 	private ExceptionUtils() {}
 	
-	public static Throwable getRootCause(Throwable th) {
-		if (th.getCause() == null || th.getCause() == th) {
-			return th;
+    @SuppressWarnings("unused")
+	private static final long serialVersionUID = -3338292458819471313L;
+	
+	public static Throwable getRootCause(Throwable throwable) {
+		Assert.notNull(throwable, "throwable");
+		
+		if (throwable.getCause() == null || throwable.getCause() == throwable) {
+			return throwable;
 		}
-		return getRootCause(th.getCause());
+		return getRootCause(throwable.getCause());
 	}
 	
-	public static String getRootCauseMessage(Throwable th) {
-		return getRootCause(th).getLocalizedMessage();
+	public static String getRootCauseMessage(Throwable throwable) {
+		return getRootCause(throwable).getLocalizedMessage();
 	}
 	
-	public static String stackTraceAsString(Throwable th) {
+	public static String getStackTraceAsString(Throwable throwable) {
+		Assert.notNull(throwable, "throwable");
+		
 		final StringWriter stringWriter = new StringWriter();
-		th.printStackTrace(new PrintWriter(stringWriter));
+		throwable.printStackTrace(new PrintWriter(stringWriter));
 		return stringWriter.toString();
-	}
-	
-	public static boolean isThrownAt(Throwable th, String pattern) {
-		try (Scanner scanner = new Scanner(stackTraceAsString(th))) {
-			if (scanner.hasNextLine()) {
-				scanner.nextLine(); // skip first line
-				if (scanner.hasNextLine() && 
-					scanner.nextLine().contains(pattern)) {
-					return true;
-				}
-			}
-		}
-		return false;
 	}
 	
 }

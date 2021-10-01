@@ -17,14 +17,37 @@
  */
 package org.seed.core.codegen.compile;
 
+import java.util.List;
+
 import org.seed.InternalException;
 
 public class CustomJarException extends InternalException {
 
 	private static final long serialVersionUID = 1556363470857538095L;
+	
+	private static final int MAX_MESSAGE_LEN = 1024;
 
-	CustomJarException(String message) {
-		super(message);
+	CustomJarException(List<JavaClassFileObject> notDefinedClasses) {
+		super(createMessage(notDefinedClasses));
 	}
-
+	
+	private static String createMessage(List<JavaClassFileObject> notDefinedClasses) {
+		final StringBuilder buf = new StringBuilder();
+		for (JavaClassFileObject classFile : notDefinedClasses) {
+			if (buf.length() + classFile.getQualifiedName().length() + 1 <= MAX_MESSAGE_LEN) {
+				if (buf.length() > 0) {
+					buf.append(',');
+				}
+				buf.append(classFile.getQualifiedName());
+			}
+			else {
+				if (buf.length() + 3 <= MAX_MESSAGE_LEN) {
+					buf.append("...");
+				}
+				break;
+			}
+		}
+		return buf.toString();
+	}
+	
 }

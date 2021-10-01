@@ -26,37 +26,33 @@ import org.quartz.JobExecutionContext;
 import org.seed.core.api.JobContext;
 import org.seed.core.entity.value.event.ValueObjectFunctionContext;
 
-public class DefaultJobContext extends ValueObjectFunctionContext
+class DefaultJobContext extends ValueObjectFunctionContext
 	implements JobContext {
 	
-	public static final String RUN_ID = "RUN_ID"; 
-	
-	public static final String RUN_TASK = "RUN_TASK"; 
-	
-	public static final String RUN_LOGS = "RUN_LOGS"; 
-	
-	public static final String RUN_PARAMS = "RUN_PARAMS"; 
-	
-	public static final String RUN_SESSION = "RUN_SESSION"; 
+	static final String RUN_ID 		= "RUN_ID"; 
+	static final String RUN_TASK 	= "RUN_TASK"; 
+	static final String RUN_LOGS 	= "RUN_LOGS"; 
+	static final String RUN_PARAMS 	= "RUN_PARAMS"; 
+	static final String RUN_SESSION	= "RUN_SESSION"; 
 	
 	private final List<TaskRunLog> logs = new ArrayList<>();
 	
-	private final List<TaskParameter> params;
+	private final List<TaskParameter> parameters;
 	
 	@SuppressWarnings("unchecked")
 	DefaultJobContext(JobExecutionContext context) {
 		super((Session) context.get(RUN_SESSION), 
 			  ((Task) context.get(RUN_TASK)).getModule());
-		params = (List<TaskParameter>) context.get(RUN_PARAMS);
+		parameters = (List<TaskParameter>) context.get(RUN_PARAMS);
 		context.put(RUN_LOGS, logs);
 	}
 	
 	@Override
 	public String getJobParameter(String name) {
-		if (params != null) {
-			for (TaskParameter param : params) {
-				if (param.getName().equalsIgnoreCase(name)) {
-					return param.getValue();
+		if (parameters != null) {
+			for (TaskParameter paramwter : parameters) {
+				if (paramwter.getName().equalsIgnoreCase(name)) {
+					return paramwter.getValue();
 				}
 			}
 		}

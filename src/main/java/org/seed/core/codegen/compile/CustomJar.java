@@ -25,4 +25,6 @@ public interface CustomJar {
 	
 	Integer getOrder();
 	
+	String getError();
+	
 }

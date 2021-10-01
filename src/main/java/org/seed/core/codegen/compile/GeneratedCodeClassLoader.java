@@ -56,7 +56,7 @@ class GeneratedCodeClassLoader extends ClassLoader {
 				lastErrorNum = notDefinedClasses.size();
 			}
 			else { // no progress -> quit
-				throw new CustomJarException(notDefinedClasses.get(0).getQualifiedName());
+				throw new CustomJarException(notDefinedClasses);
 			}
 		}
 	}
@@ -89,7 +89,7 @@ class GeneratedCodeClassLoader extends ClassLoader {
 			defineClass(classFile);
 			return true;
 		}
-		catch (Throwable th) {
+		catch (LinkageError error) {
 			return false;
 		}
 	}

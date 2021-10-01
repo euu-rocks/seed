@@ -468,7 +468,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 						session.detach(currentVersionForm);
 					}
 					initForm(form, currentVersionForm, session);
-					session.saveOrUpdate(form);
+					formRepository.save(form, session);
 				}
 				
 				// set references to other forms

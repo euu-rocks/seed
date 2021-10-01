@@ -74,7 +74,7 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	@WireVariable(value="taskCodeProvider")
 	private TaskCodeProvider taskCodeProvider;
 	
-	@WireVariable(value="jobScheduler")
+	@WireVariable(value="defaultJobScheduler")
 	private JobScheduler jobScheduler;
 	
 	private TaskParameter parameter;
