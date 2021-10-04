@@ -19,6 +19,7 @@ package org.seed.ui.zk.vm.admin;
 
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.data.SystemObject;
 import org.seed.core.data.datasource.IDataSource;
 import org.seed.core.data.datasource.DataSourceService;
@@ -59,7 +60,7 @@ public class AdminReportViewModel extends AbstractAdminViewModel<Report> {
 	private ReportPermission permission;
 	
 	public AdminReportViewModel() {
-		super(Authorisation.ADMIN_REPORT, "report",
+		super(Authorisation.ADMIN_REPORT, C.REPORT,
 			  "/admin/report/reportlist.zul", 
 			  "/admin/report/report.zul",
 			  "/admin/report/newreport.zul");
@@ -87,7 +88,7 @@ public class AdminReportViewModel extends AbstractAdminViewModel<Report> {
 
 	@Init
 	public void init(@ContextParam(ContextType.VIEW) Component view,
-					 @ExecutionArgParam("param") Object object) {
+					 @ExecutionArgParam(C.PARAM) Object object) {
 		super.init(object, view);
 	}
 	
@@ -118,22 +119,22 @@ public class AdminReportViewModel extends AbstractAdminViewModel<Report> {
 	}
 	
 	@Command
-	public void createReport(@BindingParam("elem") Component elem) {
+	public void createReport(@BindingParam(C.ELEM) Component elem) {
 		cmdInitObject(elem, window);
 	}
 	
 	@Command
-	public void refreshReport(@BindingParam("elem") Component component) {
+	public void refreshReport(@BindingParam(C.ELEM) Component component) {
 		cmdRefresh();
 	}
 	
 	@Command
-	public void deleteReport(@BindingParam("elem") Component component) {
+	public void deleteReport(@BindingParam(C.ELEM) Component component) {
 		cmdDeleteObject(component);
 	}
 	
 	@Command
-	@NotifyChange("dataSource")
+	@NotifyChange(C.DATASOURCE)
 	public void newDataSource() {
 		dataSource = reportService.createDataSource(getObject());
 		notifyObjectChange(DATASOURCES);
@@ -141,7 +142,7 @@ public class AdminReportViewModel extends AbstractAdminViewModel<Report> {
 	}
 	
 	@Command
-	@NotifyChange("dataSource")
+	@NotifyChange(C.DATASOURCE)
 	public void removeDataSource() {
 		getObject().removeDataSource(dataSource);
 		dataSource = null;
@@ -150,7 +151,7 @@ public class AdminReportViewModel extends AbstractAdminViewModel<Report> {
 	}
 	
 	@Command
-	public void generateReport(@BindingParam("elem") Component elem) {
+	public void generateReport(@BindingParam(C.ELEM) Component elem) {
 		showDialog("/form/selectreportformat.zul", new SelectReportFormatParameter(this, getObject()));
 	}
 	
@@ -177,10 +178,10 @@ public class AdminReportViewModel extends AbstractAdminViewModel<Report> {
 	}
 	
 	@Command
-	@SmartNotifyChange("permission")
-	public void insertToPermissionList(@BindingParam("base") ReportPermission base,
-									   @BindingParam("item") ReportPermission item,
-									   @BindingParam("list") int listNum) {
+	@SmartNotifyChange(C.PERMISSION)
+	public void insertToPermissionList(@BindingParam(C.BASE) ReportPermission base,
+									   @BindingParam(C.ITEM) ReportPermission item,
+									   @BindingParam(C.LIST) int listNum) {
 		insertToList(PERMISSIONS, listNum, base, item);
 		if (listNum == LIST_AVAILABLE && item == permission) {
 			this.permission = null;
@@ -188,9 +189,9 @@ public class AdminReportViewModel extends AbstractAdminViewModel<Report> {
 	}
 	
 	@Command
-	@SmartNotifyChange("permission")
-	public void dropToPermissionList(@BindingParam("item") ReportPermission item,
-									 @BindingParam("list") int listNum) {
+	@SmartNotifyChange(C.PERMISSION)
+	public void dropToPermissionList(@BindingParam(C.ITEM) ReportPermission item,
+									 @BindingParam(C.LIST) int listNum) {
 		dropToList(PERMISSIONS, listNum, item);
 		if (listNum == LIST_AVAILABLE && item == permission) {
 			this.permission = null;
@@ -198,13 +199,13 @@ public class AdminReportViewModel extends AbstractAdminViewModel<Report> {
 	}
 	
 	@Command
-	public void swapDataSources(@BindingParam("base") ReportDataSource base, 
-							    @BindingParam("item") ReportDataSource item) {
+	public void swapDataSources(@BindingParam(C.BASE) ReportDataSource base, 
+							    @BindingParam(C.ITEM) ReportDataSource item) {
 		swapItems(DATASOURCES, base, item);
 	}
 	
 	@Command
-	public void saveReport(@BindingParam("elem") Component component) {
+	public void saveReport(@BindingParam(C.ELEM) Component component) {
 		adjustLists(getObject().getPermissions(), getListManagerList(PERMISSIONS, LIST_SELECTED));
 		cmdSaveObject(component);
 	}

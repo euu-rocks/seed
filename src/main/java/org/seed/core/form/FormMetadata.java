@@ -339,7 +339,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public boolean containsEntityField(EntityField entityField) {
-		Assert.notNull(entityField, "entityField");
+		Assert.notNull(entityField, C.ENTITYFIELD);
 		
 		if (hasFields()) {
 			for (FormField formField : getFields()) {

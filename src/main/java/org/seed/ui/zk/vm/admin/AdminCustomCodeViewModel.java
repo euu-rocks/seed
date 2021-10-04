@@ -17,6 +17,7 @@
  */
 package org.seed.ui.zk.vm.admin;
 
+import org.seed.C;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.codegen.compile.CompilerException;
@@ -57,7 +58,7 @@ public class AdminCustomCodeViewModel extends AbstractAdminViewModel<CustomCode>
 	
 	@Init
 	public void init(@ContextParam(ContextType.VIEW) Component view,
-					 @ExecutionArgParam("param") Object object) {
+					 @ExecutionArgParam(C.PARAM) Object object) {
 		super.init(object, view);
 	}
 	
@@ -87,19 +88,19 @@ public class AdminCustomCodeViewModel extends AbstractAdminViewModel<CustomCode>
 	}
 	
 	@Command
-	public void refreshCode(@BindingParam("elem") Component component) {
+	public void refreshCode(@BindingParam(C.ELEM) Component component) {
 		cmdRefresh();
 	}
 	
 	@Command
-	public void deleteCode(@BindingParam("elem") Component component) {
+	public void deleteCode(@BindingParam(C.ELEM) Component component) {
 		cmdDeleteObject(component);
 	}
 	
 	@Command
 	@NotifyChange("errorMessage")
-	public void compile(@BindingParam("code") String code,
-						@BindingParam("elem") Component component) {
+	public void compile(@BindingParam(C.CODE) String code,
+						@BindingParam(C.ELEM) Component component) {
 		if (compileCode(code, component)) {
 			showNotification(component, false, "admin.compile.success");
 		}
@@ -107,8 +108,8 @@ public class AdminCustomCodeViewModel extends AbstractAdminViewModel<CustomCode>
 	
 	@Command
 	@NotifyChange("errorMessage")
-	public void saveCode(@BindingParam("code") String code,
-						 @BindingParam("elem") Component component) {
+	public void saveCode(@BindingParam(C.CODE) String code,
+						 @BindingParam(C.ELEM) Component component) {
 		if (compileCode(code, component)) {
 			cmdSaveObject(component);
 		}
@@ -134,7 +135,7 @@ public class AdminCustomCodeViewModel extends AbstractAdminViewModel<CustomCode>
 			final SourceCode sourceCode = customCodeProvider.getCustomCodeSource(getObject());
 			codeManager.testCompile(sourceCode);
 			getObject().setName(sourceCode.getQualifiedName());
-			notifyObjectChange("name");
+			notifyObjectChange(C.NAME);
 			errorMessage = null;
 			return true;
 		}

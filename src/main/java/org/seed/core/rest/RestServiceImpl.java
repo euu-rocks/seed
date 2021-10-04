@@ -84,7 +84,7 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 	
 	@Override
 	public RestTemplate createTemplate(String url) {
-		Assert.notNull(url, "url");
+		Assert.notNull(url, C.URL);
 		
 		final RestTemplate template = new RestTemplate(clientHttpRequestFactory);
 		template.setUriTemplateHandler(new DefaultUriBuilderFactory(url));
@@ -93,7 +93,7 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 	
 	@Override
 	public RestFunction createFunction(Rest rest) {
-		Assert.notNull(rest, "rest");
+		Assert.notNull(rest, C.REST);
 		
 		final RestFunction function = new RestFunction();
 		rest.addFunction(function);
@@ -102,7 +102,7 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 	
 	@Override
 	public void removeFunction(Rest rest, RestFunction function) {
-		Assert.notNull(rest, "rest");
+		Assert.notNull(rest, C.REST);
 		
 		rest.removeFunction(function);
 	}
@@ -187,7 +187,7 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 	
 	@Override
 	public List<RestPermission> getAvailablePermissions(Rest rest) {
-		Assert.notNull(rest, "rest");
+		Assert.notNull(rest, C.REST);
 		
 		final List<RestPermission> result = new ArrayList<>();
 		for (UserGroup group : userGroupService.getObjects()) {
@@ -245,7 +245,7 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 	@Override
 	@Secured("ROLE_ADMIN_JOB")
 	public void saveObject(Rest rest) throws ValidationException {
-		Assert.notNull(rest, "rest");
+		Assert.notNull(rest, C.REST);
 		
 		super.saveObject(rest);
 		configuration.updateConfiguration();

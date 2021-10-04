@@ -22,6 +22,7 @@ import java.io.Serializable;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import org.seed.C;
 import org.seed.core.util.Assert;
 
 public class ValidationError implements Serializable {
@@ -33,7 +34,7 @@ public class ValidationError implements Serializable {
 	private final String[] parameters;
 
 	public ValidationError(String error, String ...parameters) {
-		Assert.notNull(error, "error");
+		Assert.notNull(error, C.ERROR);
 		
 		this.error = error;
 		this.parameters = parameters;

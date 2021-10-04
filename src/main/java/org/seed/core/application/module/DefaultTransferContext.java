@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.seed.C;
 import org.seed.core.data.dbobject.DBObject;
 import org.seed.core.entity.Entity;
 import org.seed.core.util.Assert;
@@ -44,7 +45,7 @@ class DefaultTransferContext implements TransferContext {
 	private final Module module;
 
 	DefaultTransferContext(Module module) {
-		Assert.notNull(module, "module");
+		Assert.notNull(module, C.MODULE);
 		
 		this.module = module;
 	}
@@ -66,21 +67,21 @@ class DefaultTransferContext implements TransferContext {
 
 	@Override
 	public Entity getCurrentVersionEntity(String uid) {
-		Assert.notNull(uid, "uid");
+		Assert.notNull(uid, C.UID);
 		
 		return currentVersionEntityMap.get(uid);
 	}
 	
 	@Override
 	public void addNewEntity(Entity entity) {
-		Assert.notNull(entity, "entity");
+		Assert.notNull(entity, C.ENTITY);
 		
 		newEntities.add(entity);
 	}
 	
 	@Override
 	public void addExistingEntity(Entity entity, Entity currentVersionEntity) {
-		Assert.notNull(entity, "entity");
+		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(currentVersionEntity, "currentVersionEntity");
 		
 		existingEntities.add(entity);
@@ -99,21 +100,21 @@ class DefaultTransferContext implements TransferContext {
 	
 	@Override
 	public DBObject getCurrentVersionDBObject(String uid) {
-		Assert.notNull(uid, "uid");
+		Assert.notNull(uid, C.UID);
 		
 		return currentVersionDBObjectMap.get(uid);
 	}
 	
 	@Override
 	public void addNewDBObject(DBObject dbObject) {
-		Assert.notNull(dbObject, "dbObject");
+		Assert.notNull(dbObject, C.DBOBJECT);
 		
 		newDBObjects.add(dbObject);
 	}
 	
 	@Override
 	public void addExistingDBObject(DBObject dbObject, DBObject currentVersionDBObject) {
-		Assert.notNull(dbObject, "dbObject");
+		Assert.notNull(dbObject, C.DBOBJECT);
 		Assert.notNull(currentVersionDBObject, "currentVersionDBObject");
 		
 		existingDBObjects.add(dbObject);

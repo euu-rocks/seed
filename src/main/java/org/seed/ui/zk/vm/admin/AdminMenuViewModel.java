@@ -19,6 +19,7 @@ package org.seed.ui.zk.vm.admin;
 
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.data.SystemObject;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormService;
@@ -51,13 +52,13 @@ public class AdminMenuViewModel extends AbstractAdminViewModel<Menu> {
 	private Menu subMenu;
 	
 	public AdminMenuViewModel() {
-		super(Authorisation.ADMIN_MENU, "menu",
+		super(Authorisation.ADMIN_MENU, C.MENU,
 			  "/admin/menu/menulist.zul", 
 			  "/admin/menu/menu.zul");
 	}
 	
 	@Init
-	public void init(@ExecutionArgParam("param") Object object) {
+	public void init(@ExecutionArgParam(C.PARAM) Object object) {
 		super.init(object, null);
 	}
 	
@@ -99,17 +100,17 @@ public class AdminMenuViewModel extends AbstractAdminViewModel<Menu> {
 	}
 	
 	@Command
-	public void refreshMenu(@BindingParam("elem") Component component) {
+	public void refreshMenu(@BindingParam(C.ELEM) Component component) {
 		cmdRefresh();
 	}
 	
 	@Command
-	public void deleteMenu(@BindingParam("elem") Component component) {
+	public void deleteMenu(@BindingParam(C.ELEM) Component component) {
 		cmdDeleteObject(component);
 	}
 	
 	@Command
-	public void saveMenu(@BindingParam("elem") Component elem) {
+	public void saveMenu(@BindingParam(C.ELEM) Component elem) {
 		cmdSaveObject(elem);
 		refreshMenu();
 	}
@@ -125,7 +126,7 @@ public class AdminMenuViewModel extends AbstractAdminViewModel<Menu> {
 	
 	@Command
 	@NotifyChange("subMenu")
-	public void removeEntry(@BindingParam("elem") Component component) {
+	public void removeEntry(@BindingParam(C.ELEM) Component component) {
 		getObject().removeSubMenu(subMenu);
 		subMenu = null;
 		flagDirty();
@@ -139,13 +140,13 @@ public class AdminMenuViewModel extends AbstractAdminViewModel<Menu> {
 	}
 	
 	@Command
-	public void swapEntries(@BindingParam("base") Menu base, 
-							@BindingParam("item") Menu item) {
+	public void swapEntries(@BindingParam(C.BASE) Menu base, 
+							@BindingParam(C.ITEM) Menu item) {
 		swapItems(ENTRIES, base, item);
 	}
 	
 	@GlobalCommand
-	public void globalRefreshObject(@BindingParam("param") Long objectId) {
+	public void globalRefreshObject(@BindingParam(C.PARAM) Long objectId) {
 		refreshObject(objectId);
 	}
 

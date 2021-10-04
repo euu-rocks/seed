@@ -386,7 +386,7 @@ public class ValueObjectServiceImpl
 	
 	@Override
 	public ValueObject findUnique(Session session, Entity entity, EntityField entityField, Object value) {
-		Assert.notNull(entityField, "entityField");
+		Assert.notNull(entityField, C.ENTITYFIELD);
 		Assert.state(entityField.isUnique(), "entityField is not unique");
 		
 		final Filter filter = filterService.createFieldFilter(entity, entityField, value);

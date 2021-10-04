@@ -22,13 +22,13 @@ import org.seed.core.util.Assert;
 
 import org.springframework.util.StringUtils;
 
-class CodeDialogParameter {
+final class CodeDialogParameter {
 	
 	final AbstractAdminViewModel<?> parentViewModel;
 	
 	final ContentObject contentObject;
 	
-	public CodeDialogParameter(AbstractAdminViewModel<?> parentViewModel, ContentObject contentObject) {
+	CodeDialogParameter(AbstractAdminViewModel<?> parentViewModel, ContentObject contentObject) {
 		Assert.notNull(parentViewModel, "parentViewModel");
 		Assert.notNull(contentObject, "contentObject");
 		Assert.state(StringUtils.hasText(contentObject.getContent()), "no content");

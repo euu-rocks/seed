@@ -19,6 +19,7 @@ package org.seed.core.form.layout.visit;
 
 import java.util.Collections;
 
+import org.seed.C;
 import org.seed.core.entity.EntityField;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormFieldExtra;
@@ -232,8 +233,8 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 			final LayoutElement elemNorth = element.addChild(createBorderLayoutArea(BorderLayoutArea.NORTH), 0);
 			final LayoutElement elemToolbar = elemNorth.addChild(createToolbar("@init(vm.getSubFormActions('" + subForm.getNestedEntity().getUid() + 
 																			"')) @template(empty each.type.listTemplate ? 'default' : each.type.listTemplate)"));
-			final LayoutElement elemActionTemplate = elemToolbar.addChild(createTemplate("default", "action"));
-			final LayoutElement elemActionTemplateSelect = elemToolbar.addChild(createTemplate("select", "action"));
+			final LayoutElement elemActionTemplate = elemToolbar.addChild(createTemplate("default", C.ACTION));
+			final LayoutElement elemActionTemplateSelect = elemToolbar.addChild(createTemplate("select", C.ACTION));
 			final LayoutElement elemToolbarButton = createToolbarButton("@init(vm.getActionLabel(action))", // label
 					"'callSubFormAction',nestedId='" + subForm.getNestedEntity().getUid() + "',action=action,elem=self", // command
 					"@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"); // icon

@@ -28,6 +28,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.util.Assert;
 
@@ -37,10 +38,12 @@ abstract class ImageUtils {
 	
 	private static final Font PLACEHOLDER_FONT = new Font(Font.SANS_SERIF, Font.PLAIN, 12);
 	
+	private static final String FORMAT_PNG = "png"; 
+	
 	private ImageUtils() {}
 	
 	static byte[] createPlaceholderImage(String text, int width, int height) {
-		Assert.notNull(text, "text");
+		Assert.notNull(text, C.TEXT);
 		
 		final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		final Graphics2D g2d = image.createGraphics();
@@ -77,7 +80,7 @@ abstract class ImageUtils {
 	
 	private static byte[] getBytes(BufferedImage image) {
 		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-			ImageIO.write(image, "png", baos);
+			ImageIO.write(image, FORMAT_PNG, baos);
 			return baos.toByteArray(); 
 		} 
 		catch (IOException ex) {

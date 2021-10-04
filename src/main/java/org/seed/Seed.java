@@ -48,7 +48,7 @@ public class Seed {
 	
 	@GetMapping("/seed")
 	public String seed() {
-		return "seed";
+		return C.SEED;
 	}
 	
 	public String getVersion() {
@@ -58,7 +58,7 @@ public class Seed {
 	}
 	
 	public static <T> T getBean(Class<T> typeClass) {
-		Assert.notNull(typeClass, "typeClass");
+		Assert.notNull(typeClass, C.TYPECLASS);
     	// context only available after startup completed
 		Assert.stateAvailable(applicationContext, "applicationContext");
 		

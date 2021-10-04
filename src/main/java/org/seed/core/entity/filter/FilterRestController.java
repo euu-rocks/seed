@@ -19,6 +19,7 @@ package org.seed.core.entity.filter;
 
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.application.AbstractRestController;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ public class FilterRestController extends AbstractRestController<Filter> {
 	}
 	
 	@Override
-	public Filter get(@PathVariable("id") Long id) {
+	public Filter get(@PathVariable(C.ID) Long id) {
 		final Filter filter = super.get(id);
 		if (!checkPermissions(filter)) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN);

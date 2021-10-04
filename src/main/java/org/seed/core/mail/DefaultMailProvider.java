@@ -19,6 +19,7 @@ package org.seed.core.mail;
 
 import java.io.InputStream;
 
+import org.seed.C;
 import org.seed.Seed;
 import org.seed.core.api.Mail;
 import org.seed.core.api.MailProvider;
@@ -62,7 +63,7 @@ public class DefaultMailProvider implements MailProvider {
 
 		@Override
 		public Mail addText(String text) {
-			Assert.notNull(text, "text");
+			Assert.notNull(text, C.TEXT);
 			
 			textBuilder.append(text);
 			return this;

@@ -101,7 +101,7 @@ public class TaskValidator extends AbstractSystemEntityValidator<Task> {
 			if (isEmpty(notification.getUser())) {
 				errors.addError("val.empty.notificationfield", "label.user");
 			}
-			else if (!isUnique(notification.getUser(), "user", task.getNotifications())) {
+			else if (!isUnique(notification.getUser(), C.USER, task.getNotifications())) {
 				errors.addError("val.ambiguous.notificationuser", notification.getUser().getName());
 			}
 			if (isEmpty(notification.getResult())) {

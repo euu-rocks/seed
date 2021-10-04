@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.seed.C;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.filter.CriterionOperator;
 import org.seed.core.entity.value.AbstractValueObject;
@@ -52,7 +53,7 @@ public class SearchFormViewModel extends AbstractFormViewModel {
 	
 	@Init
 	@Override
-	public void init(@ExecutionArgParam("param") FormParameter param) {
+	public void init(@ExecutionArgParam(C.PARAM) FormParameter param) {
 		super.init(param);
 		
 		final SearchParameter searchParam = getTab().getSearchParameter();
@@ -66,7 +67,7 @@ public class SearchFormViewModel extends AbstractFormViewModel {
 	}
 	
 	public boolean isCriterionChecked(String type, String fieldUid, String nestedEntityUid) {
-		Assert.notNull(type, "type");
+		Assert.notNull(type, C.TYPE);
 		Assert.notNull(fieldUid, FIELD_UID);
 		
 		final ValueObject object = StringUtils.hasText(nestedEntityUid)
@@ -158,31 +159,31 @@ public class SearchFormViewModel extends AbstractFormViewModel {
 	
 	@Command
 	public void objectChanged(@BindingParam("fieldId") String fieldUid,
-							  @BindingParam("elem") Component component) {
+							  @BindingParam(C.ELEM) Component component) {
 		closeComponent(component);
 	}
 	
 	@Command
-	public void nestedChanged(@BindingParam("nested") ValueObject valueObject,
+	public void nestedChanged(@BindingParam(C.NESTED) ValueObject valueObject,
 							  @BindingParam("fieldId") String fieldUid,
-							  @BindingParam("elem") Component component) {
+							  @BindingParam(C.ELEM) Component component) {
 		closeComponent(component);
 	}
 	
 	@Command
 	@NotifyChange("isCriterionChecked")
-	public void checkCriterion(@BindingParam("elem") Menuitem elem,
-							   @BindingParam("type") String type,
+	public void checkCriterion(@BindingParam(C.ELEM) Menuitem elem,
+							   @BindingParam(C.TYPE) String type,
 							   @BindingParam("fieldId") String fieldUid,
 							   @BindingParam("nestedEntityId") String nestedEntityUid) {
-		Assert.notNull(elem, "elem");
-		Assert.notNull(type, "type");
+		Assert.notNull(elem, C.ELEM);
+		Assert.notNull(type, C.TYPE);
 		Assert.notNull(fieldUid, FIELD_UID);
 		
 		final ValueObject object = nestedEntityUid != null
 									? getSubForm(nestedEntityUid).getSelectedObject()
 									: getObject();
-		Assert.stateAvailable(object, "object");
+		Assert.stateAvailable(object, C.OBJECT);
 		
 		if (elem.isChecked()) {
 			getObjectCriteriaMap(object).put(fieldUid, CriterionOperator.valueOf(type));
@@ -193,10 +194,10 @@ public class SearchFormViewModel extends AbstractFormViewModel {
 	}
 	
 	@Command
-	@NotifyChange("object")
+	@NotifyChange(C.OBJECT)
 	public void callSubFormAction(@BindingParam("nestedId") String nestedUid,
-								  @BindingParam("action") SubFormAction action,
-								  @BindingParam("elem") Component component) {
+								  @BindingParam(C.ACTION) SubFormAction action,
+								  @BindingParam(C.ELEM) Component component) {
 		
 		final SubForm subForm = getSubForm(nestedUid);
 		if (action.getType() == FormActionType.DELETE) {

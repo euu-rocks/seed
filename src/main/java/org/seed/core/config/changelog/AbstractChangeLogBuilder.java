@@ -25,6 +25,7 @@ import java.io.Writer;
 import java.util.Collections;
 import java.util.List;
 
+import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.data.SystemEntity;
 import org.seed.core.util.Assert;
@@ -86,8 +87,8 @@ public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 		try {
 			final CustomChangeWrapper changeWrapper = new CustomChangeWrapper();
 			changeWrapper.setClass(customChange.getClass().getName());
-			changeWrapper.setParam("name", customChange.getParameterName());
-			changeWrapper.setParam("value", customChange.getParameterValue());
+			changeWrapper.setParam(C.NAME, customChange.getParameterName());
+			changeWrapper.setParam(C.VALUE, customChange.getParameterValue());
 			getChangeSet().addChange(changeWrapper);
 		}
 		catch (CustomChangeException ccex) {

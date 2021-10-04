@@ -19,6 +19,7 @@ package org.seed.core.entity.transform;
 
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.application.AbstractRestController;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ public class TransformerRestController extends AbstractRestController<Transforme
 	}
 	
 	@Override
-	public Transformer get(@PathVariable("id") Long id) {
+	public Transformer get(@PathVariable(C.ID) Long id) {
 		final Transformer transformer = super.get(id);
 		if (!checkPermissions(transformer)) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN);

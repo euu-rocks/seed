@@ -25,6 +25,7 @@ import java.util.List;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.util.Assert;
 
@@ -156,7 +157,7 @@ public class MailBuilder {
 	}
 
 	public MailBuilder setText(String text) {
-		Assert.notNull(text, "text");
+		Assert.notNull(text, C.TEXT);
 		
 		this.text = text;
 		return this;
@@ -187,7 +188,7 @@ public class MailBuilder {
 	public Mail build() {
 		Assert.state(toAddress != null, "toAddress");
 		Assert.state(subject != null, "subject");
-		Assert.state(text != null, "text");
+		Assert.state(text != null, C.TEXT);
 		try {
 			if (attachments != null) {
 				final MimeMessage message = mailSender.createMimeMessage();

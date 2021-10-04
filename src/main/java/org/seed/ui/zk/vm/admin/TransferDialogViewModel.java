@@ -17,6 +17,7 @@
  */
 package org.seed.ui.zk.vm.admin;
 
+import org.seed.C;
 import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.data.FileObject;
 import org.seed.core.data.ValidationException;
@@ -67,8 +68,8 @@ public class TransferDialogViewModel extends AbstractApplicationViewModel {
 	
 	@Init
     public void init(@ContextParam(ContextType.VIEW) Component view,
-    				 @ExecutionArgParam("param") TransferDialogParameter param) {
-		Assert.notNull(param, "param");
+    				 @ExecutionArgParam(C.PARAM) TransferDialogParameter param) {
+		Assert.notNull(param, C.PARAM);
 		wireComponents(view);
 		
 		if (param.parentViewModel instanceof AdminTransferViewModel) {
@@ -190,7 +191,7 @@ public class TransferDialogViewModel extends AbstractApplicationViewModel {
 	}
 	
 	@Command
-	public void importTransfer(@BindingParam("elem") Component component) {
+	public void importTransfer(@BindingParam(C.ELEM) Component component) {
 		try {
 			final TransferResult result = transferService.doImport(transfer, importOptions, importFile);
 			window.detach();
@@ -202,7 +203,7 @@ public class TransferDialogViewModel extends AbstractApplicationViewModel {
 	}
 	
 	@Command
-	public void importModule(@BindingParam("elem") Component component) {
+	public void importModule(@BindingParam(C.ELEM) Component component) {
 		window.detach();
 		moduleViewModule.importModule(importAnalysis.getModule());
 	}

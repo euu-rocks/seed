@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.persistence.OptimisticLockException;
 
+import org.seed.C;
 import org.seed.core.data.FileObject;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.EntityField;
@@ -150,7 +151,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	
 	@Init
 	@Override
-	public void init(@ExecutionArgParam("param") FormParameter param) {
+	public void init(@ExecutionArgParam(C.PARAM) FormParameter param) {
 		super.init(param);
 		
 		if (param.object != null) {
@@ -200,15 +201,15 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	}
 	
 	@Command
-	public void changeStatus(@BindingParam("action") FormAction action,
-							 @BindingParam("elem") Component component) {
+	public void changeStatus(@BindingParam(C.ACTION) FormAction action,
+							 @BindingParam(C.ELEM) Component component) {
 		confirm("question.status", component, action, getStatus().getNumberAndName());
 	}
 	
 	@Command
 	@NotifyChange("isReferenceEmpty")
 	public void objectChanged(@BindingParam("fieldId") String fieldUid,
-							  @BindingParam("elem") Component component) {
+							  @BindingParam(C.ELEM) Component component) {
 		closeComponent(component);
 		boolean notifyChange = false;
 		final EntityField entityField = getEntityField(fieldUid);
@@ -230,9 +231,9 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	
 	@Command
 	@NotifyChange("isReferenceEmpty")
-	public void nestedChanged(@BindingParam("nested") ValueObject valueObject,
+	public void nestedChanged(@BindingParam(C.NESTED) ValueObject valueObject,
 							  @BindingParam("fieldId") String fieldUid,
-							  @BindingParam("elem") Component component) {
+							  @BindingParam(C.ELEM) Component component) {
 		closeComponent(component);
 		final SubFormField subFormField = getSubFormByEntityId(valueObject.getEntityId())
 											.getFieldByEntityFieldUid(fieldUid);
@@ -254,8 +255,8 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	}
 	
 	@Command
-	public void callAction(@BindingParam("action") FormAction action,
-						   @BindingParam("elem") Component component) {
+	public void callAction(@BindingParam(C.ACTION) FormAction action,
+						   @BindingParam(C.ELEM) Component component) {
 		
 		switch (action.getType()) {
 			case OVERVIEW:
@@ -310,10 +311,10 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	}
 	
 	@Command
-	@NotifyChange("object")
+	@NotifyChange(C.OBJECT)
 	public void callSubFormAction(@BindingParam("nestedId") String nestedUid,
-								  @BindingParam("action") SubFormAction action,
-								  @BindingParam("elem") Component component) {
+								  @BindingParam(C.ACTION) SubFormAction action,
+								  @BindingParam(C.ELEM) Component component) {
 		callSubFormAction(component, getSubForm(nestedUid), action);
 		flagDirty();
 	}
@@ -355,7 +356,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 					}
 				}
 				setStatus(getObject().getEntityStatus());
-				notifyChange("status", "availableStatusList", "transformers", 
+				notifyChange(C.STATUS, "availableStatusList", "transformers", 
 							 "isFieldReadonly", "isFieldVisible", "getReferenceValues");
 				break;
 				

@@ -51,7 +51,7 @@ public abstract class AbstractPrintoutProcessor extends ObjectAccess implements 
 	}
 	
 	protected NestedEntity findNestedProperty(String text) {
-		Assert.notNull(text, "text");
+		Assert.notNull(text, C.TEXT);
 		
 		int idx = 0;
 		while (idx < text.length()) {
@@ -79,7 +79,7 @@ public abstract class AbstractPrintoutProcessor extends ObjectAccess implements 
 	}
 	
 	protected String replace(String text, ValueObject valueObject, NestedEntity nestedEntity, ValueObject nestedObject) {
-		Assert.notNull(text, "text");
+		Assert.notNull(text, C.TEXT);
 		Assert.notNull(valueObject, "valueObject");
 		
 		if (findPatternStart(text, 0) < 0) {

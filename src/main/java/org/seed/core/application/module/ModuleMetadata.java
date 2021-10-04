@@ -33,7 +33,7 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-
+import org.seed.C;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.TransferableObject;
 import org.seed.core.customcode.CustomCode;
@@ -385,7 +385,7 @@ public class ModuleMetadata extends AbstractSystemEntity
 	
 	@Override
 	public void addParameter(ModuleParameter parameter) {
-		Assert.notNull(parameter, "parameter");
+		Assert.notNull(parameter, C.PARAMETER);
 		
 		if (parameters == null) {
 			parameters = new ArrayList<>();
@@ -396,7 +396,7 @@ public class ModuleMetadata extends AbstractSystemEntity
 	
 	@Override
 	public void removeParameter(ModuleParameter parameter) {
-		Assert.notNull(parameter, "parameter");
+		Assert.notNull(parameter, C.PARAMETER);
 		
 		getParameters().remove(parameter);
 	}

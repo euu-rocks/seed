@@ -72,7 +72,7 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 	@Override
 	public List<Menu> findObjectsWithoutModule() {
 		return menuRepository.find(queryParam("parent", QueryParameter.IS_NULL),
-								   queryParam("module", QueryParameter.IS_NULL));
+								   queryParam(C.MODULE, QueryParameter.IS_NULL));
 	}
 	
 	@Override

@@ -19,6 +19,7 @@ package org.seed.ui.zk.vm.admin;
 
 import java.util.regex.Pattern;
 
+import org.seed.C;
 import org.seed.core.application.ContentObject;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.codegen.CodeUtils;
@@ -71,8 +72,8 @@ public class CodeDialogViewModel extends AbstractApplicationViewModel {
 
 	@Init
     public void init(@ContextParam(ContextType.VIEW) Component view,
-    				 @ExecutionArgParam("param") CodeDialogParameter param) {
-		Assert.notNull(param, "param");
+    				 @ExecutionArgParam(C.PARAM) CodeDialogParameter param) {
+		Assert.notNull(param, C.PARAM);
 		wireComponents(view);
 		
 		parentViewModel = param.parentViewModel;
@@ -81,7 +82,7 @@ public class CodeDialogViewModel extends AbstractApplicationViewModel {
 	}
 	
 	@Command
-	@NotifyChange({"content", "errorMessage"})
+	@NotifyChange({C.CONTENT, "errorMessage"})
 	public void reset() {
 		errorMessage = null;
 		contentObject.setContent(originalContent);
@@ -89,8 +90,8 @@ public class CodeDialogViewModel extends AbstractApplicationViewModel {
 	
 	@Command
 	@SmartNotifyChange("errorMessage")
-	public void compile(@BindingParam("code") String code,
-						@BindingParam("elem") Component component) {
+	public void compile(@BindingParam(C.CODE) String code,
+						@BindingParam(C.ELEM) Component component) {
 		if (!StringUtils.hasText(code)) {
 			showNotification(component, true, "admin.compile.nocode");
 			errorMessage = null;
@@ -108,8 +109,8 @@ public class CodeDialogViewModel extends AbstractApplicationViewModel {
 	
 	@Command
 	@SmartNotifyChange("errorMessage")
-	public void applyCode(@BindingParam("code") String code,
-						  @BindingParam("elem") Component component) {
+	public void applyCode(@BindingParam(C.CODE) String code,
+						  @BindingParam(C.ELEM) Component component) {
 		if (!StringUtils.hasText(code)) {
 			showNotification(component, true, "admin.compile.nocode");
 			errorMessage = null;

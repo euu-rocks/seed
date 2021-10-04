@@ -244,7 +244,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 	}
 	
 	protected void addCode(String code) {
-		Assert.notNull(code, "code");
+		Assert.notNull(code, C.CODE);
 		
 		codeBuffer.append(code).append(LF);
 	}

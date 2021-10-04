@@ -19,6 +19,7 @@ package org.seed.ui.zk.vm;
 
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.form.FormPrintout;
 import org.seed.core.util.Assert;
 
@@ -42,8 +43,8 @@ public class SelectPrintoutViewModel extends AbstractViewModel {
 	
 	@Init
     public void init(@ContextParam(ContextType.VIEW) Component view,
-    				 @ExecutionArgParam("param") AbstractFormViewModel param) {
-		Assert.notNull(param, "param");
+    				 @ExecutionArgParam(C.PARAM) AbstractFormViewModel param) {
+		Assert.notNull(param, C.PARAM);
 		
 		parentVM = param;
 		wireComponents(view);

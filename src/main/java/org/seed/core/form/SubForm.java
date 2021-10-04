@@ -179,7 +179,7 @@ public class SubForm extends AbstractTransferableObject {
 	}
 	
 	public boolean containsForm(Form form) {
-		Assert.notNull(form, "form");
+		Assert.notNull(form, C.FORM);
 		
 		if (hasFields()) {
 			for (SubFormField subFormField : getFields()) {
@@ -192,7 +192,7 @@ public class SubForm extends AbstractTransferableObject {
 	}
 	
 	public boolean containsEntityField(EntityField entityField) {
-		Assert.notNull(entityField, "entityField");
+		Assert.notNull(entityField, C.ENTITYFIELD);
 		
 		if (hasFields()) {
 			for (SubFormField subFormField : getFields()) {

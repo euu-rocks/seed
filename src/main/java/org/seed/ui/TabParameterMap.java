@@ -19,32 +19,25 @@ package org.seed.ui;
 
 import java.util.HashMap;
 
+import org.seed.C;
 import org.seed.core.util.Assert;
 
 public final class TabParameterMap extends HashMap<String, Object> {
 
 	private static final long serialVersionUID = -3098990587395841188L;
 	
-	public static final String NAME = "name";
-	
-	public static final String VIEW = "view";
-	
-	public static final String ICON = "icon";
-	
-	public static final String PARAMETER = "parameter";
-	
 	public TabParameterMap(String name, String view, String icon, FormParameter parameter) {
 		super(4, 1f);
-		Assert.notNull(name, NAME);
-		Assert.notNull(view, VIEW);
+		Assert.notNull(name, C.NAME);
+		Assert.notNull(view, C.VIEW);
 		
-		put(NAME, name);
-		put(VIEW, view);
+		put(C.NAME, name);
+		put(C.VIEW, view);
 		if (icon != null) {
-			put(ICON, icon);
+			put(C.ICON, icon);
 		}
 		if (parameter != null) {
-			put(PARAMETER, parameter);
+			put(C.PARAMETER, parameter);
 		}
 	}
 

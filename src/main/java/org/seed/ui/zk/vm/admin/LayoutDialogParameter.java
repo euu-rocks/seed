@@ -17,6 +17,7 @@
  */
 package org.seed.ui.zk.vm.admin;
 
+import org.seed.C;
 import org.seed.core.form.Form;
 import org.seed.core.form.layout.LayoutElement;
 import org.seed.core.util.Assert;
@@ -38,8 +39,8 @@ class LayoutDialogParameter {
 						  String command, String contextId) {
 		
 		Assert.notNull(parentViewModel, "parentViewModel");
-		Assert.notNull(form, "form");
-		Assert.notNull(command, "command");
+		Assert.notNull(form, C.FORM);
+		Assert.notNull(command, C.COMMAND);
 		
 		this.parentViewModel = parentViewModel;
 		this.form = form;

@@ -30,7 +30,8 @@ import org.seed.core.form.layout.LayoutVisitor;
 import org.seed.core.util.Assert;
 import org.seed.core.util.TinyId;
 
-abstract class AbstractLayoutVisitor extends LayoutUtils implements LayoutVisitor {
+abstract class AbstractLayoutVisitor extends LayoutUtils 
+	implements LayoutVisitor {
 	
 	private final TinyId tinyId = new TinyId("c");
 	
@@ -47,7 +48,7 @@ abstract class AbstractLayoutVisitor extends LayoutUtils implements LayoutVisito
 	}
 	
 	protected LayoutElement getRootElement() {
-		Assert.state(rootElement != null, "root element not available");
+		Assert.stateAvailable(rootElement, "root element");
 		
 		return rootElement;
 	}
@@ -80,12 +81,13 @@ abstract class AbstractLayoutVisitor extends LayoutUtils implements LayoutVisito
 		Assert.notNull(uid, C.UID);
 		
 		final EntityField field = form.getEntity().getFieldByUid(uid);
-		Assert.state(field != null, "entity field not found: " + uid);
+		Assert.stateAvailable(field, "entity field " + uid);
+		
 		return field;
 	}
 	
 	protected FormFieldExtra getFieldExtra(EntityField entityField) {
-		Assert.notNull(entityField, "entityField");
+		Assert.notNull(entityField, C.ENTITYFIELD);
 		
 		return form.getFieldExtra(entityField);
 	}
@@ -105,7 +107,8 @@ abstract class AbstractLayoutVisitor extends LayoutUtils implements LayoutVisito
 	
 	protected String getId(LayoutElement element) {
 		final String id = element.getId();
-		Assert.state(id != null, "element has no id");
+		Assert.stateAvailable(id, "element id");
+		
 		return id;
 	}
 	

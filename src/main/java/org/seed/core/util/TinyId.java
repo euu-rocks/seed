@@ -44,7 +44,7 @@ public class TinyId {
 	}
 	
 	public static String get(long id) {
-		return Long.toString(id, 36);
+		return Long.toString(id, Character.MAX_RADIX);
 	}
 	
 }

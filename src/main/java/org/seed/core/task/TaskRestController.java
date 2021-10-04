@@ -19,8 +19,8 @@ package org.seed.core.task;
 
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.application.AbstractRestController;
-import org.seed.core.config.JobScheduler;
 import org.seed.core.user.Authorisation;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +52,7 @@ public class TaskRestController extends AbstractRestController<Task> {
 	}
 	
 	@Override
-	public Task get(@PathVariable("id") Long id) {
+	public Task get(@PathVariable(C.ID) Long id) {
 		final Task task = super.get(id);
 		if (!checkPermissions(task)) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN);
@@ -61,7 +61,7 @@ public class TaskRestController extends AbstractRestController<Task> {
 	}
 	
 	@PostMapping(value = "/{id}/run")
-	public Task run(@PathVariable("id") Long id) {
+	public Task run(@PathVariable(C.ID) Long id) {
 		final Task task = get(id);
 		if (!isAuthorised(Authorisation.RUN_JOBS)) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN);

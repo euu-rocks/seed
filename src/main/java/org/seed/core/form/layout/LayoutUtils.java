@@ -186,7 +186,7 @@ public abstract class LayoutUtils {
 	}
 	
 	public static LayoutElement createLabel(String text) {
-		Assert.notNull(text, "text");
+		Assert.notNull(text, C.TEXT);
 		
 		final LayoutElement elemLabel = new LayoutElement(LayoutElement.LABEL);
 		if (text.contains("\n")) {
@@ -200,10 +200,10 @@ public abstract class LayoutUtils {
 	}
 	
 	public static LayoutElement createLabelAttribute(String text) {
-		Assert.notNull(text, "text");
+		Assert.notNull(text, C.TEXT);
 		
 		final LayoutElement elemAttr = new LayoutElement(LayoutElement.ATTRIBUTE);
-		elemAttr.setAttribute(LayoutElementAttributes.A_NAME, "value");
+		elemAttr.setAttribute(LayoutElementAttributes.A_NAME, C.VALUE);
 		elemAttr.setText(text);
 		return elemAttr;
 	}
@@ -227,7 +227,7 @@ public abstract class LayoutUtils {
 	}
 	
 	public static LayoutElement createButton(String icon) {
-		Assert.notNull(icon, "icon");
+		Assert.notNull(icon, C.ICON);
 		
 		final LayoutElement elemButton = new LayoutElement(LayoutElement.BUTTON);
 		elemButton.setIcon(icon);

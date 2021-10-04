@@ -17,6 +17,7 @@
  */
 package org.seed.ui.zk.vm;
 
+import org.seed.C;
 import org.seed.core.user.User;
 import org.seed.core.util.Assert;
 import org.seed.ui.zk.vm.admin.AbstractAdminViewModel;
@@ -29,7 +30,7 @@ public class PwdDialogParameter {
 
 	public PwdDialogParameter(AbstractAdminViewModel<?> parentViewModel, User user) {
 		Assert.notNull(parentViewModel, "parentViewModel");
-		Assert.notNull(user, "user");
+		Assert.notNull(user, C.USER);
 		
 		this.parentViewModel = parentViewModel;
 		this.user = user;

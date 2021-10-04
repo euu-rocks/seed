@@ -17,6 +17,7 @@
  */
 package org.seed.ui.zk.vm;
 
+import org.seed.C;
 import org.seed.core.data.ValidationException;
 import org.seed.core.user.User;
 import org.seed.core.util.Assert;
@@ -63,8 +64,8 @@ public class PwdDialogViewModel extends AbstractApplicationViewModel {
 
 	@Init
     public void init(@ContextParam(ContextType.VIEW) Component view,
-    				 @ExecutionArgParam("param") PwdDialogParameter param) {
-		Assert.notNull(param, "param");
+    				 @ExecutionArgParam(C.PARAM) PwdDialogParameter param) {
+		Assert.notNull(param, C.PARAM);
 		wireComponents(view);
 		
 		parentViewModel = param.parentViewModel;
@@ -77,7 +78,7 @@ public class PwdDialogViewModel extends AbstractApplicationViewModel {
 	}
 	
 	@Command
-	public void applyPwd(@BindingParam("elem") Component component) {
+	public void applyPwd(@BindingParam(C.ELEM) Component component) {
 		try {
 			userService.setPassword(user, password, passwordRepeated);
 			parentViewModel.flagDirty();

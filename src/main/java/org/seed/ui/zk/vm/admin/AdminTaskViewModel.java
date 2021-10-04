@@ -24,13 +24,13 @@ import java.util.UUID;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.JobListener;
-
+import org.seed.C;
 import org.seed.core.application.ContentObject;
 import org.seed.core.codegen.SourceCode;
-import org.seed.core.config.JobScheduler;
 import org.seed.core.data.SystemObject;
 import org.seed.core.task.AbstractJob;
 import org.seed.core.task.IntervalUnit;
+import org.seed.core.task.JobScheduler;
 import org.seed.core.task.Task;
 import org.seed.core.task.TaskMetadata;
 import org.seed.core.task.TaskNotification;
@@ -94,7 +94,7 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	private int initialInterval;
 	
 	public AdminTaskViewModel() {
-		super(Authorisation.ADMIN_JOB, "task",
+		super(Authorisation.ADMIN_JOB, C.TASK,
 			  "/admin/task/tasklist.zul", 
 			  "/admin/task/task.zul");
 	}
@@ -149,7 +149,7 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	
 	@Init
 	public void init(@ContextParam(ContextType.VIEW) Component view,
-					 @ExecutionArgParam("param") Object object) {
+					 @ExecutionArgParam(C.PARAM) Object object) {
 		super.init(object, view);
 		jobScheduler.addJobListener(this);
 	}
@@ -170,10 +170,10 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	}
 	
 	@Command
-	@SmartNotifyChange("permission")
-	public void insertToPermissionList(@BindingParam("base") TaskPermission base,
-									   @BindingParam("item") TaskPermission item,
-									   @BindingParam("list") int listNum) {
+	@SmartNotifyChange(C.PERMISSION)
+	public void insertToPermissionList(@BindingParam(C.BASE) TaskPermission base,
+									   @BindingParam(C.ITEM) TaskPermission item,
+									   @BindingParam(C.LIST) int listNum) {
 		insertToList(PERMISSIONS, listNum, base, item);
 		if (listNum == LIST_AVAILABLE && item == permission) {
 			this.permission = null;
@@ -181,9 +181,9 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	}
 	
 	@Command
-	@SmartNotifyChange("permission")
-	public void dropToPermissionList(@BindingParam("item") TaskPermission item,
-									 @BindingParam("list") int listNum) {
+	@SmartNotifyChange(C.PERMISSION)
+	public void dropToPermissionList(@BindingParam(C.ITEM) TaskPermission item,
+									 @BindingParam(C.LIST) int listNum) {
 		dropToList(PERMISSIONS, listNum, item);
 		if (listNum == LIST_AVAILABLE && item == permission) {
 			this.permission = null;
@@ -230,7 +230,7 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	}
 	
 	@Command
-	@NotifyChange("parameter")
+	@NotifyChange(C.PARAMETER)
 	public void newParameter() {
 		parameter = taskService.createParameter(getObject());
 		notifyObjectChange(PARAMETERS);
@@ -238,7 +238,7 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	}
 	
 	@Command
-	@NotifyChange("parameter")
+	@NotifyChange(C.PARAMETER)
 	public void removeParameter() {
 		getObject().removeParameter(parameter);
 		parameter = null;
@@ -277,17 +277,17 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	}
 	
 	@Command
-	public void refreshTask(@BindingParam("elem") Component component) {
+	public void refreshTask(@BindingParam(C.ELEM) Component component) {
 		cmdRefresh();
 	}
 	
 	@Command
-	public void deleteTask(@BindingParam("elem") Component component) {
+	public void deleteTask(@BindingParam(C.ELEM) Component component) {
 		cmdDeleteObject(component);
 	}
 	
 	@Command
-	public void saveTask(@BindingParam("elem") Component elem) {
+	public void saveTask(@BindingParam(C.ELEM) Component elem) {
 		// detect content change
 		final boolean contentChanged = !ObjectUtils.nullSafeEquals(initialContent, 
 																   getObject().getContent());
@@ -329,7 +329,7 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	}
 	
 	@GlobalCommand
-	public void globalRefreshObject(@BindingParam("param") Long objectId) {
+	public void globalRefreshObject(@BindingParam(C.PARAM) Long objectId) {
 		refreshObject(objectId);
 	}
 	

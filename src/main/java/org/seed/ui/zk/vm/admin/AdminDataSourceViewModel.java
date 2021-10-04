@@ -19,6 +19,7 @@ package org.seed.ui.zk.vm.admin;
 
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.data.DataException;
 import org.seed.core.data.datasource.IDataSource;
 import org.seed.core.data.datasource.DataSourceParameter;
@@ -82,7 +83,7 @@ public class AdminDataSourceViewModel extends AbstractAdminViewModel<IDataSource
 	
 	@Init
 	public void init(@ContextParam(ContextType.VIEW) Component view,
-					 @ExecutionArgParam("param") Object object) {
+					 @ExecutionArgParam(C.PARAM) Object object) {
 		super.init(object, view);
 	}
 	
@@ -108,17 +109,17 @@ public class AdminDataSourceViewModel extends AbstractAdminViewModel<IDataSource
 	}
 	
 	@Command
-	public void refreshDataSource(@BindingParam("elem") Component component) {
+	public void refreshDataSource(@BindingParam(C.ELEM) Component component) {
 		cmdRefresh();
 	}
 	
 	@Command
-	public void deleteDataSource(@BindingParam("elem") Component component) {
+	public void deleteDataSource(@BindingParam(C.ELEM) Component component) {
 		cmdDeleteObject(component);
 	}
 	
 	@Command
-	@NotifyChange("parameter")
+	@NotifyChange(C.PARAMETER)
 	public void newParameter() {
 		parameter = dataSourceService.createParameter(getObject());
 		notifyObjectChange(PARAMETERS);
@@ -126,7 +127,7 @@ public class AdminDataSourceViewModel extends AbstractAdminViewModel<IDataSource
 	}
 	
 	@Command
-	@NotifyChange("parameter")
+	@NotifyChange(C.PARAMETER)
 	public void removeParameter() {
 		getObject().removeParameter(parameter);
 		parameter = null;
@@ -136,7 +137,7 @@ public class AdminDataSourceViewModel extends AbstractAdminViewModel<IDataSource
 	
 	@Command
 	@SmartNotifyChange("errorMessage")
-	public void saveDataSource(@BindingParam("elem") Component component) {
+	public void saveDataSource(@BindingParam(C.ELEM) Component component) {
 		try {
 			cmdSaveObject(component);
 			errorMessage = null;

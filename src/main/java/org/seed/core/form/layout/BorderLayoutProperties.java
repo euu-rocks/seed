@@ -44,7 +44,7 @@ public class BorderLayoutProperties {
 	}
 	
 	public BorderLayoutProperties(LayoutElement element) {
-		Assert.notNull(element, "element");
+		Assert.notNull(element, C.ELEMENT);
 		Assert.state(element.is(LayoutElement.BORDERLAYOUT), "element is no borderlayout");
 		
 		north = createProperties(BorderLayoutArea.NORTH, element);

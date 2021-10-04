@@ -19,23 +19,22 @@ package org.seed.ui;
 
 import java.util.HashMap;
 
+import javax.annotation.Nullable;
+
+import org.seed.C;
 import org.seed.core.util.Assert;
 
 public final class ViewParameterMap extends HashMap<String, Object> {
 	
 	private static final long serialVersionUID = -901328042280559618L;
 
-	public static final String VIEW = "view";
-	
-	public static final String PARAM = "param";
-	
-	public ViewParameterMap(String view, Object param) {
+	public ViewParameterMap(String view, @Nullable Object parameter) {
 		super(2, 1f);
-		Assert.notNull(view, VIEW);
+		Assert.notNull(view, C.VIEW);
 		
-		put(VIEW, view);
-		if (param != null) {
-			put(PARAM, param);
+		put(C.VIEW, view);
+		if (parameter != null) {
+			put(C.PARAMETER, parameter);
 		}
 	}
 	

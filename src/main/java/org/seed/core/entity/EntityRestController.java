@@ -19,6 +19,7 @@ package org.seed.core.entity;
 
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.application.AbstractRestController;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ public class EntityRestController extends AbstractRestController<Entity> {
 	}
 	
 	@Override
-	public Entity get(@PathVariable("id") Long id) {
+	public Entity get(@PathVariable(C.ID) Long id) {
 		final Entity entity = super.get(id);
 		if (!checkPermissions(entity, EntityAccess.READ)) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN);

@@ -148,7 +148,7 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 	
 	@Override
 	protected void analyzeNextVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
-		Assert.notNull(analysis, "analysis");
+		Assert.notNull(analysis, C.ANALYSIS);
 		
 		if (analysis.getModule().getReports() != null) {
 			for (Report report : analysis.getModule().getReports()) {
@@ -273,7 +273,7 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 	public List<Report> findUsage(IDataSource dataSource) {
 		Assert.notNull(dataSource, C.DATASOURCE);
 		
-		return repository.find(queryParam("dataSource", dataSource));
+		return repository.find(queryParam(C.DATASOURCE, dataSource));
 	}
 	
 	@Override

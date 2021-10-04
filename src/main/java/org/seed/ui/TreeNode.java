@@ -21,9 +21,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
+import org.seed.C;
 import org.seed.core.util.Assert;
 
-public class TreeNode {
+public final class TreeNode {
 	
 	public final String label;
 	
@@ -39,12 +42,12 @@ public class TreeNode {
 	
 	private List<TreeNode> children;
 	
-	public TreeNode(String label, String viewName, String iconClass) {
+	public TreeNode(String label, @Nullable String viewName, @Nullable String iconClass) {
 		this (label, viewName, iconClass, null);
 	}
 	
-	TreeNode(String label, String viewName, String iconClass, Long formId) {
-		Assert.notNull(label, "label");
+	TreeNode(String label, @Nullable String viewName, @Nullable String iconClass, @Nullable Long formId) {
+		Assert.notNull(label, C.LABEL);
 		
 		this.label = label;
 		this.viewName = viewName;

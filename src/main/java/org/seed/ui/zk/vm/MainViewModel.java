@@ -31,9 +31,7 @@ import org.seed.core.util.Assert;
 import org.seed.ui.FormParameter;
 import org.seed.ui.MenuManager;
 import org.seed.ui.Tab;
-import org.seed.ui.TabParameterMap;
 import org.seed.ui.TreeNode;
-import org.seed.ui.ViewParameterMap;
 import org.seed.ui.zk.TreeModel;
 
 import org.zkoss.bind.annotation.BindingParam;
@@ -80,9 +78,9 @@ public class MainViewModel extends AbstractApplicationViewModel {
 		}
 		final String seedVersion = seed.getVersion();
 		if (seedVersion != null) {
-			return "seed " + seedVersion;
+			return C.SEED + ' ' + seedVersion;
 		}
-		return "seed";
+		return C.SEED;
 	}
 	
 	public boolean isMenuMode(String mode) {
@@ -141,7 +139,7 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	
 	@Command
 	@NotifyChange("selectedTab")
-	public void selectTab(@BindingParam("tab") Tab tab) {
+	public void selectTab(@BindingParam(C.TAB) Tab tab) {
 		selectedTab = tab;
 		if (selectedTab.getObjectId() != null) {
 			globalCommand("globalRefreshObject", selectedTab.getObjectId());
@@ -156,7 +154,7 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	}
 	
 	@Command
-	public void closeTab(@BindingParam("tab") Tab tab) {
+	public void closeTab(@BindingParam(C.TAB) Tab tab) {
 		removeTab(tab);
 	}
 	
@@ -234,12 +232,12 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	}
 	
 	@GlobalCommand
-	public void globalOpenTab(@BindingParam(TabParameterMap.NAME) String name, 
-							  @BindingParam(TabParameterMap.VIEW) String view, 
-							  @BindingParam(TabParameterMap.ICON) String icon, 
-							  @BindingParam(TabParameterMap.PARAMETER) FormParameter parameter) {
+	public void globalOpenTab(@BindingParam(C.NAME) String name, 
+							  @BindingParam(C.VIEW) String view, 
+							  @BindingParam(C.ICON) String icon, 
+							  @BindingParam(C.PARAMETER) FormParameter parameter) {
 		Assert.notNull(name, C.NAME);
-		Assert.notNull(view, "view");
+		Assert.notNull(view, C.VIEW);
 		
 		if (MenuManager.URL_FULLTEXTSEARCH.equals(view)) {
 			selectedTab = new Tab(name, ZUL_PATH + view, icon);
@@ -257,9 +255,9 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	}
 	
 	@GlobalCommand
-	public void globalShowView(@BindingParam(ViewParameterMap.VIEW) String view,
-							   @BindingParam(ViewParameterMap.PARAM) Object param) {
-		Assert.notNull(view, "view");
+	public void globalShowView(@BindingParam(C.VIEW) String view,
+							   @BindingParam(C.PARAMETER) Object param) {
+		Assert.notNull(view, C.VIEW);
 		Assert.state(selectedTab != null, "no tab selected");
 		
 		if (param instanceof Long) {
@@ -271,7 +269,7 @@ public class MainViewModel extends AbstractApplicationViewModel {
 		
 		selectedTab.setPath(ZUL_PATH + view);
 		selectedTab.setParameter(param);
-		notifyObjectChange(selectedTab, "name", "parameter", "path");
+		notifyObjectChange(selectedTab, C.NAME, C.PARAMETER, C.PATH);
 	}
 	
 }

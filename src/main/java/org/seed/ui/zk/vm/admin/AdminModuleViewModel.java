@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
@@ -134,7 +135,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	private boolean existUserGroups;
 	
 	public AdminModuleViewModel() {
-		super(Authorisation.ADMIN_MODULE, "module",
+		super(Authorisation.ADMIN_MODULE, C.MODULE,
 			  "/admin/module/modulelist.zul", 
 			  "/admin/module/module.zul");
 	}
@@ -205,7 +206,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	
 	@Init
 	public void init(@ContextParam(ContextType.VIEW) Component view,
-					 @ExecutionArgParam("param") Object object) {
+					 @ExecutionArgParam(C.PARAM) Object object) {
 		super.init(object, view);
 	}
 	
@@ -228,7 +229,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	}
 	
 	@Command
-	@NotifyChange("parameter")
+	@NotifyChange(C.PARAMETER)
 	public void newParameter() {
 		parameter = moduleService.createParameter(getObject());
 		notifyObjectChange(PARAMETERS);
@@ -236,7 +237,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	}
 	
 	@Command
-	@NotifyChange("parameter")
+	@NotifyChange(C.PARAMETER)
 	public void removeParameter() {
 		getObject().removeParameter(parameter);
 		parameter = null;
@@ -265,26 +266,26 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	}
 	
 	@Command
-	public void deleteModule(@BindingParam("elem") Component component) {
+	public void deleteModule(@BindingParam(C.ELEM) Component component) {
 		cmdDeleteObject(component);
 	}
 	
 	@Command
-	public void saveModule(@BindingParam("elem") Component component) {
+	public void saveModule(@BindingParam(C.ELEM) Component component) {
 		((ModuleMetadata)getObject()).setChangedObjects(getChangedObjects());
 		cmdSaveObject(component);
 		cmdRefresh();
 	}
 	
 	@Command
-	public void exportModule(@BindingParam("elem") Component component) {
+	public void exportModule(@BindingParam(C.ELEM) Component component) {
 		Filedownload.save(moduleService.exportModule(getObject()),
 						  "application/zip",
 						  moduleService.getFileName(getObject()));
 	}
 	
 	@Command
-	public void analyzeModule(@BindingParam("elem") Component elem,
+	public void analyzeModule(@BindingParam(C.ELEM) Component elem,
 			 				  @ContextParam(ContextType.TRIGGER_EVENT) UploadEvent event) {
 		try (InputStream inputStream = getMediaStream(event.getMedia())) {
 			final Module module = moduleService.readModule(inputStream);
@@ -303,7 +304,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	}
 	
 	void importModule(Module module) {
-		Assert.notNull(module, "module");
+		Assert.notNull(module, C.MODULE);
 		
 		moduleService.importModule(module);
 		switch (getViewMode()) {
@@ -329,23 +330,23 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	
 	@Command
 	@Override
-	public void dropToList(@BindingParam("key") String key, 
-						   @BindingParam("list") int listNum, 
-						   @BindingParam("item") SystemObject item) {
+	public void dropToList(@BindingParam(C.KEY) String key, 
+						   @BindingParam(C.LIST) int listNum, 
+						   @BindingParam(C.ITEM) SystemObject item) {
 		super.dropToList(key, listNum, item);
 	}
 	
 	@Command
 	@Override
-	public void insertToList(@BindingParam("key") String key,
-							 @BindingParam("list") int listNum,
-							 @BindingParam("base") SystemObject base,
-							 @BindingParam("item") SystemObject item) {
+	public void insertToList(@BindingParam(C.KEY) String key,
+							 @BindingParam(C.LIST) int listNum,
+							 @BindingParam(C.BASE) SystemObject base,
+							 @BindingParam(C.ITEM) SystemObject item) {
 		super.insertToList(key, listNum, base, item);
 	}
 	
 	@GlobalCommand
-	public void globalRefreshObject(@BindingParam("param") Long objectId) {
+	public void globalRefreshObject(@BindingParam(C.PARAM) Long objectId) {
 		refreshObject(objectId);
 	}
 	
@@ -359,32 +360,46 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 		switch (key) {
 			case DBOBJECTS:
 				return getListManagerSourceDBObject(listNum);
+				
 			case DATASOURCES:
 				return getListManagerSourceDataSource(listNum);
+				
 			case ENTITIES:
 				return getListManagerSourceEntity(listNum);
+				
 			case FILTERS:
 				return getListManagerSourceFilter(listNum);
+				
 			case TRANSFORMERS:
 				return getListManagerSourceTransformer(listNum);
+				
 			case TRANSFERS:
 				return getListManagerSourceTransfer(listNum);
+				
 			case FORMS:
 				return getListManagerSourceForm(listNum);
+				
 			case MENUS:
 				return getListManagerSourceMenu(listNum);
+				
 			case TASKS:
 				return getListManagerSourceTask(listNum);
+				
 			case REPORTS:
 				return getListManagerSourceReport(listNum);
+				
 			case RESTS:
 				return getListManagerSourceRest(listNum);
+				
 			case CUSTOMCODES:
 				return getListManagerSourceCustomCode(listNum);
+				
 			case CUSTOMLIBS:
 				return getListManagerSourceCustomLib(listNum);
+				
 			case USERGROUPS:
 				return getListManagerSourceUserGroup(listNum);
+				
 			default:
 				throw new IllegalStateException("unknown list manager key: " + key);
 		}

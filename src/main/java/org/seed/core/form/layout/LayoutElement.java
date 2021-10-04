@@ -182,14 +182,14 @@ public final class LayoutElement {
 	}
 	
 	public LayoutElement setClass(String className) {
-		Assert.notNull(className, "className");
+		Assert.notNull(className, C.CLASSNAME);
 		
 		setAttribute(LayoutElementAttributes.A_CLASS, className);
 		return this;
 	}
 	
 	public LayoutElement setIcon(String icon) {
-		Assert.notNull(icon, "icon");
+		Assert.notNull(icon, C.ICON);
 		
 		setAttribute(LayoutElementAttributes.A_ICONSCLASS, icon + " alpha-icon-lg");
 		return this;

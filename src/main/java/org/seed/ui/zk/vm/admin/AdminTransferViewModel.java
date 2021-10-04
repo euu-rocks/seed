@@ -19,6 +19,7 @@ package org.seed.ui.zk.vm.admin;
 
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.data.SystemObject;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityService;
@@ -67,7 +68,7 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	private TransferElement element;
 	
 	public AdminTransferViewModel() {
-		super(Authorisation.ADMIN_ENTITY, "transfer",
+		super(Authorisation.ADMIN_ENTITY, C.TRANSFER,
 			  "/admin/transfer/transferlist.zul", 
 			  "/admin/transfer/transfer.zul",
 			  "/admin/transfer/newtransfer.zul");
@@ -99,13 +100,13 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	
 	@Init
 	public void init(@ContextParam(ContextType.VIEW) Component view,
-					 @ExecutionArgParam("param") Object object) {
+					 @ExecutionArgParam(C.PARAM) Object object) {
 		super.init(object, view);
 	}
 	
 	@Override
 	protected void initFilters() {
-		final ListFilter<Transfer> filterEntity = getFilter(FILTERGROUP_LIST, "entity");
+		final ListFilter<Transfer> filterEntity = getFilter(FILTERGROUP_LIST, C.ENTITY);
 		filterEntity.setValueFunction(o -> o.getEntity().getName());
 		for (Transfer transfer : getObjectList()) {
 			filterEntity.addValue(transfer.getEntity().getName());
@@ -130,7 +131,7 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	}
 	
 	@Command
-	public void createTransfer(@BindingParam("elem") Component elem) {
+	public void createTransfer(@BindingParam(C.ELEM) Component elem) {
 		cmdInitObject(elem, window);
 	}
 	
@@ -160,17 +161,17 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	}
 	
 	@Command
-	public void refreshTransfer(@BindingParam("elem") Component component) {
+	public void refreshTransfer(@BindingParam(C.ELEM) Component component) {
 		cmdRefresh();
 	}
 	
 	@Command
-	public void deleteTransfer(@BindingParam("elem") Component component) {
+	public void deleteTransfer(@BindingParam(C.ELEM) Component component) {
 		cmdDeleteObject(component);
 	}
 	
 	@Command
-	public void saveTransfer(@BindingParam("elem") Component component) {
+	public void saveTransfer(@BindingParam(C.ELEM) Component component) {
 		adjustLists(getObject().getElements(), getListManagerList(ELEMENTS, LIST_SELECTED));
 		
 		cmdSaveObject(component);
@@ -184,7 +185,7 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	
 	@Command
 	public void importTransfer(@ContextParam(ContextType.BIND_CONTEXT) BindContext ctx,
-							   @BindingParam("elem") Component component) {
+							   @BindingParam(C.ELEM) Component component) {
 		showDialog("/admin/transfer/importdialog.zul", new TransferDialogParameter(this));
 	}
 	
@@ -199,28 +200,28 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	}
 	
 	@Command
-	@SmartNotifyChange("element")
-	public void dropToElementList(@BindingParam("item") TransferElement item,
-								  @BindingParam("list") int listNum) {
+	@SmartNotifyChange(C.ELEMENT)
+	public void dropToElementList(@BindingParam(C.ITEM) TransferElement item,
+								  @BindingParam(C.LIST) int listNum) {
 		super.dropToList(ELEMENTS, listNum, item);
-		if (listNum == LIST_AVAILABLE && item == element) {
+		if (item == element && listNum == LIST_AVAILABLE) {
 			this.element = null;
 		}
 	}
 	
 	@Command
-	@SmartNotifyChange("element")
-	public void insertToElementList(@BindingParam("base") TransferElement base,
-				  				    @BindingParam("item") TransferElement item,
-				  				    @BindingParam("list") int listNum) {
+	@SmartNotifyChange(C.ELEMENT)
+	public void insertToElementList(@BindingParam(C.BASE) TransferElement base,
+				  				    @BindingParam(C.ITEM) TransferElement item,
+				  				    @BindingParam(C.LIST) int listNum) {
 		super.insertToList(ELEMENTS, listNum, base, item);
-		if (listNum == LIST_AVAILABLE && item == element) {
+		if (item == element && listNum == LIST_AVAILABLE) {
 			this.element = null;
 		}
 	}
 	
 	@GlobalCommand
-	public void globalRefreshObject(@BindingParam("param") Long objectId) {
+	public void globalRefreshObject(@BindingParam(C.PARAM) Long objectId) {
 		refreshObject(objectId);
 	}
 

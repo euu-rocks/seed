@@ -17,6 +17,7 @@
  */
 package org.seed.core.customcode;
 
+import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
@@ -29,7 +30,7 @@ public class CustomCodeValidator extends AbstractSystemEntityValidator<CustomCod
 	
 	@Override
 	public void validateSave(CustomCode code) throws ValidationException {
-		Assert.notNull(code, "code");
+		Assert.notNull(code, C.CODE);
 		final ValidationErrors errors = new ValidationErrors();
 		
 		if (isEmpty(code.getName())) {

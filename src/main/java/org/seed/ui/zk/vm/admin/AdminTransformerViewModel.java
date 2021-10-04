@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.application.ContentObject;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.data.SystemObject;
@@ -88,7 +89,7 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	private TransformerPermission permission;
 	
 	public AdminTransformerViewModel() {
-		super(Authorisation.ADMIN_ENTITY, "transformer",
+		super(Authorisation.ADMIN_ENTITY, C.TRANSFORMER,
 			  "/admin/transform/transformerlist.zul", 
 			  "/admin/transform/transformer.zul",
 			  "/admin/transform/newtransformer.zul");
@@ -96,7 +97,7 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 
 	@Init
 	public void init(@ContextParam(ContextType.VIEW) Component view,
-					 @ExecutionArgParam("param") Object object) {
+					 @ExecutionArgParam(C.PARAM) Object object) {
 		super.init(object, view);
 	}
 	
@@ -218,7 +219,7 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	}
 	
 	@Command
-	@SmartNotifyChange("nested")
+	@SmartNotifyChange(C.NESTED)
 	public void selectNestedElements() {
 		if (nested == null && !ObjectUtils.isEmpty(nesteds)) {
 			nested = nesteds.get(0);
@@ -249,7 +250,7 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	}
 	
 	@Command
-	public void createTransformer(@BindingParam("elem") Component elem) {
+	public void createTransformer(@BindingParam(C.ELEM) Component elem) {
 		cmdInitObject(elem, window);
 	}
 	
@@ -259,7 +260,7 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	} 
 	
 	@Command
-	@NotifyChange({"element", "elements"})
+	@NotifyChange({C.ELEMENT, "elements"})
 	public void newElement() {
 		element = new TransformerElement();
 		element.setTransformer(getObject());
@@ -268,7 +269,7 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	}
 	
 	@Command
-	@NotifyChange({"element", "elements"})
+	@NotifyChange({C.ELEMENT, "elements"})
 	public void removeElement() {
 		elements.remove(element);
 		element = null;
@@ -276,7 +277,7 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	}
 	
 	@Command
-	@NotifyChange({"nested", "nesteds"})
+	@NotifyChange({C.NESTED, "nesteds"})
 	public void newNested() {
 		nested = new NestedTransformer();
 		nesteds.add(nested);
@@ -284,7 +285,7 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	}
 	
 	@Command
-	@NotifyChange({"nested", "nesteds"})
+	@NotifyChange({C.NESTED, "nesteds"})
 	public void removeNested() {
 		nesteds.remove(nested);
 		nested = null;
@@ -292,7 +293,7 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	}
 	
 	@Command
-	@NotifyChange({"nested", "nestedElement"})
+	@NotifyChange({C.NESTED, "nestedElement"})
 	public void newNestedElement() {
 		nestedElement = new TransformerElement();
 		nestedElement.setTransformer(getObject());
@@ -301,7 +302,7 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	}
 	
 	@Command
-	@NotifyChange({"nested", "nestedElement"})
+	@NotifyChange({C.NESTED, "nestedElement"})
 	public void removeNestedElement() {
 		nested.removeElement(nestedElement);
 		nestedElement = null;
@@ -309,7 +310,7 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	}
 	
 	@Command
-	@NotifyChange("function")
+	@NotifyChange(C.FUNCTION)
 	public void newFunction() {
 		function = transformerService.createFunction(getObject());
 		notifyObjectChange(FUNCTIONS);
@@ -317,8 +318,8 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	}
 	
 	@Command
-	@NotifyChange("function")
-	public void removeFunction(@BindingParam("elem") Component component) {
+	@NotifyChange(C.FUNCTION)
+	public void removeFunction(@BindingParam(C.ELEM) Component component) {
 		getObject().removeFunction(function);
 		function = null;
 		notifyObjectChange(FUNCTIONS);
@@ -326,17 +327,17 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	}
 	
 	@Command
-	public void refreshTransformer(@BindingParam("elem") Component component) {
+	public void refreshTransformer(@BindingParam(C.ELEM) Component component) {
 		cmdRefresh();
 	}
 	
 	@Command
-	public void deleteTransformer(@BindingParam("elem") Component component) {
+	public void deleteTransformer(@BindingParam(C.ELEM) Component component) {
 		cmdDeleteObject(component);
 	}
 	
 	@Command
-	public void saveTransformer(@BindingParam("elem") Component component) {
+	public void saveTransformer(@BindingParam(C.ELEM) Component component) {
 		adjustLists(getObject().getPermissions(), getListManagerList(PERMISSIONS, LIST_SELECTED));
 		adjustLists(getObject().getStatus(), getListManagerList(STATUS, LIST_SELECTED));
 		transformerService.adjustElements(getObject(), elements, nesteds);
@@ -352,39 +353,39 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	}
 	
 	@Command
-	public void dropToPermissionList(@BindingParam("item") TransformerPermission item,
-									 @BindingParam("list") int listNum) {
+	public void dropToPermissionList(@BindingParam(C.ITEM) TransformerPermission item,
+									 @BindingParam(C.LIST) int listNum) {
 		dropToList(PERMISSIONS, listNum, item);
 	}
 	
 	@Command
-	public void insertToPermissionList(@BindingParam("base") TransformerPermission base,
-									   @BindingParam("item") TransformerPermission item,
-									   @BindingParam("list") int listNum) {
+	public void insertToPermissionList(@BindingParam(C.BASE) TransformerPermission base,
+									   @BindingParam(C.ITEM) TransformerPermission item,
+									   @BindingParam(C.LIST) int listNum) {
 		insertToList(PERMISSIONS, listNum, base, item);
 	}
 	
 	@Command
-	public void dropToStatusList(@BindingParam("item") EntityStatus item,
-								 @BindingParam("list") int listNum) {
+	public void dropToStatusList(@BindingParam(C.ITEM) EntityStatus item,
+								 @BindingParam(C.LIST) int listNum) {
 		dropToList(STATUS, listNum, item);
 	}
 	
 	@Command
-	public void insertToStatusList(@BindingParam("base") EntityStatus base,
-								   @BindingParam("item") EntityStatus item,
-								   @BindingParam("list") int listNum) {
+	public void insertToStatusList(@BindingParam(C.BASE) EntityStatus base,
+								   @BindingParam(C.ITEM) EntityStatus item,
+								   @BindingParam(C.LIST) int listNum) {
 		insertToList(STATUS, listNum, base, item);
 	}
 	
 	@Command
-	public void swapFunctions(@BindingParam("base") TransformerFunction base,
-							  @BindingParam("item") TransformerFunction item) {
+	public void swapFunctions(@BindingParam(C.BASE) TransformerFunction base,
+							  @BindingParam(C.ITEM) TransformerFunction item) {
 		swapItems(FUNCTIONS, base, item);
 	}
 	
 	@GlobalCommand
-	public void globalRefreshObject(@BindingParam("param") Long objectId) {
+	public void globalRefreshObject(@BindingParam(C.PARAM) Long objectId) {
 		refreshObject(objectId);
 	}
 	

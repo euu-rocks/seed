@@ -17,6 +17,7 @@
  */
 package org.seed.ui.zk.vm.admin;
 
+import org.seed.C;
 import org.seed.core.data.DataException;
 import org.seed.core.data.dbobject.DBObject;
 import org.seed.core.data.dbobject.DBObjectService;
@@ -64,13 +65,13 @@ public class AdminDBObjectViewModel extends AbstractAdminViewModel<DBObject> {
 	
 	@Init
 	public void init(@ContextParam(ContextType.VIEW) Component view,
-					 @ExecutionArgParam("param") Object object) {
+					 @ExecutionArgParam(C.PARAM) Object object) {
 		super.init(object, view);
 	}
 	
 	@Override
 	protected void initFilters() {
-		final ListFilter<DBObject> filterType = getFilter(FILTERGROUP_LIST, "type");
+		final ListFilter<DBObject> filterType = getFilter(FILTERGROUP_LIST, C.TYPE);
 		filterType.setValueFunction(o -> getEnumLabel(o.getType()));
 		for (DBObject dbObject : getObjectList()) {
 			filterType.addValue(getEnumLabel(dbObject.getType()));
@@ -94,7 +95,7 @@ public class AdminDBObjectViewModel extends AbstractAdminViewModel<DBObject> {
 	}
 	
 	@Command
-	public void createDBObject(@BindingParam("elem") Component elem) {
+	public void createDBObject(@BindingParam(C.ELEM) Component elem) {
 		cmdInitObject(elem, window);
 	}
 	
@@ -109,18 +110,18 @@ public class AdminDBObjectViewModel extends AbstractAdminViewModel<DBObject> {
 	}
 	
 	@Command
-	public void refreshDBObject(@BindingParam("elem") Component component) {
+	public void refreshDBObject(@BindingParam(C.ELEM) Component component) {
 		cmdRefresh();
 	}
 	
 	@Command
-	public void deleteDBObject(@BindingParam("elem") Component component) {
+	public void deleteDBObject(@BindingParam(C.ELEM) Component component) {
 		cmdDeleteObject(component);
 	}
 	
 	@Command
 	@SmartNotifyChange("errorMessage")
-	public void saveDBObject(@BindingParam("elem") Component component) {
+	public void saveDBObject(@BindingParam(C.ELEM) Component component) {
 		try {
 			cmdSaveObject(component);
 			errorMessage = null;

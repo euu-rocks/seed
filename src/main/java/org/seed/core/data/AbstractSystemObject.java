@@ -178,9 +178,7 @@ public abstract class AbstractSystemObject implements SystemObject {
 		Assert.notNull(predicate, "predicate");
 		
 		return list != null 
-				? list.stream()
-					  .filter(predicate)
-					  .collect(Collectors.toList()) 
+				? list.stream().filter(predicate).collect(Collectors.toList()) 
 				: Collections.emptyList();
 	}
 	

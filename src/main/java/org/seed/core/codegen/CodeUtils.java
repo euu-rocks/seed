@@ -66,7 +66,7 @@ public abstract class CodeUtils {
 	}
 	
 	public static boolean isJarFile(String fileName) {
-		return fileName != null && fileName.endsWith(".jar");
+		return fileName != null && fileName.toLowerCase().endsWith(".jar");
 	}
 	
 	public static boolean isSubPackage(String path, String packagePath) {
@@ -110,7 +110,7 @@ public abstract class CodeUtils {
 	}
 	
 	public static String extractQualifiedName(String code) {
-		Assert.notNull(code, "code");
+		Assert.notNull(code, C.CODE);
 		
 		// extract package name
 		int startIdx = code.indexOf("package ");
@@ -169,13 +169,13 @@ public abstract class CodeUtils {
 	}
 	
 	public static String getSourceFileName(String qualifiedName) {
-		Assert.notNull(qualifiedName, "qualifiedName");
+		Assert.notNull(qualifiedName, C.QUALIFIEDNAME);
 		
 		return qualifiedName.replace(".", File.separator) + Kind.SOURCE.extension;
 	}
 	
 	public static int getLineNumber(String code, Pattern pattern) {
-		Assert.notNull(code, "code");
+		Assert.notNull(code, C.CODE);
 		Assert.notNull(pattern, "pattern");
 		
 		int line = 0;

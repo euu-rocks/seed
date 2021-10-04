@@ -339,7 +339,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	@SuppressWarnings("unchecked")
 	private void createModuleFilter() {
 		final ListFilter<? extends ApplicationEntity> filterModule = 
-			(ListFilter<ApplicationEntity>) getFilter(FILTERGROUP_LIST, "module");
+			(ListFilter<ApplicationEntity>) getFilter(FILTERGROUP_LIST, C.MODULE);
 		filterModule.setValueFunction(o -> o.getModule() != null 
 											? o.getModule().getName() 
 											: null);
@@ -562,7 +562,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 				case LIST:
 					object = null;
 					objectList = null;
-					notifyChange("object", OBJECT_LIST);
+					notifyChange(C.OBJECT, OBJECT_LIST);
 					break;
 					
 				default:
@@ -693,7 +693,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	}
 	
 	private void confirmDirty(String action) {
-		Assert.notNull(action, "action");
+		Assert.notNull(action, C.ACTION);
 		
 		confirm("question.dirty", null, action);
 	}

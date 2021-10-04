@@ -55,15 +55,16 @@ abstract class AbstractReportGenerator implements ReportGenerator {
 	
 	@Override
 	public void addDataSourceResult(ReportDataSource dataSource, DataSourceResult result) {
-		Assert.notNull(dataSource, "dataSource");
-		Assert.notNull(result, "result");
+		Assert.notNull(dataSource, C.DATASOURCE);
+		Assert.notNull(result, C.RESULT);
 		
 		resultMap.put(dataSource.getId(), result);
 	}
 	
 	protected DataSourceResult getDataSourceResult(ReportDataSource dataSource) {
-		Assert.notNull(dataSource, "dataSource");
-		Assert.state(resultMap.containsKey(dataSource.getId()), "result not available");
+		Assert.notNull(dataSource, C.DATASOURCE);
+		Assert.state(resultMap.containsKey(dataSource.getId()), 
+					 "result not available for datasource " + dataSource.getId());
 		
 		return resultMap.get(dataSource.getId());
 	}
@@ -102,7 +103,7 @@ abstract class AbstractReportGenerator implements ReportGenerator {
 	}
 	
 	protected byte[] getBytes() {
-		Assert.state(outputStream != null, "OutputStream not available");
+		Assert.stateAvailable(outputStream, "output stream");
 		return outputStream.toByteArray();
 	}
 	

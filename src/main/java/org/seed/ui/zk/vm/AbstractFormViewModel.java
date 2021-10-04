@@ -158,7 +158,7 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 	
 	public SubForm getSubForm(String nestedEntityUid) {
 		final SubForm subForm = form.getSubFormByNestedEntityUid(nestedEntityUid);
-		Assert.state(subForm != null, "subForm not available. nestedUid:" + nestedEntityUid);
+		Assert.stateAvailable(subForm, "subForm for nested " + nestedEntityUid);
 		return subForm;
 	}
 	
@@ -203,7 +203,7 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 		form = formParameter.form;
 		tab = formParameter.getTab();
 		Assert.stateAvailable(form, C.FORM);
-		Assert.stateAvailable(tab, "tab");
+		Assert.stateAvailable(tab, C.TAB);
 	}
 	
 	protected void showListForm() {

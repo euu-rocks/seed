@@ -20,6 +20,7 @@ package org.seed.ui.zk.vm;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.data.ValidationException;
 import org.seed.core.data.datasource.DataSourceParameter;
 import org.seed.core.report.Report;
@@ -52,8 +53,8 @@ public class SelectReportFormatViewModel extends AbstractViewModel  {
 	
 	@Init
     public void init(@ContextParam(ContextType.VIEW) Component view,
-    				 @ExecutionArgParam("param") SelectReportFormatParameter param) {
-		Assert.notNull(param, "param");
+    				 @ExecutionArgParam(C.PARAM) SelectReportFormatParameter param) {
+		Assert.notNull(param, C.PARAM);
 		
 		report = param.report;
 		parentVM = param.parentVM;
@@ -96,7 +97,7 @@ public class SelectReportFormatViewModel extends AbstractViewModel  {
 	}
 	
 	@Command
-	public void selectFormat(@BindingParam("elem") Component elem) {
+	public void selectFormat(@BindingParam(C.ELEM) Component elem) {
 		try {
 			parentVM.downloadReport(report, format);
 			window.detach();

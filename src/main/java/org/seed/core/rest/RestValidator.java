@@ -17,6 +17,7 @@
  */
 package org.seed.core.rest;
 
+import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
@@ -33,7 +34,7 @@ public class RestValidator extends AbstractSystemEntityValidator<Rest> {
 
 	@Override
 	public void validateSave(Rest rest) throws ValidationException {
-		Assert.notNull(rest, "rest");
+		Assert.notNull(rest, C.REST);
 		final ValidationErrors errors = new ValidationErrors();
 		
 		// name
@@ -107,11 +108,12 @@ public class RestValidator extends AbstractSystemEntityValidator<Rest> {
 	
 	private static boolean isRestNameAllowed(String name) {
 		return isNameAllowed(name) &&					// prevent illegal package name
-				!(name.equalsIgnoreCase("entity") 	 || // prevent ambiguous mappings
-				  name.equalsIgnoreCase("filter") 	 ||
-				  name.equalsIgnoreCase("task")   	 ||
-				  name.equalsIgnoreCase("transform") ||
-				  name.equalsIgnoreCase("object"));
+				!(name.equalsIgnoreCase(C.ENTITY) 	 || // prevent ambiguous mappings
+				  name.equalsIgnoreCase(C.FILTER) 	 ||
+				  name.equalsIgnoreCase(C.TASK)   	 ||
+				  name.equalsIgnoreCase(C.OBJECT))   ||
+				  name.equalsIgnoreCase("transform");
+				  
 		
 	}
 	

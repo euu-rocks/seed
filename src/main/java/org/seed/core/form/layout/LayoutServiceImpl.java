@@ -276,7 +276,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		
 		final LayoutElement elemCell = getElementByContextId(layoutRoot, contextId);
 		elemCell.removeAttribute(LayoutElementAttributes.A_ALIGN);
-		elemCell.removeAttribute("text");
+		elemCell.removeAttribute(C.TEXT);
 		elemCell.addChild(createLabel(text));
 		redecorateLayout(form, layoutRoot);
 	}

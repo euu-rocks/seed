@@ -18,8 +18,8 @@
 package org.seed.core.codegen.compile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -32,7 +32,7 @@ final class CustomJarInfo {
 	
 	private final CustomJar customJar;
 	
-	private final List<String> packageNames;
+	private final Set<String> packageNames;
 
 	CustomJarInfo(CustomJar customJar) {
 		Assert.notNull(customJar, "customJar");
@@ -51,14 +51,14 @@ final class CustomJarInfo {
 		return packageNames.contains(packageName);
 	}
 	
-	private static List<String> extractPackageNames(CustomJar customJar) {
-		final List<String> packageNames = new ArrayList<>();
+	private static Set<String> extractPackageNames(CustomJar customJar) {
+		final Set<String> packageNames = new HashSet<>();
 		try (ZipInputStream zis = createZipStream(customJar.getContent())) {
 			ZipEntry entry;
 			while ((entry = zis.getNextEntry()) != null) {
                 if (entry.isDirectory() && !entry.getName().startsWith("META-INF")) {
                 	packageNames.add(entry.getName()
-                						  .substring(0, entry.getName().length() - 1) // remove last /
+                						  .substring(0, entry.getName().length() - 1)
                 						  .replace('/', '.'));
 				}
             }

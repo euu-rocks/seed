@@ -149,7 +149,7 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	}
 	
 	protected final boolean isDoubleClick(String key) {
-		Assert.notNull(key, "key");
+		Assert.notNull(key, C.KEY);
 		
 		if (mapDblClickDetector == null) {
 			mapDblClickDetector = new ConcurrentHashMap<>();
@@ -191,13 +191,13 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	}
 	
 	protected static void showDialog(String view, Object param) {
-		Assert.notNull(view, "view");
+		Assert.notNull(view, C.VIEW);
 		
 		createComponents(ZUL_PATH + view, param);
 	}
 	
 	protected static void showView(String view, Object param) {
-		Assert.notNull(view, "view");
+		Assert.notNull(view, C.VIEW);
 	
 		globalCommand("globalShowView", new ViewParameterMap(view, param));
 	}

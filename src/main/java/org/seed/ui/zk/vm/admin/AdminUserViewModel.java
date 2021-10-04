@@ -20,6 +20,7 @@ package org.seed.ui.zk.vm.admin;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.data.SystemObject;
 import org.seed.core.user.Authorisation;
 import org.seed.core.user.User;
@@ -41,13 +42,13 @@ public class AdminUserViewModel extends AbstractAdminViewModel<User> {
 	private static final String USERGROUPS = "usergroups";
 	
 	public AdminUserViewModel() {
-		super(Authorisation.ADMIN_USER, "user",
+		super(Authorisation.ADMIN_USER, C.USER,
 			  "/admin/user/userlist.zul", 
 			  "/admin/user/user.zul");
 	}
 	
 	@Init
-	public void init(@ExecutionArgParam("param") Object object) {
+	public void init(@ExecutionArgParam(C.PARAM) Object object) {
 		super.init(object, null);
 	}
 	
@@ -72,22 +73,22 @@ public class AdminUserViewModel extends AbstractAdminViewModel<User> {
 	}
 	
 	@Command
-	public void refreshUser(@BindingParam("elem") Component elem) {
+	public void refreshUser(@BindingParam(C.ELEM) Component elem) {
 		cmdRefresh();
 	}
 	
 	@Command
-	public void deleteUser(@BindingParam("elem") Component elem) {
+	public void deleteUser(@BindingParam(C.ELEM) Component elem) {
 		cmdDeleteObject(elem);
 	}
 	
 	@Command
-	public void setPwd(@BindingParam("elem") Component elem) {
+	public void setPwd(@BindingParam(C.ELEM) Component elem) {
 		showDialog("/admin/user/pwddialog.zul", new PwdDialogParameter(this, getObject()));
 	}
 	
 	@Command
-	public void saveUser(@BindingParam("elem") Component elem) {
+	public void saveUser(@BindingParam(C.ELEM) Component elem) {
 		
 		adjustLists(getObject().getUserGroups(), getListManagerList(USERGROUPS, LIST_SELECTED));
 		
@@ -101,20 +102,20 @@ public class AdminUserViewModel extends AbstractAdminViewModel<User> {
 	}
 	
 	@Command
-	public void dropToGroupList(@BindingParam("item") UserGroup item,
-								@BindingParam("list") int listNum) {
+	public void dropToGroupList(@BindingParam(C.ITEM) UserGroup item,
+								@BindingParam(C.LIST) int listNum) {
 		super.dropToList(USERGROUPS, listNum, item);
 	}
 	
 	@Command
-	public void insertToGroupList(@BindingParam("base") UserGroup base,
-								  @BindingParam("item") UserGroup item,
-								  @BindingParam("list") int listNum) {
+	public void insertToGroupList(@BindingParam(C.BASE) UserGroup base,
+								  @BindingParam(C.ITEM) UserGroup item,
+								  @BindingParam(C.LIST) int listNum) {
 		super.insertToList(USERGROUPS, listNum, base, item);
 	}
 	
 	@GlobalCommand
-	public void globalRefreshObject(@BindingParam("param") Long objectId) {
+	public void globalRefreshObject(@BindingParam(C.PARAM) Long objectId) {
 		refreshObject(objectId);
 	}
 	

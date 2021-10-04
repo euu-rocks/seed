@@ -96,9 +96,9 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 					// create defaut user
 					final UserMetadata user = (UserMetadata) createInstance(null);
 					user.setEnabled(true);
-					user.setName("seed");
+					user.setName(C.SEED);
 					user.setEmail("seed@seed.org");
-					user.setPassword(passwordEncoder.encode("seed"));
+					user.setPassword(passwordEncoder.encode(C.SEED));
 					user.getUserGroups().add(groupAdmin);
 					saveObject(user, session);
 					log.info("Default user 'seed' created.");

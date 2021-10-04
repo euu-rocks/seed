@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.data.ValidationError;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormField;
@@ -57,8 +58,8 @@ public class SelectColumnsViewModel extends AbstractViewModel {
 	
 	@Init
     public void init(@ContextParam(ContextType.VIEW) Component view,
-    				 @ExecutionArgParam("param") AbstractFormViewModel param) {
-		Assert.notNull(param, "param");
+    				 @ExecutionArgParam(C.PARAM) AbstractFormViewModel param) {
+		Assert.notNull(param, C.PARAM);
 		
 		parentVM = param;
 		final Form form = parentVM.getForm();
@@ -94,26 +95,26 @@ public class SelectColumnsViewModel extends AbstractViewModel {
 	
 	@Command
 	@NotifyChange({"availableFields", "selectedFields"})
-	public void dropToList(@BindingParam("item") FormField field, 
-						   @BindingParam("list") int listNum) {
-		Assert.notNull(field, "field");
+	public void dropToList(@BindingParam(C.ITEM) FormField field, 
+						   @BindingParam(C.LIST) int listNum) {
+		Assert.notNull(field, C.FIELD);
 		
 		listManager.drop(field, listNum);
 	}
 	
 	@Command
 	@NotifyChange({"availableFields", "selectedFields"})
-	public void insertToList(@BindingParam("base") FormField base, 
-							 @BindingParam("item") FormField field, 
-							 @BindingParam("list") int listNum) {
-		Assert.notNull(base, "base");
-		Assert.notNull(field, "field");
+	public void insertToList(@BindingParam(C.BASE) FormField base, 
+							 @BindingParam(C.ITEM) FormField field, 
+							 @BindingParam(C.LIST) int listNum) {
+		Assert.notNull(base, C.BASE);
+		Assert.notNull(field, C.FIELD);
 		
 		listManager.insert(base, field, listNum);
 	}
 	
 	@Command
-	public void selectColumns(@BindingParam("elem") Component elem) {
+	public void selectColumns(@BindingParam(C.ELEM) Component elem) {
 		// at least one column must be selected
 		final List<FormField> selectedFields = getFields(LIST_SELECTED);
 		if (selectedFields.isEmpty()) {

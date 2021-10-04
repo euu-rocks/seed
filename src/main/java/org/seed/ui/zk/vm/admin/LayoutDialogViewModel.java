@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.SystemObject;
 import org.seed.core.data.ValidationError;
@@ -144,8 +145,8 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	
 	@Init
     public void init(@ContextParam(ContextType.VIEW) Component view,
-    				 @ExecutionArgParam("param") LayoutDialogParameter param) {
-		Assert.notNull(param, "param");
+    				 @ExecutionArgParam(C.PARAM) LayoutDialogParameter param) {
+		Assert.notNull(param, C.PARAM);
 		parameter = param;
 		wireComponents(view);
 		
@@ -181,7 +182,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 				element = getContextElement().getGrid();
 				
 				if (element.parentIs(LayoutElement.GROUPBOX)) {
-					text = element.getParent().getChild(LayoutElement.CAPTION).getAttribute("label");
+					text = element.getParent().getChild(LayoutElement.CAPTION).getAttribute(C.LABEL);
 				}
 				
 				columnProperties = new ArrayList<>();
@@ -194,6 +195,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 			case "editborderlayout":
 				element = getContextElement().getParent();
 				Assert.state(element.is(LayoutElement.BORDERLAYOUT), "element is no borderlayout");
+				
 				borderLayoutProperties = new BorderLayoutProperties(element);
 				layoutAreaProperties = borderLayoutProperties.getNorth();
 				break;
@@ -206,18 +208,20 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 			case "edittext":
 				element = getContextElement();
 				Assert.state(element.is(LayoutElement.LABEL), "element is no label");
+				
 				if (element.hasChildren()) {
 					text = element.getChildAt(0).getText();
 				}
 				else {
-					text = element.getAttribute("value");
+					text = element.getAttribute(C.VALUE);
 				}
 				break;
 				
 			case "editfield":
 				element = getContextElement();
 				final String fieldId = element.getId();
-				Assert.state(fieldId != null, "field id not available");
+				Assert.stateAvailable(fieldId, "field id");
+				
 				entityField = parameter.form.getEntity().getFieldByUid(fieldId);
 				final FormFieldExtra fieldExtra = parameter.form.getFieldExtra(entityField);
 				if (fieldExtra != null) {
@@ -232,9 +236,10 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 			case "editsubform":
 				element = getContextElement();
 				final String nestedId = element.getParent().getParent().getId();
-				Assert.state(nestedId != null, "nested id not available");
+				Assert.stateAvailable(nestedId, "nested id");
 				final SubForm subForm = parameter.form.getSubFormByNestedEntityUid(nestedId);
-				Assert.state(subForm != null, "sub form not available: " + nestedId);
+				Assert.stateAvailable(subForm, "sub form for nested " + nestedId);
+				
 				nestedEntity = subForm.getNestedEntity();
 				subFormProperties = new SubFormProperties(subForm);
 				break;
@@ -528,8 +533,8 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	
 	@Command
 	@SmartNotifyChange("subFormColumn")
-	public void dropToFieldList(@BindingParam("item") SubFormColumn item,
-								@BindingParam("list") int listNum) {
+	public void dropToFieldList(@BindingParam(C.ITEM) SubFormColumn item,
+								@BindingParam(C.LIST) int listNum) {
 		super.dropToList(FIELDS, listNum, item);
 		if (listNum == LIST_AVAILABLE && item == subFormColumn) {
 			subFormColumn = null;
@@ -538,9 +543,9 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	
 	@Command
 	@SmartNotifyChange("subFormColumn")
-	public void insertToFieldList(@BindingParam("base") SubFormColumn base,
-			   					  @BindingParam("item") SubFormColumn item,
-			   					  @BindingParam("list") int listNum) {
+	public void insertToFieldList(@BindingParam(C.BASE) SubFormColumn base,
+			   					  @BindingParam(C.ITEM) SubFormColumn item,
+			   					  @BindingParam(C.LIST) int listNum) {
 		super.insertToList(FIELDS, listNum, base, item);
 		if (listNum == LIST_AVAILABLE && item == subFormColumn) {
 			subFormColumn = null;
@@ -549,8 +554,8 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	
 	@Command
 	@SmartNotifyChange("subFormAction")
-	public void dropToActionList(@BindingParam("item") SubFormAction item,
-								 @BindingParam("list") int listNum) {
+	public void dropToActionList(@BindingParam(C.ITEM) SubFormAction item,
+								 @BindingParam(C.LIST) int listNum) {
 		super.dropToList(ACTIONS, listNum, item);
 		if (listNum == LIST_AVAILABLE && item == subFormAction) {
 			subFormAction = null;
@@ -559,9 +564,9 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	
 	@Command
 	@SmartNotifyChange("subFormAction")
-	public void insertToActionList(@BindingParam("base") SubFormAction base,
-								   @BindingParam("item") SubFormAction item,
-								   @BindingParam("list") int listNum) {
+	public void insertToActionList(@BindingParam(C.BASE) SubFormAction base,
+								   @BindingParam(C.ITEM) SubFormAction item,
+								   @BindingParam(C.LIST) int listNum) {
 		super.insertToList(ACTIONS, listNum, base, item);
 		if (listNum == LIST_AVAILABLE && item == subFormAction) {
 			subFormAction = null;
@@ -569,7 +574,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
-	public void addField(@BindingParam("elem") Component elem) {
+	public void addField(@BindingParam(C.ELEM) Component elem) {
 		try {
 			layoutService.addField(parameter.form, entityField, new LabelProperties(orient, align, valign),
 					   			   width, height, parameter.layoutRoot, parameter.contextId);
@@ -586,7 +591,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
-	public void applyProperties(@BindingParam("elem") Component elem) {
+	public void applyProperties(@BindingParam(C.ELEM) Component elem) {
 		try {
 			if (element.is(LayoutElement.LABEL)) {
 				layoutService.setLabelText(element, text);
@@ -629,7 +634,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
-	public void applyGridProperties(@BindingParam("elem") Component elem) {
+	public void applyGridProperties(@BindingParam(C.ELEM) Component elem) {
 		try {
 			layoutService.setGridTitle(parameter.form, parameter.layoutRoot, element, text);
 			final LayoutElement elemColumns = element.getChild(LayoutElement.COLUMNS);
@@ -645,7 +650,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
-	public void applyBorderLayoutProperties(@BindingParam("elem") Component elem) {
+	public void applyBorderLayoutProperties(@BindingParam(C.ELEM) Component elem) {
 		try {
 			layoutService.applyBorderLayoutProperties(parameter.form, parameter.layoutRoot, 
 													  element, borderLayoutProperties);
@@ -657,7 +662,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
-	public void applyBorderLayoutAreaProperties(@BindingParam("elem") Component elem) {
+	public void applyBorderLayoutAreaProperties(@BindingParam(C.ELEM) Component elem) {
 		try {
 			layoutService.applyBorderLayoutAreaProperties(element, layoutAreaProperties);
 			refreshAndClose();
@@ -668,7 +673,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
-	public void applySubFormProperties(@BindingParam("elem") Component elem) {
+	public void applySubFormProperties(@BindingParam(C.ELEM) Component elem) {
 		adjustLists(subFormProperties.getColumns(), getListManagerList(FIELDS, LIST_SELECTED));
 		adjustLists(subFormProperties.getActions(), getListManagerList(ACTIONS, LIST_SELECTED));
 		layoutService.applySubFormProperties(parameter.form, parameter.layoutRoot, 
@@ -677,7 +682,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
-	public void addText(@BindingParam("elem") Component elem) {
+	public void addText(@BindingParam(C.ELEM) Component elem) {
 		try {
 			layoutService.addText(parameter.form, text, 
 					  			  parameter.layoutRoot, parameter.contextId);
@@ -689,7 +694,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
-	public void addTabbox(@BindingParam("elem") Component elem) {
+	public void addTabbox(@BindingParam(C.ELEM) Component elem) {
 		try {
 			layoutService.addTabbox(parameter.form, text, 
 									parameter.layoutRoot, parameter.contextId);
@@ -701,7 +706,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
-	public void addTab(@BindingParam("elem") Component elem) {
+	public void addTab(@BindingParam(C.ELEM) Component elem) {
 		try {
 			layoutService.addTab(parameter.form, text, 
 								 parameter.layoutRoot, parameter.contextId);
@@ -713,7 +718,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
-	public void addLayout(@BindingParam("elem") Component elem) {
+	public void addLayout(@BindingParam(C.ELEM) Component elem) {
 		try {
 			if (layoutType == null) {
 				throw new ValidationException(new ValidationErrors().addEmptyField("label.layouttype"));
@@ -740,7 +745,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	}
 
 	@Command
-	public void createLayout(@BindingParam("elem") Component elem) {
+	public void createLayout(@BindingParam(C.ELEM) Component elem) {
 		try {
 			if (layoutType == null) {
 				throw new ValidationException(new ValidationError("val.empty.field", "label.layouttype"));
@@ -767,7 +772,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
-	public void addGrid(@BindingParam("elem") Component elem) {
+	public void addGrid(@BindingParam(C.ELEM) Component elem) {
 		try {
 			layoutService.addGrid(parameter.form, gridColumns, gridRows, text,
 								  parameter.layoutRoot, parameter.contextId);
@@ -779,7 +784,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
-	public void addSubForm(@BindingParam("elem") Component elem) {
+	public void addSubForm(@BindingParam(C.ELEM) Component elem) {
 		try {
 			layoutService.addSubForm(parameter.form, nestedEntity, 
 									 parameter.layoutRoot, parameter.contextId);

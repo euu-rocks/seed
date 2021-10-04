@@ -23,6 +23,7 @@ import java.util.Map;
 
 import javax.persistence.OptimisticLockException;
 
+import org.seed.C;
 import org.seed.core.application.setting.Setting;
 import org.seed.core.data.ValidationException;
 import org.seed.ui.zk.vm.AbstractApplicationViewModel;
@@ -76,7 +77,7 @@ public class AdminSettingViewModel extends AbstractApplicationViewModel {
 	}
 	
 	@Command
-	public void saveSettings(@BindingParam("elem") Component component) {
+	public void saveSettings(@BindingParam(C.ELEM) Component component) {
 		try {
 			settingService.saveSettings(settings);
 			showNotification(component, false, "settings.savesuccess");

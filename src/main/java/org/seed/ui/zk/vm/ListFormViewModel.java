@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.seed.C;
 import org.seed.core.data.Cursor;
 import org.seed.core.data.Sort;
 import org.seed.core.data.ValidationException;
@@ -69,7 +70,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	
 	@Init
 	@Override
-	public void init(@ExecutionArgParam("param") FormParameter param) {
+	public void init(@ExecutionArgParam(C.PARAM) FormParameter param) {
 		super.init(param);
 		
 		filterList = filterService.getFilters(getForm().getEntity(), getUser());
@@ -173,7 +174,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	}
 
 	@Command
-	@NotifyChange({"status", "availableStatusList", "transformers"})
+	@NotifyChange({C.STATUS, "availableStatusList", "transformers"})
 	public void selectObject() {
 		if (getForm().getEntity().hasStatus()) {
 			setStatus(getObject().getEntityStatus());
@@ -193,14 +194,14 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	}
 	
 	@Command
-	public void changeStatus(@BindingParam("action") FormAction action,
-							 @BindingParam("elem") Component component) {
+	public void changeStatus(@BindingParam(C.ACTION) FormAction action,
+							 @BindingParam(C.ELEM) Component component) {
 		confirm("question.status", component, action, getStatus().getNumberAndName());
 	}
 	
 	@Command
-	public void callAction(@BindingParam("action") FormAction action,
-						   @BindingParam("elem") Component component) {
+	public void callAction(@BindingParam(C.ACTION) FormAction action,
+						   @BindingParam(C.ELEM) Component component) {
 		
 		switch (action.getType()) {
 			case NEWOBJECT:
@@ -286,7 +287,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 					}
 				}
 				setStatus(getObject().getEntityStatus());
-				notifyChange("status", "availableStatusList", "transformers");
+				notifyChange(C.STATUS, "availableStatusList", "transformers");
 				break;
 			
 			default:

@@ -37,7 +37,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-
+import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.util.Assert;
 import org.seed.core.util.CDATAXmlAdapter;
@@ -197,7 +197,7 @@ public class TaskMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public void addParameter(TaskParameter parameter) {
-		Assert.notNull(parameter, "parameter");
+		Assert.notNull(parameter, C.PARAMETER);
 		
 		if (parameters == null) {
 			parameters = new ArrayList<>();
@@ -208,7 +208,7 @@ public class TaskMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public void removeParameter(TaskParameter parameter) {
-		Assert.notNull(parameter, "parameter");
+		Assert.notNull(parameter, C.PARAMETER);
 		
 		getParameters().remove(parameter);
 	}

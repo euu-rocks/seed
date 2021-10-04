@@ -19,6 +19,7 @@ package org.seed.ui.zk.vm.admin;
 
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.data.SystemObject;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityService;
@@ -60,6 +61,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	private static final String TRANSFORMERS   = "transformers";
 	private static final String PRINTOUTS      = "printouts";
 	private static final String LAYOUT_INCLUDE = "layoutInclude";
+	private static final String CONTEXT_ID     = "contextid"; 
 	
 	@Wire("#newFormWin")
 	private Window window;
@@ -87,7 +89,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	private LayoutElement layoutRoot;
 	
 	public AdminFormViewModel() {
-		super(Authorisation.ADMIN_FORM, "form",
+		super(Authorisation.ADMIN_FORM, C.FORM,
 			  "/admin/form/formlist.zul", 
 			  "/admin/form/form.zul",
 			  "/admin/form/newform.zul");
@@ -95,7 +97,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	
 	@Init
 	public void init(@ContextParam(ContextType.VIEW) Component view,
-					 @ExecutionArgParam("param") Object object) {
+					 @ExecutionArgParam(C.PARAM) Object object) {
 		super.init(object, view);
 	}
 	
@@ -112,7 +114,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	
 	@Override
 	protected void initFilters() {
-		final ListFilter<Form> filterEntity = getFilter(FILTERGROUP_LIST, "entity");
+		final ListFilter<Form> filterEntity = getFilter(FILTERGROUP_LIST, C.ENTITY);
 		filterEntity.setValueFunction(o -> o.getEntity().getName());
 		for (Form form : getObjectList()) {
 			filterEntity.addValue(form.getEntity().getName());
@@ -167,7 +169,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	public String getLayoutInclude() {
-		return "/generated/edit/" + getUserName() + "/" + System.currentTimeMillis();
+		return "/generated/edit/" + getUserName() + '/' + System.currentTimeMillis();
 	}
 	
 	public boolean existTransformers() {
@@ -242,7 +244,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
-	public void refreshForm(@BindingParam("elem") Component component) {
+	public void refreshForm(@BindingParam(C.ELEM) Component component) {
 		cmdRefresh();
 	}
 	
@@ -263,7 +265,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
-	public void saveForm(@BindingParam("elem") Component component) {
+	public void saveForm(@BindingParam(C.ELEM) Component component) {
 		final boolean isCreate = getObject().isNew(); 
 		adjustLists(getObject().getFields(), getListManagerList(FIELDS, LIST_SELECTED));
 		adjustLists(getObject().getActions(), getListManagerList(ACTIONS, LIST_SELECTED));
@@ -282,7 +284,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
-	public void deleteForm(@BindingParam("elem") Component component) {
+	public void deleteForm(@BindingParam(C.ELEM) Component component) {
 		cmdDeleteObject(component);
 	}
 	
@@ -294,7 +296,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	// create dialog ---------------------------------------------------------
 	
 	@Command
-	public void createForm(@BindingParam("elem") Component elem) {
+	public void createForm(@BindingParam(C.ELEM) Component elem) {
 		// set module in options
 		final FormOptions formOptions = getObject().getOptions();
 		if (formOptions != null) {
@@ -311,9 +313,9 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	// common --------------------------------------------------------------
 	
 	@Command
-	@SmartNotifyChange("transformer")
-	public void dropToTransformerList(@BindingParam("item") FormTransformer item,
-									  @BindingParam("list") int listNum) {
+	@SmartNotifyChange(C.TRANSFORMER)
+	public void dropToTransformerList(@BindingParam(C.ITEM) FormTransformer item,
+									  @BindingParam(C.LIST) int listNum) {
 		super.dropToList(TRANSFORMERS, listNum, item);
 		if (listNum == LIST_AVAILABLE && item == transformer) {
 			transformer = null;
@@ -321,10 +323,10 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
-	@SmartNotifyChange("transformer")
-	public void insertToTransformerList(@BindingParam("base") FormTransformer base,
-			   					  		@BindingParam("item") FormTransformer item,
-			   					  		@BindingParam("list") int listNum) {
+	@SmartNotifyChange(C.TRANSFORMER)
+	public void insertToTransformerList(@BindingParam(C.BASE) FormTransformer base,
+			   					  		@BindingParam(C.ITEM) FormTransformer item,
+			   					  		@BindingParam(C.LIST) int listNum) {
 		super.insertToList(TRANSFORMERS, listNum, base, item);
 		if (listNum == LIST_AVAILABLE && item == transformer) {
 			transformer = null;
@@ -334,9 +336,9 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	// list form -----------------------------------------------------------
 	
 	@Command
-	@SmartNotifyChange("field")
-	public void dropToFieldList(@BindingParam("item") FormField item,
-								@BindingParam("list") int listNum) {
+	@SmartNotifyChange(C.FIELD)
+	public void dropToFieldList(@BindingParam(C.ITEM) FormField item,
+								@BindingParam(C.LIST) int listNum) {
 		super.dropToList(FIELDS, listNum, item);
 		if (listNum == LIST_AVAILABLE && item == field) {
 			field = null;
@@ -344,10 +346,10 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
-	@SmartNotifyChange("field")
-	public void insertToFieldList(@BindingParam("base") FormField base,
-			   					  @BindingParam("item") FormField item,
-			   					  @BindingParam("list") int listNum) {
+	@SmartNotifyChange(C.FIELD)
+	public void insertToFieldList(@BindingParam(C.BASE) FormField base,
+			   					  @BindingParam(C.ITEM) FormField item,
+			   					  @BindingParam(C.LIST) int listNum) {
 		super.insertToList(FIELDS, listNum, base, item);
 		if (listNum == LIST_AVAILABLE && item == field) {
 			field = null;
@@ -355,9 +357,9 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
-	@SmartNotifyChange("action")
-	public void dropToActionList(@BindingParam("item") FormAction item,
-								 @BindingParam("list") int listNum) {
+	@SmartNotifyChange(C.ACTION)
+	public void dropToActionList(@BindingParam(C.ITEM) FormAction item,
+								 @BindingParam(C.LIST) int listNum) {
 		super.dropToList(ACTIONS, listNum, item);
 		if (listNum == LIST_AVAILABLE && item == action) {
 			action = null;
@@ -365,10 +367,10 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
-	@SmartNotifyChange("action")
-	public void insertToActionList(@BindingParam("base") FormAction base,
-			   					   @BindingParam("item") FormAction item,
-			   					   @BindingParam("list") int listNum) {
+	@SmartNotifyChange(C.ACTION)
+	public void insertToActionList(@BindingParam(C.BASE) FormAction base,
+			   					   @BindingParam(C.ITEM) FormAction item,
+			   					   @BindingParam(C.LIST) int listNum) {
 		super.insertToList(ACTIONS, listNum, base, item);
 		if (listNum == LIST_AVAILABLE && item == action) {
 			action = null;
@@ -378,97 +380,97 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	// detail form ---------------------------------------------------------
 	
 	@Command
-	public void addField(@BindingParam("contextid") String contextId) {
+	public void addField(@BindingParam(CONTEXT_ID) String contextId) {
 		showDialog("/admin/form/addfield.zul", newDialogParameter("addfield", contextId));
 	}
 	
 	@Command
-	public void editField(@BindingParam("contextid") String contextId) {
+	public void editField(@BindingParam(CONTEXT_ID) String contextId) {
 		showDialog("/admin/form/field_properties.zul", newDialogParameter("editfield", contextId));
 	}
 	
 	@Command
 	@NotifyChange("layoutInclude")
-	public void removeField(@BindingParam("contextid") String contextId) {
+	public void removeField(@BindingParam(CONTEXT_ID) String contextId) {
 		layoutService.removeField(getObject(), layoutRoot, contextId);
 		flagDirty();
 	}
 	
 	@Command
-	public void editCell(@BindingParam("contextid") String contextId) {
+	public void editCell(@BindingParam(CONTEXT_ID) String contextId) {
 		showDialog("/admin/form/cell_properties.zul", newDialogParameter("editcell", contextId));
 	}
 	
 	@Command
-	public void addText(@BindingParam("contextid") String contextId) {
+	public void addText(@BindingParam(CONTEXT_ID) String contextId) {
 		showDialog("/admin/form/addtext.zul", newDialogParameter("addtext", contextId));
 	}
 	
 	@Command
-	public void editText(@BindingParam("contextid") String contextId) {
+	public void editText(@BindingParam(CONTEXT_ID) String contextId) {
 		showDialog("/admin/form/text_properties.zul", newDialogParameter("edittext", contextId));
 	}
 	
 	@Command
 	@NotifyChange("layoutInclude")
-	public void removeText(@BindingParam("contextid") String contextId) {
+	public void removeText(@BindingParam(CONTEXT_ID) String contextId) {
 		layoutService.removeText(getObject(), layoutRoot, contextId);
 		flagDirty();
 	}
 	
 	@Command
-	public void addGrid(@BindingParam("contextid") String contextId) {
+	public void addGrid(@BindingParam(CONTEXT_ID) String contextId) {
 		showDialog("/admin/form/addgrid.zul", newDialogParameter("addgrid", contextId));
 	}
 	
 	@Command
-	public void editGrid(@BindingParam("contextid") String contextId) {
+	public void editGrid(@BindingParam(CONTEXT_ID) String contextId) {
 		showDialog("/admin/form/grid_properties.zul", newDialogParameter("editgrid", contextId));
 	}
 	
 	@Command
 	@NotifyChange("layoutInclude")
-	public void removeGrid(@BindingParam("contextid") String contextId) {
+	public void removeGrid(@BindingParam(CONTEXT_ID) String contextId) {
 		layoutService.removeGrid(getObject(), layoutRoot, contextId);
 		flagDirty();
 	}
 	
 	@Command
-	public void addTabbox(@BindingParam("contextid") String contextId) {
+	public void addTabbox(@BindingParam(CONTEXT_ID) String contextId) {
 		showDialog("/admin/form/addtabbox.zul", newDialogParameter("addtabbox", contextId));
 	}
 	
 	@Command
-	public void addTab(@BindingParam("contextid") String contextId) {
+	public void addTab(@BindingParam(CONTEXT_ID) String contextId) {
 		showDialog("/admin/form/addtab.zul", newDialogParameter("addtab", contextId));
 	}
 	
 	@Command
 	@NotifyChange("layoutInclude")
-	public void removeTab(@BindingParam("contextid") String contextId) {
+	public void removeTab(@BindingParam(CONTEXT_ID) String contextId) {
 		layoutService.removeTab(getObject(), layoutRoot, contextId);
 		flagDirty();
 	}
 	
 	@Command
-	public void editTab(@BindingParam("contextid") String contextId) {
+	public void editTab(@BindingParam(CONTEXT_ID) String contextId) {
 		showDialog("/admin/form/tab_properties.zul", newDialogParameter("edittab", contextId));
 	}
 	
 	@Command
-	public void addSubForm(@BindingParam("contextid") String contextId) {
+	public void addSubForm(@BindingParam(CONTEXT_ID) String contextId) {
 		showDialog("/admin/form/addsubform.zul", newDialogParameter("addsubform", contextId));
 	}
 	
 	@Command
 	@NotifyChange("layoutInclude")
-	public void removeSubForm(@BindingParam("contextid") String contextId) {
+	public void removeSubForm(@BindingParam(CONTEXT_ID) String contextId) {
 		layoutService.removeSubForm(getObject(), layoutRoot, contextId);
 		flagDirty();
 	}
 	
 	@Command
-	public void editSubForm(@BindingParam("contextid") String contextId) {
+	public void editSubForm(@BindingParam(CONTEXT_ID) String contextId) {
 		showDialog("/admin/form/subform_properties.zul", newDialogParameter("editsubform", contextId));
 	}
 	
@@ -485,78 +487,78 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
-	public void addLayout(@BindingParam("contextid") String contextId) {
+	public void addLayout(@BindingParam(CONTEXT_ID) String contextId) {
 		showDialog("/admin/form/addlayout.zul", newDialogParameter("addlayout", contextId));
 	}
 	
 	@Command
-	public void editBorderLayout(@BindingParam("contextid") String contextId) {
+	public void editBorderLayout(@BindingParam(CONTEXT_ID) String contextId) {
 		showDialog("/admin/form/borderlayout_properties.zul", newDialogParameter("editborderlayout", contextId));
 	}
 	
 	@Command
-	public void editBorderLayoutArea(@BindingParam("contextid") String contextId) {
+	public void editBorderLayoutArea(@BindingParam(CONTEXT_ID) String contextId) {
 		showDialog("/admin/form/borderlayoutarea_properties.zul", newDialogParameter("editborderlayoutarea", contextId));
 	}
 	
 	@Command
 	@NotifyChange("layoutInclude")
-	public void removeBorderLayoutArea(@BindingParam("contextid") String contextId) {
+	public void removeBorderLayoutArea(@BindingParam(CONTEXT_ID) String contextId) {
 		layoutService.removeBorderLayoutArea(getObject(), layoutRoot, contextId);
 		flagDirty();
 	}
 	
 	@Command
 	@NotifyChange("layoutInclude")
-	public void removeBorderLayout(@BindingParam("contextid") String contextId) {
+	public void removeBorderLayout(@BindingParam(CONTEXT_ID) String contextId) {
 		layoutService.removeBorderLayout(getObject(), layoutRoot, contextId);
 		flagDirty();
 	}
 	
 	@Command
 	@NotifyChange("layoutInclude")
-	public void newColumnLeft(@BindingParam("contextid") String contextId) {
+	public void newColumnLeft(@BindingParam(CONTEXT_ID) String contextId) {
 		layoutService.newColumnLeft(getObject(), layoutRoot, contextId);
 		flagDirty();
 	}
 	
 	@Command
 	@NotifyChange("layoutInclude")
-	public void newColumnRight(@BindingParam("contextid") String contextId) {
+	public void newColumnRight(@BindingParam(CONTEXT_ID) String contextId) {
 		layoutService.newColumnRight(getObject(), layoutRoot, contextId);
 		flagDirty();
 	}
 	
 	@Command
 	@NotifyChange("layoutInclude")
-	public void removeColumn(@BindingParam("contextid") String contextId) {
+	public void removeColumn(@BindingParam(CONTEXT_ID) String contextId) {
 		layoutService.removeColumn(getObject(), layoutRoot, contextId);
 		flagDirty();
 	}
 	
 	@Command
 	@NotifyChange("layoutInclude")
-	public void newRowAbove(@BindingParam("contextid") String contextId) {
+	public void newRowAbove(@BindingParam(CONTEXT_ID) String contextId) {
 		layoutService.newRowAbove(getObject(), layoutRoot, contextId);
 		flagDirty();
 	}
 	
 	@Command
 	@NotifyChange("layoutInclude")
-	public void newRowBelow(@BindingParam("contextid") String contextId) {
+	public void newRowBelow(@BindingParam(CONTEXT_ID) String contextId) {
 		layoutService.newRowBelow(getObject(), layoutRoot, contextId);
 		flagDirty();
 	}
 	
 	@Command
 	@NotifyChange("layoutInclude")
-	public void removeRow(@BindingParam("contextid") String contextId) {
+	public void removeRow(@BindingParam(CONTEXT_ID) String contextId) {
 		layoutService.removeRow(getObject(), layoutRoot, contextId);
 		flagDirty();
 	}
 	
 	@Command
-	@NotifyChange("printout")
+	@NotifyChange(C.PRINTOUT)
 	public void newPrintout() {
 		printout = formService.createPrintout(getObject());
 		notifyObjectChange(PRINTOUTS);
@@ -564,7 +566,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
-	@NotifyChange("printout")
+	@NotifyChange(C.PRINTOUT)
 	public void removePrintout() {
 		getObject().removePrintout(printout);
 		notifyObjectChange(PRINTOUTS);
@@ -573,7 +575,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
-	@NotifyChange({"action", LISTMANAGER_LIST})
+	@NotifyChange({C.ACTION, LISTMANAGER_LIST})
 	public void newCustomAction() {
 		action = formService.createCustomAction(getObject());
 		removeListManager(ACTIONS);
@@ -587,18 +589,18 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
-	public void swapPrintouts(@BindingParam("base") FormPrintout base, 
-						      @BindingParam("item") FormPrintout item) {
+	public void swapPrintouts(@BindingParam(C.BASE) FormPrintout base, 
+						      @BindingParam(C.ITEM) FormPrintout item) {
 		swapItems(PRINTOUTS, base, item);
 	}
 	
 	@GlobalCommand
-	public void globalRefreshObject(@BindingParam("param") Long objectId) {
+	public void globalRefreshObject(@BindingParam(C.PARAM) Long objectId) {
 		refreshObject(objectId);
 	}
 	
 	void setLayout(LayoutElement layoutRoot) {
-		Assert.notNull(layoutRoot, "layoutRoot");
+		Assert.notNull(layoutRoot, C.LAYOUTROOT);
 		
 		initLayout(layoutRoot);
 		refreshLayout();
@@ -610,7 +612,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	private void initLayout(LayoutElement layoutRoot) {
-		Assert.notNull(layoutRoot, "layoutRoot");
+		Assert.notNull(layoutRoot, C.LAYOUTROOT);
 		
 		this.layoutRoot = layoutRoot;
 		layoutService.registerEditLayout(getObject(), getUserName(), layoutRoot);

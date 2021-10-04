@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.seed.C;
 import org.seed.core.user.Authorisation;
 import org.seed.core.user.UserService;
 
@@ -41,12 +42,11 @@ public abstract class AbstractRestController<T extends ApplicationEntity> {
 	}
 	
 	protected List<T> getAll(Predicate<T> filter) {
-		return getService().getObjects().stream()
-						   .filter(filter).collect(Collectors.toList());
+		return getAll().stream().filter(filter).collect(Collectors.toList());
 	}
 	
 	@GetMapping(value = "/{id}")
-	public T get(@PathVariable("id") Long id) {
+	public T get(@PathVariable(C.ID) Long id) {
 		final T object = getService().getObject(id);
 		if (object == null) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);

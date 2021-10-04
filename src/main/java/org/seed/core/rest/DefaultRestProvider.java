@@ -20,6 +20,7 @@ package org.seed.core.rest;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.seed.C;
 import org.seed.Seed;
 import org.seed.core.api.RestClient;
 import org.seed.core.api.RestProvider;
@@ -37,9 +38,9 @@ public class DefaultRestProvider implements RestProvider {
 	
 	@Override
 	public RestClient getClient(String url) {
-		Assert.notNull(url, "url");
+		Assert.notNull(url, C.URL);
 		
-		mapClients.computeIfAbsent(url, c -> createClient(url));
+		mapClients.computeIfAbsent(url, this::createClient);
 		return mapClients.get(url);
 	}
 	

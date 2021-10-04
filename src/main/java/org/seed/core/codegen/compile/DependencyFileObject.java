@@ -53,14 +53,6 @@ class DependencyFileObject implements JavaFileObject {
 		}
 	}
 	
-	DependencyFileObject(String qualifiedName, URL url) {
-		Assert.notNull(qualifiedName, C.QUALIFIEDNAME);
-		Assert.notNull(url, "url");
-		
-		this.qualifiedName = qualifiedName;
-		this.url = url;
-	}
-
 	public String getQualifiedName() {
 		return qualifiedName;
 	}

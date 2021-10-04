@@ -19,6 +19,7 @@ package org.seed.ui.zk.vm;
 
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.data.Cursor;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityService;
@@ -62,8 +63,8 @@ public class FullTextSearchViewModel extends AbstractApplicationViewModel {
 	}
 	
 	@Init
-	private void init(@ExecutionArgParam("param") Tab tab) {
-		Assert.notNull(tab, "tab");
+	private void init(@ExecutionArgParam(C.PARAM) Tab tab) {
+		Assert.notNull(tab, C.TAB);
 		
 		this.tab = tab;
 	}

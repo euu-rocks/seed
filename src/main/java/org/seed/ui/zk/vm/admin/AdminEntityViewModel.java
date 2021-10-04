@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.application.ContentObject;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.data.FieldAccess;
@@ -75,7 +76,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	private static final String FUNCTIONS = "memberFunctions";
 	private static final String CALLBACKS = "callbackFunctions";
 	private static final String NESTEDS = "nesteds";
-	private static final String STATUS = "status";
+	private static final String STATUS = C.STATUS;
 	private static final String STATUSTRANSITIONS = "statusTransition";
 	private static final String TRANSITIONFUNCTIONS = "transitionFunctions";
 	private static final String TRANSITIONPERMISSIONS = "transitionPermissions";
@@ -130,7 +131,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	private boolean resetMandatory;
 	
 	public AdminEntityViewModel() {
-		super(Authorisation.ADMIN_ENTITY, "entity",
+		super(Authorisation.ADMIN_ENTITY, C.ENTITY,
 			  "/admin/entity/entitylist.zul", 
 			  "/admin/entity/entity.zul",
 			  "/admin/entity/newentity.zul");
@@ -138,7 +139,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 
 	@Init
 	public void init(@ContextParam(ContextType.VIEW) Component view,
-					 @ExecutionArgParam("param") Object object) {
+					 @ExecutionArgParam(C.PARAM) Object object) {
 		super.init(object, view);
 	}
 	
@@ -365,7 +366,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
-	public void createEntity(@BindingParam("elem") Component elem) {
+	public void createEntity(@BindingParam(C.ELEM) Component elem) {
 		// set module in options
 		final FormOptions formOptions = getObject().getOptions();
 		if (formOptions != null) {
@@ -395,17 +396,17 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
-	public void refreshEntity(@BindingParam("elem") Component component) {
+	public void refreshEntity(@BindingParam(C.ELEM) Component component) {
 		cmdRefresh();
 	}
 	
 	@Command
-	public void deleteEntity(@BindingParam("elem") Component component) {
+	public void deleteEntity(@BindingParam(C.ELEM) Component component) {
 		cmdDeleteObject(component);
 	}
 	
 	@Command
-	public void saveEntity(@BindingParam("elem") Component component) {
+	public void saveEntity(@BindingParam(C.ELEM) Component component) {
 		try {
 			final boolean isCreate = getObject().isNew();
 			final String currentName = getObject().getName();
@@ -437,7 +438,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
-	@NotifyChange({"field", "referenceEntities", "fieldTypes"})
+	@NotifyChange({C.FIELD, "referenceEntities", "fieldTypes"})
 	public void newField() {
 		field = entityService.createField(getObject());
 		resetUnique = false;
@@ -447,8 +448,8 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
-	@NotifyChange("field")
-	public void removeField(@BindingParam("elem") Component component) {
+	@NotifyChange(C.FIELD)
+	public void removeField(@BindingParam(C.ELEM) Component component) {
 		try {
 			entityService.removeField(getObject(), field);
 			field = null;
@@ -463,7 +464,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
-	@NotifyChange("fieldGroup")
+	@NotifyChange(C.FIELDGROUP)
 	public void newFieldGroup() {
 		fieldGroup = entityService.createFieldGroup(getObject());
 		notifyObjectChange(FIELDGROUPS);
@@ -471,8 +472,8 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
-	@NotifyChange({"field", "fieldGroup"})
-	public void removeFieldGroup(@BindingParam("elem") Component component) {
+	@NotifyChange({C.FIELD, C.FIELDGROUP})
+	public void removeFieldGroup(@BindingParam(C.ELEM) Component component) {
 		try {
 			entityService.removeFieldGroup(getObject(), fieldGroup);
 			fieldGroup = null;
@@ -495,7 +496,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	
 	@Command
 	@NotifyChange("fieldConstraint")
-	public void removeConstraint(@BindingParam("elem") Component component) {
+	public void removeConstraint(@BindingParam(C.ELEM) Component component) {
 		getObject().removeFieldConstraint(fieldConstraint);
 		fieldConstraint = null;
 		notifyObjectChange(FIELDCONSTRAINTS);
@@ -503,7 +504,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
-	@NotifyChange("function")
+	@NotifyChange(C.FUNCTION)
 	public void newFunction() {
 		function = entityService.createFunction(getObject(), false);
 		notifyObjectChange(FUNCTIONS);
@@ -519,8 +520,8 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
-	@NotifyChange("function")
-	public void removeFunction(@BindingParam("elem") Component component) {
+	@NotifyChange(C.FUNCTION)
+	public void removeFunction(@BindingParam(C.ELEM) Component component) {
 		try {
 			entityService.removeFunction(getObject(), function);
 			function = null;
@@ -534,7 +535,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	
 	@Command
 	@NotifyChange("callbackFunction")
-	public void removeCallbackFunction(@BindingParam("elem") Component component) {
+	public void removeCallbackFunction(@BindingParam(C.ELEM) Component component) {
 		try {
 			entityService.removeFunction(getObject(), callbackFunction);
 			callbackFunction = null;
@@ -547,7 +548,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
-	@NotifyChange({"nested", "availableNesteds"})
+	@NotifyChange({C.NESTED, "availableNesteds"})
 	public void newNested() {
 		nested = entityService.createNested(getObject());
 		notifyObjectChange(NESTEDS);
@@ -555,8 +556,8 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
-	@NotifyChange("nested")
-	public void removeNested(@BindingParam("elem") Component component) {
+	@NotifyChange(C.NESTED)
+	public void removeNested(@BindingParam(C.ELEM) Component component) {
 		try {
 			entityService.removeNested(getObject(), nested);
 			nested = null;
@@ -569,7 +570,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
-	@NotifyChange("status")
+	@NotifyChange(C.STATUS)
 	public void newStatus() {
 		entityStatus = entityService.createStatus(getObject());
 		notifyObjectChange("statusList");
@@ -577,8 +578,8 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
-	@NotifyChange("status")
-	public void removeStatus(@BindingParam("elem") Component component) {
+	@NotifyChange(C.STATUS)
+	public void removeStatus(@BindingParam(C.ELEM) Component component) {
 		try {
 			entityService.removeStatus(getObject(), entityStatus);
 			entityStatus = null;
@@ -591,7 +592,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
-	@NotifyChange("statusTransition")
+	@NotifyChange(C.STATUSTRANSITION)
 	public void newStatusTransition() {
 		statusTransition = entityService.createStatusTransition(getObject());
 		notifyObjectChange("statusTransitions");
@@ -599,8 +600,8 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
-	@NotifyChange("statusTransition")
-	public void removeStatusTransition(@BindingParam("elem") Component component) {
+	@NotifyChange(C.STATUSTRANSITION)
+	public void removeStatusTransition(@BindingParam(C.ELEM) Component component) {
 		try {
 			entityService.removeStatusTransition(getObject(), statusTransition);
 			statusTransition = null;
@@ -635,7 +636,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
-	@NotifyChange("object")
+	@NotifyChange(C.OBJECT)
 	public void selectConstraintTab() {
 		// do nothing, just notify
 	}
@@ -651,7 +652,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	public void selectConstraintField() {
 		if (fieldConstraint.getFieldGroup() != null) {
 			fieldConstraint.setFieldGroup(null);
-			notifyObjectChange(fieldConstraint, "fieldGroup");
+			notifyObjectChange(fieldConstraint, C.FIELDGROUP);
 		}
 		flagDirty();
 	}
@@ -660,13 +661,13 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	public void selectConstraintFieldGroup() {
 		if (fieldConstraint.getField() != null) {
 			fieldConstraint.setField(null);
-			notifyObjectChange(fieldConstraint, "field");
+			notifyObjectChange(fieldConstraint, C.FIELD);
 		}
 		flagDirty();
 	}
 	
 	@Command
-	@NotifyChange("field")
+	@NotifyChange(C.FIELD)
 	public void selectFieldType() {
 		if (field.getType() != null && 
 			field.getType().isAutonum()) {
@@ -700,7 +701,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
-	@SmartNotifyChange("statusTransition")
+	@SmartNotifyChange(C.STATUSTRANSITION)
 	public void selectTransitionDependent() {
 		if (statusTransition == null) {
 			setDefaultTransition();
@@ -708,7 +709,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
-	@NotifyChange("field")
+	@NotifyChange(C.FIELD)
 	public void selectReferencedEntity() {
 		if (field.getName() == null) {
 			field.setName(field.getReferenceEntity().getName());
@@ -717,7 +718,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
-	@NotifyChange("nested")
+	@NotifyChange(C.NESTED)
 	public void selectNestedEntity() {
 		if (nested.getName() == null) {
 			nested.setName(nested.getNestedEntity().getName());
@@ -754,44 +755,44 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
-	public void swapFields(@BindingParam("base") EntityField base, 
-						   @BindingParam("item") EntityField item) {
+	public void swapFields(@BindingParam(C.BASE) EntityField base, 
+						   @BindingParam(C.ITEM) EntityField item) {
 		swapItems(FIELDS, base, item);
 	}
 	
 	@Command
-	public void swapFieldGroups(@BindingParam("base") EntityFieldGroup base, 
-								@BindingParam("item") EntityFieldGroup item) {
+	public void swapFieldGroups(@BindingParam(C.BASE) EntityFieldGroup base, 
+								@BindingParam(C.ITEM) EntityFieldGroup item) {
 		swapItems(FIELDGROUPS, base, item);
 	}
 	
 	@Command
-	public void swapCallbackFunctions(@BindingParam("base") EntityFunction base,
-							  		  @BindingParam("item") EntityFunction item) {
+	public void swapCallbackFunctions(@BindingParam(C.BASE) EntityFunction base,
+							  		  @BindingParam(C.ITEM) EntityFunction item) {
 		swapItems(CALLBACKS, base, item);
 	}
 	
 	@Command
-	public void swapStatus(@BindingParam("base") EntityStatus base, 
-						   @BindingParam("item") EntityStatus item) {
+	public void swapStatus(@BindingParam(C.BASE) EntityStatus base, 
+						   @BindingParam(C.ITEM) EntityStatus item) {
 		swapItems(STATUS, base, item);
 	}
 	
 	@Command
-	public void swapStatusTransition(@BindingParam("base") EntityStatusTransition base, 
-						   			 @BindingParam("item") EntityStatusTransition item) {
+	public void swapStatusTransition(@BindingParam(C.BASE) EntityStatusTransition base, 
+						   			 @BindingParam(C.ITEM) EntityStatusTransition item) {
 		swapItems(STATUSTRANSITIONS, base, item);
 	}
 	
 	@Command
-	public void swapConstraints(@BindingParam("base") EntityFieldConstraint base, 
-			   					@BindingParam("item") EntityFieldConstraint item) {
+	public void swapConstraints(@BindingParam(C.BASE) EntityFieldConstraint base, 
+			   					@BindingParam(C.ITEM) EntityFieldConstraint item) {
 		swapItems(FIELDCONSTRAINTS, base, item);
 	}
 	
 	@Command
-	public void swapNesteds(@BindingParam("base") NestedEntity base, 
-						    @BindingParam("item") NestedEntity item) {
+	public void swapNesteds(@BindingParam(C.BASE) NestedEntity base, 
+						    @BindingParam(C.ITEM) NestedEntity item) {
 		swapItems(NESTEDS, base, item);
 	}
 	
@@ -802,9 +803,9 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
-	@SmartNotifyChange("permission")
-	public void dropToPermissionList(@BindingParam("item") EntityPermission item,
-									 @BindingParam("list") int listNum) {
+	@SmartNotifyChange(C.PERMISSION)
+	public void dropToPermissionList(@BindingParam(C.ITEM) EntityPermission item,
+									 @BindingParam(C.LIST) int listNum) {
 		dropToList(PERMISSIONS, listNum, item);
 		if (listNum == LIST_AVAILABLE && item == permission) {
 			this.permission = null;
@@ -813,8 +814,8 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	
 	@Command
 	@SmartNotifyChange("transitionFunction")
-	public void dropToStatusFunctionList(@BindingParam("item") EntityStatusTransitionFunction item,
-										 @BindingParam("list") int listNum) {
+	public void dropToStatusFunctionList(@BindingParam(C.ITEM) EntityStatusTransitionFunction item,
+										 @BindingParam(C.LIST) int listNum) {
 		dropToList(TRANSITIONFUNCTIONS, listNum, item);
 		adjustLists(statusTransition.getFunctions(), getListManagerList(TRANSITIONFUNCTIONS, LIST_SELECTED));
 		if (listNum == LIST_AVAILABLE && item == transitionFunction) {
@@ -823,17 +824,17 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
-	public void dropToStatusPermissionList(@BindingParam("item") EntityStatusTransitionPermission item,
-									  	   @BindingParam("list") int listNum) {
+	public void dropToStatusPermissionList(@BindingParam(C.ITEM) EntityStatusTransitionPermission item,
+									  	   @BindingParam(C.LIST) int listNum) {
 		dropToList(TRANSITIONPERMISSIONS, listNum, item);
 		adjustLists(statusTransition.getPermissions(), getListManagerList(TRANSITIONPERMISSIONS, LIST_SELECTED));
 	}
 	
 	@Command
-	@SmartNotifyChange("permission")
-	public void insertToPermissionList(@BindingParam("base") EntityPermission base,
-									   @BindingParam("item") EntityPermission item,
-									   @BindingParam("list") int listNum) {
+	@SmartNotifyChange(C.PERMISSION)
+	public void insertToPermissionList(@BindingParam(C.BASE) EntityPermission base,
+									   @BindingParam(C.ITEM) EntityPermission item,
+									   @BindingParam(C.LIST) int listNum) {
 		insertToList(PERMISSIONS, listNum, base, item);
 		if (listNum == LIST_AVAILABLE && item == permission) {
 			this.permission = null;
@@ -842,9 +843,9 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	
 	@Command
 	@SmartNotifyChange("transitionFunction")
-	public void insertToStatusFunctionList(@BindingParam("base") EntityStatusTransitionFunction base,
-			   							   @BindingParam("item") EntityStatusTransitionFunction item,
-			   							   @BindingParam("list") int listNum) {
+	public void insertToStatusFunctionList(@BindingParam(C.BASE) EntityStatusTransitionFunction base,
+			   							   @BindingParam(C.ITEM) EntityStatusTransitionFunction item,
+			   							   @BindingParam(C.LIST) int listNum) {
 		insertToList(TRANSITIONFUNCTIONS, listNum, base, item);
 		adjustLists(statusTransition.getFunctions(), getListManagerList(TRANSITIONFUNCTIONS, LIST_SELECTED));
 		if (listNum == LIST_AVAILABLE && item == transitionFunction) {
@@ -853,15 +854,15 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
-	public void insertToStatusPermissionList(@BindingParam("base") EntityStatusTransitionPermission base,
-			   								 @BindingParam("item") EntityStatusTransitionPermission item,
-			   								 @BindingParam("list") int listNum) {
+	public void insertToStatusPermissionList(@BindingParam(C.BASE) EntityStatusTransitionPermission base,
+			   								 @BindingParam(C.ITEM) EntityStatusTransitionPermission item,
+			   								 @BindingParam(C.LIST) int listNum) {
 		insertToList(TRANSITIONPERMISSIONS, listNum, base, item);
 		adjustLists(statusTransition.getPermissions(), getListManagerList(TRANSITIONPERMISSIONS, LIST_SELECTED));
 	}
 	
 	@GlobalCommand
-	public void globalRefreshObject(@BindingParam("param") Long objectId) {
+	public void globalRefreshObject(@BindingParam(C.PARAM) Long objectId) {
 		refreshObject(objectId);
 	}
 	

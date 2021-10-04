@@ -19,7 +19,7 @@ package org.seed.ui.zk.vm;
 
 import java.util.List;
 
-import org.seed.core.config.JobScheduler;
+import org.seed.core.task.JobScheduler;
 import org.seed.core.task.Task;
 import org.seed.core.task.TaskService;
 

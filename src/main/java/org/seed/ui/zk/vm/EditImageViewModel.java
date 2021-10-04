@@ -17,6 +17,7 @@
  */
 package org.seed.ui.zk.vm;
 
+import org.seed.C;
 import org.seed.core.entity.value.ValueObjectService;
 import org.seed.core.util.Assert;
 
@@ -50,8 +51,8 @@ public class EditImageViewModel extends AbstractApplicationViewModel {
 	
 	@Init
     public void init(@ContextParam(ContextType.VIEW) Component view,
-    				 @ExecutionArgParam("param") EditImageParameter param) {
-		Assert.notNull(param, "param");
+    				 @ExecutionArgParam(C.PARAM) EditImageParameter param) {
+		Assert.notNull(param, C.PARAM);
 		parameter = param;
 		image = (byte[]) valueObjectService.getValue(parameter.valueObject, parameter.entityField);
 		wireComponents(view);

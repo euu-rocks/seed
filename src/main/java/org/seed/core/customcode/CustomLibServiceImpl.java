@@ -140,7 +140,7 @@ public class CustomLibServiceImpl extends AbstractApplicationEntityService<Custo
 	
 	@Override
 	public void reportError(CustomJar customJar, String error) {
-		Assert.notNull(error, "error");
+		Assert.notNull(error, C.ERROR);
 		
 		saveError(customJar, error);
 	}

@@ -153,7 +153,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	}
 	
 	private void addFunction(String code, AnnotationMetadata ...annotations) {
-		Assert.notNull(code, "code");
+		Assert.notNull(code, C.CODE);
 		
 		if (annotations != null) {
 			for (AnnotationMetadata annotation : annotations) {

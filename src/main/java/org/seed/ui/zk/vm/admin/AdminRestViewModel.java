@@ -19,6 +19,7 @@ package org.seed.ui.zk.vm.admin;
 
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.api.RestFunction.MethodType;
 import org.seed.core.application.ContentObject;
 import org.seed.core.codegen.SourceCode;
@@ -59,7 +60,7 @@ public class AdminRestViewModel extends AbstractAdminViewModel<Rest> {
 	private RestPermission permission;
 	
 	public AdminRestViewModel() {
-		super(Authorisation.ADMIN_REST, "rest",
+		super(Authorisation.ADMIN_REST, C.REST,
 			  "/admin/rest/restlist.zul", 
 			  "/admin/rest/rest.zul");
 	}
@@ -86,14 +87,14 @@ public class AdminRestViewModel extends AbstractAdminViewModel<Rest> {
 
 	@Init
 	public void init(@ContextParam(ContextType.VIEW) Component view,
-					 @ExecutionArgParam("param") Object object) {
+					 @ExecutionArgParam(C.PARAM) Object object) {
 		super.init(object, view);
 	}
 	
 	@Command
 	@Override
 	public void flagDirty(@BindingParam("notify") String notify, 
-						  @BindingParam("object") Object object, 
+						  @BindingParam(C.OBJECT) Object object, 
 						  @BindingParam("notifyObject") String notifyObject) {
 		super.flagDirty(notify, object, notifyObject);
 	}
@@ -111,10 +112,10 @@ public class AdminRestViewModel extends AbstractAdminViewModel<Rest> {
 	}
 	
 	@Command
-	@SmartNotifyChange("permission")
-	public void insertToPermissionList(@BindingParam("base") RestPermission base,
-									   @BindingParam("item") RestPermission item,
-									   @BindingParam("list") int listNum) {
+	@SmartNotifyChange(C.PERMISSION)
+	public void insertToPermissionList(@BindingParam(C.BASE) RestPermission base,
+									   @BindingParam(C.ITEM) RestPermission item,
+									   @BindingParam(C.LIST) int listNum) {
 		insertToList(PERMISSIONS, listNum, base, item);
 		if (listNum == LIST_AVAILABLE && item == permission) {
 			this.permission = null;
@@ -122,9 +123,9 @@ public class AdminRestViewModel extends AbstractAdminViewModel<Rest> {
 	}
 	
 	@Command
-	@SmartNotifyChange("permission")
-	public void dropToPermissionList(@BindingParam("item") RestPermission item,
-									 @BindingParam("list") int listNum) {
+	@SmartNotifyChange(C.PERMISSION)
+	public void dropToPermissionList(@BindingParam(C.ITEM) RestPermission item,
+									 @BindingParam(C.LIST) int listNum) {
 		dropToList(PERMISSIONS, listNum, item);
 		if (listNum == LIST_AVAILABLE && item == permission) {
 			this.permission = null;
@@ -147,17 +148,17 @@ public class AdminRestViewModel extends AbstractAdminViewModel<Rest> {
 	}
 	
 	@Command
-	public void refreshRest(@BindingParam("elem") Component component) {
+	public void refreshRest(@BindingParam(C.ELEM) Component component) {
 		cmdRefresh();
 	}
 	
 	@Command
-	public void deleteRest(@BindingParam("elem") Component component) {
+	public void deleteRest(@BindingParam(C.ELEM) Component component) {
 		cmdDeleteObject(component);
 	}
 	
 	@Command
-	@NotifyChange("function")
+	@NotifyChange(C.FUNCTION)
 	public void newFunction() {
 		function = restService.createFunction(getObject());
 		notifyObjectChange(FUNCTIONS);
@@ -165,8 +166,8 @@ public class AdminRestViewModel extends AbstractAdminViewModel<Rest> {
 	}
 	
 	@Command
-	@NotifyChange("function")
-	public void removeFunction(@BindingParam("elem") Component component) {
+	@NotifyChange(C.FUNCTION)
+	public void removeFunction(@BindingParam(C.ELEM) Component component) {
 		restService.removeFunction(getObject(), function);
 		notifyObjectChange(FUNCTIONS);
 		flagDirty();
@@ -200,7 +201,7 @@ public class AdminRestViewModel extends AbstractAdminViewModel<Rest> {
 	}
 	
 	@Command
-	public void saveRest(@BindingParam("elem") Component elem) {
+	public void saveRest(@BindingParam(C.ELEM) Component elem) {
 		adjustLists(getObject().getPermissions(), getListManagerList(PERMISSIONS, LIST_SELECTED));
 		cmdSaveObject(elem);
 	}

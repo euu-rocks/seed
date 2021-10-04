@@ -116,7 +116,7 @@ abstract class AbstractViewModel {
 	}
 	
 	protected final void wireComponents(Component component) {
-		Assert.notNull(component, "component");
+		Assert.notNull(component, C.COMPONENT);
 		
 		Selectors.wireComponents(component, this, false);
 	}
@@ -127,48 +127,6 @@ abstract class AbstractViewModel {
 	
 	protected final void notifyChangeAll() {
 		notifyChange("*");
-	}
-	
-	protected static void createComponents(String view, Object param) {
-		Assert.notNull(view, "view");
-		
-		Executions.createComponents(view, null, createParameterMap(param));
-	}
-	
-	protected static Component getComponent(String path) {
-		Assert.notNull(path, C.PATH);
-		
-		return Path.getComponent(path);
-	}
-	
-	protected static int getChildIndex(Component component) {
-		Assert.notNull(component, "component");
-		
-		return component.getParent().getChildren().indexOf(component);
-	}
-	
-	protected static InputStream getMediaStream(Media media) {
-		Assert.notNull(media, "media");
-		
-		return new ByteArrayInputStream(UIUtils.getBytes(media));
-	}
-	
-	protected static void globalCommand(String command, Object param) {
-		Assert.notNull(command, C.COMMAND);
-		
-		BindUtils.postGlobalCommand(null, null, command, createParameterMap(param));
-	}
-	
-	protected static void notifyObjectChange(Object object, String ...properties) {
-		Assert.notNull(object, C.OBJECT);
-		
-		BindUtils.postNotifyChange(object, properties);
-	}
-	
-	protected static void redirect(String url) {
-		Assert.notNull(url, "url");
-		
-		Executions.getCurrent().sendRedirect(url);
 	}
 	
 	protected final void showNotification(Component component, boolean warning, String msgKey, String ...params) {
@@ -213,23 +171,6 @@ abstract class AbstractViewModel {
 				 				 true); // closable
 	}
 	
-	private void buildError(StringBuilder buf, ValidationError error) {
-		buf.append(NOBR_START);
-		if (ObjectUtils.isEmpty(error.getParameters())) {
-			buf.append(getLabel(error.getError()));
-		}
-		else {
-			final String[] params = error.getParameters();
-			for (int i = 0; i < params.length; i++) {
-				if (params[i].startsWith("label.")) {
-					params[i] = getLabel(params[i]);
-				}
-			}
-			buf.append(getLabel(error.getError(), params));
-		}
-		buf.append(NOBR_END);
-	}
-	
 	protected final void showError(Component component, String msgKey, String ...params) {
 		Assert.notNull(msgKey, "msgKey");
 		
@@ -253,17 +194,21 @@ abstract class AbstractViewModel {
 						Messagebox.OK, Messagebox.EXCLAMATION);
 	}
 	
-	@SuppressWarnings("unchecked")
-	private static Map<String, Object> createParameterMap(Object param) {
-		if (param != null) {
-			if (param instanceof Map) {
-				return (Map<String, Object>) param;
-			}
-			else {
-				return Collections.singletonMap("param", param);
-			}
+	private void buildError(StringBuilder buf, ValidationError error) {
+		buf.append(NOBR_START);
+		if (ObjectUtils.isEmpty(error.getParameters())) {
+			buf.append(getLabel(error.getError()));
 		}
-		return null;
+		else {
+			final String[] params = error.getParameters();
+			for (int i = 0; i < params.length; i++) {
+				if (params[i].startsWith("label.")) {
+					params[i] = getLabel(params[i]);
+				}
+			}
+			buf.append(getLabel(error.getError(), params));
+		}
+		buf.append(NOBR_END);
 	}
 	
 	private void showError(Component component, String message) {
@@ -273,6 +218,61 @@ abstract class AbstractViewModel {
 				 AFTER_CENTER,
 				 5000,  // milliseconds
 				 true); // closable
+	}
+	
+	protected static void createComponents(String view, Object param) {
+		Assert.notNull(view, C.VIEW);
+		
+		Executions.createComponents(view, null, createParameterMap(param));
+	}
+	
+	protected static Component getComponent(String path) {
+		Assert.notNull(path, C.PATH);
+		
+		return Path.getComponent(path);
+	}
+	
+	protected static int getChildIndex(Component component) {
+		Assert.notNull(component, C.COMPONENT);
+		
+		return component.getParent().getChildren().indexOf(component);
+	}
+	
+	protected static InputStream getMediaStream(Media media) {
+		Assert.notNull(media, "media");
+		
+		return new ByteArrayInputStream(UIUtils.getBytes(media));
+	}
+	
+	protected static void globalCommand(String command, Object param) {
+		Assert.notNull(command, C.COMMAND);
+		
+		BindUtils.postGlobalCommand(null, null, command, createParameterMap(param));
+	}
+	
+	protected static void notifyObjectChange(Object object, String ...properties) {
+		Assert.notNull(object, C.OBJECT);
+		
+		BindUtils.postNotifyChange(object, properties);
+	}
+	
+	protected static void redirect(String url) {
+		Assert.notNull(url, C.URL);
+		
+		Executions.getCurrent().sendRedirect(url);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private static Map<String, Object> createParameterMap(Object param) {
+		if (param != null) {
+			if (param instanceof Map) {
+				return (Map<String, Object>) param;
+			}
+			else {
+				return Collections.singletonMap(C.PARAM, param);
+			}
+		}
+		return null;
 	}
 	
 }

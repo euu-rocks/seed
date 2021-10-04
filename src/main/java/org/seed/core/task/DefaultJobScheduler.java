@@ -41,7 +41,6 @@ import org.seed.InternalException;
 import org.seed.core.api.Job;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.codegen.GeneratedCode;
-import org.seed.core.config.JobScheduler;
 import org.seed.core.config.SessionFactoryProvider;
 import org.seed.core.util.Assert;
 import org.seed.core.util.ExceptionUtils;
@@ -58,7 +57,7 @@ public class DefaultJobScheduler implements JobScheduler, JobListener {
 	
 	private static final Logger log = LoggerFactory.getLogger(DefaultJobScheduler.class);
 	
-	private static final String GROUP_SEED = "seed";
+	private static final String GROUP_SEED = C.SEED;
 	
 	@Autowired
 	private SchedulerFactoryBean schedulerFactory;

@@ -47,7 +47,7 @@ public class AdminCustomLibViewModel extends AbstractAdminViewModel<CustomLib> {
 	
 	@Init
 	public void init(@ContextParam(ContextType.VIEW) Component view,
-					 @ExecutionArgParam("param") Object object) {
+					 @ExecutionArgParam(C.PARAM) Object object) {
 		super.init(object, view);
 	}
 	
@@ -67,7 +67,7 @@ public class AdminCustomLibViewModel extends AbstractAdminViewModel<CustomLib> {
 		else if(customLib.getFilename() == null) {
 			customLib.setName(null);
 			customLib.setError(null);
-			notifyObjectChange(C.NAME, "error");
+			notifyObjectChange(C.NAME, C.ERROR);
 		}
 	}
 	
@@ -87,18 +87,18 @@ public class AdminCustomLibViewModel extends AbstractAdminViewModel<CustomLib> {
 	}
 	
 	@Command
-	public void refreshLib(@BindingParam("elem") Component component) {
+	public void refreshLib(@BindingParam(C.ELEM) Component component) {
 		cmdRefresh();
 	}
 	
 	@Command
-	public void saveLib(@BindingParam("elem") Component component) {
+	public void saveLib(@BindingParam(C.ELEM) Component component) {
 		cmdSaveObject(component);
-		notifyObjectChange("error");
+		notifyObjectChange(C.ERROR);
 	}
 	
 	@Command
-	public void deleteLib(@BindingParam("elem") Component component) {
+	public void deleteLib(@BindingParam(C.ELEM) Component component) {
 		cmdDeleteObject(component);
 	}
 	

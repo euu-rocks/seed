@@ -17,6 +17,7 @@
  */
 package org.seed.ui.zk.vm;
 
+import org.seed.C;
 import org.seed.core.report.Report;
 import org.seed.core.util.Assert;
 
@@ -28,7 +29,7 @@ public class SelectReportFormatParameter {
 
 	public SelectReportFormatParameter(AbstractApplicationViewModel parentVM, Report report) {
 		Assert.notNull(parentVM, "parentViewModel");
-		Assert.notNull(report, "report");
+		Assert.notNull(report, C.REPORT);
 		
 		this.parentVM = parentVM;
 		this.report = report;

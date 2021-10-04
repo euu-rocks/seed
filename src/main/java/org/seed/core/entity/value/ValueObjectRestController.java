@@ -65,18 +65,18 @@ public class ValueObjectRestController {
 	private UserService userService;
 	
 	@GetMapping(value = "/{name}")
-	public List<ValueObject> getObjects(@PathVariable("name") String name) {
+	public List<ValueObject> getObjects(@PathVariable(C.NAME) String name) {
 		return service.getAllObjects(getEntity(name));
 	}
 	
 	@GetMapping(value = "/{name}/filter/{filterid}")
-	public List<ValueObject> findObjects(@PathVariable("name") String name, 
+	public List<ValueObject> findObjects(@PathVariable(C.NAME) String name, 
 										 @PathVariable("filterid") Long filterid) {
 		return service.find(getEntity(name), getFilter(filterid));
 	}
 	
 	@PostMapping(value = "/{name}")
-	public ValueObject createObject(@PathVariable("name") String name, 
+	public ValueObject createObject(@PathVariable(C.NAME) String name, 
 									@RequestBody Map<String, Object> valueMap) {
 		final Entity entity = getEntity(name);
 		checkEntityAccess(entity, EntityAccess.CREATE);
@@ -84,8 +84,8 @@ public class ValueObjectRestController {
 	}
 	
 	@GetMapping(value = "/{name}/{id}")
-	public ValueObject getObject(@PathVariable("name") String name, 
-								 @PathVariable("id") Long id) {
+	public ValueObject getObject(@PathVariable(C.NAME) String name, 
+								 @PathVariable(C.ID) Long id) {
 		final ValueObject object = service.getObject(getEntity(name), id);
 		if (object == null) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, name + ' ' + id);
@@ -94,8 +94,8 @@ public class ValueObjectRestController {
 	}
 	
 	@PostMapping(value = "/{name}/{id}")
-	public ValueObject updateObject(@PathVariable("name") String name, 
-									@PathVariable("id") Long id,
+	public ValueObject updateObject(@PathVariable(C.NAME) String name, 
+									@PathVariable(C.ID) Long id,
 									@RequestBody Map<String, Object> valueMap) {
 		final Entity entity = getEntity(name);
 		checkEntityAccess(entity, EntityAccess.WRITE);
@@ -108,8 +108,8 @@ public class ValueObjectRestController {
 	}
 	
 	@PostMapping(value = "/{name}/{id}/status/{statusid}")
-	public ValueObject changeStatus(@PathVariable("name") String name, 
-								    @PathVariable("id") Long id,
+	public ValueObject changeStatus(@PathVariable(C.NAME) String name, 
+								    @PathVariable(C.ID) Long id,
 								    @PathVariable("statusid") Long statusid) {
 		final Entity entity = getEntity(name);
 		checkEntityAccess(entity, EntityAccess.WRITE);
@@ -124,8 +124,8 @@ public class ValueObjectRestController {
 	}
 	
 	@PostMapping(value = "/{name}/{id}/transform/{transformationid}")
-	public ValueObject transformObject(@PathVariable("name") String name, 
-		    						   @PathVariable("id") Long id,
+	public ValueObject transformObject(@PathVariable(C.NAME) String name, 
+		    						   @PathVariable(C.ID) Long id,
 		    						   @PathVariable("transformationid") Long transformationid) {
 		return service.transform(getTransformer(transformationid), 
 								 getObject(name, id));
@@ -133,8 +133,8 @@ public class ValueObjectRestController {
 	}
 	
 	@PostMapping(value = "/{name}/{id}/function/{functionid}")
-	public ValueObject callFunction(@PathVariable("name") String name, 
-			   						@PathVariable("id") Long id,
+	public ValueObject callFunction(@PathVariable(C.NAME) String name, 
+			   						@PathVariable(C.ID) Long id,
 			   						@PathVariable("functionid") Long functionid) {
 		final ValueObject object = getObject(name, id);
 		service.callUserActionFunction(object, getFunction(name, functionid));
@@ -142,8 +142,8 @@ public class ValueObjectRestController {
 	}
 	
 	@DeleteMapping(value = "/{name}/{id}")
-	public void deleteObject(@PathVariable("name") String name, 
-			 				 @PathVariable("id") Long id) {
+	public void deleteObject(@PathVariable(C.NAME) String name, 
+			 				 @PathVariable(C.ID) Long id) {
 		final Entity entity = getEntity(name);
 		checkEntityAccess(entity, EntityAccess.DELETE);
 		try {

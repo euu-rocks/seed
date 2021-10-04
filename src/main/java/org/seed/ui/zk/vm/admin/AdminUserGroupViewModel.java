@@ -20,6 +20,7 @@ package org.seed.ui.zk.vm.admin;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.data.SystemObject;
 import org.seed.core.user.Authorisation;
 import org.seed.core.user.User;
@@ -49,7 +50,7 @@ public class AdminUserGroupViewModel extends AbstractAdminViewModel<UserGroup> {
 	}
 	
 	@Init
-	public void init(@ExecutionArgParam("param") Object object) {
+	public void init(@ExecutionArgParam(C.PARAM) Object object) {
 		super.init(object, null);
 	}
 	
@@ -78,17 +79,17 @@ public class AdminUserGroupViewModel extends AbstractAdminViewModel<UserGroup> {
 	}
 	
 	@Command
-	public void refreshUserGroup(@BindingParam("elem") Component elem) {
+	public void refreshUserGroup(@BindingParam(C.ELEM) Component elem) {
 		cmdRefresh();
 	}
 	
 	@Command
-	public void deleteUserGroup(@BindingParam("elem") Component elem) {
+	public void deleteUserGroup(@BindingParam(C.ELEM) Component elem) {
 		cmdDeleteObject(elem);
 	}
 	
 	@Command
-	public void saveUserGroup(@BindingParam("elem") Component elem) {
+	public void saveUserGroup(@BindingParam(C.ELEM) Component elem) {
 		
 		((UserGroupMetadata) getObject()).setOriginalUserIds(originalUserIds);
 		adjustLists(getObject().getAuthorisations(), getListManagerList(AUTHORISATIONS, LIST_SELECTED));
@@ -104,33 +105,33 @@ public class AdminUserGroupViewModel extends AbstractAdminViewModel<UserGroup> {
 	}
 	
 	@Command
-	public void dropToAuthorisationList(@BindingParam("item") UserGroupAuthorisation item,
-							   			@BindingParam("list") int listNum) {
+	public void dropToAuthorisationList(@BindingParam(C.ITEM) UserGroupAuthorisation item,
+							   			@BindingParam(C.LIST) int listNum) {
 		super.dropToList(AUTHORISATIONS, listNum, item);
 	}
 	
 	@Command
-	public void insertToAuthorisationList(@BindingParam("base") UserGroupAuthorisation base,
-								 		  @BindingParam("item") UserGroupAuthorisation item,
-								 		  @BindingParam("list") int listNum) {
+	public void insertToAuthorisationList(@BindingParam(C.BASE) UserGroupAuthorisation base,
+								 		  @BindingParam(C.ITEM) UserGroupAuthorisation item,
+								 		  @BindingParam(C.LIST) int listNum) {
 		super.insertToList(AUTHORISATIONS, listNum, base, item);
 	}
 	
 	@Command
-	public void dropToUserList(@BindingParam("item") User item,
-							   @BindingParam("list") int listNum) {
+	public void dropToUserList(@BindingParam(C.ITEM) User item,
+							   @BindingParam(C.LIST) int listNum) {
 		super.dropToList(USERS, listNum, item);
 	}
 	
 	@Command
-	public void insertToUserList(@BindingParam("base") User base,
-								 @BindingParam("item") User item,
-								 @BindingParam("list") int listNum) {
+	public void insertToUserList(@BindingParam(C.BASE) User base,
+								 @BindingParam(C.ITEM) User item,
+								 @BindingParam(C.LIST) int listNum) {
 		super.insertToList(USERS, listNum, base, item);
 	}
 	
 	@GlobalCommand
-	public void globalRefreshObject(@BindingParam("param") Long objectId) {
+	public void globalRefreshObject(@BindingParam(C.PARAM) Long objectId) {
 		refreshObject(objectId);
 	}
 

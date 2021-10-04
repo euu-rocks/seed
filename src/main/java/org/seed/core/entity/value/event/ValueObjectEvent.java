@@ -18,6 +18,7 @@
 package org.seed.core.entity.value.event;
 
 import org.hibernate.Session;
+
 import org.seed.C;
 import org.seed.core.entity.EntityFunction;
 import org.seed.core.entity.EntityStatusTransition;
@@ -57,7 +58,7 @@ public class ValueObjectEvent {
 							Session session, ValueObjectFunctionContext functionContext, 
 							EntityFunction entityFunction) {
 		Assert.notNull(object, C.OBJECT);
-		Assert.notNull(type, "type");
+		Assert.notNull(type, C.TYPE);
 		Assert.state(!(session == null && functionContext == null), "no session or functionContext provided");
 		Assert.state(!(session != null && functionContext != null), "only session or functionContext allowed");
 		

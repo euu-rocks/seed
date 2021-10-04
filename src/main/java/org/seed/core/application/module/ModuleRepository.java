@@ -19,6 +19,7 @@ package org.seed.core.application.module;
 
 import org.hibernate.Session;
 
+import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityRepository;
 import org.seed.core.util.Assert;
 
@@ -36,9 +37,9 @@ public class ModuleRepository extends AbstractSystemEntityRepository<Module> {
 	}
 	
 	public Module findByUid(String uid) {
-		Assert.notNull(uid, "uid");
+		Assert.notNull(uid, C.UID);
 		
-		return findUnique(queryParam("uid", uid));
+		return findUnique(queryParam(C.UID, uid));
 	}
 
 }

@@ -20,6 +20,7 @@ package org.seed.ui.zk.vm.admin;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.data.SystemField;
 import org.seed.core.data.SystemObject;
 import org.seed.core.entity.Entity;
@@ -80,7 +81,7 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 	private boolean hqlInput;
 	
 	public AdminFilterViewModel() {
-		super(Authorisation.ADMIN_ENTITY, "filter",
+		super(Authorisation.ADMIN_ENTITY, C.FILTER,
 			  "/admin/filter/filterlist.zul", 
 			  "/admin/filter/filter.zul",
 			  "/admin/filter/newfilter.zul");
@@ -120,15 +121,15 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 
 	@Init
 	public void init(@ContextParam(ContextType.VIEW) Component view,
-					 @ExecutionArgParam("param") Object object) {
+					 @ExecutionArgParam(C.PARAM) Object object) {
 		super.init(object, view);
 	}
 	
 	@Command
-	@SmartNotifyChange("permission")
-	public void insertToPermissionList(@BindingParam("base") FilterPermission base,
-									   @BindingParam("item") FilterPermission item,
-									   @BindingParam("list") int listNum) {
+	@SmartNotifyChange(C.PERMISSION)
+	public void insertToPermissionList(@BindingParam(C.BASE) FilterPermission base,
+									   @BindingParam(C.ITEM) FilterPermission item,
+									   @BindingParam(C.LIST) int listNum) {
 		insertToList(PERMISSIONS, listNum, base, item);
 		if (listNum == LIST_AVAILABLE && item == permission) {
 			this.permission = null;
@@ -136,9 +137,9 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 	}
 	
 	@Command
-	@SmartNotifyChange("permission")
-	public void dropToPermissionList(@BindingParam("item") FilterPermission item,
-									 @BindingParam("list") int listNum) {
+	@SmartNotifyChange(C.PERMISSION)
+	public void dropToPermissionList(@BindingParam(C.ITEM) FilterPermission item,
+									 @BindingParam(C.LIST) int listNum) {
 		dropToList(PERMISSIONS, listNum, item);
 		if (listNum == LIST_AVAILABLE && item == permission) {
 			this.permission = null;
@@ -187,7 +188,7 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 	
 	@Override
 	protected void initFilters() {
-		final ListFilter<Filter> filterEntity = getFilter(FILTERGROUP_LIST, "entity");
+		final ListFilter<Filter> filterEntity = getFilter(FILTERGROUP_LIST, C.ENTITY);
 		filterEntity.setValueFunction(o -> o.getEntity().getName());
 		for (Filter filter : getObjectList()) {
 			filterEntity.addValue(filter.getEntity().getName());
@@ -277,7 +278,7 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 	}
 	
 	@Command
-	@NotifyChange("nested")
+	@NotifyChange(C.NESTED)
 	public void selectCriterion() {
 		if (criterion.getEntityField() != null && getObject().getEntity().hasNesteds()) {
 			for (NestedEntity nestedEntity : getObject().getEntity().getNesteds()) {
@@ -324,24 +325,24 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 	}
 	
 	@Command
-	public void createFilter(@BindingParam("elem") Component elem) {
+	public void createFilter(@BindingParam(C.ELEM) Component elem) {
 		final FilterMetadata filter = (FilterMetadata) getObject();
 		filter.setHqlInput(hqlInput);
 		cmdInitObject(elem, window);
 	}
 	
 	@Command
-	public void refreshFilter(@BindingParam("elem") Component component) {
+	public void refreshFilter(@BindingParam(C.ELEM) Component component) {
 		cmdRefresh();
 	}
 	
 	@Command
-	public void deleteFilter(@BindingParam("elem") Component component) {
+	public void deleteFilter(@BindingParam(C.ELEM) Component component) {
 		cmdDeleteObject(component);
 	}
 	
 	@Command
-	public void saveFilter(@BindingParam("elem") Component component) {
+	public void saveFilter(@BindingParam(C.ELEM) Component component) {
 		((FilterMetadata) getObject()).setHqlInput(hqlInput);
 		adjustLists(getObject().getPermissions(), getListManagerList(PERMISSIONS, LIST_SELECTED));
 		cmdSaveObject(component);
@@ -353,7 +354,7 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 	}
 	
 	@Command
-	@NotifyChange({"criterion", "nested"})
+	@NotifyChange({"criterion", C.NESTED})
 	public void newCriterion() {
 		criterion = new FilterCriterion();
 		criterion.setBooleanValue(Boolean.FALSE);
@@ -373,7 +374,7 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 	}
 	
 	@GlobalCommand
-	public void globalRefreshObject(@BindingParam("param") Long objectId) {
+	public void globalRefreshObject(@BindingParam(C.PARAM) Long objectId) {
 		refreshObject(objectId);
 	}
 
