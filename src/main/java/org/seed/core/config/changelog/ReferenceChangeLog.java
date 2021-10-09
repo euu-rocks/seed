@@ -17,16 +17,32 @@
  */
 package org.seed.core.config.changelog;
 
-import org.seed.core.data.SystemEntity;
+import org.seed.core.util.Assert;
 
-public interface ChangeLogBuilder<T extends SystemEntity> {
+import liquibase.change.Change;
+import liquibase.changelog.ChangeSet;
+
+public class ReferenceChangeLog {
 	
-	ChangeLogBuilder<T> setReferenceChangeLog(ReferenceChangeLog referenceChangeLog);
+	private ChangeSet changeSet;
 	
-	ChangeLogBuilder<T> setCurrentVersionObject(T currentVersionObject);
+	public void addChange(Change change) {
+		Assert.notNull(change, "change");
+		
+		if (changeSet == null) {
+			changeSet = AbstractChangeLogBuilder.createChangeSet();
+		}
+		changeSet.addChange(change);
+	}
 	
-	ChangeLogBuilder<T> setNextVersionObject(T nextVersionObject);
+	public boolean isEmpty() {
+		return changeSet == null;
+	}
 	
-	ChangeLog build();
+	public ChangeLog build() {
+		return isEmpty() 
+				? null 
+				: AbstractChangeLogBuilder.build(changeSet);
+	}
 	
 }

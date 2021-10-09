@@ -71,14 +71,21 @@
 									 hflex="1"/> 
 						</cell>
 						<cell style="padding: 4px 10px" align="right">
-							<label value="${labels.label.identifier}:"/>
+							<label value="${labels.label.identifier}:"
+							       visible="@load(!vm.object.generic)"/>
+							<label value="${labels.label.generic}:"
+								   visible="@load(vm.object.generic)"/>
 						</cell>
 						<cell style="padding: 4px 4px">
 							<textbox value="@bind(vm.object.identifierPattern) @converter(vm.stringConverter)" 
+									 visible="@load(!vm.object.generic)"
 									 placeholder="@load(vm.object.defaultIdentifierPattern)"
 									 onChange="@command('flagDirty')"
 									 instant="true"
 									 hflex="1"/>
+							<checkbox checked="@load(vm.object.generic)"
+									  visible="@load(vm.object.generic)"
+									  disabled="true"/>   
 						</cell>
 					</row>
 					<row>
@@ -92,8 +99,6 @@
 						<cell style="padding: 4px 10px" align="right">
 							<label value="${labels.label.tablename}:"
 								   visible="@load(!vm.object.generic)"/>
-							<label value="${labels.label.generic}:"
-								   visible="@load(vm.object.generic)"/>
 						</cell>
 						<cell>
 							<textbox value="@bind(vm.object.tableName) @converter(vm.stringConverter)"
@@ -102,9 +107,6 @@
 									 onChange="@command('flagDirty')"
 									 instant="true"
 									 hflex="1"/>
-							<checkbox checked="@load(vm.object.generic)"
-									  visible="@load(vm.object.generic)"
-									  disabled="true"/>   
 						</cell>
 					</row>
 				</rows>

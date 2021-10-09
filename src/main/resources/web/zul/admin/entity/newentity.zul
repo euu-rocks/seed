@@ -46,7 +46,6 @@
                 	<cell>
 	                	<combobox model="@init(vm.genericEntities) @template(empty each.name ? 'empty' : 'entity')" 
 	                			  selectedItem="@bind(vm.object.genericEntity)"
-	                			  mandatory="true"
 	                			  hflex="1">
 	                		<template name="empty">
 			                    <comboitem/>
@@ -80,7 +79,7 @@
                 	<cell/>
                 	<cell>
                 		<checkbox checked="@bind(vm.object.generic)"
-                				  disabled="@load(vm.object.options.autoLayout)"/>
+                				  onCheck="@command('selectOption',option='generic')"/>
                 		<label value="${labels.label.genericentity}"
                 			   style="margin-left: 5px"/>
                 	</cell>
@@ -89,7 +88,7 @@
                 	<cell/>
                 	<cell>
                 		<checkbox checked="@bind(vm.object.options.autoLayout)"
-                				  disabled="@load(vm.object.generic)"/>
+                				  onCheck="@command('selectOption',option='autolayout')"/>
                 		<label value="${labels.label.autoform}"
                 			   style="margin-left: 5px"/>
                 	</cell>

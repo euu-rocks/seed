@@ -73,7 +73,7 @@ public class DynamicConfiguration
 	@Autowired
 	private UserService userService;
 	
-	private SessionFactory sessionFactory;	// current sesssion factory
+	private SessionFactory sessionFactory;	// current session factory
 	
 	private ClassLoader classLoader;		// current CompilerClassLoader
 	
@@ -97,7 +97,7 @@ public class DynamicConfiguration
 	
 	@Override
 	public synchronized SessionFactory getSessionFactory() {
-		Assert.state(sessionFactory != null, "no session factory available");
+		Assert.stateAvailable(sessionFactory, "session factory");
 		
 		return sessionFactory;
 	}
@@ -184,7 +184,7 @@ public class DynamicConfiguration
 	private SessionFactoryBuilder createSessionFactoryBuilder(boolean boot) {
 		final BootstrapServiceRegistryBuilder bootstrapServiceRegistryBuilder = new BootstrapServiceRegistryBuilder();
 		if (!boot) {
-			Assert.state(classLoader != null, "class loader not available");
+			Assert.stateAvailable(classLoader, "class loader");
 			bootstrapServiceRegistryBuilder.applyClassLoader(classLoader);
 		}
 		final BootstrapServiceRegistry bootstrapServiceRegistry = 
@@ -248,7 +248,8 @@ public class DynamicConfiguration
 	
 	private String applicationProperty(String propertyName) {
 		final String property = environment.getProperty(propertyName);
-		Assert.state(property != null, "application property '" + propertyName + "' not available");
+		Assert.stateAvailable(property, "application property '" + propertyName + "'");
+		
 		return property;
 	}
 	
@@ -257,14 +258,11 @@ public class DynamicConfiguration
 		
 		// misc settings
 		settings.put("hibernate.enable_lazy_load_no_trans", "true");
-		// https://stackoverflow.com/questions/43905119/postgres-error-method-org-postgresql-jdbc-pgconnection-createclob-is-not-imple
-		settings.put("hibernate.jdbc.lob.non_contextual_creation", "true");
 		
 		// data source
 		settings.put("hibernate.connection.url", applicationProperty("spring.datasource.url"));                                
 		settings.put("hibernate.connection.username", applicationProperty("spring.datasource.username"));     
 		settings.put("hibernate.connection.password", applicationProperty("spring.datasource.password"));
-		settings.put("hibernate.connection.autocommit", "true");
 		
 		// connection pool
 		settings.put("hibernate.hikari.connectionTimeout", applicationProperty("connectionpool.connectionTimeout"));

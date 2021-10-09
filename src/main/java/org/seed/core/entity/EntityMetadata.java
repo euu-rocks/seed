@@ -28,6 +28,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -130,6 +131,9 @@ public class EntityMetadata extends AbstractApplicationEntity
 	private String identifierPattern;
 	
 	private boolean isGeneric;
+	
+	@Transient
+	private String genericEntityUid;
 
 	@Override
 	@XmlAttribute
@@ -141,6 +145,17 @@ public class EntityMetadata extends AbstractApplicationEntity
 		this.isGeneric = isGeneric;
 	}
 	
+	@Override
+	@XmlAttribute
+	@JsonIgnore
+	public String getGenericEntityUid() {
+		return genericEntity != null ? genericEntity.getUid() : genericEntityUid;
+	}
+
+	public void setGenericEntityUid(String genericEntityUid) {
+		this.genericEntityUid = genericEntityUid;
+	}
+
 	@Override
 	@JsonIgnore
 	public String getGeneratedPackage() {
@@ -853,6 +868,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 				.append(getName(), otherEntity.getName())
 				.append(tableName, otherEntity.getTableName())
 				.append(identifierPattern, otherEntity.getIdentifierPattern())
+				.append(genericEntityUid, otherEntity.getGenericEntityUid())
 				.append(isGeneric, otherEntity.isGeneric())
 				.isEquals()) {
 			return false;

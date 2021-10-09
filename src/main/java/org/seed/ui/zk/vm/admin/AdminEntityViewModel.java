@@ -33,6 +33,7 @@ import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityAccess;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityFunction;
+import org.seed.core.entity.EntityMetadata;
 import org.seed.core.entity.EntityPermission;
 import org.seed.core.entity.EntityService;
 import org.seed.core.entity.EntityStatus;
@@ -174,7 +175,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	public boolean existValueObjects() {
-		return !getObject().isNew() && !getObject().isGeneric() &&
+		return !getObject().isNew() &&
 				valueObjectService.existObjects(getObject());
 	}
 	
@@ -647,6 +648,33 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 		resetUnique = false;
 		resetMandatory = false;
 	}
+	
+	@Command
+	public void selectOption(@BindingParam("option") String option) {
+		switch (option) {
+			case "generic": 
+				if (getObject().isGeneric()) {
+					getOptions().setAutoLayout(false);
+					notifyObjectChange("options");
+				}
+				break;
+				
+			case "autolayout":
+				if (getOptions().isAutoLayout()) {
+					((EntityMetadata) getObject()).setGeneric(false);
+					notifyObjectChange("generic");
+				}
+				break;
+			
+			default:
+				throw new UnsupportedOperationException(option);
+		}
+	}
+	
+	private FormOptions getOptions() {
+		return (FormOptions) getObject().getOptions();
+	}
+	
 	
 	@Command
 	public void selectConstraintField() {

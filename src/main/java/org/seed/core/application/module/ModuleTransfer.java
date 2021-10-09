@@ -76,7 +76,7 @@ public class ModuleTransfer {
 	
 	private List<ApplicationEntityService<?>> sortedServices; // sorted by dependencies
 	
-	private final Jaxb2Marshaller marshaller = new Jaxb2Marshaller(); // thread-safe
+	private final Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
 	
 	@PostConstruct
 	private void init() throws Exception {
@@ -84,8 +84,6 @@ public class ModuleTransfer {
 		marshaller.afterPropertiesSet();
 		sortedServices = sortByDependencies(applicationServices);
 	}
-	
-	
 	
 	public Module readModule(InputStream inputStream) throws IOException {
 		Assert.notNull(inputStream, "input stream");
@@ -196,9 +194,9 @@ public class ModuleTransfer {
 	}
 	
 	private byte[] getModuleContent(Module module) {
-		final ByteArrayOutputStream out = new ByteArrayOutputStream();
-		marshaller.marshal(module, new StreamResult(out));
-		return out.toByteArray();
+		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		marshaller.marshal(module, new StreamResult(baos));
+		return baos.toByteArray();
 	}
 	
 	private static void writeEntry(ZipOutputStream zos, String name, byte[] content) throws IOException {

@@ -116,7 +116,17 @@ public class ValueObjectServiceImpl
 	
 	@Override
 	public boolean existObjects(Entity entity) {
-		return repository.exist(entity, null);
+		if (entity.isGeneric()) {
+			for (Entity descendant : entityService.findDescendants(entity)) {
+				if (repository.exist(descendant, null)) {
+					return true;
+				}
+			}
+			return false;
+		}
+		else {
+			return repository.exist(entity, null);
+		}
 	}
 	
 	@Override

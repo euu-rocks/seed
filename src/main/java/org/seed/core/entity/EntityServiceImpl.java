@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.application.AbstractApplicationEntityService;
@@ -39,6 +40,7 @@ import org.seed.core.codegen.SourceCode;
 import org.seed.core.config.Limits;
 import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.config.changelog.ChangeLog;
+import org.seed.core.config.changelog.ReferenceChangeLog;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.Options;
 import org.seed.core.data.ValidationException;
@@ -190,6 +192,14 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	@Override
+	public List<Entity> findDescendants(Entity genericEntity) {
+		Assert.notNull(genericEntity, "genericEntity");
+		Assert.state(genericEntity.isGeneric(), "entity is not generic");
+		
+		return entityRepository.find(queryParam("genericEntity", genericEntity));
+	}
+	
+	@Override
 	public List<Entity> findUsage(Entity entity) {
 		Assert.notNull(entity, C.ENTITY);
 		
@@ -297,32 +307,34 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	public FieldType[] getAvailableFieldTypes(Entity entity, EntityField field, boolean existObjects) {
 		Assert.notNull(entity, C.ENTITY);
 		
-		if (!existObjects) {
-			return FieldType.values();
-		}
-		if (field != null && field.getType() != null && !field.isNew()) {
-			switch (field.getType()) {
-				case BOOLEAN:
-					return new FieldType[] { FieldType.BOOLEAN,
-											 FieldType.INTEGER,
-											 FieldType.LONG,
-											 FieldType.TEXT,
-											 FieldType.TEXTLONG };
-				case INTEGER:
-					return new FieldType[] { FieldType.INTEGER,
-											 FieldType.LONG,
-											 FieldType.TEXT,
-											 FieldType.TEXTLONG };
-				case BINARY:
-				case FILE:
-				case TEXTLONG:
-				case REFERENCE:
-					return new FieldType[] { field.getType() };
-					
-				default:
-					return new FieldType[] { field.getType(),
-										 	 FieldType.TEXT,
-										 	 FieldType.TEXTLONG };
+		if (!entity.isGeneric()) {
+			if (!existObjects) {
+				return FieldType.values();
+			}
+			if (field != null && !field.isNew() && field.getType() != null) {
+				switch (field.getType()) {
+					case BOOLEAN:
+						return new FieldType[] { FieldType.BOOLEAN,
+												 FieldType.INTEGER,
+												 FieldType.LONG,
+												 FieldType.TEXT,
+												 FieldType.TEXTLONG };
+					case INTEGER:
+						return new FieldType[] { FieldType.INTEGER,
+												 FieldType.LONG,
+												 FieldType.TEXT,
+												 FieldType.TEXTLONG };
+					case BINARY:
+					case FILE:
+					case TEXTLONG:
+					case REFERENCE:
+						return new FieldType[] { field.getType() };
+						
+					default:
+						return new FieldType[] { field.getType(),
+											 	 FieldType.TEXT,
+											 	 FieldType.TEXTLONG };
+				}
 			}
 		}
 		return FieldType.valuesWithoutAutonum();
@@ -560,8 +572,12 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		try {
 			if (context.getModule().getEntities() != null) {
 				importEntities(context, session);
-				// set references to other entities
+				// init references to other entities
 				for (Entity entity : context.getModule().getEntities()) {
+					final Entity genericEntity = entity.getGenericEntityUid() != null
+							? findByUid(session, entity.getGenericEntityUid())
+							: null;
+					((EntityMetadata) entity).setGenericEntity(genericEntity);
 					initEntityReferences(entity, session);
 					// validate and save
 					saveObject(entity, session);
@@ -578,7 +594,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 			final Entity currentVersionEntity = findByUid(session, entity.getUid());
 			((EntityMetadata) entity).setModule(context.getModule());
 			
-			// entity already exists
+			// entity exists
 			if (currentVersionEntity != null) {
 				context.addExistingEntity(entity, currentVersionEntity);
 				((EntityMetadata) currentVersionEntity).copySystemFieldsTo(entity);
@@ -598,21 +614,29 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(context, C.CONTEXT);
 		Assert.notNull(session, C.SESSION);
 		
+		final ReferenceChangeLog referenceChangeLog = new ReferenceChangeLog();
 		final List<ChangeLog> changeLogs = new ArrayList<>();
 		for (Entity entity : context.getNewEntities()) {
-			final ChangeLog changeLog = createChangeLog(null, entity);
-			if (changeLog != null) {
-				changeLogs.add(changeLog);
+			if (!entity.isGeneric()) {
+				final ChangeLog changeLog = createChangeLog(null, entity, referenceChangeLog);
+				if (changeLog != null) {
+					changeLogs.add(changeLog);
+				}
 			}
 		}
 		for (Entity entity : context.getExistingEntities()) {
-			final Entity currentVersionEntity = context.getCurrentVersionEntity(entity.getUid());
-			final ChangeLog changeLog = createChangeLog(currentVersionEntity, entity);
-			if (changeLog != null) {
-				changeLogs.add(changeLog);
+			if (!entity.isGeneric()) {
+				final Entity currentVersionEntity = context.getCurrentVersionEntity(entity.getUid());
+				final ChangeLog changeLog = createChangeLog(currentVersionEntity, entity, referenceChangeLog);
+				if (changeLog != null) {
+					changeLogs.add(changeLog);
+				}
 			}
 		}
 		changeLogs.sort(changeLogComparator);
+		if (!referenceChangeLog.isEmpty()) {
+			changeLogs.add(referenceChangeLog.build());
+		}
 		for (ChangeLog changeLog : changeLogs) {
 			session.saveOrUpdate(changeLog);
 		}
@@ -658,11 +682,9 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				}
 				saveObject(entity, session);
 				
-				if (!entity.isGeneric()) {
-					final ChangeLog changeLog = createChangeLog(currentVersionEntity, entity);
-					if (changeLog != null) {
-						session.saveOrUpdate(changeLog);
-					}
+				final ChangeLog changeLog = createChangeLog(currentVersionEntity, entity);
+				if (changeLog != null) {
+					session.saveOrUpdate(changeLog);
 				}
 				tx.commit();
 			}
@@ -707,11 +729,9 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				}
 				deleteObject(entity, session);
 				
-				if (!entity.isGeneric()) {
-					final ChangeLog changeLog = createChangeLog(entity, null);
-					if (changeLog != null) {
-						session.saveOrUpdate(changeLog);
-					}
+				final ChangeLog changeLog = createChangeLog(entity, null);
+				if (changeLog != null) {
+					session.saveOrUpdate(changeLog);
 				}
 				tx.commit();
 			}
@@ -1047,10 +1067,20 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	private ChangeLog createChangeLog(Entity currentVersionEntity, Entity nextVersionEntity) {
-		return new EntityChangeLogBuilder(limits, configuration)
-						.setCurrentVersionObject(currentVersionEntity)
-						.setNextVersionObject(nextVersionEntity)
-						.build();
+		return createChangeLog(currentVersionEntity, nextVersionEntity, null);
+	}
+	
+	private ChangeLog createChangeLog(Entity currentVersionEntity, Entity nextVersionEntity,
+									  @Nullable ReferenceChangeLog referenceChangeLog) {
+		final EntityChangeLogBuilder builder = new EntityChangeLogBuilder(limits, configuration);
+		builder.setCurrentVersionObject(currentVersionEntity);
+		builder.setNextVersionObject(nextVersionEntity);
+		builder.setReferenceChangeLog(referenceChangeLog);
+		// generic
+		if (currentVersionEntity != null && currentVersionEntity.isGeneric()) {
+			builder.setDescendants(findDescendants(currentVersionEntity));
+		}
+		return builder.build();
 	}
 	
 	private static final Comparator<ChangeLog> changeLogComparator = new Comparator<>() {

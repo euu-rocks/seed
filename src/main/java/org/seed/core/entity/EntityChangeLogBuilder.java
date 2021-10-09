@@ -17,9 +17,12 @@
  */
 package org.seed.core.entity;
 
+import java.util.List;
+
 import javax.persistence.Table;
 
 import org.hibernate.dialect.PostgreSQL81Dialect;
+
 import org.seed.C;
 import org.seed.core.config.Limits;
 import org.seed.core.config.SessionFactoryProvider;
@@ -27,6 +30,7 @@ import org.seed.core.config.changelog.AbstractChangeLogBuilder;
 import org.seed.core.config.changelog.ChangeLog;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.FileObject;
+import org.seed.core.data.SystemField;
 import org.seed.core.util.Assert;
 import org.seed.core.util.TinyId;
 
@@ -52,17 +56,11 @@ import liquibase.change.core.RenameTableChange;
 
 class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	
-	private static final String FIELD_ID		 = "id";
-	private static final String FIELD_STATUSID   = "status_id";
-	private static final String FIELD_VERSION	 = "version";
-	private static final String FIELD_CREATEDON  = "createdon";
-	private static final String FIELD_CREATEDBY  = "createdby";
-	private static final String FIELD_MODIFIEDON = "modifiedon";
-	private static final String FIELD_MODIFIEDBY = "modifiedby";
-	
 	private final Limits limits;
 	
 	private final SessionFactoryProvider sessionFactoryProvider;
+	
+	private List<Entity> descendants; // entities that implements a generic entity
 	
 	EntityChangeLogBuilder(Limits limits, SessionFactoryProvider sessionFactoryProvider) {
 		Assert.notNull(limits, "limits");
@@ -72,30 +70,45 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		this.sessionFactoryProvider = sessionFactoryProvider;
 	}
 	
+	void setDescendants(List<Entity> descendants) {
+		this.descendants = descendants;
+	}
+	
 	@Override
 	public ChangeLog build() {
 		checkValid();
 		
-		// create table
-		if (currentVersionObject == null) {
-			addCreateTableChangeSet(nextVersionObject);
-		}
-		// drop table
-		else if (nextVersionObject == null) {
-			addDropTableChangeSet(currentVersionObject);
+		if (isGeneric()) {
+			// only if generic entity was updated
+			if (currentVersionObject != null && nextVersionObject != null) {
+				// field changes
+				if (currentVersionObject.hasAllFields() || nextVersionObject.hasAllFields()) {
+					buildFieldChanges();
+				}
+			}
 		}
 		else {
-			// rename table
-			if (!getTableName(currentVersionObject).equals(getTableName(nextVersionObject))) {
-				addRenameTableChange(currentVersionObject, nextVersionObject);
+			// create table
+			if (currentVersionObject == null) {
+				addCreateTableChangeSet(nextVersionObject);
 			}
-			// status field change
-			if (currentVersionObject.hasStatus() != nextVersionObject.hasStatus()) {
-				buildStatusFieldChange();
+			// drop table
+			else if (nextVersionObject == null) {
+				addDropTableChangeSet(currentVersionObject);
 			}
-			// field changes
-			if (currentVersionObject.hasAllFields() || nextVersionObject.hasAllFields()) {
-				buildFieldsChanges();
+			else {
+				// rename table
+				if (!getTableName(currentVersionObject).equals(getTableName(nextVersionObject))) {
+					addRenameTableChange(currentVersionObject, nextVersionObject);
+				}
+				// status field change
+				if (currentVersionObject.hasStatus() != nextVersionObject.hasStatus()) {
+					buildStatusFieldChange();
+				}
+				// field changes
+				if (currentVersionObject.hasAllFields() || nextVersionObject.hasAllFields()) {
+					buildFieldChanges();
+				}
 			}
 		}
 		return super.build();
@@ -117,6 +130,11 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 				: entityField.getInternalName();
 	}
 	
+	private boolean isGeneric() {
+		return (currentVersionObject != null && currentVersionObject.isGeneric()) ||
+			   (nextVersionObject != null && nextVersionObject.isGeneric());
+	}
+	
 	private void addCreateTableChangeSet(Entity entity) {
 		Assert.notNull(entity, C.ENTITY);
 		
@@ -124,21 +142,21 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		createTableChange.setTableName(getTableName(entity));
 		
 		// system fields
-		createTableChange.addColumn(createColumn(FIELD_ID, FieldType.LONG)
+		createTableChange.addColumn(createColumn(SystemField.ID.columName, FieldType.LONG)
 										.setConstraints(new ConstraintsConfig()
 										.setPrimaryKey(Boolean.TRUE)
 										.setPrimaryKeyName(getPrimaryKeyConstraintName(entity))));
-		createTableChange.addColumn(createColumn(FIELD_VERSION, FieldType.INTEGER)
+		createTableChange.addColumn(createColumn(SystemField.VERSION.columName, FieldType.INTEGER)
 										.setConstraints(new ConstraintsConfig()
 										.setNullable(Boolean.FALSE)));
-		createTableChange.addColumn(createColumn(FIELD_CREATEDON, FieldType.DATETIME));
-		createTableChange.addColumn(createColumn(FIELD_CREATEDBY, FieldType.TEXT, getLimit("user.name.length")));
-		createTableChange.addColumn(createColumn(FIELD_MODIFIEDON, FieldType.DATETIME));
-		createTableChange.addColumn(createColumn(FIELD_MODIFIEDBY, FieldType.TEXT, getLimit("user.name.length")));
+		createTableChange.addColumn(createColumn(SystemField.CREATEDON.columName, FieldType.DATETIME));
+		createTableChange.addColumn(createColumn(SystemField.CREATEDBY.columName, FieldType.TEXT, getLimit("user.name.length")));
+		createTableChange.addColumn(createColumn(SystemField.MODIFIEDON.columName, FieldType.DATETIME));
+		createTableChange.addColumn(createColumn(SystemField.MODIFIEDBY.columName, FieldType.TEXT, getLimit("user.name.length")));
 		
 		// status
 		if (entity.hasStatus()) {
-			createTableChange.addColumn(createColumn(FIELD_STATUSID, FieldType.LONG)
+			createTableChange.addColumn(createColumn(SystemField.ENTITYSTATUS.columName, FieldType.LONG)
 											.setConstraints(new ConstraintsConfig()
 											.setNullable(Boolean.FALSE)));
 		}
@@ -291,9 +309,9 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		final AddForeignKeyConstraintChange addFKConstraintChange = new AddForeignKeyConstraintChange();
 		addFKConstraintChange.setBaseTableName(getTableName(entity));
 		addFKConstraintChange.setConstraintName(getStatusForeignKeyConstraintName(entity));
-		addFKConstraintChange.setBaseColumnNames(FIELD_STATUSID);
+		addFKConstraintChange.setBaseColumnNames(SystemField.ENTITYSTATUS.columName);
 		addFKConstraintChange.setReferencedTableName(EntityStatus.class.getAnnotation(Table.class).name());
-		addFKConstraintChange.setReferencedColumnNames(FIELD_ID);
+		addFKConstraintChange.setReferencedColumnNames(SystemField.ID.columName);
 		addChange(addFKConstraintChange);
 		
 		final CreateIndexChange createIndexChange = new CreateIndexChange();
@@ -301,7 +319,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		createIndexChange.setIndexName(getStatusIndexName(entity));
 		
 		final AddColumnConfig column = new AddColumnConfig();
-		column.setName(FIELD_STATUSID);
+		column.setName(SystemField.ENTITYSTATUS.columName);
 		column.setType(FieldType.LONG.dataType.name());
 		createIndexChange.addColumn(column);
 		addChange(createIndexChange);
@@ -320,54 +338,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		}
 	}
 	
-	private void buildFieldChanges(EntityField field, EntityField nextVersionField) {
-		//  drop column
-		if (nextVersionField == null) {
-			addDropColumChangeSet(nextVersionObject, field);
-			return;
-		}
-		
-		// change data type
-		if (field.getType() != nextVersionField.getType() ||
-		    !ObjectUtils.nullSafeEquals(field.getLength(), nextVersionField.getLength())) {
-			addModifyDataTypeChangeSet(nextVersionObject, nextVersionField);
-		}
-		
-		// rename column
-		if (!getColumnName(field).equals(getColumnName(nextVersionField))) {
-			addRenameColumnChangeSet(nextVersionObject, field, nextVersionField);
-		}
-		
-		// mandatory state changed
-		if (!field.isMandatory() && nextVersionField.isMandatory()) {
-			addAddMandatoryConstraintChangeSet(nextVersionObject, nextVersionField);
-		}
-		else if (field.isMandatory() && !nextVersionField.isMandatory()) {
-			addDropMandatoryConstraintChangeSet(nextVersionObject, nextVersionField);
-		}
-		
-		// unique state changed
-		if (!field.isUnique() && nextVersionField.isUnique()) {
-			addAddUniqueConstraintChangeSet(nextVersionObject, nextVersionField);
-		}
-		else if (field.isUnique() && !nextVersionField.isUnique()) {
-			addDropUniqueConstraintChangeSet(nextVersionObject, nextVersionField);
-		}
-		
-		buildFieldIndex(field, nextVersionField);
-	}
-	
-	private void buildFieldIndex(EntityField field, EntityField nextVersionField) {
-		// index state change
-		if (!field.isIndexed() && nextVersionField.isIndexed()) {
-			addCreateIndexChangeSet(nextVersionObject, nextVersionField);
-		}
-		else if (field.isIndexed() && !nextVersionField.isIndexed()) {
-			addDropIndexChangeSet(nextVersionObject, nextVersionField);
-		}
-	}
-	
-	private void buildFieldsChanges() {
+	private void buildFieldChanges() {
 		if (currentVersionObject.hasAllFields()) {
 			for (EntityField field : currentVersionObject.getAllFields()) {
 				// ignore calculated fields
@@ -376,15 +347,31 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 				}
 				
 				final EntityField nextVersionField = nextVersionObject.getFieldById(field.getId());
-				buildFieldChanges(field, nextVersionField);
+				// generic
+				if (currentVersionObject.isGeneric()) {
+					if (descendants != null) { // build changes for all implementing entities
+						descendants.forEach(descendant -> buildFieldChanges(descendant, field, nextVersionField));
+					}
+				}
+				else {
+					buildFieldChanges(nextVersionObject, field, nextVersionField);
+				}
 			}
 		}
 		if (nextVersionObject.hasAllFields()) {
-			buildFieldsChangesNextVersion();
+			// generic
+			if (nextVersionObject.isGeneric()) {
+				if (descendants != null) { // build changes for all implementing entities
+					descendants.forEach(descendant -> buildFieldChangesNextVersion(descendant));
+				}
+			}
+			else {
+				buildFieldChangesNextVersion(nextVersionObject);
+			}
 		}
 	}
 	
-	private void buildFieldsChangesNextVersion() {
+	private void buildFieldChangesNextVersion(Entity entity) {
 		for (EntityField field : nextVersionObject.getAllFields()) {
 			// ignore calculated fields
 			if (field.isCalculated()) {
@@ -393,8 +380,55 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 			
 			// add column
 			if (field.isNew() || currentVersionObject.getFieldById(field.getId()) == null) {
-				addAddColumChangeSet(nextVersionObject, field);
+				addAddColumChangeSet(entity, field);
 			}
+		}
+	}
+	
+	private void buildFieldChanges(Entity entity, EntityField field, EntityField nextVersionField) {
+		//  drop column
+		if (nextVersionField == null) {
+			addDropColumChangeSet(entity, field);
+			return;
+		}
+		
+		// change data type
+		if (field.getType() != nextVersionField.getType() ||
+		    !ObjectUtils.nullSafeEquals(field.getLength(), nextVersionField.getLength())) {
+			addModifyDataTypeChangeSet(entity, nextVersionField);
+		}
+		
+		// rename column
+		if (!getColumnName(field).equals(getColumnName(nextVersionField))) {
+			addRenameColumnChangeSet(entity, field, nextVersionField);
+		}
+		
+		// mandatory state changed
+		if (!field.isMandatory() && nextVersionField.isMandatory()) {
+			addAddMandatoryConstraintChangeSet(entity, nextVersionField);
+		}
+		else if (field.isMandatory() && !nextVersionField.isMandatory()) {
+			addDropMandatoryConstraintChangeSet(entity, nextVersionField);
+		}
+		
+		// unique state changed
+		if (!field.isUnique() && nextVersionField.isUnique()) {
+			addAddUniqueConstraintChangeSet(entity, nextVersionField);
+		}
+		else if (field.isUnique() && !nextVersionField.isUnique()) {
+			addDropUniqueConstraintChangeSet(entity, nextVersionField);
+		}
+		
+		buildFieldIndex(entity, field, nextVersionField);
+	}
+	
+	private void buildFieldIndex(Entity entity, EntityField field, EntityField nextVersionField) {
+		// index state change
+		if (!field.isIndexed() && nextVersionField.isIndexed()) {
+			addCreateIndexChangeSet(entity, nextVersionField);
+		}
+		else if (field.isIndexed() && !nextVersionField.isIndexed()) {
+			addDropIndexChangeSet(entity, nextVersionField);
 		}
 	}
 	
@@ -402,7 +436,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		// add status field
 		if (nextVersionObject.hasStatus()) {
 			final AddColumnConfig columnConfig = new AddColumnConfig();
-			columnConfig.setName(FIELD_STATUSID);
+			columnConfig.setName(SystemField.ENTITYSTATUS.columName);
 			columnConfig.setType(FieldType.LONG.dataType.name());
 			columnConfig.setConstraints(new ConstraintsConfig().setNullable(Boolean.FALSE));
 			columnConfig.setDefaultValueNumeric(nextVersionObject.getInitialStatus().getId());
@@ -412,7 +446,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		else { // remove status field
 			final DropColumnChange dropColumnChange = new DropColumnChange();
 			dropColumnChange.setTableName(getTableName(nextVersionObject));
-			dropColumnChange.setColumnName(FIELD_STATUSID);
+			dropColumnChange.setColumnName(SystemField.ENTITYSTATUS.columName);
 			addChange(dropColumnChange);
 		}
 	}
@@ -531,7 +565,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 			addFKConstraintChange.setConstraintName(getForeignKeyConstraintName(entity, field));
 			addFKConstraintChange.setBaseTableName(getTableName(entity));
 			addFKConstraintChange.setBaseColumnNames(getColumnName(field));
-			addFKConstraintChange.setReferencedColumnNames(FIELD_ID);
+			addFKConstraintChange.setReferencedColumnNames(SystemField.ID.columName);
 			if (field.getType().isReference()) {
 				addFKConstraintChange.setReferencedTableName(getTableName(field.getReferenceEntity()));
 			}
@@ -608,4 +642,3 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	}
 	
 }
-

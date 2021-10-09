@@ -19,19 +19,24 @@ package org.seed.core.data;
 
 public enum SystemField {
 	
-	CREATEDON	 (FieldType.DATETIME,  "createdOn"),
-	CREATEDBY	 (FieldType.TEXT,	   "createdBy"),
-	MODIFIEDON	 (FieldType.DATETIME,  "modifiedOn"),
-	MODIFIEDBY	 (FieldType.TEXT,	   "modifiedBy"),
-	ENTITYSTATUS (FieldType.REFERENCE, "entityStatus");
+	ID           (FieldType.LONG,      "id",           "id"),
+	VERSION      (FieldType.INTEGER,   "version",      "version"),
+	CREATEDON    (FieldType.DATETIME,  "createdOn",    "createdon"),
+	CREATEDBY    (FieldType.TEXT,	   "createdBy",    "createdby"),
+	MODIFIEDON	 (FieldType.DATETIME,  "modifiedOn",   "modifiedon"),
+	MODIFIEDBY	 (FieldType.TEXT,	   "modifiedBy",   "modifiedby"),
+	ENTITYSTATUS (FieldType.REFERENCE, "entityStatus", "status_id");
 	
 	public final FieldType type;
 	
 	public final String property;
 	
-	private SystemField(FieldType type, String property) {
+	public final String columName;
+	
+	private SystemField(FieldType type, String property, String columName) {
 		this.type = type;
 		this.property = property;
+		this.columName = columName;
 	}
 	
 }

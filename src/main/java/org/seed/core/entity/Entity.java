@@ -51,6 +51,8 @@ public interface Entity
 	
 	boolean containsFieldGroup(EntityFieldGroup fieldGroup);
 	
+	String getGenericEntityUid();
+	
 	String getTableName();
 	
 	String getIdentifierPattern();

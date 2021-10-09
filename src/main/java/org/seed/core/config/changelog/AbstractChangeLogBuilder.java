@@ -33,6 +33,7 @@ import org.seed.core.util.MiscUtils;
 import org.seed.core.util.UID;
 
 import liquibase.change.Change;
+import liquibase.change.core.AddForeignKeyConstraintChange;
 import liquibase.change.custom.CustomChangeWrapper;
 import liquibase.changelog.ChangeLogChild;
 import liquibase.changelog.ChangeSet;
@@ -45,10 +46,18 @@ public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 	
 	private ChangeSet changeSet;
 	
+	private ReferenceChangeLog referenceChangeLog;
+	
 	protected T currentVersionObject;
 	
 	protected T nextVersionObject;
 	
+	@Override
+	public ChangeLogBuilder<T> setReferenceChangeLog(ReferenceChangeLog referenceChangeLog) {
+		this.referenceChangeLog = referenceChangeLog;
+		return this;
+	}
+
 	@Override
 	public ChangeLogBuilder<T> setCurrentVersionObject(T currentVersionObject) {
 		this.currentVersionObject = currentVersionObject;
@@ -63,12 +72,7 @@ public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 	
 	@Override
 	public ChangeLog build() {
-		if (changeSet != null) {
-			final ChangeLog changeLog = new ChangeLog();
-			changeLog.setChangeSet(toJson(changeSet));
-			return changeLog;
-		}
-		return null;
+		return build(changeSet);
 	}
 	
 	protected void checkValid() {
@@ -79,7 +83,13 @@ public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 	protected void addChange(Change change) {
 		Assert.notNull(change, "change");
 		
-		getChangeSet().addChange(change);
+		if (referenceChangeLog != null && 
+			change instanceof AddForeignKeyConstraintChange) {
+			referenceChangeLog.addChange(change);
+		}
+		else {
+			getChangeSet().addChange(change);
+		}
 	}
 	
 	protected void addChange(AbstractCustomChange customChange) {
@@ -96,13 +106,29 @@ public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 		}
 	}
 	
+	static ChangeLog build(ChangeSet changeSet) {
+		return changeSet != null 
+				? createChangeLog(changeSet) 
+				: null;
+	}
+	
+	static ChangeSet createChangeSet() {
+		return new ChangeSet(UID.createUID(), MiscUtils.geUserName(), 
+				  false, false, "", null, null, 
+				  true, null, new DatabaseChangeLog());
+	}
+	
 	private ChangeSet getChangeSet() {
 		if (changeSet == null) {
-			changeSet = new ChangeSet(UID.createUID(), MiscUtils.geUserName(), 
-									  false, false, "", null, null, 
-									  true, null, new DatabaseChangeLog());
+			changeSet = createChangeSet();
 		}
 		return changeSet;
+	}
+	
+	private static ChangeLog createChangeLog(ChangeSet changeSet) {
+		final ChangeLog changeLog = new ChangeLog();
+		changeLog.setChangeSet(toJson(changeSet));
+		return changeLog;
 	}
 	
 	private static String toJson(ChangeSet changeSet) {
