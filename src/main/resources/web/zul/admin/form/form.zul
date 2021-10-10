@@ -51,9 +51,9 @@
 			<grid hflex="1" class="alpha-noborder">
 				<columns>
 	            	<column hflex="min"/>
-	              	<column hflex="max"/>
+	              	<column hflex="4"/>
 	              	<column hflex="min"/>
-	              	<column hflex="max"/>
+	              	<column hflex="2"/>
 	            </columns>
 				<rows>
 					<row>
@@ -67,12 +67,22 @@
 									 hflex="1"/>
 						</cell>
 						<cell style="padding: 4px 10px" align="right">
+							<label value="${labels.label.autolayout}"/>
+						</cell>
+						<cell style="padding: 4px 4px">
+							<checkbox checked="@bind(vm.object.autoLayout)"/>   
+						</cell>
+					</row>
+					<row>
+						<cell style="padding: 4px 10px" align="right">
 							<label value="${labels.label.entity}:"/>
 						</cell>
 						<cell style="padding: 4px 4px">
 							<textbox value="@load(vm.object.entity.name)" hflex="1" 
 									 cols="40" readonly="true"/>
-						</cell>
+						</cell>	
+						<cell/>
+						<cell/>
 					</row>
 				</rows>
 			</grid>

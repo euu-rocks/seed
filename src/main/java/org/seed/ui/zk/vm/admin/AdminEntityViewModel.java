@@ -167,7 +167,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 				filterGenericName.addValue(entity.getGenericEntity().getName());
 			}
 		}
-		getFilter(FILTERGROUP_LIST, "generic").setBooleanFilter(true);
+		getFilter(FILTERGROUP_LIST, C.GENERIC).setBooleanFilter(true);
 	}
 	
 	public boolean existGenericEntities() {
@@ -662,7 +662,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 			case "autolayout":
 				if (getOptions().isAutoLayout()) {
 					((EntityMetadata) getObject()).setGeneric(false);
-					notifyObjectChange("generic");
+					notifyObjectChange(C.GENERIC);
 				}
 				break;
 			

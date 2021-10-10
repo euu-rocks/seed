@@ -26,7 +26,7 @@ public class ReferenceChangeLog {
 	
 	private ChangeSet changeSet;
 	
-	public void addChange(Change change) {
+	void addChange(Change change) {
 		Assert.notNull(change, "change");
 		
 		if (changeSet == null) {

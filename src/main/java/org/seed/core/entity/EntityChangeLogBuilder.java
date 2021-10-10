@@ -79,39 +79,47 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		checkValid();
 		
 		if (isGeneric()) {
-			// only if generic entity was updated
-			if (currentVersionObject != null && nextVersionObject != null) {
-				// field changes
-				if (currentVersionObject.hasAllFields() || nextVersionObject.hasAllFields()) {
-					buildFieldChanges();
-				}
-			}
+			buildGenericEntityChanges();
 		}
 		else {
-			// create table
-			if (currentVersionObject == null) {
-				addCreateTableChangeSet(nextVersionObject);
-			}
-			// drop table
-			else if (nextVersionObject == null) {
-				addDropTableChangeSet(currentVersionObject);
-			}
-			else {
-				// rename table
-				if (!getTableName(currentVersionObject).equals(getTableName(nextVersionObject))) {
-					addRenameTableChange(currentVersionObject, nextVersionObject);
-				}
-				// status field change
-				if (currentVersionObject.hasStatus() != nextVersionObject.hasStatus()) {
-					buildStatusFieldChange();
-				}
-				// field changes
-				if (currentVersionObject.hasAllFields() || nextVersionObject.hasAllFields()) {
-					buildFieldChanges();
-				}
-			}
+			buildEntityChanges();
 		}
 		return super.build();
+	}
+	
+	private void buildGenericEntityChanges() {
+		// only if generic entity was updated
+		if (currentVersionObject != null && nextVersionObject != null &&
+			// and fields exist
+			(currentVersionObject.hasAllFields() || nextVersionObject.hasAllFields())) {
+			
+			buildFieldChanges();
+		}
+	}
+	
+	private void buildEntityChanges() {
+		// create table
+		if (currentVersionObject == null) {
+			addCreateTableChangeSet(nextVersionObject);
+		}
+		// drop table
+		else if (nextVersionObject == null) {
+			addDropTableChangeSet(currentVersionObject);
+		}
+		else {
+			// rename table
+			if (!getTableName(currentVersionObject).equals(getTableName(nextVersionObject))) {
+				addRenameTableChange(currentVersionObject, nextVersionObject);
+			}
+			// status field change
+			if (currentVersionObject.hasStatus() != nextVersionObject.hasStatus()) {
+				buildStatusFieldChange();
+			}
+			// field changes
+			if (currentVersionObject.hasAllFields() || nextVersionObject.hasAllFields()) {
+				buildFieldChanges();
+			}
+		}
 	}
 	
 	static String getTableName(Entity entity) {
@@ -341,33 +349,37 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	private void buildFieldChanges() {
 		if (currentVersionObject.hasAllFields()) {
 			for (EntityField field : currentVersionObject.getAllFields()) {
-				// ignore calculated fields
-				if (field.isCalculated()) {
-					continue;
-				}
-				
-				final EntityField nextVersionField = nextVersionObject.getFieldById(field.getId());
-				// generic
-				if (currentVersionObject.isGeneric()) {
-					if (descendants != null) { // build changes for all implementing entities
-						descendants.forEach(descendant -> buildFieldChanges(descendant, field, nextVersionField));
-					}
-				}
-				else {
-					buildFieldChanges(nextVersionObject, field, nextVersionField);
-				}
+				buildFieldChangesCurrentVersion(field);
 			}
 		}
 		if (nextVersionObject.hasAllFields()) {
 			// generic
 			if (nextVersionObject.isGeneric()) {
 				if (descendants != null) { // build changes for all implementing entities
-					descendants.forEach(descendant -> buildFieldChangesNextVersion(descendant));
+					descendants.forEach(this::buildFieldChangesNextVersion);
 				}
 			}
 			else {
 				buildFieldChangesNextVersion(nextVersionObject);
 			}
+		}
+	}
+	
+	private void buildFieldChangesCurrentVersion(EntityField field) {
+		// ignore calculated fields
+		if (field.isCalculated()) {
+			return;
+		}
+		
+		final EntityField nextVersionField = nextVersionObject.getFieldById(field.getId());
+		// generic
+		if (currentVersionObject.isGeneric()) {
+			if (descendants != null) { // build changes for all implementing entities
+				descendants.forEach(descendant -> buildFieldChanges(descendant, field, nextVersionField));
+			}
+		}
+		else {
+			buildFieldChanges(nextVersionObject, field, nextVersionField);
 		}
 	}
 	

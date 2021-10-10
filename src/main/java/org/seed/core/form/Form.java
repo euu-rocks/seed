@@ -37,6 +37,8 @@ public interface Form extends ApplicationEntity {
 	
 	FormLayout getLayout();
 	
+	boolean isAutoLayout();
+	
 	boolean hasFields();
 	
 	boolean containsEntityField(EntityField entityField);

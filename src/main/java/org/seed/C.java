@@ -46,6 +46,7 @@ public final class C {
 	public static final String FILTER           = "filter";
 	public static final String FORM             = "form";
 	public static final String FUNCTION         = "function";
+	public static final String GENERIC          = "generic";
 	public static final String ICON             = "icon";
 	public static final String ID               = "id";
 	public static final String ITEM             = "item";

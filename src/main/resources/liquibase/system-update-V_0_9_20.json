@@ -4,6 +4,23 @@
             "author": "seed",
             "changes": [
                {
+                  "addColumn":  {
+                     "columns":[
+                        {
+                           "column": {
+                              "name": "autolayout",
+                              "type": "BOOLEAN",
+                              "defaultValue": false,
+                              "constraints": {
+                                  "nullable": "false"
+                              }
+                           }
+                        }
+                     ],
+                     "tableName":  "sys_form"
+                  } 
+               },
+               {
                   "createTable": {
                      "tableName": "sys_customlib",
                      "columns": [

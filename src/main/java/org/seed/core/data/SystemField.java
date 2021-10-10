@@ -17,15 +17,17 @@
  */
 package org.seed.core.data;
 
+import java.util.Arrays;
+
 public enum SystemField {
 	
-	ID           (FieldType.LONG,      "id",           "id"),
-	VERSION      (FieldType.INTEGER,   "version",      "version"),
-	CREATEDON    (FieldType.DATETIME,  "createdOn",    "createdon"),
-	CREATEDBY    (FieldType.TEXT,	   "createdBy",    "createdby"),
-	MODIFIEDON	 (FieldType.DATETIME,  "modifiedOn",   "modifiedon"),
-	MODIFIEDBY	 (FieldType.TEXT,	   "modifiedBy",   "modifiedby"),
-	ENTITYSTATUS (FieldType.REFERENCE, "entityStatus", "status_id");
+    ID           (FieldType.LONG,      "id",           "id"),
+    VERSION      (FieldType.INTEGER,   "version",      "version"),
+    CREATEDON    (FieldType.DATETIME,  "createdOn",    "createdon"),
+    CREATEDBY    (FieldType.TEXT,      "createdBy",    "createdby"),
+    MODIFIEDON   (FieldType.DATETIME,  "modifiedOn",   "modifiedon"),
+    MODIFIEDBY   (FieldType.TEXT,      "modifiedBy",   "modifiedby"),
+    ENTITYSTATUS (FieldType.REFERENCE, "entityStatus", "status_id");
 	
 	public final FieldType type;
 	
@@ -37,6 +39,10 @@ public enum SystemField {
 		this.type = type;
 		this.property = property;
 		this.columName = columName;
+	}
+	
+	public static SystemField[] valuesWithoutIdAndVersion() {
+		return Arrays.copyOfRange(values(), 2, values().length);
 	}
 	
 }

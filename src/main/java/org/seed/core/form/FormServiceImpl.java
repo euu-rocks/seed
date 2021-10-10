@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.application.AbstractApplicationEntityService;
@@ -191,9 +192,12 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		
 		final List<Form> result = new ArrayList<>();
 		for (Form form : getObjects()) {
-			// check fields
+			if (form.isAutoLayout()) {
+				continue;
+			}
 			if (form.containsEntityField(entityField) || 
-				(form.getLayout() != null && layoutService.containsField(form.getLayout(), entityField))) {
+				(form.getLayout() != null && 
+					 layoutService.containsField(form.getLayout(), entityField))) {
 				result.add(form);
 			}
 			// check subforms
@@ -356,7 +360,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 			}
 		}
 		// system fields
-		for (SystemField systemField : SystemField.values()) {
+		for (SystemField systemField : SystemField.valuesWithoutIdAndVersion()) {
 			if ((systemField != SystemField.ENTITYSTATUS || entity.hasStatus()) && 
 				!form.containsSystemField(systemField)) {
 				result.add(createSystemFormField(form, systemField));
@@ -586,11 +590,13 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 			final Form form = createInstance(formOptions);
 			form.setName(entity.getName());
 			((FormMetadata) form).setEntity(entity);
+			((FormMetadata) form).setAutoLayout(true);
 			try {
 				initObject(form);
 				layoutService.rebuildLayout(form);
 				saveObject(form, session);
-			} catch (ValidationException vex) {
+			} 
+			catch (ValidationException vex) {
 				throw new InternalException(vex);
 			}
 		}
@@ -607,7 +613,14 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		Assert.notNull(session, C.SESSION);
 		
 		for (Form form : formRepository.find(session, queryParam(C.ENTITY, entity))) {
-			if (form.getLayout() != null) {
+			if (form.isAutoLayout()) {
+				// create new layout
+				((FormMetadata) form).setLayoutContent(layoutService.buildAutoLayout(form));
+				// remove fields that no longer exist 
+				form.getFields().removeIf(field -> !entity.containsField(field.getEntityField()));
+				session.save(form.getLayout());
+			}
+			else if (form.getLayout() != null) {
 				layoutService.rebuildLayout(form);
 				session.save(form.getLayout());
 			}

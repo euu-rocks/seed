@@ -105,6 +105,8 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 			   fetch = FetchType.LAZY)
 	private List<SubForm> subForms;
 	
+	private boolean autoLayout;
+	
 	@Transient
 	private String entityUid;
 	
@@ -121,6 +123,16 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 		this.entity = (EntityMetadata) entity;
 	}
 	
+	@Override
+	@XmlAttribute
+	public boolean isAutoLayout() {
+		return autoLayout;
+	}
+
+	public void setAutoLayout(boolean autoLayout) {
+		this.autoLayout = autoLayout;
+	}
+
 	@Override
 	@XmlElement(name="field")
 	@XmlElementWrapper(name="fields")
@@ -718,6 +730,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 		final Form otherForm = (Form) other;
 		if (!new EqualsBuilder()
 			.append(getName(), otherForm.getName())
+			.append(autoLayout, otherForm.isAutoLayout())
 			.isEquals()) {
 			return false;
 		}

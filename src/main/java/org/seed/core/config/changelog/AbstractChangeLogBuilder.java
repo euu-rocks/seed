@@ -44,6 +44,8 @@ import liquibase.serializer.core.yaml.YamlChangeLogSerializer;
 public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 	implements ChangeLogBuilder<T> {
 	
+	private static final DatabaseChangeLog DBCHANGELOG = new DatabaseChangeLog();
+	
 	private ChangeSet changeSet;
 	
 	private ReferenceChangeLog referenceChangeLog;
@@ -114,8 +116,7 @@ public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 	
 	static ChangeSet createChangeSet() {
 		return new ChangeSet(UID.createUID(), MiscUtils.geUserName(), 
-				  false, false, "", null, null, 
-				  true, null, new DatabaseChangeLog());
+					false, false, "", null, null, true, null, DBCHANGELOG);
 	}
 	
 	private ChangeSet getChangeSet() {
