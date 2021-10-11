@@ -40,9 +40,9 @@ public class ReferenceChangeLog {
 	}
 	
 	public ChangeLog build() {
-		return isEmpty() 
-				? null 
-				: AbstractChangeLogBuilder.build(changeSet);
+		return changeSet != null
+				? AbstractChangeLogBuilder.build(changeSet)
+				: null;
 	}
 	
 }

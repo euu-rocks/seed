@@ -108,6 +108,13 @@ public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 		}
 	}
 	
+	private ChangeSet getChangeSet() {
+		if (changeSet == null) {
+			changeSet = createChangeSet();
+		}
+		return changeSet;
+	}
+	
 	static ChangeLog build(ChangeSet changeSet) {
 		return changeSet != null 
 				? createChangeLog(changeSet) 
@@ -117,13 +124,6 @@ public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 	static ChangeSet createChangeSet() {
 		return new ChangeSet(UID.createUID(), MiscUtils.geUserName(), 
 					false, false, "", null, null, true, null, DBCHANGELOG);
-	}
-	
-	private ChangeSet getChangeSet() {
-		if (changeSet == null) {
-			changeSet = createChangeSet();
-		}
-		return changeSet;
 	}
 	
 	private static ChangeLog createChangeLog(ChangeSet changeSet) {

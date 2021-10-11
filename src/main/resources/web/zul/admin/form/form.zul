@@ -70,7 +70,8 @@
 							<label value="${labels.label.autolayout}"/>
 						</cell>
 						<cell style="padding: 4px 4px">
-							<checkbox checked="@bind(vm.object.autoLayout)"/>   
+							<checkbox checked="@bind(vm.object.autoLayout)"
+									  onCheck="@command('flagDirty')"/>   
 						</cell>
 					</row>
 					<row>

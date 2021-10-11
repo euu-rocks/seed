@@ -183,7 +183,9 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	
 	@Override
 	public List<Form> findUsage(Entity entity) {
-		return findForms(entity);
+		// ignore auto layout forms
+		return formRepository.find(queryParam(C.ENTITY, entity), 
+								   queryParam("autoLayout", false));
 	}
 	
 	@Override
@@ -604,7 +606,19 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	
 	@Override
 	public void notifyDelete(Entity entity, Session session) {
-		// do nothing
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(session, C.SESSION);
+		
+		// delete auto layout forms
+		for (Form form : formRepository.find(queryParam(C.ENTITY, entity), 
+								   			 queryParam("autoLayout", true))) {
+			try {
+				deleteObject(form, session);
+			} 
+			catch (ValidationException vex) {
+				throw new InternalException(vex);
+			}
+		}
 	}
 	
 	@Override
@@ -645,16 +659,19 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 				case SELECTCOLS:
 					result.add(createAction(form, actionType));
 					break;
+					
 				case STATUS:
 					if (form.getEntity().hasStatus()) {
 						result.add(createAction(form, actionType));
 					}
 					break;
+					
 				case TRANSFORM:
 					if (form.hasTransformers()) {
 						result.add(createAction(form, actionType));
 					}
 					break;
+					
 				default:
 					throw new UnsupportedOperationException(actionType.name());
 			}
