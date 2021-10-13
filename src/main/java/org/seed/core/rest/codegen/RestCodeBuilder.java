@@ -30,19 +30,19 @@ import org.seed.core.util.Assert;
 
 class RestCodeBuilder extends AbstractSourceCodeBuilder {
 	
-	private final RestFunction mapping;
+	private final RestFunction function;
 
-	RestCodeBuilder(RestFunction mapping) {
-		super(mapping, 
+	RestCodeBuilder(RestFunction function) {
+		super(function, 
 			  false, 
 			  null, 
 			  getInterfaceTypes());
-		this.mapping = mapping;
+		this.function = function;
 	}
 
 	@Override
 	public Date getLastModified() {
-		return mapping.getLastModified();
+		return function.getLastModified();
 	}
 
 	@Override
@@ -59,7 +59,7 @@ class RestCodeBuilder extends AbstractSourceCodeBuilder {
 				return super.build(false);
 				
 			case COMPLETE:
-				return createSourceCode(mapping.getContent());
+				return createSourceCode(function.getContent());
 				
 			default:
 				throw new UnsupportedOperationException(buildMode.name());

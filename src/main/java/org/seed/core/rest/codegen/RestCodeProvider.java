@@ -37,12 +37,12 @@ public class RestCodeProvider implements SourceCodeProvider {
 	@Autowired
 	private RestRepository repository;
 	
-	public String getFunctionTemplate(RestFunction mapping) {
-		return new RestCodeBuilder(mapping).build(BuildMode.TEMPLATE).getContent();
+	public String getFunctionTemplate(RestFunction function) {
+		return new RestCodeBuilder(function).build(BuildMode.TEMPLATE).getContent();
 	}
 	
-	public SourceCode getRestSource(RestFunction mapping) {
-		return new RestCodeBuilder(mapping).build();
+	public SourceCode getRestSource(RestFunction function) {
+		return new RestCodeBuilder(function).build();
 	}
 	
 	@Override
@@ -50,8 +50,8 @@ public class RestCodeProvider implements SourceCodeProvider {
 		final List<SourceCodeBuilder> result = new ArrayList<>();
 		for (Rest rest : repository.find()) {
 			if (rest.hasFunctions()) {
-				for (RestFunction mapping : rest.getFunctions()) {
-					result.add(new RestCodeBuilder(mapping));
+				for (RestFunction function : rest.getFunctions()) {
+					result.add(new RestCodeBuilder(function));
 				}
 			}
 		}

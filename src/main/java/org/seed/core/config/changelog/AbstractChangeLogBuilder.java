@@ -37,14 +37,11 @@ import liquibase.change.core.AddForeignKeyConstraintChange;
 import liquibase.change.custom.CustomChangeWrapper;
 import liquibase.changelog.ChangeLogChild;
 import liquibase.changelog.ChangeSet;
-import liquibase.changelog.DatabaseChangeLog;
 import liquibase.exception.CustomChangeException;
 import liquibase.serializer.core.yaml.YamlChangeLogSerializer;
 
 public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 	implements ChangeLogBuilder<T> {
-	
-	private static final DatabaseChangeLog DBCHANGELOG = new DatabaseChangeLog();
 	
 	private ChangeSet changeSet;
 	
@@ -78,8 +75,8 @@ public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 	}
 	
 	protected void checkValid() {
-		Assert.state(currentVersionObject != null || nextVersionObject != null, 
-					 "no current or next version object available");
+		Assert.stateAvailable(currentVersionObject != null || nextVersionObject != null, 
+					 		  "current or next version object");
 	}
 	
 	protected void addChange(Change change) {
@@ -123,7 +120,7 @@ public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 	
 	static ChangeSet createChangeSet() {
 		return new ChangeSet(UID.createUID(), MiscUtils.geUserName(), 
-					false, false, "", null, null, true, null, DBCHANGELOG);
+					false, false, null, null, null, false, null, null);
 	}
 	
 	private static ChangeLog createChangeLog(ChangeSet changeSet) {

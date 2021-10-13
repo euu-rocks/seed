@@ -31,7 +31,7 @@ public interface Rest
 	
 	List<RestFunction> getFunctions();
 	
-	void addFunction(RestFunction mapping);
+	void addFunction(RestFunction function);
 	
 	void removeFunction(RestFunction function);
 	

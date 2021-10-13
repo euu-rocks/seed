@@ -90,12 +90,12 @@ public class RestFunction extends AbstractContentObject
 		if (other == this) {
 			return true;
 		}
-		final RestFunction otherMapping = (RestFunction) other;
+		final RestFunction otherFunction = (RestFunction) other;
 		return new EqualsBuilder()
-				.append(getName(), otherMapping.getName())
-				.append(mapping, otherMapping.getMapping())
-				.append(method, otherMapping.getMethod())
-				.append(getContent(), otherMapping.getContent())
+				.append(getName(), otherFunction.getName())
+				.append(mapping, otherFunction.getMapping())
+				.append(method, otherFunction.getMethod())
+				.append(getContent(), otherFunction.getContent())
 				.isEquals();
 	}
 
