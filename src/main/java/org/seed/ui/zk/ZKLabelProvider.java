@@ -40,8 +40,6 @@ import org.zkoss.util.resource.Labels;
 @Component
 public class ZKLabelProvider implements LabelProvider {
 	
-	private static final String EMPTY = "";
-	
 	private static final Locale LOCALE = Locale.getDefault();
 	
 	private static final TimeZone TIMEZONE = TimeZone.getDefault();
@@ -95,7 +93,7 @@ public class ZKLabelProvider implements LabelProvider {
 	@Override
 	public String formatBoolean(Boolean bool) {
 		if (bool == null) {
-			return EMPTY;
+			return emptyString();
 		}
 		return getLabel(bool.booleanValue() ? "boolean.true" : "boolean.false");
 	}
@@ -103,7 +101,7 @@ public class ZKLabelProvider implements LabelProvider {
 	@Override
 	public String formatDate(Date date) {
 		if (date == null) {
-			return EMPTY;
+			return emptyString();
 		}
 		synchronized (dateFormat) {
 			return dateFormat.format(date);
@@ -113,7 +111,7 @@ public class ZKLabelProvider implements LabelProvider {
 	@Override
 	public String formatDateTime(Date date) {
 		if (date == null) {
-			return EMPTY;
+			return emptyString();
 		}
 		synchronized (dateTimeFormat) {
 			return dateTimeFormat.format(date);
@@ -123,7 +121,7 @@ public class ZKLabelProvider implements LabelProvider {
 	@Override
 	public String formatTime(Date time) {
 		if (time == null) {
-			return EMPTY;
+			return emptyString();
 		}
 		synchronized (timeFormat) {
 			return timeFormat.format(time);
@@ -133,7 +131,7 @@ public class ZKLabelProvider implements LabelProvider {
 	@Override
 	public String formatBigDecimal(BigDecimal decimal) {
 		if (decimal == null) {
-			return EMPTY;
+			return emptyString();
 		}
 		return BigDecimals.toLocaleString(decimal, LOCALE);
 	}

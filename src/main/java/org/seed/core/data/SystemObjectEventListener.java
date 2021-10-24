@@ -30,16 +30,15 @@ public class SystemObjectEventListener implements SaveOrUpdateEventListener {
 	@Override
 	public void onSaveOrUpdate(SaveOrUpdateEvent event) {
 		final AbstractSystemObject object = (AbstractSystemObject) event.getEntity();
-		final String userName = MiscUtils.geUserName(); 
 		
 		object.setOrderIndexes();
 		if (object.getCreatedOn() == null) {
 			object.setCreatedOn(new Date());
-			object.setCreatedBy(userName);
+			object.setCreatedBy(MiscUtils.geUserName());
 		}
 		else {
 			object.setModifiedOn(new Date());
-			object.setModifiedBy(userName);
+			object.setModifiedBy(MiscUtils.geUserName());
 		}
 	}
 

@@ -62,7 +62,7 @@
 						</cell>
 						<cell style="padding: 4px 4px">
 							<textbox value="@bind(vm.object.name) @converter(vm.stringConverter)"
-									 mandatory="true"
+									 placeholder="@load(vm.object.entity.name)"
 									 onChange="@command('flagDirty')"
 									 hflex="1"/>
 						</cell>
@@ -116,4 +116,7 @@
 			</tabbox>
 		</vlayout>
 	</center>
+	<south border="0">
+		<systemfields object="@load(vm.object)"/>
+	</south>
 </borderlayout>

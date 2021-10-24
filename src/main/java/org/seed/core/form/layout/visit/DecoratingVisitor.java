@@ -17,13 +17,14 @@
  */
 package org.seed.core.form.layout.visit;
 
+import static org.seed.core.form.layout.LayoutElementAttributes.*;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.seed.core.form.Form;
 import org.seed.core.form.layout.LayoutElement;
-import org.seed.core.form.layout.LayoutElementAttributes;
 import org.seed.core.form.layout.LayoutElementClass;
 
 public class DecoratingVisitor extends AbstractLayoutVisitor {
@@ -67,46 +68,46 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 				break;
 			
 			case LayoutElement.IMAGE:
-				element.setAttribute(LayoutElementAttributes.A_CONTENT, "@init(null) @converter('org.seed.ui.zk.ImageConverter')");
-				element.removeAttribute(LayoutElementAttributes.A_ONCLICK);
-				element.removeAttribute(LayoutElementAttributes.A_VISIBLE);
+				element.setAttribute(A_CONTENT, "@init(null) @converter('org.seed.ui.zk.ImageConverter')");
+				element.removeAttribute(A_ONCLICK);
+				element.removeAttribute(A_VISIBLE);
 				if (element.getId() != null) {
 					element.setContext(newContextId())
-						   .setAttribute(LayoutElementAttributes.A_TOOLTIPTEXT, getEntityField(element).getName());
+						   .setAttribute(A_TOOLTIPTEXT, getEntityField(element).getName());
 					addToRoot(createFieldMenuPopup(element));
 				}
 				break;
 				
 			case LayoutElement.CHECKBOX:
-				element.removeAttribute(LayoutElementAttributes.A_CHECKED);
-				element.removeAttribute(LayoutElementAttributes.A_ONCHECK);
-				element.removeAttribute(LayoutElementAttributes.A_DISABLED);
-				element.removeAttribute(LayoutElementAttributes.A_VISIBLE);
+				element.removeAttribute(A_CHECKED);
+				element.removeAttribute(A_ONCHECK);
+				element.removeAttribute(A_DISABLED);
+				element.removeAttribute(A_VISIBLE);
 				if (element.getId() != null) {
 					element.setContext(newContextId());
-					element.setAttribute(LayoutElementAttributes.A_TOOLTIPTEXT, getEntityField(element).getName());
+					element.setAttribute(A_TOOLTIPTEXT, getEntityField(element).getName());
 					addToRoot(createFieldMenuPopup(element));
 				}
 				break;
 			
 			case LayoutElement.COMBOBOX:
-				element.removeAttribute(LayoutElementAttributes.A_MODEL);
-				element.removeAttribute(LayoutElementAttributes.A_SELECTEDITEM);
-				element.removeAttribute(LayoutElementAttributes.A_ONSELECT);
+				element.removeAttribute(A_MODEL);
+				element.removeAttribute(A_SELECTEDITEM);
+				element.removeAttribute(A_ONSELECT);
 				element.removeChildren(LayoutElement.TEMPLATE);
 				/* falls through */
 			
 			case LayoutElement.BANDBOX:
-				element.removeAttribute(LayoutElementAttributes.A_BUTTONVISIBLE);
+				element.removeAttribute(A_BUTTONVISIBLE);
 				element.removeChildren(LayoutElement.BANDPOPUP);
 				/* falls through */
 			
 			case LayoutElement.FILEBOX:	
-				element.removeAttribute(LayoutElementAttributes.A_CONTENT);
-				element.removeAttribute(LayoutElementAttributes.A_CONTENTTYPE);
-				element.removeAttribute(LayoutElementAttributes.A_FILENAME);
+				element.removeAttribute(A_CONTENT);
+				element.removeAttribute(A_CONTENTTYPE);
+				element.removeAttribute(A_FILENAME);
 				if (element.is(LayoutElement.FILEBOX)) {
-					element.setAttribute(LayoutElementAttributes.A_DISABLED, "true");
+					element.setAttribute(A_DISABLED, V_TRUE);
 				}
 				/* falls through */
 				
@@ -121,15 +122,15 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 			case LayoutElement.INTBOX:
 				/* falls through */
 			case LayoutElement.LONGBOX:
-				element.removeAttribute(LayoutElementAttributes.A_INSTANT);
-				element.removeAttribute(LayoutElementAttributes.A_READONLY);
-				element.removeAttribute(LayoutElementAttributes.A_MANDATORY);
-				element.removeAttribute(LayoutElementAttributes.A_VISIBLE);
-				element.removeAttribute(LayoutElementAttributes.A_VALUE);
-				element.removeAttribute(LayoutElementAttributes.A_ONCHANGE);
+				element.removeAttribute(A_INSTANT);
+				element.removeAttribute(A_READONLY);
+				element.removeAttribute(A_MANDATORY);
+				element.removeAttribute(A_VISIBLE);
+				element.removeAttribute(A_VALUE);
+				element.removeAttribute(A_ONCHANGE);
 				if (element.getId() != null) {
 					element.setContext(newContextId())
-						   .setAttribute(LayoutElementAttributes.A_TOOLTIPTEXT, getEntityField(element).getName());
+						   .setAttribute(A_TOOLTIPTEXT, getEntityField(element).getName());
 					addToRoot(createFieldMenuPopup(element));
 				}
 				break;
@@ -138,22 +139,21 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 				if (element.getId() == null) {
 					break;	// no subform
 				}
-				element.removeAttribute(LayoutElementAttributes.A_VISIBLE);
+				element.removeAttribute(A_VISIBLE);
 				final LayoutElement elemListBox = element.getChild(LayoutElement.CENTER).getChild(LayoutElement.LISTBOX);
 				elemListBox.setContext(newContextId());
-				elemListBox.removeAttribute(LayoutElementAttributes.A_MODEL);
-				elemListBox.removeAttribute(LayoutElementAttributes.A_SELECTEDITEM);
-				elemListBox.removeAttribute(LayoutElementAttributes.A_AUTOPAGING);
-				elemListBox.removeAttribute(LayoutElementAttributes.A_MOLD);
-				elemListBox.removeChildren(LayoutElementAttributes.A_TEMPLATE);
+				elemListBox.removeAttribute(A_MODEL);
+				elemListBox.removeAttribute(A_SELECTEDITEM);
+				elemListBox.removeAttribute(A_AUTOPAGING);
+				elemListBox.removeAttribute(A_MOLD);
+				elemListBox.removeChildren(A_TEMPLATE);
 				element.removeChildren(LayoutElement.NORTH);
 				addToRoot(createSubFormMenuPopup(elemListBox));
 				break;
 			
 			case LayoutElement.TAB:
 				element.setContext(newContextId());
-				addToRoot(createPopupMenu(element.getContext(), 
-											 Collections.singletonList(createTabMenu(element))));
+				addToRoot(createPopupMenu(element.getContext(), Collections.singletonList(createTabMenu(element))));
 				break;
 				
 			case LayoutElement.TABPANEL:
@@ -175,8 +175,8 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 		switch (element.getName()) {
 			case LayoutElement.NORTH:
 			case LayoutElement.SOUTH:
-				if (element.isEmpty() && !element.hasAttribute(LayoutElementAttributes.A_SIZE)) {
-					element.setAttribute(LayoutElementAttributes.A_SIZE, "20%");
+				if (element.isEmpty() && !element.hasAttribute(A_SIZE)) {
+					element.setAttribute(A_SIZE, "20%");
 				}
 				break;
 				
@@ -187,8 +187,8 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 			case LayoutElement.EAST:
 			case LayoutElement.WEST:
 				final boolean existCenter = element.getParent().existChild(LayoutElement.CENTER);
-				if (element.isEmpty() && !element.hasAttribute(LayoutElementAttributes.A_SIZE)) {
-					element.setAttribute(LayoutElementAttributes.A_SIZE, existCenter ? "20%" : "50%");
+				if (element.isEmpty() && !element.hasAttribute(A_SIZE)) {
+					element.setAttribute(A_SIZE, existCenter ? "20%" : "50%");
 				}
 				break;
 			
@@ -205,8 +205,8 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 	private void visitTabpanel(LayoutElement element) {
 		element.setContext(newContextId());
 		if (element.isEmpty() && element.getParent().getParent().parentIs(LayoutElement.CELL)) {
-			element.setAttribute(LayoutElementAttributes.A_STYLE, "padding: 5px;text-align:center")
-				   .setText(getLabel("label.empty"));
+			element.setAttribute(A_STYLE, "padding: 5px;text-align:center")
+				   .setText(getLabel(LABEL_EMPTY));
 		}
 		addToRoot(createTabPanelPopupMenu(element));
 	}
@@ -381,7 +381,7 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 	}
 	
 	private boolean fieldsAvailable() {
-		return !getLayoutService().getAvailableEntityFields(form, getRootElement()).isEmpty();
+		return !getLayoutService().getAvailableEntityFields(getForm(), getRootElement()).isEmpty();
 	}
 	
 	private static final String LABEL_ADDTAB   = "admin.layout.addtab";

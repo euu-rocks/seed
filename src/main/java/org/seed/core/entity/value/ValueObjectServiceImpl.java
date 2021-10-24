@@ -669,7 +669,7 @@ public class ValueObjectServiceImpl
 				Assert.state(value instanceof Map, "value of '" + field.getInternalName() + "' is not a map");
 				final Map<String, Object> objectMap = (Map<String, Object>) value;
 				final Integer referenceId = (Integer) objectMap.get(C.ID);
-				Assert.state(referenceId != null, "reference id of '" + field.getInternalName() + "' is not available");
+				Assert.stateAvailable(referenceId, "reference id of " + field.getInternalName());
 				value = getObject(session, field.getReferenceEntity(), referenceId.longValue());
 			}
 			objectAccess.setValue(object, field, value);

@@ -17,6 +17,12 @@
  */
 package org.seed.ui.zk.component;
 
+import java.util.Date;
+
+import org.seed.Seed;
+import org.seed.core.form.LabelProvider;
+import org.seed.core.util.Assert;
+
 import org.springframework.util.StringUtils;
 import org.zkoss.zul.impl.InputElement;
 
@@ -26,7 +32,21 @@ abstract class ComponentUtils {
 	
 	static final String STYLE_MANDATORY = "border:1px solid #FF8888;border-radius:3px";
 	
+	private static LabelProvider labelProvider;
+	
 	private ComponentUtils() {}
+	
+	static String getLabel(String labelKey) {
+		return getLabelProvider().getLabel(labelKey);
+	}
+	
+	static String formatDate(Date date) {
+		return getLabelProvider().formatDate(date);
+	}
+	
+	static String formatDateTime(Date date) {
+		return getLabelProvider().formatDateTime(date);
+	}
 	
 	static void setMandatoryStatus(InputElement inputElement) {
 		inputElement.setClass(StringUtils.hasText(inputElement.getText()) ? null : CLASS_MANDATORY);
@@ -34,6 +54,14 @@ abstract class ComponentUtils {
 	
 	static void setMandatoryStatusStyle(InputElement inputElement) {
 		inputElement.setStyle(StringUtils.hasText(inputElement.getText()) ? null : STYLE_MANDATORY);
+	}
+	
+	private static LabelProvider getLabelProvider() {
+		if (labelProvider == null) {
+			labelProvider = Seed.getBean(LabelProvider.class);
+			Assert.stateAvailable(labelProvider, "labelProvider");
+		}
+		return labelProvider;
 	}
 	
 }

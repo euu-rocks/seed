@@ -80,8 +80,12 @@
 			</template>
 		</toolbar>
 	</north>
-	<center border="0">
+	<center border="0"
+			autoscroll="true">
 		<include id="incLayout"
 				 src="@load(vm.layoutInclude)"/>
 	</center>
+	<south border="0">
+		<systemfields object="@load(vm.object)"/>
+	</south>
 </borderlayout>

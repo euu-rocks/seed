@@ -17,14 +17,16 @@
  */
 package org.seed.ui.zk.component;
 
+import static org.seed.ui.zk.component.ComponentUtils.*;
+
 import javax.annotation.Nullable;
 
+import org.seed.core.form.layout.LayoutElementAttributes;
 import org.seed.core.util.Assert;
 import org.seed.ui.zk.FileTypeIcons;
 import org.seed.ui.zk.UIUtils;
 
 import org.zkoss.util.media.Media;
-import org.zkoss.util.resource.Labels;
 import org.zkoss.zk.ui.annotation.ComponentAnnotation;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
@@ -63,28 +65,28 @@ public class Filebox extends Inputgroup implements EventListener<Event> {
 		// file icon
 		elemIcon = new A();
 		elemIcon.setStyle("color:black");
-		elemIcon.setTooltiptext("Download file");
+		elemIcon.setTooltiptext(getLabel("label.downloadfile"));
 		elemIcon.setIconSclass("z-icon-file-o alpha-icon-lg");
 		elemIcon.addEventListener(Events.ON_CLICK, this);
 		
 		// filename textbox
 		elemFilename = new Textbox();
-		elemFilename.setHflex("1");
+		elemFilename.setHflex(LayoutElementAttributes.V_1);
 		elemFilename.setReadonly(true);
 		elemFilename.setStyle("cursor:pointer");
-		elemFilename.setPlaceholder(Labels.getLabel("label.uploadfile"));
+		elemFilename.setPlaceholder(getLabel("label.uploadfile"));
 		elemFilename.addEventListener(Events.ON_CLICK, this);
 		
 		// delete button
 		buttonDelete = new Button();
-		buttonDelete.setTooltiptext("Delete file");
+		buttonDelete.setTooltiptext(getLabel("label.deletefile"));
 		buttonDelete.setIconSclass("z-icon-remove alpha-icon-lg");
 		buttonDelete.addEventListener(Events.ON_CLICK, this);
 		
 		// upload button
 		buttonUpload = new Button();
-		buttonUpload.setUpload("true");
-		buttonUpload.setTooltiptext("Upload file");
+		buttonUpload.setUpload(LayoutElementAttributes.V_TRUE);
+		buttonUpload.setTooltiptext(getLabel("label.uploadfile"));
 		buttonUpload.setIconSclass("z-icon-arrow-up alpha-icon-lg");
 		buttonUpload.addEventListener(Events.ON_UPLOAD, this);
 		

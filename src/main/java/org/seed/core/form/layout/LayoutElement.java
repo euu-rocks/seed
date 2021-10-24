@@ -132,7 +132,7 @@ public final class LayoutElement {
 	}
 
 	public LayoutElement getParent() {
-		Assert.state(parent != null, "parent not available");
+		Assert.stateAvailable(parent, "parent");
 		
 		return parent;
 	}

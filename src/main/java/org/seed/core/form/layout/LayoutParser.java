@@ -34,27 +34,25 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-abstract class LayoutParser {
+class LayoutParser {
 	
-	private static final SAXParserFactory PARSER_FACTORY = SAXParserFactory.newInstance();
+	private final SAXParserFactory parserFactory = SAXParserFactory.newInstance();
 	
-	private LayoutParser() {}
-	
-	public static LayoutElement parse(String content) throws SAXException, IOException, ParserConfigurationException {
+	LayoutElement parse(String content) throws SAXException, IOException, ParserConfigurationException {
 		Assert.notNull(content, C.CONTENT);
 		
 		return parse(MiscUtils.getStringAsStream(content));
 	}
 	
-	public static LayoutElement parse(InputStream inputStream) throws SAXException, IOException, ParserConfigurationException {
+	private LayoutElement parse(InputStream inputStream) throws SAXException, IOException, ParserConfigurationException {
 		Assert.notNull(inputStream, "inputStream");
 		
 		final LayoutHandler layoutHandler = new LayoutHandler();
-		PARSER_FACTORY.newSAXParser().parse(inputStream, layoutHandler);
+		parserFactory.newSAXParser().parse(inputStream, layoutHandler);
 		return layoutHandler.rootElement;
 	}
 	
-	private static class LayoutHandler extends DefaultHandler {
+	private class LayoutHandler extends DefaultHandler {
 		
 		private final Deque<LayoutElement> stack = new ArrayDeque<>();
 		

@@ -65,7 +65,7 @@ public abstract class MiscUtils {
 		final StringBuilder buf = new StringBuilder();
 		for (String element : elements) {
 			if (buf.length() > 0) {
-				buf.append(", ");
+				buf.append(',');
 			}
 			buf.append(element);
 		}
@@ -81,6 +81,12 @@ public abstract class MiscUtils {
 	public static <T> T[] toArray(T... objects) {
         return objects;
     }
+	
+	public static String toString(byte[] bytes) {
+		return bytes != null 
+				? new String(bytes, 0, bytes.length, CHARSET) 
+				: null;
+	}
 	
 	public static <T> T instantiate(Class<T> clas) 
 			throws InstantiationException, IllegalAccessException,
@@ -149,7 +155,7 @@ public abstract class MiscUtils {
 		if (compressedText != null) {
 			try {
 				final byte[] decompressedBytes = decompress(Base64.getDecoder().decode(compressedText));
-				return new String(decompressedBytes, CHARSET);
+				return toString(decompressedBytes);
 			} 
 			catch (IOException ex) {
 				throw new InternalException(ex);

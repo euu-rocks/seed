@@ -133,7 +133,7 @@ public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 		try {
 			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			new JsonChangeLogSerializer().write(Collections.singletonList(changeSet), baos);
-			return baos.toString(MiscUtils.CHARSET);
+			return MiscUtils.toString(baos.toByteArray());
 		} 
 		catch (IOException ioex) {
 			throw new InternalException(ioex);

@@ -64,7 +64,7 @@ public class ValueObjectEventHandler {
 	public String processUserEvent(ValueObjectEvent event) {
 		Assert.notNull(event, "event");
 		final EntityFunction entityFunction = event.entityFunction;
-		Assert.state(entityFunction != null, "entity function not available");
+		Assert.stateAvailable(entityFunction, "entity function");
 		
 		return callFunction(entityFunction.getEntity(), entityFunction, event.object, event.session, null, null);
 	}
@@ -72,7 +72,7 @@ public class ValueObjectEventHandler {
 	private boolean processStatusTransitionEvent(ValueObjectEvent event) {
 		boolean functionExecuted = false;
 		final EntityStatusTransition statusTransition = event.statusTransition;
-		Assert.state(statusTransition != null, "status transition not available");
+		Assert.stateAvailable(statusTransition, "status transition");
 		final Entity entity = statusTransition.getEntity();
 		
 		if (statusTransition.hasFunctions()) {

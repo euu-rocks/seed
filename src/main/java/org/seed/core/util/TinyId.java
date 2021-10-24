@@ -19,18 +19,14 @@ package org.seed.core.util;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-public class TinyId {
+public final class TinyId {
 	
 	private final AtomicLong id;
 	
 	private final String prefix;
 	
-	public TinyId() {
-		this(1, null);
-	}
-	
 	public TinyId(String prefix) {
-		this(1, prefix);
+		this(1L, prefix);
 	}
 	
 	public TinyId(long value, String prefix) {
@@ -40,7 +36,9 @@ public class TinyId {
 	
 	public String next() {
 		final String strId = get(id.getAndIncrement());
-		return prefix != null ? prefix + strId : strId;
+		return prefix != null 
+				? prefix + strId 
+				: strId;
 	}
 	
 	public static String get(long id) {

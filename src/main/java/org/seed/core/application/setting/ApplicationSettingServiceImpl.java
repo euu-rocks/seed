@@ -65,7 +65,7 @@ public class ApplicationSettingServiceImpl implements ApplicationSettingService 
 	@Override
 	public String getSetting(Setting setting) {
 		final String value = getSettingOrNull(setting);
-		Assert.state(value != null, "setting " + setting + " not available");
+		Assert.stateAvailable(value, "value for setting " + setting);
 		return value;
 	}
 	

@@ -40,7 +40,7 @@ import org.zkoss.zk.ui.select.annotation.WireVariable;
 
 public class AdminMenuViewModel extends AbstractAdminViewModel<Menu> {
 	
-	private static final String ENTRIES = "entries";
+	private static final String ENTRIES  = "entries";
 	private static final String SUBMENUS = "subMenus";
 	
 	@WireVariable(value="menuServiceImpl")
@@ -137,6 +137,18 @@ public class AdminMenuViewModel extends AbstractAdminViewModel<Menu> {
 	public void flagDirty(@BindingParam("notify") String notify, 
 						  @BindingParam("notifyObject") String notifyObject) {
 		super.flagDirty(notify, null, notifyObject);
+	}
+	
+	@Command
+	@NotifyChange("subMenu")
+	public void selectForm() {
+		if (subMenu.getName() == null && subMenu.getForm() != null) {
+			subMenu.setName(subMenu.getForm().getName());
+		}
+		else if (subMenu.getName() != null && subMenu.getForm() == null) {
+			subMenu.setName(null);
+		}
+		flagDirty();
 	}
 	
 	@Command

@@ -155,7 +155,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 			else {
 				this.object = (T) object;
 			}
-			Assert.stateAvailable(this.object, "object not available");
+			Assert.stateAvailable(this.object, C.OBJECT);
 			initObject(this.object);
 			if (this.object.isNew()) {
 				flagDirty();
@@ -183,7 +183,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	
 	@SuppressWarnings("unchecked")
 	protected <E extends SystemEntity> AbstractAdminViewModel<E> getParentVM() {
-		Assert.state(dialogParameter != null, "DialogParameter not available");
+		Assert.stateAvailable(dialogParameter, "DialogParameter");
 		
 		return (AbstractAdminViewModel<E>) dialogParameter.parentViewModel;
 	}

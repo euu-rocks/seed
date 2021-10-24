@@ -24,7 +24,7 @@ import org.zkoss.zul.A;
 @SuppressWarnings("serial")
 public class TaskStatus extends A {
 	
-	private static final String STYLE = ";cursor:default";
+	private static final String CURSOR_DEFAULT = "cursor:default";
 	
 	public TaskStatus() {
 		setIconSclass("z-icon-circle alpha-icon-lg");
@@ -35,20 +35,20 @@ public class TaskStatus extends A {
 		if (result != null) {
 			switch (result) {
 				case SUCCESS:
-					setStyle("color:green" + STYLE);
+					setStyle("color:green;" + CURSOR_DEFAULT);
 					break;
 					
 				case WARNING:
-					setStyle("color:orange" + STYLE);
+					setStyle("color:orange;" + CURSOR_DEFAULT);
 					break;
 					
 				case ERROR:
-					setStyle("color:red" + STYLE);
+					setStyle("color:red;" + CURSOR_DEFAULT);
 					break;
 			}
 		}
 		else {
-			setStyle("color:lightgrey" + STYLE);
+			setStyle("color:lightgrey;" + CURSOR_DEFAULT);
 		}
 	}
 	

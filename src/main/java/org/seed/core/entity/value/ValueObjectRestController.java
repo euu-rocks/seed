@@ -157,7 +157,7 @@ public class ValueObjectRestController {
 	private Entity getEntity(String name) {
 		final Entity entity = entityService.findByName(name);
 		if (entity == null) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity:" + name);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, C.ENTITY + ' ' + name);
 		}
 		checkEntityAccess(entity, EntityAccess.READ);
 		return entity;
@@ -166,10 +166,10 @@ public class ValueObjectRestController {
 	private Filter getFilter(Long id) {
 		final Filter filter = filterService.getObject(id);
 		if (filter == null) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "filter:" + id);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, C.FILTER + ' ' + id);
 		}
 		if (!filter.checkPermissions(userService.getCurrentUser())) {
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "filter:" + id);
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, C.FILTER + ' ' + id);
 		}
 		return filter;
 	}
@@ -177,7 +177,7 @@ public class ValueObjectRestController {
 	private EntityFunction getFunction(String name, Long functionId) {
 		final EntityFunction function = getEntity(name).getFunctionById(functionId);
 		if (function == null) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "function:" + functionId);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, C.FUNCTION + ' ' + functionId);
 		}
 		return function;
 	}
@@ -185,10 +185,10 @@ public class ValueObjectRestController {
 	private Transformer getTransformer(Long id) {
 		final Transformer transformer = transformerService.getObject(id);
 		if (transformer == null) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "transformation:" + id);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, C.TRANSFORMER + ' ' + id);
 		}
 		if (!transformer.checkPermissions(userService.getCurrentUser())) {
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "transformation:" + id);
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, C.TRANSFORMER + ' ' + id);
 		}
 		return transformer;
 	}
@@ -197,7 +197,7 @@ public class ValueObjectRestController {
 		Assert.notNull(entity, C.ENTITY);
 		
 		final User user = userService.getCurrentUser();
-		Assert.state(user != null, "user not available");
+		Assert.stateAvailable(user, C.USER);
 		if (!entity.checkPermissions(user, access)) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, access + " " + entity.getName());
 		}

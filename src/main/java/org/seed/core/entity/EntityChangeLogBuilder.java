@@ -56,6 +56,12 @@ import liquibase.change.core.RenameTableChange;
 
 class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	
+	private static final String PREFIX_PRIMARY_KEY = "pk_";
+	private static final String PREFIX_FOREIGN_KEY = "fk_";
+	private static final String PREFIX_UNIQUE_KEY  = "uni_";
+	private static final String PREFIX_INDEX       = "idx_";
+	private static final String SUFFIX_STATUS      = "_status";
+	
 	private final Limits limits;
 	
 	private final SessionFactoryProvider sessionFactoryProvider;
@@ -135,7 +141,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		// column names have to be lower case
 		return entityField.getColumnName() != null 
 				? entityField.getColumnName().toLowerCase()
-				: entityField.getInternalName();
+				: entityField.getInternalName().toLowerCase();
 	}
 	
 	private boolean isGeneric() {
@@ -150,21 +156,21 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		createTableChange.setTableName(getTableName(entity));
 		
 		// system fields
-		createTableChange.addColumn(createColumn(SystemField.ID.columName, FieldType.LONG)
+		createTableChange.addColumn(createColumn(SystemField.ID)
 										.setConstraints(new ConstraintsConfig()
 										.setPrimaryKey(Boolean.TRUE)
 										.setPrimaryKeyName(getPrimaryKeyConstraintName(entity))));
-		createTableChange.addColumn(createColumn(SystemField.VERSION.columName, FieldType.INTEGER)
+		createTableChange.addColumn(createColumn(SystemField.VERSION)
 										.setConstraints(new ConstraintsConfig()
 										.setNullable(Boolean.FALSE)));
-		createTableChange.addColumn(createColumn(SystemField.CREATEDON.columName, FieldType.DATETIME));
-		createTableChange.addColumn(createColumn(SystemField.CREATEDBY.columName, FieldType.TEXT, getLimit("user.name.length")));
-		createTableChange.addColumn(createColumn(SystemField.MODIFIEDON.columName, FieldType.DATETIME));
-		createTableChange.addColumn(createColumn(SystemField.MODIFIEDBY.columName, FieldType.TEXT, getLimit("user.name.length")));
+		createTableChange.addColumn(createColumn(SystemField.CREATEDON));
+		createTableChange.addColumn(createColumn(SystemField.CREATEDBY, getLimit("user.name.length")));
+		createTableChange.addColumn(createColumn(SystemField.MODIFIEDON));
+		createTableChange.addColumn(createColumn(SystemField.MODIFIEDBY, getLimit("user.name.length")));
 		
 		// status
 		if (entity.hasStatus()) {
-			createTableChange.addColumn(createColumn(SystemField.ENTITYSTATUS.columName, FieldType.LONG)
+			createTableChange.addColumn(createColumn(SystemField.ENTITYSTATUS)
 											.setConstraints(new ConstraintsConfig()
 											.setNullable(Boolean.FALSE)));
 		}
@@ -463,8 +469,14 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		}
 	}
 	
-	private ColumnConfig createColumn(String name, FieldType fieldType) {
-		return createColumn(name, fieldType, null);
+	private ColumnConfig createColumn(SystemField systemField) {
+		return createColumn(systemField, null);
+	}
+	
+	private ColumnConfig createColumn(SystemField systemField, Integer length) {
+		Assert.notNull(systemField, "system field");
+		
+		return createColumn(systemField.columName, systemField.type, length);
 	}
 	
 	private ColumnConfig createColumn(String name, FieldType fieldType, Integer length) {
@@ -602,27 +614,27 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	}
 	
 	private static String getPrimaryKeyConstraintName(Entity entity) {
-		return "pk_" + TinyId.get(entity.getId());
+		return PREFIX_PRIMARY_KEY + TinyId.get(entity.getId());
 	}
 	
 	private static String getUniqueConstraintName(Entity entity, EntityField field) {
-		return "uni_" + getConstraintKey(entity, field);
+		return PREFIX_UNIQUE_KEY + getConstraintKey(entity, field);
 	}
 	
 	private static String getForeignKeyConstraintName(Entity entity, EntityField field) {
-		return "fk_" + getConstraintKey(entity, field);
+		return PREFIX_FOREIGN_KEY + getConstraintKey(entity, field);
 	}
 	
 	private static String getStatusForeignKeyConstraintName(Entity entity) {
-		return "fk_" + TinyId.get(entity.getId()) + "_status";
+		return PREFIX_FOREIGN_KEY + TinyId.get(entity.getId()) + SUFFIX_STATUS;
 	}
 	
 	private static String getIndexName(Entity entity, EntityField field) {
-		return "idx_" + getConstraintKey(entity, field);
+		return PREFIX_INDEX + getConstraintKey(entity, field);
 	}
 	
 	private static String getStatusIndexName(Entity entity) {
-		return "idx_" + TinyId.get(entity.getId()) + "_status";
+		return PREFIX_INDEX + TinyId.get(entity.getId()) + SUFFIX_STATUS;
 	}
 	
 	private static String getConstraintKey(Entity entity, EntityField field) {

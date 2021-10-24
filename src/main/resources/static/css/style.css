@@ -173,3 +173,10 @@ body {
 .alpha-log-elem-failed {
 	background-color: #FFE6E6;
 }
+
+.alpha-system-fields {
+	text-align: right;
+	color: #808080;
+	background: linear-gradient(to bottom, #FFFFFF 0%, #EEEEEE 100%);
+	padding-right: 8px;
+}

@@ -21,11 +21,13 @@ import java.util.Arrays;
 
 import org.springframework.util.ObjectUtils;
 
-public class MultiKey {
+public final class MultiKey {
 	
 	private final Object[] objects;
 
 	private MultiKey(Object[] objects) {
+		Assert.state(!ObjectUtils.isEmpty(objects), "no objects");
+		
 		this.objects = objects;
 	}
 
@@ -41,8 +43,6 @@ public class MultiKey {
 	}
 	
 	public static MultiKey valueOf(Object ...objects) {
-		Assert.state(!ObjectUtils.isEmpty(objects), "no objects");
-		
 		return new MultiKey(objects);
 	}
 	

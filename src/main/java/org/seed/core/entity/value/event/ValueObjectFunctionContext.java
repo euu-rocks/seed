@@ -83,7 +83,7 @@ public class ValueObjectFunctionContext extends AbstractFunctionContext
 	public ClientProvider getClientProvider() {
 		if (clientProvider == null) {
 			clientProvider = Seed.getBean(ClientProvider.class);
-			Assert.state(clientProvider != null, "client provider not available");
+			Assert.stateAvailable(clientProvider, "client provider");
 		}
 		return clientProvider;
 	}

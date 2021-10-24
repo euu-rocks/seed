@@ -182,7 +182,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 		}
 		else {
 			final FormFieldExtra fieldExtra = getForm().getFieldExtra(entityField);
-			Assert.state(fieldExtra != null, "fieldExtra not available");
+			Assert.stateAvailable(fieldExtra, "fieldExtra");
 			detailForm = fieldExtra.getDetailForm();
 			mainObject = getObject();
 		}

@@ -59,13 +59,10 @@ public class FormValidator extends AbstractSystemEntityValidator<Form> {
 		Assert.notNull(form, C.FORM);
 		final ValidationErrors errors = new ValidationErrors();
 		
-		if (isEmpty(form.getName())) {
-			errors.addEmptyName();
-		}
-		else if (!isNameLengthAllowed(form.getName())) {
+		if (!isEmpty(form.getName()) && 
+			!isNameLengthAllowed(form.getName())) {
 			errors.addOverlongName(getMaxNameLength());
 		}
-		
 		if (form.hasFields()) {
 			for (FormField field : form.getFields()) {
 				validateField(field, errors);

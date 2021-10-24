@@ -33,6 +33,7 @@ import org.hibernate.Session;
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.config.FullTextSearchProvider;
+import org.seed.core.data.SystemField;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityChangeAware;
 import org.seed.core.entity.EntityField;
@@ -50,8 +51,6 @@ import org.springframework.stereotype.Component;
 public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware {
 	
 	private static final Logger log = LoggerFactory.getLogger(FullTextSearch.class);
-	
-	private static final String FIELD_ID = "id";
 	
 	private static final String FIELD_ENTITY_ID = "entity_id";
 	
@@ -115,7 +114,7 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 		if (entity != null) {
 			query.setParam(CommonParams.FQ, createEntityFilter(entity)); 
 		}
-		query.addField(FIELD_ID);
+		query.addField(SystemField.ID.property);
 		query.addField(FIELD_ENTITY_ID);
 		log.debug("Querying solr: {}", query);
 		try {
@@ -140,7 +139,7 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 		final SolrClient solrClient = provider.getSolrClient();
 		try {
 			return solrClient.getById(listIds).stream()
-							 .collect(Collectors.toMap(doc -> Long.valueOf((String) doc.getFirstValue(FIELD_ID)),
+							 .collect(Collectors.toMap(doc -> Long.valueOf((String) doc.getFirstValue(SystemField.ID.property)),
 													   doc -> decorateResultText((String) doc.getFirstValue(FIELD_TEXT), 
 															   					 fullTextKey)));
 		} 
@@ -207,7 +206,7 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 		buildNesteds(entity, object, buf);
 		
 		final SolrInputDocument solrDoc = new SolrInputDocument();
-		solrDoc.addField(FIELD_ID, object.getId());
+		solrDoc.addField(SystemField.ID.property, object.getId());
 		solrDoc.addField(FIELD_ENTITY_ID, entity.getId());
 		solrDoc.addField(FIELD_TEXT, buf.toString().trim());
 		return solrDoc;
@@ -258,7 +257,7 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 	
 	private static Tupel<Long, Long> createResultEntry(SolrDocument document) {
 		return new Tupel<>((Long) document.getFirstValue(FIELD_ENTITY_ID), 
-							Long.valueOf((String) document.getFirstValue(FIELD_ID)));
+							Long.valueOf((String) document.getFirstValue(SystemField.ID.property)));
 	}
 	
 	private static String createEntityFilter(Entity entity) {

@@ -195,9 +195,9 @@ public class AdminRestViewModel extends AbstractAdminViewModel<Rest> {
 	@Override
 	protected SourceCode getSourceCode(ContentObject contentObject) {
 		Assert.notNull(contentObject, "contentObject");
-		final RestFunction function = (RestFunction) contentObject;
+		final RestFunction restFunction = (RestFunction) contentObject;
 		
-		return restCodeProvider.getRestSource(function);
+		return restCodeProvider.getRestSource(restFunction);
 	}
 	
 	@Command

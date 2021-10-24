@@ -17,6 +17,7 @@
  */
 package org.seed.core.form.layout;
 
+import static org.seed.core.form.layout.LayoutElementAttributes.*;
 import static org.seed.core.form.layout.LayoutUtils.*;
 
 import java.io.IOException;
@@ -75,6 +76,10 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Autowired
 	private LayoutValidator layoutValidator;
 	
+	private final LayoutParser layoutParser = new LayoutParser();
+	
+	private final LayoutBuilder layoutBuilder = new LayoutBuilder();
+	
 	private final Map<String, LayoutElement> editLayoutMap = new ConcurrentHashMap<>();
 	
 	@Override
@@ -92,7 +97,15 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(path, C.PATH);
 		
 		String content = null;
-		if (path.startsWith("/edit/")) {
+		if (path.startsWith("/list")) {
+			final Long formId = Long.parseLong(path.substring(path.lastIndexOf('/') + 1));
+			content = buildListFormLayout(getForm(formId), settings);
+		}
+		else if (path.startsWith("/detail/")) {
+			final Long formId = Long.parseLong(path.substring(8));
+			content = getForm(formId).getLayout().getContent();
+		}
+		else if (path.startsWith("/edit/")) {
 			final String username = path.substring(6, path.lastIndexOf('/'));
 			final LayoutElement layout = getEditLayout(username);
 			if (layout != null) {
@@ -101,21 +114,10 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		}
 		else if (path.startsWith("/search/")) {
 			final Long formId = Long.parseLong(path.substring(8));
-			final Form form = formService.getObject(formId);
-			final LayoutElement layout = getSearchLayout(form);
+			final LayoutElement layout = getSearchLayout(getForm(formId));
 			if (layout != null) {
 				content = buildLayout(layout);
 			}
-		}
-		else if (path.startsWith("/list")) {
-			final Long formId = Long.parseLong(path.substring(path.indexOf('/', 1) + 1));
-			final Form form = formService.getObject(formId);
-			content = buildListFormLayout(form, settings);
-		}
-		else if (path.startsWith("/detail/")) {
-			final Long formId = Long.parseLong(path.substring(8));
-			final Form form = formService.getObject(formId);
-			content = form.getLayout().getContent();
 		}
 		else {
 			throw new UnsupportedOperationException(path);
@@ -124,17 +126,6 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 			log.debug("{}\n{}", path, content);
 		}
 		return content;
-	}
-	
-	private LayoutElement getSearchLayout(Form form) {
-		Assert.notNull(form, C.FORM);
-		
-		if (form.getLayout() != null) {
-			final LayoutElement layoutRoot = parseLayout(form.getLayout());
-			layoutRoot.accept(new SearchDecoratingVisitor(form));
-			return layoutRoot;
-		}
-		return null;
 	}
 	
 	@Override
@@ -158,7 +149,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(layout.getContent(), "layout content");
 		
 		try {
-			return LayoutParser.parse(layout.getContent());
+			return layoutParser.parse(layout.getContent());
 		} 
 		catch (SAXException | IOException | ParserConfigurationException ex) {
 			throw new InternalException(ex);
@@ -169,7 +160,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	public String buildLayout(LayoutElement layoutRoot) {
 		Assert.notNull(layoutRoot, C.LAYOUTROOT);
 		
-		return LayoutBuilder.build(layoutRoot);
+		return layoutBuilder.build(layoutRoot);
 	}
 	
 	@Override
@@ -275,7 +266,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		layoutValidator.validateText(text);
 		
 		final LayoutElement elemCell = getElementByContextId(layoutRoot, contextId);
-		elemCell.removeAttribute(LayoutElementAttributes.A_ALIGN);
+		elemCell.removeAttribute(A_ALIGN);
 		elemCell.removeAttribute(C.TEXT);
 		elemCell.addChild(createLabel(text));
 		redecorateLayout(form, layoutRoot);
@@ -307,16 +298,16 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		
 		// image field
 		if (entityField.getType().isBinary()) {
-			elemField.setAttribute(LayoutElementAttributes.A_WIDTH, width);
-			elemField.setAttribute(LayoutElementAttributes.A_HEIGHT, height);
+			elemField.setAttribute(A_WIDTH, width);
+			elemField.setAttribute(A_HEIGHT, height);
 		}
 		
 		// add label
 		if (labelProperties.orient != null) {
 			final LayoutElement neighborCell = elemCell.getCellNeighbor(labelProperties.orient);
 			if (neighborCell != null && !neighborCell.hasChildren()) {
-				neighborCell.setOrRemoveAttribute(LayoutElementAttributes.A_ALIGN, labelProperties.align);
-				neighborCell.setOrRemoveAttribute(LayoutElementAttributes.A_VALIGN, labelProperties.valign);
+				neighborCell.setOrRemoveAttribute(A_ALIGN, labelProperties.align);
+				neighborCell.setOrRemoveAttribute(A_VALIGN, labelProperties.valign);
 				neighborCell.addChild(createLabel(entityField.getName()));
 			}
 		}
@@ -598,8 +589,8 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		
 		layoutValidator.validateText(text);
 		if (text.contains("\n")) {
-			element.setAttribute("pre", "true");
-			element.removeAttribute(LayoutElementAttributes.A_VALUE);
+			element.setAttribute(A_PRE, V_TRUE);
+			element.removeAttribute(A_VALUE);
 			if (element.hasChildren()) {
 				element.getChildAt(0).setText(text);
 			}
@@ -609,8 +600,8 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		}
 		else {
 			element.removeChildren();
-			element.removeAttribute("pre");
-			element.setAttribute(LayoutElementAttributes.A_VALUE, text);
+			element.removeAttribute(A_PRE);
+			element.setAttribute(A_VALUE, text);
 		}
 	}
 	
@@ -625,7 +616,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		if (StringUtils.hasText(title)) {
 			if (hasGroupbox) {
 				element.getParent().getChild(LayoutElement.CAPTION)
-								   .setAttribute(LayoutElementAttributes.A_LABEL, title);
+								   .setAttribute(A_LABEL, title);
 			}
 			else {
 				final LayoutElement parent = element.getParent();
@@ -678,6 +669,23 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		return elemZK;
 	}
 	
+	private Form getForm(Long formId) {
+		final Form form = formService.getObject(formId);
+		Assert.stateAvailable(form, C.FORM + ' ' + formId);
+		return form;
+	}
+	
+	private LayoutElement getSearchLayout(Form form) {
+		Assert.notNull(form, C.FORM);
+		
+		if (form.getLayout() != null) {
+			final LayoutElement layoutRoot = parseLayout(form.getLayout());
+			layoutRoot.accept(new SearchDecoratingVisitor(form));
+			return layoutRoot;
+		}
+		return null;
+	}
+	
 	private void analyzeAutoLayoutFields(Form form, List<EntityField> fieldsWithoutGroup, Set<EntityFieldGroup> usedFieldGroups) {
 		for (EntityField entityField : form.getEntity().getAllFields()) {
 			if (entityField.getFieldGroup() != null) {
@@ -715,7 +723,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 			// fields without group
 			if (!fieldsWithoutGroup.isEmpty()) {
 				elemMainGrid.getGridCell(0, 0)
-							.setValign("top")
+							.setValign(V_TOP)
 							.addChild(buildFieldGrid(fieldsWithoutGroup, entity.getName()));
 				col++;
 			}
@@ -725,7 +733,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 				Order.sort(fieldGroups);
 				for (EntityFieldGroup fieldGroup : fieldGroups) {
 					elemMainGrid.getGridCell(col, row)
-								.setValign("top")
+								.setValign(V_TOP)
 								.addChild(buildFieldGrid(entity.getAllFieldsByGroup(fieldGroup), fieldGroup.getName()));
 					if (++col > 1) {
 						col = 0;
@@ -743,8 +751,8 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 			elemLayout.addChild(createBorderLayoutArea(BorderLayoutArea.NORTH)).addChild(elemMainGrid);
 		}
 		final LayoutElement elemTabbox = new LayoutElement(LayoutElement.TABBOX);
-		elemTabbox.setAttribute(LayoutElementAttributes.A_HFLEX, "1");
-		elemTabbox.setAttribute(LayoutElementAttributes.A_VFLEX, "1");
+		elemTabbox.setAttribute(A_HFLEX, V_1);
+		elemTabbox.setAttribute(A_VFLEX, V_1);
 		elemTabbox.setClass(LayoutElementClass.TABBOX);
 		final LayoutElement elemTabs = elemTabbox.addChild(new LayoutElement(LayoutElement.TABS));
 		final LayoutElement elemPanels = elemTabbox.addChild(new LayoutElement(LayoutElement.TABPANELS));
@@ -796,15 +804,13 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		redecorateLayout(form, layoutRoot);
 	}
 	
-	private static final String OBJECT_LIST = "obj";
-	
 	private String buildListFormLayout(Form form, FormSettings formSettings) {
 		Assert.notNull(form, C.FORM);
 		Assert.notNull(formSettings, "formSettings");
 		
 		final LayoutElement elemListbox = createListFormList();
 		final LayoutElement elemListhead = elemListbox.addChild(createListHead(true));
-		final LayoutElement elemTemplate = elemListbox.addChild(createTemplate(LayoutElementAttributes.A_MODEL, OBJECT_LIST));
+		final LayoutElement elemTemplate = elemListbox.addChild(createTemplate(A_MODEL, "obj"));
 		final LayoutElement elemListitem = elemTemplate.addChild(createListItem("'callAction',action=vm.editAction,elem=self"));
 		if (form.hasFields()) {
 			formSettings.sortFields(form.getFields());
@@ -817,11 +823,11 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 				final LayoutElement elemListheader = createListHeader(field.getName(), 
 																	  field.getHflex() != null 
 																	  	? field.getHflex() 
-																	  	: "1", 
+																	  	: V_1, 
 																	  field.getLabelStyle());
-				elemListheader.setAttribute(LayoutElementAttributes.A_STYLE, "cursor:pointer");
-				elemListheader.setAttribute(LayoutElementAttributes.A_ICONSCLASS, load("vm.getSortIcon(" + field.getId() + ")"));
-				elemListheader.setAttribute(LayoutElementAttributes.A_ONCLICK, command("'sort',fieldId=" + field.getId()));
+				elemListheader.setAttribute(A_STYLE, "cursor:pointer");
+				elemListheader.setAttribute(A_ICONSCLASS, load("vm.getSortIcon(" + field.getId() + ")"));
+				elemListheader.setAttribute(A_ONCLICK, command("'sort',fieldId=" + field.getId()));
 				elemListhead.addChild(elemListheader);
 				// field
 				elemListitem.addChild(buildListFormField(field));
@@ -871,7 +877,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		final LayoutElement elemGrid = new LayoutElement(LayoutElement.GRID);
 		final LayoutElement elemRows = elemGrid.addChild(new LayoutElement(LayoutElement.ROWS));
 		final LayoutElement elemColumns = createColumns(2);
-		elemColumns.getChildAt(0).setAttribute(LayoutElementAttributes.A_HFLEX, "min");
+		elemColumns.getChildAt(0).setAttribute(A_HFLEX, V_MIN);
 		elemGrid.setClass(LayoutElementClass.NO_BORDER).addChild(elemColumns);
 		for (EntityField entityField : fields) {
 			if (entityField.getType().isBinary()) {
@@ -881,7 +887,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 			// label column
 			LayoutElement elemCell = elemRow.addChild(createCell());
 			elemCell.setAlign("right")
-					.setValign("top")
+					.setValign(V_TOP)
 					.addChild(createLabel(entityField.getName()));
 			// field column
 			elemCell = elemRow.addChild(createCell());
@@ -895,17 +901,19 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(elemArea, "elemArea");
 		
 		final LayoutElement elemLayout = elemArea.addChild(new LayoutElement(LayoutElement.BORDERLAYOUT));
-		elemLayout.setAttribute(LayoutElementAttributes.A_ID, subForm.getNestedEntity().getUid());
+		elemLayout.setAttribute(A_ID, subForm.getNestedEntity().getUid());
 		final LayoutElement elemCenter = elemLayout.addChild(createBorderLayoutArea(BorderLayoutArea.CENTER));
 		final LayoutElement elemListbox = elemCenter.addChild(createListBox());
 		final LayoutElement elemListhead = elemListbox.addChild(createListHead(true));
 		elemListbox.setClass(LayoutElementClass.NO_BORDER);
-		elemListbox.setAttribute(LayoutElementAttributes.A_HFLEX, "1");
-		elemListbox.setAttribute(LayoutElementAttributes.A_VFLEX, "1");
+		elemListbox.setAttribute(A_HFLEX, V_1);
+		elemListbox.setAttribute(A_VFLEX, V_1);
 		
 		if (subForm.hasFields()) {
 			for (SubFormField field : subForm.getFields()) {
-				elemListhead.addChild(createListHeader(field.getName(), "1", field.getLabelStyle()));
+				elemListhead.addChild(createListHeader(field.getName(), 
+													   V_1, 
+													   field.getLabelStyle()));
 			}
 		}
 	}
@@ -916,9 +924,9 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	}
 	
 	private static String listPropertyName(FormField field) {
-		return OBJECT_LIST + '.' + (field.isSystem() 
-									? field.getSystemField().property 
-									: field.getEntityField().getInternalName());
+		return "obj." + (field.isSystem() 
+							? field.getSystemField().property 
+							: field.getEntityField().getInternalName());
 	}
 	
 }

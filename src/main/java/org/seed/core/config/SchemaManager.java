@@ -189,8 +189,8 @@ public class SchemaManager {
 	
 	private static Liquibase createLiquibase(Connection connection, String changeLogAsString) 
 			throws LiquibaseException {
-		final Database database = DatabaseFactory.getInstance()
-				.findCorrectDatabaseImplementation(new JdbcConnection(connection));
+		final Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(
+																	new JdbcConnection(connection));
 		return new Liquibase(FILENAME_CHANGELOG, 
 							 new StringResourceAccessor(changeLogAsString), 
 							 database);

@@ -36,4 +36,8 @@ public interface LabelProvider {
 	
 	String formatBigDecimal(BigDecimal decimal);
 	
+	default String emptyString() {
+		return "";
+	}
+	
 }

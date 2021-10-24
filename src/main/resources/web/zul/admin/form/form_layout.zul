@@ -29,7 +29,8 @@
 						   onClick="@command('newAutoLayout')"/>
 		</toolbar>
 	</north>
-	<center border="0">
+	<center border="0"
+			autoscroll="true">
 		<include src="@load(vm.layoutInclude)"/>
 	</center>
 </borderlayout>

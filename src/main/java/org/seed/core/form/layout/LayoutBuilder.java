@@ -21,13 +21,9 @@ import java.util.Map.Entry;
 
 import org.seed.core.util.Assert;
 
-abstract class LayoutBuilder {
+class LayoutBuilder {
 	
-	private static final String LF = System.lineSeparator();
-	
-	private LayoutBuilder() {}
-	
-	public static String build(LayoutElement rootElement) {
+	String build(LayoutElement rootElement) {
 		Assert.notNull(rootElement, "rootElement");
 		
 		final StringBuilder buf = new StringBuilder();
@@ -48,7 +44,7 @@ abstract class LayoutBuilder {
 		if (!element.isEmpty()) {
 			buf.append('>');
 			if (element.hasChildren()) {
-				buf.append(LF);
+				buf.append(System.lineSeparator());
 				for (LayoutElement child : element.getChildren()) {
 					build(buf, child, depth + 1);
 				}
@@ -57,10 +53,10 @@ abstract class LayoutBuilder {
 			else if (element.getText() != null) {
 				buf.append(element.getText());
 			}
-			buf.append("</").append(element.getName()).append('>').append(LF);
+			buf.append("</").append(element.getName()).append('>').append(System.lineSeparator());
 		}
 		else {
-			buf.append("/>").append(LF);
+			buf.append("/>").append(System.lineSeparator());
 		}
 	}
 	

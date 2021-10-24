@@ -33,9 +33,11 @@ import org.seed.core.util.TinyId;
 abstract class AbstractLayoutVisitor extends LayoutUtils 
 	implements LayoutVisitor {
 	
+	protected static final String LABEL_EMPTY = "label.empty";
+	
 	private final TinyId tinyId = new TinyId("c");
 	
-	protected final Form form;
+	private final Form form;
 	
 	private LayoutService layoutService;
 	
@@ -45,6 +47,10 @@ abstract class AbstractLayoutVisitor extends LayoutUtils
 		Assert.notNull(form, C.FORM);
 		
 		this.form = form;
+	}
+	
+	protected Form getForm() {
+		return form;
 	}
 	
 	protected LayoutElement getRootElement() {
@@ -74,7 +80,7 @@ abstract class AbstractLayoutVisitor extends LayoutUtils
 	protected EntityField getEntityField(LayoutElement element) {
 		Assert.notNull(element, C.ELEMENT);
 		
-		return getEntityField(getId(element));
+		return getEntityField(getElementId(element));
 	}
 	
 	protected EntityField getEntityField(String uid) {
@@ -95,7 +101,7 @@ abstract class AbstractLayoutVisitor extends LayoutUtils
 	protected SubForm getSubForm(LayoutElement element) {
 		Assert.notNull(element, C.ELEMENT);
 		
-		return form.getSubFormByNestedEntityUid(getId(element));
+		return form.getSubFormByNestedEntityUid(getElementId(element));
 	}
 	
 	protected LayoutService getLayoutService() {
@@ -105,7 +111,7 @@ abstract class AbstractLayoutVisitor extends LayoutUtils
 		return layoutService;
 	}
 	
-	protected String getId(LayoutElement element) {
+	protected static String getElementId(LayoutElement element) {
 		final String id = element.getId();
 		Assert.stateAvailable(id, "element id");
 		

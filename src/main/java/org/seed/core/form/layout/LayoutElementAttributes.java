@@ -56,6 +56,7 @@ public class LayoutElementAttributes {
 	public static final String A_ONSELECT      = "onSelect";
 	public static final String A_ORIENT        = "orient";
 	public static final String A_PLACEHOLDER   = "placeholder";
+	public static final String A_PRE           = "pre";
 	public static final String A_READONLY      = "readonly";
 	public static final String A_ROWS          = "rows";
 	public static final String A_SELECTEDITEM  = "selectedItem";
@@ -71,6 +72,12 @@ public class LayoutElementAttributes {
 	public static final String A_VFLEX         = "vflex";
 	public static final String A_VISIBLE       = "visible";
 	public static final String A_WIDTH         = "width";
+	
+	public static final String V_0             = "0";
+	public static final String V_1             = "1";
+	public static final String V_MIN           = "min";
+	public static final String V_TOP           = "top";
+	public static final String V_TRUE          = "true";
 	
 	private Integer columns;
 	

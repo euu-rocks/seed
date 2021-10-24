@@ -67,12 +67,11 @@
             		 value="@bind(vm.subMenu.name) @converter(vm.stringConverter)"
             		 mandatory="true"
             		 onChange="@command('flagDirty')"/>
-            		 
-   			<label value="${labels.label.form}:"/>
+            <label value="${labels.label.form}:"/>
             <combobox model="@load(vm.forms) @template(empty each.name ? 'empty' : 'form')"
 					  selectedItem="@bind(vm.subMenu.form)"
 					  value="@load(vm.subMenu.form.name)"
-					  onSelect="@command('flagDirty')"
+					  onSelect="@command('selectForm')"
 					  mandatory="true"
 					  hflex="1">
 				<template name="empty">

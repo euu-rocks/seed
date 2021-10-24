@@ -103,10 +103,9 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		
 		final FormOptions formOptions = form.getOptions();
 		if (formOptions != null) {
-			// module
 			formMeta.setModule(formOptions.getModule());
-			// auto layout
 			if (formOptions.isAutoLayout()) {
+				formMeta.setAutoLayout(true);
 				formMeta.setLayoutContent(layoutService.buildAutoLayout(form));
 			}
 		}
@@ -125,19 +124,6 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		}
 	}
 	
-	void initSubForm(SubForm subForm) {
-		Assert.notNull(subForm, C.SUBFORM);
-		
-		// actions
-		for (FormActionType actionType : FormActionType.values()) {
-			if (!actionType.isDefault &&
-				actionType.isDefaultSelected && 
-				actionType.isVisibleAtSubform) {
-					subForm.addAction(createAction(subForm, actionType));
-			}
-		}
-	}
-	
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public SubForm addSubForm(Form form, NestedEntity nested) throws ValidationException {
@@ -150,7 +136,13 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		for (EntityField entityField : nested.getFields(true)) {
 			subForm.addField(createSubFormField(subForm, entityField));
 		}
-		initSubForm(subForm);
+		for (FormActionType actionType : FormActionType.values()) {
+			if (!actionType.isDefault &&
+				actionType.isDefaultSelected && 
+				actionType.isVisibleAtSubform) {
+					subForm.addAction(createAction(subForm, actionType));
+			}
+		}
 		return subForm;
 	}
 	
@@ -565,6 +557,9 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		Assert.notNull(session, C.SESSION);
 		
 		final boolean isInsert = form.isNew();
+		if (form.getName() == null) {
+			form.setName(form.getEntity().getName());
+		}
 		super.saveObject(form, session);
 		
 		if (form.getLayout() != null) {

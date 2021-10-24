@@ -17,6 +17,8 @@
  */
 package org.seed.core.form.layout;
 
+import static org.seed.core.form.layout.LayoutElementAttributes.*;
+
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -125,9 +127,9 @@ public abstract class LayoutUtils {
 		Assert.notNull(field, C.FIELD);
 		
 		final LayoutElement elemBandbox = new LayoutElement(LayoutElement.BANDBOX);
-		elemBandbox.setAttribute(LayoutElementAttributes.A_ID, field.getUid());
-		elemBandbox.setAttribute(LayoutElementAttributes.A_HFLEX, "1");
-		elemBandbox.setOrRemoveAttribute(LayoutElementAttributes.A_MANDATORY, field.isMandatory());
+		elemBandbox.setAttribute(A_ID, field.getUid());
+		elemBandbox.setAttribute(A_HFLEX, V_1);
+		elemBandbox.setOrRemoveAttribute(A_MANDATORY, field.isMandatory());
 		return elemBandbox;
 	}
 	
@@ -161,7 +163,7 @@ public abstract class LayoutUtils {
 		Assert.notNull(area, "area");
 		
 		final LayoutElement element = new LayoutElement(mapBorderLayoutArea.get(area));
-		element.setAttribute(LayoutElementAttributes.A_BORDER, "0");
+		element.setAttribute(A_BORDER, V_0);
 		return element;
 	}
 	
@@ -190,11 +192,11 @@ public abstract class LayoutUtils {
 		
 		final LayoutElement elemLabel = new LayoutElement(LayoutElement.LABEL);
 		if (text.contains("\n")) {
-			elemLabel.setAttribute("pre", "true");
+			elemLabel.setAttribute(A_PRE, V_TRUE);
 			elemLabel.addChild(createLabelAttribute(text));
 		}
 		else {
-			elemLabel.setAttribute(LayoutElementAttributes.A_VALUE, text);
+			elemLabel.setAttribute(A_VALUE, text);
 		}
 		return elemLabel;
 	}
@@ -203,7 +205,7 @@ public abstract class LayoutUtils {
 		Assert.notNull(text, C.TEXT);
 		
 		final LayoutElement elemAttr = new LayoutElement(LayoutElement.ATTRIBUTE);
-		elemAttr.setAttribute(LayoutElementAttributes.A_NAME, C.VALUE);
+		elemAttr.setAttribute(A_NAME, C.VALUE);
 		elemAttr.setText(text);
 		return elemAttr;
 	}
@@ -212,16 +214,16 @@ public abstract class LayoutUtils {
 		Assert.notNull(field, C.FIELD);
 		
 		final LayoutElement elemField = createElement(field.getType());
-		elemField.setAttribute(LayoutElementAttributes.A_ID, field.getUid());
+		elemField.setAttribute(A_ID, field.getUid());
 		
 		if (field.getType().isDateTime()) {
 			elemField.setAttribute("format", "long+medium");
 		}
 		else if (field.getType().isTextLong()) {
-			elemField.setAttribute(LayoutElementAttributes.A_ROWS, "3");
+			elemField.setAttribute(A_ROWS, "3");
 		}
 		if (!field.getType().isBinary()) {
-			elemField.setAttribute(LayoutElementAttributes.A_HFLEX, "1");
+			elemField.setAttribute(A_HFLEX, V_1);
 		}
 		return elemField;
 	}
@@ -251,7 +253,7 @@ public abstract class LayoutUtils {
 		Assert.notNull(menus, "menus");
 		
 		final LayoutElement elemPopup = new LayoutElement(LayoutElement.MENUPOPUP);
-		elemPopup.setAttribute(LayoutElementAttributes.A_ID, contextId);
+		elemPopup.setAttribute(A_ID, contextId);
 		for (LayoutElement menu : menus) {
 			elemPopup.addChild(menu);
 		}
@@ -288,8 +290,8 @@ public abstract class LayoutUtils {
 	
 	public static LayoutElement createTabbox(String title) {
 		final LayoutElement elemTabbox = new LayoutElement(LayoutElement.TABBOX);
-		elemTabbox.setAttribute(LayoutElementAttributes.A_HFLEX, "1");
-		elemTabbox.setAttribute(LayoutElementAttributes.A_VFLEX, "1");
+		elemTabbox.setAttribute(A_HFLEX, V_1);
+		elemTabbox.setAttribute(A_VFLEX, V_1);
 		elemTabbox.setClass(LayoutElementClass.TABBOX);
 		final LayoutElement elemTabs = elemTabbox.addChild(new LayoutElement(LayoutElement.TABS));
 		elemTabs.addChild(createTab(title));
@@ -330,25 +332,25 @@ public abstract class LayoutUtils {
 		elemButton.setLabel(label);
 		elemButton.setOnClick(command(command));
 		if (icon != null) {
-			elemButton.setAttribute(LayoutElementAttributes.A_ICONSCLASS, icon);
+			elemButton.setAttribute(A_ICONSCLASS, icon);
 		}
 		return elemButton;
 	}
 	
 	public static LayoutElement createListFormList() {
 		final LayoutElement elemListbox = createListBox();
-		elemListbox.setAttribute(LayoutElementAttributes.A_MODEL, load("vm.listModel"));
-		elemListbox.setAttribute(LayoutElementAttributes.A_SELECTEDITEM, bind("vm.object"));
-		elemListbox.setAttribute(LayoutElementAttributes.A_ONSELECT, command("'selectObject'"));
-		elemListbox.setAttribute(LayoutElementAttributes.A_VFLEX, "true");
-		elemListbox.setAttribute(LayoutElementAttributes.A_STYLE, "margin:5px");
+		elemListbox.setAttribute(A_MODEL, load("vm.listModel"));
+		elemListbox.setAttribute(A_SELECTEDITEM, bind("vm.object"));
+		elemListbox.setAttribute(A_ONSELECT, command("'selectObject'"));
+		elemListbox.setAttribute(A_VFLEX, V_TRUE);
+		elemListbox.setAttribute(A_STYLE, "margin:5px");
 		return elemListbox;
 	}
 	
 	public static LayoutElement createListHead(boolean sizable) {
 		final LayoutElement elemListhead = new LayoutElement(LayoutElement.LISTHEAD);
 		if (sizable) {
-			elemListhead.setAttribute(LayoutElementAttributes.A_SIZABLE, "true");
+			elemListhead.setAttribute(A_SIZABLE, V_TRUE);
 		}
 		return elemListhead;
 	}
@@ -359,10 +361,10 @@ public abstract class LayoutUtils {
 		final LayoutElement elemListheader = new LayoutElement(LayoutElement.LISTHEADER);
 		elemListheader.setLabel(label);
 		if (hflex != null) {
-			elemListheader.setAttribute(LayoutElementAttributes.A_HFLEX, hflex);
+			elemListheader.setAttribute(A_HFLEX, hflex);
 		}
 		if (style != null) {
-			elemListheader.setAttribute(LayoutElementAttributes.A_STYLE, style);
+			elemListheader.setAttribute(A_STYLE, style);
 		}
 		return elemListheader;
 	}
@@ -370,7 +372,7 @@ public abstract class LayoutUtils {
 	public static LayoutElement createListItem(String doubleClickAction) {
 		final LayoutElement elemListitem = new LayoutElement(LayoutElement.LISTITEM);
 		if (doubleClickAction != null) {
-			elemListitem.setAttribute(LayoutElementAttributes.A_ONDOUBLECLICK, command(doubleClickAction));
+			elemListitem.setAttribute(A_ONDOUBLECLICK, command(doubleClickAction));
 		}
 		return elemListitem;
 	}
@@ -380,11 +382,11 @@ public abstract class LayoutUtils {
 		
 		final LayoutElement elemListcell = new LayoutElement(LayoutElement.LISTCELL);
 		if (icon != null) {
-			elemListcell.setAttribute(LayoutElementAttributes.A_ICONSCLASS, icon);
+			elemListcell.setAttribute(A_ICONSCLASS, icon);
 		}
 		final LayoutElement elemLabel = elemListcell.addChild(createLabel(property));
 		if (style != null) {
-			elemLabel.setAttribute(LayoutElementAttributes.A_STYLE, style);
+			elemLabel.setAttribute(A_STYLE, style);
 		}
 		return elemListcell;
 	}
@@ -394,17 +396,17 @@ public abstract class LayoutUtils {
 		
 		final LayoutElement elemListcell = new LayoutElement(LayoutElement.LISTCELL);
 		final LayoutElement elemImage = elemListcell.addChild(new LayoutElement(LayoutElement.IMAGE));
-		elemImage.setAttribute(LayoutElementAttributes.A_CONTENT, property);
+		elemImage.setAttribute(A_CONTENT, property);
 		return elemListcell;
 	}
 	
 	public static LayoutElement createTemplate(String name, String var) {
 		Assert.notNull(name, C.NAME);
-		Assert.notNull(var, "var");
+		Assert.notNull(var, A_VAR);
 		
 		final LayoutElement elemTemplate = new LayoutElement(LayoutElement.TEMPLATE);
-		elemTemplate.setAttribute(LayoutElementAttributes.A_NAME, name);
-		elemTemplate.setAttribute(LayoutElementAttributes.A_VAR, var);
+		elemTemplate.setAttribute(A_NAME, name);
+		elemTemplate.setAttribute(A_VAR, var);
 		return elemTemplate;
 	}
 	

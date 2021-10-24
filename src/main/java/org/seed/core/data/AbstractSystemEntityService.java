@@ -148,7 +148,7 @@ public abstract class AbstractSystemEntityService<T extends SystemEntity>
 	}
 	
 	protected static QueryParameter queryParam(String name, Object value) {
-		return new QueryParameter(name, value);
+		return AbstractSystemEntityRepository.queryParam(name, value);
 	}
 	
 	protected static void handleException(Transaction tx, Exception ex) throws ValidationException {

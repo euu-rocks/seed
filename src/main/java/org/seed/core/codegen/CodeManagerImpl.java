@@ -275,8 +275,8 @@ public class CodeManagerImpl implements CodeManager {
 	}
 	
 	private void registerExternalSourcePathTree() throws IOException {
-		Assert.state(externalSourcesRootDir != null, "externalSourcesRootDir not available");
-		Assert.state(watchService != null, "watchService not available");
+		Assert.stateAvailable(externalSourcesRootDir, "externalSourcesRootDir");
+		Assert.stateAvailable(watchService, "watchService");
 		
 		Files.walkFileTree(externalSourcesRootDir.toPath(), new SimpleFileVisitor<Path>() {
 
@@ -291,7 +291,7 @@ public class CodeManagerImpl implements CodeManager {
 	}
 	
 	private void storeToFileSystem(SourceCode sourceCode) throws IOException {
-		Assert.state(externalSourcesRootDir != null, "externalSourcesRootDir not available");
+		Assert.stateAvailable(externalSourcesRootDir, "externalSourcesRootDir");
 		
 		final File file = new File(externalSourcesRootDir, getSourceFileName(sourceCode.getQualifiedName()));
 		final File dir = file.getParentFile();

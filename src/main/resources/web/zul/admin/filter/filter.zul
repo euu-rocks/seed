@@ -106,4 +106,7 @@
 			</tabbox>
 		</vlayout>
 	</center>
+	<south border="0">
+		<systemfields object="@load(vm.object)"/>
+	</south>
 </borderlayout>
