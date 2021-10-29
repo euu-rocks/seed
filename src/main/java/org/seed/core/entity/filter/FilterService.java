@@ -44,4 +44,6 @@ public interface FilterService extends ApplicationEntityService<Filter> {
 	
 	List<FilterPermission> getAvailablePermissions(Filter filter);
 	
+	void initFilterCriteria(Filter filter);
+	
 }

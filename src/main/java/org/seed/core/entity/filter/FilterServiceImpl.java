@@ -45,6 +45,7 @@ import org.seed.core.entity.EntityFunction;
 import org.seed.core.entity.EntityService;
 import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.NestedEntity;
+import org.seed.core.entity.value.ValueObjectService;
 import org.seed.core.user.User;
 import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupDependent;
@@ -64,6 +65,9 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	
 	@Autowired
 	private UserGroupService userGroupService;
+	
+	@Autowired
+	private ValueObjectService valueObjectService;
 	
 	@Autowired
 	private FilterRepository filterRepository;
@@ -383,6 +387,17 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		return Collections.emptyList();
 	}
 	
+	@Override
+	public void initFilterCriteria(Filter filter) {
+		Assert.notNull(filter, C.FILTER);
+		
+		if (filter.hasCriteria()) {
+			for (FilterCriterion filterCriterion : filter.getCriteria()) {
+				initFilterCriterionElement(filter, filterCriterion);
+			}
+		}
+	}
+	
 	private void initFilter(Entity entity, Filter filter, Filter currentVersionFilter, Session session) {
 		if (filter.hasCriteria()) {
 			for (FilterCriterion criterion : filter.getCriteria()) {
@@ -406,6 +421,35 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		if (currentVersionCriterion != null) {
 			currentVersionCriterion.copySystemFieldsTo(criterion);
 		}
+		initFilterCriterionElement(filter, criterion);
+	}
+	
+	private void initFilterCriterionElement(Filter filter, FilterCriterion criterion) {
+		final FilterElement element = new FilterElement();
+		criterion.setElement(element);
+		
+		// entity field
+		if (criterion.getEntityField() != null) {
+			element.setEntityField(criterion.getEntityField());
+			// reference field
+			if (criterion.getReferenceId() != null) {
+				criterion.setReference(
+					valueObjectService.getObject(criterion.getEntityField().getReferenceEntity(), 
+					  	   						 criterion.getReferenceId()));
+			}
+		}
+		
+		// system field
+		else if (criterion.getSystemField() != null) {
+			element.setSystemField(criterion.getSystemField());
+			// status field
+			if (criterion.getSystemField() == SystemField.ENTITYSTATUS) {
+				criterion.setReference(filter.getEntity().getStatusById(criterion.getReferenceId()));
+			}
+		}
+		else {
+			Assert.state(false, "neither entity nor system field");
+		}
 	}
 	
 	private void initFilterPermission(FilterPermission permission, Filter filter, Filter currentVersionFilter, Session session) {
@@ -423,11 +467,10 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	private static FilterElement createElement(EntityField entityField, SystemField systemField)  {
 		final FilterElement element = new FilterElement();
 		if (entityField != null) {
-			Assert.state(systemField == null, "entity and system field");
 			element.setEntityField(entityField);
 		}
 		else {
-			Assert.state(systemField != null, "either entity or system field");
+			Assert.state(systemField != null, "neither entity nor system field");
 			element.setSystemField(systemField);
 		}
 		return element;

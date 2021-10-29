@@ -37,7 +37,6 @@ import org.seed.core.entity.filter.FilterService;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.entity.value.ValueObjectService;
 import org.seed.core.user.Authorisation;
-import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 import org.seed.ui.ListFilter;
 
@@ -151,39 +150,7 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 		if (filter.getHqlQuery() != null) {
 			hqlInput = true;
 		}
-		else if (filter.hasCriteria()) {
-			for (FilterCriterion filterCriterion : filter.getCriteria()) {
-				initCriterion(filter, filterCriterion);
-			}
-		}
-	}
-	
-	private void initCriterion(Filter filter, FilterCriterion criterion) {
-		final FilterElement element = new FilterElement();
-		criterion.setElement(element);
-		
-		// entity field
-		if (criterion.getEntityField() != null) {
-			element.setEntityField(criterion.getEntityField());
-			// reference field
-			if (criterion.getReferenceId() != null) {
-				criterion.setReference(
-					valueObjectService.getObject(criterion.getEntityField().getReferenceEntity(), 
-					  	   						 criterion.getReferenceId()));
-			}
-		}
-		
-		// system field
-		else if (criterion.getSystemField() != null) {
-			element.setSystemField(criterion.getSystemField());
-			// status field
-			if (criterion.getSystemField() == SystemField.ENTITYSTATUS) {
-				criterion.setReference(filter.getEntity().getStatusById(criterion.getReferenceId()));
-			}
-		}
-		else {
-			Assert.state(false, "either entity or system field");
-		}
+		filterService.initFilterCriteria(filter);
 	}
 	
 	@Override
