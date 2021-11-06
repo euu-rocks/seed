@@ -21,6 +21,8 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
 
+import org.seed.core.util.MiscUtils;
+
 public enum FieldType {
 	
 	AUTONUM		(String.class,		DataType.VARCHAR),	
@@ -36,6 +38,21 @@ public enum FieldType {
 	REFERENCE	(Object.class,		DataType.BIGINT),
 	TEXT 		(String.class,		DataType.VARCHAR),
 	TEXTLONG 	(String.class,		DataType.CLOB);
+	
+	public static final FieldType[] TRANSFERABLE_TYPES = MiscUtils.toArray(
+				
+				FieldType.BOOLEAN,
+				FieldType.DATE,
+				FieldType.DATETIME,
+				FieldType.DECIMAL,
+				FieldType.DOUBLE,
+				FieldType.INTEGER,
+				FieldType.LONG,
+				FieldType.REFERENCE,
+				FieldType.TEXT 
+	); 
+	
+	public static final FieldType[] NO_AUTONUM_TYPES = Arrays.copyOfRange(values(), 1, values().length);
 	
 	public final Class<?> typeClass;
 	
@@ -96,10 +113,6 @@ public enum FieldType {
 	
 	public boolean isTextLong() {
 		return this == TEXTLONG;
-	}
-	
-	public static FieldType[] valuesWithoutAutonum() {
-		return Arrays.copyOfRange(values(), 1, values().length);
 	}
 	
 	public enum DataType {

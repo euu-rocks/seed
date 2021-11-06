@@ -31,6 +31,8 @@ public interface Entity
 	
 	boolean isGeneric();
 	
+	boolean isTransferable();
+	
 	boolean hasFields();
 	
 	boolean hasAllFields(); // includes generic fields

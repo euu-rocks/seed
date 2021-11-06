@@ -1,0 +1,25 @@
+    {
+        "changeSet": {
+            "id": "system update 0.9.21",
+            "author": "seed",
+            "changes": [
+               {
+                  "addColumn":  {
+                     "columns":[
+                        {
+                           "column": {
+                              "name": "istransferable",
+                              "type": "BOOLEAN",
+                              "defaultValue": false,
+                              "constraints": {
+                                  "nullable": "false"
+                              }
+                           }
+                        }
+                     ],
+                     "tableName":  "sys_entity"
+                  } 
+               }
+           ]
+        }
+    }

@@ -38,11 +38,16 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.config.SessionFactoryProvider;
 import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.customcode.CustomLib;
 import org.seed.core.customcode.CustomLibMetadata;
+import org.seed.core.data.ValidationException;
+import org.seed.core.entity.Entity;
+import org.seed.core.entity.transfer.TransferFormat;
+import org.seed.core.entity.transfer.TransferService;
 import org.seed.core.util.Assert;
 
 import static org.seed.core.codegen.CodeUtils.isJarFile;
@@ -64,6 +69,9 @@ public class ModuleTransfer {
 	
 	@Autowired
 	private ModuleRepository moduleRepository;
+	
+	@Autowired
+	private TransferService transferService;
 	
 	@Autowired
 	private UpdatableConfiguration configuration;
@@ -88,6 +96,7 @@ public class ModuleTransfer {
 	public Module readModule(InputStream inputStream) throws IOException {
 		Assert.notNull(inputStream, "input stream");
 		Map<String, byte[]> mapJars = null;
+		Map<String, byte[]> mapTransferContents = null;
 		Module module = null;
 		
 		try (ZipInputStream zis = new ZipInputStream(inputStream)) {
@@ -98,22 +107,38 @@ public class ModuleTransfer {
 					module = (Module) marshaller.unmarshal(
 							new StreamSource(new ByteArrayInputStream(zis.readAllBytes())));
 				}
-				// read jar
+				// read jar files
 				else if (isJarFile(entry.getName())) {
 					if (mapJars == null) {
 						mapJars = new HashMap<>();
 					}
 					mapJars.put(entry.getName(), zis.readAllBytes());
 				}
+				// read transfer files
+				else {
+					if (mapTransferContents == null) {
+						mapTransferContents = new HashMap<>();
+					}
+					mapTransferContents.put(entry.getName(), zis.readAllBytes());
+				}
 			}
 		}
 		Assert.stateAvailable(module, MODULE_META_FILENAME);
 		
 		// init custom libs content
-		if (module != null && mapJars != null && module.getCustomLibs() != null) {
+		if (mapJars != null && module.getCustomLibs() != null) {
 			for (CustomLib customLib : module.getCustomLibs()) {
 				Assert.stateAvailable(mapJars.containsKey(customLib.getFilename()), customLib.getFilename());
 				((CustomLibMetadata) customLib).setContent(mapJars.get(customLib.getFilename()));
+			}
+		}
+		// store transfer file content in module
+		if (mapTransferContents != null && module.getTransferableEntities() != null) {
+			for (Entity entity : module.getTransferableEntities()) {
+				final byte[] content = mapTransferContents.get(entity.getInternalName() + TransferFormat.CSV.fileExtension);
+				if (content != null) {
+					module.addTransferContent(entity, content);
+				}
 			}
 		}
 		return module;
@@ -125,10 +150,15 @@ public class ModuleTransfer {
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 	    try (ZipOutputStream zos = new ZipOutputStream(baos)) {
 		    // write module
-		    writeEntry(zos, MODULE_META_FILENAME, getModuleContent(module));
+		    writeZipEntry(zos, MODULE_META_FILENAME, getModuleContent(module));
 		    // write custom libs
 		    for (CustomLib customLib : module.getCustomLibs()) {
-		    	writeEntry(zos, customLib.getFilename(), customLib.getContent());
+		    	writeZipEntry(zos, customLib.getFilename(), customLib.getContent());
+		    }
+		    // write transferable objects
+		    for (Entity entity : module.getTransferableEntities()) {
+		    	writeZipEntry(zos, entity.getInternalName() + TransferFormat.CSV.fileExtension, 
+		    					transferService.doExport(entity));
 		    }
 	    }
 	    return baos.toByteArray();
@@ -166,20 +196,33 @@ public class ModuleTransfer {
 				if (module.getEntities() != null || module.getDBObjects() != null) {
 					sortedServices.forEach(service -> service.createChangeLogs(context, session));
 				}
-				
 				tx.commit();
 			}
 			catch (Exception ex) {
 				if (tx != null) {
 					tx.rollback();
 				}
-				throw ex;
+				throw new InternalException(ex);
 			}
 		}
 		
 		// update configuration
 		if (module.getEntities() != null) {
 			configuration.updateConfiguration();
+		}
+		// import transferable entity content
+		if (module.getTransferableEntities() != null) {
+			for (Entity entity : module.getTransferableEntities()) {
+				final byte[] content = module.getTransferContent(entity);
+				if (content != null) {
+					try {
+						transferService.doImport(entity, content);
+					} 
+					catch (ValidationException vex) {
+						throw new InternalException(vex);
+					}
+				}
+			}
 		}
 	}
 	
@@ -199,7 +242,7 @@ public class ModuleTransfer {
 		return baos.toByteArray();
 	}
 	
-	private static void writeEntry(ZipOutputStream zos, String name, byte[] content) throws IOException {
+	private static void writeZipEntry(ZipOutputStream zos, String name, byte[] content) throws IOException {
 		final ZipEntry entry = new ZipEntry(name);
 		entry.setSize(content.length);
 		zos.putNextEntry(entry);

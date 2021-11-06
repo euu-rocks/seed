@@ -28,6 +28,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.data.Cursor;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.EntityField;
@@ -118,6 +119,7 @@ public abstract class AbstractTransferProcessor implements TransferProcessor {
 			if (tx != null) {
 				tx.rollback();
 			}
+			throw new InternalException(ex);
 		}
 		finally {
 			if (session != null) {

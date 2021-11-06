@@ -168,7 +168,7 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 	}
 	
 	public List<Entity> getEntities() {
-		return entityService.findNonGenericEntities();
+		return entityService.findTransferableEntities();
 	}
 	
 	public String getElementName(FilterElement element) {
@@ -267,7 +267,7 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 	@Override
 	protected List<SystemObject> getListManagerSource(String key, int listNum) {
 		if (PERMISSIONS.equals(key)) {
-			return MiscUtils.cast(listNum == LIST_AVAILABLE 
+			return MiscUtils.castList(listNum == LIST_AVAILABLE 
 					? filterService.getAvailablePermissions(getObject()) 
 					: getObject().getPermissions());
 		}

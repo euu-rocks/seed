@@ -22,12 +22,15 @@ import java.util.Arrays;
 public enum SystemField {
 	
     ID           (FieldType.LONG,      "id",           "id"),
+    UID          (FieldType.TEXT,      "uid",          "uid"),
     VERSION      (FieldType.INTEGER,   "version",      "version"),
     CREATEDON    (FieldType.DATETIME,  "createdOn",    "createdon"),
     CREATEDBY    (FieldType.TEXT,      "createdBy",    "createdby"),
     MODIFIEDON   (FieldType.DATETIME,  "modifiedOn",   "modifiedon"),
     MODIFIEDBY   (FieldType.TEXT,      "modifiedBy",   "modifiedby"),
     ENTITYSTATUS (FieldType.REFERENCE, "entityStatus", "status_id");
+	
+	public static final SystemField[] PUBLIC_SYSTEM_FIELD = Arrays.copyOfRange(values(), 3, values().length);
 	
 	public final FieldType type;
 	
@@ -39,10 +42,6 @@ public enum SystemField {
 		this.type = type;
 		this.property = property;
 		this.columName = columName;
-	}
-	
-	public static SystemField[] valuesWithoutIdAndVersion() {
-		return Arrays.copyOfRange(values(), 2, values().length);
 	}
 	
 }

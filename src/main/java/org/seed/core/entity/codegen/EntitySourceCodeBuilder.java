@@ -36,11 +36,13 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Formula;
 
 import org.seed.C;
+import org.seed.core.application.TransferableObject;
 import org.seed.core.codegen.AbstractSourceCodeBuilder;
 import org.seed.core.codegen.AnnotationMetadata;
 import org.seed.core.codegen.ParameterMetadata;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.codegen.TypeClass;
+import org.seed.core.data.SystemField;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityFunction;
@@ -63,13 +65,9 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	EntitySourceCodeBuilder(Entity entity) {
 		super (entity,			
 			   entity.isGeneric(),					// abstract
-			   entity.getGenericEntity() != null 	// super class
-			   	? newTypeClass(entity.getGenericEntity()) 
-			   	: newTypeClass(AbstractValueObject.class), 
-			   entity.isGeneric() 					// interface classes
-			    ? null 
-			    : new TypeClass[]{ newTypeClass(ValueEntity.class) },
-			   getEntityAnnotations(entity));
+			   getEntitySuperClass(entity), 		// super class
+			   getEntityInterfaceTypes(entity),		// interfaces
+			   getEntityAnnotations(entity));		// annotations
 		this.entity = entity;
 	}
 	
@@ -116,8 +114,13 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	public SourceCode build(BuildMode buildMode) {
 		Assert.state(buildMode == BuildMode.COMPLETE, "unsupported build mode: " + buildMode.name());
 		
+		// uid field
+		if (entity.isTransferable()) {
+			buildUidField();
+		}
+		
 		// status field
-		if (entity.hasStatus()) {
+		else if (entity.hasStatus()) {
 			buildStatusField();
 		}
 		
@@ -185,10 +188,14 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	
 	private void buildStatusField() {
 		addImport(ReferenceJsonSerializer.class);
-		addMember("entityStatus", newTypeClass(EntityStatus.class), 
-				  newAnnotation(JoinColumn.class, C.NAME, quote("status_id")),
+		addMember(SystemField.ENTITYSTATUS.property, newTypeClass(EntityStatus.class), 
+				  newAnnotation(JoinColumn.class, C.NAME, quote(SystemField.ENTITYSTATUS.columName)),
 				  newAnnotation(ManyToOne.class, C.FETCH, FetchType.LAZY),
 				  newAnnotation(JsonSerialize.class, "using", "ReferenceJsonSerializer.class"));
+	}
+	
+	private void buildUidField() {
+		addMember(SystemField.UID.property, newTypeClass(SystemField.UID.type.typeClass));
 	}
 	
 	private void buildEntityIdGetter() {
@@ -229,8 +236,11 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	}
 	
 	private void buildGetterAndSetter() {
-		if (entity.hasStatus()) {
-			addGetterAndSetter("entityStatus");
+		if (entity.isTransferable()) {
+			addGetterAndSetter(SystemField.UID.property);
+		}
+		else if (entity.hasStatus()) {
+			addGetterAndSetter(SystemField.ENTITYSTATUS.property);
 		}
 		if (entity.hasFields()) {
 			for (EntityField field : entity.getFields()) {
@@ -285,6 +295,24 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 			addMethod(null, "remove" + StringUtils.capitalize(nestedName), parameters,
 					  "this." + nestedName + ".remove(" + nestedName + ");" + LF);
 		}
+	}
+	
+	private static TypeClass getEntitySuperClass(Entity entity) {
+		return entity.getGenericEntity() != null 
+			   	? newTypeClass(entity.getGenericEntity()) 
+			   	: newTypeClass(AbstractValueObject.class);
+	}
+	
+	private static TypeClass[] getEntityInterfaceTypes(Entity entity) {
+		if (entity.isGeneric()) {
+			return null;
+		}
+		final List<TypeClass> interfaces = new ArrayList<>(2);
+		interfaces.add(newTypeClass(ValueEntity.class));
+		if (entity.isTransferable()) {
+			interfaces.add(newTypeClass(TransferableObject.class));
+		}
+		return interfaces.toArray(new TypeClass[interfaces.size()]);
 	}
 	
 	private static AnnotationMetadata[] getEntityAnnotations(Entity entity) {

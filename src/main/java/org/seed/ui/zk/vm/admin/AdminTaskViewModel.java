@@ -341,7 +341,7 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	@Override
 	protected List<SystemObject> getListManagerSource(String key, int listNum) {
 		if (PERMISSIONS.equals(key)) {
-			return MiscUtils.cast(listNum == LIST_AVAILABLE 
+			return MiscUtils.castList(listNum == LIST_AVAILABLE 
 					? taskService.getAvailablePermissions(getObject()) 
 					: getObject().getPermissions());
 		}

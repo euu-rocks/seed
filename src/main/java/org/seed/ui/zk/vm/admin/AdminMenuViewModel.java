@@ -165,7 +165,7 @@ public class AdminMenuViewModel extends AbstractAdminViewModel<Menu> {
 	@Override
 	protected List<SystemObject> getListSorterSource(String key) {
 		if (ENTRIES.equals(key)) {
-			return MiscUtils.cast(getObject().getSubMenus());
+			return MiscUtils.castList(getObject().getSubMenus());
 		}
 		else {
 			throw new IllegalStateException("unknown list sorter key: " + key);

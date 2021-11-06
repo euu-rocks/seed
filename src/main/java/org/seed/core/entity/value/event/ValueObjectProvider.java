@@ -124,7 +124,7 @@ class ValueObjectProvider implements EntityObjectProvider {
 	public <T extends EntityObject> List<T> find(CriteriaQuery<T> query) {
 		Assert.notNull(query, "query");
 		
-		return MiscUtils.cast(valueObjectService.find(functionContext.getSession(), (CriteriaQuery<ValueObject>) query));
+		return MiscUtils.castList(valueObjectService.find(functionContext.getSession(), (CriteriaQuery<ValueObject>) query));
 	}
 	
 	@Override

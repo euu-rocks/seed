@@ -19,8 +19,17 @@ package org.seed.core.entity.transfer;
 
 public enum TransferFormat {
 	
-	CSV;
+	CSV ("text/csv", ".csv");
 	
+	public final String contentType;
+	
+	public final String fileExtension;
+	
+	private TransferFormat(String contentType, String fileExtension) {
+		this.contentType = contentType;
+		this.fileExtension = fileExtension;
+	}
+
 	public boolean isCSV() {
 		return this == CSV;
 	}

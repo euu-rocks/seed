@@ -128,7 +128,7 @@ public class AdminUserViewModel extends AbstractAdminViewModel<User> {
 	@Override
 	protected List<SystemObject> getListManagerSource(String key, int listNum) {
 		if (USERGROUPS.equals(key)) {
-			return MiscUtils.cast(listNum == LIST_AVAILABLE
+			return MiscUtils.castList(listNum == LIST_AVAILABLE
 					? userService.getAvailableUserGroups(getObject())
 					: new ArrayList<>(getObject().getUserGroups()));
 		}

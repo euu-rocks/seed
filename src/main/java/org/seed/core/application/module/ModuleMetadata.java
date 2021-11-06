@@ -18,7 +18,10 @@
 package org.seed.core.application.module;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
@@ -131,6 +134,9 @@ public class ModuleMetadata extends AbstractSystemEntity
 	private String uid;
 	
 	@Transient
+	private Map<String, byte[]> mapTransferContent;
+	
+	@Transient
 	private List<ApplicationEntity> changedObjects;
 	
 	@Override
@@ -147,7 +153,7 @@ public class ModuleMetadata extends AbstractSystemEntity
 	@Override
 	@XmlTransient
 	public List<Entity> getEntities() {
-		return MiscUtils.cast(getEntityMetadata());
+		return MiscUtils.castList(getEntityMetadata());
 	}
 	
 	@XmlElement(name="entity")
@@ -163,7 +169,7 @@ public class ModuleMetadata extends AbstractSystemEntity
 	@Override
 	@XmlTransient
 	public List<Filter> getFilters() {
-		return MiscUtils.cast(getFilterMetadata());
+		return MiscUtils.castList(getFilterMetadata());
 	}
 	
 	@XmlElement(name="filter")
@@ -179,7 +185,7 @@ public class ModuleMetadata extends AbstractSystemEntity
 	@Override
 	@XmlTransient
 	public List<Transformer> getTransformers() {
-		return MiscUtils.cast(getTransformerMetadata());
+		return MiscUtils.castList(getTransformerMetadata());
 	}
 	
 	@XmlElement(name="transformer")
@@ -195,7 +201,7 @@ public class ModuleMetadata extends AbstractSystemEntity
 	@Override
 	@XmlTransient
 	public List<Transfer> getTransfers() {
-		return MiscUtils.cast(getTransferMetadata());
+		return MiscUtils.castList(getTransferMetadata());
 	}
 	
 	@XmlElement(name="transfer")
@@ -211,7 +217,7 @@ public class ModuleMetadata extends AbstractSystemEntity
 	@Override
 	@XmlTransient
 	public List<Form> getForms() {
-		return MiscUtils.cast(getFormMetadata());
+		return MiscUtils.castList(getFormMetadata());
 	}
 	
 	@XmlElement(name="form")
@@ -227,7 +233,7 @@ public class ModuleMetadata extends AbstractSystemEntity
 	@Override
 	@XmlTransient
 	public List<Menu> getMenus() {
-		return MiscUtils.cast(getMenuMetadata());
+		return MiscUtils.castList(getMenuMetadata());
 	}
 	
 	@XmlElement(name="menu")
@@ -243,7 +249,7 @@ public class ModuleMetadata extends AbstractSystemEntity
 	@Override
 	@XmlTransient
 	public List<Task> getTasks() {
-		return MiscUtils.cast(getTaskMetadata());
+		return MiscUtils.castList(getTaskMetadata());
 	}
 	
 	@XmlElement(name="task")
@@ -259,7 +265,7 @@ public class ModuleMetadata extends AbstractSystemEntity
 	@Override
 	@XmlTransient
 	public List<UserGroup> getUserGroups() {
-		return MiscUtils.cast(getUserGroupMetadata());
+		return MiscUtils.castList(getUserGroupMetadata());
 	}
 	
 	@XmlElement(name="usergroup")
@@ -274,7 +280,7 @@ public class ModuleMetadata extends AbstractSystemEntity
 	
 	@Override
 	public List<DBObject> getDBObjects() {
-		return MiscUtils.cast(getDbObjectMetadata());
+		return MiscUtils.castList(getDbObjectMetadata());
 	}
 	
 	@XmlElement(name="dbobject")
@@ -289,7 +295,7 @@ public class ModuleMetadata extends AbstractSystemEntity
 	
 	@Override
 	public List<IDataSource> getDataSources() {
-		return MiscUtils.cast(getDataSourceMetadata());
+		return MiscUtils.castList(getDataSourceMetadata());
 	}
 
 	@XmlElement(name="datasource")
@@ -304,7 +310,7 @@ public class ModuleMetadata extends AbstractSystemEntity
 	
 	@Override
 	public List<Report> getReports() {
-		return MiscUtils.cast(getReportMetadata());
+		return MiscUtils.castList(getReportMetadata());
 	}
 	
 	@XmlElement(name="report")
@@ -319,7 +325,7 @@ public class ModuleMetadata extends AbstractSystemEntity
 	
 	@Override
 	public List<CustomCode> getCustomCodes() {
-		return MiscUtils.cast(getCustomCodeMetadata());
+		return MiscUtils.castList(getCustomCodeMetadata());
 	}
 	
 	@XmlElement(name="customcode")
@@ -334,7 +340,7 @@ public class ModuleMetadata extends AbstractSystemEntity
 	
 	@Override
 	public List<CustomLib> getCustomLibs() {
-		return MiscUtils.cast(getCustomLibMetadata());
+		return MiscUtils.castList(getCustomLibMetadata());
 	}
 	
 	@XmlElement(name="customlib")
@@ -349,7 +355,7 @@ public class ModuleMetadata extends AbstractSystemEntity
 
 	@Override
 	public List<Rest> getRests() {
-		return MiscUtils.cast(getRestMetadata());
+		return MiscUtils.castList(getRestMetadata());
 	}
 	
 	@XmlElement(name="restservice")
@@ -413,6 +419,32 @@ public class ModuleMetadata extends AbstractSystemEntity
 	@Override
 	public void removeNewObjects() {
 		removeNewObjects(getParameters());
+	}
+	
+	@Override
+	public List<Entity> getTransferableEntities() {
+		return getEntityMetadata().stream().filter(Entity::isTransferable)
+								           .collect(Collectors.toList());
+	}
+	
+	@Override
+	public void addTransferContent(Entity entity, byte[] content) {
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(content, C.CONTENT);
+		
+		if (mapTransferContent == null) {
+			mapTransferContent = new HashMap<>();
+		}
+		mapTransferContent.put(entity.getUid(), content);
+	}
+	
+	@Override
+	public byte[] getTransferContent(Entity entity) {
+		Assert.notNull(entity, C.ENTITY);
+		
+		return mapTransferContent != null
+				? mapTransferContent.get(entity.getUid())
+				: null;
 	}
 	
 	@Override

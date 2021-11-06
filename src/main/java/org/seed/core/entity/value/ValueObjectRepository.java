@@ -48,6 +48,7 @@ import org.seed.core.config.SessionFactoryProvider;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.FileObject;
 import org.seed.core.data.Sort;
+import org.seed.core.data.SystemField;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityFunction;
@@ -65,6 +66,7 @@ import org.seed.core.entity.value.event.ValueObjectEventType;
 import org.seed.core.entity.value.event.ValueObjectFunctionContext;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
+import org.seed.core.util.UID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -321,9 +323,14 @@ public class ValueObjectRepository {
 		checkSessionAndContext(session, functionContext);
 		
 		final boolean isInsert = object.isNew();
-		// autonum
 		if (isInsert) {
-			final EntityField autonumField = getEntity(object).findAutonumField();
+			// uid
+			final Entity entity = getEntity(object);
+			if (entity.isTransferable()) {
+				objectAccess.setValue(object, SystemField.UID, UID.createUID());
+			}
+			// autonum
+			final EntityField autonumField = entity.findAutonumField();
 			if (autonumField != null) {
 				final Object autonum = autonumService.getNextValue(autonumField, session);
 				objectAccess.setValue(object, autonumField, autonum);

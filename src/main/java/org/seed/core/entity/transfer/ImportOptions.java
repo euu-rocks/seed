@@ -17,7 +17,9 @@
  */
 package org.seed.core.entity.transfer;
 
-public class ImportOptions {
+import org.seed.core.data.Options;
+
+public class ImportOptions implements Options {
 	
 	private boolean allOrNothing;
 	

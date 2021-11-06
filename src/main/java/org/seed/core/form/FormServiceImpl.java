@@ -354,7 +354,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 			}
 		}
 		// system fields
-		for (SystemField systemField : SystemField.valuesWithoutIdAndVersion()) {
+		for (SystemField systemField : SystemField.PUBLIC_SYSTEM_FIELD) {
 			if ((systemField != SystemField.ENTITYSTATUS || entity.hasStatus()) && 
 				!form.containsSystemField(systemField)) {
 				result.add(createSystemFormField(form, systemField));

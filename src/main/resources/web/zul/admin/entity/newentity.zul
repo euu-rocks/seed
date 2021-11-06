@@ -39,8 +39,8 @@
 								 hflex="1"/> 
                 	</cell>
             	</row>
-            	<row if="${vm.existGenericEntities()}">
-                	<cell align="right">
+            	<row visible="@load(!vm.object.transferable and vm.existGenericEntities())"> 
+            		<cell align="right">
                 		<label value="${labels.label.basedon}:"/>
                 	</cell>
                 	<cell>
@@ -81,6 +81,15 @@
                 		<checkbox checked="@bind(vm.object.generic)"
                 				  onCheck="@command('selectOption',option='generic')"/>
                 		<label value="${labels.label.genericentity}"
+                			   style="margin-left: 5px"/>
+                	</cell>
+                </row>
+                <row>
+                	<cell/>
+                	<cell>
+                		<checkbox checked="@bind(vm.object.transferable)"
+                				  onCheck="@command('selectOption',option='transferable')"/>
+                		<label value="${labels.label.transferableentity}"
                 			   style="margin-left: 5px"/>
                 	</cell>
                 </row>

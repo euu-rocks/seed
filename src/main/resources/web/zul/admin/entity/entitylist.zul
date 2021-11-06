@@ -53,6 +53,8 @@
 	            <listheader hflex="2" label="${labels.label.basedon}"
 	            			sort="auto(genericEntity.name)" 
 	            			visible="@load(vm.existGenericEntities())"/>			
+	            <listheader hflex="min" label="${labels.label.module}"
+	            			sort="auto(transferable)"/>
 	            <listheader hflex="min" label="${labels.label.generic}"
 	            			sort="auto(generic)"/>			
 	            <listheader hflex="1" label="${labels.label.module}"
@@ -77,6 +79,9 @@
 		           	</combobox>
 		        </auxheader>
 		        <auxheader>
+		        	<checkbox checked="@bind(vm.getFilter('list','transferable').booleanValue)"/>
+		        </auxheader>
+		        <auxheader>
 		        	<checkbox checked="@bind(vm.getFilter('list','generic').booleanValue)"/>
 		        </auxheader>
 		        <auxheader>
@@ -96,12 +101,15 @@
 		    <template name="model" var="entity">
 	            <listitem onDoubleClick="@command('editEntity')">
 	            	<listcell iconSclass="z-icon-table z-icon-fw alpha-icon-lg">
-	            		<label value="@init(entity.name)" style="margin-left:3px"/>
+	            		<label value="@load(entity.name)" style="margin-left:3px"/>
 	            	</listcell>
 	            	<listcell iconSclass="@load(empty entity.genericEntity ? '' : 'z-icon-table alpha-icon-lg')">
-	            		<label value="@init(entity.genericEntity.name)" style="margin-left:3px"/>
+	            		<label value="@load(entity.genericEntity.name)" style="margin-left:3px"/>
 	            	</listcell>
-	            	<listcell>
+	            	<listcell style="text-align:center">
+	            		<checkbox checked="@load(entity.transferable)" disabled="true"/>
+	            	</listcell>
+	            	<listcell style="text-align:center">
 	            		<checkbox checked="@load(entity.generic)" disabled="true"/>
 	            	</listcell>
 	            	<listcell iconSclass="@load(empty entity.module ? '' : 'z-icon-cube alpha-icon-lg')">

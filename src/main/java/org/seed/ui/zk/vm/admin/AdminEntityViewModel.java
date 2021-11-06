@@ -24,6 +24,7 @@ import java.util.List;
 import org.seed.C;
 import org.seed.core.application.ContentObject;
 import org.seed.core.codegen.SourceCode;
+import org.seed.core.config.Limits;
 import org.seed.core.data.FieldAccess;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.SystemObject;
@@ -206,7 +207,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	public String getMaxFieldLength() {
-		return String.valueOf(getLimit("entity.stringfield.length"));
+		return String.valueOf(getLimit(Limits.LIMIT_TEXT_LENGTH));
 	}
 	
 	@Override
@@ -655,9 +656,17 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 			case "generic": 
 				if (getObject().isGeneric()) {
 					getOptions().setAutoLayout(false);
-					notifyObjectChange("options");
+					((EntityMetadata) getObject()).setTransferable(false);
+					notifyObjectChange("options", "transferable");
 				}
 				break;
+				
+			case "transferable":
+				if (getObject().isTransferable()) {
+					((EntityMetadata) getObject()).setGeneric(false);
+					((EntityMetadata) getObject()).setGenericEntity(null);
+					notifyObjectChange(C.GENERIC);
+				}
 				
 			case "autolayout":
 				if (getOptions().isAutoLayout()) {
@@ -898,19 +907,19 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	protected List<SystemObject> getListSorterSource(String key) {
 		switch (key) {
 			case FIELDS:
-				return MiscUtils.cast(getObject().getFields());
+				return MiscUtils.castList(getObject().getFields());
 			case FIELDGROUPS:
-				return MiscUtils.cast(getObject().getFieldGroups());
+				return MiscUtils.castList(getObject().getFieldGroups());
 			case FIELDCONSTRAINTS:
-				return MiscUtils.cast(getObject().getFieldConstraints());
+				return MiscUtils.castList(getObject().getFieldConstraints());
 			case STATUS:
-				return MiscUtils.cast(getObject().getStatusList());
+				return MiscUtils.castList(getObject().getStatusList());
 			case STATUSTRANSITIONS:
-				return MiscUtils.cast(getObject().getStatusTransitions());
+				return MiscUtils.castList(getObject().getStatusTransitions());
 			case NESTEDS:
-				return MiscUtils.cast(getObject().getNesteds());
+				return MiscUtils.castList(getObject().getNesteds());
 			case CALLBACKS:
-				return MiscUtils.cast(getObject().getCallbackFunctions());
+				return MiscUtils.castList(getObject().getCallbackFunctions());
 			default:
 				throw new IllegalStateException("unknown list sorter key: " + key);
 		}
@@ -920,13 +929,13 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	protected List<SystemObject> getListManagerSource(String key, int listNum) {
 		switch (key) {
 			case PERMISSIONS:
-				return MiscUtils.cast(listNum == LIST_AVAILABLE 
+				return MiscUtils.castList(listNum == LIST_AVAILABLE 
 						? entityService.getAvailablePermissions(getObject()) 
 						: getObject().getPermissions());
 			
 			case TRANSITIONFUNCTIONS:
 				if (statusTransition != null) {
-					return MiscUtils.cast(listNum == LIST_AVAILABLE
+					return MiscUtils.castList(listNum == LIST_AVAILABLE
 							  ? entityService.getAvailableStatusTransitionFunctions(getObject(), statusTransition)
 							  : statusTransition.getFunctions());
 				}
@@ -934,7 +943,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 			
 			case TRANSITIONPERMISSIONS:
 				if (statusTransition != null) {
-					return MiscUtils.cast(listNum == LIST_AVAILABLE
+					return MiscUtils.castList(listNum == LIST_AVAILABLE
 							  ? entityService.getAvailableStatusTransitionPermissions(statusTransition)
 							  : statusTransition.getPermissions());
 				}

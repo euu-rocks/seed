@@ -37,6 +37,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.data.FieldAccess;
@@ -132,6 +133,8 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	private boolean isGeneric;
 	
+	private boolean isTransferable;
+	
 	@Transient
 	private String genericEntityUid;
 
@@ -145,6 +148,16 @@ public class EntityMetadata extends AbstractApplicationEntity
 		this.isGeneric = isGeneric;
 	}
 	
+	@Override
+	@XmlAttribute
+	public boolean isTransferable() {
+		return isTransferable;
+	}
+
+	public void setTransferable(boolean isTransferable) {
+		this.isTransferable = isTransferable;
+	}
+
 	@Override
 	@XmlAttribute
 	@JsonIgnore
@@ -455,14 +468,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public EntityField findAutonumField() {
-		if (hasAllFields()) {
-			for (EntityField field : getAllFields()) {
-				if (field.getType().isAutonum()) {
-					return field;
-				}
-			}
-		}
-		return null;
+		return findFieldByType(FieldType.AUTONUM);
 	}
 	
 	@Override
@@ -870,6 +876,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 				.append(identifierPattern, otherEntity.getIdentifierPattern())
 				.append(genericEntityUid, otherEntity.getGenericEntityUid())
 				.append(isGeneric, otherEntity.isGeneric())
+				.append(isTransferable, otherEntity.isTransferable())
 				.isEquals()) {
 			return false;
 		}
@@ -1025,6 +1032,17 @@ public class EntityMetadata extends AbstractApplicationEntity
 			}
 		}
 		return true;
+	}
+	
+	private EntityField findFieldByType(FieldType fieldType) {
+		if (hasAllFields()) {
+			for (EntityField field : getAllFields()) {
+				if (field.getType() == fieldType) {
+					return field;
+				}
+			}
+		}
+		return null;
 	}
 	
 	void createLists() {

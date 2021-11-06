@@ -44,6 +44,8 @@ public interface Module extends SystemEntity, TransferableObject {
 	
 	List<Entity> getEntities();
 	
+	List<Entity> getTransferableEntities();
+	
 	List<Filter> getFilters();
 	
 	List<Transformer> getTransformers();
@@ -103,5 +105,9 @@ public interface Module extends SystemEntity, TransferableObject {
 	Report getReportByUid(String reportUid);
 	
 	Rest getRestByUid(String restUid);
+	
+	void addTransferContent(Entity entity, byte[] content);
+	
+	byte[] getTransferContent(Entity entity);
 	
 }

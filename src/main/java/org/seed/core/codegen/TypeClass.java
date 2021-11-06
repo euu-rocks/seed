@@ -19,6 +19,9 @@ package org.seed.core.codegen;
 
 import java.util.List;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import org.seed.C;
 import org.seed.core.util.Assert;
 
@@ -63,10 +66,10 @@ public final class TypeClass {
 	
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = prime + ((packageName == null) ? 0 : packageName.hashCode());
-		result = prime * result + ((className == null) ? 0 : className.hashCode());
-		return result;
+		return new HashCodeBuilder()
+					.append(packageName)
+					.append(className)
+					.hashCode();
 	}
 
 	@Override
@@ -77,9 +80,11 @@ public final class TypeClass {
 		if (obj == this) {
 			return true;
 		}
-		final TypeClass other = (TypeClass) obj;
-		return packageName.equals(other.packageName) &&
-			   className.equals(other.className);
+		final TypeClass otherType = (TypeClass) obj;
+		return new EqualsBuilder()
+					.append(packageName, otherType.packageName)
+					.append(className, otherType.className)
+					.isEquals();
 	}
 	
 	static void sort(List<TypeClass> list) {

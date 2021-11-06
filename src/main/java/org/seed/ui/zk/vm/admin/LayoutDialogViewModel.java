@@ -827,12 +827,12 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	protected List<SystemObject> getListManagerSource(String key, int listNum) {
 		switch (key) {
 			case FIELDS:
-				return MiscUtils.cast(listNum == LIST_AVAILABLE
+				return MiscUtils.castList(listNum == LIST_AVAILABLE
 						? subFormProperties.getAvailableColumns()
 						: subFormProperties.getColumns());
 			
 			case ACTIONS:
-				return MiscUtils.cast(listNum == LIST_AVAILABLE
+				return MiscUtils.castList(listNum == LIST_AVAILABLE
 						? subFormProperties.getAvailableActions()
 						: subFormProperties.getActions());
 						

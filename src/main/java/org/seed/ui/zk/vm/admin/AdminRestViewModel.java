@@ -102,7 +102,7 @@ public class AdminRestViewModel extends AbstractAdminViewModel<Rest> {
 	@Override
 	protected List<SystemObject> getListManagerSource(String key, int listNum) {
 		if (PERMISSIONS.equals(key)) {
-			return MiscUtils.cast(listNum == LIST_AVAILABLE 
+			return MiscUtils.castList(listNum == LIST_AVAILABLE 
 					? restService.getAvailablePermissions(getObject()) 
 					: getObject().getPermissions());
 		}

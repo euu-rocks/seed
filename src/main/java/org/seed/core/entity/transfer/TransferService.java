@@ -34,6 +34,10 @@ public interface TransferService extends ApplicationEntityService<Transfer> {
 	
 	byte[] doExport(Transfer transfer);
 	
+	byte[] doExport(Entity transferableEntity);
+	
 	TransferResult doImport(Transfer transfer, ImportOptions options, FileObject importFile) throws ValidationException;
+	
+	TransferResult doImport(Entity transferableEntity, byte[] content) throws ValidationException;
 	
 }

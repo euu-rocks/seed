@@ -17,6 +17,7 @@
  */
 package org.seed.core.mail;
 
+import java.util.Arrays;
 import java.util.Properties;
 
 import org.hibernate.Session;
@@ -27,7 +28,6 @@ import org.seed.core.application.setting.ApplicationSettingService;
 import org.seed.core.application.setting.Setting;
 import org.seed.core.application.setting.SettingChangeAware;
 import org.seed.core.util.Assert;
-import org.seed.core.util.MiscUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +75,7 @@ public class MailServiceImpl implements MailService, SettingChangeAware {
 				}
 			}
 			catch (MailException mex) {
-				log.warn("Mail could not be sent: {}", MiscUtils.printArray(mail.getToAddresses()) + 
+				log.warn("Mail could not be sent: {}", Arrays.asList(mail.getToAddresses()).toString() + 
 						 ' ' + mail.getSubject());
 			}
 		}

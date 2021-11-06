@@ -50,6 +50,7 @@ import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupDependent;
 import org.seed.core.user.UserGroupService;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
@@ -192,6 +193,11 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	@Override
+	public List<Entity> findTransferableEntities() {
+		return entityRepository.find(queryParam("isTransferable", true));
+	}
+	
+	@Override
 	public List<Entity> findDescendants(Entity genericEntity) {
 		Assert.notNull(genericEntity, "genericEntity");
 		Assert.state(genericEntity.isGeneric(), "entity is not generic");
@@ -307,37 +313,67 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	public FieldType[] getAvailableFieldTypes(Entity entity, EntityField field, boolean existObjects) {
 		Assert.notNull(entity, C.ENTITY);
 		
-		if (!entity.isGeneric()) {
-			if (!existObjects) {
-				return FieldType.values();
-			}
+		if (entity.isGeneric()) {
+			return FieldType.NO_AUTONUM_TYPES;
+		}
+		else if (existObjects) {
 			if (field != null && !field.isNew() && field.getType() != null) {
-				switch (field.getType()) {
-					case BOOLEAN:
-						return new FieldType[] { FieldType.BOOLEAN,
-												 FieldType.INTEGER,
-												 FieldType.LONG,
-												 FieldType.TEXT,
-												 FieldType.TEXTLONG };
-					case INTEGER:
-						return new FieldType[] { FieldType.INTEGER,
-												 FieldType.LONG,
-												 FieldType.TEXT,
-												 FieldType.TEXTLONG };
-					case BINARY:
-					case FILE:
-					case TEXTLONG:
-					case REFERENCE:
-						return new FieldType[] { field.getType() };
-						
-					default:
-						return new FieldType[] { field.getType(),
-											 	 FieldType.TEXT,
-											 	 FieldType.TEXTLONG };
-				}
+				return getAvailableFieldTypesIfObjectsExist(entity, field);
+			}
+			else if (entity.isTransferable()) {
+				return FieldType.TRANSFERABLE_TYPES;
+			}
+			else {
+				return FieldType.NO_AUTONUM_TYPES;
 			}
 		}
-		return FieldType.valuesWithoutAutonum();
+		else if (entity.isTransferable()) {
+			return FieldType.TRANSFERABLE_TYPES;
+		}
+		else {
+			return FieldType.values();
+		}
+	}
+	
+	private static FieldType[] getAvailableFieldTypesIfObjectsExist(Entity entity, EntityField field) {
+		switch (field.getType()) {
+			case BOOLEAN:
+				if (entity.isTransferable()) {
+					return MiscUtils.toArray(field.getType(),
+							 				 FieldType.INTEGER,
+							 				 FieldType.LONG,
+							 				 FieldType.TEXT);
+				}
+				return MiscUtils.toArray(field.getType(),
+										 FieldType.INTEGER,
+										 FieldType.LONG,
+										 FieldType.TEXT,
+										 FieldType.TEXTLONG);
+			case INTEGER:
+				if (entity.isTransferable()) {
+					return MiscUtils.toArray(field.getType(),
+											 FieldType.LONG,
+											 FieldType.TEXT);
+				}
+				return MiscUtils.toArray(field.getType(),
+										 FieldType.LONG,
+										 FieldType.TEXT,
+										 FieldType.TEXTLONG);
+			case BINARY:
+			case FILE:
+			case TEXTLONG:
+			case REFERENCE:
+				return MiscUtils.toArray(field.getType());
+				
+			default:
+				if (entity.isTransferable()) {
+					return MiscUtils.toArray(field.getType(),
+											 FieldType.TEXT);
+				}
+				return MiscUtils.toArray(field.getType(),
+									 	 FieldType.TEXT,
+									 	 FieldType.TEXTLONG);
+		}
 	}
 	
 	@Override

@@ -33,7 +33,9 @@ import org.seed.core.util.MiscUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.stereotype.Component;
@@ -75,7 +77,7 @@ public class DynamicConfiguration
 	
 	private SessionFactory sessionFactory;	// current session factory
 	
-	private ClassLoader classLoader;		// current CompilerClassLoader
+	private ClassLoader classLoader;		// current class loader
 	
 	private Dialect dialect;
 	
@@ -85,8 +87,8 @@ public class DynamicConfiguration
 		userService.createDefaultUserAndGroup();
 	}
 	
-	// called by ConfigurationInitiator
-	void initConfiguration() {
+	@EventListener(ApplicationReadyEvent.class)
+	public void initConfiguration() {
 		if (updateSchemaConfiguration()) { // new system schema version detected
 			updateConfiguration();
 		}
@@ -112,7 +114,7 @@ public class DynamicConfiguration
 	
 	@Override
 	public synchronized void updateConfiguration() {
-		log.info("Rebuild Configuration...");
+		log.info("Updating configuration...");
 		closeSessionFactory();
 		jobScheduler.unscheduleAllTasks();
 		buildBootSessionFactory();
@@ -127,6 +129,7 @@ public class DynamicConfiguration
 	}
 	
 	private void buildConfiguration() {
+		log.info("Creating configuration...");
 		final long startTime = System.currentTimeMillis();
 		codeManager.generateClasses();
 		classLoader = codeManager.getClassLoader();
@@ -137,9 +140,7 @@ public class DynamicConfiguration
 		// build new session factory now
 		sessionFactory = sessionFactoryBuilder.build();
 		jobScheduler.scheduleAllTasks();
-		if (log.isInfoEnabled())  {
-			log.info("Configuration created in {}", MiscUtils.formatDuration(startTime));
-		}
+		log.info("Configuration created in {}", MiscUtils.formatDuration(startTime));
 	}
 	
 	private boolean updateSchemaConfiguration() {

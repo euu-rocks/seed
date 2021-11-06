@@ -139,12 +139,12 @@ public class AdminUserGroupViewModel extends AbstractAdminViewModel<UserGroup> {
 	protected List<SystemObject> getListManagerSource(String key, int listNum) {
 		switch (key) {
 			case AUTHORISATIONS:
-				return MiscUtils.cast(listNum == LIST_AVAILABLE
+				return MiscUtils.castList(listNum == LIST_AVAILABLE
 						? userGroupService().getAvailableAuthorisations(getObject())
 						: getObject().getAuthorisations());
 				
 			case USERS:
-				return MiscUtils.cast(listNum == LIST_AVAILABLE
+				return MiscUtils.castList(listNum == LIST_AVAILABLE
 						? userGroupService().getAvailableUsers(getObject())
 						: new ArrayList<>(getObject().getUsers()));
 			

@@ -123,7 +123,7 @@ public class ValueObjectValidator {
 	private int getMaxFieldLength(EntityField field) {
 		return field.getLength() != null 
 				? field.getLength() 
-				: limits.getLimit("entity.stringfield.length");
+				: limits.getLimit(Limits.LIMIT_TEXT_LENGTH);
 	}
 	
 	private static boolean isEmpty(Object object) {

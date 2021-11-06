@@ -179,8 +179,9 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	
 	@Command
 	public void exportTransfer() {
-		final String fileName = NameUtils.getNameWithTimestamp(getObject().getName()) + ".csv";
-		Filedownload.save(transferService.doExport(getObject()), "text/csv", fileName);
+		final String fileName = NameUtils.getNameWithTimestamp(getObject().getName()) + 
+								getObject().getFormat().fileExtension;
+		Filedownload.save(transferService.doExport(getObject()), getObject().getFormat().contentType, fileName);
 	}
 	
 	@Command
@@ -228,7 +229,7 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	@Override
 	protected List<SystemObject> getListManagerSource(String key, int listNum) {
 		if (ELEMENTS.equals(key)) {
-			return MiscUtils.cast(listNum == LIST_AVAILABLE
+			return MiscUtils.castList(listNum == LIST_AVAILABLE
 					? transferService.getAvailableElements(getObject())
 				    : getObject().getElements());
 		}

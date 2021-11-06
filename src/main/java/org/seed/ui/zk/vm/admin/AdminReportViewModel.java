@@ -158,7 +158,7 @@ public class AdminReportViewModel extends AbstractAdminViewModel<Report> {
 	@Override
 	protected List<SystemObject> getListManagerSource(String key, int listNum) {
 		if (PERMISSIONS.equals(key)) {
-			return MiscUtils.cast(listNum == LIST_AVAILABLE 
+			return MiscUtils.castList(listNum == LIST_AVAILABLE 
 					? reportService.getAvailablePermissions(getObject()) 
 					: getObject().getPermissions());
 		}
@@ -170,7 +170,7 @@ public class AdminReportViewModel extends AbstractAdminViewModel<Report> {
 	@Override
 	protected List<SystemObject> getListSorterSource(String key) {
 		if (DATASOURCES.equals(key)) {
-			return MiscUtils.cast(getObject().getDataSources());
+			return MiscUtils.castList(getObject().getDataSources());
 		}
 		else {
 			throw new IllegalStateException("unknown list sorter key: " + key);

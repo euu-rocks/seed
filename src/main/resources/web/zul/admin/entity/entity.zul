@@ -120,14 +120,14 @@
 					<tab id="tabNesteds" label="${labels.label.nesteds}"
 						 visible="@load(not empty vm.availableNesteds)"/>
 					<tab id="tabFieldConstraints" label="${labels.label.fieldconstraints}"
-						 visible="@load(!empty vm.object.fields and (vm.existUserGroups() or !empty vm.object.statusList))"
+						 visible="@load(!empty vm.object.fields and !vm.object.transferable and (vm.existUserGroups() or !empty vm.object.statusList))"
 						 onSelect="@command('selectConstraintTab')"/>
 					<tab id="tabStatusmodel" label="${labels.label.statusmodel}"
-						 visible="@load(!vm.object.isGeneric())"/>
+						 visible="@load(!(vm.object.generic or vm.object.transferable))"/>
 					<tab id="tabCallbackFunctions" label="${labels.label.callbackfunctions}"
-						 visible="@load(!(vm.object.isNew() or vm.object.isGeneric()))"/>
+						 visible="@load(!(vm.object.isNew() or vm.object.generic or vm.object.transferable))"/>
 					<tab id="tabPermissions" label="${labels.label.permissions}"
-						 visible="@init(vm.existUserGroups() and !vm.object.isGeneric())"/>
+						 visible="@init(vm.existUserGroups() and !(vm.object.generic or vm.object.transferable))"/>
 				</tabs>
 				<tabpanels> 
 					<tabpanel>

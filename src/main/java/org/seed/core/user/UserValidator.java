@@ -18,10 +18,12 @@
 package org.seed.core.user;
 
 import org.seed.C;
+import org.seed.core.config.Limits;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
 import org.springframework.stereotype.Component;
 
@@ -34,12 +36,12 @@ public class UserValidator extends AbstractSystemEntityValidator<User> {
 		final ValidationErrors errors = new ValidationErrors();
 		
 		if (isEmpty(user.getName())) {
-			errors.addEmptyField("label.name");
+			errors.addEmptyName();
 		}
-		else if (user.getName().length() > getLimit("user.name.length")) {
-			errors.addOverlongField("label.username", getLimit("user.name.length"));
+		else if (user.getName().length() > getLimit(Limits.LIMIT_USER_LENGTH)) {
+			errors.addOverlongField("label.username", getLimit(Limits.LIMIT_USER_LENGTH));
 		}
-		else if (user.getInternalName().equalsIgnoreCase("system")) {
+		else if (user.getInternalName().equalsIgnoreCase(MiscUtils.USERNAME_SYSTEM)) {
 			errors.addIllegalName(user.getInternalName());
 		}
 		if (isEmpty(user.getEmail())) {

@@ -200,7 +200,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	@Override
 	protected List<SystemObject> getListSorterSource(String key) {
 		if (PRINTOUTS.equals(key)) {
-			return MiscUtils.cast(getObject().getPrintouts());
+			return MiscUtils.castList(getObject().getPrintouts());
 		}
 		else {
 			throw new IllegalStateException("unknown list sorter key: " + key);	
@@ -211,17 +211,17 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	protected List<SystemObject> getListManagerSource(String key, int listNum) {
 		switch (key) {
 			case FIELDS:
-				return MiscUtils.cast(listNum == LIST_AVAILABLE
+				return MiscUtils.castList(listNum == LIST_AVAILABLE
 							? formService.getAvailableFields(getObject())
 							: getObject().getFields());
 			
 			case ACTIONS:
-				return MiscUtils.cast(listNum == LIST_AVAILABLE
+				return MiscUtils.castList(listNum == LIST_AVAILABLE
 							? formService.getAvailableActions(getObject())
 							: getObject().getActions());
 						
 			case TRANSFORMERS:
-				return MiscUtils.cast(listNum == LIST_AVAILABLE
+				return MiscUtils.castList(listNum == LIST_AVAILABLE
 							? formService.getAvailableTransformers(getObject())
 							: getObject().getTransformers());
 			

@@ -61,7 +61,7 @@ public class CustomLibServiceImpl extends AbstractApplicationEntityService<Custo
 	
 	@Override
 	public List<CustomJar> getCustomJars() {
-		final List<CustomJar> jars = MiscUtils.cast(getObjects());
+		final List<CustomJar> jars = MiscUtils.castList(getObjects());
 		jars.sort((CustomJar jar1, CustomJar jar2) -> 
 					Integer.compare(jar1.getOrder() != null ? jar1.getOrder() : 0, 
 									jar2.getOrder() != null ? jar2.getOrder() : 0));

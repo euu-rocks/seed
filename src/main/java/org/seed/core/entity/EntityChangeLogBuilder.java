@@ -158,16 +158,22 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		// system fields
 		createTableChange.addColumn(createColumn(SystemField.ID)
 										.setConstraints(new ConstraintsConfig()
-										.setPrimaryKey(Boolean.TRUE)
-										.setPrimaryKeyName(getPrimaryKeyConstraintName(entity))));
+											.setPrimaryKey(Boolean.TRUE)
+											.setPrimaryKeyName(getPrimaryKeyConstraintName(entity))));
 		createTableChange.addColumn(createColumn(SystemField.VERSION)
 										.setConstraints(new ConstraintsConfig()
-										.setNullable(Boolean.FALSE)));
+											.setNullable(Boolean.FALSE)));
 		createTableChange.addColumn(createColumn(SystemField.CREATEDON));
-		createTableChange.addColumn(createColumn(SystemField.CREATEDBY, getLimit("user.name.length")));
+		createTableChange.addColumn(createColumn(SystemField.CREATEDBY, getLimit(Limits.LIMIT_USER_LENGTH)));
 		createTableChange.addColumn(createColumn(SystemField.MODIFIEDON));
-		createTableChange.addColumn(createColumn(SystemField.MODIFIEDBY, getLimit("user.name.length")));
-		
+		createTableChange.addColumn(createColumn(SystemField.MODIFIEDBY, getLimit(Limits.LIMIT_USER_LENGTH)));
+		// uid
+		if (entity.isTransferable()) {
+			createTableChange.addColumn(createColumn(SystemField.UID, getLimit(Limits.LIMIT_UID_LENGTH))
+										.setConstraints(new ConstraintsConfig()
+											.setNullable(Boolean.FALSE)
+											.setUnique(Boolean.TRUE)));
+		}
 		// status
 		if (entity.hasStatus()) {
 			createTableChange.addColumn(createColumn(SystemField.ENTITYSTATUS)
@@ -509,7 +515,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	}
 	
 	private int getFieldLength(Integer length) {
-		return length != null ? length : getLimit("entity.stringfield.length");
+		return length != null ? length : getLimit(Limits.LIMIT_TEXT_LENGTH);
 	}
 	
 	private ColumnConfig initColumn(ColumnConfig column, Entity entity, EntityField field) {

@@ -411,85 +411,85 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	}
 	
 	private List<SystemObject> getListManagerSourceDBObject(int listNum) {
-		return MiscUtils.cast(listNum == LIST_SELECTED
+		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getDBObjects()
 				: dbObjectService.findObjectsWithoutModule());
 	}
 	
 	private List<SystemObject> getListManagerSourceDataSource(int listNum) {
-		return MiscUtils.cast(listNum == LIST_SELECTED
+		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getDataSources()
 				: dataSourceService.findObjectsWithoutModule());
 	}
 	
 	private List<SystemObject> getListManagerSourceEntity(int listNum) {
-		return MiscUtils.cast(listNum == LIST_SELECTED
+		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getEntities()
 				: entityService.findObjectsWithoutModule());
 	}
 	
 	private List<SystemObject> getListManagerSourceFilter(int listNum) {
-		return MiscUtils.cast(listNum == LIST_SELECTED
+		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getFilters()
 				: filterService.findObjectsWithoutModule());
 	}
 	
 	private List<SystemObject> getListManagerSourceTransformer(int listNum) {
-		return MiscUtils.cast(listNum == LIST_SELECTED
+		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getTransformers()
 				: transformerService.findObjectsWithoutModule());
 	}
 	
 	private List<SystemObject> getListManagerSourceTransfer(int listNum) {
-		return MiscUtils.cast(listNum == LIST_SELECTED
+		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getTransfers()
 				: transferService.findObjectsWithoutModule());
 	}
 	
 	private List<SystemObject> getListManagerSourceForm(int listNum) {
-		return MiscUtils.cast(listNum == LIST_SELECTED
+		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getForms()
 				: formService.findObjectsWithoutModule());
 	}
 	
 	private List<SystemObject> getListManagerSourceMenu(int listNum) {
-		return MiscUtils.cast(listNum == LIST_SELECTED
+		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getMenus()
 				: menuService.findObjectsWithoutModule());
 	}
 	
 	private List<SystemObject> getListManagerSourceTask(int listNum) {
-		return MiscUtils.cast(listNum == LIST_SELECTED
+		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getTasks()
 				: taskService.findObjectsWithoutModule());
 	}
 	
 	private List<SystemObject> getListManagerSourceReport(int listNum) {
-		return MiscUtils.cast(listNum == LIST_SELECTED
+		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getReports()
 				: reportService.findObjectsWithoutModule());
 	}
 	
 	private List<SystemObject> getListManagerSourceRest(int listNum) {
-		return MiscUtils.cast(listNum == LIST_SELECTED
+		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getRests()
 				: restService.findObjectsWithoutModule());
 	}
 	
 	private List<SystemObject> getListManagerSourceCustomCode(int listNum) {
-		return MiscUtils.cast(listNum == LIST_SELECTED
+		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getCustomCodes()
 				: customCodeService.findObjectsWithoutModule());
 	}
 	
 	private List<SystemObject> getListManagerSourceCustomLib(int listNum) {
-		return MiscUtils.cast(listNum == LIST_SELECTED
+		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getCustomLibs()
 				: customLibService.findObjectsWithoutModule());
 	}
 	
 	private List<SystemObject> getListManagerSourceUserGroup(int listNum) {
-		return MiscUtils.cast(listNum == LIST_SELECTED
+		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getUserGroups()
 				: userGroupService.findNonSystemGroupsWithoutModule());
 	}

@@ -37,6 +37,7 @@ import org.seed.core.application.module.TransferContext;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.data.FileObject;
 import org.seed.core.data.Options;
+import org.seed.core.data.SystemField;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityDependent;
@@ -149,7 +150,16 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	public byte[] doExport(Transfer transfer) {
 		Assert.notNull(transfer, C.TRANSFER);
 		
-		return getProcessor(transfer).doExport();
+		return createProcessor(transfer).doExport();
+	}
+	
+	@Override
+	public byte[] doExport(Entity transferableEntity) {
+		Assert.notNull(transferableEntity, C.ENTITY);
+		Assert.state(transferableEntity.isTransferable(), "entity is not transferable");
+		
+		return createProcessor(createAutoTransfer(transferableEntity, false))
+				.doExport();
 	}
 	
 	@Override
@@ -162,8 +172,19 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 		
 		validator.validateImport(importFile);
 		
-		return getProcessor(transfer)
+		return createProcessor(transfer)
 				.doImport(options, new ByteArrayInputStream(importFile.getContent()));
+	}
+	
+	@Override
+	public TransferResult doImport(Entity transferableEntity, byte[] content) throws ValidationException {
+		Assert.notNull(transferableEntity, C.ENTITY);
+		Assert.notNull(content, C.CONTENT);
+		Assert.state(transferableEntity.isTransferable(), "entity is not transferable");
+		
+		final Transfer transfer = createAutoTransfer(transferableEntity, true);
+		return createProcessor(transfer)
+				.doImport(transfer.getOptions(), new ByteArrayInputStream(content));
 	}
 	
 	@Override
@@ -321,7 +342,7 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	}
 	
 	@SuppressWarnings("unchecked")
-	private TransferProcessor getProcessor(Transfer transfer) {
+	private TransferProcessor createProcessor(Transfer transfer) {
 		final Class<?> objectClass = codeManager.getGeneratedClass(transfer.getEntity());
 		final Class<? extends ValueObject> valueObjectClass = (Class<? extends ValueObject>) objectClass;
 		
@@ -329,6 +350,29 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 			return new CSVProcessor(valueObjectService, valueObjectClass, transfer);
 		}
 		throw new UnsupportedOperationException(transfer.getFormat().name());
+	}
+	
+	private Transfer createAutoTransfer(Entity entity, boolean forImport) {
+		ImportOptions options = null;
+		if (forImport) {
+			options = new ImportOptions();
+			options.setCreateIfNew(true);
+			options.setModifyExisting(true);
+		}
+		final TransferMetadata transfer = (TransferMetadata) createInstance(options);
+		final List<TransferElement> elements = new ArrayList<>();
+		transfer.setFormat(TransferFormat.CSV);
+		transfer.setEntity(entity);
+		transfer.setElements(elements);
+		elements.add(createUidElement(transfer));
+		elements.addAll(getAvailableElements(transfer));
+		try {
+			initObject(transfer);
+		} 
+		catch (ValidationException vex) {
+			throw new InternalException(vex);
+		}
+		return transfer;
 	}
 	
 	private static TransferElement createElement(Transfer transfer, EntityField entityField) {
@@ -341,6 +385,16 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 		if (entityField.isUnique() && transfer.getIdentifierField() == null) {
 			element.setIdentifier(true);
 		}
+		return element;
+	}
+	
+	private static TransferElement createUidElement(Transfer transfer) {
+		final EntityField uidField = new EntityField();
+		uidField.setEntity(transfer.getEntity());
+		uidField.setName(SystemField.UID.property);
+		uidField.setUnique(true);
+		final TransferElement element = createElement(transfer, uidField);
+		element.setIdentifier(true);
 		return element;
 	}
 

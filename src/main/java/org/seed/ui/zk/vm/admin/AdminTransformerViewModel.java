@@ -392,7 +392,7 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	@Override
 	protected List<SystemObject> getListSorterSource(String key) {
 		if (FUNCTIONS.equals(key)) {
-			return MiscUtils.cast(getObject().getFunctions());
+			return MiscUtils.castList(getObject().getFunctions());
 		}
 		else {
 			throw new IllegalStateException("unknown list sorter key: " + key);
@@ -403,12 +403,12 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	protected List<SystemObject> getListManagerSource(String key, int listNum) {
 		switch (key) {
 			case PERMISSIONS:
-				return MiscUtils.cast(listNum == LIST_AVAILABLE
+				return MiscUtils.castList(listNum == LIST_AVAILABLE
 							? transformerService.getAvailablePermissions(getObject())
 							: new ArrayList<>(getObject().getPermissions()));
 						
 			case STATUS:
-				return MiscUtils.cast(listNum == LIST_AVAILABLE
+				return MiscUtils.castList(listNum == LIST_AVAILABLE
 							? transformerService.getAvailableStatus(getObject())
 							: new ArrayList<>(getObject().getStatus()));
 						

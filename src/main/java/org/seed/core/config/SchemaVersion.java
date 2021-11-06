@@ -28,7 +28,8 @@ public enum SchemaVersion {
 	
 	V_0_9,
 	V_0_9_19,
-	V_0_9_20; // add new versions below
+	V_0_9_20,
+	V_0_9_21; // add new versions below
 	
 	static boolean existUpdates() {
 		return values().length > 1;

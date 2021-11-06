@@ -124,14 +124,14 @@ public class SchemaManager {
 	}
 	
 	private String replaceLimits(String text) {
-		return text.replace("<#UID_LEN#>", String.valueOf(limits.getLimit("field.uid.length")))
-				   .replace("<#IDENT_LEN#>", String.valueOf(limits.getLimit("entity.identifier.length")))
-				   .replace("<#STRING_LEN#>", String.valueOf(limits.getLimit("entity.stringfield.length")))
-				   .replace("<#USERNAME_LEN#>", String.valueOf(limits.getLimit("user.name.length")))
-				   .replace("<#USERROLE_LEN#>", String.valueOf(limits.getLimit("user.role.length")))
-				   .replace("<#PWD_LEN#>", String.valueOf(limits.getLimit("user.pwd.length")))
-				   .replace("<#PARAMNAME_LEN#>", String.valueOf(limits.getLimit("parameter.name.length")))
-				   .replace("<#PARAM_LEN#>", String.valueOf(limits.getLimit("parameter.value.length")))
+		return text.replace("<#UID_LEN#>", String.valueOf(limits.getLimit(Limits.LIMIT_UID_LENGTH)))
+				   .replace("<#IDENT_LEN#>", String.valueOf(limits.getLimit(Limits.LIMIT_IDENTIFIER_LENGTH)))
+				   .replace("<#STRING_LEN#>", String.valueOf(limits.getLimit(Limits.LIMIT_TEXT_LENGTH)))
+				   .replace("<#USERNAME_LEN#>", String.valueOf(limits.getLimit(Limits.LIMIT_USER_LENGTH)))
+				   .replace("<#USERROLE_LEN#>", String.valueOf(limits.getLimit(Limits.LIMIT_ROLE_LENGTH)))
+				   .replace("<#PWD_LEN#>", String.valueOf(limits.getLimit(Limits.LIMIT_PWD_LENGTH)))
+				   .replace("<#PARAMNAME_LEN#>", String.valueOf(limits.getLimit(Limits.LIMIT_PARAM_NAME_LENGTH)))
+				   .replace("<#PARAM_LEN#>", String.valueOf(limits.getLimit(Limits.LIMIT_PARAM_VALUE_LENGTH)))
 				   .replace("<#BLOB_TYPE#>", isPostgres() ? "bytea" : "BLOB");
 	}
 	

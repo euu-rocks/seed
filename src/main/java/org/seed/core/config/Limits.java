@@ -33,6 +33,15 @@ import org.springframework.util.StringUtils;
 @Component
 public class Limits {
 	
+	public static final String LIMIT_IDENTIFIER_LENGTH  = "entity.identifier.length";
+	public static final String LIMIT_TEXT_LENGTH        = "entity.stringfield.length";
+	public static final String LIMIT_PARAM_NAME_LENGTH  = "parameter.name.length"; 
+	public static final String LIMIT_PARAM_VALUE_LENGTH = "parameter.value.length"; 
+	public static final String LIMIT_PWD_LENGTH         = "user.pwd.length"; 
+	public static final String LIMIT_ROLE_LENGTH        = "user.role.length"; 
+	public static final String LIMIT_UID_LENGTH         = "field.uid.length";
+	public static final String LIMIT_USER_LENGTH        = "user.name.length"; 
+	
 	private final Properties properties = new Properties();
 	
 	@Value("classpath:schema-limits.properties")
@@ -40,7 +49,7 @@ public class Limits {
 	
 	@PostConstruct
 	private void init() {
-		Assert.notNull(resource, "schema-limits.properties not found");
+		Assert.state(resource != null, "schema-limits.properties not found");
 		
 		try (InputStream inputStream = resource.getInputStream()) {
 			properties.load(inputStream);

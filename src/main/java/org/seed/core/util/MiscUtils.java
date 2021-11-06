@@ -45,7 +45,7 @@ public abstract class MiscUtils {
 	
 	public static final Charset CHARSET = StandardCharsets.UTF_8;
 	
-	private static final String USERNAME_SYSTEM = "system";
+	public static final String USERNAME_SYSTEM = "system";
 	
 	private MiscUtils() {}
 	
@@ -55,25 +55,8 @@ public abstract class MiscUtils {
 				: USERNAME_SYSTEM;
 	}
 	
-	public static String printArray(String[] elements) {
-		if (elements == null) {
-			return "";
-		}
-		if (elements.length == 1) {
-			return elements[0];
-		}
-		final StringBuilder buf = new StringBuilder();
-		for (String element : elements) {
-			if (buf.length() > 0) {
-				buf.append(',');
-			}
-			buf.append(element);
-		}
-		return buf.toString();
-	}
-	
 	@SuppressWarnings("unchecked")
-	public static <T> List<T> cast(List<?> list) {
+	public static <T> List<T> castList(List<?> list) {
 		return (List<T>) list;
 	}
 	
@@ -115,15 +98,11 @@ public abstract class MiscUtils {
 	}
 	
 	public static String getFileAsText(File file) throws IOException {
-		try (InputStream inputStream = new FileInputStream(file)) {
-			return StreamUtils.copyToString(inputStream, CHARSET);
-		} 
+		return getStreamAsText(new FileInputStream(file));
 	}
 	
 	public static String getResourceAsText(Resource resource) throws IOException {
-		try (InputStream inputStream = resource.getInputStream()) {
-			return StreamUtils.copyToString(inputStream, CHARSET);
-		} 
+		return getStreamAsText(resource.getInputStream());
 	}
 	
 	public static InputStream getStringAsStream(String string) {
@@ -182,6 +161,12 @@ public abstract class MiscUtils {
 		    }
 	    }
 	    return out.toByteArray();
+	}
+	
+	private static String getStreamAsText(InputStream stream) throws IOException {
+		try (InputStream inputStream = stream) {
+			return StreamUtils.copyToString(inputStream, CHARSET);
+		}
 	}
 	
 }

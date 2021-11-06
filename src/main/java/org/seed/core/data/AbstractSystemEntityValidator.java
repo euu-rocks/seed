@@ -66,11 +66,11 @@ public abstract class AbstractSystemEntityValidator<T extends SystemEntity>
 	}
 	
 	protected int getMaxNameLength() {
-		return getLimit("entity.identifier.length");
+		return getLimit(Limits.LIMIT_IDENTIFIER_LENGTH);
 	}
 	
 	protected int getMaxStringLength() {
-		return getLimit("entity.stringfield.length");
+		return getLimit(Limits.LIMIT_TEXT_LENGTH);
 	}
 	
 	protected boolean isNameLengthAllowed(String name) {

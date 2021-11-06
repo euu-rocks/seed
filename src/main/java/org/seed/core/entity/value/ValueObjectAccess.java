@@ -22,6 +22,7 @@ import java.util.List;
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.codegen.CodeManager;
+import org.seed.core.data.SystemField;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.util.Assert;
@@ -51,6 +52,13 @@ public class ValueObjectAccess extends ObjectAccess {
 		Assert.notNull(field, C.FIELD);
 		
 		callSetter(object, field.getInternalName(), value);
+	}
+	
+	public void setValue(ValueObject object, SystemField systemField, Object value) {
+		Assert.notNull(object, C.OBJECT);
+		Assert.notNull(systemField, "systemField");
+		
+		callSetter(object, systemField.property, value);
 	}
 	
 	public boolean hasNestedObjects(ValueObject object, NestedEntity nested) {
