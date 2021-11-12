@@ -324,15 +324,15 @@ public class ValueObjectRepository {
 		
 		final boolean isInsert = object.isNew();
 		if (isInsert) {
-			// uid
 			final Entity entity = getEntity(object);
-			if (entity.isTransferable()) {
+			// uid
+			if (entity.isTransferable() && objectAccess.getValue(object, SystemField.UID) == null) {
 				objectAccess.setValue(object, SystemField.UID, UID.createUID());
 			}
 			// autonum
 			final EntityField autonumField = entity.findAutonumField();
 			if (autonumField != null) {
-				final Object autonum = autonumService.getNextValue(autonumField, session);
+				final String autonum = autonumService.getNextValue(autonumField, session);
 				objectAccess.setValue(object, autonumField, autonum);
 			}
 		}
@@ -457,18 +457,15 @@ public class ValueObjectRepository {
 	}
 	
 	protected Entity getEntity(Long entityId) {
-		Assert.notNull(entityId, "entityId");
-		
-		final Entity entity = entityRepository.get(entityId);
-		Assert.state(entity != null, "entity not available id:" + entityId);
-		return entity;
+		return getEntity(entityId, null);
 	}
 	
-	protected Entity getEntity(Long entityId, Session session) {
+	protected Entity getEntity(Long entityId, @Nullable Session session) {
 		Assert.notNull(entityId, "entityId");
-		Assert.notNull(session, C.SESSION);
 		
-		final Entity entity = entityRepository.get(entityId, session);
+		final Entity entity = session != null 
+				? entityRepository.get(entityId, session)
+				: entityRepository.get(entityId);
 		Assert.state(entity != null, "entity not available id:" + entityId);
 		return entity;
 	}

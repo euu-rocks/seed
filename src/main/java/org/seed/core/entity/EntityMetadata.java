@@ -43,6 +43,7 @@ import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.data.FieldAccess;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.Order;
+import org.seed.core.data.SystemField;
 import org.seed.core.user.User;
 import org.seed.core.user.UserGroup;
 import org.seed.core.util.Assert;
@@ -137,6 +138,9 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Transient
 	private String genericEntityUid;
+	
+	@Transient
+	private EntityField uidField;
 
 	@Override
 	@XmlAttribute
@@ -468,7 +472,8 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public EntityField findAutonumField() {
-		return findFieldByType(FieldType.AUTONUM);
+		final List<EntityField> autonumFields = getAllFieldsByType(FieldType.AUTONUM);
+		return autonumFields == null || autonumFields.isEmpty() ? null : autonumFields.get(0);
 	}
 	
 	@Override
@@ -1034,17 +1039,6 @@ public class EntityMetadata extends AbstractApplicationEntity
 		return true;
 	}
 	
-	private EntityField findFieldByType(FieldType fieldType) {
-		if (hasAllFields()) {
-			for (EntityField field : getAllFields()) {
-				if (field.getType() == fieldType) {
-					return field;
-				}
-			}
-		}
-		return null;
-	}
-	
 	void createLists() {
 		permissions = new ArrayList<>();
 	}
@@ -1199,6 +1193,19 @@ public class EntityMetadata extends AbstractApplicationEntity
 	@Override
 	public EntityFieldConstraint getFieldConstraintByUid(String uid) {
 		return getObjectByUid(getFieldConstraints(), uid);
+	}
+	
+	@Override
+	public EntityField getUidField() {
+		if (uidField == null) {
+			Assert.state(isTransferable(), "entity is not transferable");
+			uidField = new EntityField();
+			uidField.setEntity(this);
+			uidField.setName(SystemField.UID.property);
+			uidField.setType(FieldType.TEXT);
+			uidField.setUnique(true); 
+		}
+		return uidField;
 	}
 	
 	private List<EntityFieldConstraint> getFieldConstraints(EntityField field) {

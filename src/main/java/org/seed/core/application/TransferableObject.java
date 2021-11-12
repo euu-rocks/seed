@@ -26,6 +26,8 @@ package org.seed.core.application;
  */
 public interface TransferableObject {
 	
+	Long getId();
+	
 	String getUid();
 	
 	void setUid(String uid);

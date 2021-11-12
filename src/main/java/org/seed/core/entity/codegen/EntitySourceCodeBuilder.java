@@ -51,6 +51,7 @@ import org.seed.core.entity.NestedEntity;
 import org.seed.core.entity.value.AbstractValueObject;
 import org.seed.core.entity.value.ValueEntity;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 import org.seed.core.util.ReferenceJsonSerializer;
 
 import org.springframework.util.StringUtils;
@@ -305,7 +306,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	
 	private static TypeClass[] getEntityInterfaceTypes(Entity entity) {
 		if (entity.isGeneric()) {
-			return null;
+			return MiscUtils.toArray();
 		}
 		final List<TypeClass> interfaces = new ArrayList<>(2);
 		interfaces.add(newTypeClass(ValueEntity.class));

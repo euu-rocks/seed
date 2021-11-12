@@ -33,6 +33,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.core.application.AbstractOrderedTransferableObject;
 import org.seed.core.data.FieldType;
+import org.seed.core.data.SystemField;
 import org.seed.core.data.SystemObject;
 import org.seed.core.util.NameUtils;
 import org.seed.core.util.ReferenceJsonSerializer;
@@ -267,6 +268,11 @@ public class EntityField extends AbstractOrderedTransferableObject {
 
 	public void setFullTextSearch(boolean isFullTextSearch) {
 		this.isFullTextSearch = isFullTextSearch;
+	}
+	
+	@XmlTransient
+	public boolean isUidField() {
+		return SystemField.UID.property.equals(getName());
 	}
 
 	@XmlTransient

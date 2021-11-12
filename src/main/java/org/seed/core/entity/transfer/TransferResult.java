@@ -53,7 +53,7 @@ public class TransferResult {
 		return successfulTransfers;
 	}
 	
-	public void incSuccessfulTransfers() {
+	public void registerSuccessfulTransfer() {
 		successfulTransfers++;
 	}
 
@@ -65,7 +65,7 @@ public class TransferResult {
 		return createdObjects;
 	}
 
-	public void incCreatedObjects() {
+	public void registerCreatedObject() {
 		this.createdObjects++;
 	}
 
@@ -73,7 +73,7 @@ public class TransferResult {
 		return updatedObjects;
 	}
 
-	public void incUpdatedObjects() {
+	public void registerUpdatedObject() {
 		this.updatedObjects++;
 	}
 

@@ -124,7 +124,15 @@ public class ModuleTransfer {
 			}
 		}
 		Assert.stateAvailable(module, MODULE_META_FILENAME);
-		
+		if (module != null) {
+			initModuleContent(module, mapJars, mapTransferContents);
+		}
+		return module;
+	}
+	
+	private void initModuleContent(Module module, 
+								   Map<String, byte[]> mapJars, 
+								   Map<String, byte[]> mapTransferContents) {
 		// init custom libs content
 		if (mapJars != null && module.getCustomLibs() != null) {
 			for (CustomLib customLib : module.getCustomLibs()) {
@@ -141,7 +149,6 @@ public class ModuleTransfer {
 				}
 			}
 		}
-		return module;
 	}
 	
 	public byte[] exportModule(Module module) throws IOException {
@@ -210,6 +217,11 @@ public class ModuleTransfer {
 		if (module.getEntities() != null) {
 			configuration.updateConfiguration();
 		}
+		
+		importModuleContent(module);
+	}
+	
+	private void importModuleContent(Module module) {
 		// import transferable entity content
 		if (module.getTransferableEntities() != null) {
 			for (Entity entity : module.getTransferableEntities()) {

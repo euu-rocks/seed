@@ -30,7 +30,7 @@ public enum SystemField {
     MODIFIEDBY   (FieldType.TEXT,      "modifiedBy",   "modifiedby"),
     ENTITYSTATUS (FieldType.REFERENCE, "entityStatus", "status_id");
 	
-	public static final SystemField[] PUBLIC_SYSTEM_FIELD = Arrays.copyOfRange(values(), 3, values().length);
+	private static final SystemField[] PUBLIC_SYSTEM_FIELD = Arrays.copyOfRange(values(), 3, values().length);
 	
 	public final FieldType type;
 	
@@ -42,6 +42,10 @@ public enum SystemField {
 		this.type = type;
 		this.property = property;
 		this.columName = columName;
+	}
+	
+	public static SystemField[] publicSystemFields() {
+		return PUBLIC_SYSTEM_FIELD;
 	}
 	
 }

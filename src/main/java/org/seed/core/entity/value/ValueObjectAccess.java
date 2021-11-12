@@ -40,11 +40,18 @@ public class ValueObjectAccess extends ObjectAccess {
 	@Autowired
 	private CodeManager codeManager;
 	
-	public Object getValue(ValueObject object, EntityField field) {
+	public Object getValue(ValueObject object, EntityField entityField) {
 		Assert.notNull(object, C.OBJECT);
-		Assert.notNull(field, C.FIELD);
+		Assert.notNull(entityField, C.FIELD);
 		
-		return callGetter(object, field.getInternalName());
+		return callGetter(object, entityField.getInternalName());
+	}
+	
+	public Object getValue(ValueObject object, SystemField systemField) {
+		Assert.notNull(object, C.OBJECT);
+		Assert.notNull(systemField, C.FIELD);
+		
+		return callGetter(object, systemField.property);
 	}
 	
 	public void setValue(ValueObject object, EntityField field, Object value) {

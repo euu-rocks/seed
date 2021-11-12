@@ -172,8 +172,8 @@ public abstract class AbstractTransferProcessor implements TransferProcessor {
 
 		// load existing object
 		final ValueObject existingObject = session != null 
-				? valueObjectService.findUnique(session, identifierField.getEntity(), identifierField, key)
-						: valueObjectService.findUnique(identifierField.getEntity(), identifierField, key);
+				? valueObjectService.findUnique(identifierField.getEntity(), identifierField, key, session)
+				: valueObjectService.findUnique(identifierField.getEntity(), identifierField, key);
 		if (existingObject == null) {
 			// no object exits
 			return 0;
@@ -193,8 +193,8 @@ public abstract class AbstractTransferProcessor implements TransferProcessor {
 			else {
 				valueObjectService.saveObject(object);
 			}
-			result.incCreatedObjects();
-			result.incSuccessfulTransfers();
+			result.registerCreatedObject();
+			result.registerSuccessfulTransfer();
 		}
 		catch (ValidationException vex) {
 			result.addError(vex);

@@ -34,7 +34,7 @@
                 		<label value="${labels.label.name}:"/>
                 	</cell>
                 	<cell>
-                		<textbox value="@bind(vm.object.name)"
+                		<textbox value="@bind(vm.object.name) @converter(vm.stringConverter)"
 								 mandatory="true"
 								 hflex="1"/> 
                 	</cell>

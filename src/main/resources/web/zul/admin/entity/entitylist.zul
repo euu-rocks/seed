@@ -113,7 +113,7 @@
 	            		<checkbox checked="@load(entity.generic)" disabled="true"/>
 	            	</listcell>
 	            	<listcell iconSclass="@load(empty entity.module ? '' : 'z-icon-cube alpha-icon-lg')">
-	            		<label value="@init(entity.module.name)" style="margin-left:3px"/>
+	            		<label value="@load(entity.module.name)" style="margin-left:3px"/>
 	            	</listcell>
 	            </listitem>
 	        </template>        

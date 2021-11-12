@@ -667,6 +667,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 					((EntityMetadata) getObject()).setGenericEntity(null);
 					notifyObjectChange(C.GENERIC);
 				}
+				break;
 				
 			case "autolayout":
 				if (getOptions().isAutoLayout()) {

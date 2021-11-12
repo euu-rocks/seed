@@ -90,23 +90,38 @@
 					</row>
 					<row>
 						<cell style="padding: 4px 10px" align="right">
-							<label value="${labels.label.basedon}:"/>
+							<label value="${labels.label.basedon}:"
+								   visible="@load(!vm.object.transferable)"/>
+							<label value="${labels.label.tablename}:"
+								   visible="@load(vm.object.transferable)"/>
 						</cell>
 						<cell style="padding: 4px 4px">
 							<textbox value="@load(vm.object.genericEntity.name)" 
+									 visible="@load(!vm.object.transferable)"
 									 hflex="1" readonly="true"/>
+							<textbox value="@bind(vm.object.tableName) @converter(vm.stringConverter)"
+									 placeholder="@load(vm.object.internalName.toLowerCase())"
+									 visible="@load(vm.object.transferable)"
+									 onChange="@command('flagDirty')"
+									 instant="true"
+									 hflex="1"/>
 						</cell>
 						<cell style="padding: 4px 10px" align="right">
 							<label value="${labels.label.tablename}:"
-								   visible="@load(!vm.object.generic)"/>
+								   visible="@load(!(vm.object.generic or vm.object.transferable))"/>
+							<label value="${labels.label.transferableentity}:"
+								   visible="@load(vm.object.transferable)"/>
 						</cell>
 						<cell>
 							<textbox value="@bind(vm.object.tableName) @converter(vm.stringConverter)"
 									 placeholder="@load(vm.object.internalName.toLowerCase())"
-									 visible="@load(!vm.object.generic)"
+									 visible="@load(!(vm.object.generic or vm.object.transferable))"
 									 onChange="@command('flagDirty')"
 									 instant="true"
 									 hflex="1"/>
+							<checkbox checked="@load(vm.object.transferable)"
+									  visible="@load(vm.object.transferable)"
+									  disabled="true"/>  
 						</cell>
 					</row>
 				</rows>

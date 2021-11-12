@@ -37,7 +37,6 @@ import org.seed.core.application.module.TransferContext;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.data.FileObject;
 import org.seed.core.data.Options;
-import org.seed.core.data.SystemField;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityDependent;
@@ -364,7 +363,7 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 		transfer.setFormat(TransferFormat.CSV);
 		transfer.setEntity(entity);
 		transfer.setElements(elements);
-		elements.add(createUidElement(transfer));
+		elements.add(createElement(transfer, transfer.getEntity().getUidField()));
 		elements.addAll(getAvailableElements(transfer));
 		try {
 			initObject(transfer);
@@ -376,25 +375,12 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	}
 	
 	private static TransferElement createElement(Transfer transfer, EntityField entityField) {
-		Assert.notNull(transfer, C.TRANSFER);
-		Assert.notNull(entityField, C.ENTITYFIELD);
-		
 		final TransferElement element = new TransferElement();
 		element.setTransfer(transfer);
 		element.setEntityField(entityField);
 		if (entityField.isUnique() && transfer.getIdentifierField() == null) {
 			element.setIdentifier(true);
 		}
-		return element;
-	}
-	
-	private static TransferElement createUidElement(Transfer transfer) {
-		final EntityField uidField = new EntityField();
-		uidField.setEntity(transfer.getEntity());
-		uidField.setName(SystemField.UID.property);
-		uidField.setUnique(true);
-		final TransferElement element = createElement(transfer, uidField);
-		element.setIdentifier(true);
 		return element;
 	}
 

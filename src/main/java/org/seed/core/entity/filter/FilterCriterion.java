@@ -34,9 +34,9 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.C;
 import org.seed.core.application.AbstractTransferableObject;
+import org.seed.core.application.TransferableObject;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.SystemField;
-import org.seed.core.data.SystemObject;
 import org.seed.core.entity.EntityField;
 import org.seed.core.util.Assert;
 import org.seed.core.util.ReferenceJsonSerializer;
@@ -81,7 +81,7 @@ public class FilterCriterion extends AbstractTransferableObject {
 	
 	private Date dateTimeValue;
 	
-	private Long referenceId;
+	private String referenceUid;
 	
 	@Transient
 	@JsonIgnore
@@ -93,7 +93,7 @@ public class FilterCriterion extends AbstractTransferableObject {
 	
 	@Transient
 	@JsonIgnore
-	private SystemObject reference;
+	private TransferableObject reference;
 	
 	@XmlAttribute
 	public String getEntityFieldUid() {
@@ -221,22 +221,22 @@ public class FilterCriterion extends AbstractTransferableObject {
 	}
 	
 	@XmlAttribute
-	public Long getReferenceId() {
-		return referenceId;
+	public String getReferenceUid() {
+		return referenceUid;
 	}
 
-	public void setReferenceId(Long referenceId) {
-		this.referenceId = referenceId;
+	public void setReferenceUid(String referenceUid) {
+		this.referenceUid = referenceUid;
 	}
 	
 	@XmlTransient
-	public SystemObject getReference() {
+	public TransferableObject getReference() {
 		return reference;
 	}
 
-	public void setReference(SystemObject reference) {
+	public void setReference(TransferableObject reference) {
 		this.reference = reference;
-		referenceId = reference != null ? reference.getId() : null;
+		referenceUid = reference != null ? reference.getUid() : null;
 	}
 	
 	public boolean needsValue() {
@@ -254,7 +254,7 @@ public class FilterCriterion extends AbstractTransferableObject {
 			   doubleValue != null ||
 			   integerValue != null ||
 			   longValue != null ||
-			   referenceId != null;
+			   referenceUid != null;
 	}
 	
 	public String getLike() {
@@ -293,26 +293,35 @@ public class FilterCriterion extends AbstractTransferableObject {
 			case AUTONUM:
 			case TEXT:
 			case TEXTLONG:
+				if (getEntityField().isUidField()) {
+					return referenceUid;
+				}
 				return stringValue;
+				
 			case BOOLEAN:
 				return booleanValue;
+				
 			case INTEGER:
 				return integerValue;
+				
 			case LONG:
 				return longValue;
+				
 			case DOUBLE:
 				return doubleValue;
+				
 			case DECIMAL:
 				return decimalValue;
+				
 			case DATE:
 				return dateValue;
+				
 			case DATETIME:
 				return dateTimeValue;
+				
 			case REFERENCE:
-				return referenceId;
-			case BINARY:
-			case FILE:
-				return null;
+				return reference != null ? reference.getId() : null;
+				
 			default:
 				throw new UnsupportedOperationException(fieldType.name());
 		}
@@ -329,40 +338,49 @@ public class FilterCriterion extends AbstractTransferableObject {
 			case AUTONUM:
 			case TEXT:
 			case TEXTLONG:
+				if (getEntityField().isUidField()) {
+					referenceUid = (String) value;
+				}
 				stringValue = (String) value;
 				break;
+				
 			case BOOLEAN:
 				booleanValue = (Boolean) value;
 				break;
+				
 			case INTEGER:
 				integerValue = (Integer) value;
 				break;
+				
 			case LONG:
 				longValue = (Long) value;
 				break;
+				
 			case DOUBLE:
 				doubleValue = (Double) value;
 				break;
+				
 			case DECIMAL:
 				decimalValue = (BigDecimal) value;
 				break;
+				
 			case DATE:
 				dateValue = (Date) value;
 				break;
+				
 			case DATETIME:
 				dateTimeValue = (Date) value;
 				break;
+				
 			case REFERENCE:
-				if (value instanceof SystemObject) {
-					referenceId = ((SystemObject) value).getId();
+				if (value instanceof TransferableObject) {
+					referenceUid = ((TransferableObject) value).getUid();
 				}
 				else {
-					referenceId = (Long) value;
+					referenceUid = (String) value;
 				}
 				break;
-			case BINARY:
-			case FILE:
-				break;
+				
 			default:
 				throw new UnsupportedOperationException(fieldType.name());
 		}
@@ -387,8 +405,9 @@ public class FilterCriterion extends AbstractTransferableObject {
 	}
 	
 	void cleanup() {
-		// get value
 		final Object value = getValue();
+		final TransferableObject referenceObject = getReference();
+		
 		// clean all values
 		stringValue= null;
 		integerValue = null;
@@ -398,10 +417,17 @@ public class FilterCriterion extends AbstractTransferableObject {
 		booleanValue = null;
 		dateValue = null;
 		dateTimeValue = null;
-		referenceId = null;
+		referenceUid = null;
+		this.reference = null;
+		
 		// set value again
-		if (needsValue() && value != null) {
-			setValue(value);
+		if (needsValue()) {
+			if (referenceObject != null) {
+				setReference(referenceObject);
+			}
+			else if (value != null) {
+				setValue(value);
+			}
 		}
 	}
 	

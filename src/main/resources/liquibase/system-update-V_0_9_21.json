@@ -19,7 +19,32 @@
                      ],
                      "tableName":  "sys_entity"
                   } 
+               },
+               {
+                  "dropColumn":  {
+                     "columns":[
+                        {
+                           "column": {
+                              "name": "referenceid"
+                           }
+                        }
+                     ],
+                     "tableName":  "sys_entity_filter_criterion"
+                  } 
+               },
+               {
+                  "addColumn":  {
+                     "columns":[
+                        {
+                           "column": {
+                              "name": "referenceuid",
+                              "type": "VARCHAR(<#UID_LEN#>)"
+                           }
+                        }
+                     ],
+                     "tableName":  "sys_entity_filter_criterion"
+                  } 
                }
-           ]
+            ]
         }
     }

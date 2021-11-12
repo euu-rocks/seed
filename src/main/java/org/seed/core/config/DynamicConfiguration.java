@@ -140,7 +140,9 @@ public class DynamicConfiguration
 		// build new session factory now
 		sessionFactory = sessionFactoryBuilder.build();
 		jobScheduler.scheduleAllTasks();
-		log.info("Configuration created in {}", MiscUtils.formatDuration(startTime));
+		if (log.isInfoEnabled()) {
+			log.info("Configuration created in {}", MiscUtils.formatDuration(startTime));
+		}
 	}
 	
 	private boolean updateSchemaConfiguration() {
@@ -239,12 +241,8 @@ public class DynamicConfiguration
 		if (cache != null) {
 			cache.evictAllRegions();
 		}
-		else {
-			log.warn("cache not available");
-		}
 		getSessionFactory().close();
 		sessionFactory = null;
-		dialect = null;
 	}
 	
 	private String applicationProperty(String propertyName) {

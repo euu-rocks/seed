@@ -314,21 +314,21 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(entity, C.ENTITY);
 		
 		if (entity.isGeneric()) {
-			return FieldType.NO_AUTONUM_TYPES;
+			return FieldType.nonAutonumTypes();
 		}
 		else if (existObjects) {
 			if (field != null && !field.isNew() && field.getType() != null) {
 				return getAvailableFieldTypesIfObjectsExist(entity, field);
 			}
 			else if (entity.isTransferable()) {
-				return FieldType.TRANSFERABLE_TYPES;
+				return FieldType.transferableTypes();
 			}
 			else {
-				return FieldType.NO_AUTONUM_TYPES;
+				return FieldType.nonAutonumTypes();
 			}
 		}
 		else if (entity.isTransferable()) {
-			return FieldType.TRANSFERABLE_TYPES;
+			return FieldType.transferableTypes();
 		}
 		else {
 			return FieldType.values();

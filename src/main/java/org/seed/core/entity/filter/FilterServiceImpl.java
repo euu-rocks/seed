@@ -31,6 +31,7 @@ import org.seed.InternalException;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
+import org.seed.core.application.TransferableObject;
 import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
@@ -161,19 +162,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		final List<FilterElement> elements = new ArrayList<>();
 		// main object
 		if (nestedEntity == null) {
-			final Entity entity = filter.getEntity();
-			// entity fields
-			if (entity.hasAllFields()) {
-				for (EntityField entityField : entity.getAllFields()) {
-					elements.add(createElement(entityField, null));
-				}
-			}
-			// system fields
-			for (SystemField systemField : SystemField.values()) {
-				if (systemField != SystemField.ENTITYSTATUS || entity.hasStatus()) {
-					elements.add(createElement(null, systemField));
-				}
-			}
+			createEntityElements(filter.getEntity(), elements);
 		}
 		// nested
 		else {
@@ -393,7 +382,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		
 		if (filter.hasCriteria()) {
 			for (FilterCriterion filterCriterion : filter.getCriteria()) {
-				initFilterCriterionElement(filter, filterCriterion);
+				initFilterCriterionElement(filter, filterCriterion, true);
 			}
 		}
 	}
@@ -411,9 +400,12 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		}
 	}
 	
-	private void initFilterCriterion(Entity entity, FilterCriterion criterion, Filter filter, Filter currentVersionFilter) {
+	private void initFilterCriterion(Entity entity, FilterCriterion criterion, 
+									 Filter filter, Filter currentVersionFilter) {
 		criterion.setFilter(filter);
-		criterion.setEntityField(entity.findFieldByUid(criterion.getEntityFieldUid()));
+		if (criterion.getEntityFieldUid() != null) {
+			criterion.setEntityField(entity.findFieldByUid(criterion.getEntityFieldUid()));
+		}
 		final FilterCriterion currentVersionCriterion = 
 			currentVersionFilter != null 
 				? currentVersionFilter.getCriterionByUid(criterion.getUid()) 
@@ -421,10 +413,10 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		if (currentVersionCriterion != null) {
 			currentVersionCriterion.copySystemFieldsTo(criterion);
 		}
-		initFilterCriterionElement(filter, criterion);
+		initFilterCriterionElement(filter, criterion, false);
 	}
 	
-	private void initFilterCriterionElement(Filter filter, FilterCriterion criterion) {
+	private void initFilterCriterionElement(Filter filter, FilterCriterion criterion, boolean setReference) {
 		final FilterElement element = new FilterElement();
 		criterion.setElement(element);
 		
@@ -432,10 +424,11 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		if (criterion.getEntityField() != null) {
 			element.setEntityField(criterion.getEntityField());
 			// reference field
-			if (criterion.getReferenceId() != null) {
-				criterion.setReference(
-					valueObjectService.getObject(criterion.getEntityField().getReferenceEntity(), 
-					  	   						 criterion.getReferenceId()));
+			if (setReference && criterion.getReferenceUid() != null) {
+				final TransferableObject reference = (TransferableObject) 
+						valueObjectService.findByUid(criterion.getEntityField().getReferenceEntity(), 
+ 	   							 					 criterion.getReferenceUid());
+				criterion.setReference(reference);
 			}
 		}
 		
@@ -444,7 +437,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 			element.setSystemField(criterion.getSystemField());
 			// status field
 			if (criterion.getSystemField() == SystemField.ENTITYSTATUS) {
-				criterion.setReference(filter.getEntity().getStatusById(criterion.getReferenceId()));
+				criterion.setReference(filter.getEntity().getStatusByUid(criterion.getReferenceUid()));
 			}
 		}
 		else {
@@ -452,7 +445,8 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		}
 	}
 	
-	private void initFilterPermission(FilterPermission permission, Filter filter, Filter currentVersionFilter, Session session) {
+	private void initFilterPermission(FilterPermission permission, Filter filter, 
+									  Filter currentVersionFilter, Session session) {
 		permission.setFilter(filter);
 		permission.setUserGroup(userGroupService.findByUid(session, permission.getUserGroupUid()));
 		final FilterPermission currentVersionPermission =
@@ -461,6 +455,25 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 				: null;
 		if (currentVersionPermission != null) {
 			currentVersionPermission.copySystemFieldsTo(permission);
+		}
+	}
+	
+	private static void createEntityElements(Entity entity, List<FilterElement> elements) {
+		// entity fields
+		if (entity.hasAllFields()) {
+			for (EntityField entityField : entity.getAllFields()) {
+				// allow reference fields only for module entities
+				if (!entityField.getType().isReference() || 
+					entityField.getReferenceEntity().isTransferable()) {
+						elements.add(createElement(entityField, null));
+				}
+			}
+		}
+		// system fields
+		for (SystemField systemField : SystemField.publicSystemFields()) {
+			if (systemField != SystemField.ENTITYSTATUS || entity.hasStatus()) {
+				elements.add(createElement(null, systemField));
+			}
 		}
 	}
 	

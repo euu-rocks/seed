@@ -112,9 +112,11 @@ public interface ValueObjectService {
 	
 	List<ValueObject> find(Session session, CriteriaQuery<ValueObject> query);
 	
+	ValueObject findByUid(Entity entity, String uid);
+	
 	ValueObject findUnique(Entity entity, EntityField entityField, Object value);
 	
-	ValueObject findUnique(Session session, Entity entity, EntityField entityField, Object value);
+	ValueObject findUnique(Entity entity, EntityField entityField, Object value, Session session);
 	
 	void reloadObject(ValueObject object);
 	

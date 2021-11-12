@@ -77,6 +77,8 @@ public interface Entity
 	
 	EntityFieldGroup getFieldGroupByUid(String uid);
 	
+	EntityField getUidField();
+	
 	EntityField getFieldById(Long id);
 	
 	EntityField getFieldByUid(String uid);

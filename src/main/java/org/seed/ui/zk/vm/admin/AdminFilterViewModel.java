@@ -150,7 +150,9 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 		if (filter.getHqlQuery() != null) {
 			hqlInput = true;
 		}
-		filterService.initFilterCriteria(filter);
+		else {
+			filterService.initFilterCriteria(filter);
+		}
 	}
 	
 	@Override
@@ -168,7 +170,7 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 	}
 	
 	public List<Entity> getEntities() {
-		return entityService.findTransferableEntities();
+		return entityService.findNonGenericEntities();
 	}
 	
 	public String getElementName(FilterElement element) {
@@ -212,7 +214,7 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 	
 	public Object getReferenceValue(FilterCriterion criterion) {
 		return criterion != null 
-				? getReferenceValue(criterion.getReference(), criterion.getElement())
+				? getReferenceValue((SystemObject) criterion.getReference(), criterion.getElement())
 				: null;
 	}
 	

@@ -48,6 +48,8 @@
 	            <listheader hflex="2" label="${labels.label.form}" 
 	            			sort="auto(name)" onCreate="self.sort(true)"/>
 	            <listheader hflex="2" label="${labels.label.entity}"/>
+	            <listheader hflex="min" label="${labels.label.auto}"
+	            			sort="auto(autoLayout)"/>	
 	            <listheader hflex="1" label="${labels.label.module}"
 	            			visible="@load(vm.existModules())"/>
 	        </listhead> 
@@ -70,6 +72,9 @@
 		           	</combobox>
 		        </auxheader>
 		        <auxheader>
+		        	<checkbox checked="@bind(vm.getFilter('list','autoLayout').booleanValue)"/>
+		        </auxheader>
+		        <auxheader>
 		        	<combobox model="@load(vm.getFilter('list','module').values) @template(empty each ? 'empty' : 'module')"
 		            		  selectedItem="@bind(vm.getFilter('list','module').value)"
 		            		  hflex="1">
@@ -86,13 +91,16 @@
 		    <template name="model" var="form">
 	            <listitem onDoubleClick="@command('editForm')">
 	            	<listcell iconSclass="z-icon-list-alt z-icon-fw alpha-icon-lg">
-	            		<label value="@init(form.name)" style="margin-left:3px"/>
+	            		<label value="@load(form.name)" style="margin-left:3px"/>
 	            	</listcell>
 	            	<listcell iconSclass="z-icon-table z-icon-fw alpha-icon-lg">
-	            		<label value="@init(form.entity.name)" style="margin-left:3px"/>
+	            		<label value="@load(form.entity.name)" style="margin-left:3px"/>
+	            	</listcell>
+	            	<listcell style="text-align:center">
+	            		<checkbox checked="@load(form.autoLayout)" disabled="true"/>
 	            	</listcell>
 	            	<listcell iconSclass="@load(empty form.module ? '' : 'z-icon-cube alpha-icon-lg')">
-	            		<label value="@init(form.module.name)" style="margin-left:3px"/>
+	            		<label value="@load(form.module.name)" style="margin-left:3px"/>
 	            	</listcell>
 	            </listitem>
 		    </template>

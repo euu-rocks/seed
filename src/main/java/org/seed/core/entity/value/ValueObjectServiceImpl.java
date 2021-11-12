@@ -386,16 +386,28 @@ public class ValueObjectServiceImpl
 	
 	@Override
 	public List<ValueObject> find(Entity entity, Filter filter) {
+		Assert.notNull(filter, C.FILTER);
+		
+		filterService.initFilterCriteria(filter);
 		return repository.find(entity, filter);
 	}
 	
 	@Override
-	public ValueObject findUnique(Entity entity, EntityField entityField, Object value) {
-		return findUnique(null, entity, entityField, value);
+	public ValueObject findByUid(Entity entity, String uid) {
+		Assert.notNull(entity, C.ENTITY);
+		
+		return findUnique(entity, entity.getUidField(), uid);
 	}
 	
 	@Override
-	public ValueObject findUnique(Session session, Entity entity, EntityField entityField, Object value) {
+	public ValueObject findUnique(Entity entity, EntityField entityField, Object value) {
+		return findUnique(entity, entityField, value, null);
+	}
+	
+	@Override
+	public ValueObject findUnique(Entity entity, EntityField entityField, Object value, Session session) {
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(value, C.VALUE);
 		Assert.notNull(entityField, C.ENTITYFIELD);
 		Assert.state(entityField.isUnique(), "entityField is not unique");
 		
