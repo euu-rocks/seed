@@ -26,7 +26,9 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.Base64;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
@@ -46,6 +48,8 @@ public abstract class MiscUtils {
 	public static final Charset CHARSET = StandardCharsets.UTF_8;
 	
 	public static final String USERNAME_SYSTEM = "system";
+	
+	public static final String TIMESTAMP_FORMAT = "dd-MM-yyyy_HH-mm-ss";
 	
 	private MiscUtils() {}
 	
@@ -85,9 +89,14 @@ public abstract class MiscUtils {
 	}
 	
 	public static String replaceAllIgnoreCase(String text, String replaceable, String replacemnet) {
-		return Pattern.compile(replaceable, Pattern.LITERAL | Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE)
+		return Pattern.compile(replaceable, 
+				               Pattern.LITERAL | Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE)
 					  .matcher(text)
 					  .replaceAll(Matcher.quoteReplacement(replacemnet));
+	}
+	
+	public static String getTimestampString() {
+		return new SimpleDateFormat(TIMESTAMP_FORMAT).format(new Date());
 	}
 	
 	public static String formatDuration(long startTime) {

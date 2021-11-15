@@ -406,6 +406,13 @@ public class ModuleMetadata extends AbstractSystemEntity
 		
 		getParameters().remove(parameter);
 	}
+	
+	@Override
+	public String getFileName() {
+		return getInternalName() + '_' +
+				   MiscUtils.getTimestampString() +
+				   ModuleTransfer.MODULE_FILE_EXTENSION;
+	}
 
 	@XmlTransient
 	public List<ApplicationEntity> getChangedObjects() {

@@ -32,7 +32,6 @@ import org.seed.core.user.Authorisation;
 import org.seed.core.entity.transfer.TransferFormat;
 import org.seed.core.entity.transfer.TransferResult;
 import org.seed.core.util.MiscUtils;
-import org.seed.core.util.NameUtils;
 import org.seed.ui.ListFilter;
 
 import org.zkoss.bind.BindContext;
@@ -179,7 +178,7 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	
 	@Command
 	public void exportTransfer() {
-		final String fileName = NameUtils.getNameWithTimestamp(getObject().getName()) + 
+		final String fileName = getObject().getName() + '_' + MiscUtils.getTimestampString() +
 								getObject().getFormat().fileExtension;
 		Filedownload.save(transferService.doExport(getObject()), getObject().getFormat().contentType, fileName);
 	}

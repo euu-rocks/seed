@@ -158,7 +158,7 @@ public abstract class AbstractSystemEntityValidator<T extends SystemEntity>
 	}
 	
 	protected static void unhandledEntity(SystemEntity entity) {
-		throw new IllegalStateException("unhandled entity: " + getEntityType(entity));
+		Assert.stateIllegal("unhandled entity: " + getEntityType(entity));
 	}
 	
 }

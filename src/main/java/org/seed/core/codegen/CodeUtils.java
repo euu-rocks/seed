@@ -117,7 +117,7 @@ public abstract class CodeUtils {
 		Assert.state(startIdx >= 0, "package not found");
 		startIdx += 8;
 		final int endIdx = code.indexOf(';', startIdx);
-		Assert.state(endIdx >= 0, "; after package not found");
+		Assert.state(endIdx >= 0, "; not found after package");
 		final String packageName = code.substring(startIdx, endIdx).trim();
 		
 		// determine class / interface / enum
@@ -141,8 +141,7 @@ public abstract class CodeUtils {
 				return getQualifiedName(packageName, nameBuf.toString());
 			}
 		}
-		Assert.state(nameBuf.length() > 0, "class name not found");
-		Assert.state(false, "class name end not found");
+		Assert.stateIllegal("class name not found");
 		return null;
 	}
 	

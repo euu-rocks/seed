@@ -735,7 +735,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 					break;
 				
 				default:
-					Assert.state(false, "unknown layoutType:" + layoutType);
+					Assert.stateIllegal("unknown layoutType:" + layoutType);
 			}
 			refreshAndClose();
 		}
@@ -761,7 +761,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 					break;
 					
 				default:
-					Assert.state(false, "unknown layoutType:" + layoutType);
+					Assert.stateIllegal("unknown layoutType:" + layoutType);
 			}
 			parentVM().setLayout(layoutRoot);
 			window.detach();

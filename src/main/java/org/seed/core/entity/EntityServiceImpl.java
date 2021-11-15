@@ -262,32 +262,6 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		return result;
 	}
 	
-	private boolean checkPermissions(Entity entity, UserGroup userGroup) {
-		if (entity.hasPermissions()) {
-			for (EntityPermission permission : entity.getPermissions()) {
-				if (userGroup.equals(permission.getUserGroup())) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
-	private boolean checkStatusTransitions(Entity entity, UserGroup userGroup) {
-		if (entity.hasStatusTransitions()) {
-			for (EntityStatusTransition transition : entity.getStatusTransitions()) {
-				if (transition.hasPermissions()) {
-					for (EntityStatusTransitionPermission permission : transition.getPermissions()) {
-						if (userGroup.equals(permission.getUserGroup())) {
-							return true;
-						}
-					}
-				}
-			}
-		}
-		return false;
-	}
-
 	@Override
 	public List<Entity> findUsage(EntityField entityField) {
 		return Collections.emptyList();
@@ -332,47 +306,6 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		}
 		else {
 			return FieldType.values();
-		}
-	}
-	
-	private static FieldType[] getAvailableFieldTypesIfObjectsExist(Entity entity, EntityField field) {
-		switch (field.getType()) {
-			case BOOLEAN:
-				if (entity.isTransferable()) {
-					return MiscUtils.toArray(field.getType(),
-							 				 FieldType.INTEGER,
-							 				 FieldType.LONG,
-							 				 FieldType.TEXT);
-				}
-				return MiscUtils.toArray(field.getType(),
-										 FieldType.INTEGER,
-										 FieldType.LONG,
-										 FieldType.TEXT,
-										 FieldType.TEXTLONG);
-			case INTEGER:
-				if (entity.isTransferable()) {
-					return MiscUtils.toArray(field.getType(),
-											 FieldType.LONG,
-											 FieldType.TEXT);
-				}
-				return MiscUtils.toArray(field.getType(),
-										 FieldType.LONG,
-										 FieldType.TEXT,
-										 FieldType.TEXTLONG);
-			case BINARY:
-			case FILE:
-			case TEXTLONG:
-			case REFERENCE:
-				return MiscUtils.toArray(field.getType());
-				
-			default:
-				if (entity.isTransferable()) {
-					return MiscUtils.toArray(field.getType(),
-											 FieldType.TEXT);
-				}
-				return MiscUtils.toArray(field.getType(),
-									 	 FieldType.TEXT,
-									 	 FieldType.TEXTLONG);
 		}
 	}
 	
@@ -833,6 +766,47 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		return null;
 	}
 	
+	private static FieldType[] getAvailableFieldTypesIfObjectsExist(Entity entity, EntityField field) {
+		switch (field.getType()) {
+			case BOOLEAN:
+				if (entity.isTransferable()) {
+					return MiscUtils.toArray(field.getType(),
+							 				 FieldType.INTEGER,
+							 				 FieldType.LONG,
+							 				 FieldType.TEXT);
+				}
+				return MiscUtils.toArray(field.getType(),
+										 FieldType.INTEGER,
+										 FieldType.LONG,
+										 FieldType.TEXT,
+										 FieldType.TEXTLONG);
+			case INTEGER:
+				if (entity.isTransferable()) {
+					return MiscUtils.toArray(field.getType(),
+											 FieldType.LONG,
+											 FieldType.TEXT);
+				}
+				return MiscUtils.toArray(field.getType(),
+										 FieldType.LONG,
+										 FieldType.TEXT,
+										 FieldType.TEXTLONG);
+			case BINARY:
+			case FILE:
+			case TEXTLONG:
+			case REFERENCE:
+				return MiscUtils.toArray(field.getType());
+				
+			default:
+				if (entity.isTransferable()) {
+					return MiscUtils.toArray(field.getType(),
+											 FieldType.TEXT);
+				}
+				return MiscUtils.toArray(field.getType(),
+									 	 FieldType.TEXT,
+									 	 FieldType.TEXTLONG);
+		}
+	}
+	
 	private void initEntity(Entity entity, Entity currentVersionEntity, Session session) {
 		if (entity.hasFieldGroups()) {
 			initFieldGroup(entity, currentVersionEntity);
@@ -1050,6 +1024,32 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				}
 			}
 		}
+	}
+	
+	private boolean checkPermissions(Entity entity, UserGroup userGroup) {
+		if (entity.hasPermissions()) {
+			for (EntityPermission permission : entity.getPermissions()) {
+				if (userGroup.equals(permission.getUserGroup())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	private boolean checkStatusTransitions(Entity entity, UserGroup userGroup) {
+		if (entity.hasStatusTransitions()) {
+			for (EntityStatusTransition transition : entity.getStatusTransitions()) {
+				if (transition.hasPermissions()) {
+					for (EntityStatusTransitionPermission permission : transition.getPermissions()) {
+						if (userGroup.equals(permission.getUserGroup())) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+		return false;
 	}
 	
 	// clean up inconsistencies

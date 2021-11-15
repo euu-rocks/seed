@@ -106,15 +106,15 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 						errors.addError("val.inuse.entitydatasource", systemEntity.getName());
 						break;
 						
-					case "entity":
+					case C.ENTITY:
 						errors.addError("val.inuse.entityentity", systemEntity.getName());
 						break;
 						
-					case "filter":
+					case C.FILTER:
 						errors.addError("val.inuse.entityfilter", systemEntity.getName());
 						break;
 						
-					case "form":
+					case C.FORM:
 						errors.addError("val.inuse.entityform", systemEntity.getName());
 						break;
 						
@@ -122,7 +122,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 						errors.addError("val.inuse.entitytransform", systemEntity.getName());
 						break;
 						
-					case "value":
+					case C.VALUE:
 						errors.addError("val.inuse.entityvalue");
 						break;
 						
@@ -150,15 +150,15 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		for (EntityDependent<? extends SystemEntity> dependent : entityDependents) {
 			for (SystemEntity systemEntity : dependent.findUsage(field)) {
 				switch (getEntityType(systemEntity)) {
-					case "entity":
+					case C.ENTITY:
 						errors.addError("val.inuse.fieldentity", systemEntity.getName());
 						break;
 						
-					case "filter":
+					case C.FILTER:
 						errors.addError("val.inuse.fieldfilter", systemEntity.getName());
 						break;
 						
-					case "form":
+					case C.FORM:
 						errors.addError("val.inuse.fieldform", systemEntity.getName());
 						break;
 						
@@ -200,6 +200,9 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 				if (C.FORM.equals(getEntityType(systemEntity))) {
 					errors.addError("val.inuse.functionform", systemEntity.getName());
 				}
+				else {
+					unhandledEntity(systemEntity);
+				}
 			}
 		}
 		
@@ -212,8 +215,17 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		
 		for (EntityDependent<? extends SystemEntity> dependent : entityDependents) {
 			for (SystemEntity systemEntity : dependent.findUsage(status)) {
-				if (C.VALUE.equals(getEntityType(systemEntity))) {
-					errors.addError("val.inuse.status");
+				switch (getEntityType(systemEntity)) {
+					case C.FILTER:
+						errors.addError("val.inuse.statusfilter", systemEntity.getName());
+						break;
+						
+					case C.VALUE:
+						errors.addError("val.inuse.status");
+						break;
+						
+					default:
+						unhandledEntity(systemEntity);
 				}
 			}
 		}
@@ -229,6 +241,9 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 			for (SystemEntity systemEntity : dependent.findUsage(nestedEntity)) {
 				if (C.FORM.equals(getEntityType(systemEntity))) {
 					errors.addError("val.inuse.nestedform", systemEntity.getName());
+				}
+				else {
+					unhandledEntity(systemEntity);
 				}
 			}
 		}

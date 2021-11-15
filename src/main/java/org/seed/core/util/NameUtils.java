@@ -17,9 +17,7 @@
  */
 package org.seed.core.util;
 
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 
 public abstract class NameUtils {
 	
@@ -38,7 +36,8 @@ public abstract class NameUtils {
 	private static final String[] ILLEGAL_FIELDNAMES = {
 
 		"createdby", "createdon", "entityid", "entitystatus", "equal", "id",
-		"lastmodified", "modifiedby", "modifiedon", "new", "status_id", "uid", "version"
+		"lastmodified", "modifiedby", "modifiedon", "new", "status_id", "uid", 
+		"version"
     };
 	
 	private NameUtils() {}
@@ -105,13 +104,6 @@ public abstract class NameUtils {
 			}
 		}
 		return buf.toString();
-	}
-	
-	public static String getNameWithTimestamp(String name) {
-		if (name == null) {
-			return null;
-		}
-		return name + '_' + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
 	}
 	
 }

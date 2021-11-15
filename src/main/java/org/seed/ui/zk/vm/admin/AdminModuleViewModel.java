@@ -281,7 +281,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	public void exportModule(@BindingParam(C.ELEM) Component component) {
 		Filedownload.save(moduleService.exportModule(getObject()),
 						  "application/zip",
-						  moduleService.getFileName(getObject()));
+						  getObject().getFileName());
 	}
 	
 	@Command

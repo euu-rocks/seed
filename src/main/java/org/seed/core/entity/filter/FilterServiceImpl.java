@@ -46,6 +46,8 @@ import org.seed.core.entity.EntityFunction;
 import org.seed.core.entity.EntityService;
 import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.NestedEntity;
+import org.seed.core.entity.value.ValueObject;
+import org.seed.core.entity.value.ValueObjectDependent;
 import org.seed.core.entity.value.ValueObjectService;
 import org.seed.core.user.User;
 import org.seed.core.user.UserGroup;
@@ -59,7 +61,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
-	implements FilterService, EntityDependent<Filter>, UserGroupDependent<Filter> {
+	implements FilterService, EntityDependent<Filter>, 
+			   ValueObjectDependent<Filter>, UserGroupDependent<Filter> {
 	
 	@Autowired
 	private EntityService entityService;
@@ -109,9 +112,8 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(name, C.NAME);
 		
-		final List<Filter> list = filterRepository.find(queryParam(C.ENTITY, entity),
-														queryParam(C.NAME, name));
-		return !list.isEmpty() ? list.get(0) : null;
+		return filterRepository.findUnique(queryParam(C.ENTITY, entity),
+										   queryParam(C.NAME, name));
 	}
 	
 	@Override
@@ -120,7 +122,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		Assert.notNull(user, C.USER);
 		
 		return findFilters(entity).stream()
-							   	  .filter(f -> f.checkPermissions(user))
+							   	  .filter(filter -> filter.checkPermissions(user))
 							   	  .collect(Collectors.toList());
 	}
 	
@@ -156,7 +158,8 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	}
 	
 	@Override
-	public List<FilterElement> getFilterElements(Filter filter, @Nullable NestedEntity nestedEntity) {
+	public List<FilterElement> getFilterElements(Filter filter, 
+												 @Nullable NestedEntity nestedEntity) {
 		Assert.notNull(filter, C.FILTER);
 		
 		final List<FilterElement> elements = new ArrayList<>();
@@ -206,7 +209,8 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	}
 	
 	@Override
-	protected void analyzeNextVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
+	protected void analyzeNextVersionObjects(ImportAnalysis analysis, 
+											 Module currentVersionModule) {
 		if (analysis.getModule().getFilters() != null) {
 			for (Filter filter : analysis.getModule().getFilters()) {
 				if (currentVersionModule == null) {
@@ -227,7 +231,8 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	}
 	
 	@Override
-	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
+	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, 
+												Module currentVersionModule) {
 		if (currentVersionModule.getFilters() != null) {
 			for (Filter currentVersionFilter : currentVersionModule.getFilters()) {
 				if (analysis.getModule().getFilterByUid(currentVersionFilter.getUid()) == null) {
@@ -357,12 +362,32 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	}
 	
 	@Override
-	public List<Filter> findUsage(EntityFieldGroup fieldGroup) {
+	public List<Filter> findUsage(ValueObject object) {
+		Assert.notNull(object, C.OBJECT);
+		
+		if (object instanceof TransferableObject) {
+			final String objectUid = ((TransferableObject) object).getUid();
+			Assert.stateAvailable(objectUid, "object uid");
+			
+			return getObjects().stream()
+							   .filter(filter -> containsReferenceUid(filter, objectUid))
+							   .collect(Collectors.toList());
+		}
 		return Collections.emptyList();
 	}
 	
 	@Override
 	public List<Filter> findUsage(EntityStatus entityStatus) {
+		Assert.notNull(entityStatus, "entity status");
+		Assert.state(entityStatus.getUid() != null, "status is new");
+		
+		return getObjects().stream()
+						   .filter(filter -> containsReferenceUid(filter, entityStatus.getUid()))
+						   .collect(Collectors.toList());
+	}
+	
+	@Override
+	public List<Filter> findUsage(EntityFieldGroup fieldGroup) {
 		return Collections.emptyList();
 	}
 	
@@ -441,7 +466,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 			}
 		}
 		else {
-			Assert.state(false, "neither entity nor system field");
+			Assert.stateIllegal("neither entity nor system field");
 		}
 	}
 	
@@ -456,6 +481,17 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		if (currentVersionPermission != null) {
 			currentVersionPermission.copySystemFieldsTo(permission);
 		}
+	}
+	
+	private static boolean containsReferenceUid(Filter filter, String uid) {
+		if (filter.hasCriteria()) {
+			for (FilterCriterion criterion : filter.getCriteria()) {
+				if (uid.equals(criterion.getReferenceUid())) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	private static void createEntityElements(Entity entity, List<FilterElement> elements) {

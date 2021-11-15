@@ -40,9 +40,6 @@ public class FilterValidator extends AbstractSystemEntityValidator<Filter> {
 		Assert.notNull(filter, C.FILTER);
 		final ValidationErrors errors = new ValidationErrors();
 		
-		if (isEmpty(filter.getName())) {
-			errors.addEmptyName();
-		}
 		if (isEmpty(filter.getEntity())) {
 			errors.addEmptyField("label.entity");
 		}

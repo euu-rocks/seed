@@ -32,7 +32,7 @@ public abstract class Assert {
 		if (object == null) {
 			throw new IllegalArgumentException(name != null 
 												? name + " is null" 
-												: "object is null");
+												: "Object is null");
 		}
 	}
 	
@@ -40,28 +40,34 @@ public abstract class Assert {
 		if (!StringUtils.hasText(text)) {
 			throw new IllegalArgumentException(name != null 
 												? name + " has no content" 
-												: "text has no content");
-		}
-	}
-	
-	public static void state(boolean expression, @Nullable String message) {
-		if (!expression) {
-			throw new IllegalStateException(message);
+												: "Text has no content");
 		}
 	}
 	
 	public static void greaterThanZero(int number, @Nullable String name) {
 		if (number <= 0) {
-			throw new IllegalStateException("illegal " + (name != null ? name : "number") + ' ' + number);
+			stateIllegal("Illegal " + (name != null ? name : "number") + ' ' + number);
+		}
+	}
+	
+	public static void state(boolean expression, @Nullable String message) {
+		if (!expression) {
+			stateIllegal(message);
 		}
 	}
 	
 	public static void stateAvailable(@Nullable Object object, @Nullable String name) {
 		if (object == null) {
-			throw new IllegalStateException(name != null 
-					? name + " not available" 
-					: "object not available");
+			stateIllegal(name != null 
+							? name + " not available" 
+							: "Object not available");
 		}
+	}
+	
+	public static void stateIllegal(@Nullable String message) {
+		throw new IllegalStateException(message != null 
+											? message 
+											: "An invalid state has occurred");
 	}
 	
 }

@@ -2,13 +2,17 @@ body {
 	padding: 0px
 }
 
-.z-west-header { /* title area */
+.z-hbox-separator {
+    display: none
+}
+
+.z-west-header {
 	height: 27px;
 	padding: 1px 6px;
 	border-bottom: 0px;
 }
 
-.z-east-header { /* properties area */
+.z-east-header {
 	height: 27px;
 	padding: 1px 10px;
 }
@@ -76,8 +80,19 @@ body {
     padding: 1px 2px;
 }
 
-.z-hbox-separator {
-    display: none
+.z-window {
+	background: linear-gradient(to bottom, #FFFFFF 0%, #444444 100%);
+}
+
+.z-window-close {
+    font-size: 14px;
+    line-height: 16px;
+}
+
+.z-window-header {
+	color: #555555;
+	font-weight: bold;
+	padding: 0 0 3px 5px;
 }
 
 .alpha-icon-lg {

@@ -66,13 +66,6 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 	}
 	
 	@Override
-	public String getFileName(Module module) {
-		Assert.notNull(module, C.MODULE);
-		
-		return module.getInternalName() + ModuleTransfer.MODULE_FILE_EXTENSION;
-	}
-	
-	@Override
 	@Secured("ROLE_ADMIN_MODULE")
 	public Module readModule(InputStream inputStream) {
 		try {

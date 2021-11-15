@@ -18,6 +18,7 @@
 package org.seed.core.entity.value.event;
 
 import org.hibernate.Session;
+
 import org.seed.InternalException;
 import org.seed.core.api.ApplicationException;
 import org.seed.core.api.CallbackFunction;
@@ -56,6 +57,7 @@ public class ValueObjectEventHandler {
 			case BEFORETRANSITION:
 			case AFTERTRANSITION:
 				return processStatusTransitionEvent(event);
+			
 			default:
 				return processEntityEvent(event);
 		}
@@ -66,7 +68,8 @@ public class ValueObjectEventHandler {
 		final EntityFunction entityFunction = event.entityFunction;
 		Assert.stateAvailable(entityFunction, "entity function");
 		
-		return callFunction(entityFunction.getEntity(), entityFunction, event.object, event.session, null, null);
+		return callFunction(entityFunction.getEntity(), entityFunction, 
+							event.object, event.session, null, null);
 	}
 	
 	private boolean processStatusTransitionEvent(ValueObjectEvent event) {
@@ -85,9 +88,11 @@ public class ValueObjectEventHandler {
 					case BEFORETRANSITION:
 						execute = transitionFunction.isActiveBeforeTransition();
 						break;
+						
 					case AFTERTRANSITION:
 						execute = transitionFunction.isActiveAfterTransition();
 						break;
+						
 					default:
 						throw new UnsupportedOperationException(event.type.name());
 				}
@@ -115,27 +120,35 @@ public class ValueObjectEventHandler {
 					case CREATE:
 						execute = function.isActiveOnCreate();
 						break;
+						
 					case MODIFY:
 						execute = function.isActiveOnModify();
 						break;
+						
 					case BEFOREINSERT:
 						execute = function.isActiveBeforeInsert();
 						break;
+						
 					case AFTERINSERT:
 						execute = function.isActiveAfterInsert();
 						break;
+						
 					case BEFOREUPDATE:
 						execute = function.isActiveBeforeUpdate();
 						break;
+						
 					case AFTERUPDATE:
 						execute = function.isActiveAfterUpdate();
 						break;
+						
 					case BEFOREDELETE:
 						execute = function.isActiveBeforeDelete();
 						break;
+						
 					case AFTERDELETE:
 						execute = function.isActiveAfterDelete();
 						break;
+						
 					default:
 						throw new UnsupportedOperationException(event.type.name());
 				}
@@ -156,15 +169,18 @@ public class ValueObjectEventHandler {
 		Assert.state(!(session != null && functionContext != null), "only session or functionContext allowed");
 		
 		final Class<GeneratedCode> functionClass = codeManager.getGeneratedClass(function);
-		if (functionClass == null) {
-			throw new IllegalStateException("function class not available: " + function.getGeneratedPackage() + '.' + function.getGeneratedClass());
-		}
+		Assert.stateAvailable(functionClass, "function class: " + function.getGeneratedPackage() + '.' + 
+																  function.getGeneratedClass());
 		try {
-			final CallbackFunction<ValueObject> callbackFunction = (CallbackFunction<ValueObject>) MiscUtils.instantiate(functionClass);
+			final CallbackFunction<ValueObject> callbackFunction = 
+					(CallbackFunction<ValueObject>) MiscUtils.instantiate(functionClass);
 			if (functionContext == null) {
 				functionContext = new ValueObjectFunctionContext(session, entity.getModule(), statusTransition);
 			}
-			log.debug("Execute function '{}' on {} id:{}", function.getName(), function.getEntity().getName(), object.getId());
+			if (log.isDebugEnabled()) {
+				log.debug("Execute function '{}' on {} id:{}", function.getName(), 
+															   function.getEntity().getName(), object.getId());
+			}
 			callbackFunction.call(object, functionContext);
 			return functionContext.getSuccessMessage();
 		}

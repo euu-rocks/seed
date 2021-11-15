@@ -30,6 +30,7 @@ import org.seed.core.entity.EntityFieldConstraint;
 import org.seed.core.entity.EntityRepository;
 import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.NestedEntity;
+import org.seed.core.entity.filter.Filter;
 import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,6 +84,9 @@ public class ValueObjectValidator {
 					if (!objectEntity.isNestedEntity(entity)) {
 						errors.addError("val.inuse.valueobject", entity.getName());
 					}
+				}
+				else if (systemEntity instanceof Filter) {
+					errors.addError("val.inuse.valueobjectfilter", systemEntity.getName());
 				}
 			}
 		}
