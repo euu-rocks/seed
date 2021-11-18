@@ -34,7 +34,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 @EnableAsync
 @EnableScheduling
 @ZKCEApplication
-@SpringBootApplication(exclude = {org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration.class})
+@SpringBootApplication(exclude = {org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration.class,
+								  org.springframework.boot.autoconfigure.solr.SolrAutoConfiguration.class})
 public class Seed {
 	
 	private static ApplicationContext applicationContext;

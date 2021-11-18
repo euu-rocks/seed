@@ -136,6 +136,12 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 		final List<TransferElement> result = new ArrayList<>();
 		if (entity.hasAllFields()) {
 			for (EntityField entityField : entity.getAllFields()) {
+				// skip non-transferable types
+				if (entityField.getType().isBinary() || 
+					entityField.getType().isFile() ||
+					entityField.getType().isReference()) {
+					continue;
+				}
 				if (!transfer.containsField(entityField)) {
 					result.add(createElement(transfer, entityField));
 				}

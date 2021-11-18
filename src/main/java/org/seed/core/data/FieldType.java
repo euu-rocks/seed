@@ -48,8 +48,8 @@ public enum FieldType {
 				FieldType.DOUBLE,
 				FieldType.INTEGER,
 				FieldType.LONG,
-				FieldType.REFERENCE,
-				FieldType.TEXT 
+				FieldType.TEXT,
+				FieldType.TEXTLONG
 	); 
 	
 	private static final FieldType[] NON_AUTONUM_TYPES = Arrays.copyOfRange(values(), 1, values().length);

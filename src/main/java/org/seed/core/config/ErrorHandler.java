@@ -40,8 +40,8 @@ public class ErrorHandler implements ErrorController {
 	}
 	
 	private static String handleError(HttpServletRequest request) {
-        return "Error <b>" + getAttribute(request, RequestDispatcher.ERROR_STATUS_CODE)  + "</b>" + 
-        		getAttribute(request, RequestDispatcher.ERROR_MESSAGE) +
+        return "Error <b>" + getAttribute(request, RequestDispatcher.ERROR_STATUS_CODE)  + "</b> " + 
+        		getAttribute(request, RequestDispatcher.ERROR_MESSAGE) + ' ' +
         		getAttribute(request, RequestDispatcher.ERROR_EXCEPTION);
 	}
 	
