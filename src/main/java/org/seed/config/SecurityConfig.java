@@ -52,6 +52,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.authorizeRequests()
 			.antMatchers("/actuator/**").hasRole(Authorisation.ENDPOINTS.name())  
+			.antMatchers("/seed/rest/**").hasRole(Authorisation.CALL_REST.name())  
 			.antMatchers(
 					"/zkau*",
 					"/login*", "/logout",

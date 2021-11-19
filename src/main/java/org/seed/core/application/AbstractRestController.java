@@ -42,7 +42,9 @@ public abstract class AbstractRestController<T extends ApplicationEntity> {
 	}
 	
 	protected List<T> getAll(Predicate<T> filter) {
-		return getAll().stream().filter(filter).collect(Collectors.toList());
+		return getService().getObjects().stream()
+										.filter(filter)
+										.collect(Collectors.toList());
 	}
 	
 	@GetMapping(value = "/{id}")
