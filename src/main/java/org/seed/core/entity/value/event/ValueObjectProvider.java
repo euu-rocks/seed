@@ -17,7 +17,6 @@
  */
 package org.seed.core.entity.value.event;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -198,14 +197,8 @@ class ValueObjectProvider implements EntityObjectProvider {
 	}
 	
 	private Entity getEntity(Class<ValueObject> clas) {
-		try {
 			final ValueObject object = MiscUtils.instantiate(clas);
 			return entityService.getObject(object.getEntityId());
-		} 
-		catch (InstantiationException | IllegalAccessException | IllegalArgumentException | 
-			   InvocationTargetException | NoSuchMethodException | SecurityException ex) {
-			throw new InternalException(ex);
-		}
 	}
 
 }
