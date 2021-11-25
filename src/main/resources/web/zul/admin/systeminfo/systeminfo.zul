@@ -1,0 +1,49 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<?component name="info-system" macroURI="~./zul/admin/systeminfo/systeminfo_system.zul" inline="true"?>
+<?component name="info-zk" macroURI="~./zul/admin/systeminfo/systeminfo_zk.zul" inline="true"?>
+<borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.SystemInfoViewModel')">
+	<north border="0">
+		<toolbar>
+			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+						   label="${labels.button.refresh}" 
+						   onClick="@command('refresh',elem=self)"/>
+		</toolbar>
+	</north>
+	<center border="0">
+		<grid hflex="1" class="alpha-noborder">
+			<columns>
+            	<column/>
+              	<column/>
+            </columns>
+            <rows>
+            	<row>
+            		<cell valign="top">
+	            		<info-zk/>
+            		</cell>
+            		<cell valign="top">
+            			<info-system/>
+            		</cell>
+            	</row>
+            </rows>
+        </grid>
+	</center>
+</borderlayout>

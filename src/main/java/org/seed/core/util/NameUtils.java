@@ -35,9 +35,8 @@ public abstract class NameUtils {
 	
 	private static final String[] ILLEGAL_FIELDNAMES = {
 
-		"createdby", "createdon", "entityid", "entitystatus", "equal", "id",
-		"lastmodified", "modifiedby", "modifiedon", "new", "status_id", "uid", 
-		"version"
+		"createdby", "createdon", "entityid", "entitystatus", "id", "lastmodified", 
+		"modifiedby", "modifiedon", "status_id", "uid", "version"
     };
 	
 	private NameUtils() {}
@@ -48,8 +47,9 @@ public abstract class NameUtils {
 	}
 	
 	public static boolean isIllegalFieldName(String name) {
-		return name != null && 
-			   Arrays.binarySearch(ILLEGAL_FIELDNAMES, name.toLowerCase()) >= 0;
+		return isKeyword(name) || 
+				(name != null && 
+				 Arrays.binarySearch(ILLEGAL_FIELDNAMES, name.toLowerCase()) >= 0);
 	}
 	
 	public static String getInternalName(String name) {

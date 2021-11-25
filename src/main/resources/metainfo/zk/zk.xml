@@ -29,6 +29,9 @@
 	    <name> org.zkoss.zul.css.flex</name>
 	    <value>false</value>
 	</library-property>
+	<listener>
+		<listener-class>org.zkoss.zk.ui.util.Statistic</listener-class>
+	</listener>
 	<system-config>
 		<max-upload-size>102400</max-upload-size>
         <ui-factory-class>org.seed.ui.zk.DelegatingUiFactory</ui-factory-class>

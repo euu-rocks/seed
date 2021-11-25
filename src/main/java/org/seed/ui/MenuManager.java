@@ -139,6 +139,11 @@ public class MenuManager {
 										"/admin/setting/settings.zul", 
 										"z-icon-wrench z-icon-fw alpha-icon-lg"));
 		}
+		if (user.isAuthorised(Authorisation.SYSTEMINFO)) {
+			nodeAdmin.addChild(new TreeNode(getLabel("user.authorisation.systeminfo"), 
+										"/admin/systeminfo/systeminfo.zul", 
+										"z-icon-info z-icon-fw alpha-icon-lg"));
+		}
 		if (user.isAuthorised(Authorisation.ADMIN_USER)) {
 			createUserMenu(nodeAdmin);
 		}

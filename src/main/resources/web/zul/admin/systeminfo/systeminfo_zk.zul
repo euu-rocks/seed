@@ -1,0 +1,61 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<groupbox>
+	<caption label="ZK"/>
+	<grid hflex="1" class="alpha-noborder">
+		<columns>
+           	<column hflex="min"/>
+             	<column hflex="max"/>
+           </columns>
+           <rows>
+           	<row>
+				<cell style="padding: 4px 10px" align="right">
+					<label value="${labels.systeminfo.zk.desktops}:"/>
+				</cell>
+				<cell style="padding: 4px 4px">
+					<label value="@load(vm.statistic.activeDesktopCount)"/> /
+					<label value="@load(vm.formatAverage(vm.statistic.averageDesktopCount))"/> /
+					<label value="@load(vm.statistic.totalDesktopCount)"/>
+				</cell>
+			</row>
+			<row>
+				<cell style="padding: 4px 10px" align="right">
+					<label value="${labels.systeminfo.zk.sessions}:"/>
+				</cell>
+				<cell style="padding: 4px 4px">
+					<label value="@load(vm.statistic.activeSessionCount)"/> /
+					<label value="@load(vm.formatAverage(vm.statistic.averageDesktopCount))"/> /
+					<label value="@load(vm.statistic.totalSessionCount)"/>
+				</cell>
+			</row>
+			<row>
+				<cell style="padding: 4px 10px" align="right">
+					<label value="${labels.systeminfo.zk.updates}:"/>
+				</cell>
+				<cell style="padding: 4px 4px">
+					<label value="@load(vm.statistic.activeUpdateCount)"/> /
+					<label value="@load(vm.formatAverage(vm.statistic.averageUpdateCount))"/> /
+					<label value="@load(vm.statistic.totalUpdateCount)"/>
+				</cell>
+			</row>
+           </rows>
+       </grid>
+</groupbox>

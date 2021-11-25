@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -51,6 +50,10 @@ public abstract class MiscUtils {
 	
 	public static final String TIMESTAMP_FORMAT = "dd-MM-yyyy_HH-mm-ss";
 	
+	private static final long SEC_MINUTE = 60;
+	private static final long SEC_HOUR = 60 * SEC_MINUTE;
+	private static final long SEC_DAY = 24 * SEC_HOUR;
+	
 	private MiscUtils() {}
 	
 	public static String geUserName() {
@@ -75,10 +78,13 @@ public abstract class MiscUtils {
 				: null;
 	}
 	
-	public static <T> T instantiate(Class<T> clas) 
-			throws InstantiationException, IllegalAccessException,
-				   InvocationTargetException, NoSuchMethodException {
-		return clas.getDeclaredConstructor().newInstance();
+	public static <T> T instantiate(Class<T> clas) {
+		try {
+			return clas.getDeclaredConstructor().newInstance();
+		} 
+		catch (Exception ex) {
+			throw new InternalException(ex);
+		}
 	}
 	
 	public static String filterString(String text, Predicate<Character> predicate) {
@@ -99,11 +105,49 @@ public abstract class MiscUtils {
 		return new SimpleDateFormat(TIMESTAMP_FORMAT).format(new Date());
 	}
 	
-	public static String formatDuration(long startTime) {
-		final long duration = System.currentTimeMillis() - startTime;
-		return duration < 1000 
-				? duration + " ms"
-				: (((double) duration) / 1000d) + " sec";
+	public static String formatDuration(long startTimeMs) {
+		return formatDuration(startTimeMs, System.currentTimeMillis());
+	}
+	
+	public static String formatDuration(long startTimeMs, long endTimeMs) {
+		final long durationMs = endTimeMs - startTimeMs;
+		final StringBuilder buf = new StringBuilder();
+		if (durationMs < 60000) { // < 1min
+			if (durationMs < 1000) {
+				buf.append(durationMs).append(" ms");
+			}
+			else {
+				buf.append(((double) durationMs) / 1000d).append(" sec");
+			}
+		}
+		else {
+			final long durationSec = durationMs / 1000L;
+			if (durationSec > SEC_DAY) {
+				buf.append(durationSec / SEC_DAY).append(':');
+			}
+			if (durationSec > SEC_HOUR) {
+				buf.append(formatDurationPart((durationSec % SEC_DAY) / SEC_HOUR))
+				   .append(':');
+				
+			}
+			buf.append(formatDurationPart((durationSec % SEC_HOUR) / SEC_MINUTE)).append(':')	// min
+			   .append(formatDurationPart((durationSec % SEC_MINUTE)));							// sec
+			if (durationSec < SEC_HOUR) {
+				buf.append(" min");
+			}
+		}
+		return buf.toString();
+	}
+	
+	public static String addLeadingChars(String text, char leadingChar, int textLength) {
+		if (text != null && text.length() < textLength) {
+			final StringBuilder buf = new StringBuilder(text);
+			while (buf.length() < textLength) {
+				buf.insert(0, leadingChar);
+			}
+			return buf.toString();
+		}
+		return text;
 	}
 	
 	public static String getFileAsText(File file) throws IOException {
@@ -170,6 +214,10 @@ public abstract class MiscUtils {
 		    }
 	    }
 	    return out.toByteArray();
+	}
+	
+	private static String formatDurationPart(long duration) {
+		return addLeadingChars(String.valueOf(duration), '0', 2);
 	}
 	
 	private static String getStreamAsText(InputStream stream) throws IOException {
