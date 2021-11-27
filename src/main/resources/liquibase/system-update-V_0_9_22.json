@@ -1,0 +1,25 @@
+    {
+        "changeSet": {
+            "id": "system update 0.9.22",
+            "author": "seed",
+            "changes": [
+               {
+                  "addColumn":  {
+                     "columns":[
+                        {
+                           "column": {
+                              "name": "isselected",
+                              "type": "BOOLEAN",
+                              "defaultValue": false,
+                              "constraints": {
+                                  "nullable": "false"
+                              }
+                           }
+                        }
+                     ],
+                     "tableName":  "sys_form_field"
+                  } 
+               }
+            ]
+        }
+    }

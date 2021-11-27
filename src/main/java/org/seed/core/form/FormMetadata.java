@@ -477,6 +477,11 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	}
 	
 	@Override
+	public List<FormField> getSelectedFields(boolean selected) {
+		return subList(getFields(), field -> field.isSelected() == selected);
+	}
+	
+	@Override
 	public FormField getFieldById(Long fieldId) {
 		Assert.notNull(fieldId, "fieldId");
 		

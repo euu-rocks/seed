@@ -18,9 +18,9 @@
 
 -->
 <!DOCTYPE xml>
-<groupbox>
+<groupbox hflex="1" vflex="1">
 	<caption label="ZK"/>
-	<grid hflex="1" class="alpha-noborder">
+	<grid hflex="1" vflex="1" class="alpha-noborder">
 		<columns>
            	<column hflex="min"/>
              	<column hflex="max"/>

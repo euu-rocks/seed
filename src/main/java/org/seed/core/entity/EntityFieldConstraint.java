@@ -168,12 +168,12 @@ public class EntityFieldConstraint extends AbstractPermissionObject {
 		}
 		final EntityFieldConstraint otherConstraint = (EntityFieldConstraint) other;
 		return new EqualsBuilder()
-			.append(fieldUid, otherConstraint.getFieldUid())
-			.append(fieldGroupUid, otherConstraint.getFieldGroupUid())
-			.append(statusUid, otherConstraint.getStatusUid())
+			.append(getFieldUid(), otherConstraint.getFieldUid())
+			.append(getFieldGroupUid(), otherConstraint.getFieldGroupUid())
+			.append(getStatusUid(), otherConstraint.getStatusUid())
 			.append(getUserGroupUid(), otherConstraint.getUserGroupUid())
-			.append(access,  otherConstraint.access)
-			.append(isMandatory, otherConstraint.isMandatory)
+			.append(getAccess(),  otherConstraint.getAccess())
+			.append(isMandatory(), otherConstraint.isMandatory())
 			.isEquals();
 	}
 	

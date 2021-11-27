@@ -71,11 +71,15 @@ public class SelectColumnsViewModel extends AbstractViewModel {
 		if (form.hasFields()) {
 			for (FormField field : form.getFields()) {
 				final ColumnSetting columnSetting = listSettings.getColumnSetting(field.getId());
-				if (columnSetting != null && columnSetting.isHidden()) {
-					availableFields.add(field);
+				boolean selected = field.isSelected();
+				if (columnSetting != null) {
+					selected = !columnSetting.isHidden();
+				}
+				if (selected) {
+					selectedFields.add(field);
 				}
 				else {
-					selectedFields.add(field);
+					availableFields.add(field);
 				}
 			}
 		}

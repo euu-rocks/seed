@@ -19,6 +19,8 @@ package org.seed.ui.zk.vm.admin;
 
 import java.util.List;
 
+import org.apache.commons.collections4.ListUtils;
+
 import org.seed.C;
 import org.seed.core.data.SystemObject;
 import org.seed.core.entity.Entity;
@@ -211,9 +213,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	protected List<SystemObject> getListManagerSource(String key, int listNum) {
 		switch (key) {
 			case FIELDS:
-				return MiscUtils.castList(listNum == LIST_AVAILABLE
-							? formService.getAvailableFields(getObject())
-							: getObject().getFields());
+				return MiscUtils.castList(getObject().getSelectedFields(listNum == LIST_SELECTED));
 			
 			case ACTIONS:
 				return MiscUtils.castList(listNum == LIST_AVAILABLE
@@ -267,7 +267,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	@Command
 	public void saveForm(@BindingParam(C.ELEM) Component component) {
 		final boolean isCreate = getObject().isNew(); 
-		adjustLists(getObject().getFields(), getListManagerList(FIELDS, LIST_SELECTED));
+		adjustLists(getObject().getFields(), getAllAndMarkSelectedFields());
 		adjustLists(getObject().getActions(), getListManagerList(ACTIONS, LIST_SELECTED));
 		adjustLists(getObject().getTransformers(), getListManagerList(TRANSFORMERS, LIST_SELECTED));
 		
@@ -609,6 +609,14 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	
 	void refreshLayout() {
 		notifyChange(LAYOUT_INCLUDE);
+	}
+	
+	private List<FormField> getAllAndMarkSelectedFields() {
+		final List<FormField> availabaleFields = MiscUtils.castList(getListManagerList(FIELDS, LIST_AVAILABLE));
+		availabaleFields.forEach(field -> field.setSelected(false));
+		final List<FormField> selectedFields = MiscUtils.castList(getListManagerList(FIELDS, LIST_SELECTED));
+		selectedFields.forEach(field -> field.setSelected(true));
+		return ListUtils.union(availabaleFields, selectedFields);
 	}
 	
 	private void initLayout(LayoutElement layoutRoot) {

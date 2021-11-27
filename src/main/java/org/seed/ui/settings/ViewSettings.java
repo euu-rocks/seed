@@ -54,7 +54,7 @@ public class ViewSettings implements FormSettings {
 		if (columnSetting != null) {
 			return !columnSetting.isHidden();
 		}
-		return true;
+		return formField.isSelected();
 	}
 	
 	@Override

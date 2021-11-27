@@ -109,12 +109,8 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 				formMeta.setLayoutContent(layoutService.buildAutoLayout(form));
 			}
 		}
-		// list form
-		if (form.getEntity().hasAllFields()) {
-			for (EntityField entityField : form.getEntity().getAllFields()) {
-				form.addField(createFormField(form, entityField));
-			}
-		}
+		// list form fields
+		formMeta.setFields(createFormFields(form));
 		// actions
 		for (FormActionType actionType : FormActionType.values()) {
 			if (!actionType.isDefault && 
@@ -350,6 +346,34 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 			for (EntityField entityField : entity.getAllFields()) {
 				if (!form.containsEntityField(entityField)) {
 					result.add(createFormField(form, entityField));
+				}
+			}
+		}
+		// system fields
+		for (SystemField systemField : SystemField.publicSystemFields()) {
+			if ((systemField != SystemField.ENTITYSTATUS || entity.hasStatus()) && 
+				!form.containsSystemField(systemField)) {
+				result.add(createSystemFormField(form, systemField));
+			}
+		}
+		return result;
+	}
+	
+	private static List<FormField> createFormFields(Form form) {
+		Assert.notNull(form, C.FORM);
+		
+		final Entity entity = form.getEntity();
+		final List<FormField> result = new ArrayList<>();
+		// entity fields
+		if (entity.hasAllFields()) {
+			for (EntityField entityField : entity.getAllFields()) {
+				if (!form.containsEntityField(entityField)) {
+					final FormField formField = createFormField(form, entityField); 
+					if (entityField.getType().isAutonum() || 
+						entityField.getType().isText()) {
+						formField.setSelected(true);
+					}
+					result.add(formField);
 				}
 			}
 		}
@@ -622,17 +646,32 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		Assert.notNull(session, C.SESSION);
 		
 		for (Form form : formRepository.find(session, queryParam(C.ENTITY, entity))) {
+			// remove field if entity field no longer exist
+			form.getFields().removeIf(field -> field.getEntityField() != null && 
+											   !entity.containsField(field.getEntityField()));
 			if (form.isAutoLayout()) {
-				// create new layout
+				// add fields for new entity fields
+				if (entity.hasAllFields()) {
+					for (EntityField entityField : entity.getAllFields()) {
+						if (!form.containsEntityField(entityField)) {
+							final FormField formField = createFormField(form, entityField); 
+							if (entityField.getType().isAutonum() || 
+								entityField.getType().isText()) {
+								formField.setSelected(true);
+							}
+							form.addField(formField);
+						}
+					}
+				}
 				((FormMetadata) form).setLayoutContent(layoutService.buildAutoLayout(form));
-				// remove fields that no longer exist 
-				form.getFields().removeIf(field -> !entity.containsField(field.getEntityField()));
-				session.save(form.getLayout());
+				((FormMetadata) form).setOrderIndexes();
+				((FormMetadata) form).initUid();
 			}
 			else if (form.getLayout() != null) {
 				layoutService.rebuildLayout(form);
-				session.save(form.getLayout());
 			}
+			session.save(form.getLayout());
+			session.save(form);
 		}
 	}
 	

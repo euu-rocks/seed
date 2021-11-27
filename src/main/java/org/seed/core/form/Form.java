@@ -55,6 +55,8 @@ public interface Form extends ApplicationEntity {
 	
 	List<FormField> getFields();
 	
+	List<FormField> getSelectedFields(boolean selected);
+	
 	FormField getFieldById(Long fieldId);
 	
 	FormField getFieldByUid(String fieldUid);

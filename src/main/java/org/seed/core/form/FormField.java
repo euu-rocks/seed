@@ -42,6 +42,8 @@ public class FormField extends AbstractFormField {
 	
 	private Integer thumbnailWidth;
 	
+	private boolean isSelected;
+	
 	@XmlTransient
 	public Form getForm() {
 		return form;
@@ -69,6 +71,15 @@ public class FormField extends AbstractFormField {
 		this.thumbnailWidth = thumbnailWidth;
 	}
 	
+	@XmlAttribute
+	public boolean isSelected() {
+		return isSelected;
+	}
+
+	public void setSelected(boolean isSelected) {
+		this.isSelected = isSelected;
+	}
+
 	public boolean isSystem() {
 		return systemField != null;
 	}
@@ -94,14 +105,15 @@ public class FormField extends AbstractFormField {
 		final FormField otherField = (FormField) other;
 		return new EqualsBuilder()
 			.append(getEntityFieldUid(), otherField.getEntityFieldUid())
-			.append(systemField, otherField.systemField)
+			.append(getSystemField(), otherField.getSystemField())
 			.append(getLabel(), otherField.getLabel())
 			.append(getStyle(), otherField.getStyle())
 			.append(getLabelStyle(), otherField.getLabelStyle())
 			.append(getWidth(), otherField.getWidth())
 			.append(getHeight(), otherField.getHeight())
 			.append(getHflex(), otherField.getHflex())
-			.append(thumbnailWidth, otherField.thumbnailWidth)
+			.append(getThumbnailWidth(), otherField.getThumbnailWidth())
+			.append(isSelected(), otherField.isSelected())
 			.isEquals();
 	}
 	
