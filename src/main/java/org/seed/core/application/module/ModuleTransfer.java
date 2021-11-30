@@ -39,9 +39,9 @@ import org.hibernate.Transaction;
 
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.Seed;
 import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.config.SessionFactoryProvider;
-import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.customcode.CustomLib;
 import org.seed.core.customcode.CustomLibMetadata;
 import org.seed.core.data.ValidationException;
@@ -72,9 +72,6 @@ public class ModuleTransfer {
 	
 	@Autowired
 	private TransferService transferService;
-	
-	@Autowired
-	private UpdatableConfiguration configuration;
 	
 	@Autowired
 	private SessionFactoryProvider sessionFactoryProvider;
@@ -215,7 +212,7 @@ public class ModuleTransfer {
 		
 		// update configuration
 		if (module.getEntities() != null) {
-			configuration.updateConfiguration();
+			Seed.updateConfiguration();
 		}
 		
 		importModuleContent(module);

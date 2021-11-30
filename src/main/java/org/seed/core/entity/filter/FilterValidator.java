@@ -25,14 +25,13 @@ import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class FilterValidator extends AbstractSystemEntityValidator<Filter> {
 	
-	@Autowired
 	private List<FilterDependent<? extends SystemEntity>> filterDependents;
 	
 	@Override
@@ -96,7 +95,7 @@ public class FilterValidator extends AbstractSystemEntityValidator<Filter> {
 		Assert.notNull(filter, C.FILTER);
 		final ValidationErrors errors = new ValidationErrors();
 		
-		for (FilterDependent<? extends SystemEntity> dependent : filterDependents) {
+		for (FilterDependent<? extends SystemEntity> dependent : getFilterDependents()) {
 			for (SystemEntity systemEntity : dependent.findUsage(filter)) {
 				if (C.FORM.equals(getEntityType(systemEntity))) {
 					errors.addError("val.inuse.filterform", systemEntity.getName());
@@ -108,6 +107,13 @@ public class FilterValidator extends AbstractSystemEntityValidator<Filter> {
 		}
 		
 		validate(errors);
+	}
+	
+	private List<FilterDependent<? extends SystemEntity>> getFilterDependents() {
+		if (filterDependents == null) {
+			filterDependents = MiscUtils.castList(getBeans(FilterDependent.class));
+		}
+		return filterDependents;
 	}
 	
 }

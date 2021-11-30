@@ -27,6 +27,7 @@ import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 import org.seed.core.util.NameUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,6 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 	@Autowired
 	private EntityRepository repository;
 	
-	@Autowired
 	private List<EntityDependent<? extends SystemEntity>> entityDependents;
 	
 	@Override
@@ -99,7 +99,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		Assert.notNull(entity, C.ENTITY);
 		final ValidationErrors errors = new ValidationErrors();
 		
-		for (EntityDependent<? extends SystemEntity> dependent : entityDependents) {
+		for (EntityDependent<? extends SystemEntity> dependent : getEntityDependents()) {
 			for (SystemEntity systemEntity : dependent.findUsage(entity)) {
 				switch (getEntityType(systemEntity)) {
 					case "datasource":
@@ -147,7 +147,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 					errors.addError("val.inuse.fieldformula", entityField.getName());
 			}
 		}
-		for (EntityDependent<? extends SystemEntity> dependent : entityDependents) {
+		for (EntityDependent<? extends SystemEntity> dependent : getEntityDependents()) {
 			for (SystemEntity systemEntity : dependent.findUsage(field)) {
 				switch (getEntityType(systemEntity)) {
 					case C.ENTITY:
@@ -179,7 +179,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		Assert.notNull(fieldGroup, C.FIELDGROUP);
 		final ValidationErrors errors = new ValidationErrors();
 		
-		for (EntityDependent<? extends SystemEntity> dependent : entityDependents) {
+		for (EntityDependent<? extends SystemEntity> dependent : getEntityDependents()) {
 			if (dependent instanceof EntityService) {
 				for (SystemEntity systemEntity : dependent.findUsage(fieldGroup)) {
 					errors.addError("val.inuse.fieldgroupentity", systemEntity.getName());
@@ -195,7 +195,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		Assert.notNull(function, C.FUNCTION);
 		final ValidationErrors errors = new ValidationErrors();
 		
-		for (EntityDependent<? extends SystemEntity> dependent : entityDependents) {
+		for (EntityDependent<? extends SystemEntity> dependent : getEntityDependents()) {
 			for (SystemEntity systemEntity : dependent.findUsage(function)) {
 				if (C.FORM.equals(getEntityType(systemEntity))) {
 					errors.addError("val.inuse.functionform", systemEntity.getName());
@@ -213,7 +213,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		Assert.notNull(status, C.STATUS);
 		final ValidationErrors errors = new ValidationErrors();
 		
-		for (EntityDependent<? extends SystemEntity> dependent : entityDependents) {
+		for (EntityDependent<? extends SystemEntity> dependent : getEntityDependents()) {
 			for (SystemEntity systemEntity : dependent.findUsage(status)) {
 				switch (getEntityType(systemEntity)) {
 					case C.FILTER:
@@ -237,7 +237,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		Assert.notNull(nestedEntity, C.NESTEDENTITY);
 		final ValidationErrors errors = new ValidationErrors();
 		
-		for (EntityDependent<? extends SystemEntity> dependent : entityDependents) {
+		for (EntityDependent<? extends SystemEntity> dependent : getEntityDependents()) {
 			for (SystemEntity systemEntity : dependent.findUsage(nestedEntity)) {
 				if (C.FORM.equals(getEntityType(systemEntity))) {
 					errors.addError("val.inuse.nestedform", systemEntity.getName());
@@ -493,6 +493,13 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 				break;
 			}
 		}
+	}
+	
+	private List<EntityDependent<? extends SystemEntity>> getEntityDependents() {
+		if (entityDependents == null) {
+			entityDependents = MiscUtils.castList(getBeans(EntityDependent.class));
+		}
+		return entityDependents;
 	}
 	
 	private boolean testFormula(Entity entity, String formula) {

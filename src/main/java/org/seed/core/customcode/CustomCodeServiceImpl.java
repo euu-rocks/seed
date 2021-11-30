@@ -21,6 +21,7 @@ import org.hibernate.Session;
 
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.Seed;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -29,7 +30,6 @@ import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
 import org.seed.core.codegen.CodeChangeAware;
 import org.seed.core.codegen.SourceCode;
-import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
@@ -47,9 +47,6 @@ public class CustomCodeServiceImpl extends AbstractApplicationEntityService<Cust
 	
 	@Autowired
 	private CustomCodeValidator validator;
-	
-	@Autowired
-	private UpdatableConfiguration configuration;
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -132,7 +129,7 @@ public class CustomCodeServiceImpl extends AbstractApplicationEntityService<Cust
 		Assert.notNull(customCode, "customCode");
 		
 		super.saveObject(customCode);
-		configuration.updateConfiguration();
+		Seed.updateConfiguration();
 	}
 	
 	@Override
@@ -141,7 +138,7 @@ public class CustomCodeServiceImpl extends AbstractApplicationEntityService<Cust
 		Assert.notNull(customCode, "customCode");
 		
 		super.deleteObject(customCode);
-		configuration.updateConfiguration();
+		Seed.updateConfiguration();
 	}
 	
 	@Override

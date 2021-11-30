@@ -26,14 +26,13 @@ import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class FormValidator extends AbstractSystemEntityValidator<Form> {
 	
-	@Autowired
 	private List<FormDependent<? extends SystemEntity>> formDependents;
 	
 	public void validateAddSubForm(NestedEntity nested) throws ValidationException {
@@ -89,7 +88,7 @@ public class FormValidator extends AbstractSystemEntityValidator<Form> {
 		Assert.notNull(form, C.FORM);
 		final ValidationErrors errors = new ValidationErrors();
 		
-		for (FormDependent<? extends SystemEntity> dependent : formDependents) {
+		for (FormDependent<? extends SystemEntity> dependent : getFormDependents()) {
 			for (SystemEntity systemEntity : dependent.findUsage(form)) {
 				if (C.FORM.equals(getEntityType(systemEntity))) {
 					errors.addError("val.inuse.formform", systemEntity.getName());
@@ -218,6 +217,13 @@ public class FormValidator extends AbstractSystemEntityValidator<Form> {
 			action.getLabel().length() > getMaxStringLength()) {
 			errors.addOverlongObjectField(LABEL, "label.subformaction", getMaxStringLength());
 		}
+	}
+	
+	private List<FormDependent<? extends SystemEntity>> getFormDependents() {
+		if (formDependents == null) {
+			formDependents = MiscUtils.castList(getBeans(FormDependent.class));
+		}
+		return formDependents;
 	}
 	
 	private static final String LABEL = "label.label";

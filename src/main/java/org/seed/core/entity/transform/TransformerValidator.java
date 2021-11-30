@@ -25,14 +25,13 @@ import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TransformerValidator extends AbstractSystemEntityValidator<Transformer> {
 	
-	@Autowired
 	private List<TransformerDependent<? extends SystemEntity>> transformerDependents;
 	
 	@Override
@@ -82,7 +81,7 @@ public class TransformerValidator extends AbstractSystemEntityValidator<Transfor
 		Assert.notNull(transformer, C.TRANSFORMER);
 		final ValidationErrors errors = new ValidationErrors();
 		
-		for (TransformerDependent<? extends SystemEntity> dependent : transformerDependents) {
+		for (TransformerDependent<? extends SystemEntity> dependent : getTransformerDependents()) {
 			for (SystemEntity systemEntity : dependent.findUsage(transformer)) {
 				if (C.FORM.equals(getEntityType(systemEntity))) {
 					errors.addError("val.inuse.transformform", systemEntity.getName());
@@ -94,6 +93,13 @@ public class TransformerValidator extends AbstractSystemEntityValidator<Transfor
 		}
 		
 		validate(errors);
+	}
+	
+	private List<TransformerDependent<? extends SystemEntity>> getTransformerDependents() {
+		if (transformerDependents == null) {
+			transformerDependents = MiscUtils.castList(getBeans(TransformerDependent.class));
+		}
+		return transformerDependents;
 	}
 
 }

@@ -25,8 +25,10 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 import org.hibernate.Session;
+
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.Seed;
 import org.seed.core.api.Job;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
@@ -36,7 +38,6 @@ import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
 import org.seed.core.codegen.CodeChangeAware;
 import org.seed.core.codegen.SourceCode;
-import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.data.Options;
 import org.seed.core.data.ValidationException;
 import org.seed.core.form.LabelProvider;
@@ -70,9 +71,6 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	
 	@Autowired
 	private UserGroupService userGroupService;
-	
-	@Autowired
-	private UpdatableConfiguration configuration;
 	
 	@Override
 	public Task createInstance(@Nullable Options options) {
@@ -300,7 +298,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		super.saveObject(task);
 		
 		if (isNew || contentChanged) {
-			configuration.updateConfiguration();
+			Seed.updateConfiguration();
 		}
 	}
 	

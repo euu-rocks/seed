@@ -18,6 +18,7 @@
 package org.seed;
 
 import org.seed.config.ZKCEApplication;
+import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +65,10 @@ public class Seed {
 		Assert.stateAvailable(applicationContext, "applicationContext");
 		
     	return applicationContext.getBean(typeClass);
+	}
+	
+	public static void updateConfiguration() {
+		getBean(UpdatableConfiguration.class).updateConfiguration();
 	}
 	
 }

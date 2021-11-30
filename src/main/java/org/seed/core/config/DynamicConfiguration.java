@@ -139,7 +139,7 @@ public class DynamicConfiguration
 		closeSessionFactory();
 		// build new session factory now
 		sessionFactory = sessionFactoryBuilder.build();
-		jobScheduler.scheduleAllTasks();
+		jobScheduler.scheduleAllTasks(sessionFactory);
 		if (log.isInfoEnabled()) {
 			log.info("Configuration created in {}", MiscUtils.formatDuration(startTime));
 		}

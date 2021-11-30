@@ -20,6 +20,7 @@ package org.seed.core.entity.value;
 import java.util.List;
 
 import org.seed.C;
+import org.seed.core.application.ApplicationEntity;
 import org.seed.core.config.Limits;
 import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationErrors;
@@ -32,13 +33,16 @@ import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.entity.filter.Filter;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 @Component
-public class ValueObjectValidator {
+public class ValueObjectValidator implements ApplicationContextAware {
 	
 	@Autowired
 	private EntityRepository entityRepository;
@@ -49,8 +53,14 @@ public class ValueObjectValidator {
 	@Autowired
 	private Limits limits;
 	
-	@Autowired
-	private List<ValueObjectDependent<? extends SystemEntity>> valueObjectDependents;
+	private ApplicationContext applicationContext;
+	
+	private List<ValueObjectDependent<? extends ApplicationEntity>> valueObjectDependents;
+	
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
+	}
 	
 	public void validateChangeStatus(ValueObject object, EntityStatus targetStatus) throws ValidationException {
 		Assert.notNull(object, C.OBJECT);
@@ -77,7 +87,7 @@ public class ValueObjectValidator {
 		
 		final Entity objectEntity = entityRepository.get(object.getEntityId());
 		final ValidationErrors errors = new ValidationErrors();
-		for (ValueObjectDependent<? extends SystemEntity> dependent : valueObjectDependents) {
+		for (ValueObjectDependent<? extends SystemEntity> dependent : getValueObjectDependents()) {
 			for (SystemEntity systemEntity : dependent.findUsage(object)) {
 				if (systemEntity instanceof Entity) {
 					final Entity entity = (Entity) systemEntity;
@@ -186,6 +196,14 @@ public class ValueObjectValidator {
 				}
 			}
 		}
+	}
+	
+	private List<ValueObjectDependent<? extends ApplicationEntity>> getValueObjectDependents() {
+		if (valueObjectDependents == null) {
+			valueObjectDependents = MiscUtils.castList(
+				MiscUtils.getBeans(applicationContext, ValueObjectDependent.class));
+		}
+		return valueObjectDependents;
 	}
 	
 }

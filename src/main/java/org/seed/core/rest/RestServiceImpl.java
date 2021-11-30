@@ -27,6 +27,7 @@ import org.hibernate.Transaction;
 
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.Seed;
 import org.seed.core.api.RestFunction.MethodType;
 import org.seed.core.api.RestFunctionContext;
 import org.seed.core.application.AbstractApplicationEntityService;
@@ -37,7 +38,6 @@ import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.codegen.GeneratedCode;
-import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.data.Options;
 import org.seed.core.data.ValidationException;
 import org.seed.core.user.UserGroup;
@@ -65,9 +65,6 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 	
 	@Autowired
 	private UserGroupService userGroupService;
-	
-	@Autowired
-	private UpdatableConfiguration configuration;
 	
 	@Autowired
 	private CodeManager codeManager;
@@ -248,7 +245,7 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 		Assert.notNull(rest, C.REST);
 		
 		super.saveObject(rest);
-		configuration.updateConfiguration();
+		Seed.updateConfiguration();
 	}
 
 	@Override

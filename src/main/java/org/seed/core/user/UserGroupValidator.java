@@ -25,14 +25,13 @@ import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserGroupValidator extends AbstractSystemEntityValidator<UserGroup> {
 	
-	@Autowired
 	private List<UserGroupDependent<? extends SystemEntity>> userGroupDependents;
 	
 	@Override
@@ -40,7 +39,7 @@ public class UserGroupValidator extends AbstractSystemEntityValidator<UserGroup>
 		Assert.notNull(userGroup, C.USERGROUP);
 		
 		final ValidationErrors errors = new ValidationErrors();
-		for (UserGroupDependent<? extends SystemEntity> dependent : userGroupDependents) {
+		for (UserGroupDependent<? extends SystemEntity> dependent : getUserGroupDependents()) {
 			for (SystemEntity systemEntity : dependent.findUsage(userGroup)) {
 				switch (getEntityType(systemEntity)) {
 					case "entity":
@@ -77,6 +76,13 @@ public class UserGroupValidator extends AbstractSystemEntityValidator<UserGroup>
 			}
 		}
 		validate(errors);
+	}
+	
+	private List<UserGroupDependent<? extends SystemEntity>> getUserGroupDependents() {
+		if (userGroupDependents == null) {
+			userGroupDependents = MiscUtils.castList(getBeans(UserGroupDependent.class));
+		}
+		return userGroupDependents;
 	}
 	
 }

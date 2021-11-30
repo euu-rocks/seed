@@ -23,6 +23,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.quartz.CalendarIntervalScheduleBuilder;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.JobBuilder;
@@ -41,7 +42,6 @@ import org.seed.InternalException;
 import org.seed.core.api.Job;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.codegen.GeneratedCode;
-import org.seed.core.config.SessionFactoryProvider;
 import org.seed.core.util.Assert;
 import org.seed.core.util.ExceptionUtils;
 import org.seed.core.util.MiscUtils;
@@ -63,17 +63,17 @@ public class DefaultJobScheduler implements JobScheduler, JobListener {
 	private SchedulerFactoryBean schedulerFactory;
 	
 	@Autowired
-	private SessionFactoryProvider sessionFactoryProvider;
-	
-	@Autowired
 	private CodeManager codeManager;
 	
 	@Autowired
 	private TaskService taskService;
 	
+	private SessionFactory sessionFactory;	// changes if configuration is updated 
+	
 	@PostConstruct
 	private void init() {
 		addJobListener(this);
+		log.info("DefaultJobScheduler created");
 	}
 	
 	@Override
@@ -157,7 +157,9 @@ public class DefaultJobScheduler implements JobScheduler, JobListener {
 	}
 	
 	@Override
-	public void scheduleAllTasks() {
+	public void scheduleAllTasks(SessionFactory sessionFactory) {
+		Assert.notNull(sessionFactory, "session factory");
+		this.sessionFactory = sessionFactory;
 		try {
 			for (Class<GeneratedCode> jobClass : codeManager.getGeneratedClasses(Job.class)) {
 				scheduleJob((Job) MiscUtils.instantiate(jobClass));
@@ -197,8 +199,7 @@ public class DefaultJobScheduler implements JobScheduler, JobListener {
 		final TaskRun run = taskService.createRun(task);
 		taskService.saveTaskDirectly(task);
 		
-		final Session session = sessionFactoryProvider.getSessionFactory().openSession();
-		context.put(DefaultJobContext.RUN_SESSION, session);
+		context.put(DefaultJobContext.RUN_SESSION, openSession());
 		context.put(DefaultJobContext.RUN_TASK, task);
 		context.put(DefaultJobContext.RUN_ID, run.getId());
 		if (task.hasParameters()) {
@@ -206,7 +207,7 @@ public class DefaultJobScheduler implements JobScheduler, JobListener {
 		}
 		log.debug("start job: {}", context.getJobDetail());
 	}
-
+	
 	@Override
 	public void jobExecutionVetoed(JobExecutionContext context) {
 		log.debug("vetoed job: {}", context.getJobDetail());
@@ -269,6 +270,13 @@ public class DefaultJobScheduler implements JobScheduler, JobListener {
 	
 	private void scheduleJob(Job job) {
 		scheduleTask(getTask(job));
+	}
+	
+	private Session openSession() {
+		Assert.stateAvailable(sessionFactory, "session factory");
+		Assert.state(sessionFactory.isOpen(), "session factory closed");
+		
+		return sessionFactory.openSession();
 	}
 	
 	@SuppressWarnings("unchecked")

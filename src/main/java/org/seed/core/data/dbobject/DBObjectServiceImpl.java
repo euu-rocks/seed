@@ -24,6 +24,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import org.seed.C;
+import org.seed.Seed;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -31,7 +32,6 @@ import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
 import org.seed.core.config.SessionFactoryProvider;
-import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.config.changelog.ChangeLog;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
@@ -47,9 +47,6 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 	
 	@Autowired
 	private SessionFactoryProvider sessionFactoryProvider;
-	
-	@Autowired
-	private UpdatableConfiguration configuration;
 	
 	@Autowired
 	private DBObjectRepository repository;
@@ -195,7 +192,7 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 			}
 		}
 		
-		configuration.updateConfiguration();
+		Seed.updateConfiguration();
 	}
 	
 	@Override
@@ -222,7 +219,7 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 			}
 		}
 		
-		configuration.updateConfiguration();
+		Seed.updateConfiguration();
 	}
 	
 	private static ChangeLog createChangeLog(DBObject currentVersionObject, DBObject nextVersionObject) {

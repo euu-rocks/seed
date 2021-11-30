@@ -17,6 +17,7 @@
  */
 package org.seed.core.task;
 
+import org.hibernate.SessionFactory;
 import org.quartz.JobListener;
 
 public interface JobScheduler {
@@ -31,7 +32,7 @@ public interface JobScheduler {
 	
 	void scheduleTask(Task task);
 	
-	void scheduleAllTasks();
+	void scheduleAllTasks(SessionFactory sessionFactory);
 	
 	void unscheduleTask(Task task);
 	

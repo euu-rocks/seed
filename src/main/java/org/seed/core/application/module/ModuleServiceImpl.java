@@ -33,15 +33,18 @@ import org.seed.core.data.AbstractSystemEntityService;
 import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 import org.seed.core.util.UID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
-	implements ModuleService {
+	implements ModuleService, ApplicationContextAware {
 	
 	@Autowired
 	private ModuleRepository repository;
@@ -52,8 +55,14 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 	@Autowired
 	private ModuleTransfer transfer;
 	
-	@Autowired
+	private ApplicationContext applicationContext;
+	
 	private List<ModuleDependent<? extends ApplicationEntity>> moduleDependents;
+	
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
+	}
 	
 	@Override
 	protected ModuleRepository getRepository() {
@@ -119,7 +128,7 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 		Assert.notNull(module, C.MODULE);
 		
 		final List<SystemEntity> moduleObjects = new ArrayList<>();
-		for (ModuleDependent<? extends ApplicationEntity> dependent : moduleDependents) {
+		for (ModuleDependent<? extends ApplicationEntity> dependent : getModuleDependents()) {
 			moduleObjects.addAll(dependent.findUsage(module));
 		}
 		
@@ -179,6 +188,14 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 				handleException(tx, ex);
 			}
 		}
+	}
+	
+	private List<ModuleDependent<? extends ApplicationEntity>> getModuleDependents() {
+		if (moduleDependents == null) {
+			moduleDependents = MiscUtils.castList(
+				MiscUtils.getBeans(applicationContext, ModuleDependent.class));
+		}
+		return moduleDependents;
 	}
 	
 }

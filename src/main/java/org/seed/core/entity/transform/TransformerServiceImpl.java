@@ -32,13 +32,13 @@ import org.hibernate.Session;
 
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.Seed;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
-import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.data.Options;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
@@ -74,9 +74,6 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	
 	@Autowired
 	private UserGroupService userGroupService;
-	
-	@Autowired
-	private UpdatableConfiguration configuration;
 	
 	@Override
 	protected TransformerRepository getRepository() {
@@ -269,7 +266,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		super.saveObject(transformer);
 	
 		if (transformer.hasFunctions()) {
-			configuration.updateConfiguration();
+			Seed.updateConfiguration();
 		}
 	}
 	

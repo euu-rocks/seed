@@ -33,6 +33,7 @@ import org.seed.core.data.ValidationError;
 import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -43,7 +44,6 @@ public class DataSourceValidator extends AbstractSystemEntityValidator<IDataSour
 	@Autowired
 	private DataSourceRepository repository;
 	
-	@Autowired
 	private List<DataSourceDependent<? extends SystemEntity>> dataSourceDependents;
 	
 	@Override
@@ -51,7 +51,7 @@ public class DataSourceValidator extends AbstractSystemEntityValidator<IDataSour
 		Assert.notNull(dataSource, C.DATASOURCE);
 		final ValidationErrors errors = new ValidationErrors();
 		
-		for (DataSourceDependent<? extends SystemEntity> dependent : dataSourceDependents) {
+		for (DataSourceDependent<? extends SystemEntity> dependent : getDataSourceDependents()) {
 			for (SystemEntity systemEntity : dependent.findUsage(dataSource)) {
 				if (C.REPORT.equals(getEntityType(systemEntity))) {
 					errors.addError("val.inuse.datasourcereport", systemEntity.getName());
@@ -152,6 +152,13 @@ public class DataSourceValidator extends AbstractSystemEntityValidator<IDataSour
 			parameterMap.put(contentParameter, value);
 		}
 		return parameterMap;
+	}
+	
+	private List<DataSourceDependent<? extends SystemEntity>> getDataSourceDependents() {
+		if (dataSourceDependents == null) {
+			dataSourceDependents = MiscUtils.castList(getBeans(DataSourceDependent.class));
+		}
+		return dataSourceDependents;
 	}
 	
 }

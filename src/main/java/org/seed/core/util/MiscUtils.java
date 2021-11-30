@@ -36,8 +36,10 @@ import java.util.stream.Collectors;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterOutputStream;
 
+import org.seed.C;
 import org.seed.InternalException;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StreamUtils;
@@ -85,6 +87,13 @@ public abstract class MiscUtils {
 		catch (Exception ex) {
 			throw new InternalException(ex);
 		}
+	}
+	
+	public static <B> List<B> getBeans(ApplicationContext applicationContext, Class<B> type) {
+		Assert.notNull(applicationContext, C.CONTEXT);
+		Assert.notNull(type, C.TYPE);
+		
+		return applicationContext.getBeansOfType(type).values().stream().collect(Collectors.toList());
 	}
 	
 	public static String filterString(String text, Predicate<Character> predicate) {
