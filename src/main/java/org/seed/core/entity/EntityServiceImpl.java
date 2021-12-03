@@ -38,6 +38,7 @@ import org.seed.core.application.module.TransferContext;
 import org.seed.core.codegen.CodeChangeAware;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.config.Limits;
+import org.seed.core.config.SessionProvider;
 import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.config.changelog.ChangeLog;
 import org.seed.core.config.changelog.ReferenceChangeLog;
@@ -74,6 +75,9 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	@Autowired
 	private UpdatableConfiguration configuration;
+	
+	@Autowired
+	private SessionProvider sessionFactoryProvider;
 	
 	@Autowired
 	private Limits limits;
@@ -1108,7 +1112,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	private ChangeLog createChangeLog(Entity currentVersionEntity, Entity nextVersionEntity,
 									  @Nullable ReferenceChangeLog referenceChangeLog) {
-		final EntityChangeLogBuilder builder = new EntityChangeLogBuilder(limits, configuration);
+		final EntityChangeLogBuilder builder = new EntityChangeLogBuilder(limits, sessionFactoryProvider);
 		builder.setCurrentVersionObject(currentVersionEntity);
 		builder.setNextVersionObject(nextVersionEntity);
 		builder.setReferenceChangeLog(referenceChangeLog);

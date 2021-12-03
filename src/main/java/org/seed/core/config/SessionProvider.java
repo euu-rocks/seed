@@ -17,12 +17,12 @@
  */
 package org.seed.core.config;
 
-import org.hibernate.SessionFactory;
+import org.hibernate.Session;
 import org.hibernate.dialect.Dialect;
 
-public interface SessionFactoryProvider {
+public interface SessionProvider {
 	
-	SessionFactory getSessionFactory();
+	Session getSession();
 	
 	Dialect getDialect();
 	

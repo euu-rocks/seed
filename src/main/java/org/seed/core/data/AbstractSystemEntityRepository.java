@@ -28,9 +28,10 @@ import javax.persistence.criteria.Root;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+
 import org.seed.C;
 import org.seed.InternalException;
-import org.seed.core.config.SessionFactoryProvider;
+import org.seed.core.config.SessionProvider;
 import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ public abstract class AbstractSystemEntityRepository<T extends SystemEntity>
 	implements SystemEntityRepository<T> {
 	
 	@Autowired
-	private SessionFactoryProvider sessionFactoryProvider;
+	private SessionProvider sessionFactoryProvider;
 	
 	private final Class<? extends T> entityTypeClass;
 	
@@ -200,7 +201,7 @@ public abstract class AbstractSystemEntityRepository<T extends SystemEntity>
 	}
 	
 	protected Session getSession() {
-		return sessionFactoryProvider.getSessionFactory().openSession();
+		return sessionFactoryProvider.getSession();
 	}
 	
 	@SuppressWarnings({"unchecked"})

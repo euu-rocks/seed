@@ -22,7 +22,7 @@ import javax.persistence.PersistenceException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.seed.C;
-import org.seed.core.config.SessionFactoryProvider;
+import org.seed.core.config.SessionProvider;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.DataException;
 import org.seed.core.data.ValidationError;
@@ -37,7 +37,7 @@ import org.springframework.stereotype.Component;
 public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 	
 	@Autowired
-	private SessionFactoryProvider sessionFactoryProvider;
+	private SessionProvider sessionFactoryProvider;
 	
 	@Override
 	public void validateCreate(DBObject dbObject) throws ValidationException {
@@ -110,7 +110,7 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 	}
 	
 	private void testSQL(DBObject dbObject) throws ValidationException {
-		try (Session session = sessionFactoryProvider.getSessionFactory().openSession()) {
+		try (Session session = sessionFactoryProvider.getSession()) {
 			Transaction tx = null;
 			try {
 				tx = session.beginTransaction();

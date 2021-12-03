@@ -31,7 +31,7 @@ import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
-import org.seed.core.config.SessionFactoryProvider;
+import org.seed.core.config.SessionProvider;
 import org.seed.core.config.changelog.ChangeLog;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
@@ -46,7 +46,7 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 	implements DBObjectService {
 	
 	@Autowired
-	private SessionFactoryProvider sessionFactoryProvider;
+	private SessionProvider sessionFactoryProvider;
 	
 	@Autowired
 	private DBObjectRepository repository;
@@ -175,7 +175,7 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 	public void deleteObject(DBObject dbObject) throws ValidationException {
 		Assert.notNull(dbObject, C.DBOBJECT);
 		
-		try (Session session = sessionFactoryProvider.getSessionFactory().openSession()) {
+		try (Session session = sessionFactoryProvider.getSession()) {
 			Transaction tx = null;
 			try {
 				tx = session.beginTransaction();
@@ -202,7 +202,7 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 		
 		final boolean isInsert = dbObject.isNew();
 		final DBObject currentVersionObject = !isInsert ? getObject(dbObject.getId()) : null;
-		try (Session session = sessionFactoryProvider.getSessionFactory().openSession()) {
+		try (Session session = sessionFactoryProvider.getSession()) {
 			Transaction tx = null;
 			try {
 				tx = session.beginTransaction();

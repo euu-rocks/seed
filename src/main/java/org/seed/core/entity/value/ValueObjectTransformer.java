@@ -25,7 +25,7 @@ import org.seed.InternalException;
 import org.seed.core.api.TransformationFunction;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.codegen.GeneratedCode;
-import org.seed.core.config.SessionFactoryProvider;
+import org.seed.core.config.SessionProvider;
 import org.seed.core.data.FileObject;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.transform.NestedTransformer;
@@ -53,7 +53,7 @@ public class ValueObjectTransformer {
 	private ValueObjectAccess objectAccess;
 	
 	@Autowired
-	private SessionFactoryProvider sessionFactoryProvider;
+	private SessionProvider sessionFactoryProvider;
 	
 	public void transform(Transformer transformer, ValueObject sourceObject, ValueObject targetObject) {
 		Assert.notNull(transformer, C.TRANSFORMER);
@@ -108,7 +108,7 @@ public class ValueObjectTransformer {
 							   ValueObject sourceObject, ValueObject targetObject,
 							   boolean beforeTransformation) {
 		if (transformer.hasFunctions()) {
-			try (Session session = sessionFactoryProvider.getSessionFactory().openSession()) {
+			try (Session session = sessionFactoryProvider.getSession()) {
 				final ValueObjectFunctionContext functionContext = new ValueObjectFunctionContext(session, transformer.getModule());
 				for (TransformerFunction function : transformer.getFunctions()) {
 					if ((beforeTransformation && function.isActiveBeforeTransformation()) || 

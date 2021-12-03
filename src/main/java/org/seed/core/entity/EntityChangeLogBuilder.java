@@ -25,7 +25,7 @@ import org.hibernate.dialect.PostgreSQL81Dialect;
 
 import org.seed.C;
 import org.seed.core.config.Limits;
-import org.seed.core.config.SessionFactoryProvider;
+import org.seed.core.config.SessionProvider;
 import org.seed.core.config.changelog.AbstractChangeLogBuilder;
 import org.seed.core.config.changelog.ChangeLog;
 import org.seed.core.data.FieldType;
@@ -64,11 +64,11 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	
 	private final Limits limits;
 	
-	private final SessionFactoryProvider sessionFactoryProvider;
+	private final SessionProvider sessionFactoryProvider;
 	
 	private List<Entity> descendants; // entities that implements a generic entity
 	
-	EntityChangeLogBuilder(Limits limits, SessionFactoryProvider sessionFactoryProvider) {
+	EntityChangeLogBuilder(Limits limits, SessionProvider sessionFactoryProvider) {
 		Assert.notNull(limits, "limits");
 		Assert.notNull(sessionFactoryProvider, "sessionFactoryProvider");
 		

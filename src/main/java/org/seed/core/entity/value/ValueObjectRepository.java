@@ -44,7 +44,7 @@ import org.hibernate.Transaction;
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.codegen.CodeManager;
-import org.seed.core.config.SessionFactoryProvider;
+import org.seed.core.config.SessionProvider;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.FileObject;
 import org.seed.core.data.Sort;
@@ -77,7 +77,7 @@ import org.springframework.util.StringUtils;
 public class ValueObjectRepository {
 	
 	@Autowired
-	private SessionFactoryProvider sessionFactoryProvider;
+	private SessionProvider sessionFactoryProvider;
 	
 	@Autowired
 	private EntityRepository entityRepository;
@@ -443,7 +443,7 @@ public class ValueObjectRepository {
 	}
 	
 	protected Session getSession() {
-		return sessionFactoryProvider.getSessionFactory().openSession();
+		return sessionFactoryProvider.getSession();
 	}
 	
 	protected <T> T querySingleResult(Session session, CriteriaQuery<T> query) {

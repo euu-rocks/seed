@@ -19,8 +19,6 @@ package org.seed.core.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -93,7 +91,8 @@ public abstract class MiscUtils {
 		Assert.notNull(applicationContext, C.CONTEXT);
 		Assert.notNull(type, C.TYPE);
 		
-		return applicationContext.getBeansOfType(type).values().stream().collect(Collectors.toList());
+		return applicationContext.getBeansOfType(type).values()
+									.stream().collect(Collectors.toList());
 	}
 	
 	public static String filterString(String text, Predicate<Character> predicate) {
@@ -157,10 +156,6 @@ public abstract class MiscUtils {
 			return buf.toString();
 		}
 		return text;
-	}
-	
-	public static String getFileAsText(File file) throws IOException {
-		return getStreamAsText(new FileInputStream(file));
 	}
 	
 	public static String getResourceAsText(Resource resource) throws IOException {

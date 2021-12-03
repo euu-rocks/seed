@@ -48,17 +48,17 @@ import org.hibernate.boot.SessionFactoryBuilder;
 import org.hibernate.boot.registry.BootstrapServiceRegistry;
 import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.dialect.Dialect;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.service.ServiceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Component
-public class DynamicConfiguration 
-	implements SessionFactoryProvider, UpdatableConfiguration {
+public class DynamicConfiguration implements UpdatableConfiguration {
 	
 	private static final Logger log = LoggerFactory.getLogger(DynamicConfiguration.class);
+	
+	@Autowired
+	private SessionProvider sessionFactoryProvider;
 	
 	@Autowired
 	private Environment environment;
@@ -79,8 +79,6 @@ public class DynamicConfiguration
 	
 	private ClassLoader classLoader;		// current class loader
 	
-	private Dialect dialect;
-	
 	@PostConstruct
 	private void init() {
 		buildBootSessionFactory();
@@ -98,21 +96,6 @@ public class DynamicConfiguration
 	}
 	
 	@Override
-	public synchronized SessionFactory getSessionFactory() {
-		Assert.stateAvailable(sessionFactory, "session factory");
-		
-		return sessionFactory;
-	}
-	
-	@Override
-	public synchronized Dialect getDialect() {
-		if (dialect == null) {
-			dialect = ((SessionFactoryImplementor) getSessionFactory()).getJdbcServices().getDialect();
-		}
-		return dialect;
-	}
-	
-	@Override
 	public synchronized void updateConfiguration() {
 		log.info("Updating configuration...");
 		closeSessionFactory();
@@ -126,6 +109,7 @@ public class DynamicConfiguration
 		
 		schemaManager.updateSchema();
 		sessionFactory = createSessionFactoryBuilder(true).build();
+		registerSessionFactory();
 	}
 	
 	private void buildConfiguration() {
@@ -139,6 +123,8 @@ public class DynamicConfiguration
 		closeSessionFactory();
 		// build new session factory now
 		sessionFactory = sessionFactoryBuilder.build();
+		registerSessionFactory();
+		
 		jobScheduler.scheduleAllTasks(sessionFactory);
 		if (log.isInfoEnabled()) {
 			log.info("Configuration created in {}", MiscUtils.formatDuration(startTime));
@@ -146,7 +132,7 @@ public class DynamicConfiguration
 	}
 	
 	private boolean updateSchemaConfiguration() {
-		try (Session session = getSessionFactory().openSession()) {
+		try (Session session = sessionFactory.openSession()) {
 			Transaction tx = null;
 			try {
 				tx = session.beginTransaction();
@@ -237,12 +223,13 @@ public class DynamicConfiguration
 	private void closeSessionFactory() {
 		Assert.stateAvailable(sessionFactory, "session factory");
 		// evict cache 
-		final Cache cache = getSessionFactory().getCache();
+		final Cache cache = sessionFactory.getCache();
 		if (cache != null) {
 			cache.evictAllRegions();
 		}
-		getSessionFactory().close();
+		sessionFactory.close();
 		sessionFactory = null;
+		registerSessionFactory();
 	}
 	
 	private String applicationProperty(String propertyName) {
@@ -250,6 +237,10 @@ public class DynamicConfiguration
 		Assert.stateAvailable(property, "application property '" + propertyName + "'");
 		
 		return property;
+	}
+	
+	private void registerSessionFactory() {
+		((DefaultSessionProvider) sessionFactoryProvider).setSessionFactory(sessionFactory);
 	}
 	
 	private Map<String, Object> createSettings(boolean boot) {

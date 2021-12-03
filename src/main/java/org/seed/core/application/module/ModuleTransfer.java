@@ -41,7 +41,7 @@ import org.seed.C;
 import org.seed.InternalException;
 import org.seed.Seed;
 import org.seed.core.application.ApplicationEntityService;
-import org.seed.core.config.SessionFactoryProvider;
+import org.seed.core.config.SessionProvider;
 import org.seed.core.customcode.CustomLib;
 import org.seed.core.customcode.CustomLibMetadata;
 import org.seed.core.data.ValidationException;
@@ -74,7 +74,7 @@ public class ModuleTransfer {
 	private TransferService transferService;
 	
 	@Autowired
-	private SessionFactoryProvider sessionFactoryProvider;
+	private SessionProvider sessionFactoryProvider;
 	
 	@Autowired
 	private List<ApplicationEntityService<?>> applicationServices;
@@ -182,7 +182,7 @@ public class ModuleTransfer {
 		final Module currentVersionModule = getCurrentVersionModule(module);
 		final TransferContext context = new DefaultTransferContext(module);
 		
-		try (Session session = sessionFactoryProvider.getSessionFactory().openSession()) {
+		try (Session session = sessionFactoryProvider.getSession()) {
 			Transaction tx = null;
 			try {
 				tx = session.beginTransaction();
