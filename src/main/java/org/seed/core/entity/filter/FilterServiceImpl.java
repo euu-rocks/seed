@@ -28,6 +28,7 @@ import org.hibernate.Session;
 
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.Seed;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -69,9 +70,6 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	
 	@Autowired
 	private UserGroupService userGroupService;
-	
-	@Autowired
-	private ValueObjectService valueObjectService;
 	
 	@Autowired
 	private FilterRepository filterRepository;
@@ -450,10 +448,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 			element.setEntityField(criterion.getEntityField());
 			// reference field
 			if (setReference && criterion.getReferenceUid() != null) {
-				final TransferableObject reference = (TransferableObject) 
-						valueObjectService.findByUid(criterion.getEntityField().getReferenceEntity(), 
- 	   							 					 criterion.getReferenceUid());
-				criterion.setReference(reference);
+				criterion.setReference(getReferenceObject(criterion));
 			}
 		}
 		
@@ -468,6 +463,13 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		else {
 			Assert.stateIllegal("neither entity nor system field");
 		}
+	}
+	
+	private TransferableObject getReferenceObject(FilterCriterion criterion) {
+		return (TransferableObject) 
+				Seed.getBean(ValueObjectService.class)
+					.findByUid(criterion.getEntityField().getReferenceEntity(), 
+		 					   criterion.getReferenceUid());
 	}
 	
 	private void initFilterPermission(FilterPermission permission, Filter filter, 

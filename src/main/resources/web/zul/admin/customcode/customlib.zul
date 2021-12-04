@@ -26,7 +26,8 @@
 						   onClick="@command('back')"/>
 			<toolbarbutton iconSclass="z-icon-save alpha-icon-lg" 
 						   label="${labels.button.save}" 
-						   onClick="@command('saveLib',elem=self)"/>
+						   onClick="@command('saveLib',elem=self)"
+						   disabled="@load(!vm.isDirty())"/>
 			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
 						   label="${labels.button.refresh}" 
 						   onClick="@command('refreshLib',elem=self)"

@@ -27,7 +27,8 @@
 						   onClick="@command('back')"/>
 			<toolbarbutton iconSclass="z-icon-save alpha-icon-lg" 
 						   label="${labels.button.save}" 
-						   onClick="@command('saveCode',code=codemirror.getText(),elem=self)"/>
+						   onClick="@command('saveCode',code=codemirror.getText(),elem=self)"
+						   disabled="@load(!vm.isDirty())"/>
 			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
 						   label="${labels.button.refresh}" 
 						   onClick="@command('refreshCode',elem=self)"

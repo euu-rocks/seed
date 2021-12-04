@@ -54,12 +54,15 @@ import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EntityServiceImpl extends AbstractApplicationEntityService<Entity> 
-	implements EntityService, EntityDependent<Entity>, UserGroupDependent<Entity>, CodeChangeAware { 
+	implements EntityService, EntityDependent<Entity>, UserGroupDependent<Entity>, 
+		CodeChangeAware, ApplicationContextAware { 
 	
 	@Autowired
 	private EntityValidator entityValidator;
@@ -82,8 +85,14 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	@Autowired
 	private Limits limits;
 	
-	@Autowired
+	private ApplicationContext applicationContext;
+	
 	private List<EntityChangeAware> changeAwareObjects;
+	
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
+	}
 	
 	@Override
 	protected EntityRepository getRepository() {
@@ -677,7 +686,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		final boolean isInsert = entity.isNew();
 		super.saveObject(entity, session);
 		// notify listeners
-		for (EntityChangeAware changeAware : changeAwareObjects) {
+		for (EntityChangeAware changeAware : getChangeAwareObjects()) {
 			if (isInsert) {
 				changeAware.notifyCreate(entity, session);
 			}
@@ -721,7 +730,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(session, C.SESSION);
 		
-		for (EntityChangeAware changeAware : changeAwareObjects) {
+		for (EntityChangeAware changeAware : getChangeAwareObjects()) {
 			changeAware.notifyDelete(entity, session);
 		}
 		
@@ -1121,6 +1130,13 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 			builder.setDescendants(findDescendants(currentVersionEntity));
 		}
 		return builder.build();
+	}
+	
+	private List<EntityChangeAware> getChangeAwareObjects() {
+		if (changeAwareObjects == null) {
+			changeAwareObjects = MiscUtils.getBeans(applicationContext, EntityChangeAware.class);
+		}
+		return changeAwareObjects;
 	}
 	
 	private static final Comparator<ChangeLog> changeLogComparator = new Comparator<>() {

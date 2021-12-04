@@ -17,6 +17,7 @@
  */
 package org.seed.core.customcode;
 
+import org.seed.Seed;
 import org.seed.core.codegen.CodeUtils;
 import org.seed.core.codegen.Compiler;
 import org.seed.core.codegen.compile.CustomJarException;
@@ -26,14 +27,12 @@ import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CustomLibValidator extends AbstractSystemEntityValidator<CustomLib> {
-	
-	@Autowired
-	private Compiler compiler;
+public class CustomLibValidator extends AbstractSystemEntityValidator<CustomLib>
+	implements ApplicationContextAware {
 	
 	@Override
 	public void validateSave(CustomLib lib) throws ValidationException {
@@ -65,7 +64,7 @@ public class CustomLibValidator extends AbstractSystemEntityValidator<CustomLib>
 	
 	private String testCustomLib(CustomLib customLib) {
 		try {
-			((InMemoryCompiler) compiler).testCustomJar(customLib);
+			((InMemoryCompiler) Seed.getBean(Compiler.class)).testCustomJar(customLib);
 		}
 		catch (CustomJarException cjex) {
 			return cjex.getMessage();

@@ -23,6 +23,7 @@ import org.hibernate.Session;
 
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.Seed;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -50,9 +51,6 @@ public class CustomLibServiceImpl extends AbstractApplicationEntityService<Custo
 	@Autowired
 	private CustomLibValidator validator;
 	
-	@Autowired
-	private Compiler compiler;
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<? extends ApplicationEntityService<ApplicationEntity>>[] getImportDependencies() {
@@ -115,14 +113,14 @@ public class CustomLibServiceImpl extends AbstractApplicationEntityService<Custo
 					}
 					saveObject(customLib, session);
 				}
-				compiler.resetCustomJars();
+				resetCustomJars();
 			}
 		}
 		catch (ValidationException vex) {
 			throw new InternalException(vex);
 		}
 	}
-
+	
 	@Override
 	public void deleteObjects(Module module, Module currentVersionModule, Session session) {
 		Assert.notNull(module, C.MODULE);
@@ -156,7 +154,7 @@ public class CustomLibServiceImpl extends AbstractApplicationEntityService<Custo
 		Assert.notNull(customLib, "customLib");
 		
 		super.saveObject(customLib);
-		compiler.resetCustomJars();
+		resetCustomJars();
 	}
 	
 	@Override
@@ -165,7 +163,7 @@ public class CustomLibServiceImpl extends AbstractApplicationEntityService<Custo
 		Assert.notNull(customLib, "customLib");
 		
 		super.deleteObject(customLib);
-		compiler.resetCustomJars();
+		resetCustomJars();
 	}
 	
 	@Override
@@ -178,6 +176,10 @@ public class CustomLibServiceImpl extends AbstractApplicationEntityService<Custo
 		return validator;
 	}
 	
+	private void resetCustomJars() {
+		Seed.getBean(Compiler.class).resetCustomJars();
+	}
+	
 	private void saveError(CustomJar customJar, String error) {
 		Assert.notNull(customJar, "customJar");
 		final CustomLibMetadata libMeta = (CustomLibMetadata) customJar;
@@ -186,5 +188,5 @@ public class CustomLibServiceImpl extends AbstractApplicationEntityService<Custo
 		libMeta.setError(error);
 		saveObjectDirectly(libMeta);
 	}
-
+	
 }

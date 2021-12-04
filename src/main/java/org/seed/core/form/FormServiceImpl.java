@@ -21,11 +21,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.collections.ListUtils;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.Seed;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -52,21 +54,22 @@ import org.seed.core.entity.transform.TransformerService;
 import org.seed.core.form.layout.LayoutService;
 import org.seed.core.user.User;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 
 @Service
 public class FormServiceImpl extends AbstractApplicationEntityService<Form> 
 	implements FormService, EntityChangeAware, EntityDependent<Form>,  
-			   FormDependent<Form>, FilterDependent<Form>, TransformerDependent<Form> {
+			   FormDependent<Form>, FilterDependent<Form>, TransformerDependent<Form>,
+			   ApplicationContextAware {
 	
 	@Autowired
 	private EntityService entityService;
-	
-	@Autowired
-	private LayoutService layoutService;
 	
 	@Autowired
 	private FilterService filterService;
@@ -80,8 +83,14 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	@Autowired
 	private FormRepository formRepository;
 	
-	@Autowired
 	private List<FormChangeAware> changeAwareObjects;
+	
+	private ApplicationContext applicationContext;
+	
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
+	}
 	
 	@Override
 	protected FormRepository getRepository() {
@@ -106,7 +115,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 			formMeta.setModule(formOptions.getModule());
 			if (formOptions.isAutoLayout()) {
 				formMeta.setAutoLayout(true);
-				formMeta.setLayoutContent(layoutService.buildAutoLayout(form));
+				formMeta.setLayoutContent(getLayoutService().buildAutoLayout(form));
 			}
 		}
 		// list form fields
@@ -187,7 +196,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 			}
 			if (form.containsEntityField(entityField) || 
 				(form.getLayout() != null && 
-					 layoutService.containsField(form.getLayout(), entityField))) {
+				getLayoutService().containsField(form.getLayout(), entityField))) {
 				result.add(form);
 			}
 			// check subforms
@@ -359,34 +368,6 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		return result;
 	}
 	
-	private static List<FormField> createFormFields(Form form) {
-		Assert.notNull(form, C.FORM);
-		
-		final Entity entity = form.getEntity();
-		final List<FormField> result = new ArrayList<>();
-		// entity fields
-		if (entity.hasAllFields()) {
-			for (EntityField entityField : entity.getAllFields()) {
-				if (!form.containsEntityField(entityField)) {
-					final FormField formField = createFormField(form, entityField); 
-					if (entityField.getType().isAutonum() || 
-						entityField.getType().isText()) {
-						formField.setSelected(true);
-					}
-					result.add(formField);
-				}
-			}
-		}
-		// system fields
-		for (SystemField systemField : SystemField.publicSystemFields()) {
-			if ((systemField != SystemField.ENTITYSTATUS || entity.hasStatus()) && 
-				!form.containsSystemField(systemField)) {
-				result.add(createSystemFormField(form, systemField));
-			}
-		}
-		return result;
-	}
-	
 	@Override
 	public List<FormTransformer> getAvailableTransformers(Form form) {
 		Assert.notNull(form, C.FORM);
@@ -545,7 +526,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		Assert.notNull(form, C.FORM);
 		Assert.notNull(session, C.SESSION);
 		
-		for (FormChangeAware changeAware : changeAwareObjects) {
+		for (FormChangeAware changeAware : getChangeAwareObjects()) {
 			changeAware.notifyDelete(form, session);
 		}
 		
@@ -590,7 +571,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 			session.saveOrUpdate(form.getLayout());
 		}
 		
-		for (FormChangeAware changeAware : changeAwareObjects) {
+		for (FormChangeAware changeAware : getChangeAwareObjects()) {
 			if (isInsert) {
 				changeAware.notifyCreate(form, session);
 			}
@@ -614,7 +595,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 			((FormMetadata) form).setAutoLayout(true);
 			try {
 				initObject(form);
-				layoutService.rebuildLayout(form);
+				getLayoutService().rebuildLayout(form);
 				saveObject(form, session);
 			} 
 			catch (ValidationException vex) {
@@ -650,29 +631,33 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 			form.getFields().removeIf(field -> field.getEntityField() != null && 
 											   !entity.containsField(field.getEntityField()));
 			if (form.isAutoLayout()) {
-				// add fields for new entity fields
-				if (entity.hasAllFields()) {
-					for (EntityField entityField : entity.getAllFields()) {
-						if (!form.containsEntityField(entityField)) {
-							final FormField formField = createFormField(form, entityField); 
-							if (entityField.getType().isAutonum() || 
-								entityField.getType().isText()) {
-								formField.setSelected(true);
-							}
-							form.addField(formField);
-						}
-					}
-				}
-				((FormMetadata) form).setLayoutContent(layoutService.buildAutoLayout(form));
-				((FormMetadata) form).setOrderIndexes();
-				((FormMetadata) form).initUid();
+				updateAutoLayout(entity, form);
 			}
 			else if (form.getLayout() != null) {
-				layoutService.rebuildLayout(form);
+				getLayoutService().rebuildLayout(form);
 			}
 			session.save(form.getLayout());
 			session.save(form);
 		}
+	}
+	
+	private void updateAutoLayout(Entity entity, Form form) {
+		if (entity.hasAllFields()) {
+			for (EntityField entityField : entity.getAllFields()) {
+				if (!form.containsEntityField(entityField)) {
+					final FormField formField = createFormField(form, entityField); 
+					if (entityField.getType().isAutonum() || 
+						entityField.getType().isText()) {
+						formField.setSelected(true);
+					}
+					form.addField(formField);
+				}
+			}
+		}
+		final FormMetadata formMeta = (FormMetadata) form;
+		formMeta.setLayoutContent(getLayoutService().buildAutoLayout(form));
+		formMeta.setOrderIndexes();
+		formMeta.initUid();
 	}
 	
 	private List<FormAction> getFormActions(Form form, boolean isList) {
@@ -960,8 +945,19 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		}
 	}
 	
+	private LayoutService getLayoutService() {
+		return Seed.getBean(LayoutService.class);
+	}
+	
+	private List<FormChangeAware> getChangeAwareObjects() {
+		if (changeAwareObjects == null) {
+			changeAwareObjects = MiscUtils.getBeans(applicationContext, FormChangeAware.class);
+		}
+		return changeAwareObjects;
+	}
+	
 	private void cleanupFieldExtras(Form form) {
-		final List<String> fieldIds = layoutService.getFieldIdList(form.getLayout());
+		final List<String> fieldIds = getLayoutService().getFieldIdList(form.getLayout());
 		form.getFieldExtras().removeIf(extra -> !fieldIds.contains(extra.getEntityField().getUid()));
 	}
 	
@@ -985,6 +981,44 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 				}
 			}
 		}
+	}
+	
+	private static List<FormField> createFormFields(Form form) {
+		Assert.notNull(form, C.FORM);
+		
+		return MiscUtils.castList(
+				ListUtils.union(createEntityFields(form), 
+								createSystemFields(form)));
+	}
+	
+	private static List<FormField> createEntityFields(Form form) {
+		final List<FormField> result = new ArrayList<>();
+		final Entity entity = form.getEntity();
+		if (entity.hasAllFields()) {
+			for (EntityField entityField : entity.getAllFields()) {
+				if (!form.containsEntityField(entityField)) {
+					final FormField formField = createFormField(form, entityField); 
+					if (entityField.getType().isAutonum() || 
+						entityField.getType().isText()) {
+						formField.setSelected(true);
+					}
+					result.add(formField);
+				}
+			}
+		}
+		return result;
+	}
+	
+	private static List<FormField> createSystemFields(Form form) {
+		final List<FormField> result = new ArrayList<>();
+		final Entity entity = form.getEntity();
+		for (SystemField systemField : SystemField.publicSystemFields()) {
+			if ((systemField != SystemField.ENTITYSTATUS || entity.hasStatus()) && 
+				!form.containsSystemField(systemField)) {
+				result.add(createSystemFormField(form, systemField));
+			}
+		}
+		return result;
 	}
 	
 	private static FormAction createAction(Form form, FormActionType actionType) {

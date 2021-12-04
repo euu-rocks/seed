@@ -613,9 +613,9 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	
 	private List<FormField> getAllAndMarkSelectedFields() {
 		final List<FormField> availabaleFields = MiscUtils.castList(getListManagerList(FIELDS, LIST_AVAILABLE));
-		availabaleFields.forEach(field -> field.setSelected(false));
+		availabaleFields.forEach(f -> f.setSelected(false));
 		final List<FormField> selectedFields = MiscUtils.castList(getListManagerList(FIELDS, LIST_SELECTED));
-		selectedFields.forEach(field -> field.setSelected(true));
+		selectedFields.forEach(f -> f.setSelected(true));
 		return ListUtils.union(availabaleFields, selectedFields);
 	}
 	
