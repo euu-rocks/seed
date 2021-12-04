@@ -40,7 +40,7 @@
 		<poi.version>5.1.0</poi.version>
 		<itext.version>5.5.13.2</itext.version>
 		<opencsv.version>5.5.2</opencsv.version>
-		<mycila-license-version>4.1</mycila-license-version>
+		<mycila-license-version>3.0</mycila-license-version>
 	</properties>
 	
 	<parent>
