@@ -19,8 +19,11 @@ package org.seed.ui.zk.vm.admin;
 
 import java.util.Date;
 
+import org.hibernate.stat.Statistics;
+
 import org.seed.C;
 import org.seed.Seed;
+import org.seed.core.config.SessionProvider;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 import org.seed.ui.zk.vm.AbstractApplicationViewModel;
@@ -37,27 +40,65 @@ public class SystemInfoViewModel extends AbstractApplicationViewModel {
 	@WireVariable(value="seed")
 	private Seed seed;
 	
+	@WireVariable(value="defaultSessionProvider")
+	private SessionProvider sessionProvider;
+	
 	public String getVersion() {
 		return seed.getVersion();
 	}
 	
 	public Date getStartTime() {
-		return new Date(getStatistic().getStartTime());
+		return new Date(getZkStatistic().getStartTime());
+	}
+	
+	public Date getConfigStartTime() {
+		return new Date(getHbnStatistic().getStartTime());
+	}
+	
+	public String getMaxQueryTime() {
+		return MiscUtils.formatDurationTime(getHbnStatistic().getQueryExecutionMaxTime());
 	}
 	
 	public String getUpTime() {
-		return MiscUtils.formatDuration(getStatistic().getStartTime());
+		return MiscUtils.formatDuration(getZkStatistic().getStartTime());
 	}
 	
-	public String getJavaVersion() {
-		return System.getProperty("java.runtime.version");
+	public String getOsInfo() {
+		return System.getProperty("os.name") + " (" + 
+			   System.getProperty("os.arch") + ')';
 	}
 	
-	public Statistic getStatistic() {
+	public String getJvmInfo() {
+		return System.getProperty("java.vm.name");
+	}
+	
+	public String getJvmVersionInfo() {
+		return System.getProperty("java.version") + " (" + 
+			   System.getProperty("java.version.date") + ')';
+	}
+	
+	public String getMemMaxInfo() {
+		return MiscUtils.formatMemorySize(Runtime.getRuntime().maxMemory());
+	}
+	
+	public String getMemAllocInfo() {
+		return MiscUtils.formatMemorySize(Runtime.getRuntime().totalMemory());
+	}
+	
+	public String getMemUsedInfo() {
+		return MiscUtils.formatMemorySize(Runtime.getRuntime().totalMemory() - 
+										  Runtime.getRuntime().freeMemory());
+	}
+	
+	public Statistic getZkStatistic() {
 		final Statistic statistic = (Statistic) WebApps.getCurrent().getConfiguration().getMonitor();
 		Assert.stateAvailable(statistic, "statistic");
 		
 		return statistic;
+	}
+	
+	public Statistics getHbnStatistic() {
+		return sessionProvider.getStatistics();
 	}
 	
 	@Command

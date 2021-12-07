@@ -18,22 +18,22 @@
 
 -->
 <!DOCTYPE xml>
-<groupbox hflex="1" vflex="1">
+<groupbox hflex="1">
 	<caption label="ZK"/>
-	<grid hflex="1" vflex="1" class="alpha-noborder">
+	<grid hflex="1" class="alpha-noborder">
 		<columns>
-           	<column hflex="min"/>
-             	<column hflex="max"/>
-           </columns>
+        	<column hflex="1"/>
+			<column hflex="1"/>
+		</columns>
            <rows>
-           	<row>
+          	<row>
 				<cell style="padding: 4px 10px" align="right">
 					<label value="${labels.systeminfo.zk.desktops}:"/>
 				</cell>
 				<cell style="padding: 4px 4px">
-					<label value="@load(vm.statistic.activeDesktopCount)"/> /
-					<label value="@load(vm.formatAverage(vm.statistic.averageDesktopCount))"/> /
-					<label value="@load(vm.statistic.totalDesktopCount)"/>
+					<label value="@load(vm.zkStatistic.activeDesktopCount)"/> /
+					<label value="@load(vm.formatAverage(vm.zkStatistic.averageDesktopCount))"/> /
+					<label value="@load(vm.zkStatistic.totalDesktopCount)"/>
 				</cell>
 			</row>
 			<row>
@@ -41,9 +41,9 @@
 					<label value="${labels.systeminfo.zk.sessions}:"/>
 				</cell>
 				<cell style="padding: 4px 4px">
-					<label value="@load(vm.statistic.activeSessionCount)"/> /
-					<label value="@load(vm.formatAverage(vm.statistic.averageDesktopCount))"/> /
-					<label value="@load(vm.statistic.totalSessionCount)"/>
+					<label value="@load(vm.zkStatistic.activeSessionCount)"/> /
+					<label value="@load(vm.formatAverage(vm.zkStatistic.averageDesktopCount))"/> /
+					<label value="@load(vm.zkStatistic.totalSessionCount)"/>
 				</cell>
 			</row>
 			<row>
@@ -51,9 +51,9 @@
 					<label value="${labels.systeminfo.zk.updates}:"/>
 				</cell>
 				<cell style="padding: 4px 4px">
-					<label value="@load(vm.statistic.activeUpdateCount)"/> /
-					<label value="@load(vm.formatAverage(vm.statistic.averageUpdateCount))"/> /
-					<label value="@load(vm.statistic.totalUpdateCount)"/>
+					<label value="@load(vm.zkStatistic.activeUpdateCount)"/> /
+					<label value="@load(vm.formatAverage(vm.zkStatistic.averageUpdateCount))"/> /
+					<label value="@load(vm.zkStatistic.totalUpdateCount)"/>
 				</cell>
 			</row>
            </rows>

@@ -23,7 +23,6 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.quartz.CalendarIntervalScheduleBuilder;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.JobBuilder;
@@ -42,6 +41,7 @@ import org.seed.InternalException;
 import org.seed.core.api.Job;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.codegen.GeneratedCode;
+import org.seed.core.config.SessionProvider;
 import org.seed.core.util.Assert;
 import org.seed.core.util.ExceptionUtils;
 import org.seed.core.util.MiscUtils;
@@ -68,7 +68,8 @@ public class DefaultJobScheduler implements JobScheduler, JobListener {
 	@Autowired
 	private TaskService taskService;
 	
-	private SessionFactory sessionFactory;	// changes if configuration is updated 
+	@Autowired
+	private SessionProvider sessionProvider;
 	
 	@PostConstruct
 	private void init() {
@@ -157,9 +158,7 @@ public class DefaultJobScheduler implements JobScheduler, JobListener {
 	}
 	
 	@Override
-	public void scheduleAllTasks(SessionFactory sessionFactory) {
-		Assert.notNull(sessionFactory, "session factory");
-		this.sessionFactory = sessionFactory;
+	public void scheduleAllTasks() {
 		try {
 			for (Class<GeneratedCode> jobClass : codeManager.getGeneratedClasses(Job.class)) {
 				scheduleJob((Job) MiscUtils.instantiate(jobClass));
@@ -273,10 +272,7 @@ public class DefaultJobScheduler implements JobScheduler, JobListener {
 	}
 	
 	private Session openSession() {
-		Assert.stateAvailable(sessionFactory, "session factory");
-		Assert.state(sessionFactory.isOpen(), "session factory closed");
-		
-		return sessionFactory.openSession();
+		return sessionProvider.getSession();
 	}
 	
 	@SuppressWarnings("unchecked")

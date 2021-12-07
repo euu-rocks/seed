@@ -19,7 +19,7 @@
 -->
 <!DOCTYPE xml>
 <groupbox hflex="1">
-	<caption label="System"/>
+	<caption label="Umgebung"/>
 	<grid hflex="1" class="alpha-noborder">
 		<columns>
         	<column hflex="1"/>
@@ -28,28 +28,38 @@
 		<rows>
 			<row>
 				<cell style="padding: 4px 10px" align="right">
-					<label value="${labels.label.version}:"/>
+					<label value="${labels.systeminfo.environment.os}:"/>
 				</cell>
 				<cell style="padding: 4px 4px">
-					<label value="@load(vm.version)"/>
+					<label value="@load(vm.osInfo)"/>
 				</cell>
 			</row>
            	<row>
 				<cell style="padding: 4px 10px" align="right">
-					<label value="${labels.systeminfo.system.starttime}:"/>
+					<label value="${labels.systeminfo.environment.jvm}:"/>
 				</cell>
 				<cell style="padding: 4px 4px">
-					<label value="@load(vm.startTime) @converter(vm.dateTimeConverter)"/>
+					<label value="@load(vm.jvmInfo)"/>
 				</cell>
 			</row>
 			<row>
 				<cell style="padding: 4px 10px" align="right">
-					<label value="${labels.systeminfo.system.uptime}:"/>
+					<label value="${labels.systeminfo.environment.jvmversion}:"/>
 				</cell>
 				<cell style="padding: 4px 4px">
-					<label value="@load(vm.upTime)"/>
+					<label value="@load(vm.jvmVersionInfo)"/>
 				</cell>
 			</row>
-           </rows>
-       </grid>
+			<row>
+				<cell style="padding: 4px 10px" align="right">
+					<label value="${labels.systeminfo.environment.memory}:"/>
+				</cell>
+				<cell style="padding: 4px 4px">
+					<label value="@load(vm.memMaxInfo)"/> / 
+					<label value="@load(vm.memAllocInfo)"/> /
+					<label value="@load(vm.memUsedInfo)"/> 
+				</cell>
+			</row>
+		</rows>
+	</grid>
 </groupbox>

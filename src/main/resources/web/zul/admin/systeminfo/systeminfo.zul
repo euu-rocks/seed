@@ -19,6 +19,8 @@
 -->
 <!DOCTYPE xml>
 <?component name="info-system" macroURI="~./zul/admin/systeminfo/systeminfo_system.zul" inline="true"?>
+<?component name="info-environment" macroURI="~./zul/admin/systeminfo/systeminfo_environment.zul" inline="true"?>
+<?component name="info-hibernate" macroURI="~./zul/admin/systeminfo/systeminfo_hibernate.zul" inline="true"?>
 <?component name="info-zk" macroURI="~./zul/admin/systeminfo/systeminfo_zk.zul" inline="true"?>
 <borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.SystemInfoViewModel')">
 	<north border="0">
@@ -37,10 +39,20 @@
             <rows>
             	<row>
             		<cell valign="top">
-	            		<info-zk/>
-            		</cell>
-            		<cell valign="top">
             			<info-system/>
+            		</cell>
+            		<cell valign="top" rowspan="3">
+	            		<info-hibernate/>
+            		</cell>
+            	</row>
+            	<row>
+            		<cell valign="top">
+	            		<info-environment/>
+            		</cell>
+            	</row>
+            	<row>
+            		<cell valign="top">
+	            		<info-zk/>
             		</cell>
             	</row>
             </rows>

@@ -1,0 +1,95 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<groupbox hflex="1">
+	<caption label="Hibernate"/>
+	<grid hflex="1" class="alpha-noborder">
+		<columns>
+        	<column width="60%"/>
+			<column width="40%"/>
+		</columns>
+        <rows>
+        	<row>
+				<cell style="padding: 4px 10px" align="right">
+					<label value="${labels.systeminfo.hbn.configstart}:"/>
+				</cell>
+				<cell style="padding: 4px 4px">
+					<label value="@load(vm.configStartTime) @converter(vm.dateTimeConverter)"/>
+				</cell>
+			</row>
+        	<row>
+				<cell style="padding: 4px 10px" align="right">
+					<label value="${labels.systeminfo.hbn.connectons}:"/>
+				</cell>
+				<cell style="padding: 4px 4px">
+					<label value="@load(vm.hbnStatistic.connectCount)"/> 
+				</cell>
+			</row>
+    		<row>
+				<cell style="padding: 4px 10px" align="right">
+					<label value="${labels.systeminfo.hbn.sessions}:"/>
+				</cell>
+				<cell style="padding: 4px 4px">
+					<label value="@load(vm.hbnStatistic.sessionOpenCount)"/> /
+					<label value="@load(vm.hbnStatistic.sessionCloseCount)"/>
+				</cell>
+			</row>
+			<row>
+				<cell style="padding: 4px 10px" align="right">
+					<label value="${labels.systeminfo.hbn.transactions}:"/>
+				</cell>
+				<cell style="padding: 4px 4px">
+					<label value="@load(vm.hbnStatistic.transactionCount)"/> /
+					<label value="@load(vm.hbnStatistic.successfulTransactionCount)"/>
+				</cell>
+			</row>
+			<row>
+				<cell style="padding: 4px 10px" align="right">
+					<label value="${labels.systeminfo.hbn.queries}:"/>
+				</cell>
+				<cell style="padding: 4px 4px">
+					<label value="@load(vm.hbnStatistic.queryExecutionCount)"/> /
+					<label value="@load(vm.maxQueryTime)"
+						   tooltiptext="@load(vm.hbnStatistic.queryExecutionMaxTimeQueryString)"/>
+				</cell>
+			</row>
+			<row>
+				<cell style="padding: 4px 10px" align="right">
+					<label value="${labels.systeminfo.hbn.entities}:"/>
+				</cell>
+				<cell style="padding: 4px 4px">
+					<label value="@load(vm.hbnStatistic.entityLoadCount)"/> /
+					<label value="@load(vm.hbnStatistic.entityUpdateCount)"/> / 
+					<label value="@load(vm.hbnStatistic.entityInsertCount)"/>
+				</cell>
+			</row>
+			<row>
+				<cell style="padding: 4px 10px" align="right">
+					<label value="${labels.systeminfo.hbn.cache}:"/>
+				</cell>
+				<cell style="padding: 4px 4px">
+					<label value="@load(vm.hbnStatistic.secondLevelCacheHitCount)"/> /
+					<label value="@load(vm.hbnStatistic.secondLevelCacheMissCount)"/> /
+					<label value="@load(vm.hbnStatistic.secondLevelCachePutCount)"/>
+				</cell>
+			</row>
+		</rows>
+	</grid>
+</groupbox>

@@ -39,9 +39,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.stereotype.Component;
-import org.hibernate.Cache;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.SessionFactoryBuilder;
@@ -58,13 +56,13 @@ public class DynamicConfiguration implements UpdatableConfiguration {
 	private static final Logger log = LoggerFactory.getLogger(DynamicConfiguration.class);
 	
 	@Autowired
-	private SessionProvider sessionFactoryProvider;
-	
-	@Autowired
 	private Environment environment;
 	
 	@Autowired
 	private CodeManager codeManager;
+	
+	@Autowired
+	private DefaultSessionProvider sessionProvider;
 	
 	@Autowired
 	private JobScheduler jobScheduler;
@@ -75,9 +73,7 @@ public class DynamicConfiguration implements UpdatableConfiguration {
 	@Autowired
 	private UserService userService;
 	
-	private SessionFactory sessionFactory;	// current session factory
-	
-	private ClassLoader classLoader;		// current class loader
+	private ClassLoader classLoader;	// current class loader
 	
 	@PostConstruct
 	private void init() {
@@ -98,18 +94,15 @@ public class DynamicConfiguration implements UpdatableConfiguration {
 	@Override
 	public synchronized void updateConfiguration() {
 		log.info("Updating configuration...");
-		closeSessionFactory();
+		sessionProvider.close();
 		jobScheduler.unscheduleAllTasks();
 		buildBootSessionFactory();
 		buildConfiguration();
 	}
 	
 	private void buildBootSessionFactory() {
-		Assert.state(sessionFactory == null, "session factory already exist");
-		
 		schemaManager.updateSchema();
-		sessionFactory = createSessionFactoryBuilder(true).build();
-		registerSessionFactory();
+		sessionProvider.setSessionFactory(createSessionFactoryBuilder(true).build());
 	}
 	
 	private void buildConfiguration() {
@@ -120,19 +113,17 @@ public class DynamicConfiguration implements UpdatableConfiguration {
 		// create new hibernate configuration but don't build session factory yet
 		final SessionFactoryBuilder sessionFactoryBuilder = createSessionFactoryBuilder(false);
 		// close current session factory
-		closeSessionFactory();
+		sessionProvider.close();
 		// build new session factory now
-		sessionFactory = sessionFactoryBuilder.build();
-		registerSessionFactory();
-		
-		jobScheduler.scheduleAllTasks(sessionFactory);
+		sessionProvider.setSessionFactory(sessionFactoryBuilder.build());
+		jobScheduler.scheduleAllTasks();
 		if (log.isInfoEnabled()) {
 			log.info("Configuration created in {}", MiscUtils.formatDuration(startTime));
 		}
 	}
 	
 	private boolean updateSchemaConfiguration() {
-		try (Session session = sessionFactory.openSession()) {
+		try (Session session = sessionProvider.getSession()) {
 			Transaction tx = null;
 			try {
 				tx = session.beginTransaction();
@@ -220,27 +211,11 @@ public class DynamicConfiguration implements UpdatableConfiguration {
 		}
 	}
 	
-	private void closeSessionFactory() {
-		Assert.stateAvailable(sessionFactory, "session factory");
-		// evict cache 
-		final Cache cache = sessionFactory.getCache();
-		if (cache != null) {
-			cache.evictAllRegions();
-		}
-		sessionFactory.close();
-		sessionFactory = null;
-		registerSessionFactory();
-	}
-	
 	private String applicationProperty(String propertyName) {
 		final String property = environment.getProperty(propertyName);
 		Assert.stateAvailable(property, "application property '" + propertyName + "'");
 		
 		return property;
-	}
-	
-	private void registerSessionFactory() {
-		((DefaultSessionProvider) sessionFactoryProvider).setSessionFactory(sessionFactory);
 	}
 	
 	private Map<String, Object> createSettings(boolean boot) {
@@ -265,6 +240,8 @@ public class DynamicConfiguration implements UpdatableConfiguration {
 		if (!boot) {
 			settings.put("hibernate.cache.region.factory_class", "org.hibernate.cache.jcache.JCacheRegionFactory");
 			settings.put("hibernate.javax.cache.missing_cache_strategy", "create");
+			// statistics
+			settings.put("hibernate.generate_statistics", "true");
 		}
 		return settings;
 	}

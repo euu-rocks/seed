@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterOutputStream;
 
+import org.apache.commons.io.FileUtils;
 import org.seed.C;
 import org.seed.InternalException;
 
@@ -118,7 +119,10 @@ public abstract class MiscUtils {
 	}
 	
 	public static String formatDuration(long startTimeMs, long endTimeMs) {
-		final long durationMs = endTimeMs - startTimeMs;
+		return formatDurationTime(endTimeMs - startTimeMs);
+	}
+	
+	public static String formatDurationTime(long durationMs) {
 		final StringBuilder buf = new StringBuilder();
 		if (durationMs < 60000) { // < 1min
 			if (durationMs < 1000) {
@@ -145,6 +149,10 @@ public abstract class MiscUtils {
 			}
 		}
 		return buf.toString();
+	}
+	
+	public static String formatMemorySize(long size) {
+		return FileUtils.byteCountToDisplaySize(size);
 	}
 	
 	public static String addLeadingChars(String text, char leadingChar, int textLength) {

@@ -17,10 +17,12 @@
  */
 package org.seed.core.config;
 
+import org.hibernate.Cache;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.stat.Statistics;
 
 import org.seed.core.util.Assert;
 
@@ -33,21 +35,40 @@ public class DefaultSessionProvider implements SessionProvider {
 	
 	private Dialect dialect;
 	
-	void setSessionFactory(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
-	
 	@Override
-	public Session getSession() {
+	public synchronized Session getSession() {
 		return getSessionFactory().openSession();
 	}
 
 	@Override
-	public Dialect getDialect() {
+	public synchronized Dialect getDialect() {
 		if (dialect == null) {
-			dialect = ((SessionFactoryImplementor) getSessionFactory()).getJdbcServices().getDialect();
+			dialect = ((SessionFactoryImplementor) getSessionFactory())
+						.getJdbcServices().getDialect();
 		}
 		return dialect;
+	}
+	
+	@Override
+	public synchronized Statistics getStatistics() {
+		return getSessionFactory().getStatistics();
+	}
+	
+	synchronized void setSessionFactory(SessionFactory sessionFactory) {
+		if (this.sessionFactory != null) {
+			close();
+		}
+		this.sessionFactory = sessionFactory;
+	}
+	
+	synchronized void close() {
+		// evict cache 
+		final Cache cache = getSessionFactory().getCache();
+		if (cache != null) {
+			cache.evictAllRegions();
+		}
+		sessionFactory.close();
+		sessionFactory = null;
 	}
 
 	private SessionFactory getSessionFactory() {
