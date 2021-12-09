@@ -24,6 +24,7 @@ import org.hibernate.Session;
 import org.seed.C;
 import org.seed.Seed;
 import org.seed.core.api.AbstractFunctionContext;
+import org.seed.core.api.CallbackEventType;
 import org.seed.core.api.CallbackFunctionContext;
 import org.seed.core.api.ClientProvider;
 import org.seed.core.api.DataSourceProvider;
@@ -48,6 +49,8 @@ public class ValueObjectFunctionContext extends AbstractFunctionContext
 	private final Module module;
 	
 	private final EntityStatusTransition statusTransition;
+	
+	private CallbackEventType eventType;
 	
 	private ClientProvider clientProvider;
 	
@@ -74,6 +77,14 @@ public class ValueObjectFunctionContext extends AbstractFunctionContext
 		this.statusTransition = statusTransition;
 	}
 	
+	public CallbackEventType getEventType() {
+		return eventType;
+	}
+
+	void setEventType(CallbackEventType eventType) {
+		this.eventType = eventType;
+	}
+
 	@Override
 	public Session getSession() {
 		return session;

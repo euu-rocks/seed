@@ -76,10 +76,6 @@ public class MainViewModel extends AbstractApplicationViewModel {
 		if (appName != null) {
 			return appName;
 		}
-		final String seedVersion = seed.getVersion();
-		if (seedVersion != null) {
-			return C.SEED + ' ' + seedVersion;
-		}
 		return C.SEED;
 	}
 	

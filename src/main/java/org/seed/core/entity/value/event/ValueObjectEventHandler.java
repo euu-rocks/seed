@@ -21,6 +21,7 @@ import org.hibernate.Session;
 
 import org.seed.InternalException;
 import org.seed.core.api.ApplicationException;
+import org.seed.core.api.CallbackEventType;
 import org.seed.core.api.CallbackFunction;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.codegen.GeneratedCode;
@@ -51,7 +52,7 @@ public class ValueObjectEventHandler {
 	
 	public boolean processEvent(ValueObjectEvent event) {
 		Assert.notNull(event, "event");
-		Assert.state(event.type != ValueObjectEventType.USERACTION, "use processUserEvent instead");
+		Assert.state(event.type != CallbackEventType.USERACTION, "use processUserEvent instead");
 		
 		switch (event.type) {
 			case BEFORETRANSITION:
@@ -69,7 +70,7 @@ public class ValueObjectEventHandler {
 		Assert.stateAvailable(entityFunction, "entity function");
 		
 		return callFunction(entityFunction.getEntity(), entityFunction, 
-							event.object, event.session, null, null);
+							event.type, event.object, event.session, null, null);
 	}
 	
 	private boolean processStatusTransitionEvent(ValueObjectEvent event) {
@@ -97,7 +98,7 @@ public class ValueObjectEventHandler {
 						throw new UnsupportedOperationException(event.type.name());
 				}
 				if (execute) {
-					callFunction(entity, transitionFunction.getFunction(), event.object, 
+					callFunction(entity, transitionFunction.getFunction(), event.type, event.object, 
 								 event.session, event.functionContext, statusTransition);
 					functionExecuted = true;
 				}
@@ -153,7 +154,7 @@ public class ValueObjectEventHandler {
 						throw new UnsupportedOperationException(event.type.name());
 				}
 				if (execute) {
-					callFunction(entity, function, event.object, event.session, 
+					callFunction(entity, function, event.type, event.object, event.session, 
 								 event.functionContext, null);
 					functionExecuted = true;
 				}
@@ -163,8 +164,9 @@ public class ValueObjectEventHandler {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private String callFunction(Entity entity, EntityFunction function, ValueObject object, Session session, 
-							  ValueObjectFunctionContext functionContext, EntityStatusTransition statusTransition) {
+	private String callFunction(Entity entity, EntityFunction function, CallbackEventType eventType, 
+								ValueObject object, Session session, ValueObjectFunctionContext functionContext, 
+								EntityStatusTransition statusTransition) {
 		Assert.state(!(session == null && functionContext == null), "no session or functionContext provided");
 		Assert.state(!(session != null && functionContext != null), "only session or functionContext allowed");
 		
@@ -177,6 +179,7 @@ public class ValueObjectEventHandler {
 			if (functionContext == null) {
 				functionContext = new ValueObjectFunctionContext(session, entity.getModule(), statusTransition);
 			}
+			functionContext.setEventType(eventType);
 			if (log.isDebugEnabled()) {
 				log.debug("Execute function '{}' on {} id:{}", function.getName(), 
 															   function.getEntity().getName(), object.getId());

@@ -19,6 +19,8 @@ package org.seed.core.api;
 
 public interface CallbackFunctionContext extends FunctionContext {
 	
+	CallbackEventType getEventType();
+	
 	ClientProvider getClientProvider();
 	
 	ParameterProvider getParameterProvider();

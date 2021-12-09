@@ -19,6 +19,8 @@ package org.seed.core.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -35,6 +37,7 @@ import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterOutputStream;
 
 import org.apache.commons.io.FileUtils;
+
 import org.seed.C;
 import org.seed.InternalException;
 
@@ -168,6 +171,10 @@ public abstract class MiscUtils {
 	
 	public static String getResourceAsText(Resource resource) throws IOException {
 		return getStreamAsText(resource.getInputStream());
+	}
+	
+	public static String getFileAsText(File file) throws IOException {
+		return getStreamAsText(new FileInputStream(file));
 	}
 	
 	public static InputStream getStringAsStream(String string) {

@@ -23,6 +23,8 @@ import org.hibernate.stat.Statistics;
 
 public interface SessionProvider {
 	
+	boolean isSessionAvailable();
+	
 	Session getSession();
 	
 	Dialect getDialect();

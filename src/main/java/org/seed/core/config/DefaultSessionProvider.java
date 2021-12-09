@@ -36,6 +36,11 @@ public class DefaultSessionProvider implements SessionProvider {
 	private Dialect dialect;
 	
 	@Override
+	public synchronized boolean isSessionAvailable() {
+		return sessionFactory != null;
+	}
+	
+	@Override
 	public synchronized Session getSession() {
 		return getSessionFactory().openSession();
 	}
@@ -55,13 +60,15 @@ public class DefaultSessionProvider implements SessionProvider {
 	}
 	
 	synchronized void setSessionFactory(SessionFactory sessionFactory) {
-		if (this.sessionFactory != null) {
+		if (isSessionAvailable()) {
 			close();
 		}
 		this.sessionFactory = sessionFactory;
 	}
 	
 	synchronized void close() {
+		Assert.state(isSessionAvailable(), "already closed");
+		
 		// evict cache 
 		final Cache cache = getSessionFactory().getCache();
 		if (cache != null) {
@@ -71,10 +78,10 @@ public class DefaultSessionProvider implements SessionProvider {
 		sessionFactory = null;
 	}
 
-	private SessionFactory getSessionFactory() {
+	private synchronized SessionFactory getSessionFactory() {
 		Assert.stateAvailable(sessionFactory, "session factory");
 		
 		return sessionFactory;
 	}
-	
+
 }

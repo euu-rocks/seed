@@ -43,6 +43,7 @@ import org.hibernate.Transaction;
 
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.core.api.CallbackEventType;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.config.SessionProvider;
 import org.seed.core.data.FieldType;
@@ -62,7 +63,6 @@ import org.seed.core.entity.filter.Filter;
 import org.seed.core.entity.filter.FilterCriterion;
 import org.seed.core.entity.value.event.ValueObjectEvent;
 import org.seed.core.entity.value.event.ValueObjectEventHandler;
-import org.seed.core.entity.value.event.ValueObjectEventType;
 import org.seed.core.entity.value.event.ValueObjectFunctionContext;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
@@ -127,7 +127,7 @@ public class ValueObjectRepository {
 			if (entity.hasStatus()) {
 				object.setEntityStatus(entity.getInitialStatus());
 			}
-			fireEvent(ValueObjectEventType.CREATE, object, session, functionContext);
+			fireEvent(CallbackEventType.CREATE, object, session, functionContext);
 			return object;
 		}
 		catch (Exception ex) {
@@ -153,7 +153,7 @@ public class ValueObjectRepository {
 				Transaction tx = null;
 				try {
 					tx = session.beginTransaction();
-					fireEvent(ValueObjectEventType.MODIFY, object, session);
+					fireEvent(CallbackEventType.MODIFY, object, session);
 					tx.commit();
 				}
 				catch (Exception ex) {
@@ -298,7 +298,7 @@ public class ValueObjectRepository {
 		checkSessionAndContext(session, functionContext);
 		
 		// fire before-event
-		fireEvent(ValueObjectEventType.BEFOREDELETE, object, session, functionContext);
+		fireEvent(CallbackEventType.BEFOREDELETE, object, session, functionContext);
 		
 		// delete object
 		final Session localSession = functionContext != null ? functionContext.getSession() : session;
@@ -315,7 +315,7 @@ public class ValueObjectRepository {
 		}
 		
 		// fire after-event
-		fireEvent(ValueObjectEventType.AFTERDELETE, object, session, functionContext);
+		fireEvent(CallbackEventType.AFTERDELETE, object, session, functionContext);
 	}
 	
 	public void save(ValueObject object, Session session, ValueObjectFunctionContext functionContext) {
@@ -338,9 +338,9 @@ public class ValueObjectRepository {
 		}
 		
 		// fire before-event
-		final ValueObjectEventType eventTypeBefore = isInsert 
-				? ValueObjectEventType.BEFOREINSERT 
-				: ValueObjectEventType.BEFOREUPDATE;
+		final CallbackEventType eventTypeBefore = isInsert 
+				? CallbackEventType.BEFOREINSERT 
+				: CallbackEventType.BEFOREUPDATE;
 		fireEvent(eventTypeBefore, object, session, functionContext);
 		
 		// save object
@@ -350,9 +350,9 @@ public class ValueObjectRepository {
 		}
 		
 		// fire after-event
-		final ValueObjectEventType eventTypeAfter = isInsert 
-				? ValueObjectEventType.AFTERINSERT 
-				: ValueObjectEventType.AFTERUPDATE;
+		final CallbackEventType eventTypeAfter = isInsert 
+				? CallbackEventType.AFTERINSERT 
+				: CallbackEventType.AFTERUPDATE;
 		fireEvent(eventTypeAfter, object, session, functionContext);
 	}
 	
@@ -425,14 +425,14 @@ public class ValueObjectRepository {
 		final EntityStatusTransition statusTransition = getEntity(object).getStatusTransition(object.getEntityStatus(), targetStatus);
 		if (statusTransition != null) {
 			// fire before-event
-			fireEvent(ValueObjectEventType.BEFORETRANSITION, object, statusTransition, session, functionContext);
+			fireEvent(CallbackEventType.BEFORETRANSITION, object, statusTransition, session, functionContext);
 			
 			// change state
 			((AbstractValueObject) object).setEntityStatus(targetStatus);
 			save(object, session, functionContext);
 			
 			// fire after-event
-			fireEvent(ValueObjectEventType.AFTERTRANSITION, object, statusTransition, session, functionContext);
+			fireEvent(CallbackEventType.AFTERTRANSITION, object, statusTransition, session, functionContext);
 		}
 		else {
 			throw new IllegalStateException("transition not found: " + 
@@ -796,15 +796,15 @@ public class ValueObjectRepository {
 		Assert.state(!(session != null && functionContext != null), "only session or functionContext allowed");
 	}
 	
-	private boolean fireEvent(ValueObjectEventType eventType, ValueObject object, Session session) {
+	private boolean fireEvent(CallbackEventType eventType, ValueObject object, Session session) {
 		return eventHandler.processEvent(new ValueObjectEvent(object, eventType, session));
 	}
 	
-	private boolean fireEvent(ValueObjectEventType eventType, ValueObject object, Session session, ValueObjectFunctionContext functionContext) {
+	private boolean fireEvent(CallbackEventType eventType, ValueObject object, Session session, ValueObjectFunctionContext functionContext) {
 		return eventHandler.processEvent(new ValueObjectEvent(object, eventType, null, session, functionContext));
 	}
 	
-	private boolean fireEvent(ValueObjectEventType eventType, ValueObject object, EntityStatusTransition statusTransition, Session session, ValueObjectFunctionContext functionContext) {
+	private boolean fireEvent(CallbackEventType eventType, ValueObject object, EntityStatusTransition statusTransition, Session session, ValueObjectFunctionContext functionContext) {
 		return eventHandler.processEvent(new ValueObjectEvent(object, eventType, statusTransition, session, functionContext));
 	}
 	

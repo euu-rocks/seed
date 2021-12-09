@@ -34,10 +34,13 @@ import static org.seed.core.codegen.CodeUtils.*;
 @Component
 public class CodeManagerImpl implements CodeManager {
 	
-	protected static final Logger log = LoggerFactory.getLogger(CodeManagerImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(CodeManagerImpl.class);
 	
 	@Autowired
 	private Compiler compiler;
+	
+	@Autowired
+	private ExternalCodeManager externalCodeManager;
 	
 	@Autowired
 	private List<SourceCodeProvider> codeProviders;
@@ -82,6 +85,17 @@ public class CodeManagerImpl implements CodeManager {
 		if (!sourceCodeList.isEmpty()) {
 			compiler.compile(sourceCodeList);
 			lastCompilerRun = new Date();
+		}
+		
+		// external file storage
+		if (externalCodeManager.isDownloadEnabled()) {
+			for (SourceCode sourceCode : sourceCodeList) {
+				externalCodeManager.storeToFileSystem(sourceCode);
+			}
+			// watch service
+			if (externalCodeManager.isUploadEnabled()) {
+				externalCodeManager.registerExternalSourcePathTree();
+			}
 		}
 	}
 	

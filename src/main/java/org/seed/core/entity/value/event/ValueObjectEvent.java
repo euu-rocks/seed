@@ -20,6 +20,7 @@ package org.seed.core.entity.value.event;
 import org.hibernate.Session;
 
 import org.seed.C;
+import org.seed.core.api.CallbackEventType;
 import org.seed.core.entity.EntityFunction;
 import org.seed.core.entity.EntityStatusTransition;
 import org.seed.core.entity.value.ValueObject;
@@ -29,7 +30,7 @@ public class ValueObjectEvent {
 	
 	final ValueObject object;
 	
-	final ValueObjectEventType type;
+	final CallbackEventType type;
 	
 	final ValueObjectFunctionContext functionContext;
 	
@@ -39,21 +40,21 @@ public class ValueObjectEvent {
 	
 	final Session session;
 	
-	public ValueObjectEvent(ValueObject object, ValueObjectEventType type, Session session) {
+	public ValueObjectEvent(ValueObject object, CallbackEventType type, Session session) {
 		this(object, type, null, session, null, null);
 	}
 	
 	public ValueObjectEvent(ValueObject object, EntityFunction entityFunction, Session session) {
-		this(object, ValueObjectEventType.USERACTION, null, session, null, entityFunction);
+		this(object, CallbackEventType.USERACTION, null, session, null, entityFunction);
 	}
 	
-	public ValueObjectEvent(ValueObject object, ValueObjectEventType type, 
+	public ValueObjectEvent(ValueObject object, CallbackEventType type, 
 			EntityStatusTransition statusTransition, 
 			Session session, ValueObjectFunctionContext functionContext) {
 		this(object, type, statusTransition, session, functionContext, null);
 	}
 	
-	private ValueObjectEvent(ValueObject object, ValueObjectEventType type, 
+	private ValueObjectEvent(ValueObject object, CallbackEventType type, 
 							EntityStatusTransition statusTransition, 
 							Session session, ValueObjectFunctionContext functionContext, 
 							EntityFunction entityFunction) {
