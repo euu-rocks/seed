@@ -19,11 +19,11 @@
 -->
 <!DOCTYPE xml>
 <groupbox hflex="1">
-	<caption label="ZK"/>
+	<caption label="${labels.systeminfo.zk.title}"/>
 	<grid hflex="1" class="alpha-noborder">
 		<columns>
-        	<column hflex="1"/>
-			<column hflex="1"/>
+        	<column width="60%"/>
+			<column width="40%"/>
 		</columns>
            <rows>
           	<row>

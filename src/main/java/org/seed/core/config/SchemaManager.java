@@ -19,7 +19,7 @@ package org.seed.core.config;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -76,7 +76,7 @@ public class SchemaManager {
 	
 	private String systemChangeLog;
 	
-	private Boolean isPostgres;
+	private DatabaseInfo databaseInfo;
 	
 	@PostConstruct
 	private void init() {
@@ -89,7 +89,21 @@ public class SchemaManager {
 		}
 	}
 	
-	SchemaConfiguration loadSchemaConfiguration(Session session) {
+	public synchronized DatabaseInfo getDatabaseInfo() {
+		if (databaseInfo == null) {
+			try (Connection connection = dataSource.getConnection()) {
+				final DatabaseMetaData dbMeta = connection.getMetaData();
+				databaseInfo = new DatabaseInfo(dbMeta.getDatabaseProductName(),
+												dbMeta.getDatabaseProductVersion());
+			}
+			catch (SQLException ex) {
+				throw new ConfigurationException("database detection failed", ex);
+			}
+		}
+		return databaseInfo;
+	}
+	
+	synchronized SchemaConfiguration loadSchemaConfiguration(Session session) {
 		final List<SchemaConfiguration> list = 
 				session.createQuery("select c from SchemaConfiguration c", SchemaConfiguration.class)
 					   .getResultList();
@@ -97,7 +111,7 @@ public class SchemaManager {
 		return list.isEmpty() ? null : list.get(0);
 	}
 	
-	void updateSchemaConfiguration(SchemaVersion baseVersion, Session session) {
+	synchronized void updateSchemaConfiguration(SchemaVersion baseVersion, Session session) {
 		// upgrade all versions from baseVersion + 1 to latest version
 		for (int v = baseVersion.ordinal() + 1; v <= SchemaVersion.lastVersion().ordinal(); v++) {
 			final SchemaVersion version = SchemaVersion.getVersion(v);
@@ -107,7 +121,7 @@ public class SchemaManager {
 		}
 	}
 	
-	void updateSchema() {
+	synchronized void updateSchema() {
 		final long startTime = System.currentTimeMillis();
 		try (Connection connection = dataSource.getConnection()) {
 			final String customChangeSets = loadCustomChangeSets(connection);
@@ -132,7 +146,7 @@ public class SchemaManager {
 				   .replace("<#PWD_LEN#>", String.valueOf(limits.getLimit(Limits.LIMIT_PWD_LENGTH)))
 				   .replace("<#PARAMNAME_LEN#>", String.valueOf(limits.getLimit(Limits.LIMIT_PARAM_NAME_LENGTH)))
 				   .replace("<#PARAM_LEN#>", String.valueOf(limits.getLimit(Limits.LIMIT_PARAM_VALUE_LENGTH)))
-				   .replace("<#BLOB_TYPE#>", isPostgres() ? "bytea" : "BLOB");
+				   .replace("<#BLOB_TYPE#>", getDatabaseInfo().isPostgres() ? "bytea" : "BLOB");
 	}
 	
 	private String loadCustomChangeSets(Connection connection) throws SQLException {
@@ -172,19 +186,6 @@ public class SchemaManager {
 			}
 		}
 		return false;
-	}
-	
-	private boolean isPostgres() {
-		if (isPostgres == null) {
-			try (Connection con = dataSource.getConnection()) {
-				isPostgres = DriverManager.getDriver(con.getMetaData().getURL())
-										  .getClass().getName().contains("postgresql");
-			} 
-			catch (Exception ex) {
-				throw new ConfigurationException("postgres detection failed", ex);
-			}
-		}
-		return isPostgres;
 	}
 	
 	private static Liquibase createLiquibase(Connection connection, String changeLogAsString) 

@@ -19,7 +19,7 @@
 -->
 <!DOCTYPE xml>
 <groupbox hflex="1">
-	<caption label="Umgebung"/>
+	<caption label="${labels.systeminfo.environment.title}"/>
 	<grid hflex="1" class="alpha-noborder">
 		<columns>
         	<column hflex="1"/>

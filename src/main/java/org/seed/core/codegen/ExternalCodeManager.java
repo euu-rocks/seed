@@ -203,9 +203,6 @@ public class ExternalCodeManager implements ApplicationContextAware {
 				log.warn("pollWatchEvents failed: {}", ex.getMessage());
 			}
 		}
-		else {
-			watchKey.pollEvents(); // discard events
-		}
 		return changesProcessed;
 	}
 	
@@ -236,7 +233,7 @@ public class ExternalCodeManager implements ApplicationContextAware {
 			compiler.compile(Collections.singletonList(sourceCode));
 		}
 		catch (Exception ex) {
-			log.warn("Compilation failed", ex.getMessage());
+			log.warn("Compilation failed: {}", ex.getMessage());
 			return false;
 		}
 		

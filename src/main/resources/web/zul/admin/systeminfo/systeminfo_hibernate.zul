@@ -19,13 +19,23 @@
 -->
 <!DOCTYPE xml>
 <groupbox hflex="1">
-	<caption label="Hibernate"/>
+	<caption label="${labels.systeminfo.hbn.database}"/>
 	<grid hflex="1" class="alpha-noborder">
 		<columns>
         	<column width="60%"/>
 			<column width="40%"/>
 		</columns>
         <rows>
+        	<row>
+				<cell style="padding: 4px 10px" align="right">
+					<label value="${labels.systeminfo.hbn.database}:"/>
+				</cell>
+				<cell style="padding: 4px 4px">
+					<label value="@load(vm.dbInfo.name)"/>
+					<label value=" "/>
+					<label value="@load(vm.dbInfo.version)"/>
+				</cell>
+			</row>
         	<row>
 				<cell style="padding: 4px 10px" align="right">
 					<label value="${labels.systeminfo.hbn.configstart}:"/>

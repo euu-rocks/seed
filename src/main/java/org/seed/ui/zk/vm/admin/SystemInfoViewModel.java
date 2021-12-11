@@ -23,6 +23,8 @@ import org.hibernate.stat.Statistics;
 
 import org.seed.C;
 import org.seed.Seed;
+import org.seed.core.config.DatabaseInfo;
+import org.seed.core.config.SchemaManager;
 import org.seed.core.config.SessionProvider;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
@@ -42,6 +44,9 @@ public class SystemInfoViewModel extends AbstractApplicationViewModel {
 	
 	@WireVariable(value="defaultSessionProvider")
 	private SessionProvider sessionProvider;
+	
+	@WireVariable(value="schemaManager")
+	private SchemaManager schemaManager;
 	
 	public String getVersion() {
 		return seed.getVersion();
@@ -99,6 +104,10 @@ public class SystemInfoViewModel extends AbstractApplicationViewModel {
 	
 	public Statistics getHbnStatistic() {
 		return sessionProvider.getStatistics();
+	}
+	
+	public DatabaseInfo getDbInfo() {
+		return schemaManager.getDatabaseInfo();
 	}
 	
 	@Command
