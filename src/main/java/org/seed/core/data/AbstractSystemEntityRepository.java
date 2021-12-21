@@ -40,7 +40,7 @@ public abstract class AbstractSystemEntityRepository<T extends SystemEntity>
 	implements SystemEntityRepository<T> {
 	
 	@Autowired
-	private SessionProvider sessionFactoryProvider;
+	private SessionProvider sessionProvider;
 	
 	private final Class<? extends T> entityTypeClass;
 	
@@ -201,7 +201,7 @@ public abstract class AbstractSystemEntityRepository<T extends SystemEntity>
 	}
 	
 	protected Session getSession() {
-		return sessionFactoryProvider.getSession();
+		return sessionProvider.getSession();
 	}
 	
 	@SuppressWarnings({"unchecked"})

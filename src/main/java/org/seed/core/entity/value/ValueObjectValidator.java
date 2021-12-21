@@ -33,6 +33,7 @@ import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.entity.filter.Filter;
 import org.seed.core.util.Assert;
+import org.seed.core.util.BeanUtils;
 import org.seed.core.util.MiscUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -201,7 +202,7 @@ public class ValueObjectValidator implements ApplicationContextAware {
 	private List<ValueObjectDependent<? extends ApplicationEntity>> getValueObjectDependents() {
 		if (valueObjectDependents == null) {
 			valueObjectDependents = MiscUtils.castList(
-				MiscUtils.getBeans(applicationContext, ValueObjectDependent.class));
+					BeanUtils.getBeans(applicationContext, ValueObjectDependent.class));
 		}
 		return valueObjectDependents;
 	}

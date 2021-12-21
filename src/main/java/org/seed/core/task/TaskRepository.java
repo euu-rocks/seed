@@ -17,15 +17,38 @@
  */
 package org.seed.core.task;
 
+import java.util.List;
+
+import org.hibernate.Session;
+
 import org.seed.core.data.AbstractSystemEntityRepository;
+import org.seed.core.util.Assert;
 
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class TaskRepository extends AbstractSystemEntityRepository<Task> {
-
+	
+	private static final String QUERY_SYSTEMTASKRUNS_SYSTEMTASK = 
+		"from SystemTaskRun r where r.systemTask = :systemTask order by r.createdOn desc";
+	
 	protected TaskRepository() {
 		super(TaskMetadata.class);
+	}
+	
+	@Override
+	public Session getSession() {
+		return super.getSession();
+	}
+	
+	protected List<SystemTaskRun> getSystemTaskRuns(SystemTask systemTask) {
+		Assert.notNull(systemTask, "systemTask");
+		
+		try (Session session = getSession()) {
+			return session.createQuery(QUERY_SYSTEMTASKRUNS_SYSTEMTASK, SystemTaskRun.class)
+						  .setParameter("systemTask", systemTask)
+						  .list();
+		}
 	}
 	
 }

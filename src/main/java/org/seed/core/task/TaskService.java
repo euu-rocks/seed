@@ -29,15 +29,23 @@ public interface TaskService extends ApplicationEntityService<Task> {
 	
 	TaskRun createRun(Task task);
 	
+	SystemTaskRun createRun(SystemTask systemTask);
+	
 	TaskNotification createNotification(Task task);
 	
 	Task getTask(Job job);
 	
 	List<Task> getTasks(User user);
 	
+	List<SystemTaskRun> getSystemTaskRuns(SystemTask systemTask);
+	
 	List<TaskPermission> getAvailablePermissions(Task task);
 	
+	<T extends AbstractSystemJob> Class<T> getSystemJobClass(SystemTask systemTask);
+	
 	void saveTaskDirectly(Task task);
+	
+	void saveSystemTaskRun(SystemTaskRun run);
 	
 	void sendNotifications(Task task, TaskRun run);
 	

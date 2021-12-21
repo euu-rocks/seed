@@ -43,7 +43,9 @@ import org.hibernate.Transaction;
 import org.seed.Seed;
 import org.seed.core.config.SessionProvider;
 import org.seed.core.util.Assert;
-import org.seed.core.util.MiscUtils;
+import org.seed.core.util.BeanUtils;
+import org.seed.core.util.NameUtils;
+import org.seed.core.util.StreamUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +86,7 @@ public class ExternalCodeManager implements ApplicationContextAware {
 	@PostConstruct
 	private void init() {
 		final String propDownloadSources = environment.getProperty("codegen.external.downloadsources");
-		if (!MiscUtils.booleanValue(propDownloadSources)) {
+		if (!NameUtils.booleanValue(propDownloadSources)) {
 			return;	// abort
 		}
 		
@@ -113,7 +115,7 @@ public class ExternalCodeManager implements ApplicationContextAware {
 		
 		// init upload
 		final String propUploadChanges = environment.getProperty("codegen.external.uploadchanges");
-		if (MiscUtils.booleanValue(propUploadChanges)) {
+		if (NameUtils.booleanValue(propUploadChanges)) {
 			log.info("Enable code uploads on change");
 			try {
 				watchService = FileSystems.getDefault().newWatchService();
@@ -163,7 +165,7 @@ public class ExternalCodeManager implements ApplicationContextAware {
 			log.warn("Couldn't create external source dir {}", dir.getAbsolutePath());
 			return;
 		}
-		try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(file), MiscUtils.CHARSET)) {
+		try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(file), StreamUtils.CHARSET)) {
 			osw.append(sourceCode.getContent());
 		}
 		catch (IOException ioex) {
@@ -225,7 +227,7 @@ public class ExternalCodeManager implements ApplicationContextAware {
 	}
 	
 	private boolean onSourceFileChange(Path dir, Path file, Session session) throws IOException {
-		final String code = MiscUtils.getFileAsText(new File(dir.toFile(), file.toFile().getName()));
+		final String code = StreamUtils.getFileAsText(new File(dir.toFile(), file.toFile().getName()));
 		final String packageName = CodeUtils.getPackageName(externalSourcesRootDir, dir.toFile());
 		final String className = CodeUtils.getClassName(file.toFile());
 		final SourceCode sourceCode = new SourceCodeImpl(new ClassMetadata(packageName, className), code);
@@ -249,7 +251,7 @@ public class ExternalCodeManager implements ApplicationContextAware {
 	
 	private List<CodeChangeAware> getChangeAwareObjects() {
 		if (changeAwareObjects == null) {
-			changeAwareObjects = MiscUtils.getBeans(applicationContext, CodeChangeAware.class);
+			changeAwareObjects = BeanUtils.getBeans(applicationContext, CodeChangeAware.class);
 
 		}
 		return changeAwareObjects;

@@ -33,6 +33,7 @@
 	<center border="0">
 		<listbox model="@load(vm.listModel)"
 				 visible="@load(!empty vm.listModel)"
+				 emptyMessage="${labels.label.noresult}"
 				 style="margin:5px">
 			<template var="result" name="model">
 				<listitem onClick="@command('clickResult',entityId=result.entityId,objectId=result.id)">

@@ -37,7 +37,7 @@ import org.springframework.stereotype.Component;
 public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 	
 	@Autowired
-	private SessionProvider sessionFactoryProvider;
+	private SessionProvider sessionProvider;
 	
 	@Override
 	public void validateCreate(DBObject dbObject) throws ValidationException {
@@ -110,7 +110,7 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 	}
 	
 	private void testSQL(DBObject dbObject) throws ValidationException {
-		try (Session session = sessionFactoryProvider.getSession()) {
+		try (Session session = sessionProvider.getSession()) {
 			Transaction tx = null;
 			try {
 				tx = session.beginTransaction();

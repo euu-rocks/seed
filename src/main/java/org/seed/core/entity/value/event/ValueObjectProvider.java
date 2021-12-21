@@ -41,6 +41,7 @@ import org.seed.core.entity.transform.TransformerService;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.entity.value.ValueObjectService;
 import org.seed.core.util.Assert;
+import org.seed.core.util.BeanUtils;
 import org.seed.core.util.MiscUtils;
 
 class ValueObjectProvider implements EntityObjectProvider {
@@ -170,8 +171,8 @@ class ValueObjectProvider implements EntityObjectProvider {
 	@Override
 	public <T extends EntityObject,U extends EntityObject> EntityTransformer getTransformer(Class<T> sourceClass, Class<U> targetClass, String transformerName) {
 		try {
-			final T sourceObject = MiscUtils.instantiate(sourceClass);
-			final U targetObject = MiscUtils.instantiate(targetClass);
+			final T sourceObject = BeanUtils.instantiate(sourceClass);
+			final U targetObject = BeanUtils.instantiate(targetClass);
 			return transformerService
 					.getTransformerByName(entityService.getObject(((ValueObject) sourceObject).getEntityId()),
 										  entityService.getObject(((ValueObject) targetObject).getEntityId()), 
@@ -197,7 +198,7 @@ class ValueObjectProvider implements EntityObjectProvider {
 	}
 	
 	private Entity getEntity(Class<ValueObject> clas) {
-			final ValueObject object = MiscUtils.instantiate(clas);
+			final ValueObject object = BeanUtils.instantiate(clas);
 			return entityService.getObject(object.getEntityId());
 	}
 

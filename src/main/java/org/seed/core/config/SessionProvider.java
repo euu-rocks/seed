@@ -18,7 +18,6 @@
 package org.seed.core.config;
 
 import org.hibernate.Session;
-import org.hibernate.dialect.Dialect;
 import org.hibernate.stat.Statistics;
 
 public interface SessionProvider {
@@ -26,8 +25,6 @@ public interface SessionProvider {
 	boolean isSessionAvailable();
 	
 	Session getSession();
-	
-	Dialect getDialect();
 	
 	Statistics getStatistics();
 	

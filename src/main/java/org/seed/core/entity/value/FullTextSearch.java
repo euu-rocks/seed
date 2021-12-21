@@ -17,6 +17,7 @@
  */
 package org.seed.core.entity.value;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,6 +26,7 @@ import javax.annotation.Nullable;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.CommonParams;
@@ -65,23 +67,27 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 	@Autowired
 	private ValueObjectAccess objectAccess;
 	
+	public final boolean isAvailable() {
+		return provider.isFullTextSearchAvailable();
+	}
+	
 	@Override
 	public void notifyCreate(ValueObject object, Session session) {
-		if (provider.isFullTextSearchAvailable()) {
+		if (isAvailable()) {
 			index(object);
 		}
 	}
 
 	@Override
 	public void notifyChange(ValueObject object, Session session) {
-		if (provider.isFullTextSearchAvailable()) {
+		if (isAvailable()) {
 			index(object);
 		}
 	}
 
 	@Override
 	public void notifyDelete(ValueObject object, Session session) {
-		if (provider.isFullTextSearchAvailable()) {
+		if (isAvailable()) {
 			delete(object);
 		}
 	}
@@ -98,7 +104,7 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 	
 	@Override
 	public void notifyDelete(Entity entity, Session session) {
-		if (provider.isFullTextSearchAvailable()) {
+		if (isAvailable()) {
 			delete(entity);
 		}
 	}
@@ -148,7 +154,28 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 		}
 	}
 	
-	private void index(ValueObject object) {
+	boolean indexChunk(Entity entity, List<ValueObject> objects) {
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(objects, "objects");
+		
+		boolean chunckIndexed = false;
+		log.info("Indexing {} ({})", entity.getInternalName(), objects.size());
+		final SolrClient solrClient = provider.getSolrClient();
+		try {
+			for (ValueObject object : objects) {
+				solrClient.add(buildDocument(entity, object));
+			}
+			solrClient.commit();
+			chunckIndexed = true;
+		}
+		catch (Exception ex) {
+			// only warn
+			log.warn("Error while full-text indexing", ex);
+		}
+		return chunckIndexed;
+	}
+	
+	void index(ValueObject object) {
 		Assert.notNull(object, C.OBJECT);
 		
 		final Entity entity = repository.getEntity(object);
@@ -164,6 +191,18 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 				// only warn
 				log.warn("Error while full-text indexing", e);
 			}
+		}
+	}
+	
+	void deleteIndex() {
+		final SolrClient solrClient = provider.getSolrClient();
+		log.debug("Deleting index");
+		try {
+			solrClient.deleteByQuery("*:*");
+			solrClient.commit();
+		} 
+		catch (SolrServerException | IOException e) {
+			throw new InternalException(e);
 		}
 	}
 	

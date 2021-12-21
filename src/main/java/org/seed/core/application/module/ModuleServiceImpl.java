@@ -33,6 +33,7 @@ import org.seed.core.data.AbstractSystemEntityService;
 import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
+import org.seed.core.util.BeanUtils;
 import org.seed.core.util.MiscUtils;
 import org.seed.core.util.UID;
 
@@ -193,7 +194,7 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 	private List<ModuleDependent<? extends ApplicationEntity>> getModuleDependents() {
 		if (moduleDependents == null) {
 			moduleDependents = MiscUtils.castList(
-				MiscUtils.getBeans(applicationContext, ModuleDependent.class));
+					BeanUtils.getBeans(applicationContext, ModuleDependent.class));
 		}
 		return moduleDependents;
 	}

@@ -134,17 +134,23 @@ public class ApplicationSettingServiceImpl implements ApplicationSettingService 
 				for (SettingChangeAware changeAware : changeAwareObjects) {
 					changeAware.notifyChange(null, session);
 				}
-				
 				tx.commit();
-				
-				this.getSettingMap().clear();
-				this.getSettingMap().putAll(settings);
+				resetSettingMap(settings);
 			}
 			catch (Exception ex) {
 				if (tx != null) {
 					tx.rollback();
 				}
 				throw new InternalException(ex);
+			}
+		}
+	}
+	
+	private void resetSettingMap(Map<Setting, String> settings) {
+		this.getSettingMap().clear();
+		for (Map.Entry<Setting, String> entry : settings.entrySet()) {
+			if (entry.getValue() != null) {
+				this.getSettingMap().put(entry.getKey(), entry.getValue());
 			}
 		}
 	}

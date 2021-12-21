@@ -20,6 +20,7 @@ package org.seed.core.entity.value;
 import java.util.List;
 
 import org.hibernate.Session;
+
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.api.TransformationFunction;
@@ -35,7 +36,7 @@ import org.seed.core.entity.transform.TransformerFunction;
 import org.seed.core.entity.transform.TransformerService;
 import org.seed.core.entity.value.event.ValueObjectFunctionContext;
 import org.seed.core.util.Assert;
-import org.seed.core.util.MiscUtils;
+import org.seed.core.util.BeanUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -53,7 +54,7 @@ public class ValueObjectTransformer {
 	private ValueObjectAccess objectAccess;
 	
 	@Autowired
-	private SessionProvider sessionFactoryProvider;
+	private SessionProvider sessionProvider;
 	
 	public void transform(Transformer transformer, ValueObject sourceObject, ValueObject targetObject) {
 		Assert.notNull(transformer, C.TRANSFORMER);
@@ -108,7 +109,7 @@ public class ValueObjectTransformer {
 							   ValueObject sourceObject, ValueObject targetObject,
 							   boolean beforeTransformation) {
 		if (transformer.hasFunctions()) {
-			try (Session session = sessionFactoryProvider.getSession()) {
+			try (Session session = sessionProvider.getSession()) {
 				final ValueObjectFunctionContext functionContext = new ValueObjectFunctionContext(session, transformer.getModule());
 				for (TransformerFunction function : transformer.getFunctions()) {
 					if ((beforeTransformation && function.isActiveBeforeTransformation()) || 
@@ -130,7 +131,7 @@ public class ValueObjectTransformer {
 		}
 		try {
 			final TransformationFunction<ValueObject, ValueObject> transformationFunction = 
-					(TransformationFunction<ValueObject, ValueObject>) MiscUtils.instantiate(functionClass);
+					(TransformationFunction<ValueObject, ValueObject>) BeanUtils.instantiate(functionClass);
 			transformationFunction.transform(sourceObject, targetObject, functionContext);
 		}
 		catch (Exception ex) {

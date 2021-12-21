@@ -29,15 +29,13 @@ import org.seed.core.entity.value.ValueEntity;
 import org.seed.core.task.JobScheduler;
 import org.seed.core.user.UserService;
 import org.seed.core.util.Assert;
+import org.seed.core.util.BeanUtils;
 import org.seed.core.util.MiscUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
-import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.stereotype.Component;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -173,27 +171,18 @@ public class DynamicConfiguration implements UpdatableConfiguration {
 				.applySettings(createSettings(boot))
 				.build();
 		final MetadataSources metaSources = new MetadataSources(serviceRegistry);
-		registerSystemEntities(metaSources);
+		
+		// register system entities
+		for (Class<?> annotatedClass : BeanUtils.getAnnotatedClasses(Entity.class)) {
+			metaSources.addAnnotatedClass(annotatedClass);
+		}
+		log.info("System entities registered");
+		
+		// register generated entities
 		if (!boot) {
 			registerGeneratedEntities(metaSources);
 		}
 		return metaSources.getMetadataBuilder().build().getSessionFactoryBuilder();
-	}
-	
-	private void registerSystemEntities(MetadataSources sources) {
-		final ClassPathScanningCandidateComponentProvider scanner =
-			new ClassPathScanningCandidateComponentProvider(false);
-		scanner.addIncludeFilter(new AnnotationTypeFilter(Entity.class));
-		for (BeanDefinition beanDef : scanner.findCandidateComponents("org.seed.core")) {
-			try {
-				log.debug("Register {}", beanDef.getBeanClassName());
-				sources.addAnnotatedClass(Class.forName(beanDef.getBeanClassName()));
-			} 
-			catch (Exception ex) {
-				throw new ConfigurationException("failed to register " + beanDef.getBeanClassName(), ex);
-			}
-		}
-		log.info("System entities registered");
 	}
 	
 	private void registerGeneratedEntities(MetadataSources metadataSources) {

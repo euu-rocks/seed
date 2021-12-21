@@ -23,20 +23,14 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.seed.core.data.AbstractSystemObject;
-
 @Entity
 @Table(name = "sys_task_run_log")
-public class TaskRunLog extends AbstractSystemObject {
+public class TaskRunLog extends AbstractTaskRunLog {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "run_id")
 	private TaskRun run;
 	
-	private LogLevel level;
-	
-	private String content;
-
 	public TaskRun getRun() {
 		return run;
 	}
@@ -45,20 +39,4 @@ public class TaskRunLog extends AbstractSystemObject {
 		this.run = run;
 	}
 
-	public LogLevel getLevel() {
-		return level;
-	}
-
-	public void setLevel(LogLevel level) {
-		this.level = level;
-	}
-
-	public String getContent() {
-		return content;
-	}
-
-	public void setContent(String content) {
-		this.content = content;
-	}
-	
 }

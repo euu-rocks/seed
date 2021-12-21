@@ -54,6 +54,7 @@ import org.seed.core.entity.transform.TransformerService;
 import org.seed.core.form.layout.LayoutService;
 import org.seed.core.user.User;
 import org.seed.core.util.Assert;
+import org.seed.core.util.BeanUtils;
 import org.seed.core.util.MiscUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -951,7 +952,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	
 	private List<FormChangeAware> getChangeAwareObjects() {
 		if (changeAwareObjects == null) {
-			changeAwareObjects = MiscUtils.getBeans(applicationContext, FormChangeAware.class);
+			changeAwareObjects = BeanUtils.getBeans(applicationContext, FormChangeAware.class);
 		}
 		return changeAwareObjects;
 	}

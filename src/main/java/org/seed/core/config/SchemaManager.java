@@ -35,6 +35,7 @@ import org.hibernate.Session;
 import org.seed.core.config.changelog.ChangeLog;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
+import org.seed.core.util.StreamUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +83,7 @@ public class SchemaManager {
 	private void init() {
 		Assert.notNull(systemChangeLogResource, "system-changelog not found");
 		try {
-			systemChangeLog = MiscUtils.getResourceAsText(systemChangeLogResource);
+			systemChangeLog = StreamUtils.getResourceAsText(systemChangeLogResource);
 		} 
 		catch (Exception ex) {
 			throw new ConfigurationException("failed to load system-changelog ", ex);
@@ -168,7 +169,7 @@ public class SchemaManager {
 	private String loadSchemaUpdateChangeSet(SchemaVersion version) {
 		final String resourceName = "classpath:liquibase/system-update-" + version + ".json";
 		try {
-			return MiscUtils.getResourceAsText(resourceLoader.getResource(resourceName));
+			return StreamUtils.getResourceAsText(resourceLoader.getResource(resourceName));
 		} 
 		catch (Exception ex) {
 			throw new ConfigurationException("failed to load: " + resourceName, ex);
@@ -209,7 +210,7 @@ public class SchemaManager {
 		public InputStreamList openStreams(String relativeTo, String streamPath) throws IOException {
 			Assert.state(FILENAME_CHANGELOG.equals(streamPath), "unknown path: " + streamPath);
 			
-			return new InputStreamList(null, MiscUtils.getStringAsStream(text)); 
+			return new InputStreamList(null, StreamUtils.getStringAsStream(text)); 
 		}
 
 		@Override

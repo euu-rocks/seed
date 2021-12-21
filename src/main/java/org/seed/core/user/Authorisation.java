@@ -37,7 +37,8 @@ public enum Authorisation {
 	SEARCH_FULLTEXT,
 	CALL_REST,
 	ENDPOINTS,
-	SYSTEMINFO;
+	SYSTEMINFO,
+	SYSTEMTASK;
 	
 	private static final String ROLE_PREFIX = "ROLE_";
 	

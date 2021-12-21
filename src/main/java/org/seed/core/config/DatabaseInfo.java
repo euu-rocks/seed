@@ -42,7 +42,7 @@ public final class DatabaseInfo {
 		return version;
 	}
 	
-	boolean isPostgres() {
+	public boolean isPostgres() {
 		return name.toLowerCase().startsWith("postgres");
 	}
 	

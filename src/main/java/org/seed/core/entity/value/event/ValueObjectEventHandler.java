@@ -32,7 +32,7 @@ import org.seed.core.entity.EntityStatusTransition;
 import org.seed.core.entity.EntityStatusTransitionFunction;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.util.Assert;
-import org.seed.core.util.MiscUtils;
+import org.seed.core.util.BeanUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -175,7 +175,7 @@ public class ValueObjectEventHandler {
 																  function.getGeneratedClass());
 		try {
 			final CallbackFunction<ValueObject> callbackFunction = 
-					(CallbackFunction<ValueObject>) MiscUtils.instantiate(functionClass);
+					(CallbackFunction<ValueObject>) BeanUtils.instantiate(functionClass);
 			if (functionContext == null) {
 				functionContext = new ValueObjectFunctionContext(session, entity.getModule(), statusTransition);
 			}

@@ -22,7 +22,7 @@ import java.util.List;
 import org.seed.C;
 import org.seed.core.config.Limits;
 import org.seed.core.util.Assert;
-import org.seed.core.util.MiscUtils;
+import org.seed.core.util.BeanUtils;
 import org.seed.core.util.NameUtils;
 import org.seed.core.util.ObjectAccess;
 
@@ -70,7 +70,7 @@ public abstract class AbstractSystemEntityValidator<T extends SystemEntity>
 	}
 	
 	protected <B> List<B> getBeans(Class<B> type) {
-		return MiscUtils.getBeans(applicationContext, type);
+		return BeanUtils.getBeans(applicationContext, type);
 	}
 	
 	protected int getLimit(String key) {

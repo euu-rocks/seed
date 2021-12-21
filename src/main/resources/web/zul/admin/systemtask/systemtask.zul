@@ -1,0 +1,61 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<?component name="sytemtask-runs" macroURI="~./zul/admin/systemtask/systemtask_runs.zul" inline="true"?>
+<borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.SystemTaskViewModel')">
+	<north border="0">
+		<toolbar hflex="1">
+			<toolbarbutton iconSclass="z-icon-play alpha-icon-lg" 
+						   label="${labels.button.start}" 
+						   onClick="@command('startTask')"/>
+		</toolbar>
+	</north>
+	<center border="0">
+		<vlayout hflex="1" vflex="1">
+			<grid hflex="1" class="alpha-noborder">
+				<columns>
+	            	<column hflex="min"/>
+	              	<column hflex="max"/>
+	            </columns>
+				<rows>
+					<row>
+						<cell style="padding: 4px 10px" align="right">
+							<label value="${labels.label.function}:"/>
+						</cell>
+						<cell style="padding: 4px 4px">
+							<label value="@load(vm.getEnumLabel(vm.systemTask))"
+								   style="font-weight:bold"/>
+						</cell>
+					</row>
+				</rows>
+			</grid>
+			<tabbox id="mainTabbox" hflex="1" vflex="1" class="alpha-tabbox">
+				<tabs>
+					<tab label="${labels.label.jobruns}"/>
+				</tabs>
+				<tabpanels> 
+					<tabpanel>
+						<sytemtask-runs/>
+					</tabpanel>
+				</tabpanels>
+			</tabbox>
+		</vlayout>
+	</center>
+</borderlayout>

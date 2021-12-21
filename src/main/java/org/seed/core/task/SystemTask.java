@@ -15,24 +15,9 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.data.dbobject;
+package org.seed.core.task;
 
-import org.hibernate.Session;
-
-import org.seed.core.data.AbstractSystemEntityRepository;
-
-import org.springframework.stereotype.Repository;
-
-@Repository
-public class DBObjectRepository extends AbstractSystemEntityRepository<DBObject> {
-
-	public DBObjectRepository() {
-		super(DBObjectMetadata.class);
-	}
+public enum SystemTask {
 	
-	@Override()
-	public Session getSession() {
-		return super.getSession();
-	}
-
+	FULLTEXTSEARCH_INDEXALL
 }

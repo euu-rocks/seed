@@ -20,8 +20,6 @@ package org.seed.core.config;
 import org.hibernate.Cache;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.dialect.Dialect;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.stat.Statistics;
 
 import org.seed.core.util.Assert;
@@ -33,8 +31,6 @@ public class DefaultSessionProvider implements SessionProvider {
 	
 	private SessionFactory sessionFactory;
 	
-	private Dialect dialect;
-	
 	@Override
 	public synchronized boolean isSessionAvailable() {
 		return sessionFactory != null;
@@ -44,15 +40,6 @@ public class DefaultSessionProvider implements SessionProvider {
 	public synchronized Session getSession() {
 		return getSessionFactory().openSession();
 	}
-
-	@Override
-	public synchronized Dialect getDialect() {
-		if (dialect == null) {
-			dialect = ((SessionFactoryImplementor) getSessionFactory())
-						.getJdbcServices().getDialect();
-		}
-		return dialect;
-	}
 	
 	@Override
 	public synchronized Statistics getStatistics() {
@@ -60,6 +47,8 @@ public class DefaultSessionProvider implements SessionProvider {
 	}
 	
 	synchronized void setSessionFactory(SessionFactory sessionFactory) {
+		Assert.notNull(sessionFactory, "sessionFactory");
+		
 		if (isSessionAvailable()) {
 			close();
 		}

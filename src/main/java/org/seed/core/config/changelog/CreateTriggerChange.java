@@ -17,7 +17,7 @@
  */
 package org.seed.core.config.changelog;
 
-import org.seed.core.util.MiscUtils;
+import org.seed.core.util.StreamUtils;
 
 import org.springframework.util.StringUtils;
 
@@ -52,7 +52,7 @@ public class CreateTriggerChange extends AbstractCustomChange {
 	
 	@Override
 	protected String getSql() {
-		return MiscUtils.decompress(triggerText);
+		return StreamUtils.decompress(triggerText);
 	}
 
 	@Override

@@ -17,7 +17,7 @@
  */
 package org.seed.core.config.changelog;
 
-import org.seed.core.util.MiscUtils;
+import org.seed.core.util.StreamUtils;
 
 import org.springframework.util.StringUtils;
 
@@ -52,7 +52,7 @@ public class CreateFunctionChange extends AbstractCustomChange {
 
 	@Override
 	protected String getSql() {
-		return MiscUtils.decompress(functionText);
+		return StreamUtils.decompress(functionText);
 	}
 
 	@Override

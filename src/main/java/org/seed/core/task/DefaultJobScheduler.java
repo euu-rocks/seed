@@ -43,17 +43,20 @@ import org.seed.core.codegen.CodeManager;
 import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.config.SessionProvider;
 import org.seed.core.util.Assert;
+import org.seed.core.util.BeanUtils;
 import org.seed.core.util.ExceptionUtils;
-import org.seed.core.util.MiscUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DefaultJobScheduler implements JobScheduler, JobListener {
+public class DefaultJobScheduler 
+	implements JobScheduler, JobListener, ApplicationContextAware {
 	
 	private static final Logger log = LoggerFactory.getLogger(DefaultJobScheduler.class);
 	
@@ -71,10 +74,17 @@ public class DefaultJobScheduler implements JobScheduler, JobListener {
 	@Autowired
 	private SessionProvider sessionProvider;
 	
+	private ApplicationContext applicationContext;
+	
 	@PostConstruct
 	private void init() {
 		addJobListener(this);
 		log.info("DefaultJobScheduler created");
+	}
+	
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
 	}
 	
 	@Override
@@ -140,6 +150,21 @@ public class DefaultJobScheduler implements JobScheduler, JobListener {
 	}
 	
 	@Override
+	public void startSystemJob(SystemTask systemTask) {
+		Assert.notNull(systemTask, "systemTask");
+		try {
+			getScheduler().scheduleJob(createImmediateJobDetail(systemTask), 
+									   createImmediateTrigger(systemTask));
+		} 
+		catch (SchedulerException ex) {
+			throw new InternalException(ex);
+		}
+		if (log.isInfoEnabled()) {
+			log.info("Job for system task '{}' started", systemTask.name());
+		}
+	}
+	
+	@Override
 	public void scheduleTask(Task task) {
 		Assert.notNull(task, C.TASK);
 		
@@ -161,7 +186,7 @@ public class DefaultJobScheduler implements JobScheduler, JobListener {
 	public void scheduleAllTasks() {
 		try {
 			for (Class<GeneratedCode> jobClass : codeManager.getGeneratedClasses(Job.class)) {
-				scheduleJob((Job) MiscUtils.instantiate(jobClass));
+				scheduleJob((Job) BeanUtils.instantiate(jobClass));
 			}
 		}
 		catch (Exception ex) {
@@ -193,6 +218,16 @@ public class DefaultJobScheduler implements JobScheduler, JobListener {
 
 	@Override
 	public void jobToBeExecuted(JobExecutionContext context) {
+		if (context.getJobInstance() instanceof Job) {
+			prepareJob(context);
+		}
+		else {	// system job
+			prepareSystemJob(context);
+		}
+		log.debug("start job: {}", context.getJobDetail());
+	}
+	
+	private void prepareJob(JobExecutionContext context) {
 		final Job job = (Job) context.getJobInstance();
 		final Task task = getTask(job);
 		final TaskRun run = taskService.createRun(task);
@@ -204,7 +239,16 @@ public class DefaultJobScheduler implements JobScheduler, JobListener {
 		if (task.hasParameters()) {
 			context.put(DefaultJobContext.RUN_PARAMS, task.getParameters());
 		}
-		log.debug("start job: {}", context.getJobDetail());
+	}
+	
+	private void prepareSystemJob(JobExecutionContext context) {
+		final AbstractSystemJob job = (AbstractSystemJob) context.getJobInstance();
+		final SystemTaskRun run = taskService.createRun(job.getTask());
+		taskService.saveSystemTaskRun(run);
+		
+		Assert.stateAvailable(applicationContext, "applicationContext");
+		context.put(AbstractSystemJob.APPLICATION_CONTEXT, applicationContext);
+		context.put(AbstractSystemJob.SYSTEMTASK_RUN, run);
 	}
 	
 	@Override
@@ -212,22 +256,30 @@ public class DefaultJobScheduler implements JobScheduler, JobListener {
 		log.debug("vetoed job: {}", context.getJobDetail());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void jobWasExecuted(JobExecutionContext context, JobExecutionException jobException) {
+		if (context.getJobInstance() instanceof Job) {
+			finalizeJob(context, jobException);
+		}
+		else { // system job
+			finalizeSystemJob(context, jobException);
+		}
+		log.debug("finished job: {}", context.getJobDetail());
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void finalizeJob(JobExecutionContext context, JobExecutionException jobException) {
 		final Job job = (Job) context.getJobInstance();
 		final Task task = getTask(job);
 		final Long taskRunId = (Long) context.get(DefaultJobContext.RUN_ID);
 		final TaskRun run = task.getRunById(taskRunId);
 		Assert.stateAvailable(run, "run " + taskRunId);
 		
-		LogLevel maxLevel = LogLevel.INFO;
-		for (TaskRunLog runLog : (List<TaskRunLog>) context.get(DefaultJobContext.RUN_LOGS)) {
-			run.addLog(runLog);
-			if (runLog.getLevel().ordinal() > maxLevel.ordinal()) {
-				maxLevel = runLog.getLevel();
-			}
+		final List<TaskRunLog> logs = (List<TaskRunLog>) context.get(DefaultJobContext.RUN_LOGS);
+		if (logs != null) {
+			logs.forEach(run::addLog);
 		}
+		LogLevel maxLevel = run.getMaxLogLevel();
 		if (jobException != null) {
 			logError(run, jobException.getCause());
 			maxLevel = LogLevel.ERROR;
@@ -239,7 +291,18 @@ public class DefaultJobScheduler implements JobScheduler, JobListener {
 		if (task.hasNotifications()) {
 			taskService.sendNotifications(task, run);
 		}
-		log.debug("finished job: {}", context.getJobDetail());
+	}
+	
+	private void finalizeSystemJob(JobExecutionContext context, JobExecutionException jobException) {
+		final SystemTaskRun run = (SystemTaskRun) context.get(AbstractSystemJob.SYSTEMTASK_RUN);
+		LogLevel maxLevel = run.getMaxLogLevel();
+		if (jobException != null) {
+			logError(run, jobException.getCause());
+			maxLevel = LogLevel.ERROR;
+		}
+		run.setEndTime(new Date());
+		run.setResult(TaskResult.getResult(maxLevel));
+		taskService.saveSystemTaskRun(run);
 	}
 	
 	private Class<?> getJobClass(Task task) {
@@ -258,12 +321,17 @@ public class DefaultJobScheduler implements JobScheduler, JobListener {
 		return task;
 	}
 	
-	private void logError(TaskRun run, Throwable throwable) {
+	private void logError(AbstractTaskRun run, Throwable throwable) {
 		for (String line : ExceptionUtils.getStackTraceAsString(throwable).split("\n")) {
 			if (line.contains(AbstractJob.class.getName())) {
 				break;
 			}
-			log(run, LogLevel.ERROR, line);
+			if (run instanceof TaskRun) {
+				log((TaskRun) run, LogLevel.ERROR, line);
+			}
+			else {
+				log((SystemTaskRun) run, LogLevel.ERROR, line);
+			}
 		}
 	}
 	
@@ -282,6 +350,12 @@ public class DefaultJobScheduler implements JobScheduler, JobListener {
 				 .build();
 	}
 	
+	private JobDetail createImmediateJobDetail(SystemTask systemTask) {
+		return JobBuilder.newJob(taskService.getSystemJobClass(systemTask))
+				.withIdentity(systemTask.name(), GROUP_SEED)
+				.build();
+	}
+	
 	@SuppressWarnings("unchecked")
 	private JobDetail createJobDetail(Task task) {
 		return JobBuilder.newJob((Class<? extends org.quartz.Job>) getJobClass(task))
@@ -290,8 +364,16 @@ public class DefaultJobScheduler implements JobScheduler, JobListener {
 	}
 	
 	private static Trigger createImmediateTrigger(Task task) {
+		return createImmediateTrigger(task.getId().toString());
+	}
+	
+	private static Trigger createImmediateTrigger(SystemTask systemTask) {
+		return createImmediateTrigger(systemTask.name());
+	}
+	
+	private static Trigger createImmediateTrigger(String name) {
 		return TriggerBuilder.newTrigger()
-		   		.withIdentity(task.getId().toString(), GROUP_SEED)
+		   		.withIdentity(name, GROUP_SEED)
 		   		.startNow()
 		   		.build();
 	}
@@ -325,5 +407,12 @@ public class DefaultJobScheduler implements JobScheduler, JobListener {
 		runLog.setContent(message);
 		run.addLog(runLog);
 	}
-
+	
+	private static void log(SystemTaskRun run, LogLevel level, String message) {
+		final SystemTaskRunLog runLog = new SystemTaskRunLog();
+		runLog.setLevel(level);
+		runLog.setContent(message);
+		run.addLog(runLog);
+	}
+	
 }

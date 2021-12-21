@@ -27,7 +27,7 @@ import org.hibernate.Transaction;
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.util.Assert;
-import org.seed.core.util.MiscUtils;
+import org.seed.core.util.BeanUtils;
 
 public abstract class AbstractSystemEntityService<T extends SystemEntity> 
 	implements SystemEntityService<T> {
@@ -39,7 +39,7 @@ public abstract class AbstractSystemEntityService<T extends SystemEntity>
 	@Override
 	public T createInstance(@Nullable Options options) { 
 		try {
-			final T instance = MiscUtils.instantiate(getRepository().getEntityTypeClass());
+			final T instance = BeanUtils.instantiate(getRepository().getEntityTypeClass());
 			((AbstractSystemEntity) instance).setOptions(options);
 			return instance;
 		} 

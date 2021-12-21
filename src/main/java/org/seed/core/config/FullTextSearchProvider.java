@@ -23,12 +23,14 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 
 import org.seed.core.util.Assert;
+import org.seed.core.util.NameUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 @Component
 public class FullTextSearchProvider {
@@ -42,19 +44,26 @@ public class FullTextSearchProvider {
 	
 	@PostConstruct
 	private void init() {
+		if (!NameUtils.booleanValue(environment.getProperty("search.solr.enable"))) {
+			return;
+		}
 		final String propSolrUrl = environment.getProperty("search.solr.url");
-		if (propSolrUrl != null) {
+		if (StringUtils.hasText(propSolrUrl)) {
 			try {
 				solrClient = new HttpSolrClient.Builder(propSolrUrl).build();
 				solrClient.ping();
-				log.info("Full-text search enabled");
+				log.info("full-text search enabled");
+				return;
 			}
 			catch (Exception e) {
 				solrClient = null;
 				log.warn("Solr server not found: {}", propSolrUrl);
-				log.warn("Full-text search not available");
 			}
 		}
+		else {
+			log.warn("property 'search.solr.url' not available");
+		}
+		log.warn("full-text search not available");
 	}
 	
 	public boolean isFullTextSearchAvailable() {

@@ -49,6 +49,8 @@ public interface ValueObjectService {
 	
 	ValueObject createObject(Entity entity, Map<String,Object> valueMap);
 	
+	Cursor<ValueObject> createCursor(Entity entity, int chuckSize);
+	
 	Cursor<ValueObject> createCursor(Entity entity, @Nullable Filter filter, Sort ...sort);
 	
 	Cursor<ValueObject> createCursor(ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sort);
@@ -60,6 +62,8 @@ public interface ValueObjectService {
 	List<ValueObject> loadChunk(Cursor<ValueObject> cursor);
 	
 	List<FullTextResult> loadFullTextChunk(Cursor<FullTextResult> cursor);
+	
+	void indexAllObjects();
 	
 	boolean notifyChange(ValueObject object);
 	

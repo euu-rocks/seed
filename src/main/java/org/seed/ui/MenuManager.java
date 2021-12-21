@@ -144,6 +144,11 @@ public class MenuManager {
 										"/admin/systeminfo/systeminfo.zul", 
 										"z-icon-info z-icon-fw alpha-icon-lg"));
 		}
+		if (user.isAuthorised(Authorisation.SYSTEMTASK)) {
+			nodeAdmin.addChild(new TreeNode(getLabel("label.systemtasks"),
+										"/admin/systemtask/systemtasklist.zul", 
+										"z-icon-gavel z-icon-fw alpha-icon-lg"));
+		}
 		if (user.isAuthorised(Authorisation.ADMIN_USER)) {
 			createUserMenu(nodeAdmin);
 		}

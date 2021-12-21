@@ -19,12 +19,13 @@ package org.seed.ui.zk.vm.admin;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.JobListener;
+
 import org.seed.C;
+import org.seed.core.api.Job;
 import org.seed.core.application.ContentObject;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.data.SystemObject;
@@ -44,6 +45,7 @@ import org.seed.core.user.Authorisation;
 import org.seed.core.user.User;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
+import org.seed.core.util.NameUtils;
 
 import org.springframework.util.ObjectUtils;
 import org.zkoss.bind.annotation.BindingParam;
@@ -66,8 +68,6 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	private static final String PERMISSIONS = "permissions";
 	private static final String NOTIFICATIONS = "notifications";
 	
-	private final String listenerName = UUID.randomUUID().toString();
-	
 	@WireVariable(value="taskServiceImpl")
 	private TaskService taskService;
 	
@@ -76,6 +76,8 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	
 	@WireVariable(value="defaultJobScheduler")
 	private JobScheduler jobScheduler;
+	
+	private String listenerName;
 	
 	private TaskParameter parameter;
 	
@@ -363,6 +365,9 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 
 	@Override
 	public String getName() {
+		if (listenerName == null) {
+			listenerName = NameUtils.getRandomName();
+		}
 		return listenerName;
 	}
 
@@ -382,20 +387,22 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	}
 	
 	private void notifyJobStatusChange(JobExecutionContext context) {
-		switch (getViewMode()) {
-			case LIST:
-				jobStatusChanged = true;
-				break;
-			
-			case DETAIL:
-				final AbstractJob job = (AbstractJob) context.getJobInstance();
-				if (taskService.getTask(job).equals(getObject())) {
+		if (context.getJobInstance() instanceof Job) {
+			switch (getViewMode()) {
+				case LIST:
 					jobStatusChanged = true;
-				}
-				break;
-			
-			default:
-				throw new UnsupportedOperationException(getViewMode().name());
+					break;
+				
+				case DETAIL:
+					final AbstractJob job = (AbstractJob) context.getJobInstance();
+					if (taskService.getTask(job).equals(getObject())) {
+						jobStatusChanged = true;
+					}
+					break;
+				
+				default:
+					throw new UnsupportedOperationException(getViewMode().name());
+			}
 		}
 	}
 

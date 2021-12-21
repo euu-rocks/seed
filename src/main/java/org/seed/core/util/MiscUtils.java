@@ -17,34 +17,19 @@
  */
 package org.seed.core.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.zip.DeflaterOutputStream;
-import java.util.zip.InflaterOutputStream;
 
 import org.apache.commons.io.FileUtils;
 
-import org.seed.C;
-import org.seed.InternalException;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.core.io.Resource;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.StreamUtils;
 
 public abstract class MiscUtils {
 	
@@ -80,23 +65,6 @@ public abstract class MiscUtils {
 		return bytes != null 
 				? new String(bytes, 0, bytes.length, CHARSET) 
 				: null;
-	}
-	
-	public static <T> T instantiate(Class<T> clas) {
-		try {
-			return clas.getDeclaredConstructor().newInstance();
-		} 
-		catch (Exception ex) {
-			throw new InternalException(ex);
-		}
-	}
-	
-	public static <B> List<B> getBeans(ApplicationContext applicationContext, Class<B> type) {
-		Assert.notNull(applicationContext, C.CONTEXT);
-		Assert.notNull(type, C.TYPE);
-		
-		return applicationContext.getBeansOfType(type).values()
-									.stream().collect(Collectors.toList());
 	}
 	
 	public static String filterString(String text, Predicate<Character> predicate) {
@@ -143,7 +111,6 @@ public abstract class MiscUtils {
 			if (durationSec > SEC_HOUR) {
 				buf.append(formatDurationPart((durationSec % SEC_DAY) / SEC_HOUR))
 				   .append(':');
-				
 			}
 			buf.append(formatDurationPart((durationSec % SEC_HOUR) / SEC_MINUTE)).append(':')	// min
 			   .append(formatDurationPart((durationSec % SEC_MINUTE)));							// sec
@@ -169,80 +136,8 @@ public abstract class MiscUtils {
 		return text;
 	}
 	
-	public static String getResourceAsText(Resource resource) throws IOException {
-		return getStreamAsText(resource.getInputStream());
-	}
-	
-	public static String getFileAsText(File file) throws IOException {
-		return getStreamAsText(new FileInputStream(file));
-	}
-	
-	public static InputStream getStringAsStream(String string) {
-		return new ByteArrayInputStream(string.getBytes(CHARSET));
-	}
-	
-	public static boolean booleanValue(String property) {
-		return "true".equalsIgnoreCase(property) ||
-			   "yes".equalsIgnoreCase(property) ||
-			   "ja".equalsIgnoreCase(property) ||
-			   "on".equalsIgnoreCase(property) ||
-			   "1".equals(property);
-	}
-	
-	public static String compress(String text) {
-		if (text != null) {
-			try {
-				final byte[] compressedBytes = compress(text.getBytes(CHARSET));
-				return new String(Base64.getEncoder().encode(compressedBytes), CHARSET);
-			} 
-			catch (IOException ex) {
-				throw new InternalException(ex);
-			}
-		}
-		return text;
-	}
-	
-	public static String decompress(String compressedText) {
-		if (compressedText != null) {
-			try {
-				final byte[] decompressedBytes = decompress(Base64.getDecoder().decode(compressedText));
-				return toString(decompressedBytes);
-			} 
-			catch (IOException ex) {
-				throw new InternalException(ex);
-			}  
-		}
-		return compressedText;
-	}
-	
-	public static byte[] compress(byte[] bytes) throws IOException {
-		final ByteArrayOutputStream out = new ByteArrayOutputStream();
-		if (bytes != null) {
-			try (DeflaterOutputStream deflaterStream = new DeflaterOutputStream(out)) {
-		        deflaterStream.write(bytes);    
-		    }
-		}
-	    return out.toByteArray();
-	}
-	
-	public static byte[] decompress(byte[] bytes) throws IOException {
-	    final ByteArrayOutputStream out = new ByteArrayOutputStream();
-	    if (bytes != null) {
-		    try (InflaterOutputStream inflaterStream = new InflaterOutputStream(out)) {
-		        inflaterStream.write(bytes);    
-		    }
-	    }
-	    return out.toByteArray();
-	}
-	
 	private static String formatDurationPart(long duration) {
 		return addLeadingChars(String.valueOf(duration), '0', 2);
-	}
-	
-	private static String getStreamAsText(InputStream stream) throws IOException {
-		try (InputStream inputStream = stream) {
-			return StreamUtils.copyToString(inputStream, CHARSET);
-		}
 	}
 	
 }

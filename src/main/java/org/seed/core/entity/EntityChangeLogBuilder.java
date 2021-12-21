@@ -21,11 +21,9 @@ import java.util.List;
 
 import javax.persistence.Table;
 
-import org.hibernate.dialect.PostgreSQL81Dialect;
-
 import org.seed.C;
+import org.seed.core.config.DatabaseInfo;
 import org.seed.core.config.Limits;
-import org.seed.core.config.SessionProvider;
 import org.seed.core.config.changelog.AbstractChangeLogBuilder;
 import org.seed.core.config.changelog.ChangeLog;
 import org.seed.core.data.FieldType;
@@ -62,18 +60,18 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	private static final String PREFIX_INDEX       = "idx_";
 	private static final String SUFFIX_STATUS      = "_status";
 	
-	private final Limits limits;
+	private final DatabaseInfo databaseInfo;
 	
-	private final SessionProvider sessionFactoryProvider;
+	private final Limits limits;
 	
 	private List<Entity> descendants; // entities that implements a generic entity
 	
-	EntityChangeLogBuilder(Limits limits, SessionProvider sessionFactoryProvider) {
+	EntityChangeLogBuilder(DatabaseInfo databaseInfo, Limits limits) {
+		Assert.notNull(databaseInfo, "databaseInfo");
 		Assert.notNull(limits, "limits");
-		Assert.notNull(sessionFactoryProvider, "sessionFactoryProvider");
 		
+		this.databaseInfo = databaseInfo;
 		this.limits = limits;
-		this.sessionFactoryProvider = sessionFactoryProvider;
 	}
 	
 	void setDescendants(List<Entity> descendants) {
@@ -138,7 +136,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	
 	static String getColumnName(EntityField entityField) {
 		Assert.notNull(entityField, C.ENTITYFIELD);
-		// column names have to be lower case
+		
 		return entityField.getColumnName() != null 
 				? entityField.getColumnName().toLowerCase()
 				: entityField.getInternalName().toLowerCase();
@@ -505,7 +503,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		}
 		
 		// force bytea instead of oid on postgres
-		if (fieldType.isBinary() && isPostgres()) {
+		if (fieldType.isBinary() && databaseInfo.isPostgres()) {
 			return "bytea";
 		}
 		
@@ -609,10 +607,6 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		if (field.isIndexed()) {
 			addCreateIndexChangeSet(entity, field);
 		}
-	}
-	
-	private boolean isPostgres() {
-		return sessionFactoryProvider.getDialect() instanceof PostgreSQL81Dialect;
 	}
 	
 	private int getLimit(String limitName) {

@@ -15,24 +15,33 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.data.dbobject;
+package org.seed.core.task;
 
-import org.hibernate.Session;
+import javax.persistence.MappedSuperclass;
 
-import org.seed.core.data.AbstractSystemEntityRepository;
+import org.seed.core.data.AbstractSystemObject;
 
-import org.springframework.stereotype.Repository;
+@MappedSuperclass
+public abstract class AbstractTaskRunLog extends AbstractSystemObject {
+	
+	private LogLevel level;
+	
+	private String content;
 
-@Repository
-public class DBObjectRepository extends AbstractSystemEntityRepository<DBObject> {
+	public LogLevel getLevel() {
+		return level;
+	}
 
-	public DBObjectRepository() {
-		super(DBObjectMetadata.class);
+	public void setLevel(LogLevel level) {
+		this.level = level;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
 	}
 	
-	@Override()
-	public Session getSession() {
-		return super.getSession();
-	}
-
 }

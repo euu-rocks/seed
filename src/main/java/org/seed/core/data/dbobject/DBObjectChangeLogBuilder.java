@@ -23,7 +23,7 @@ import org.seed.core.config.changelog.CreateFunctionChange;
 import org.seed.core.config.changelog.CreateTriggerChange;
 import org.seed.core.config.changelog.DropFunctionChange;
 import org.seed.core.config.changelog.DropTriggerChange;
-import org.seed.core.util.MiscUtils;
+import org.seed.core.util.StreamUtils;
 
 import org.springframework.util.ObjectUtils;
 
@@ -106,7 +106,7 @@ class DBObjectChangeLogBuilder extends AbstractChangeLogBuilder<DBObject> {
 	private void addCreateViewChange(DBObject dbObject) {
 		final CreateViewChange createViewChange = new CreateViewChange();
 		createViewChange.setFullDefinition(Boolean.FALSE);
-		createViewChange.setEncoding(MiscUtils.CHARSET.name());
+		createViewChange.setEncoding(StreamUtils.CHARSET.name());
 		createViewChange.setViewName(dbObject.getInternalName());
 		createViewChange.setSelectQuery(dbObject.getContent());
 		addChange(createViewChange);
@@ -120,7 +120,7 @@ class DBObjectChangeLogBuilder extends AbstractChangeLogBuilder<DBObject> {
 	
 	private void addCreateProcedureChange(DBObject dbObject) {
 		final CreateProcedureChange createProcedureChange = new CreateProcedureChange();
-		createProcedureChange.setEncoding(MiscUtils.CHARSET.name());
+		createProcedureChange.setEncoding(StreamUtils.CHARSET.name());
 		createProcedureChange.setProcedureName(dbObject.getInternalName());
 		createProcedureChange.setProcedureText(dbObject.getContent());
 		addChange(createProcedureChange);
@@ -134,7 +134,7 @@ class DBObjectChangeLogBuilder extends AbstractChangeLogBuilder<DBObject> {
 	
 	private void addCreateFunctionChange(DBObject dbObject) {
 		final CreateFunctionChange createFunctionChange = new CreateFunctionChange();
-		createFunctionChange.setFunctionText(MiscUtils.compress(dbObject.getContent()));
+		createFunctionChange.setFunctionText(StreamUtils.compress(dbObject.getContent()));
 		addChange(createFunctionChange);
 	}
 		
@@ -146,7 +146,7 @@ class DBObjectChangeLogBuilder extends AbstractChangeLogBuilder<DBObject> {
 	
 	private void addCreateTriggerChange(DBObject dbObject) {
 		final CreateTriggerChange createTriggerChange = new CreateTriggerChange();
-		createTriggerChange.setTriggerText(MiscUtils.compress(dbObject.getContent()));
+		createTriggerChange.setTriggerText(StreamUtils.compress(dbObject.getContent()));
 		addChange(createTriggerChange);
 	}
 		

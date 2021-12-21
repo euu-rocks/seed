@@ -19,6 +19,171 @@
                      ],
                      "tableName":  "sys_form_field"
                   } 
+               },
+               {
+                  "createTable": {
+                     "tableName": "sys_systemtask_run",
+                     "columns": [
+                       {
+                           "column": {
+                              "name": "id",
+                              "type": "BIGINT",
+                              "constraints": {
+                                  "primaryKey": "true",
+                                  "primaryKeyName": "pk_sys_systemtask_run"
+                              }
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "createdby",
+                              "type": "VARCHAR(<#USERNAME_LEN#>)"
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "createdon",
+                              "type": "DATETIME"
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "modifiedby",
+                              "type": "VARCHAR(<#USERNAME_LEN#>)"
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "modifiedon",
+                              "type": "DATETIME"
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "version",
+                              "type": "INT",
+                              "constraints": {
+                                  "nullable": "false"
+                              }
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "systemtask",
+                              "type": "INT",
+                              "constraints": {
+                                  "nullable": "false"
+                              }
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "starttime",
+                              "type": "DATETIME"
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "endtime",
+                              "type": "DATETIME"
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "result",
+                              "type": "INT"
+                           }
+                       }
+                    ]
+                  }
+               },
+               {
+                  "createTable": {
+                     "tableName": "sys_systemtask_run_log",
+                     "columns": [
+                       {
+                           "column": {
+                              "name": "id",
+                              "type": "BIGINT",
+                              "constraints": {
+                                  "primaryKey": "true",
+                                  "primaryKeyName": "pk_sys_systemtask_run_log"
+                              }
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "createdby",
+                              "type": "VARCHAR(<#USERNAME_LEN#>)"
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "createdon",
+                              "type": "DATETIME"
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "modifiedby",
+                              "type": "VARCHAR(<#USERNAME_LEN#>)"
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "modifiedon",
+                              "type": "DATETIME"
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "version",
+                              "type": "INT",
+                              "constraints": {
+                                  "nullable": "false"
+                              }
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "run_id",
+                              "type": "BIGINT",
+                              "constraints": {
+                                  "nullable": "false"
+                              }
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "level",
+                              "type": "INT",
+                              "constraints": {
+                                  "nullable": "false"
+                              }
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "content",
+                              "type": "VARCHAR(1024)"
+                           }
+                       }
+                    ]
+                  }
+               },
+               {
+                  "addForeignKeyConstraint": {
+                     "baseColumnNames": "run_id",
+                     "baseTableName": "sys_systemtask_run_log",
+                     "constraintName": "fk_sys_systemtask_run_log_run",
+                     "deferrable": "false",
+                     "initiallyDeferred": "false",
+                     "onDelete": "NO ACTION",
+                     "onUpdate": "NO ACTION",
+                     "referencedColumnNames": "id",
+                     "referencedTableName": "sys_systemtask_run",
+                     "validate": "true"
+                  }
                }
             ]
         }

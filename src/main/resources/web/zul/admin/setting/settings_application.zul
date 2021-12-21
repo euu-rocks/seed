@@ -40,7 +40,9 @@
 	                    		</cell>
 	                    		<cell>
 	                    			<textbox value="@bind(vm.getSetting('APPLICATION_NAME').value) @converter(vm.stringConverter)"
+	                    					 placeholder="seed"
 	                    					 onChange="@command('flagDirty')"
+	                    					 instant="true"
 	                    					 hflex="1"/>
 	                    		</cell>
 	                    	</row>

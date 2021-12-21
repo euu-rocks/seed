@@ -27,7 +27,7 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.seed.C;
 import org.seed.core.util.Assert;
-import org.seed.core.util.MiscUtils;
+import org.seed.core.util.StreamUtils;
 
 import org.springframework.util.StringUtils;
 import org.xml.sax.Attributes;
@@ -41,7 +41,7 @@ class LayoutParser {
 	LayoutElement parse(String content) throws SAXException, IOException, ParserConfigurationException {
 		Assert.notNull(content, C.CONTENT);
 		
-		return parse(MiscUtils.getStringAsStream(content));
+		return parse(StreamUtils.getStringAsStream(content));
 	}
 	
 	private LayoutElement parse(InputStream inputStream) throws SAXException, IOException, ParserConfigurationException {

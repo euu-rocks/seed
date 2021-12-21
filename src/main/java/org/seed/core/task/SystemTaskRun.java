@@ -23,40 +23,36 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.seed.core.util.Assert;
 
 @Entity
-@Table(name = "sys_task_run")
-public class TaskRun extends AbstractTaskRun {
+@Table(name = "sys_systemtask_run")
+public class SystemTaskRun extends AbstractTaskRun {
 	
-	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "task_id")
-	private TaskMetadata task;
+	private SystemTask systemTask;
 	
 	@OneToMany(mappedBy = "run",
 			   cascade = CascadeType.ALL,
 			   orphanRemoval = true,
 			   fetch = FetchType.LAZY)
-	private List<TaskRunLog> logs;
+	private List<SystemTaskRunLog> logs;
 	
-	public Task getTask() {
-		return task;
+	public SystemTask getSystemTask() {
+		return systemTask;
 	}
 
-	public void setTask(Task task) {
-		this.task = (TaskMetadata) task;
+	public void setSystemTask(SystemTask systemTask) {
+		this.systemTask = systemTask;
 	}
 
-	public List<TaskRunLog> getLogs() {
+	public List<SystemTaskRunLog> getLogs() {
 		return logs;
 	}
-	
-	public void addLog(TaskRunLog log) {
+
+	public void addLog(SystemTaskRunLog log) {
 		Assert.notNull(log, "log");
 		
 		if (logs == null) {
@@ -65,8 +61,8 @@ public class TaskRun extends AbstractTaskRun {
 		log.setRun(this);
 		logs.add(log);
 	}
-
-	public void setLogs(List<TaskRunLog> logs) {
+	
+	public void setLogs(List<SystemTaskRunLog> logs) {
 		this.logs = logs;
 	}
 	

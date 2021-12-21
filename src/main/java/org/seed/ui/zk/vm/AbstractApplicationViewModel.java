@@ -62,14 +62,14 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	@WireVariable(value="applicationSettingServiceImpl")
 	protected ApplicationSettingService settingService;
 	
+	@WireVariable(value="fullTextSearchProvider")
+	protected FullTextSearchProvider fullTextSearchProvider;
+	
 	@WireVariable(value="reportServiceImpl")
 	protected ReportService reportService;
 	
 	@WireVariable(value="userServiceImpl")
 	protected UserService userService;
-	
-	@WireVariable(value="fullTextSearchProvider")
-	private FullTextSearchProvider fullTextSearch;
 	
 	@WireVariable(value="limits")
 	private Limits limits;
@@ -119,7 +119,7 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	}
 	
 	public boolean isFullTextSearchAvailable() {
-		return fullTextSearch.isFullTextSearchAvailable();
+		return fullTextSearchProvider.isFullTextSearchAvailable();
 	}
 	
 	public final boolean isDirty() {

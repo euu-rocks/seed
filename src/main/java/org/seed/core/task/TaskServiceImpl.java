@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import org.seed.C;
 import org.seed.InternalException;
@@ -48,6 +49,7 @@ import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupDependent;
 import org.seed.core.user.UserGroupService;
 import org.seed.core.util.Assert;
+import org.seed.core.util.BeanUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
@@ -78,6 +80,19 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		instance.createLists();
 		instance.setActive(true);
 		return instance;
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public <T extends AbstractSystemJob> Class<T> getSystemJobClass(SystemTask systemTask) {
+		Assert.notNull(systemTask, "system task");
+		
+		for (Class<? extends AbstractSystemJob> jobClass : BeanUtils.getImplementingClasses(AbstractSystemJob.class)) {
+			if (systemTask == BeanUtils.instantiate(jobClass).getTask()) {
+				return (Class<T>) jobClass;
+			}
+		}
+		return null;
 	}
 	
 	@Override
@@ -113,6 +128,16 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	}
 	
 	@Override
+	public SystemTaskRun createRun(SystemTask systemTask) {
+		Assert.notNull(systemTask, "system task");
+		
+		final SystemTaskRun run = new SystemTaskRun();
+		run.setSystemTask(systemTask);
+		run.setStartTime(new Date());
+		return run;
+	}
+	
+	@Override
 	@Secured("ROLE_ADMIN_JOB")
 	public TaskParameter createParameter(Task task) {
 		Assert.notNull(task, C.TASK);
@@ -131,6 +156,12 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		notification.setResult(TaskResult.SUCCESS);
 		task.addNotification(notification);
 		return notification;
+	}
+	
+	@Override
+	@Secured("ROLE_SYSTEMTASK")
+	public List<SystemTaskRun> getSystemTaskRuns(SystemTask systemTask) {
+		return taskRepository.getSystemTaskRuns(systemTask);
 	}
 	
 	@Override
@@ -305,6 +336,17 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	@Override
 	public void saveTaskDirectly(Task task) {
 		saveObjectDirectly(task);
+	}
+	
+	@Override
+	public void saveSystemTaskRun(SystemTaskRun run) {
+		Assert.notNull(run, "run");
+		
+		try (Session session = taskRepository.getSession()) {
+			Transaction tx = session.beginTransaction();
+			session.saveOrUpdate(run);
+			tx.commit();
+		}
 	}
 	
 	@Override

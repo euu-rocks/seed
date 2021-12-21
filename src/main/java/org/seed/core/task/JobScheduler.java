@@ -29,6 +29,8 @@ public interface JobScheduler {
 	
 	void startJob(Task task);
 	
+	void startSystemJob(SystemTask systemTask);
+	
 	void scheduleTask(Task task);
 	
 	void scheduleAllTasks();

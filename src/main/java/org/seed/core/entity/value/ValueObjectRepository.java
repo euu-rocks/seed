@@ -65,7 +65,7 @@ import org.seed.core.entity.value.event.ValueObjectEvent;
 import org.seed.core.entity.value.event.ValueObjectEventHandler;
 import org.seed.core.entity.value.event.ValueObjectFunctionContext;
 import org.seed.core.util.Assert;
-import org.seed.core.util.MiscUtils;
+import org.seed.core.util.BeanUtils;
 import org.seed.core.util.UID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,7 +77,7 @@ import org.springframework.util.StringUtils;
 public class ValueObjectRepository {
 	
 	@Autowired
-	private SessionProvider sessionFactoryProvider;
+	private SessionProvider sessionProvider;
 	
 	@Autowired
 	private EntityRepository entityRepository;
@@ -123,7 +123,7 @@ public class ValueObjectRepository {
 		checkGeneric(entity);
 		checkSessionAndContext(session, functionContext);
 		try {
-			final AbstractValueObject object = (AbstractValueObject) MiscUtils.instantiate(getEntityClass(entity));
+			final AbstractValueObject object = (AbstractValueObject) BeanUtils.instantiate(getEntityClass(entity));
 			if (entity.hasStatus()) {
 				object.setEntityStatus(entity.getInitialStatus());
 			}
@@ -271,13 +271,10 @@ public class ValueObjectRepository {
 		final List<ValueObject> list = session.createQuery(query)
 											  .setMaxResults(2)
 											  .getResultList();
-		if (list.isEmpty()) {
-			return null;
-		}
 		if (list.size() > 1) {
 			throw new NonUniqueResultException();
 		}
-		return list.get(0);
+		return list.isEmpty() ? null : list.get(0);
 	}
 	
 	public void reload(ValueObject object) {
@@ -443,7 +440,7 @@ public class ValueObjectRepository {
 	}
 	
 	protected Session getSession() {
-		return sessionFactoryProvider.getSession();
+		return sessionProvider.getSession();
 	}
 	
 	protected <T> T querySingleResult(Session session, CriteriaQuery<T> query) {

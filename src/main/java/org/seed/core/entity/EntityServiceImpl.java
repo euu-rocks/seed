@@ -38,7 +38,7 @@ import org.seed.core.application.module.TransferContext;
 import org.seed.core.codegen.CodeChangeAware;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.config.Limits;
-import org.seed.core.config.SessionProvider;
+import org.seed.core.config.SchemaManager;
 import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.config.changelog.ChangeLog;
 import org.seed.core.config.changelog.ReferenceChangeLog;
@@ -51,6 +51,7 @@ import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupDependent;
 import org.seed.core.user.UserGroupService;
 import org.seed.core.util.Assert;
+import org.seed.core.util.BeanUtils;
 import org.seed.core.util.MiscUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +81,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	private UpdatableConfiguration configuration;
 	
 	@Autowired
-	private SessionProvider sessionFactoryProvider;
+	private SchemaManager schemaManager; 
 	
 	@Autowired
 	private Limits limits;
@@ -1121,7 +1122,8 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	private ChangeLog createChangeLog(Entity currentVersionEntity, Entity nextVersionEntity,
 									  @Nullable ReferenceChangeLog referenceChangeLog) {
-		final EntityChangeLogBuilder builder = new EntityChangeLogBuilder(limits, sessionFactoryProvider);
+		final EntityChangeLogBuilder builder = 
+				new EntityChangeLogBuilder(schemaManager.getDatabaseInfo(), limits);
 		builder.setCurrentVersionObject(currentVersionEntity);
 		builder.setNextVersionObject(nextVersionEntity);
 		builder.setReferenceChangeLog(referenceChangeLog);
@@ -1134,7 +1136,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	private List<EntityChangeAware> getChangeAwareObjects() {
 		if (changeAwareObjects == null) {
-			changeAwareObjects = MiscUtils.getBeans(applicationContext, EntityChangeAware.class);
+			changeAwareObjects = BeanUtils.getBeans(applicationContext, EntityChangeAware.class);
 		}
 		return changeAwareObjects;
 	}

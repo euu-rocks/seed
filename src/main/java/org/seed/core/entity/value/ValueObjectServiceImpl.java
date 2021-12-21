@@ -60,6 +60,7 @@ import org.seed.core.util.Assert;
 import org.seed.core.util.Tupel;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -231,6 +232,18 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
+	public Cursor<ValueObject> createCursor(Entity entity, int chuckSize) {
+		Assert.notNull(entity, C.ENTITY);
+		
+		try (Session session = repository.getSession()) {
+			final CriteriaQuery<Long> countQuery = repository.buildCountQuery(session, entity, null); 
+			final Long totalSize = repository.querySingleResult(session, countQuery);
+			final CriteriaQuery<ValueObject> query = repository.buildQuery(session, entity, null);
+			return new Cursor<>(query, totalSize.intValue(), chuckSize);
+		}
+	}
+	
+	@Override
 	public Cursor<ValueObject> createCursor(ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sort) {
 		Assert.notNull(searchObject, "searchObject");
 		Assert.notNull(criteriaMap, "criteriaMap");
@@ -240,6 +253,23 @@ public class ValueObjectServiceImpl
 			final Long totalSize = repository.querySingleResult(session, countQuery);
 			final CriteriaQuery<ValueObject> query = repository.buildQuery(session, searchObject, criteriaMap, sort);
 			return new Cursor<>(query, totalSize.intValue(), CHUNK_SIZE);
+		}
+	}
+	
+	@Override
+	@Async
+	public void indexAllObjects() {
+		for (Entity entity : entityService.findNonGenericEntities()) {
+			if (entity.hasFullTextSearchFields()) {
+				int idx = 0;
+				int chunkIdx = 0;
+				final Cursor<ValueObject> cursor = createCursor(entity, 500);
+				while (idx < cursor.getTotalCount()) {
+					cursor.setChunkIndex(chunkIdx++);
+					fullTextSearch.indexChunk(entity, loadChunk(cursor));
+					idx += cursor.getChunkSize();
+				}
+			}
 		}
 	}
 	

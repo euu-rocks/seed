@@ -74,7 +74,7 @@ public class ModuleTransfer {
 	private TransferService transferService;
 	
 	@Autowired
-	private SessionProvider sessionFactoryProvider;
+	private SessionProvider sessionProvider;
 	
 	@Autowired
 	private List<ApplicationEntityService<?>> applicationServices;
@@ -182,7 +182,7 @@ public class ModuleTransfer {
 		final Module currentVersionModule = getCurrentVersionModule(module);
 		final TransferContext context = new DefaultTransferContext(module);
 		
-		try (Session session = sessionFactoryProvider.getSession()) {
+		try (Session session = sessionProvider.getSession()) {
 			Transaction tx = null;
 			try {
 				tx = session.beginTransaction();

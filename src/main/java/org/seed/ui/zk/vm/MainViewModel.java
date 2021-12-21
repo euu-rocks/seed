@@ -224,7 +224,7 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	
 	@GlobalCommand
 	public void globalRefreshMenu() {
-		notifyChange("isMenuMode", "menuTree", "menuList");
+		notifyChange("isMenuMode", "menuTree", "menuList", "applicationName");
 	}
 	
 	@GlobalCommand

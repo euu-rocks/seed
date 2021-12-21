@@ -212,7 +212,7 @@ public abstract class AbstractTransferProcessor implements TransferProcessor {
 	
 	private Cursor<ValueObject> getCursor() {
 		if (cursor == null) {
-			cursor = valueObjectService.createCursor(transfer.getEntity(), null);
+			cursor = valueObjectService.createCursor(transfer.getEntity(), 500);
 		}
 		return cursor;
 	}

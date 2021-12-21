@@ -18,6 +18,7 @@
 package org.seed.core.util;
 
 import java.util.Arrays;
+import java.util.UUID;
 
 public abstract class NameUtils {
 	
@@ -39,17 +40,24 @@ public abstract class NameUtils {
 		"modifiedby", "modifiedon", "status_id", "uid", "version"
     };
 	
+	private static final String[] TRUE_VALUES = {
+
+		"1", "j", "ja", "on", "true", "y", "yes"
+    };
+	
 	private NameUtils() {}
 	
 	public static boolean isKeyword(String name) {
-		return name != null && 
-			   Arrays.binarySearch(KEYWORDS, name.toLowerCase()) >= 0;
+		return name != null && find(KEYWORDS, name);
 	}
 	
 	public static boolean isIllegalFieldName(String name) {
 		return isKeyword(name) || 
-				(name != null && 
-				 Arrays.binarySearch(ILLEGAL_FIELDNAMES, name.toLowerCase()) >= 0);
+				(name != null && find(ILLEGAL_FIELDNAMES, name));
+	}
+	
+	public static boolean booleanValue(String value) {
+		return value != null && find(TRUE_VALUES, value);
 	}
 	
 	public static String getInternalName(String name) {
@@ -104,6 +112,14 @@ public abstract class NameUtils {
 			}
 		}
 		return buf.toString();
+	}
+	
+	public static String getRandomName() {
+		return UUID.randomUUID().toString();
+	}
+	
+	private static boolean find(String[] vocabulary, String text) {
+		return Arrays.binarySearch(vocabulary, text.toLowerCase()) >= 0;
 	}
 	
 }

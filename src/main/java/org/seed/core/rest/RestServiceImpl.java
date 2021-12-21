@@ -44,7 +44,7 @@ import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupDependent;
 import org.seed.core.user.UserGroupService;
 import org.seed.core.util.Assert;
-import org.seed.core.util.MiscUtils;
+import org.seed.core.util.BeanUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -165,7 +165,7 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 													   session, function.getRest().getModule());
 				// create instance
 				final org.seed.core.api.RestFunction functionInstance = 
-						(org.seed.core.api.RestFunction) MiscUtils.instantiate(functionClass);
+						(org.seed.core.api.RestFunction) BeanUtils.instantiate(functionClass);
 				
 				// call function
 				result = functionInstance.call(context);

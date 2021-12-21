@@ -22,6 +22,10 @@ body {
     overflow: hidden;
 }
 
+.z-listbox-emptybody-content {
+	padding: 10px	
+}
+
 .z-listheader-content, .z-listcell-content, .z-listgroup-content, .z-listgroupfoot-content, .z-listfooter-content {
     padding: 1px 5px;
 }

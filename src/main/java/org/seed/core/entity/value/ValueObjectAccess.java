@@ -26,7 +26,7 @@ import org.seed.core.data.SystemField;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.util.Assert;
-import org.seed.core.util.MiscUtils;
+import org.seed.core.util.BeanUtils;
 import org.seed.core.util.ObjectAccess;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,7 +86,7 @@ public class ValueObjectAccess extends ObjectAccess {
 		
 		try {
 			final Class<?> nestedClass = codeManager.getGeneratedClass(nested.getNestedEntity());
-			final AbstractValueObject nestedObject = (AbstractValueObject) MiscUtils.instantiate(nestedClass);
+			final AbstractValueObject nestedObject = (AbstractValueObject) BeanUtils.instantiate(nestedClass);
 			nestedObject.setTmpId(System.currentTimeMillis());
 			callMethod(object, "add" + StringUtils.capitalize(nested.getInternalName()), nestedObject);
 			return nestedObject;
