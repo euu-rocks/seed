@@ -41,13 +41,12 @@
 		<itext.version>5.5.13.2</itext.version>
 		<opencsv.version>5.5.2</opencsv.version>
 		<mycila-license-version>3.0</mycila-license-version>
-		<log4j2.version>2.16.0</log4j2.version><!-- log4j exploit fix -->
 	</properties>
 	
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.6.1</version>
+		<version>2.6.2</version>
 		<relativePath/>
 	</parent>
 

@@ -219,10 +219,10 @@ public class DynamicConfiguration implements UpdatableConfiguration {
 		settings.put("hibernate.connection.password", applicationProperty("spring.datasource.password"));
 		
 		// connection pool
-		settings.put("hibernate.hikari.connectionTimeout", applicationProperty("connectionpool.connectionTimeout"));
-		settings.put("hibernate.hikari.minimumIdle", applicationProperty("connectionpool.minimumIdle"));
-		settings.put("hibernate.hikari.maximumPoolSize", applicationProperty("connectionpool.maximumPoolSize"));
-		settings.put("hibernate.hikari.idleTimeout", applicationProperty("connectionpool.idleTimeout"));
+		settings.put("hibernate.hikari.connectionTimeout", applicationProperty("db.connectionpool.connectionTimeout"));
+		settings.put("hibernate.hikari.minimumIdle", applicationProperty("db.connectionpool.minimumIdle"));
+		settings.put("hibernate.hikari.maximumPoolSize", applicationProperty("db.connectionpool.maximumPoolSize"));
+		settings.put("hibernate.hikari.idleTimeout", applicationProperty("db.connectionpool.idleTimeout"));
 		
 		// cache
 		settings.put("hibernate.cache.use_second_level_cache", String.valueOf(!boot));

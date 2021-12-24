@@ -184,6 +184,773 @@
                      "referencedTableName": "sys_systemtask_run",
                      "validate": "true"
                   }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_customcode_module",
+                     "tableName": "sys_customcode",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "module_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_customcode_uid",
+                     "tableName": "sys_customcode",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "uid"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_customlib_module",
+                     "tableName": "sys_customlib",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "module_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_customlib_uid",
+                     "tableName": "sys_customlib",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "uid"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_datasource_module",
+                     "tableName": "sys_datasource",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "module_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_datasource_uid",
+                     "tableName": "sys_datasource",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "uid"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_datasrc_param_datasrc",
+                     "tableName": "sys_datasource_param",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "datasource_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_dbobject_module",
+                     "tableName": "sys_dbobject",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "module_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_dbobject_uid",
+                     "tableName": "sys_dbobject",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "uid"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_entity_module",
+                     "tableName": "sys_entity",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "module_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_entity_uid",
+                     "tableName": "sys_entity",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "uid"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_entity_field_entity",
+                     "tableName": "sys_entity_field",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "entity_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_entity_field_con_entity",
+                     "tableName": "sys_entity_field_constraint",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "entity_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_entity_field_grp_entity",
+                     "tableName": "sys_entity_field_group",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "entity_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_entity_func_entity",
+                     "tableName": "sys_entity_function",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "entity_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_entity_perm_entity",
+                     "tableName": "sys_entity_permission",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "entity_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_entity_stat_entity",
+                     "tableName": "sys_entity_status",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "entity_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_entity_stattrans_entity",
+                     "tableName": "sys_entity_statustransition",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "entity_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_entity_stattrans_func_trans",
+                     "tableName": "sys_entity_statustran_func",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "transition_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_entity_stattrans_perm_trans",
+                     "tableName": "sys_entity_statustran_perm",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "transition_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_entity_nest_entity",
+                     "tableName": "sys_entity_nested",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "parent_entity_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_entity_filter_module",
+                     "tableName": "sys_entity_filter",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "module_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_entity_transfer_module",
+                     "tableName": "sys_entity_transfer",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "module_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_entity_transform_module",
+                     "tableName": "sys_entity_transform",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "module_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_form_module",
+                     "tableName": "sys_form",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "module_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_form_uid",
+                     "tableName": "sys_form",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "uid"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_form_action_form",
+                     "tableName": "sys_form_action",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "form_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_form_field_form",
+                     "tableName": "sys_form_field",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "form_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_form_field_extra_form",
+                     "tableName": "sys_form_field_extra",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "form_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_form_printout_form",
+                     "tableName": "sys_form_printout",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "form_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_form_transform_form",
+                     "tableName": "sys_form_transformer",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "form_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_subform_form",
+                     "tableName": "sys_subform",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "form_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_subform_act_subform",
+                     "tableName": "sys_subform_action",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "subform_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_subform_fld_subform",
+                     "tableName": "sys_subform_field",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "subform_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_menu_uid",
+                     "tableName": "sys_menu",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "uid"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_menu_module",
+                     "tableName": "sys_menu",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "module_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_module_uid",
+                     "tableName": "sys_module",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "uid"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_module_param_mod",
+                     "tableName": "sys_module_param",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "module_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_report_uid",
+                     "tableName": "sys_report",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "uid"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_report_module",
+                     "tableName": "sys_report",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "module_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_report_datasrc_report",
+                     "tableName": "sys_report_datasource",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "report_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_report_perm_report",
+                     "tableName": "sys_report_permission",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "report_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_rest_uid",
+                     "tableName": "sys_rest",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "uid"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_rest_module",
+                     "tableName": "sys_rest",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "module_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_rest_function_rest",
+                     "tableName": "sys_rest_function",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "rest_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_rest_perm_report",
+                     "tableName": "sys_rest_permission",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "rest_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_task_uid",
+                     "tableName": "sys_task",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "uid"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_task_module",
+                     "tableName": "sys_task",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "module_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_task_param_task",
+                     "tableName": "sys_task_param",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "task_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_task_perm_task",
+                     "tableName": "sys_task_permission",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "task_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_task_notify_task",
+                     "tableName": "sys_task_notification",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "task_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_task_run_task",
+                     "tableName": "sys_task_run",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "task_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_task_run_log_run",
+                     "tableName": "sys_task_run_log",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "run_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_systemtask_run_log_run",
+                     "tableName": "sys_systemtask_run_log",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "run_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_user_name",
+                     "tableName": "sys_user",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "name"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_user_group_user",
+                     "tableName": "sys_user_group",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "user_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_usergroup_modue",
+                     "tableName": "sys_usergroup",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "module_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_usergroup_uid",
+                     "tableName": "sys_usergroup",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "uid"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_usergroup_auth_group",
+                     "tableName": "sys_usergroup_auth",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "group_id"
+                         }
+                       }
+                     ]
+                  }
                }
             ]
         }
