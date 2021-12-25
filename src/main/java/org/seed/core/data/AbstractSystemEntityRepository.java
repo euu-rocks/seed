@@ -223,7 +223,8 @@ public abstract class AbstractSystemEntityRepository<T extends SystemEntity>
 				query.where(builder.and(restrictions));
 			}
 		}
-		return session.createQuery(query);
+		return session.createQuery(query)
+					  .setCacheable(true);
 	}
 	
 	private Predicate createRestriction(CriteriaBuilder builder, Root<T> table, QueryParameter param) {

@@ -40,12 +40,14 @@ import javax.persistence.criteria.Subquery;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.api.CallbackEventType;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.config.SessionProvider;
+import org.seed.core.data.Cursor;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.FileObject;
 import org.seed.core.data.Sort;
@@ -76,6 +78,8 @@ import org.springframework.util.StringUtils;
 @Repository
 public class ValueObjectRepository {
 	
+	protected static final int DEFAULT_CHUNK_SIZE = 50;
+	
 	@Autowired
 	private SessionProvider sessionProvider;
 	
@@ -94,7 +98,7 @@ public class ValueObjectRepository {
 	@Autowired
 	private CodeManager codeManager;
 	
-	public ValueObject get(Entity entity, Long id) {
+	ValueObject get(Entity entity, Long id) {
 		Assert.notNull(entity, C.ENTITY);
 		checkGeneric(entity);
 		
@@ -103,14 +107,14 @@ public class ValueObjectRepository {
 		}
 	}
 	
-	public ValueObject get(Session session, Entity entity, Long id) {
+	ValueObject get(Session session, Entity entity, Long id) {
 		Assert.notNull(entity, C.ENTITY);
 		checkGeneric(entity);
 		
 		return get(session, getEntityClass(entity), id);
 	}
 	
-	public ValueObject get(Session session, Class<?> entityClass, Long id) {
+	ValueObject get(Session session, Class<?> entityClass, Long id) {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(entityClass, C.ENTITYCLASS);
 		Assert.notNull(id, C.ID);
@@ -118,7 +122,7 @@ public class ValueObjectRepository {
 		return (ValueObject) session.get(entityClass, id);
 	}
 	
-	public ValueObject createInstance(Entity entity, Session session, ValueObjectFunctionContext functionContext) {
+	ValueObject createInstance(Entity entity, Session session, ValueObjectFunctionContext functionContext) {
 		Assert.notNull(entity, C.ENTITY);
 		checkGeneric(entity);
 		checkSessionAndContext(session, functionContext);
@@ -135,7 +139,7 @@ public class ValueObjectRepository {
 		}
 	}
 	
-	public boolean notifyChange(ValueObject object) {
+	boolean notifyChange(ValueObject object) {
 		Assert.notNull(object, C.OBJECT);
 		
 		final Entity entity = getEntity(object);
@@ -167,13 +171,13 @@ public class ValueObjectRepository {
 		return existModifyFunction;
 	}
 	
-	public long count(Entity entity) {
+	long count(Entity entity) {
 		try (Session session = getSession()) {
 			return count(session, entity);
 		}
 	}
 	
-	public long count(Session session, Entity entity) {
+	long count(Session session, Entity entity) {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(entity, C.ENTITY);
 		checkGeneric(entity);
@@ -181,7 +185,7 @@ public class ValueObjectRepository {
 		return entity.isNew() ? 0 : count(session, getEntityClass(entity));
 	}
 	
-	public long count(Session session, Class<?> entityClass) {
+	long count(Session session, Class<?> entityClass) {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(entityClass, C.ENTITYCLASS);
 		
@@ -191,18 +195,18 @@ public class ValueObjectRepository {
 		return session.createQuery(query).getSingleResult();
 	}
 	
-	public List<ValueObject> findAll(Entity entity) {
+	List<ValueObject> findAll(Entity entity) {
 		try (Session session = getSession()) {
 			return findAll(session, entity);
 		}
 	}
 	
-	public List<ValueObject> findAll(Session session, Entity entity) {
+	List<ValueObject> findAll(Session session, Entity entity) {
 		return findAll(session, getEntityClass(entity));
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<ValueObject> findAll(Session session, Class<?> entityClass) {
+	List<ValueObject> findAll(Session session, Class<?> entityClass) {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(entityClass, C.ENTITYCLASS);
 		
@@ -212,50 +216,55 @@ public class ValueObjectRepository {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<ValueObject> find(Entity entity, Filter filter) {
+	List<ValueObject> find(Entity entity, Filter filter) {
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(filter, C.FILTER);
 		checkFilter(entity, filter);
 		
 		try (Session session = getSession()) {
 			if (filter.getHqlQuery() != null) {
-				return session.createQuery(filter.getHqlQuery()).list();
+				return session.createQuery(filter.getHqlQuery())
+							  .setCacheable(true)
+							  .list();
 			}
 			return find(session, buildQuery(session, entity, filter));
 		}
 	}
 	
-	public List<ValueObject> find(Session session, CriteriaQuery<ValueObject> query) {
+	List<ValueObject> find(Session session, CriteriaQuery<ValueObject> query) {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(query, "query");
 		
-		return session.createQuery(query).getResultList();
+		return session.createQuery(query)
+					  .setCacheable(true)
+					  .getResultList();
 	}
 	
-	public boolean exist(Entity entity, @Nullable Filter filter) {
+	boolean exist(Entity entity, @Nullable Filter filter) {
 		try (Session session = getSession()) {
 			return exist(session, entity, filter);
 		}
 	}
 	
-	public boolean exist(Session session, Entity entity, @Nullable Filter filter) {
+	boolean exist(Session session, Entity entity, @Nullable Filter filter) {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(entity, C.ENTITY);
 		if (filter != null) {
 			checkFilter(entity, filter);
 		}
 		return !session.createQuery(buildQuery(session, entity, filter))
+					   .setCacheable(true)
 					   .setMaxResults(1)
 					   .getResultList().isEmpty();
 	}
 	
-	public ValueObject findUnique(Entity entity, Filter filter) {
+	ValueObject findUnique(Entity entity, Filter filter) {
 		try (Session session = getSession()) {
 			return findUnique(session, entity, filter);
 		}
 	}
 	
-	public ValueObject findUnique(Session session, Entity entity, Filter filter) {
+	ValueObject findUnique(Session session, Entity entity, Filter filter) {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(filter, C.FILTER);
@@ -264,11 +273,12 @@ public class ValueObjectRepository {
 		return findUnique(session, buildQuery(session, entity, filter));
 	}
 	
-	public ValueObject findUnique(Session session, CriteriaQuery<ValueObject> query) {
+	ValueObject findUnique(Session session, CriteriaQuery<ValueObject> query) {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(query, "query");
 		
 		final List<ValueObject> list = session.createQuery(query)
+											  .setCacheable(true)
 											  .setMaxResults(2)
 											  .getResultList();
 		if (list.size() > 1) {
@@ -277,20 +287,20 @@ public class ValueObjectRepository {
 		return list.isEmpty() ? null : list.get(0);
 	}
 	
-	public void reload(ValueObject object) {
+	void reload(ValueObject object) {
 		try (Session session = getSession()) {
 			reload(session, object);
 		}
 	}
 	
-	public void reload(Session session, ValueObject object) {
+	void reload(Session session, ValueObject object) {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(object, C.OBJECT);
 		
 		session.refresh(object);
 	}
 	
-	public void delete(ValueObject object, Session session, ValueObjectFunctionContext functionContext) {
+	void delete(ValueObject object, Session session, ValueObjectFunctionContext functionContext) {
 		Assert.notNull(object, C.OBJECT);
 		checkSessionAndContext(session, functionContext);
 		
@@ -315,7 +325,7 @@ public class ValueObjectRepository {
 		fireEvent(CallbackEventType.AFTERDELETE, object, session, functionContext);
 	}
 	
-	public void save(ValueObject object, Session session, ValueObjectFunctionContext functionContext) {
+	void save(ValueObject object, Session session, ValueObjectFunctionContext functionContext) {
 		Assert.notNull(object, C.OBJECT);
 		checkSessionAndContext(session, functionContext);
 		
@@ -444,7 +454,9 @@ public class ValueObjectRepository {
 	}
 	
 	protected <T> T querySingleResult(Session session, CriteriaQuery<T> query) {
-		return session.createQuery(query).getSingleResult();
+		return session.createQuery(query)
+					  .setCacheable(true)
+					  .getSingleResult();
 	}
 	
 	protected Entity getEntity(ValueObject object) {
@@ -605,6 +617,41 @@ public class ValueObjectRepository {
 			}
 		}
 		return valueMap;
+	}
+	
+	Cursor<ValueObject> createCursor(Entity entity, int chuckSize) {
+		try (Session session = getSession()) {
+			final CriteriaQuery<Long> countQuery = buildCountQuery(session, entity, null); 
+			final Long totalSize = querySingleResult(session, countQuery);
+			final CriteriaQuery<ValueObject> query = buildQuery(session, entity, null);
+			return new Cursor<>(query, totalSize.intValue(), chuckSize);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	Cursor<ValueObject> createCursor(Entity entity, @Nullable Filter filter, Sort ...sort) {
+		try (Session session = getSession()) {
+			if (filter != null && filter.getHqlQuery() != null) {
+				final StringBuilder queryBuilder = new StringBuilder("select count(*) ").append(filter.getHqlQuery());
+				final Query<Long> query = session.createQuery(queryBuilder.toString());
+				final Long totalSize = query.uniqueResult();
+				return new Cursor<>(filter.getHqlQuery(), totalSize.intValue(), DEFAULT_CHUNK_SIZE);
+			}
+			
+			final CriteriaQuery<Long> countQuery = buildCountQuery(session, entity, filter); 
+			final Long totalSize = querySingleResult(session, countQuery);
+			final CriteriaQuery<ValueObject> query = buildQuery(session, entity, filter, sort);
+			return new Cursor<>(query, totalSize.intValue(), DEFAULT_CHUNK_SIZE);
+		}
+	}
+	
+	Cursor<ValueObject> createCursor(ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sort) {
+		try (Session session = getSession()) {
+			final CriteriaQuery<Long> countQuery = buildCountQuery(session, searchObject, criteriaMap);
+			final Long totalSize = querySingleResult(session, countQuery);
+			final CriteriaQuery<ValueObject> query = buildQuery(session, searchObject, criteriaMap, sort);
+			return new Cursor<>(query, totalSize.intValue(), DEFAULT_CHUNK_SIZE);
+		}
 	}
 	
 	@SuppressWarnings("unchecked")

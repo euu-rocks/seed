@@ -71,8 +71,6 @@ public class ValueObjectServiceImpl
 	// dummy object; only last part of package name is important ("value")
 	private static final SystemEntity VALUE_ENTITY = new AbstractSystemEntity() {};
 	
-	private static final int CHUNK_SIZE = 50;
-	
 	@Autowired
 	private EntityService entityService;
 	
@@ -199,7 +197,7 @@ public class ValueObjectServiceImpl
 		Assert.notNull(fullTextQueryString, "fullTextQueryString");
 		
 		final List<Tupel<Long,Long>> fullTextSearchResult = fullTextSearch.query(fullTextQueryString, null);
-		return new Cursor<>(fullTextQueryString, fullTextSearchResult, CHUNK_SIZE);
+		return new Cursor<>(fullTextQueryString, fullTextSearchResult, ValueObjectRepository.DEFAULT_CHUNK_SIZE);
 	}
 	
 	// von ListFormViewModel aufgerufen
@@ -208,39 +206,21 @@ public class ValueObjectServiceImpl
 		Assert.notNull(fullTextQueryString, "fullTextQueryString");
 		
 		final List<Tupel<Long,Long>> fullTextSearchResult = fullTextSearch.query(fullTextQueryString, entity);
-		return new Cursor<>(fullTextQueryString, fullTextSearchResult, CHUNK_SIZE);
+		return new Cursor<>(fullTextQueryString, fullTextSearchResult, ValueObjectRepository.DEFAULT_CHUNK_SIZE);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public Cursor<ValueObject> createCursor(Entity entity, @Nullable Filter filter, Sort ...sort) {
 		Assert.notNull(entity, C.ENTITY);
 		
-		try (Session session = repository.getSession()) {
-			if (filter != null && filter.getHqlQuery() != null) {
-				final StringBuilder queryBuilder = new StringBuilder("select count(*) ").append(filter.getHqlQuery());
-				final Query<Long> query = session.createQuery(queryBuilder.toString());
-				final Long totalSize = query.uniqueResult();
-				return new Cursor<>(filter.getHqlQuery(), totalSize.intValue(), CHUNK_SIZE);
-			}
-			
-			final CriteriaQuery<Long> countQuery = repository.buildCountQuery(session, entity, filter); 
-			final Long totalSize = repository.querySingleResult(session, countQuery);
-			final CriteriaQuery<ValueObject> query = repository.buildQuery(session, entity, filter, sort);
-			return new Cursor<>(query, totalSize.intValue(), CHUNK_SIZE);
-		}
+		return repository.createCursor(entity, filter, sort);
 	}
 	
 	@Override
 	public Cursor<ValueObject> createCursor(Entity entity, int chuckSize) {
 		Assert.notNull(entity, C.ENTITY);
 		
-		try (Session session = repository.getSession()) {
-			final CriteriaQuery<Long> countQuery = repository.buildCountQuery(session, entity, null); 
-			final Long totalSize = repository.querySingleResult(session, countQuery);
-			final CriteriaQuery<ValueObject> query = repository.buildQuery(session, entity, null);
-			return new Cursor<>(query, totalSize.intValue(), chuckSize);
-		}
+		return repository.createCursor(entity, chuckSize);
 	}
 	
 	@Override
@@ -248,12 +228,7 @@ public class ValueObjectServiceImpl
 		Assert.notNull(searchObject, "searchObject");
 		Assert.notNull(criteriaMap, "criteriaMap");
 		
-		try (Session session = repository.getSession()) {
-			final CriteriaQuery<Long> countQuery = repository.buildCountQuery(session, searchObject, criteriaMap);
-			final Long totalSize = repository.querySingleResult(session, countQuery);
-			final CriteriaQuery<ValueObject> query = repository.buildQuery(session, searchObject, criteriaMap, sort);
-			return new Cursor<>(query, totalSize.intValue(), CHUNK_SIZE);
-		}
+		return repository.createCursor(searchObject, criteriaMap, sort);
 	}
 	
 	@Override
@@ -287,6 +262,7 @@ public class ValueObjectServiceImpl
 								: session.createQuery(cursor.getQuery());
 			query.setFirstResult(cursor.getStartIndex());
 			query.setMaxResults(cursor.getChunkSize());
+			query.setCacheable(true);
 			return query.getResultList();
 		}
 	}

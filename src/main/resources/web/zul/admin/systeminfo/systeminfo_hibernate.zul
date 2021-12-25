@@ -100,6 +100,16 @@
 					<label value="@load(vm.hbnStatistic.secondLevelCachePutCount)"/>
 				</cell>
 			</row>
+			<row>
+				<cell style="padding: 4px 10px" align="right">
+					<label value="${labels.systeminfo.hbn.querycache}:"/>
+				</cell>
+				<cell style="padding: 4px 4px">
+					<label value="@load(vm.hbnStatistic.queryCacheHitCount)"/> /
+					<label value="@load(vm.hbnStatistic.queryCacheMissCount)"/> /
+					<label value="@load(vm.hbnStatistic.queryCachePutCount)"/>
+				</cell>
+			</row>
 		</rows>
 	</grid>
 </groupbox>

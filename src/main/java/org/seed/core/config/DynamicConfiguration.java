@@ -23,6 +23,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.persistence.Entity;
 
+import org.seed.C;
 import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.entity.value.ValueEntity;
@@ -211,7 +212,7 @@ public class DynamicConfiguration implements UpdatableConfiguration {
 		final Map<String, Object> settings = new HashMap<>();
 		
 		// misc settings
-		settings.put("hibernate.enable_lazy_load_no_trans", "true");
+		settings.put("hibernate.enable_lazy_load_no_trans", C.TRUE);
 		
 		// data source
 		settings.put("hibernate.connection.url", applicationProperty("spring.datasource.url"));                                
@@ -227,11 +228,16 @@ public class DynamicConfiguration implements UpdatableConfiguration {
 		// cache
 		settings.put("hibernate.cache.use_second_level_cache", String.valueOf(!boot));
 		if (!boot) {
+			settings.put("hibernate.cache.use_query_cache", C.TRUE);
 			settings.put("hibernate.cache.region.factory_class", "org.hibernate.cache.jcache.JCacheRegionFactory");
 			settings.put("hibernate.javax.cache.missing_cache_strategy", "create");
-			// statistics
-			settings.put("hibernate.generate_statistics", "true");
 		}
+		
+		// statistics
+		if (!boot) {
+			settings.put("hibernate.generate_statistics", C.TRUE);
+		}
+		
 		return settings;
 	}
 

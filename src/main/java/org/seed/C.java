@@ -87,6 +87,7 @@ public final class C {
 	public static final String TRANSFER         = "transfer";
 	public static final String TRANSFORMER      = "transformer";
 	public static final String TRANSITION       = "transition";
+	public static final String TRUE             = "true";
 	public static final String TYPE             = "type";
 	public static final String TYPECLASS        = "typeClass";
 	public static final String UID              = "uid";
