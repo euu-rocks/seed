@@ -330,6 +330,19 @@
                },
                {
                   "createIndex": {
+                     "indexName": "idx_entity_autonum_field",
+                     "tableName": "sys_entity_autonum",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "field_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
                      "indexName": "idx_entity_field_entity",
                      "tableName": "sys_entity_field",
                      "columns": [
@@ -473,6 +486,45 @@
                },
                {
                   "createIndex": {
+                     "indexName": "idx_entity_filter_uid",
+                     "tableName": "sys_entity_filter",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "uid"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_entity_filter_crt.filter",
+                     "tableName": "sys_entity_filter_criterion",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "filter_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_entity_filter_perm.filter",
+                     "tableName": "sys_entity_filter_perm",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "filter_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
                      "indexName": "idx_entity_transfer_module",
                      "tableName": "sys_entity_transfer",
                      "columns": [
@@ -486,12 +538,103 @@
                },
                {
                   "createIndex": {
+                     "indexName": "idx_entity_transfer_uid",
+                     "tableName": "sys_entity_transfer",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "uid"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_entity_trnsfr_elem_trnsfr",
+                     "tableName": "sys_entity_transfer_elem",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "transfer_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
                      "indexName": "idx_entity_transform_module",
                      "tableName": "sys_entity_transform",
                      "columns": [
                        {
                          "column": {
                             "name": "module_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_entity_transform_uid",
+                     "tableName": "sys_entity_transform",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "uid"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_entity_transform_elem_tran",
+                     "tableName": "sys_entity_transform_elem",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "transform_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_entity_transform_func_tran",
+                     "tableName": "sys_entity_transform_func",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "transform_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_entity_transform_perm_tran",
+                     "tableName": "sys_entity_transform_perm",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "transform_id"
+                         }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_entity_transform_status_tran",
+                     "tableName": "sys_entity_transform_status",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "transformer_id"
                          }
                        }
                      ]
@@ -772,7 +915,7 @@
                },
                {
                   "createIndex": {
-                     "indexName": "idx_rest_perm_report",
+                     "indexName": "idx_rest_perm_rest",
                      "tableName": "sys_rest_permission",
                      "columns": [
                        {
