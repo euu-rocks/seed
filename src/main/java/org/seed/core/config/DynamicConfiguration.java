@@ -17,7 +17,6 @@
  */
 package org.seed.core.config;
 
-import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.PostConstruct;
@@ -42,6 +41,9 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.SessionFactoryBuilder;
+import org.hibernate.boot.internal.MetadataImpl;
+import org.hibernate.boot.internal.SessionFactoryBuilderImpl;
+import org.hibernate.boot.internal.SessionFactoryOptionsBuilder;
 import org.hibernate.boot.registry.BootstrapServiceRegistry;
 import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -53,6 +55,25 @@ import org.slf4j.LoggerFactory;
 public class DynamicConfiguration implements UpdatableConfiguration {
 	
 	private static final Logger log = LoggerFactory.getLogger(DynamicConfiguration.class);
+	
+	private class DynamicSessionFactoryBuilder extends SessionFactoryBuilderImpl {
+		
+		private DynamicSessionFactoryBuilder(MetadataImpl metaImpl) {
+			super(metaImpl,
+				  new SessionFactoryOptionsBuilder(
+						metaImpl.getMetadataBuildingOptions().getServiceRegistry(),
+						metaImpl.getBootstrapContext()
+				  ) 
+				  {
+						@Override
+						public String getUuid() {
+							return C.SEED;
+						}
+				  }
+			);
+		}
+		
+	}
 	
 	@Autowired
 	private Environment environment;
@@ -161,7 +182,8 @@ public class DynamicConfiguration implements UpdatableConfiguration {
 	}
 	
 	private SessionFactoryBuilder createSessionFactoryBuilder(boolean boot) {
-		final BootstrapServiceRegistryBuilder bootstrapServiceRegistryBuilder = new BootstrapServiceRegistryBuilder();
+		final BootstrapServiceRegistryBuilder bootstrapServiceRegistryBuilder = 
+				new BootstrapServiceRegistryBuilder();
 		if (!boot) {
 			Assert.stateAvailable(classLoader, "class loader");
 			bootstrapServiceRegistryBuilder.applyClassLoader(classLoader);
@@ -181,24 +203,14 @@ public class DynamicConfiguration implements UpdatableConfiguration {
 		
 		// register generated entities
 		if (!boot) {
-			registerGeneratedEntities(metaSources);
-		}
-		return metaSources.getMetadataBuilder().build().getSessionFactoryBuilder();
-	}
-	
-	private void registerGeneratedEntities(MetadataSources metadataSources) {
-		try {
 			for (Class<GeneratedCode> entityClass : codeManager.getGeneratedClasses(ValueEntity.class)) {
-				Assert.state(!Modifier.isAbstract(entityClass.getModifiers()), entityClass.getName() + " is abstract");
-				
 				log.debug("Register {}", entityClass.getName());
-				metadataSources.addAnnotatedClass(entityClass);
+				metaSources.addAnnotatedClass(entityClass);
 			}
 			log.info("Generated entities registered");
 		}
-		catch (Exception ex) {
-			throw new ConfigurationException("failed to register generated entities", ex);
-		}
+		final MetadataImpl metaImpl = (MetadataImpl) metaSources.getMetadataBuilder().build();
+		return new DynamicSessionFactoryBuilder(metaImpl);
 	}
 	
 	private String applicationProperty(String propertyName) {
@@ -209,10 +221,7 @@ public class DynamicConfiguration implements UpdatableConfiguration {
 	}
 	
 	private Map<String, Object> createSettings(boolean boot) {
-		final Map<String, Object> settings = new HashMap<>();
-		
-		// misc settings
-		settings.put("hibernate.enable_lazy_load_no_trans", C.TRUE);
+		final Map<String, Object> settings = new HashMap<>(16, 1.0f);
 		
 		// data source
 		settings.put("hibernate.connection.url", applicationProperty("spring.datasource.url"));                                
@@ -238,7 +247,10 @@ public class DynamicConfiguration implements UpdatableConfiguration {
 			settings.put("hibernate.generate_statistics", C.TRUE);
 		}
 		
+		// misc settings
+		settings.put("hibernate.enable_lazy_load_no_trans", C.TRUE);
+		
 		return settings;
 	}
-
+	
 }
