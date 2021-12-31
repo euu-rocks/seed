@@ -22,6 +22,7 @@ import java.util.List;
 import javax.persistence.Table;
 
 import org.seed.C;
+import org.seed.Seed;
 import org.seed.core.config.DatabaseInfo;
 import org.seed.core.config.Limits;
 import org.seed.core.config.changelog.AbstractChangeLogBuilder;
@@ -60,13 +61,19 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	private static final String PREFIX_INDEX       = "idx_";
 	private static final String SUFFIX_STATUS      = "_status";
 	
+	private final EntityUsage entityUsage;
+	
 	private final DatabaseInfo databaseInfo;
 	
 	private final Limits limits;
 	
+	private boolean existValueObjects = false;
+	
 	private List<Entity> descendants; // entities that implements a generic entity
 	
 	EntityChangeLogBuilder(DatabaseInfo databaseInfo, Limits limits) {
+		entityUsage = Seed.getBean(EntityUsage.class);
+		Assert.stateAvailable(entityUsage, "entity usage");
 		Assert.notNull(databaseInfo, "databaseInfo");
 		Assert.notNull(limits, "limits");
 		
@@ -81,12 +88,14 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	@Override
 	public ChangeLog build() {
 		checkValid();
-		
-		if (isGeneric()) {
-			buildGenericEntityChanges();
+		if (!isGeneric()) {
+			if (isUpdateChange()) {
+				existValueObjects = entityUsage.existObjects(currentVersionObject);
+			}
+			buildEntityChanges();
 		}
 		else {
-			buildEntityChanges();
+			buildGenericEntityChanges();
 		}
 		return super.build();
 	}
@@ -528,7 +537,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 			final ConstraintsConfig constraints = new ConstraintsConfig();
 			if (field.isMandatory() || field.getType().isBoolean()) {
 				constraints.setNullable(Boolean.FALSE);
-				if (currentVersionObject != null) {
+				if (currentVersionObject != null && existValueObjects) {
 					switch (field.getType()) {
 						case TEXT:
 						case TEXTLONG:

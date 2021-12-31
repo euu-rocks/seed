@@ -33,13 +33,14 @@ import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityFunction;
 import org.seed.core.entity.EntityStatus;
+import org.seed.core.entity.EntityUsage;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.entity.filter.CriterionOperator;
 import org.seed.core.entity.filter.Filter;
 import org.seed.core.entity.transform.Transformer;
 import org.seed.core.entity.value.event.ValueObjectFunctionContext;
 
-public interface ValueObjectService {
+public interface ValueObjectService extends EntityUsage {
 	
 	void copyFields(ValueObject sourceObject, ValueObject targetObject, List<EntityField> entityFields);
 	
@@ -97,8 +98,6 @@ public interface ValueObjectService {
 	void preallocateFileObjects(ValueObject object);
 	
 	String getIdentifier(ValueObject object);
-	
-	boolean existObjects(Entity entity);
 	
 	long count(Session session, Class<?> entityClass);
 	

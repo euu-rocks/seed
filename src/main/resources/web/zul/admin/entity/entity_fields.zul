@@ -61,7 +61,8 @@
 	            	</listcell>
 	            	<listcell>
 	            		<div align="center">
-	            			<checkbox checked="@load(field.mandatory)" disabled="true"/>
+	            			<checkbox checked="@bind(field.mandatory)"
+	            					  onCheck="@command('flagDirty')"/>
 	            		</div>
 	            	</listcell>
 	            </listitem>

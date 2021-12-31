@@ -659,6 +659,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		formMeta.setLayoutContent(getLayoutService().buildAutoLayout(form));
 		formMeta.setOrderIndexes();
 		formMeta.initUid();
+		getLayoutService().rebuildLayout(form);
 	}
 	
 	private List<FormAction> getFormActions(Form form, boolean isList) {
@@ -782,7 +783,9 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	private void initFields(Form form, Form currentVersionForm) {
 		for (FormField formField : form.getFields()) {
 			formField.setForm(form);
-			formField.setEntityField(form.getEntity().findFieldByUid(formField.getEntityFieldUid()));
+			if (formField.getEntityFieldUid() != null) {
+				formField.setEntityField(form.getEntity().findFieldByUid(formField.getEntityFieldUid()));
+			}
 			if (currentVersionForm != null) {
 				final FormField currentVersionField =
 					currentVersionForm.getFieldByUid(formField.getUid());

@@ -51,8 +51,8 @@ public abstract class BeanUtils {
 		Assert.notNull(applicationContext, C.CONTEXT);
 		Assert.notNull(type, C.TYPE);
 		
-		return applicationContext.getBeansOfType(type).values()
-									.stream().collect(Collectors.toList());
+		return applicationContext.getBeansOfType(type).values().stream()
+								 .collect(Collectors.toList());
 	}
 	
 	public static <T> List<Class<? extends T>> getImplementingClasses(Class<T> typeClass) {

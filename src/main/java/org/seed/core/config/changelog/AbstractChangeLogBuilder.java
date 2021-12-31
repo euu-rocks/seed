@@ -43,6 +43,33 @@ import liquibase.serializer.core.yaml.YamlChangeLogSerializer;
 public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 	implements ChangeLogBuilder<T> {
 	
+	private static class JsonChangeLogSerializer extends YamlChangeLogSerializer {
+		
+		private static final String[] FILE_EXTENSIONS = new String[] { "json" }; 
+		
+		private static final String PADDING = "  ";
+		
+		@Override
+	    public <T extends ChangeLogChild> void write(List<T> children, OutputStream out) throws IOException {
+	        final Writer writer = new OutputStreamWriter(out, MiscUtils.CHARSET);
+	        int i = 0;
+	        for (T child : children) {
+	            String serialized = serialize(child, true);
+	            if (++i < children.size()) {
+	                serialized = serialized.replaceFirst("}\\s*$", "},\n");
+	            }
+	            writer.write(PADDING + serialized.replaceAll("\n", '\n' + PADDING) + '\n');
+	        }
+	        writer.flush();
+	    }
+
+	    @Override
+	    public String[] getValidFileExtensions() {
+	        return FILE_EXTENSIONS;
+	    }
+	    
+	}
+	
 	private ChangeSet changeSet;
 	
 	private ReferenceChangeLog referenceChangeLog;
@@ -77,6 +104,10 @@ public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 	protected void checkValid() {
 		Assert.stateAvailable(currentVersionObject != null || nextVersionObject != null, 
 					 		  "current or next version object");
+	}
+	
+	protected boolean isUpdateChange() {
+		return currentVersionObject != null && nextVersionObject != null;
 	}
 	
 	protected void addChange(Change change) {
@@ -125,47 +156,15 @@ public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 	
 	private static ChangeLog createChangeLog(ChangeSet changeSet) {
 		final ChangeLog changeLog = new ChangeLog();
-		changeLog.setChangeSet(toJson(changeSet));
-		return changeLog;
-	}
-	
-	private static String toJson(ChangeSet changeSet) {
+		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try {
-			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			new JsonChangeLogSerializer().write(Collections.singletonList(changeSet), baos);
-			return MiscUtils.toString(baos.toByteArray());
+			changeLog.setChangeSet(MiscUtils.toString(baos.toByteArray()));
+			return changeLog;
 		} 
 		catch (IOException ioex) {
 			throw new InternalException(ioex);
 		}
 	}
-	
-	private static class JsonChangeLogSerializer extends YamlChangeLogSerializer {
-		
-		private static final String[] FILE_EXTENSIONS = new String[] { "json" }; 
-		
-		private static final String PADDING = "  ";
-		
-		@Override
-	    public <T extends ChangeLogChild> void write(List<T> children, OutputStream out) throws IOException {
-	        final Writer writer = new OutputStreamWriter(out, MiscUtils.CHARSET);
-	        int i = 0;
-	        for (T child : children) {
-	            String serialized = serialize(child, true);
-	            if (++i < children.size()) {
-	                serialized = serialized.replaceFirst("}\\s*$", "},\n");
-	            }
-	            writer.write(PADDING + serialized.replaceAll("\n", '\n' + PADDING));
-	            writer.write('\n');
-	        }
-	        writer.flush();
-	    }
 
-	    @Override
-	    public String[] getValidFileExtensions() {
-	        return FILE_EXTENSIONS;
-	    }
-	    
-	}
-	
 }
