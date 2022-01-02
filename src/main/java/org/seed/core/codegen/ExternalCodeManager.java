@@ -52,7 +52,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -65,10 +64,10 @@ public class ExternalCodeManager implements ApplicationContextAware {
 	private SessionProvider sessionProvider;
 	
 	@Autowired
-	private Environment environment;
+	private Compiler compiler;
 	
 	@Autowired
-	private Compiler compiler;
+	private Seed seed;
 	
 	private ApplicationContext applicationContext;
 	
@@ -85,15 +84,16 @@ public class ExternalCodeManager implements ApplicationContextAware {
 	
 	@PostConstruct
 	private void init() {
-		final String propDownloadSources = environment.getProperty("codegen.external.downloadsources");
+		
+		final String propDownloadSources = seed.applicationProperty(Seed.PROP_CODEGEN_EXT_DOWNLOAD_SOURCES);
 		if (!NameUtils.booleanValue(propDownloadSources)) {
 			return;	// abort
 		}
 		
 		// init download
-		final String propExternalRootDir = environment.getProperty("codegen.external.rootdir");
+		final String propExternalRootDir = seed.applicationProperty(Seed.PROP_CODEGEN_EXT_ROOTDIR);
 		if (propExternalRootDir == null) {
-			log.warn("property codegen.external.rootdir is not defined");
+			log.warn("property {} is not defined", Seed.PROP_CODEGEN_EXT_ROOTDIR);
 			return;
 		}
 		
@@ -114,7 +114,7 @@ public class ExternalCodeManager implements ApplicationContextAware {
 		}
 		
 		// init upload
-		final String propUploadChanges = environment.getProperty("codegen.external.uploadchanges");
+		final String propUploadChanges = seed.applicationProperty(Seed.PROP_CODEGEN_EXT_UPOAD_CHANGES);
 		if (NameUtils.booleanValue(propUploadChanges)) {
 			log.info("Enable code uploads on change");
 			try {

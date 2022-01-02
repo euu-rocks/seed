@@ -25,11 +25,13 @@ import javax.persistence.criteria.CriteriaQuery;
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.Seed;
+import org.seed.core.api.BatchOperation;
 import org.seed.core.api.EntityFilter;
 import org.seed.core.api.EntityObject;
 import org.seed.core.api.EntityObjectProvider;
 import org.seed.core.api.EntityTransformer;
 import org.seed.core.api.Status;
+import org.seed.core.data.BatchCursor;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityService;
@@ -56,6 +58,8 @@ class ValueObjectProvider implements EntityObjectProvider {
 
 	private final ValueObjectFunctionContext functionContext;
 	
+	private final int batchSize;
+	
 	ValueObjectProvider(ValueObjectFunctionContext functionContext) {
 		Assert.notNull(functionContext, C.CONTEXT);
 		
@@ -64,6 +68,7 @@ class ValueObjectProvider implements EntityObjectProvider {
 		entityService = Seed.getBean(EntityService.class);
 		filterService = Seed.getBean(FilterService.class);
 		transformerService = Seed.getBean(TransformerService.class);
+		batchSize = getBatchSize();
 	}
 	
 	@Override
@@ -125,6 +130,11 @@ class ValueObjectProvider implements EntityObjectProvider {
 		Assert.notNull(query, "query");
 		
 		return MiscUtils.castList(valueObjectService.find(functionContext.getSession(), (CriteriaQuery<ValueObject>) query));
+	}
+	
+	@Override
+	public BatchOperation startBatchOperation() {
+		return new BatchCursor(batchSize);
 	}
 	
 	@Override
@@ -191,6 +201,19 @@ class ValueObjectProvider implements EntityObjectProvider {
 	}
 	
 	@Override
+	public <T extends EntityObject> void save(T entityObject, BatchOperation batchOperation) throws ValidationException {
+		Assert.notNull(entityObject, C.ENTITYOBJECT);
+		Assert.notNull(batchOperation, "batch operation");
+		
+		valueObjectService.saveObject((ValueObject) entityObject, null, functionContext);
+		final BatchCursor batchCursor = (BatchCursor) batchOperation;
+		if (batchCursor.flushNeeded()) {
+			functionContext.getSession().flush();
+			functionContext.getSession().clear();
+		}
+	}
+	
+	@Override
 	public <T extends EntityObject> void delete(T entityObject) throws ValidationException {
 		Assert.notNull(entityObject, C.ENTITYOBJECT);
 		
@@ -200,6 +223,10 @@ class ValueObjectProvider implements EntityObjectProvider {
 	private Entity getEntity(Class<ValueObject> clas) {
 			final ValueObject object = BeanUtils.instantiate(clas);
 			return entityService.getObject(object.getEntityId());
+	}
+	
+	private static int getBatchSize() {
+		return Integer.valueOf(Seed.getApplicationProperty(Seed.PROP_BATCH_SIZE));
 	}
 
 }

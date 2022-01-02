@@ -26,6 +26,8 @@ import org.seed.core.data.ValidationException;
 
 public interface EntityObjectProvider {
 	
+	BatchOperation startBatchOperation();
+	
 	CriteriaBuilder getCriteriaBuilder();
 	
 	<T extends EntityObject> T createObject(Class<T> objectClass);
@@ -45,6 +47,8 @@ public interface EntityObjectProvider {
 	<T extends EntityObject,U extends EntityObject> EntityTransformer getTransformer(Class<T> sourceClass, Class<U> targetClass, String transformerName);
 	
 	<T extends EntityObject> void save(T entityObject) throws ValidationException;
+	
+	<T extends EntityObject> void save(T entityObject, BatchOperation batchOperation) throws ValidationException;
 	
 	<T extends EntityObject> void delete(T entityObject) throws ValidationException;
 	

@@ -23,6 +23,7 @@ import javax.annotation.PostConstruct;
 import javax.persistence.Entity;
 
 import org.seed.C;
+import org.seed.Seed;
 import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.entity.value.ValueEntity;
@@ -213,7 +214,11 @@ public class DynamicConfiguration implements UpdatableConfiguration {
 		return new DynamicSessionFactoryBuilder(metaImpl);
 	}
 	
-	private String applicationProperty(String propertyName) {
+	private boolean hasApplicationProperty(String propertyName) {
+		return environment.getProperty(propertyName) != null;
+	}
+	
+	private String getApplicationProperty(String propertyName) {
 		final String property = environment.getProperty(propertyName);
 		Assert.stateAvailable(property, "application property '" + propertyName + "'");
 		
@@ -221,18 +226,18 @@ public class DynamicConfiguration implements UpdatableConfiguration {
 	}
 	
 	private Map<String, Object> createSettings(boolean boot) {
-		final Map<String, Object> settings = new HashMap<>(16, 1.0f);
+		final Map<String, Object> settings = new HashMap<>(20, 1.0f);
 		
 		// data source
-		settings.put("hibernate.connection.url", applicationProperty("spring.datasource.url"));                                
-		settings.put("hibernate.connection.username", applicationProperty("spring.datasource.username"));     
-		settings.put("hibernate.connection.password", applicationProperty("spring.datasource.password"));
+		settings.put("hibernate.connection.url", getApplicationProperty(Seed.PROP_DATASOURCE_URL));                                
+		settings.put("hibernate.connection.username", getApplicationProperty(Seed.PROP_DATASOURCE_USERNAME));     
+		settings.put("hibernate.connection.password", getApplicationProperty(Seed.PROP_DATASOURCE_PASSWORD));
 		
 		// connection pool
-		settings.put("hibernate.hikari.connectionTimeout", applicationProperty("db.connectionpool.connectionTimeout"));
-		settings.put("hibernate.hikari.minimumIdle", applicationProperty("db.connectionpool.minimumIdle"));
-		settings.put("hibernate.hikari.maximumPoolSize", applicationProperty("db.connectionpool.maximumPoolSize"));
-		settings.put("hibernate.hikari.idleTimeout", applicationProperty("db.connectionpool.idleTimeout"));
+		settings.put("hibernate.hikari.connectionTimeout", getApplicationProperty(Seed.PROP_CONNECTIONPOOL_TIMEOUT));
+		settings.put("hibernate.hikari.minimumIdle", getApplicationProperty(Seed.PROP_CONNECTIONPOOL_MINIDLE));
+		settings.put("hibernate.hikari.maximumPoolSize", getApplicationProperty(Seed.PROP_CONNECTIONPOOL_POOLSIZE));
+		settings.put("hibernate.hikari.idleTimeout", getApplicationProperty(Seed.PROP_CONNECTIONPOOL_IDLE_TIMEOUT));
 		
 		// cache
 		settings.put("hibernate.cache.use_second_level_cache", String.valueOf(!boot));
@@ -242,6 +247,14 @@ public class DynamicConfiguration implements UpdatableConfiguration {
 			settings.put("hibernate.javax.cache.missing_cache_strategy", "create");
 		}
 		
+		// batch processing
+		if (!boot && hasApplicationProperty(Seed.PROP_BATCH_SIZE)) {
+			settings.put("hibernate.jdbc.batch_size", getApplicationProperty(Seed.PROP_BATCH_SIZE));
+			settings.put("hibernate.order_inserts", C.TRUE);
+			settings.put("hibernate.order_updates", C.TRUE);
+			settings.put("hibernate.batch_versioned_data", C.TRUE);
+		}
+		
 		// statistics
 		if (!boot) {
 			settings.put("hibernate.generate_statistics", C.TRUE);
@@ -249,7 +262,6 @@ public class DynamicConfiguration implements UpdatableConfiguration {
 		
 		// misc settings
 		settings.put("hibernate.enable_lazy_load_no_trans", C.TRUE);
-		
 		return settings;
 	}
 	
