@@ -47,7 +47,7 @@ import org.seed.InternalException;
 import org.seed.core.api.CallbackEventType;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.config.SessionProvider;
-import org.seed.core.data.Cursor;
+import org.seed.core.data.QueryCursor;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.FileObject;
 import org.seed.core.data.Sort;
@@ -619,38 +619,38 @@ public class ValueObjectRepository {
 		return valueMap;
 	}
 	
-	Cursor<ValueObject> createCursor(Entity entity, int chuckSize) {
+	QueryCursor<ValueObject> createCursor(Entity entity, int chuckSize) {
 		try (Session session = getSession()) {
 			final CriteriaQuery<Long> countQuery = buildCountQuery(session, entity, null); 
 			final Long totalSize = querySingleResult(session, countQuery);
 			final CriteriaQuery<ValueObject> query = buildQuery(session, entity, null);
-			return new Cursor<>(query, totalSize.intValue(), chuckSize);
+			return new QueryCursor<>(query, totalSize.intValue(), chuckSize);
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
-	Cursor<ValueObject> createCursor(Entity entity, @Nullable Filter filter, Sort ...sort) {
+	QueryCursor<ValueObject> createCursor(Entity entity, @Nullable Filter filter, Sort ...sort) {
 		try (Session session = getSession()) {
 			if (filter != null && filter.getHqlQuery() != null) {
 				final StringBuilder queryBuilder = new StringBuilder("select count(*) ").append(filter.getHqlQuery());
 				final Query<Long> query = session.createQuery(queryBuilder.toString());
 				final Long totalSize = query.uniqueResult();
-				return new Cursor<>(filter.getHqlQuery(), totalSize.intValue(), DEFAULT_CHUNK_SIZE);
+				return new QueryCursor<>(filter.getHqlQuery(), totalSize.intValue(), DEFAULT_CHUNK_SIZE);
 			}
 			
 			final CriteriaQuery<Long> countQuery = buildCountQuery(session, entity, filter); 
 			final Long totalSize = querySingleResult(session, countQuery);
 			final CriteriaQuery<ValueObject> query = buildQuery(session, entity, filter, sort);
-			return new Cursor<>(query, totalSize.intValue(), DEFAULT_CHUNK_SIZE);
+			return new QueryCursor<>(query, totalSize.intValue(), DEFAULT_CHUNK_SIZE);
 		}
 	}
 	
-	Cursor<ValueObject> createCursor(ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sort) {
+	QueryCursor<ValueObject> createCursor(ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sort) {
 		try (Session session = getSession()) {
 			final CriteriaQuery<Long> countQuery = buildCountQuery(session, searchObject, criteriaMap);
 			final Long totalSize = querySingleResult(session, countQuery);
 			final CriteriaQuery<ValueObject> query = buildQuery(session, searchObject, criteriaMap, sort);
-			return new Cursor<>(query, totalSize.intValue(), DEFAULT_CHUNK_SIZE);
+			return new QueryCursor<>(query, totalSize.intValue(), DEFAULT_CHUNK_SIZE);
 		}
 	}
 	

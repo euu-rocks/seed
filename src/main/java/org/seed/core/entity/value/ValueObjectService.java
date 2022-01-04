@@ -25,7 +25,7 @@ import javax.persistence.criteria.CriteriaQuery;
 
 import org.hibernate.Session;
 
-import org.seed.core.data.Cursor;
+import org.seed.core.data.QueryCursor;
 import org.seed.core.data.FileObject;
 import org.seed.core.data.Sort;
 import org.seed.core.data.ValidationException;
@@ -50,19 +50,19 @@ public interface ValueObjectService extends EntityUsage {
 	
 	ValueObject createObject(Entity entity, Map<String,Object> valueMap);
 	
-	Cursor<ValueObject> createCursor(Entity entity, int chuckSize);
+	QueryCursor<ValueObject> createCursor(Entity entity, int chuckSize);
 	
-	Cursor<ValueObject> createCursor(Entity entity, @Nullable Filter filter, Sort ...sort);
+	QueryCursor<ValueObject> createCursor(Entity entity, @Nullable Filter filter, Sort ...sort);
 	
-	Cursor<ValueObject> createCursor(ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sort);
+	QueryCursor<ValueObject> createCursor(ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sort);
 	
-	Cursor<ValueObject> createFullTextSearchCursor(String fullTextQueryString, Entity entity);
+	QueryCursor<ValueObject> createFullTextSearchCursor(String fullTextQueryString, Entity entity);
 	
-	Cursor<FullTextResult> createFullTextSearchCursor(String fullTextQueryString);
+	QueryCursor<FullTextResult> createFullTextSearchCursor(String fullTextQueryString);
 	
-	List<ValueObject> loadChunk(Cursor<ValueObject> cursor);
+	List<ValueObject> loadChunk(QueryCursor<ValueObject> cursor);
 	
-	List<FullTextResult> loadFullTextChunk(Cursor<FullTextResult> cursor);
+	List<FullTextResult> loadFullTextChunk(QueryCursor<FullTextResult> cursor);
 	
 	void indexAllObjects();
 	

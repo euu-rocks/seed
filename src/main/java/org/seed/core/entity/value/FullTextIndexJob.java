@@ -19,7 +19,7 @@ package org.seed.core.entity.value;
 
 import java.util.List;
 
-import org.seed.core.data.Cursor;
+import org.seed.core.data.QueryCursor;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityService;
 import org.seed.core.task.AbstractSystemJob;
@@ -63,7 +63,7 @@ public class FullTextIndexJob extends AbstractSystemJob {
 				
 				int idx = 0;
 				int chunkIdx = 0;
-				final Cursor<ValueObject> cursor = valueObjectService.createCursor(entity, CHUNK_SIZE);
+				final QueryCursor<ValueObject> cursor = valueObjectService.createCursor(entity, CHUNK_SIZE);
 				while (idx < cursor.getTotalCount()) {
 					logInfo(" indexing chunk from: " + cursor.getStartIndex() + " (" + cursor.getChunkSize() + ')');
 					

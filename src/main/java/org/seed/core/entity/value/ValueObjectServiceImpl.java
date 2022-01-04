@@ -35,7 +35,7 @@ import org.hibernate.query.Query;
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.data.AbstractSystemEntity;
-import org.seed.core.data.Cursor;
+import org.seed.core.data.QueryCursor;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.FileObject;
 import org.seed.core.data.Sort;
@@ -193,38 +193,38 @@ public class ValueObjectServiceImpl
 	
 	// von FullTextSearchViewMode aufgerufen
 	@Override
-	public Cursor<FullTextResult> createFullTextSearchCursor(String fullTextQueryString) {
+	public QueryCursor<FullTextResult> createFullTextSearchCursor(String fullTextQueryString) {
 		Assert.notNull(fullTextQueryString, "fullTextQueryString");
 		
 		final List<Tupel<Long,Long>> fullTextSearchResult = fullTextSearch.query(fullTextQueryString, null);
-		return new Cursor<>(fullTextQueryString, fullTextSearchResult, ValueObjectRepository.DEFAULT_CHUNK_SIZE);
+		return new QueryCursor<>(fullTextQueryString, fullTextSearchResult, ValueObjectRepository.DEFAULT_CHUNK_SIZE);
 	}
 	
 	// von ListFormViewModel aufgerufen
 	@Override
-	public Cursor<ValueObject> createFullTextSearchCursor(String fullTextQueryString, Entity entity) {
+	public QueryCursor<ValueObject> createFullTextSearchCursor(String fullTextQueryString, Entity entity) {
 		Assert.notNull(fullTextQueryString, "fullTextQueryString");
 		
 		final List<Tupel<Long,Long>> fullTextSearchResult = fullTextSearch.query(fullTextQueryString, entity);
-		return new Cursor<>(fullTextQueryString, fullTextSearchResult, ValueObjectRepository.DEFAULT_CHUNK_SIZE);
+		return new QueryCursor<>(fullTextQueryString, fullTextSearchResult, ValueObjectRepository.DEFAULT_CHUNK_SIZE);
 	}
 	
 	@Override
-	public Cursor<ValueObject> createCursor(Entity entity, @Nullable Filter filter, Sort ...sort) {
+	public QueryCursor<ValueObject> createCursor(Entity entity, @Nullable Filter filter, Sort ...sort) {
 		Assert.notNull(entity, C.ENTITY);
 		
 		return repository.createCursor(entity, filter, sort);
 	}
 	
 	@Override
-	public Cursor<ValueObject> createCursor(Entity entity, int chuckSize) {
+	public QueryCursor<ValueObject> createCursor(Entity entity, int chuckSize) {
 		Assert.notNull(entity, C.ENTITY);
 		
 		return repository.createCursor(entity, chuckSize);
 	}
 	
 	@Override
-	public Cursor<ValueObject> createCursor(ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sort) {
+	public QueryCursor<ValueObject> createCursor(ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sort) {
 		Assert.notNull(searchObject, "searchObject");
 		Assert.notNull(criteriaMap, "criteriaMap");
 		
@@ -238,7 +238,7 @@ public class ValueObjectServiceImpl
 			if (entity.hasFullTextSearchFields()) {
 				int idx = 0;
 				int chunkIdx = 0;
-				final Cursor<ValueObject> cursor = createCursor(entity, 500);
+				final QueryCursor<ValueObject> cursor = createCursor(entity, 500);
 				while (idx < cursor.getTotalCount()) {
 					cursor.setChunkIndex(chunkIdx++);
 					fullTextSearch.indexChunk(entity, loadChunk(cursor));
@@ -249,7 +249,7 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public List<ValueObject> loadChunk(Cursor<ValueObject> cursor) {
+	public List<ValueObject> loadChunk(QueryCursor<ValueObject> cursor) {
 		Assert.notNull(cursor, "cursor");
 		
 		if (cursor.isFullTextSearch()) {
@@ -268,7 +268,7 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public List<FullTextResult> loadFullTextChunk(Cursor<FullTextResult> cursor) {
+	public List<FullTextResult> loadFullTextChunk(QueryCursor<FullTextResult> cursor) {
 		Assert.notNull(cursor, "cursor");
 		
 		final List<ValueObject> listObjects = loadFullTextObjects(cursor);
@@ -637,7 +637,7 @@ public class ValueObjectServiceImpl
 		return result;
 	}
 	
-	private List<ValueObject> loadFullTextObjects(Cursor<?> cursor) {
+	private List<ValueObject> loadFullTextObjects(QueryCursor<?> cursor) {
 		final List<ValueObject> result = new ArrayList<>(cursor.getChunkSize());
 		Entity entity = null;
 		for (int i = cursor.getStartIndex(); i < Math.min(cursor.getStartIndex() + cursor.getChunkSize(), cursor.getTotalCount()); i++) {

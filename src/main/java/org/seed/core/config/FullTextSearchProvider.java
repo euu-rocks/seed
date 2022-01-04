@@ -38,16 +38,16 @@ public class FullTextSearchProvider {
 	private static final Logger log = LoggerFactory.getLogger(FullTextSearchProvider.class);
 	
 	@Autowired
-	private Seed seed;
+	private ApplicationProperties appProperties;
 	
 	private SolrClient solrClient;
 	
 	@PostConstruct
 	private void init() {
-		if (!NameUtils.booleanValue(seed.applicationProperty(Seed.PROP_SEARCH_SOLR_ENABLE))) {
+		if (!NameUtils.booleanValue(appProperties.getProperty(Seed.PROP_SEARCH_SOLR_ENABLE))) {
 			return;
 		}
-		final String propSolrUrl = seed.applicationProperty(Seed.PROP_SEARCH_SOLR_URL);
+		final String propSolrUrl = appProperties.getProperty(Seed.PROP_SEARCH_SOLR_URL);
 		if (StringUtils.hasText(propSolrUrl)) {
 			try {
 				solrClient = new HttpSolrClient.Builder(propSolrUrl).build();

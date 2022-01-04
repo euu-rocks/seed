@@ -29,7 +29,7 @@ import org.hibernate.Transaction;
 
 import org.seed.C;
 import org.seed.InternalException;
-import org.seed.core.data.Cursor;
+import org.seed.core.data.QueryCursor;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.value.ValueObject;
@@ -46,7 +46,7 @@ public abstract class AbstractTransferProcessor implements TransferProcessor {
 	
 	private final Transfer transfer;
 	
-	private Cursor<ValueObject> cursor;
+	private QueryCursor<ValueObject> cursor;
 	
 	private List<ValueObject> chunk;
 	
@@ -210,7 +210,7 @@ public abstract class AbstractTransferProcessor implements TransferProcessor {
 		}
 	}
 	
-	private Cursor<ValueObject> getCursor() {
+	private QueryCursor<ValueObject> getCursor() {
 		if (cursor == null) {
 			cursor = valueObjectService.createCursor(transfer.getEntity(), 500);
 		}

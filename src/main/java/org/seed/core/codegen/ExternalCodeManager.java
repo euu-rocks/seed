@@ -41,6 +41,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import org.seed.Seed;
+import org.seed.core.config.ApplicationProperties;
 import org.seed.core.config.SessionProvider;
 import org.seed.core.util.Assert;
 import org.seed.core.util.BeanUtils;
@@ -67,7 +68,7 @@ public class ExternalCodeManager implements ApplicationContextAware {
 	private Compiler compiler;
 	
 	@Autowired
-	private Seed seed;
+	private ApplicationProperties applicationProperties;
 	
 	private ApplicationContext applicationContext;
 	
@@ -85,13 +86,13 @@ public class ExternalCodeManager implements ApplicationContextAware {
 	@PostConstruct
 	private void init() {
 		
-		final String propDownloadSources = seed.applicationProperty(Seed.PROP_CODEGEN_EXT_DOWNLOAD_SOURCES);
+		final String propDownloadSources = applicationProperties.getProperty(Seed.PROP_CODEGEN_EXT_DOWNLOAD_SOURCES);
 		if (!NameUtils.booleanValue(propDownloadSources)) {
 			return;	// abort
 		}
 		
 		// init download
-		final String propExternalRootDir = seed.applicationProperty(Seed.PROP_CODEGEN_EXT_ROOTDIR);
+		final String propExternalRootDir = applicationProperties.getProperty(Seed.PROP_CODEGEN_EXT_ROOTDIR);
 		if (propExternalRootDir == null) {
 			log.warn("property {} is not defined", Seed.PROP_CODEGEN_EXT_ROOTDIR);
 			return;
@@ -114,7 +115,7 @@ public class ExternalCodeManager implements ApplicationContextAware {
 		}
 		
 		// init upload
-		final String propUploadChanges = seed.applicationProperty(Seed.PROP_CODEGEN_EXT_UPOAD_CHANGES);
+		final String propUploadChanges = applicationProperties.getProperty(Seed.PROP_CODEGEN_EXT_UPOAD_CHANGES);
 		if (NameUtils.booleanValue(propUploadChanges)) {
 			log.info("Enable code uploads on change");
 			try {

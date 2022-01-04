@@ -18,7 +18,7 @@
 package org.seed.ui;
 
 import org.seed.C;
-import org.seed.core.data.Cursor;
+import org.seed.core.data.QueryCursor;
 import org.seed.core.entity.value.FullTextResult;
 import org.seed.core.util.Assert;
 
@@ -40,7 +40,7 @@ public class Tab {
 	
 	private String fullTextSearchTerm;
 	
-	private Cursor<FullTextResult> fullTextSearchCursor;
+	private QueryCursor<FullTextResult> fullTextSearchCursor;
 	
 	private SearchParameter searchParameter;
 	
@@ -114,11 +114,11 @@ public class Tab {
 		this.fullTextSearchTerm = fullTextSearchTerm;
 	}
 
-	public Cursor<FullTextResult> getFullTextSearchCursor() {
+	public QueryCursor<FullTextResult> getFullTextSearchCursor() {
 		return fullTextSearchCursor;
 	}
 
-	public void setFullTextSearchCursor(Cursor<FullTextResult> fullTextSearchCursor) {
+	public void setFullTextSearchCursor(QueryCursor<FullTextResult> fullTextSearchCursor) {
 		this.fullTextSearchCursor = fullTextSearchCursor;
 	}
 

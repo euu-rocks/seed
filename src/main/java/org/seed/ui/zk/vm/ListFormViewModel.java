@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.seed.C;
-import org.seed.core.data.Cursor;
+import org.seed.core.data.QueryCursor;
 import org.seed.core.data.Sort;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.filter.Filter;
@@ -109,7 +109,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 
 	public ListModel<ValueObject> getListModel() {
 		final SearchParameter searchParam = getTab().getSearchParameter();
-		Cursor<ValueObject> cursor;
+		QueryCursor<ValueObject> cursor;
 		if (searchParam != null) {
 			cursor = valueObjectService().createCursor(searchParam.searchObject, searchParam.mapOperators);
 		}
@@ -130,7 +130,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 			private static final long serialVersionUID = 6122960735585906371L;
 			
 			@Override
-			protected List<ValueObject> loadChunk(Cursor<ValueObject> cursor) {
+			protected List<ValueObject> loadChunk(QueryCursor<ValueObject> cursor) {
 				return valueObjectService().loadChunk(cursor);
 			}
 		};

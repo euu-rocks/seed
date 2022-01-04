@@ -20,7 +20,7 @@ package org.seed.ui.zk.vm;
 import java.util.List;
 
 import org.seed.C;
-import org.seed.core.data.Cursor;
+import org.seed.core.data.QueryCursor;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityService;
 import org.seed.core.entity.value.FullTextResult;
@@ -73,7 +73,7 @@ public class FullTextSearchViewModel extends AbstractApplicationViewModel {
 		if (StringUtils.hasText(getSearchTerm())) {
 			
 			// get or create cursor
-			Cursor<FullTextResult> cursor = tab.getFullTextSearchCursor();
+			QueryCursor<FullTextResult> cursor = tab.getFullTextSearchCursor();
 			if (cursor == null) {
 				cursor = valueObjectService.createFullTextSearchCursor(getSearchTerm());
 				tab.setFullTextSearchCursor(cursor);
@@ -84,7 +84,7 @@ public class FullTextSearchViewModel extends AbstractApplicationViewModel {
 				private static final long serialVersionUID = -7870718083524982606L;
 				
 				@Override
-				protected List<FullTextResult> loadChunk(Cursor<FullTextResult> cursor) {
+				protected List<FullTextResult> loadChunk(QueryCursor<FullTextResult> cursor) {
 					return valueObjectService.loadFullTextChunk(cursor);
 				}
 			};

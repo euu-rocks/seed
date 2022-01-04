@@ -31,6 +31,7 @@ import org.seed.core.api.EntityObject;
 import org.seed.core.api.EntityObjectProvider;
 import org.seed.core.api.EntityTransformer;
 import org.seed.core.api.Status;
+import org.seed.core.config.ApplicationProperties;
 import org.seed.core.data.BatchCursor;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
@@ -48,6 +49,8 @@ import org.seed.core.util.MiscUtils;
 
 class ValueObjectProvider implements EntityObjectProvider {
 	
+	private final ApplicationProperties applicationProperties;
+	
 	private final EntityService entityService;
 	
 	private final FilterService filterService;
@@ -58,8 +61,6 @@ class ValueObjectProvider implements EntityObjectProvider {
 
 	private final ValueObjectFunctionContext functionContext;
 	
-	private final int batchSize;
-	
 	ValueObjectProvider(ValueObjectFunctionContext functionContext) {
 		Assert.notNull(functionContext, C.CONTEXT);
 		
@@ -68,7 +69,7 @@ class ValueObjectProvider implements EntityObjectProvider {
 		entityService = Seed.getBean(EntityService.class);
 		filterService = Seed.getBean(FilterService.class);
 		transformerService = Seed.getBean(TransformerService.class);
-		batchSize = getBatchSize();
+		applicationProperties = Seed.getBean(ApplicationProperties.class);
 	}
 	
 	@Override
@@ -134,6 +135,9 @@ class ValueObjectProvider implements EntityObjectProvider {
 	
 	@Override
 	public BatchOperation startBatchOperation() {
+		final Integer batchSize = applicationProperties.getIntegerProperty(Seed.PROP_BATCH_SIZE);
+		Assert.stateAvailable(batchSize, "batch processing");
+		
 		return new BatchCursor(batchSize);
 	}
 	
@@ -225,8 +229,4 @@ class ValueObjectProvider implements EntityObjectProvider {
 			return entityService.getObject(object.getEntityId());
 	}
 	
-	private static int getBatchSize() {
-		return Integer.valueOf(Seed.getApplicationProperty(Seed.PROP_BATCH_SIZE));
-	}
-
 }

@@ -19,7 +19,7 @@ package org.seed.ui.zk;
 
 import java.util.List;
 
-import org.seed.core.data.Cursor;
+import org.seed.core.data.QueryCursor;
 import org.seed.core.data.SystemObject;
 import org.seed.core.util.Assert;
 
@@ -28,7 +28,7 @@ import org.zkoss.zul.AbstractListModel;
 @SuppressWarnings("serial")
 public abstract class LoadOnDemandListModel<T extends SystemObject> extends AbstractListModel<T> {
 	
-	private final transient Cursor<T> cursor;
+	private final transient QueryCursor<T> cursor;
 	
 	private transient List<T> chunk;
 	
@@ -36,7 +36,7 @@ public abstract class LoadOnDemandListModel<T extends SystemObject> extends Abst
 	
 	private int chunkIndex = -1;
 	
-	protected LoadOnDemandListModel(Cursor<T> cursor, boolean nullable) {
+	protected LoadOnDemandListModel(QueryCursor<T> cursor, boolean nullable) {
 		Assert.notNull(cursor, "cursor");
 		
 		this.cursor = cursor;
@@ -65,6 +65,6 @@ public abstract class LoadOnDemandListModel<T extends SystemObject> extends Abst
 		return cursor.getTotalCount() + (nullable ? 1 : 0);
 	}
 	
-	protected abstract List<T> loadChunk(Cursor<T> cursor);
+	protected abstract List<T> loadChunk(QueryCursor<T> cursor);
 
 }

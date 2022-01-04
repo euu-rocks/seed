@@ -36,7 +36,6 @@ import org.seed.core.util.MiscUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -77,7 +76,7 @@ public class DynamicConfiguration implements UpdatableConfiguration {
 	}
 	
 	@Autowired
-	private Environment environment;
+	private ApplicationProperties appProperties;
 	
 	@Autowired
 	private CodeManager codeManager;
@@ -214,30 +213,19 @@ public class DynamicConfiguration implements UpdatableConfiguration {
 		return new DynamicSessionFactoryBuilder(metaImpl);
 	}
 	
-	private boolean hasApplicationProperty(String propertyName) {
-		return environment.getProperty(propertyName) != null;
-	}
-	
-	private String getApplicationProperty(String propertyName) {
-		final String property = environment.getProperty(propertyName);
-		Assert.stateAvailable(property, "application property '" + propertyName + "'");
-		
-		return property;
-	}
-	
 	private Map<String, Object> createSettings(boolean boot) {
 		final Map<String, Object> settings = new HashMap<>(20, 1.0f);
 		
 		// data source
-		settings.put("hibernate.connection.url", getApplicationProperty(Seed.PROP_DATASOURCE_URL));                                
-		settings.put("hibernate.connection.username", getApplicationProperty(Seed.PROP_DATASOURCE_USERNAME));     
-		settings.put("hibernate.connection.password", getApplicationProperty(Seed.PROP_DATASOURCE_PASSWORD));
+		settings.put("hibernate.connection.url", appProperties.getRequiredProperty(Seed.PROP_DATASOURCE_URL));                                
+		settings.put("hibernate.connection.username", appProperties.getRequiredProperty(Seed.PROP_DATASOURCE_USERNAME));     
+		settings.put("hibernate.connection.password", appProperties.getRequiredProperty(Seed.PROP_DATASOURCE_PASSWORD));
 		
 		// connection pool
-		settings.put("hibernate.hikari.connectionTimeout", getApplicationProperty(Seed.PROP_CONNECTIONPOOL_TIMEOUT));
-		settings.put("hibernate.hikari.minimumIdle", getApplicationProperty(Seed.PROP_CONNECTIONPOOL_MINIDLE));
-		settings.put("hibernate.hikari.maximumPoolSize", getApplicationProperty(Seed.PROP_CONNECTIONPOOL_POOLSIZE));
-		settings.put("hibernate.hikari.idleTimeout", getApplicationProperty(Seed.PROP_CONNECTIONPOOL_IDLE_TIMEOUT));
+		settings.put("hibernate.hikari.connectionTimeout", appProperties.getRequiredProperty(Seed.PROP_CONNECTIONPOOL_TIMEOUT));
+		settings.put("hibernate.hikari.minimumIdle", appProperties.getRequiredProperty(Seed.PROP_CONNECTIONPOOL_MINIDLE));
+		settings.put("hibernate.hikari.maximumPoolSize", appProperties.getRequiredProperty(Seed.PROP_CONNECTIONPOOL_POOLSIZE));
+		settings.put("hibernate.hikari.idleTimeout", appProperties.getRequiredProperty(Seed.PROP_CONNECTIONPOOL_IDLE_TIMEOUT));
 		
 		// cache
 		settings.put("hibernate.cache.use_second_level_cache", String.valueOf(!boot));
@@ -248,8 +236,8 @@ public class DynamicConfiguration implements UpdatableConfiguration {
 		}
 		
 		// batch processing
-		if (!boot && hasApplicationProperty(Seed.PROP_BATCH_SIZE)) {
-			settings.put("hibernate.jdbc.batch_size", getApplicationProperty(Seed.PROP_BATCH_SIZE));
+		if (!boot && appProperties.hasProperty(Seed.PROP_BATCH_SIZE)) {
+			settings.put("hibernate.jdbc.batch_size", appProperties.getProperty(Seed.PROP_BATCH_SIZE));
 			settings.put("hibernate.order_inserts", C.TRUE);
 			settings.put("hibernate.order_updates", C.TRUE);
 			settings.put("hibernate.batch_versioned_data", C.TRUE);

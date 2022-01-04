@@ -25,7 +25,7 @@ import org.seed.C;
 import org.seed.core.util.Assert;
 import org.seed.core.util.Tupel;
 
-public final class Cursor<T extends SystemObject> {
+public final class QueryCursor<T extends SystemObject> {
 	
 	private final CriteriaQuery<T> query;
 	
@@ -39,7 +39,7 @@ public final class Cursor<T extends SystemObject> {
 	
 	private int startIndex;
 	
-	public Cursor(String fullTextQuery, List<Tupel<Long, Long>> fullTextResult, int chunkSize) {
+	public QueryCursor(String fullTextQuery, List<Tupel<Long, Long>> fullTextResult, int chunkSize) {
 		Assert.notNull(fullTextQuery, "fullTextQuery");
 		Assert.notNull(fullTextResult, "fullTextResult");
 		Assert.greaterThanZero(chunkSize, C.CHUNKSIZE);
@@ -51,7 +51,7 @@ public final class Cursor<T extends SystemObject> {
 		this.chunkSize = chunkSize;
 	}
 	
-	public Cursor(String hqlQuery, int totalCount, int chunkSize) {
+	public QueryCursor(String hqlQuery, int totalCount, int chunkSize) {
 		Assert.notNull(hqlQuery, "hqlQuery");
 		Assert.greaterThanZero(chunkSize, C.CHUNKSIZE);
 		
@@ -62,7 +62,7 @@ public final class Cursor<T extends SystemObject> {
 		this.chunkSize = chunkSize;
 	}
 	
-	public Cursor(CriteriaQuery<T> query, int totalCount, int chunkSize) {
+	public QueryCursor(CriteriaQuery<T> query, int totalCount, int chunkSize) {
 		Assert.notNull(query, "query");
 		Assert.greaterThanZero(chunkSize, C.CHUNKSIZE);
 		

@@ -26,7 +26,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Controller;
@@ -56,14 +55,9 @@ public class Seed {
 	
 	public static final String PROP_CODEGEN_EXT_ROOTDIR          = "codegen.external.rootdir";
 	public static final String PROP_CODEGEN_EXT_DOWNLOAD_SOURCES = "codegen.external.downloadsources";
-	public static final String PROP_CODEGEN_EXT_UPOAD_CHANGES    = "codegen.external.downloadsources";
+	public static final String PROP_CODEGEN_EXT_UPOAD_CHANGES    = "codegen.external.uploadchanges";
 	
 	private static ApplicationContext applicationContext;
-	
-	private static Seed instance;
-	
-	@Autowired
-	private Environment environment;
 	
 	@Autowired
 	private BuildProperties buildProperties;
@@ -75,16 +69,6 @@ public class Seed {
 	@GetMapping("/seed")
 	public String seed() {
 		return C.SEED;
-	}
-	
-	public String applicationProperty(String propertyName) {
-		Assert.notNull(propertyName, "property name");
-		
-		return environment.getProperty(propertyName);
-	}
-	
-	public static String getApplicationProperty(String propertyName) {
-		return getInstance().applicationProperty(propertyName);
 	}
 	
 	public String getVersion() {
@@ -104,13 +88,5 @@ public class Seed {
 	public static void updateConfiguration() {
 		getBean(UpdatableConfiguration.class).updateConfiguration();
 	}
-	
-	private static Seed getInstance() {
-		if (instance == null) {
-			instance = getBean(Seed.class);
-			Assert.stateAvailable(instance, "instance");
-		}
-		return instance;
-	}
-	
+
 }
