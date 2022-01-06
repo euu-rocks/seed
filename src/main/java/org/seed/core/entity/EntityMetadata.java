@@ -284,7 +284,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	public String getDefaultIdentifierPattern() {
 		final EntityField defaultField = findDefaultIdentifierField();
 		return defaultField != null 
-				? ("{entity} {" + defaultField.getName() + '}') 
+				? ('{' + defaultField.getName() + '}') 
 				: null;
 	}
 	

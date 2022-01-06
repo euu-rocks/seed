@@ -29,7 +29,6 @@ import org.hibernate.Transaction;
 
 import org.seed.C;
 import org.seed.InternalException;
-import org.seed.Seed;
 import org.seed.core.api.Job;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
@@ -329,7 +328,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		super.saveObject(task);
 		
 		if (isNew || contentChanged) {
-			Seed.updateConfiguration();
+			updateConfiguration();
 		}
 	}
 	

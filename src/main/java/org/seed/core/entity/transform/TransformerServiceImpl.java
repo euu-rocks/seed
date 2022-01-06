@@ -32,7 +32,6 @@ import org.hibernate.Session;
 
 import org.seed.C;
 import org.seed.InternalException;
-import org.seed.Seed;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -266,7 +265,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		super.saveObject(transformer);
 	
 		if (transformer.hasFunctions()) {
-			Seed.updateConfiguration();
+			updateConfiguration();
 		}
 	}
 	

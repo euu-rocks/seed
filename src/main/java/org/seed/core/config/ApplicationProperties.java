@@ -18,7 +18,6 @@
 package org.seed.core.config;
 
 import org.seed.core.util.Assert;
-import org.seed.core.util.NameUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
@@ -47,14 +46,6 @@ public class ApplicationProperties {
 					 						 "' is not available");
 		}
 		return property;
-	}
-	
-	public Boolean getBooleanProperty(String propertyName) {
-		final String property = getProperty(propertyName);
-		if (property != null) {
-			return NameUtils.booleanValue(property);
-		}
-		return null;
 	}
 	
 	public Integer getIntegerProperty(String propertyName) {

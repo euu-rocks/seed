@@ -18,8 +18,6 @@
 package org.seed;
 
 import org.seed.config.ZKCEApplication;
-import org.seed.core.config.UpdatableConfiguration;
-import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -78,15 +76,14 @@ public class Seed {
 	}
 	
 	public static <T> T getBean(Class<T> typeClass) {
-		Assert.notNull(typeClass, C.TYPECLASS);
-    	// context only available after startup completed
-		Assert.stateAvailable(applicationContext, "applicationContext");
-		
+		if (typeClass == null) {
+			throw new IllegalArgumentException("type class is null");
+		}
+		// context only available after startup completed
+		if (applicationContext == null) {
+			throw new IllegalStateException("application context not available");
+		}
     	return applicationContext.getBean(typeClass);
-	}
-	
-	public static void updateConfiguration() {
-		getBean(UpdatableConfiguration.class).updateConfiguration();
 	}
 
 }

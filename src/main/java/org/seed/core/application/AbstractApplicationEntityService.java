@@ -20,11 +20,14 @@ package org.seed.core.application;
 import java.util.List;
 
 import org.hibernate.Session;
+
 import org.seed.C;
+import org.seed.Seed;
 import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.ModuleDependent;
 import org.seed.core.application.module.TransferContext;
+import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.data.AbstractSystemEntityService;
 import org.seed.core.data.QueryParameter;
 import org.seed.core.data.ValidationException;
@@ -85,6 +88,10 @@ public abstract class AbstractApplicationEntityService<T extends ApplicationEnti
 		
 		((AbstractApplicationEntity) object).initUid();
 		super.saveObject(object, session);
+	}
+	
+	protected void updateConfiguration() {
+		Seed.getBean(UpdatableConfiguration.class).updateConfiguration();
 	}
 	
 }

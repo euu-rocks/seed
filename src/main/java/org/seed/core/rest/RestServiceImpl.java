@@ -27,7 +27,6 @@ import org.hibernate.Transaction;
 
 import org.seed.C;
 import org.seed.InternalException;
-import org.seed.Seed;
 import org.seed.core.api.RestFunction.MethodType;
 import org.seed.core.api.RestFunctionContext;
 import org.seed.core.application.AbstractApplicationEntityService;
@@ -245,7 +244,7 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 		Assert.notNull(rest, C.REST);
 		
 		super.saveObject(rest);
-		Seed.updateConfiguration();
+		updateConfiguration();
 	}
 
 	@Override

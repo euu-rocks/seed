@@ -202,6 +202,10 @@ public class MainViewModel extends AbstractApplicationViewModel {
 				}
 				globalOpenTab(selectedNode.label, selectedNode.viewName, selectedNode.iconClass, param);
 			}
+			else {
+				openMenu(selectedNode);
+				notifyChange("isNodeOpen");
+			}
 		}
 	}
 	

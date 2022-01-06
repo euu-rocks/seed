@@ -494,7 +494,7 @@ public class ValueObjectRepository {
 			value = objectAccess.getValue(object, defaultField);
 		}
 		if (value != null) {
-			return entity.getName() + ' ' + value.toString();
+			return value.toString();
 		}
 		else {
 			return entity.getName() + " (" + object.getId() + ')';

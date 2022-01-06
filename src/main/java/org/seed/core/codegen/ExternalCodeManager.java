@@ -43,6 +43,7 @@ import org.hibernate.Transaction;
 import org.seed.Seed;
 import org.seed.core.config.ApplicationProperties;
 import org.seed.core.config.SessionProvider;
+import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.util.Assert;
 import org.seed.core.util.BeanUtils;
 import org.seed.core.util.NameUtils;
@@ -139,7 +140,7 @@ public class ExternalCodeManager implements ApplicationContextAware {
 				watchKey.reset();
 				
 				if (changesProcessed) {
-					Seed.updateConfiguration();
+					Seed.getBean(UpdatableConfiguration.class).updateConfiguration();
 				}
 			} 
 			catch (InterruptedException e) {
