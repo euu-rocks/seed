@@ -80,6 +80,7 @@ public final class C {
 	public static final String STATUS           = "status";
 	public static final String STATUSTRANSITION = "statusTransition";
 	public static final String SUBFORM          = "subForm";
+	public static final String SYSTEMTASK       = "systemTask";
 	public static final String TAB              = "tab";
 	public static final String TASK             = "task";
 	public static final String TARGETENTITY     = "targetEntity";

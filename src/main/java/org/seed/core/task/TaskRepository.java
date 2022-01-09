@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.hibernate.Session;
 
+import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityRepository;
 import org.seed.core.util.Assert;
 
@@ -29,7 +30,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class TaskRepository extends AbstractSystemEntityRepository<Task> {
 	
-	private static final String QUERY_SYSTEMTASKRUNS_SYSTEMTASK = 
+	private static final String QUERY_SYSTEMTASK_RUNS = 
 		"from SystemTaskRun r where r.systemTask = :systemTask order by r.createdOn desc";
 	
 	protected TaskRepository() {
@@ -41,12 +42,25 @@ public class TaskRepository extends AbstractSystemEntityRepository<Task> {
 		return super.getSession();
 	}
 	
-	protected List<SystemTaskRun> getSystemTaskRuns(SystemTask systemTask) {
-		Assert.notNull(systemTask, "systemTask");
+	protected SystemTaskRun getLastSystemTaskRun(SystemTask systemTask) {
+		Assert.notNull(systemTask, C.SYSTEMTASK);
 		
-		try (Session session = getSession()) {
-			return session.createQuery(QUERY_SYSTEMTASKRUNS_SYSTEMTASK, SystemTaskRun.class)
-						  .setParameter("systemTask", systemTask)
+		try (Session session = super.getSession()) {
+			final List<SystemTaskRun> result = 
+					session.createQuery(QUERY_SYSTEMTASK_RUNS, SystemTaskRun.class)
+						   .setParameter(C.SYSTEMTASK, systemTask)
+						   .setMaxResults(1)
+						   .list();
+			return result.isEmpty() ? null : result.get(0);
+		}
+	}
+	
+	protected List<SystemTaskRun> getSystemTaskRuns(SystemTask systemTask) {
+		Assert.notNull(systemTask, C.SYSTEMTASK);
+		
+		try (Session session = super.getSession()) {
+			return session.createQuery(QUERY_SYSTEMTASK_RUNS, SystemTaskRun.class)
+						  .setParameter(C.SYSTEMTASK, systemTask)
 						  .list();
 		}
 	}

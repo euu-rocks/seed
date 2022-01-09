@@ -19,7 +19,7 @@
 -->
 <!DOCTYPE xml>
 <groupbox hflex="1">
-	<caption label="${labels.systeminfo.hbn.database}"/>
+	<caption label="${labels.systeminfo.hbn.title}"/>
 	<grid hflex="1" class="alpha-noborder">
 		<columns>
         	<column width="60%"/>

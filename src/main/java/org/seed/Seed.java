@@ -53,7 +53,7 @@ public class Seed {
 	
 	public static final String PROP_CODEGEN_EXT_ROOTDIR          = "codegen.external.rootdir";
 	public static final String PROP_CODEGEN_EXT_DOWNLOAD_SOURCES = "codegen.external.downloadsources";
-	public static final String PROP_CODEGEN_EXT_UPOAD_CHANGES    = "codegen.external.uploadchanges";
+	public static final String PROP_CODEGEN_EXT_UPLOAD_CHANGES   = "codegen.external.uploadchanges";
 	
 	private static ApplicationContext applicationContext;
 	

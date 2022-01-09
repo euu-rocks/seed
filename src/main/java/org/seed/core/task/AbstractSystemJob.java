@@ -22,6 +22,7 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
+import org.seed.C;
 import org.seed.core.config.SessionProvider;
 import org.seed.core.util.Assert;
 
@@ -40,12 +41,12 @@ public abstract class AbstractSystemJob implements Job {
 	private ApplicationContext applicationContext;
 	
 	protected AbstractSystemJob(SystemTask systemTask) {
-		Assert.notNull(systemTask, "systemTask");
+		Assert.notNull(systemTask, C.SYSTEMTASK);
 		
 		this.systemTask = systemTask;
 	}
 
-	public SystemTask getTask() {
+	public SystemTask getSytemTask() {
 		return systemTask;
 	}
 
@@ -54,7 +55,7 @@ public abstract class AbstractSystemJob implements Job {
 		applicationContext = (ApplicationContext) context.get(APPLICATION_CONTEXT);
 		taskRun = (SystemTaskRun) context.get(SYSTEMTASK_RUN);
 		Assert.stateAvailable(applicationContext, "application context");
-		Assert.stateAvailable(taskRun, "run");
+		Assert.stateAvailable(taskRun, "system task run");
 		
 		init();
 		execute();

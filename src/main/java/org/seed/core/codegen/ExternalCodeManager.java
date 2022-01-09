@@ -116,7 +116,7 @@ public class ExternalCodeManager implements ApplicationContextAware {
 		}
 		
 		// init upload
-		final String propUploadChanges = applicationProperties.getProperty(Seed.PROP_CODEGEN_EXT_UPOAD_CHANGES);
+		final String propUploadChanges = applicationProperties.getProperty(Seed.PROP_CODEGEN_EXT_UPLOAD_CHANGES);
 		if (NameUtils.booleanValue(propUploadChanges)) {
 			log.info("Enable code uploads on change");
 			try {

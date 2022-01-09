@@ -87,7 +87,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		Assert.notNull(systemTask, "system task");
 		
 		for (Class<? extends AbstractSystemJob> jobClass : BeanUtils.getImplementingClasses(AbstractSystemJob.class)) {
-			if (systemTask == BeanUtils.instantiate(jobClass).getTask()) {
+			if (systemTask == BeanUtils.instantiate(jobClass).getSytemTask()) {
 				return (Class<T>) jobClass;
 			}
 		}
@@ -155,6 +155,12 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		notification.setResult(TaskResult.SUCCESS);
 		task.addNotification(notification);
 		return notification;
+	}
+	
+	@Override
+	@Secured("ROLE_SYSTEMTASK")
+	public SystemTaskRun getLastSystemTaskRun(SystemTask systemTask) {
+		return taskRepository.getLastSystemTaskRun(systemTask);
 	}
 	
 	@Override

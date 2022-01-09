@@ -32,7 +32,7 @@
 				</cell>
 				<cell style="padding: 4px 4px">
 					<label value="@load(vm.zkStatistic.activeDesktopCount)"/> /
-					<label value="@load(vm.formatAverage(vm.zkStatistic.averageDesktopCount))"/> /
+					<label value="@load(vm.formatAverage(vm.zkStatistic.totalDesktopCount, vm.zkStatistic.averageDesktopCount))"/> /
 					<label value="@load(vm.zkStatistic.totalDesktopCount)"/>
 				</cell>
 			</row>
@@ -42,7 +42,7 @@
 				</cell>
 				<cell style="padding: 4px 4px">
 					<label value="@load(vm.zkStatistic.activeSessionCount)"/> /
-					<label value="@load(vm.formatAverage(vm.zkStatistic.averageDesktopCount))"/> /
+					<label value="@load(vm.formatAverage(vm.zkStatistic.totalSessionCount, vm.zkStatistic.averageSessionCount))"/> /
 					<label value="@load(vm.zkStatistic.totalSessionCount)"/>
 				</cell>
 			</row>
@@ -52,7 +52,7 @@
 				</cell>
 				<cell style="padding: 4px 4px">
 					<label value="@load(vm.zkStatistic.activeUpdateCount)"/> /
-					<label value="@load(vm.formatAverage(vm.zkStatistic.averageUpdateCount))"/> /
+					<label value="@load(vm.formatAverage(vm.zkStatistic.totalUpdateCount, vm.zkStatistic.averageUpdateCount))"/> /
 					<label value="@load(vm.zkStatistic.totalUpdateCount)"/>
 				</cell>
 			</row>

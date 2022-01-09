@@ -115,7 +115,10 @@ public class SystemInfoViewModel extends AbstractApplicationViewModel {
 		notifyChangeAll();
 	}
 	
-	public static String formatAverage(Double average) {
+	public String formatAverage(Integer total, Double average) {
+		if (new Date().getTime() - getZkStatistic().getStartTime() < 3600000) { // < 1h
+			return String.valueOf(total);
+		}
 		return String.valueOf(average.intValue());
 	}
 	

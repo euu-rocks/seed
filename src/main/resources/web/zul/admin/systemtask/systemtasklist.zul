@@ -28,7 +28,7 @@
 			<toolbarbutton iconSclass="z-icon-play alpha-icon-lg" 
 						   label="${labels.button.start}" 
 						   onClick="@command('startTask')"
-						   disabled="@load(empty vm.systemTask)"/>
+						   visible="@load(!empty vm.systemTask)"/>
 		</toolbar>
 	</north>
 	<center border="0">
@@ -36,15 +36,28 @@
 				 model="@load(vm.systemTasks)" 
 		         selectedItem="@bind(vm.systemTask)">
 			<listhead sizable="true">
-	            <listheader hflex="2" label="${labels.label.systemtask}"/>
+	            <listheader label="${labels.label.systemtask}" hflex="3"/>
+	            <listheader label="${labels.label.lastcall}" hflex="1"/>
+	            <listheader label="${labels.label.resultshort}" hflex="min"/>
 	        </listhead>
 	        <template name="model" var="task">
 	            <listitem onDoubleClick="@command('showRuns')">
 	            	<listcell iconSclass="z-icon-gavel z-icon-fw alpha-icon-lg">
 	            		<label value="@load(vm.getEnumLabel(task))"/>
 	            	</listcell>
+	            	<listcell>
+	            		<label value="@load(vm.getLastRunTime(task))
+	            					  @converter(vm.dateTimeConverter)"/>
+	            	</listcell>
+	            	<listcell>
+	            		<taskstatus result="@load(vm.getLastRunResult(task))"/>
+	            	</listcell>
 	            </listitem>
 	        </template>
 	    </listbox>
 	</center>
+	<south>
+		<timer delay="1000" repeats="true"
+		       onTimer="@command('checkJobStatus')"/>
+	</south>
 </borderlayout>

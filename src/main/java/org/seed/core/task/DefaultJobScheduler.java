@@ -151,7 +151,7 @@ public class DefaultJobScheduler
 	
 	@Override
 	public void startSystemJob(SystemTask systemTask) {
-		Assert.notNull(systemTask, "systemTask");
+		Assert.notNull(systemTask, C.SYSTEMTASK);
 		try {
 			getScheduler().scheduleJob(createImmediateJobDetail(systemTask), 
 									   createImmediateTrigger(systemTask));
@@ -243,7 +243,7 @@ public class DefaultJobScheduler
 	
 	private void prepareSystemJob(JobExecutionContext context) {
 		final AbstractSystemJob job = (AbstractSystemJob) context.getJobInstance();
-		final SystemTaskRun run = taskService.createRun(job.getTask());
+		final SystemTaskRun run = taskService.createRun(job.getSytemTask());
 		taskService.saveSystemTaskRun(run);
 		
 		Assert.stateAvailable(applicationContext, "applicationContext");

@@ -17,7 +17,10 @@
  */
 package org.seed.ui.zk.vm.admin;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -28,6 +31,7 @@ import org.seed.core.task.AbstractSystemJob;
 import org.seed.core.task.JobScheduler;
 import org.seed.core.task.SystemTask;
 import org.seed.core.task.SystemTaskRun;
+import org.seed.core.task.TaskResult;
 import org.seed.core.task.TaskService;
 import org.seed.core.util.NameUtils;
 import org.seed.ui.zk.vm.AbstractApplicationViewModel;
@@ -50,6 +54,8 @@ public class SystemTaskViewModel extends AbstractApplicationViewModel
 	@WireVariable(value="defaultJobScheduler")
 	private JobScheduler jobScheduler;
 	
+	private Map<SystemTask, SystemTaskRun> mapLastRun;
+	
 	private String listenerName;
 	
 	private SystemTask systemTask;
@@ -63,6 +69,9 @@ public class SystemTaskViewModel extends AbstractApplicationViewModel
 	public void init(@ContextParam(ContextType.VIEW) Component view,
 					 @ExecutionArgParam(C.PARAM) Object object) {
 		systemTask = (SystemTask) object;
+		if (systemTask == null) { 			// list view
+			mapLastRun = new ConcurrentHashMap<>();
+		}
 		jobScheduler.addJobListener(this);
 	}
 	
@@ -84,6 +93,16 @@ public class SystemTaskViewModel extends AbstractApplicationViewModel
 
 	public SystemTask[] getSystemTasks() {
 		return SystemTask.values();
+	}
+	
+	public Date getLastRunTime(SystemTask systemTask) {
+		final SystemTaskRun run = getLastRun(systemTask);
+		return run != null ? run.getStartTime() : null;
+	}
+	
+	public TaskResult getLastRunResult(SystemTask systemTask) {
+		final SystemTaskRun run = getLastRun(systemTask);
+		return run != null ? run.getResult() : null;
 	}
 	
 	public List<SystemTaskRun> getRuns() {
@@ -118,17 +137,23 @@ public class SystemTaskViewModel extends AbstractApplicationViewModel
 
 	@Override
 	public void jobToBeExecuted(JobExecutionContext context) {
-		notifyJobStatusChange(context);
+		// do nothing
 	}
 
 	@Override
 	public void jobExecutionVetoed(JobExecutionContext context) {
-		notifyJobStatusChange(context);
+		// do nothing
 	}
 
 	@Override
 	public void jobWasExecuted(JobExecutionContext context, JobExecutionException jobException) {
-		notifyJobStatusChange(context);
+		if (context.getJobInstance() instanceof AbstractSystemJob) {
+			final AbstractSystemJob job = (AbstractSystemJob) context.getJobInstance();
+			if (mapLastRun != null) {
+				mapLastRun.remove(job.getSytemTask());
+			}
+			jobStatusChanged = true;
+		}
 	}
 	
 	@Destroy
@@ -136,18 +161,18 @@ public class SystemTaskViewModel extends AbstractApplicationViewModel
 		jobScheduler.removeJobListener(this);
 	}
 	
-	private void notifyJobStatusChange(JobExecutionContext context) {
-		if (context.getJobInstance() instanceof AbstractSystemJob) {
-			if (systemTask == null) { // list
-				jobStatusChanged = true;
-			}
-			else { // "detail" view
-				final AbstractSystemJob job = (AbstractSystemJob) context.getJobInstance();
-				if (job.getTask() == systemTask) {
-					jobStatusChanged = true;
+	private SystemTaskRun getLastRun(SystemTask task) {
+		SystemTaskRun run = null;
+		if (mapLastRun != null) {
+			run = mapLastRun.get(task);
+			if (run == null) {
+				run = taskService.getLastSystemTaskRun(task);
+				if (run != null) {
+					mapLastRun.put(task, run);
 				}
 			}
 		}
+		return run;
 	}
 	
 }

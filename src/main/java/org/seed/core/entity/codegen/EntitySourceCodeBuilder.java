@@ -33,6 +33,8 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Formula;
 
 import org.seed.C;
@@ -317,11 +319,14 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	}
 	
 	private static AnnotationMetadata[] getEntityAnnotations(Entity entity) {
-		final List<AnnotationMetadata> annotations = new ArrayList<>(2);
+		final List<AnnotationMetadata> annotations = new ArrayList<>(3);
 		if (entity.isGeneric()) {
 			annotations.add(newAnnotation(MappedSuperclass.class));
 		}
 		else {
+			if (entity.isTransferable()) {
+				annotations.add(newAnnotation(Cache.class, "usage", CacheConcurrencyStrategy.READ_WRITE));
+			}
 			if (entity.getTableName() != null) {
 				annotations.add(newAnnotation(Table.class, C.NAME, quote(entity.getTableName())));
 			}

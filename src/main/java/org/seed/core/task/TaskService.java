@@ -37,6 +37,8 @@ public interface TaskService extends ApplicationEntityService<Task> {
 	
 	List<Task> getTasks(User user);
 	
+	SystemTaskRun getLastSystemTaskRun(SystemTask systemTask);
+	
 	List<SystemTaskRun> getSystemTaskRuns(SystemTask systemTask);
 	
 	List<TaskPermission> getAvailablePermissions(Task task);
