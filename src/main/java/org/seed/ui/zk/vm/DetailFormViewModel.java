@@ -120,8 +120,6 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 		return model;
 	}
 	
-	
-	
 	public List<ValueObject> getReferenceValues(String referenceFieldUid) {
 		Assert.notNull(referenceFieldUid, REFERENCE_FIELD_UID);
 		
@@ -167,6 +165,17 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 			setStatus(getObject().getEntityStatus());
 		}
 		initFileObjects();
+	}
+	
+	@Command
+	public void showDetail(@BindingParam("nestedId") String nestedUid) {
+		final NestedEntity nested = getForm().getEntity().getNestedByUid(nestedUid);
+		final SubForm subForm = getForm().getSubFormByNestedEntityId(nested.getId());
+		final ValueObject valueObject = subForm.getSelectedObject();
+		final List<Form> forms = formService().findForms(nested.getNestedEntity());
+		if (!forms.isEmpty()) {
+			openTab(forms.get(0), valueObject);
+		}
 	}
 	
 	@Command

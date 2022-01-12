@@ -8,6 +8,23 @@
                      "columns":[
                         {
                            "column": {
+                              "name": "isreadonly",
+                              "type": "BOOLEAN",
+                              "defaultValue": false,
+                              "constraints": {
+                                  "nullable": "false"
+                              }
+                           }
+                        }
+                     ],
+                     "tableName":  "sys_entity_nested"
+                  } 
+               },
+               {
+                  "addColumn":  {
+                     "columns":[
+                        {
+                           "column": {
                               "name": "isselected",
                               "type": "BOOLEAN",
                               "defaultValue": false,

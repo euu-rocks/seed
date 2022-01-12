@@ -446,7 +446,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		
 		final LayoutElement elemListbox = getElementByContextId(layoutRoot, contextId);
 		final LayoutElement elemBorderlayout = elemListbox.getParent().getParent();
-		final SubForm subForm = form.getSubFormByNestedEntityId(Long.valueOf(elemBorderlayout.getId()));
+		final SubForm subForm = form.getSubFormByNestedEntityUid(elemBorderlayout.getId());
 		form.removeSubForm(subForm);
 		elemBorderlayout.removeFromParent();
 		redecorateLayout(form, layoutRoot);

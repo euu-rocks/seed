@@ -34,6 +34,11 @@ import org.seed.core.util.Assert;
 
 public class UndecoratingVisitor extends AbstractLayoutVisitor {
 	
+	private static final String CONVERTER_DATETIME = converter("vm.dateTimeConverter");
+	private static final String CONVERTER_IMAGE    = converter("vm.imageConverter");
+	private static final String CONVERTER_STRING   = converter("vm.stringConverter");
+	private static final String CONVERTER_VALUE    = converter("vm.valueConverter");
+	
 	public UndecoratingVisitor(Form form) {
 		super(form);
 	}
@@ -134,8 +139,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 	
 	private void visitImage(LayoutElement element) {
 		final EntityField entityField = getEntityField(element);
-		element.setAttribute(A_CONTENT, load(propertyName(entityField)) + ' ' + 
-							 									converter("vm.imageConverter"));
+		element.setAttribute(A_CONTENT, load(propertyName(entityField)) + ' ' + CONVERTER_IMAGE);
 		element.setAttribute(A_VISIBLE, load(isVisible(entityField)));
 		if (!entityField.isCalculated()) {
 			element.setOnClick(command("'editImage', fieldId='" + entityField.getUid() +'\''));
@@ -193,7 +197,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 		element.setAttribute(A_VISIBLE, load(isVisible(entityField)));
 		element.setAttribute(A_READONLY, load(isReadonly(entityField)));
 		element.setAttribute(A_MANDATORY, load(isMandatory(entityField)));
-		element.setAttribute(A_BUTTONVISIBLE, load('!' + isReadonly(entityField)));
+		element.setAttribute(A_BUTTONVISIBLE, load(not(isReadonly(entityField))));
 		final LayoutElement elemListbox = element.addChild(createBandpopup())
 												 .addChild(createListBox());
 		elemListbox.setAttribute(A_MODEL, load("vm.getReferenceListModel('" + entityField.getUid() + 
@@ -230,7 +234,12 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 		elemListBox.setAttribute(A_MOLD, "paging");
 		final LayoutElement elemListitem = elemListBox.addChild(createTemplate(A_MODEL, subForm.getNestedEntity().getInternalName()))
 													  .addChild(createListItem(null));
-		if (subForm.hasActions()) {
+		if (subForm.getNestedEntity().isReadonly()) {
+			elemListitem.setAttribute(A_ID, 'i' + subForm.getNestedEntityUid());
+			elemListitem.setContext(subFormContext(subForm, elemListitem));
+			addToRoot(createDetailPopup(elemListitem.getContext(), subForm.getNestedEntityUid()));
+		}
+		else if (subForm.hasActions()) {
 			final LayoutElement elemNorth = element.addChild(createBorderLayoutArea(BorderLayoutArea.NORTH), 0);
 			final LayoutElement elemToolbar = elemNorth.addChild(createToolbar("@init(vm.getSubFormActions('" + subForm.getNestedEntity().getUid() + 
 																	"')) @template(empty each.type.listTemplate ? 'default' : each.type.listTemplate)"));
@@ -258,6 +267,12 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 		final SubForm subForm = subFormField.getSubForm();
 		final EntityField nestedEntityField = subFormField.getEntityField();
 		final String subFormPropertyName = nestedName + '.' + nestedEntityField.getInternalName();
+		
+		// readonly
+		if (subForm.getNestedEntity().isReadonly()) {
+			createReadonlySubFormField(subFormField, nestedName, subFormPropertyName, nestedEntityField, elemListitem);
+			return;
+		}
 		// bandbox
 		if (subFormField.isBandbox()) {
 			createSubFormBandboxField(subFormField, nestedName, subFormPropertyName, nestedEntityField, elemListitem);
@@ -288,8 +303,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 			
 			case BINARY:
 				elemField.removeAttribute(A_HFLEX);
-				elemField.setAttribute(A_CONTENT, load(subFormPropertyName) + ' ' + 
-												  converter("vm.imageConverter"));
+				elemField.setAttribute(A_CONTENT, load(subFormPropertyName) + ' ' + CONVERTER_IMAGE);
 				elemField.setAttribute(A_WIDTH, subFormField.getWidth());
 				elemField.setAttribute(A_HEIGHT, subFormField.getHeight());
 				if (!nestedEntityField.isCalculated()) {
@@ -338,6 +352,38 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 		}
 	}
 	
+	private void createReadonlySubFormField(SubFormField subFormField, String nestedName, String subFormPropertyName, 
+											EntityField nestedEntityField, LayoutElement elemListitem) {
+		final LayoutElement elemCell = elemListitem.addChild(new LayoutElement(LayoutElement.LISTCELL));
+		LayoutElement elem = null;
+		switch (nestedEntityField.getType()) {
+			case BINARY:
+				elem = elemCell.addChild(new LayoutElement(LayoutElement.IMAGE));
+				elem.setAttribute(A_CONTENT, load(subFormPropertyName) + ' ' + CONVERTER_IMAGE);
+				elem.setAttribute(A_WIDTH, subFormField.getWidth());
+				elem.setAttribute(A_HEIGHT, subFormField.getHeight());
+				break;
+	
+			case DATETIME:
+				elem = elemCell.addChild(new LayoutElement(LayoutElement.LABEL));
+				elem.setAttribute(A_VALUE, load(subFormPropertyName) + ' ' + CONVERTER_DATETIME);
+				break;
+	
+			case BOOLEAN:
+			case DATE:
+			case DECIMAL:
+			case FILE:
+				elem = elemCell.addChild(new LayoutElement(LayoutElement.LABEL));
+				elem.setAttribute(A_VALUE, load(subFormPropertyName) + ' ' + CONVERTER_VALUE);
+				break;
+	
+			default:
+				elem = elemCell.addChild(new LayoutElement(LayoutElement.LABEL));
+				elem.setAttribute(A_VALUE, load(subFormPropertyName));
+				break;
+		}
+	}
+	
 	private void createSubFormBandboxField(SubFormField subFormField, String nestedName,String subFormPropertyName, 
 										   EntityField nestedEntityField, LayoutElement elemListitem) {
 		final LayoutElement elemField = elemListitem.addChild(new LayoutElement(LayoutElement.LISTCELL))
@@ -347,7 +393,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 		elemField.setAttribute(A_VALUE, load(identifier(subFormPropertyName))); 
 		elemField.setAttribute(A_READONLY, load(isReadonly(nestedEntityField)));
 		elemField.setAttribute(A_MANDATORY, load(isMandatory(nestedEntityField)));
-		elemField.setAttribute(A_BUTTONVISIBLE, load('!' + isReadonly(nestedEntityField)));
+		elemField.setAttribute(A_BUTTONVISIBLE, load(not(isReadonly(nestedEntityField))));
 
 		final LayoutElement elemList = elemField.addChild(createBandpopup())
 				.addChild(createListBox());
@@ -377,6 +423,13 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 		return createPopupMenu(context, Collections.singletonList(elemMenuItem));
 	}
 	
+	private static LayoutElement createDetailPopup(String context, String nestedUid) {
+		final LayoutElement elemMenuItem = 
+				createMenuItem("label.showdetail", "z-icon-share alpha-icon-lg", 
+							   "'showDetail',nestedId='" + nestedUid + '\'');
+		return createPopupMenu(context, Collections.singletonList(elemMenuItem));
+	}
+	
 	private static String subFormContext(SubForm subForm, LayoutElement element) {
 		return subForm.getNestedEntity().getId() + "_" + element.getId();
 	}
@@ -387,7 +440,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 		}
 		final String value = bind(propertyName);
 		if (entityField.isTextField()) {
-			return value + ' ' + converter("vm.stringConverter");
+			return value + ' ' + CONVERTER_STRING;
 		}
 		return value;
 	}
@@ -398,6 +451,10 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 	
 	private static String propertyName(EntityField entityField) {
 		return "vm.object." + entityField.getInternalName();
+	}
+	
+	private static String not(String expression) {
+		return '!' + expression;
 	}
 	
 	private static String isReadonly(EntityField entityField) {

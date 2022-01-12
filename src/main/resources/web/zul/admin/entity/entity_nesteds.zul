@@ -108,6 +108,15 @@
                 	</template>
            		</combobox>
            	</vlayout>
+           	<vlayout>
+            	<space/>
+	       		<label value="${labels.label.options}:"/>	 
+	       		<hlayout>
+	        		<checkbox checked="@bind(vm.nested.readonly)"
+	        				  onCheck="@command('flagDirty')"/>
+	        		<label value="${labels.label.readonly}"/>
+	       		</hlayout>
+	       	</vlayout>
 		</vlayout>
 	</east>
 </borderlayout>

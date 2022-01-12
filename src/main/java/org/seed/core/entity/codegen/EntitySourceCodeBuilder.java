@@ -246,18 +246,31 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 			addGetterAndSetter(SystemField.ENTITYSTATUS.property);
 		}
 		if (entity.hasFields()) {
-			for (EntityField field : entity.getFields()) {
-				if (field.isJsonSerializable()) {
-					addGetterAndSetter(field.getInternalName());
-				}
-				else {
-					addGetterAndSetter(field.getInternalName(), 
-									   newAnnotation(JsonIgnore.class));
-				}
-			}
+			buildEntityGetterAndSetter();
 		}
 		if (entity.hasNesteds()) {
-			for (NestedEntity nested : entity.getNesteds()) {
+			buildNestedGetterAndSetter();
+		}
+	}
+	
+	private void buildEntityGetterAndSetter() {
+		for (EntityField field : entity.getFields()) {
+			if (field.isJsonSerializable()) {
+				addGetterAndSetter(field.getInternalName());
+			}
+			else {
+				addGetterAndSetter(field.getInternalName(), 
+								   newAnnotation(JsonIgnore.class));
+			}
+		}
+	}
+	
+	private void buildNestedGetterAndSetter() {
+		for (NestedEntity nested : entity.getNesteds()) {
+			if (nested.isReadonly()) {
+				addGetter(nested.getInternalName());
+			}
+			else {
 				addGetterAndSetter(nested.getInternalName());
 			}
 		}
@@ -277,8 +290,12 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	}
 	
 	private void buildNestedMethods() {
-		addImport(ArrayList.class);
 		for (NestedEntity nested : entity.getNesteds()) {
+			if (nested.isReadonly()) {
+				continue;
+			}
+			
+			addImport(ArrayList.class);
 			final String nestedName = nested.getInternalName();
 			final ParameterMetadata[] parameters = new ParameterMetadata[] { 
 				newParameter(nestedName, newTypeClass(nested.getNestedEntity())) 

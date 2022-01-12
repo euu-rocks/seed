@@ -61,6 +61,8 @@ public class NestedEntity extends AbstractOrderedTransferableObject {
 	
 	private String name;
 	
+	private boolean isReadonly;
+	
 	@Transient
 	@JsonIgnore
 	private String nestedEntityUid;
@@ -78,6 +80,15 @@ public class NestedEntity extends AbstractOrderedTransferableObject {
 		this.name = name;
 	}
 	
+	@XmlAttribute
+	public boolean isReadonly() {
+		return isReadonly;
+	}
+
+	public void setReadonly(boolean readonly) {
+		this.isReadonly = readonly;
+	}
+
 	@JsonIgnore
 	public String getInternalName() {
 		return getName() != null ? NameUtils.getInternalName(getName()).toLowerCase() : null;
@@ -160,7 +171,8 @@ public class NestedEntity extends AbstractOrderedTransferableObject {
 		return new EqualsBuilder()
 			.append(nestedEntityUid, otherNested.getNestedEntityUid())
 			.append(referenceFieldUid, otherNested.getReferenceFieldUid())
-			.append(name, otherNested.name)
+			.append(name, otherNested.getName())
+			.append(isReadonly, otherNested.isReadonly())
 			.isEquals();
 	}
 	
