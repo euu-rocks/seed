@@ -35,6 +35,7 @@ import org.seed.core.form.AbstractFormAction;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormAction;
 import org.seed.core.form.FormActionType;
+import org.seed.core.form.FormFieldExtra;
 import org.seed.core.form.FormPrintout;
 import org.seed.core.form.FormService;
 import org.seed.core.form.FormTransformer;
@@ -267,17 +268,21 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 	}
 	
 	protected List<ValueObject> getReferenceValues(EntityField referenceField, Filter filter) {
-		if (filter != null) {
-			return valueObjectService.find(referenceField.getReferenceEntity(), filter);
+		final List<ValueObject> valueObjectList = filter != null 
+												? valueObjectService.find(referenceField.getReferenceEntity(), filter)
+												: valueObjectService.getAllObjects(referenceField.getReferenceEntity());
+		final FormFieldExtra fieldExtra = form.getFieldExtra(referenceField);
+		if (fieldExtra == null || !fieldExtra.isUnsortedValues()) {
+			valueObjectService.sortObjects(valueObjectList);
 		}
-		return valueObjectService.getAllObjects(referenceField.getReferenceEntity());
+		return valueObjectList;
 	}
 	
+	@SuppressWarnings("serial")
 	protected ListModel<ValueObject> createReferenceListModel(EntityField referenceField, Filter filter) {
 		final QueryCursor<ValueObject> cursor = valueObjectService.createCursor(referenceField.getReferenceEntity(), filter);
 		return new LoadOnDemandListModel<ValueObject>(cursor, true) {
-			private static final long serialVersionUID = 6084064046031574238L;
-
+			
 			@Override
 			protected List<ValueObject> loadChunk(QueryCursor<ValueObject> cursor) {
 				return valueObjectService.loadChunk(cursor);

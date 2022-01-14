@@ -19,6 +19,7 @@ package org.seed.core.entity.value;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +71,9 @@ public class ValueObjectServiceImpl
 	
 	// dummy object; only last part of package name is important ("value")
 	private static final SystemEntity VALUE_ENTITY = new AbstractSystemEntity() {};
+	
+	private final Comparator<ValueObject> objectComparator =
+			(ValueObject vo1, ValueObject vo2) -> getIdentifier(vo1).compareTo(getIdentifier(vo2));
 	
 	@Autowired
 	private EntityService entityService;
@@ -635,6 +639,11 @@ public class ValueObjectServiceImpl
 			}
 		}
 		return result;
+	}
+	
+	@Override
+	public void sortObjects(List<ValueObject> objectList) {
+		Collections.sort(objectList, objectComparator);
 	}
 	
 	private List<ValueObject> loadFullTextObjects(QueryCursor<?> cursor) {

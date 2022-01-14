@@ -216,7 +216,7 @@ public class ValueObjectRepository {
 	}
 	
 	@SuppressWarnings("unchecked")
-	List<ValueObject> find(Entity entity, Filter filter) {
+	List<ValueObject> find(Entity entity, Filter filter, Sort ...sorts) {
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(filter, C.FILTER);
 		checkFilter(entity, filter);
@@ -227,7 +227,7 @@ public class ValueObjectRepository {
 							  .setCacheable(true)
 							  .list();
 			}
-			return find(session, buildQuery(session, entity, filter));
+			return find(session, buildQuery(session, entity, filter, sorts));
 		}
 	}
 	

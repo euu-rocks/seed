@@ -187,6 +187,10 @@
 		                		<checkbox checked="@bind(vm.properties.inplace)"/>
 		                		<label value="${labels.label.inplace}"/>
 		                	</hlayout>
+		                	<hlayout visible="@init(vm.entityField.type.reference)">
+		                		<checkbox checked="@bind(vm.sortedValues)"/>
+		                		<label value="${labels.label.sortedvalues}"/>
+		                	</hlayout>
 		                	<!-- <hlayout visible="@init(vm.bandbox or vm.element.is('combobox'))">
 		                		<checkbox checked="@bind(vm.bandbox)"/>
 		                		<label value="${labels.label.bandbox}"/>

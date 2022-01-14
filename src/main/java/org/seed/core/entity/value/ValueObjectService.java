@@ -141,4 +141,6 @@ public interface ValueObjectService extends EntityUsage {
 	
 	Session openSession();
 	
+	void sortObjects(List<ValueObject> objectList);
+	
 }

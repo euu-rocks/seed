@@ -60,7 +60,7 @@ public class SystemTaskViewModel extends AbstractApplicationViewModel
 	
 	private SystemTask systemTask;
 	
-	private SystemTaskRun run;
+	private SystemTaskRun taskRun;
 	
 	// JobListener changes
 	private boolean jobStatusChanged;
@@ -84,11 +84,11 @@ public class SystemTaskViewModel extends AbstractApplicationViewModel
 	}
 
 	public SystemTaskRun getRun() {
-		return run;
+		return taskRun;
 	}
 
-	public void setRun(SystemTaskRun run) {
-		this.run = run;
+	public void setRun(SystemTaskRun taskRun) {
+		this.taskRun = taskRun;
 	}
 
 	public SystemTask[] getSystemTasks() {

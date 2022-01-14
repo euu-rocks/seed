@@ -61,6 +61,8 @@ public class FormFieldExtra extends AbstractTransferableObject {
 	
 	private boolean isReadonly;
 	
+	private boolean isUnsortedValues;
+	
 	@Transient
 	private String entityFieldUid;
 	
@@ -128,6 +130,15 @@ public class FormFieldExtra extends AbstractTransferableObject {
 	}
 	
 	@XmlAttribute
+	public boolean isUnsortedValues() {
+		return isUnsortedValues;
+	}
+
+	public void setUnsortedValues(boolean isUnsortedValues) {
+		this.isUnsortedValues = isUnsortedValues;
+	}
+
+	@XmlAttribute
 	public String getEntityFieldUid() {
 		return entityField != null ? entityField.getUid() : entityFieldUid;
 	}
@@ -177,7 +188,8 @@ public class FormFieldExtra extends AbstractTransferableObject {
 				.append(transformerUid, otherExtra.getTransformerUid())
 				.append(filterUid, otherExtra.getFilterUid())
 				.append(detailFormUid, otherExtra.getDetailFormUid())
-				.append(isReadonly, otherExtra.isReadonly)
+				.append(isReadonly, otherExtra.isReadonly())
+				.append(isUnsortedValues, otherExtra.isUnsortedValues())
 				.isEquals();
 	}
 	

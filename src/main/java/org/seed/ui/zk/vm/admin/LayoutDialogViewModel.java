@@ -143,6 +143,8 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	
 	private boolean bandbox;
 	
+	private boolean unsortedValues;
+	
 	@Init
     public void init(@ContextParam(ContextType.VIEW) Component view,
     				 @ExecutionArgParam(C.PARAM) LayoutDialogParameter param) {
@@ -226,6 +228,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 				final FormFieldExtra fieldExtra = parameter.form.getFieldExtra(entityField);
 				if (fieldExtra != null) {
 					readonly = fieldExtra.isReadonly();
+					unsortedValues = fieldExtra.isUnsortedValues();
 					filter = fieldExtra.getFilter();
 					transformer = fieldExtra.getTransformer();
 					detailForm = fieldExtra.getDetailForm();
@@ -429,6 +432,14 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 		this.bandbox = bandbox;
 	}
 	
+	public boolean isSortedValues() {
+		return !unsortedValues;	
+	}
+
+	public void setSortedValues(boolean sortedValues) {
+		this.unsortedValues = !sortedValues;
+	}
+
 	@Override
 	public String getTitle() {
 		return getLabel("admin.layout." + parameter.command);
@@ -617,13 +628,15 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 													parameter.layoutRoot, parameter.contextId);
 		}
 		FormFieldExtra fieldExtra = parameter.form.getFieldExtra(entityField);
-		if (readonly || filter != null || transformer != null || detailForm != null) {
+		if (readonly || unsortedValues || filter != null || 
+			transformer != null || detailForm != null) {
 			if (fieldExtra == null) {
 				fieldExtra = new FormFieldExtra();
 				fieldExtra.setEntityField(entityField);
 				parameter.form.addFieldExtra(fieldExtra);
 			}
 			fieldExtra.setReadonly(readonly);
+			fieldExtra.setUnsortedValues(unsortedValues);
 			fieldExtra.setFilter(filter);
 			fieldExtra.setTransformer(transformer);
 			fieldExtra.setDetailForm(detailForm);

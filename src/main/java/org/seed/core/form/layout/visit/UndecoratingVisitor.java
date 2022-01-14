@@ -270,7 +270,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 		
 		// readonly
 		if (subForm.getNestedEntity().isReadonly()) {
-			createReadonlySubFormField(subFormField, nestedName, subFormPropertyName, nestedEntityField, elemListitem);
+			createReadonlySubFormField(subFormField, subFormPropertyName, nestedEntityField, elemListitem);
 			return;
 		}
 		// bandbox
@@ -352,7 +352,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 		}
 	}
 	
-	private void createReadonlySubFormField(SubFormField subFormField, String nestedName, String subFormPropertyName, 
+	private void createReadonlySubFormField(SubFormField subFormField, String subFormPropertyName, 
 											EntityField nestedEntityField, LayoutElement elemListitem) {
 		final LayoutElement elemCell = elemListitem.addChild(new LayoutElement(LayoutElement.LISTCELL));
 		LayoutElement elem = null;
