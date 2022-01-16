@@ -47,9 +47,12 @@
 			<listhead sizable="true">
 	            <listheader hflex="2" label="${labels.label.transformer}" 
 	            			sort="auto(name)" onCreate="self.sort(true)"/>
-	            <listheader hflex="2" label="${labels.label.sourceentity}"/>
-	            <listheader hflex="2" label="${labels.label.targetentity}"/>
+	            <listheader hflex="2" label="${labels.label.sourceentity}"
+	            			sort="auto(sourceEntity.name)"/>
+	            <listheader hflex="2" label="${labels.label.targetentity}"
+	            			sort="auto(targetEntity.name)"/>
 	            <listheader hflex="1" label="${labels.label.module}"
+	            			sort="auto(module.name)"
 	            			visible="@load(vm.existModules())"/>
 		    </listhead> 
 		    <auxhead visible="@load(vm.listViewFilterGroup.visible)">

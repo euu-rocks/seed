@@ -53,6 +53,7 @@
 	            <listheader hflex="1" label="${labels.label.mapping}"
 	            			sort="auto(mapping)"/>			
 	            <listheader hflex="1" label="${labels.label.module}"
+	            			sort="auto(module.name)"
 	            			visible="@load(vm.existModules())"/>
 		    </listhead> 
 		    <auxhead visible="@load(vm.listViewFilterGroup.visible)">

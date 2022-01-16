@@ -55,9 +55,12 @@
 			<listhead sizable="true">
 	            <listheader hflex="2" label="${labels.label.transfer}" 
 	            			sort="auto(name)" onCreate="self.sort(true)"/>
-	            <listheader hflex="1" label="${labels.label.type}"/>
-	            <listheader hflex="2" label="${labels.label.entity}"/>
+	            <listheader hflex="1" label="${labels.label.type}"
+	            			sort="auto(format)"/>
+	            <listheader hflex="2" label="${labels.label.entity}"
+	            			sort="auto(entity.name)"/>
 	            <listheader hflex="1" label="${labels.label.module}"
+	            			sort="auto(module.name)"
 	            			visible="@load(vm.existModules())"/>
 	        </listhead>
 	        <template name="model" var="transfer">

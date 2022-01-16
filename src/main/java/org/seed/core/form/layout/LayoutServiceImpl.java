@@ -40,6 +40,7 @@ import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityFieldGroup;
 import org.seed.core.entity.NestedEntity;
+import org.seed.core.form.AbstractFormField;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormField;
 import org.seed.core.form.FormFieldExtra;
@@ -886,7 +887,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 			final LayoutElement elemRow = elemRows.addChild(new LayoutElement(LayoutElement.ROW));
 			// label column
 			LayoutElement elemCell = elemRow.addChild(createCell());
-			elemCell.setAlign("right")
+			elemCell.setAlign(V_RIGHT)
 					.setValign(V_TOP)
 					.addChild(createLabel(entityField.getName()));
 			// field column
@@ -911,9 +912,9 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		
 		if (subForm.hasFields()) {
 			for (SubFormField field : subForm.getFields()) {
-				elemListhead.addChild(createListHeader(field.getName(), 
-													   V_1, 
-													   field.getLabelStyle()));
+				final LayoutElement header =  elemListhead.addChild(
+						createListHeader(field.getName(), V_1, field.getLabelStyle()));
+				header.setAttribute(A_SORT, getSortExpression(field));
 			}
 		}
 	}
@@ -921,6 +922,10 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	private void redecorateLayout(Form form, LayoutElement layoutRoot) {
 		undecorateLayout(form, layoutRoot);
 		decorateLayout(form, layoutRoot);
+	}
+	
+	private static String getSortExpression(AbstractFormField formField) {
+		return "auto(" + formField.getEntityField().getInternalName() + ')';
 	}
 	
 	private static String listPropertyName(FormField field) {

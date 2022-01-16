@@ -38,10 +38,12 @@
 		         class="alpha-noborder"
 		         hflex="1" vflex="1">
 			<listhead sizable="true">
-				<listheader label="${labels.label.name}" hflex="1"
-	            			sort="auto(name)"/>
-	            <listheader label="${labels.label.nested}" hflex="1"/>
-	            <listheader label="${labels.label.reffield}" hflex="1"/>
+				<listheader label="${labels.label.name}"
+	            			sort="auto(name)" hflex="1"/>
+	            <listheader label="${labels.label.nested}"
+	            			sort="auto(nestedEntity.name)" hflex="1"/>
+	            <listheader label="${labels.label.reffield}" 
+	            			sort="auto(referenceField.name)" hflex="1"/>
 	        </listhead>
 	        <template name="model" var="nested">
 	            <listitem attributes.item="@load(nested)" 

@@ -50,9 +50,12 @@
 			<listhead sizable="true">
 	            <listheader hflex="2" label="${labels.label.dbobject}" 
 	            			sort="auto(name)" onCreate="self.sort(true)"/>
-	            <listheader hflex="1" label="${labels.label.type}"/>
-	            <listheader hflex="1" label="${labels.label.order}"/>
+	            <listheader hflex="1" label="${labels.label.type}"
+	            			sort="auto(type)"/>
+	            <listheader hflex="1" label="${labels.label.order}"
+	            			sort="auto(order)"/>
 	            <listheader hflex="1" label="${labels.label.module}"
+	            			sort="auto(module.name)"
 	            			visible="@load(vm.existModules())"/>
 		    </listhead>
 		    <auxhead visible="@load(vm.listViewFilterGroup.visible)">

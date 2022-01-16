@@ -38,8 +38,10 @@
 		         class="alpha-noborder"
 		         hflex="1" vflex="1">
 			<listhead sizable="true">
-	            <listheader label="${labels.label.function}" hflex="8"/>
-	            <listheader label="${labels.label.active}" hflex="1"/>
+	            <listheader label="${labels.label.function}" 
+	            			sort="auto(name)" hflex="8"/>
+	            <listheader label="${labels.label.active}" 
+	            			sort="auto(active)" hflex="1"/>
 	        </listhead> 
 	        <template name="model" var="function">
 	            <listitem attributes.item="@load(function)" 

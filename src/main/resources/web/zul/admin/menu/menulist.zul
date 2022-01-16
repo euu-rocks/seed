@@ -48,6 +48,7 @@
 	            <listheader hflex="4" label="${labels.label.menu}" 
 	            			sort="auto(name)" onCreate="self.sort(true)"/>
 	            <listheader hflex="1" label="${labels.label.module}"
+	            			sort="auto(module.name)"
 	            			visible="@load(vm.existModules())"/>
 		    </listhead> 
 		    <auxhead visible="@load(vm.listViewFilterGroup.visible)">

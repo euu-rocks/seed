@@ -62,8 +62,9 @@ public class LayoutElementAttributes {
 	public static final String A_SELECTEDITEM  = "selectedItem";
 	public static final String A_SIZABLE       = "sizable";
 	public static final String A_SIZE          = "size";
+	public static final String A_SORT          = "sort";
 	public static final String A_STYLE         = "style";
-	public static final String A_TEMPLATE  	   = "template";
+	public static final String A_TEMPLATE      = "template";
 	public static final String A_TOOLTIPTEXT   = "tooltiptext";
 	public static final String A_TYPE          = "type";
 	public static final String A_VALIGN        = "valign";
@@ -76,6 +77,7 @@ public class LayoutElementAttributes {
 	public static final String V_0             = "0";
 	public static final String V_1             = "1";
 	public static final String V_MIN           = "min";
+	public static final String V_RIGHT         = "right";
 	public static final String V_TOP           = "top";
 	public static final String V_TRUE          = "true";
 	

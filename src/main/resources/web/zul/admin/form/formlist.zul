@@ -47,10 +47,12 @@
 			<listhead sizable="true">
 	            <listheader hflex="2" label="${labels.label.form}" 
 	            			sort="auto(name)" onCreate="self.sort(true)"/>
-	            <listheader hflex="2" label="${labels.label.entity}"/>
+	            <listheader hflex="2" label="${labels.label.entity}"
+	            			sort="auto(entity.name)"/>
 	            <listheader hflex="min" label="${labels.label.auto}"
 	            			sort="auto(autoLayout)"/>	
 	            <listheader hflex="1" label="${labels.label.module}"
+	            			sort="auto(module.name)"
 	            			visible="@load(vm.existModules())"/>
 	        </listhead> 
 		    <auxhead visible="@load(vm.listViewFilterGroup.visible)">

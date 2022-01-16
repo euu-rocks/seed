@@ -38,8 +38,10 @@
 		         class="alpha-noborder"
 		         hflex="1" vflex="1">
 			<listhead sizable="true">
-	            <listheader label="${labels.label.sourcenested}" hflex="1"/>
-	            <listheader label="${labels.label.targetnested}" hflex="1"/>
+	            <listheader label="${labels.label.sourcenested}" 
+	            			sort="auto(sourceNested.name)" hflex="1"/>
+	            <listheader label="${labels.label.targetnested}" 
+	            			sort="auto(targetNested.name)" hflex="1"/>
 	        </listhead> 
 	        <template name="model" var="nested">
 	            <listitem>

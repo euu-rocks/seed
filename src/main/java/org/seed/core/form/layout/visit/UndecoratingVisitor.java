@@ -186,7 +186,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 		final FormFieldExtra fieldExtra  = getFieldExtra(entityField);
 		if (fieldExtra != null && fieldExtra.getDetailForm() != null) {
 			element.setContext(newContextId());
-			addToRoot(createReferencePopup(element.getContext(), element.getId()));
+			addRootChild(createReferencePopup(element.getContext(), element.getId()));
 		}
 	}
 	
@@ -217,7 +217,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 		final FormFieldExtra fieldExtra = getFieldExtra(entityField);
 		if (fieldExtra != null && fieldExtra.getDetailForm() != null) {
 			element.setContext(newContextId());
-			addToRoot(createReferencePopup(element.getContext(), element.getId()));
+			addRootChild(createReferencePopup(element.getContext(), element.getId()));
 		}
 	}
 	
@@ -235,9 +235,8 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 		final LayoutElement elemListitem = elemListBox.addChild(createTemplate(A_MODEL, subForm.getNestedEntity().getInternalName()))
 													  .addChild(createListItem(null));
 		if (subForm.getNestedEntity().isReadonly()) {
-			elemListitem.setAttribute(A_ID, 'i' + subForm.getNestedEntityUid());
-			elemListitem.setContext(subFormContext(subForm, elemListitem));
-			addToRoot(createDetailPopup(elemListitem.getContext(), subForm.getNestedEntityUid()));
+			elemListitem.setContext(subFormContext(subForm, subForm.getNestedEntityUid()));
+			addRootChild(createDetailPopup(elemListitem.getContext(), subForm.getNestedEntityUid()));
 		}
 		else if (subForm.hasActions()) {
 			final LayoutElement elemNorth = element.addChild(createBorderLayoutArea(BorderLayoutArea.NORTH), 0);
@@ -254,7 +253,6 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 			elemActionTemplate.addChild(elemToolbarButton);
 			elemActionTemplateSelect.addChild(elemToolbarButtonSelect);
 		}
-		
 		if (subForm.hasFields()) {
 			final String nestedName = subForm.getNestedEntity().getInternalName();
 			for (SubFormField subFormField : subForm.getFields()) {
@@ -295,6 +293,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 				elemField.setAttribute(A_VALUE, value(nestedEntityField, subFormPropertyName));
 				elemField.setAttribute(A_READONLY, load(isReadonly(nestedEntityField)));
 				elemField.setAttribute(A_MANDATORY, load(isMandatory(nestedEntityField)));
+				elemField.setAttribute(A_INPLACE, load(not(nestedName + ".isNew()")));
 				if (!nestedEntityField.isCalculated()) {
 					elemField.setAttribute(A_INSTANT, V_TRUE);
 					elemField.setAttribute(A_ONCHANGE, command(onNestedChange(nestedName, nestedEntityField)));
@@ -334,7 +333,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 				elemField.addChild(createTemplate(A_MODEL, nestedEntityField.getInternalName()))
 						 .addChild(createComboitem(load(identifier(nestedEntityField.getInternalName()))));
 	            if (subFormField.getDetailForm() != null) {
-					addToRoot(createReferencePopup(elemField.getContext(), nestedEntityField.getUid()));
+					addRootChild(createReferencePopup(elemField.getContext(), nestedEntityField.getUid()));
 				}
 				break;
 				
@@ -411,7 +410,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 			.addChild(createListItem(null))		   
 			.addChild(createListCell(load(identifier(nestedEntityField.getReferenceEntity().getInternalName())), null, null));
 		if (subFormField.getDetailForm() != null) {
-			addToRoot(createReferencePopup(elemField.getContext(), nestedEntityField.getUid()));
+			addRootChild(createReferencePopup(elemField.getContext(), nestedEntityField.getUid()));
 		}
 	}
 	
@@ -431,7 +430,11 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 	}
 	
 	private static String subFormContext(SubForm subForm, LayoutElement element) {
-		return subForm.getNestedEntity().getId() + "_" + element.getId();
+		return subFormContext(subForm, element.getId());
+	}
+	
+	private static String subFormContext(SubForm subForm, String elementId) {
+		return subForm.getNestedEntity().getId() + '_' + elementId;
 	}
 	
 	private static String value(EntityField entityField, String propertyName) {

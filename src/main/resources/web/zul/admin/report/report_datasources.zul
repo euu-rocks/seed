@@ -40,7 +40,8 @@
 			<listhead sizable="true">
 	            <listheader label="${labels.label.name}" 
 	            			sort="auto(name)" hflex="1"/>
-	            <listheader label="${labels.label.datasource}" hflex="1"/>
+	            <listheader label="${labels.label.datasource}" 
+	            			sort="auto(dataSource.name)" hflex="1"/>
 	        </listhead> 
 	        <template name="model" var="datasource">
 	            <listitem attributes.item="@load(datasource)" 

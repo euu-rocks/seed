@@ -38,7 +38,8 @@
 		         class="alpha-noborder"
 		         hflex="1" vflex="1">
 			<listhead sizable="true">
-	            <listheader label="${labels.label.fieldgroup}" hflex="1"/>
+	            <listheader label="${labels.label.fieldgroup}" 
+	            			sort="auto(name)" hflex="1"/>
 	        </listhead> 
 	        <template name="model" var="group">
 	            <listitem attributes.item="@load(group)" 

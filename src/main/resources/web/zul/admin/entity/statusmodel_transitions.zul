@@ -38,8 +38,10 @@
 		         hflex="1" vflex="1" 
 		         class="alpha-noborder">
 			<listhead sizable="true">
-				<listheader hflex="1" label="${labels.label.sourcestatus}"/>
-	            <listheader hflex="1" label="${labels.label.targetstatus}"/>
+				<listheader label="${labels.label.sourcestatus}"
+							sort="auto(sourceStatus.numberAndName)" hflex="1"/>
+	            <listheader label="${labels.label.targetstatus}"
+	            			sort="auto(targetStatus.numberAndName)" hflex="1"/>
 	        </listhead>      
 		    <template name="model" var="transition">
 	            <listitem attributes.item="@load(transition)" 

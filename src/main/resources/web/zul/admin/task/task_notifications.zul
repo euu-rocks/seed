@@ -40,7 +40,8 @@
 			<listhead sizable="true">
 	            <listheader label="${labels.label.username}" 
 	            			sort="auto(name)" hflex="1"/>
-	            <listheader label="${labels.label.result}" hflex="1"/>
+	            <listheader label="${labels.label.result}" 
+	            			sort="auto(result)" hflex="1"/>
 	        </listhead> 
 	        <template name="model" var="notification">
 	            <listitem>

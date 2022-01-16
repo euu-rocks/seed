@@ -58,6 +58,7 @@
 	            <listheader hflex="min" label="${labels.label.generic}"
 	            			sort="auto(generic)"/>			
 	            <listheader hflex="1" label="${labels.label.module}"
+	            			sort="auto(module.name)"
 	            			visible="@load(vm.existModules())"/>
 		    </listhead> 
 		    <auxhead visible="@load(vm.listViewFilterGroup.visible)">

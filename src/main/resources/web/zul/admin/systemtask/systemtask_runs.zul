@@ -28,10 +28,12 @@
 			         class="alpha-noborder"
 			         hflex="1" vflex="1">
 				<listhead sizable="true">
-		            <listheader label="${labels.label.resultshort}" hflex="min"/>
+		            <listheader label="${labels.label.resultshort}" 
+		            			sort="auto(result)" hflex="min"/>
 		            <listheader label="${labels.label.starttime}" hflex="1"
 		            			sort="auto(startTime)" onCreate="self.sort(false)"/>
-		            <listheader label="${labels.label.endtime}" hflex="1"/>
+		            <listheader label="${labels.label.endtime}" 
+		            			sort="auto(endTime)" hflex="1"/>
 		        </listhead>
 		        <template name="model" var="run">
 		            <listitem>

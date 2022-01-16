@@ -39,11 +39,15 @@
 		         class="alpha-noborder"
 		         hflex="1" vflex="1">
 			<listhead sizable="true">
-	            <listheader label="${labels.label.field}" hflex="1"/>
-	            <listheader label="${labels.label.fieldgroup}" hflex="1"
+	            <listheader label="${labels.label.field}" 
+	            			sort="auto(name)" hflex="1"/>
+	            <listheader label="${labels.label.fieldgroup}" 
+	            			sort="auto(fieldGroup.name)" hflex="1"
 	            			visible="@load(!empty vm.object.allFieldGroups)"/>
-	            <listheader label="${labels.label.datatype}" hflex="1"/>
-	            <listheader label="${labels.label.mandatory}" hflex="min"/>
+	            <listheader label="${labels.label.datatype}" 
+	            			sort="auto(type)" hflex="1"/>
+	            <listheader label="${labels.label.mandatory}" 
+	            			sort="auto(mandatory)" hflex="min"/>
 	        </listhead> 
 	        <template name="model" var="field">
 	            <listitem attributes.item="@load(field)" 

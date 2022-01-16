@@ -39,9 +39,12 @@
 		         class="alpha-noborder"
 		         hflex="1" vflex="1">
 			<listhead sizable="true">
-	            <listheader label="${labels.label.field}" hflex="1"/>
-	            <listheader label="${labels.label.operator}" hflex="1"/>
-	            <listheader label="${labels.label.value}" hflex="1"/>
+	            <listheader label="${labels.label.field}" 
+	            			sort="auto(element)" hflex="1"/>
+	            <listheader label="${labels.label.operator}" 
+	            			sort="auto(operator)" hflex="1"/>
+	            <listheader label="${labels.label.value}" 
+	            			sort="auto(value)" hflex="1"/>
 	        </listhead> 
 	        <template name="model" var="criterion">
 	            <listitem>

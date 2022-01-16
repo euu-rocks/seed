@@ -59,12 +59,12 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 						   .setText('(' + String.valueOf(element.getColumnIndex() + 1) + 
 									',' + String.valueOf(element.getRowIndex() + 1) + ')');
 				}
-				addToRoot(createCellMenuPopup(element));
+				addRootChild(createCellMenuPopup(element));
 				break;
 			
 			case LayoutElement.LABEL:
 				element.setContext(newContextId());
-				addToRoot(createLabelMenuPopup(element));
+				addRootChild(createLabelMenuPopup(element));
 				break;
 			
 			case LayoutElement.IMAGE:
@@ -74,7 +74,7 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 				if (element.getId() != null) {
 					element.setContext(newContextId())
 						   .setAttribute(A_TOOLTIPTEXT, getEntityField(element).getName());
-					addToRoot(createFieldMenuPopup(element));
+					addRootChild(createFieldMenuPopup(element));
 				}
 				break;
 				
@@ -86,7 +86,7 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 				if (element.getId() != null) {
 					element.setContext(newContextId());
 					element.setAttribute(A_TOOLTIPTEXT, getEntityField(element).getName());
-					addToRoot(createFieldMenuPopup(element));
+					addRootChild(createFieldMenuPopup(element));
 				}
 				break;
 			
@@ -131,7 +131,7 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 				if (element.getId() != null) {
 					element.setContext(newContextId())
 						   .setAttribute(A_TOOLTIPTEXT, getEntityField(element).getName());
-					addToRoot(createFieldMenuPopup(element));
+					addRootChild(createFieldMenuPopup(element));
 				}
 				break;
 				
@@ -148,12 +148,12 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 				elemListBox.removeAttribute(A_MOLD);
 				elemListBox.removeChildren(A_TEMPLATE);
 				element.removeChildren(LayoutElement.NORTH);
-				addToRoot(createSubFormMenuPopup(elemListBox));
+				addRootChild(createSubFormMenuPopup(elemListBox));
 				break;
 			
 			case LayoutElement.TAB:
 				element.setContext(newContextId());
-				addToRoot(createPopupMenu(element.getContext(), Collections.singletonList(createTabMenu(element))));
+				addRootChild(createPopupMenu(element.getContext(), Collections.singletonList(createTabMenu(element))));
 				break;
 				
 			case LayoutElement.TABPANEL:
@@ -199,7 +199,7 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 			element.setClass(LayoutElementClass.LAYOUT_GRID);
 		}
 		element.setContext(newContextId());
-		addToRoot(createBorderLayoutMenuPopup(element));
+		addRootChild(createBorderLayoutMenuPopup(element));
 	}
 	
 	private void visitTabpanel(LayoutElement element) {
@@ -208,7 +208,7 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 			element.setAttribute(A_STYLE, "padding: 5px;text-align:center")
 				   .setText(getLabel(LABEL_EMPTY));
 		}
-		addToRoot(createTabPanelPopupMenu(element));
+		addRootChild(createTabPanelPopupMenu(element));
 	}
 	
 	private LayoutElement createCellMenuPopup(LayoutElement element) {

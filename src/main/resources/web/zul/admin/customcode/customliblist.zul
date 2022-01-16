@@ -50,6 +50,7 @@
 	            <listheader hflex="2" label="${labels.label.filename}" 
 	            			sort="auto(filename)" onCreate="self.sort(true)"/>
 	            <listheader hflex="1" label="${labels.label.module}"
+	            			sort="auto(module.name)"
 	            			visible="@load(vm.existModules())"/>
 	        </listhead> 
 		    <auxhead visible="@load(vm.listViewFilterGroup.visible)">

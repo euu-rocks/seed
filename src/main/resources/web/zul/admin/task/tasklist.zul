@@ -51,10 +51,13 @@
 			<listhead sizable="true">
 	            <listheader hflex="2" label="${labels.label.job}" 
 	            			sort="auto(name)" onCreate="self.sort(true)"/>
-	            <listheader hflex="min" label="${labels.label.active}"/>
+	            <listheader hflex="min" label="${labels.label.active}"
+	            			sort="auto(active)"/>
 	            <listheader hflex="min" label="${labels.label.runs}"/> 			
-	            <listheader label="${labels.label.resultshort}" hflex="min"/>
+	            <listheader label="${labels.label.resultshort}" 
+	            			sort="auto(lastResult)" hflex="min"/>
 	            <listheader hflex="1" label="${labels.label.module}"
+	            			sort="auto(module.name)"
 	            			visible="@load(vm.existModules())"/>
 	        </listhead>
 	        <auxhead visible="@load(vm.listViewFilterGroup.visible)">

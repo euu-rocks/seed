@@ -91,7 +91,7 @@ public class SearchDecoratingVisitor extends AbstractLayoutVisitor {
 		element.removeAttribute(A_READONLY);
 		element.removeAttribute(A_MANDATORY);
 		element.removeAttribute(A_ONCHANGE);
-		addToRoot(createSearchFieldPopup(element));
+		addRootChild(createSearchFieldPopup(element));
 	}
 	
 	private LayoutElement createSearchFieldPopup(LayoutElement element) {

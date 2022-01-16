@@ -67,7 +67,7 @@ abstract class AbstractLayoutVisitor extends LayoutUtils
 		this.rootElement.removeChildren(LayoutElement.MENUPOPUP);
 	}
 	
-	protected void addToRoot(LayoutElement element) {
+	protected void addRootChild(LayoutElement element) {
 		Assert.notNull(element, C.ELEMENT);
 		
 		getRootElement().addChild(element);
