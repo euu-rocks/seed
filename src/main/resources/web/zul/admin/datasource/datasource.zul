@@ -62,14 +62,26 @@
 									 onChange="@command('flagDirty')"
 									 hflex="1"/> 
 						</cell>
-						<cell/>
-						<cell/>
+						<cell style="padding: 4px 10px" align="right">
+							<label value="${labels.label.type}:"/>
+						</cell>
+						<cell>
+							<radiogroup model="@load(vm.types)"
+										selectedItem="@bind(vm.object.type)"
+										onCheck="@command('typeSelected')">
+								<template name="model" var="type">
+									<radio label="@load(vm.getEnumLabel(type))" 
+										   value="@load(type)"
+										   style="margin-right:10px"/>
+								</template>
+						   </radiogroup>
+						</cell>
 					</row>
 				</rows>
 			</grid>
 			<tabbox hflex="1" vflex="1" class="alpha-tabbox">
 				<tabs>
-					<tab label="${labels.label.sqlstatement}"/>
+					<tab label="@load(vm.expressionLabel)"/>
 					<tab id="tabParams" label="${labels.label.parameter}"/>
 				</tabs>
 				<tabpanels> 

@@ -82,7 +82,7 @@ public class DataSourceRepository extends AbstractSystemEntityRepository<IDataSo
 		Assert.notNull(dataSource, C.DATASOURCE);
 		Assert.notNull(parameters, "parameters");
 		
-		final String sql = buildSQLQuery(dataSource, parameters);
+		final String sql = buildQuery(dataSource, parameters);
 		try (Connection connection = sqlDataSource.getConnection()) {
 			try (Statement statement = connection.createStatement();
 				 ResultSet resultSet = statement.executeQuery(sql)) {
@@ -100,25 +100,37 @@ public class DataSourceRepository extends AbstractSystemEntityRepository<IDataSo
 		Assert.notNull(parameters, "parameters");
 		Assert.notNull(session, C.SESSION);
 		
-		final String sql = buildSQLQuery(dataSource, parameters);
-		return testQuery
-				? session.createSQLQuery(sql).setMaxResults(1).list()
-				: session.createSQLQuery(sql).list();
+		final String query = buildQuery(dataSource, parameters);
+		switch (dataSource.getType()) {
+			case SQL:
+				return testQuery
+						? session.createSQLQuery(query).setMaxResults(1).list()
+						: session.createSQLQuery(query).list();
+			
+			case HQL:
+				return testQuery
+						? session.createQuery(query).setMaxResults(1).list()
+						: session.createQuery(query).list();
+			
+			default:
+				throw new UnsupportedOperationException(dataSource.getType().name());
+		}
+		
 	}
 	
-	private String buildSQLQuery(IDataSource dataSource, Map<String, Object> parameters) {
-		String sql = dataSource.getContent();
-		Assert.stateAvailable(sql, C.CONTENT);
+	private String buildQuery(IDataSource dataSource, Map<String, Object> parameters) {
+		String query = dataSource.getContent();
+		Assert.stateAvailable(query, C.CONTENT);
 		
 		for (String contentParameter : dataSource.getContentParameterSet()) {
 			final Object paramValue = parameters.get(contentParameter);
 			Assert.stateAvailable(paramValue, "parameter value " + contentParameter);
-			sql = sql.replace('{' + contentParameter + '}', formatParameter(paramValue));
+			query = query.replace('{' + contentParameter + '}', formatParameter(paramValue));
 		}
 		if (log.isDebugEnabled()) {
-			log.debug("[{}] {}", dataSource.getName(), sql);
+			log.debug("[{}] {}", dataSource.getName(), query);
 		}
-		return sql;
+		return query;
 	}
 	
 	private String formatParameter(Object parameter) {

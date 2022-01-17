@@ -22,6 +22,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import org.hibernate.Session;
 import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntityService;
@@ -30,6 +32,7 @@ import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
+import org.seed.core.data.Options;
 import org.seed.core.data.ValidationException;
 import org.seed.core.data.dbobject.DBObjectService;
 import org.seed.core.entity.Entity;
@@ -60,6 +63,15 @@ public class DataSourceServiceImpl extends AbstractApplicationEntityService<IDat
 	private DataSourceValidator validator;
 	
 	@Override
+	@Secured("ROLE_ADMIN_DATASOURCE")
+	public IDataSource createInstance(@Nullable Options options) {
+		final DataSourceMetadata instance = (DataSourceMetadata) super.createInstance(options);
+		instance.setType(DataSourceType.SQL);
+		return instance;
+	}
+	
+	@Override
+	@Secured("ROLE_ADMIN_DATASOURCE")
 	public DataSourceParameter createParameter(IDataSource dataSource) {
 		Assert.notNull(dataSource, C.DATASOURCE);
 		

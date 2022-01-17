@@ -25,6 +25,7 @@ import org.seed.core.data.datasource.IDataSource;
 import org.seed.core.data.datasource.DataSourceParameter;
 import org.seed.core.data.datasource.DataSourceParameterType;
 import org.seed.core.data.datasource.DataSourceService;
+import org.seed.core.data.datasource.DataSourceType;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityService;
 import org.seed.core.user.Authorisation;
@@ -61,6 +62,10 @@ public class AdminDataSourceViewModel extends AbstractAdminViewModel<IDataSource
 			  "/admin/datasource/datasource.zul");
 	}
 	
+	public DataSourceType[] getTypes() {
+		return DataSourceType.values();
+	}
+	
 	public DataSourceParameterType[] getParameterTypes() {
 		return DataSourceParameterType.values();
 	}
@@ -81,6 +86,10 @@ public class AdminDataSourceViewModel extends AbstractAdminViewModel<IDataSource
 		return errorMessage;
 	}
 	
+	public String getExpressionLabel() {
+		return getEnumLabel(getObject().getType()) + '-' + getLabel("label.expression");
+	}
+	
 	@Init
 	public void init(@ContextParam(ContextType.VIEW) Component view,
 					 @ExecutionArgParam(C.PARAM) Object object) {
@@ -91,6 +100,12 @@ public class AdminDataSourceViewModel extends AbstractAdminViewModel<IDataSource
 	public void flagDirty(@BindingParam("notify") String notify, 
 						  @BindingParam("notifyObject") String notifyObject) {
 		super.flagDirty(notify, null, notifyObject);
+	}
+	
+	@Command
+	@NotifyChange("expressionLabel")
+	public void typeSelected() {
+		flagDirty();
 	}
 	
 	@Command

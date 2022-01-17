@@ -17,29 +17,17 @@
  */
 package org.seed.core.data.datasource;
 
-import java.util.List;
-import java.util.Set;
-
-import org.seed.core.application.ApplicationEntity;
-
-public interface IDataSource extends ApplicationEntity, org.seed.core.api.DataSource {
+public enum DataSourceType {
 	
-	String getContent();
+	SQL,
+	HQL;
 	
-	DataSourceType getType();
+	public boolean isSQL() {
+		return this == SQL;
+	}
 	
-	boolean hasParameters();
-	
-	DataSourceParameter getParameterByUid(String uid);
-	
-	DataSourceParameter getParameterByName(String name);
-	
-	List<DataSourceParameter> getParameters();
-	
-	void addParameter(DataSourceParameter parameter);
-	
-	void removeParameter(DataSourceParameter parameter);
-	
-	Set<String> getContentParameterSet();
+	public boolean isHQL() {
+		return this == HQL;
+	}
 	
 }

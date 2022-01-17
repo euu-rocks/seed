@@ -59,6 +59,8 @@ public class DataSourceMetadata extends AbstractApplicationEntity
 	*/
 	private static final Pattern PARAM_PATTERN = Pattern.compile("\\{([^}]+)\\}");
 	
+	private DataSourceType type;
+	
 	private String content;
 	
 	@OneToMany(mappedBy = "dataSource",
@@ -78,6 +80,15 @@ public class DataSourceMetadata extends AbstractApplicationEntity
 		this.content = content;
 	}
 	
+	@Override
+	public DataSourceType getType() {
+		return type;
+	}
+
+	public void setType(DataSourceType type) {
+		this.type = type;
+	}
+
 	@Override
 	public boolean hasParameters() {
 		return !ObjectUtils.isEmpty(getParameters());
@@ -146,6 +157,7 @@ public class DataSourceMetadata extends AbstractApplicationEntity
 		if (!new EqualsBuilder()
 			.append(getName(), otherDataSource.getName())
 			.append(content, otherDataSource.getContent())
+			.append(type, otherDataSource.getType())
 			.isEquals()) {
 			return false;
 		}

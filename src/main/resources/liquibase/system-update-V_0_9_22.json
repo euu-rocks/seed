@@ -8,6 +8,23 @@
                      "columns":[
                         {
                            "column": {
+                              "name": "type",
+                              "type": "INT",
+                              "defaultValue": 0,
+                              "constraints": {
+                                  "nullable": "false"
+                              }
+                           }
+                        }
+                     ],
+                     "tableName":  "sys_datasource"
+                  } 
+               },
+               {
+                  "addColumn":  {
+                     "columns":[
+                        {
+                           "column": {
                               "name": "isreadonly",
                               "type": "BOOLEAN",
                               "defaultValue": false,

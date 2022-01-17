@@ -84,7 +84,7 @@ public class ZKLabelProvider implements LabelProvider {
 		}
 		String label = enumLabelCache.get(enm);
 		if (label == null) {
-			label = getLabel(getLabelKey(enm));
+			label = getLabel(getEnumLabelKey(enm));
 			enumLabelCache.put(enm, label);
 		}
 		return label;
@@ -136,7 +136,7 @@ public class ZKLabelProvider implements LabelProvider {
 		return BigDecimals.toLocaleString(decimal, LOCALE);
 	}
 	
-	private static String getLabelKey(Enum<?> enm) {
+	private static String getEnumLabelKey(Enum<?> enm) {
 		final String[] parts = enm.getClass().getName().toLowerCase().split("\\.");
 		return parts[parts.length - 2] + '.' + 
 			   parts[parts.length - 1] + '.' + 

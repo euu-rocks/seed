@@ -65,7 +65,7 @@ abstract class AbstractViewModel {
 		return labelProvider.getEnumLabel(enm);
 	}
 	
-	protected LabelProvider getLabelProvider() {
+	protected final LabelProvider getLabelProvider() {
 		return labelProvider;
 	}
 	
