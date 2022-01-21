@@ -41,6 +41,7 @@ import org.seed.C;
 import org.seed.InternalException;
 import org.seed.Seed;
 import org.seed.core.application.ApplicationEntityService;
+import org.seed.core.config.SchemaVersion;
 import org.seed.core.config.SessionProvider;
 import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.customcode.CustomLib;
@@ -66,7 +67,7 @@ public class ModuleTransfer {
 	
 	static final String MODULE_META_FILENAME = "module.xml";
 	
-	static final String MODULE_FILE_EXTENSION = ".seed"; 
+	static final String MODULE_FILE_EXTENSION = ".seed";
 	
 	@Autowired
 	private ModuleRepository moduleRepository;
@@ -194,7 +195,23 @@ public class ModuleTransfer {
 					((ModuleMetadata) currentVersionModule).copySystemFieldsTo(module);
 					session.detach(currentVersionModule);
 				}
+				
+				// module schema version
+				SchemaVersion moduleSchemaVersion = module.getSchemaVersion();
+				if (moduleSchemaVersion == null) {
+					moduleSchemaVersion = SchemaVersion.V_0_9_21;
+				}
+				// schema update
+				if (moduleSchemaVersion != SchemaVersion.currentVersion()) {
+					for (int v = moduleSchemaVersion.ordinal() + 1; v <= SchemaVersion.currentVersion().ordinal(); v++) {
+						final SchemaVersion version = SchemaVersion.getVersion(v);
+						sortedServices.forEach(service -> service.handleSchemaUpdate(context, version));
+					}
+				}
+				
+				// save module
 				moduleRepository.save(module, session);
+				// init components
 				sortedServices.forEach(service -> service.importObjects(context, session));
 				
 				// changelogs
@@ -248,6 +265,7 @@ public class ModuleTransfer {
 	
 	private byte[] getModuleContent(Module module) {
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		((ModuleMetadata) module).setSchemaVersion(SchemaVersion.currentVersion());
 		marshaller.marshal(module, new StreamResult(baos));
 		return baos.toByteArray();
 	}

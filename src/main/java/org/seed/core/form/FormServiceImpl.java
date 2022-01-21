@@ -726,6 +726,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 				currentVersionLayout.copySystemFieldsTo(form.getLayout());
 				session.detach(currentVersionLayout);
 			}
+			getLayoutService().rebuildLayout(form);
 			session.saveOrUpdate(form.getLayout());
 		}
 	}

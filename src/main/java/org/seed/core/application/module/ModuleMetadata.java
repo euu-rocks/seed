@@ -39,6 +39,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.seed.C;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.TransferableObject;
+import org.seed.core.config.SchemaVersion;
 import org.seed.core.customcode.CustomCode;
 import org.seed.core.customcode.CustomCodeMetadata;
 import org.seed.core.customcode.CustomLib;
@@ -134,6 +135,9 @@ public class ModuleMetadata extends AbstractSystemEntity
 	private String uid;
 	
 	@Transient
+	private SchemaVersion schemaVersion;
+	
+	@Transient
 	private Map<String, byte[]> mapTransferContent;
 	
 	@Transient
@@ -150,6 +154,16 @@ public class ModuleMetadata extends AbstractSystemEntity
 		this.uid = uid;
 	}
 	
+	@Override
+	@XmlAttribute
+	public SchemaVersion getSchemaVersion() {
+		return schemaVersion;
+	}
+
+	void setSchemaVersion(SchemaVersion schemaVersion) {
+		this.schemaVersion = schemaVersion;
+	}
+
 	@Override
 	@XmlTransient
 	public List<Entity> getEntities() {

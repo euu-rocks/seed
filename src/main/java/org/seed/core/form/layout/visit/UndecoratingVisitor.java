@@ -106,6 +106,9 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 				break;
 			
 			case LayoutElement.TEXTBOX:	
+				element.setAttribute(A_INSTANT, V_TRUE);
+				/* falls through */
+				
 			case LayoutElement.DATEBOX:
 			case LayoutElement.DECIMALBOX:
 			case LayoutElement.DOUBLEBOX:
@@ -118,7 +121,6 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 				element.setAttribute(A_VALUE, value(entityField, propertyName(entityField)));
 				if (!(entityField.isCalculated() || entityField.getType().isAutonum())) {
 					element.setAttribute(A_ONCHANGE, command(onChange(entityField)));
-					element.setAttribute(A_INSTANT, V_TRUE);
 				}
 				break;
 				

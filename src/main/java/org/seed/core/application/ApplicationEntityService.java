@@ -24,6 +24,7 @@ import org.hibernate.Session;
 import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
+import org.seed.core.config.SchemaVersion;
 import org.seed.core.data.SystemEntityService;
 import org.seed.core.data.ValidationException;
 
@@ -38,6 +39,8 @@ public interface ApplicationEntityService<T extends ApplicationEntity> extends S
 	void analyzeObjects(ImportAnalysis analysis, Module currentVersionModule);
 	
 	Class<? extends ApplicationEntityService<ApplicationEntity>>[] getImportDependencies();
+	
+	void handleSchemaUpdate(TransferContext context, SchemaVersion schemaVersion);
 	
 	void importObjects(TransferContext context, Session session);
 	

@@ -58,10 +58,10 @@ public abstract class AbstractTaskRun extends AbstractSystemObject {
 	}
 	
 	protected static <T extends AbstractTaskRunLog> LogLevel getMaxLogLevel(List<T> logs) {
-		LogLevel maxLevel = null;
+		LogLevel maxLevel = LogLevel.INFO;
 		if (logs != null) {
 			for (T log : logs) {
-				if (maxLevel == null || log.getLevel().ordinal() > maxLevel.ordinal()) {
+				if (log.getLevel().ordinal() > maxLevel.ordinal()) {
 					maxLevel = log.getLevel();
 				}
 			}

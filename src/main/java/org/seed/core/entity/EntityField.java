@@ -118,7 +118,7 @@ public class EntityField extends AbstractOrderedTransferableObject {
 	@JsonIgnore
 	public String getInternalName() {
 		return name != null 
-				? StringUtils.uncapitalize(NameUtils.getInternalName(name)) 
+				? NameUtils.getInternalName(name).toLowerCase()
 				: null;
 	}
 

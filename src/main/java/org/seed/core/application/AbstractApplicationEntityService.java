@@ -27,6 +27,7 @@ import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.ModuleDependent;
 import org.seed.core.application.module.TransferContext;
+import org.seed.core.config.SchemaVersion;
 import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.data.AbstractSystemEntityService;
 import org.seed.core.data.QueryParameter;
@@ -65,6 +66,11 @@ public abstract class AbstractApplicationEntityService<T extends ApplicationEnti
 	
 	@Override
 	public void createChangeLogs(TransferContext context, Session session) {
+		// do nothing by default
+	}
+	
+	@Override
+	public void handleSchemaUpdate(TransferContext context, SchemaVersion schemaVersion) {
 		// do nothing by default
 	}
 	

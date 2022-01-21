@@ -32,12 +32,16 @@ public enum SchemaVersion {
 	V_0_9_21,
 	V_0_9_22; // add new versions below
 	
-	static boolean existUpdates() {
-		return values().length > 1;
+	public static SchemaVersion currentVersion() {
+		return lastVersion();
 	}
 	
-	static SchemaVersion getVersion(int idx) {
+	public static SchemaVersion getVersion(int idx) {
 		return values()[idx];
+	}
+	
+	static boolean existUpdates() {
+		return values().length > 1;
 	}
 	
 	static SchemaVersion firstVersion() {

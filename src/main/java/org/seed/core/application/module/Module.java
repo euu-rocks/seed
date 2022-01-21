@@ -20,6 +20,7 @@ package org.seed.core.application.module;
 import java.util.List;
 
 import org.seed.core.application.TransferableObject;
+import org.seed.core.config.SchemaVersion;
 import org.seed.core.customcode.CustomCode;
 import org.seed.core.customcode.CustomLib;
 import org.seed.core.data.SystemEntity;
@@ -37,6 +38,8 @@ import org.seed.core.task.Task;
 import org.seed.core.user.UserGroup;
 
 public interface Module extends SystemEntity, TransferableObject {
+	
+	SchemaVersion getSchemaVersion();
 	
 	List<DBObject> getDBObjects();
 	

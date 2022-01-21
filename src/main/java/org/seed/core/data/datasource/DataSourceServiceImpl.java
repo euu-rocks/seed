@@ -24,7 +24,9 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.hibernate.Session;
+
 import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
@@ -32,6 +34,7 @@ import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
+import org.seed.core.config.SchemaVersion;
 import org.seed.core.data.Options;
 import org.seed.core.data.ValidationException;
 import org.seed.core.data.dbobject.DBObjectService;
@@ -170,7 +173,25 @@ public class DataSourceServiceImpl extends AbstractApplicationEntityService<IDat
 	public Class<? extends ApplicationEntityService<ApplicationEntity>>[] getImportDependencies() {
 		return new Class[] { DBObjectService.class, EntityService.class };
 	}
-
+	
+	@Override
+	public void handleSchemaUpdate(TransferContext context, SchemaVersion schemaVersion) {
+		Assert.notNull(context, C.CONTEXT);
+		Assert.notNull(schemaVersion, "schema version");
+		
+		if (ObjectUtils.isEmpty(context.getModule().getDataSources())) {
+			return;
+		}
+		if (schemaVersion == SchemaVersion.V_0_9_22) {
+			for (IDataSource dataSource : context.getModule().getDataSources()) {
+				// set new mandatory 'type' field to SQL
+				if (dataSource.getType() == null) {
+					((DataSourceMetadata) dataSource).setType(DataSourceType.SQL);
+				}
+			}
+		}
+	}
+	
 	@Override
 	public void importObjects(TransferContext context, Session session) {
 		Assert.notNull(context, C.CONTEXT);
@@ -259,5 +280,5 @@ public class DataSourceServiceImpl extends AbstractApplicationEntityService<IDat
 			}
 		}
 	}
- 
+
 }
