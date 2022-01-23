@@ -199,12 +199,12 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 	
 	protected void init(FormParameter formParameter) {
 		Assert.notNull(formParameter, "formParameter");
-		
 		this.formParameter = formParameter;
 		form = formParameter.form;
 		tab = formParameter.getTab();
 		Assert.stateAvailable(form, C.FORM);
 		Assert.stateAvailable(tab, C.TAB);
+		formService.reloadObject(form);
 	}
 	
 	protected void showListForm() {

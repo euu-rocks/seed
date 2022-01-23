@@ -377,6 +377,11 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 				elem = elemCell.addChild(new LayoutElement(LayoutElement.LABEL));
 				elem.setAttribute(A_VALUE, load(subFormPropertyName) + ' ' + CONVERTER_VALUE);
 				break;
+				
+			case REFERENCE:
+				elem = elemCell.addChild(new LayoutElement(LayoutElement.LABEL));
+				elem.setAttribute(A_VALUE, load(identifier(subFormPropertyName)));
+				break;
 	
 			default:
 				elem = elemCell.addChild(new LayoutElement(LayoutElement.LABEL));
