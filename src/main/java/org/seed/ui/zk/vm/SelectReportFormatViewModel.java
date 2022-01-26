@@ -18,6 +18,7 @@
 package org.seed.ui.zk.vm;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.seed.C;
@@ -93,7 +94,10 @@ public class SelectReportFormatViewModel extends AbstractViewModel  {
 	
 	@SuppressWarnings("unchecked")
 	public List<DataSourceParameter> getParameters() {
-		return (List<DataSourceParameter>) getParameterTabs().get(0).getParameter();
+		if (!getParameterTabs().isEmpty()) {
+			return (List<DataSourceParameter>) getParameterTabs().get(0).getParameter();
+		}
+		return Collections.emptyList();
 	}
 	
 	@Command

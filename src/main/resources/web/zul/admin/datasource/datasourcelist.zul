@@ -34,7 +34,7 @@
 						   onClick="@command('refreshDataSource')"/>
 			<toolbarbutton iconSclass="z-icon-wrench alpha-icon-lg" 
 						   label="${labels.admin.datasource.edit}" 
-						   onClick="@command('editDataSourceObject')"
+						   onClick="@command('editDataSource')"
 						   visible="@load(!empty vm.object)"/>
 			<toolbarbutton iconSclass="z-icon-remove alpha-icon-lg" 
 						   label="${labels.admin.datasource.delete}" 

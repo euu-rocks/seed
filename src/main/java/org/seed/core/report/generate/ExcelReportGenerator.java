@@ -19,19 +19,24 @@ package org.seed.core.report.generate;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Date;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import org.seed.InternalException;
 import org.seed.core.data.datasource.ColumnMetadata;
 import org.seed.core.data.datasource.DataSourceResult;
 import org.seed.core.report.Report;
 import org.seed.core.report.ReportDataSource;
+import org.seed.core.util.MiscUtils;
 
 class ExcelReportGenerator extends AbstractReportGenerator {
 	
@@ -94,46 +99,105 @@ class ExcelReportGenerator extends AbstractReportGenerator {
 		}
 	}
 	
-	private static void setCellValue(ColumnMetadata column, Cell cell, Object columnValue) {
+	private void setCellValue(ColumnMetadata column, Cell cell, Object columnValue) {
+		if (columnValue == null) {
+			return;
+		}
 		switch (column.type) {
 			case Types.BLOB:
 				final byte[] bytes = (byte[]) columnValue;
-				if (bytes != null) {
-					cell.setCellValue(bytes.length + " bytes");
-				}
+				cell.setCellValue(MiscUtils.formatMemorySize(bytes.length));
 				break;
+			
+			case Types.BIT:
 			case Types.BOOLEAN:
-				cell.setCellValue((boolean) columnValue);
+				cell.setCellValue((Boolean) columnValue);
 				break;
+				
 			case Types.SMALLINT:
 			case Types.INTEGER:
+				cell.setCellValue((Integer) columnValue);
+				break;
+				
 			case Types.BIGINT:
+				cell.setCellValue(((BigInteger) columnValue).doubleValue());
+				break;
+				
 			case Types.DOUBLE:
-				final Double doubleValue = (Double) columnValue;
-				if (doubleValue != null) {
-					cell.setCellValue(doubleValue);
-				}
+				cell.setCellValue((Double) columnValue);
 				break;
+				
 			case Types.DECIMAL:
-				final BigDecimal decimal = (BigDecimal) columnValue;
-				if (decimal != null) {
-					cell.setCellValue(decimal.doubleValue());
-				}
+				cell.setCellValue(((BigDecimal) columnValue).doubleValue());
 				break;
+				
 			case Types.DATE:
-				final Date dateValue = (Date) columnValue;
-				if (dateValue != null) {
-					cell.setCellValue((Date) columnValue);
-				}
+				formatCell(cell, CELL_FORMAT_DATE);
+				cell.setCellValue((Date) columnValue);
 				break;
+			
+			case Types.TIMESTAMP:
+				formatCell(cell, CELL_FORMAT_DATETIME);
+				cell.setCellValue(((Timestamp) columnValue).toLocalDateTime());
+				break;
+				
 			case Types.CHAR:
 			case Types.VARCHAR:
 			case Types.LONGVARCHAR:
 				cell.setCellValue(columnValue.toString());
 				break;
+				
 			default:
 				throw new IllegalStateException("unhandled type " + column.type);
 		}
 	}
-
+	
+	private void formatCell(Cell cell, short format) {
+		final CellStyle cellStyle = workbook.createCellStyle();
+		cellStyle.setDataFormat(format);
+		cell.setCellStyle(cellStyle);
+	}
+	
+	private static final short CELL_FORMAT_DATE 	= 14;
+	private static final short CELL_FORMAT_DATETIME = 22;
+	
+	/*  0 = "General"
+		1 = "0"
+		2 = "0.00"
+		3 = "#,##0"
+		4 = "#,##0.00"
+		5 = ""$"#,##0_);("$"#,##0)"
+		6 = ""$"#,##0_);Red"
+		7 = ""$"#,##0.00_);("$"#,##0.00)"
+		8 = ""$"#,##0.00_);Red"
+		9 = "0%"
+		10 = "0.00%"
+		11 = "0.00E+00"
+		12 = "# ?/?"
+		13 = "# ??/??"
+		14 = "m/d/yy"
+		15 = "d-mmm-yy"
+		16 = "d-mmm"
+		17 = "mmm-yy"
+		18 = "h:mm AM/PM"
+		19 = "h:mm:ss AM/PM"
+		20 = "h:mm"
+		21 = "h:mm:ss"
+		22 = "m/d/yy h:mm"
+		23-36 = reserved
+		37 = "#,##0_);(#,##0)"
+		38 = "#,##0_);Red"
+		39 = "#,##0.00_);(#,##0.00)"
+		40 = "#,##0.00_);Red"
+		41 = "(* #,##0);(* (#,##0);(* "-");(@)"
+		42 = "("$"* #,##0_);("$"* (#,##0);("$"* "-");(@)"
+		43 = "(* #,##0.00_);(* (#,##0.00);(* "-"??);(@)"
+		44 = "("$"* #,##0.00_);("$"* (#,##0.00);("$"* "-"??);(@_)"
+		45 = "mm:ss"
+		46 = "[h]:mm:ss"
+		47 = "mm:ss.0"
+		48 = "##0.0E+0"
+		49 = "@" 
+	*/
+	
 }
