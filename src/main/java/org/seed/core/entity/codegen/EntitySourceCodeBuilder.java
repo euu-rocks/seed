@@ -20,14 +20,18 @@ package org.seed.core.entity.codegen;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
@@ -48,6 +52,7 @@ import org.seed.core.data.SystemField;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityFunction;
+import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.entity.value.AbstractValueObject;
@@ -87,28 +92,15 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 				}
 			}
 		}
+		
 		// check nested entities
 		if (entity.hasNesteds()) {
 			timestamp = getNeestedsLastModified(timestamp);
 		}
-		return timestamp;
-	}
-	
-	public Date getNeestedsLastModified(Date timestamp) {
-		for (NestedEntity nested : entity.getNesteds()) {
-			final Entity entityNested = nested.getNestedEntity();
-			if (entityNested.getLastModified().after(timestamp)) {
-				timestamp = entityNested.getLastModified();
-			}
-			// check nested referenced entities
-			if (entityNested.hasFields()) {
-				for (EntityField field : entityNested.getFields()) {
-					if (field.getType().isReference() && 
-						field.getReferenceEntity().getLastModified().after(timestamp)) {
-						timestamp = field.getReferenceEntity().getLastModified();
-					}
-				}
-			}
+		
+		// check related entities
+		if (entity.hasRelations()) {
+			timestamp = getRelationsLastModified(timestamp);
 		}
 		return timestamp;
 	}
@@ -137,6 +129,11 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 			buildNesteds();
 		}
 		
+		// relations
+		if (entity.hasRelations()) {
+			buildRelations();
+		}
+		
 		// entityId
 		buildEntityIdGetter();
 		
@@ -146,6 +143,11 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 		// nested methods
 		if (entity.hasNesteds()) {
 			buildNestedMethods();
+		}
+		
+		// relation methods
+		if (entity.hasRelations()) {
+			buildRelationMethods();
 		}
 		
 		// member functions
@@ -222,7 +224,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 				final Map<String, Object> annotationParamMap = new HashMap<>(4);
 				annotationParamMap.put(C.FETCH, FetchType.LAZY);
 				if (field.getType().isFile()) {
-					annotationParamMap.put("cascade", CascadeType.ALL);
+					annotationParamMap.put(C.CASCADE, CascadeType.ALL);
 				}
 				annotations.add(newAnnotation(ManyToOne.class, annotationParamMap));
 				annotations.add(newAnnotation(JoinColumn.class, C.NAME, quote(field.getInternalName())));
@@ -251,6 +253,9 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 		if (entity.hasNesteds()) {
 			buildNestedGetterAndSetter();
 		}
+		if (entity.hasRelations()) {
+			buildRelationGetterAndSetter();
+		}
 	}
 	
 	private void buildEntityGetterAndSetter() {
@@ -276,16 +281,46 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 		}
 	}
 	
+	private void buildRelationGetterAndSetter() {
+		for (EntityRelation relation : entity.getRelations()) {
+			addGetterAndSetter(relation.getInternalName());
+		}
+	}
+	
 	private void buildNesteds() {
 		for (NestedEntity nested : entity.getNesteds()) {
-			final Map<String, Object> annotationParamMap = new HashMap<>(8);
+			final Map<String, Object> annotationParamMap = new HashMap<>();
 			annotationParamMap.put("mappedBy", quote(nested.getReferenceField().getInternalName()));
-			annotationParamMap.put("cascade", CascadeType.ALL);
-			annotationParamMap.put("fetch", FetchType.LAZY);
+			annotationParamMap.put(C.CASCADE, CascadeType.ALL);
+			annotationParamMap.put(C.FETCH, FetchType.LAZY);
 			annotationParamMap.put("orphanRemoval", true);
 			addMember(nested.getInternalName(), 
 					  newTypeClass(nested.getNestedEntity(), List.class), 
 					  newAnnotation(OneToMany.class, annotationParamMap));
+		}
+	}
+	
+	private void buildRelations() {
+		final Map<String, Object> annotationParamMapM2M = new HashMap<>();
+		annotationParamMapM2M.put(C.FETCH, FetchType.LAZY);
+		annotationParamMapM2M.put(C.CASCADE, CascadeType.ALL);
+		
+		for (EntityRelation relation : entity.getRelations()) {
+			final AnnotationMetadata[] joinColumns = new AnnotationMetadata[] {
+				createJoinColumnAnnotation(relation.getJoinColumnName())	
+			};
+			final AnnotationMetadata[] inverseJoinColumns = new AnnotationMetadata[] {
+				createJoinColumnAnnotation(relation.getInverseJoinColumnName())	
+			};
+			
+			final Map<String, Object> annotationParamMapJoin = new HashMap<>();
+			annotationParamMapJoin.put(C.NAME, quote(relation.getJoinTableName()));
+			annotationParamMapJoin.put("joinColumns", joinColumns);
+			annotationParamMapJoin.put("inverseJoinColumns", inverseJoinColumns);
+			addMember(relation.getInternalName(), 
+					  newTypeClass(relation.getRelatedEntity(), Set.class), 
+					  newAnnotation(ManyToMany.class, annotationParamMapM2M),
+					  newAnnotation(JoinTable.class, annotationParamMapJoin));
 		}
 	}
 	
@@ -315,6 +350,65 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 			addMethod(null, "remove" + StringUtils.capitalize(nestedName), parameters,
 					  "this." + nestedName + ".remove(" + nestedName + ");" + LF);
 		}
+	}
+	
+	private void buildRelationMethods() {
+		for (EntityRelation relation : entity.getRelations()) {
+			addImport(HashSet.class);
+			final String relationName = relation.getInternalName();
+			final ParameterMetadata[] parameters = new ParameterMetadata[] { 
+				newParameter(relationName, newTypeClass(relation.getRelatedEntity())) 
+			};
+			
+			// add
+			final StringBuilder buf = new StringBuilder()
+				.append("if (this.").append(relationName).append(" == null) {").append(LF)
+				.append("\t\t\tthis.").append(relationName).append(" = new HashSet<>();").append(LF)
+				.append("\t\t}").append(LF)
+				.append("\t\tthis.").append(relationName).append(".add(").append(relationName).append(");").append(LF);
+			addMethod(null, "add" + StringUtils.capitalize(relationName), parameters, buf.toString());
+			
+			// remove
+			addMethod(null, "remove" + StringUtils.capitalize(relationName), parameters,
+					  "this." + relationName + ".remove(" + relationName + ");" + LF);
+		}
+	}
+	
+	private Date getNeestedsLastModified(Date timestamp) {
+		for (NestedEntity nested : entity.getNesteds()) {
+			final Entity entityNested = nested.getNestedEntity();
+			if (entityNested.getLastModified().after(timestamp)) {
+				timestamp = entityNested.getLastModified();
+			}
+			// check nested referenced entities
+			if (entityNested.hasFields()) {
+				for (EntityField field : entityNested.getFields()) {
+					if (field.getType().isReference() && 
+						field.getReferenceEntity().getLastModified().after(timestamp)) {
+						timestamp = field.getReferenceEntity().getLastModified();
+					}
+				}
+			}
+		}
+		return timestamp;
+	}
+	
+	private Date getRelationsLastModified(Date timestamp) {
+		for (EntityRelation relation : entity.getRelations()) {
+			final Entity relatedEntity = relation.getRelatedEntity();
+			if (relatedEntity.getLastModified().after(timestamp)) {
+				timestamp = relatedEntity.getLastModified();
+			}
+		}
+		return timestamp;
+	}
+	
+	private static AnnotationMetadata createJoinColumnAnnotation(String name) {
+		final Map<String, Object> annotationParamMap = new HashMap<>();
+		annotationParamMap.put(C.NAME, quote(name));
+		annotationParamMap.put("nullable", false);
+		annotationParamMap.put("updatable", false);
+		return newAnnotation(JoinColumn.class, annotationParamMap);
 	}
 	
 	private static TypeClass getEntitySuperClass(Entity entity) {

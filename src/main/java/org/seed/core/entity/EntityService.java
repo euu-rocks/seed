@@ -34,6 +34,8 @@ public interface EntityService extends ApplicationEntityService<Entity> {
 	
 	NestedEntity createNested(Entity entity);
 	
+	EntityRelation createRelation(Entity entity);
+	
 	EntityStatus createStatus(Entity entity);
 	
 	EntityFieldConstraint createFieldConstraint(Entity entity);
@@ -73,5 +75,7 @@ public interface EntityService extends ApplicationEntityService<Entity> {
 	void removeStatusTransition(Entity entity, EntityStatusTransition statusTransition) throws ValidationException;
 	
 	void removeNested(Entity entity, NestedEntity nested) throws ValidationException;
+	
+	void removeRelation(Entity entity, EntityRelation relation) throws ValidationException;
 	
 }

@@ -36,6 +36,7 @@ import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityFunction;
 import org.seed.core.entity.EntityMetadata;
 import org.seed.core.entity.EntityPermission;
+import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.EntityService;
 import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.EntityStatusTransition;
@@ -78,6 +79,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	private static final String FUNCTIONS = "memberFunctions";
 	private static final String CALLBACKS = "callbackFunctions";
 	private static final String NESTEDS = "nesteds";
+	private static final String RELATIONS = "relations";
 	private static final String STATUS = C.STATUS;
 	private static final String STATUSTRANSITIONS = "statusTransition";
 	private static final String TRANSITIONFUNCTIONS = "transitionFunctions";
@@ -111,6 +113,8 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	private EntityFunction function;
 	
 	private EntityFunction callbackFunction;
+	
+	private EntityRelation relation;
 	
 	private EntityStatus entityStatus;
 	
@@ -223,6 +227,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 		nested = null;
 		function = null;
 		callbackFunction = null;
+		relation = null;
 		permission = null;
 		fieldConstraint = null;
 		constraintNested = null;
@@ -264,6 +269,14 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 
 	public void setCallbackFunction(EntityFunction callbackFunction) {
 		this.callbackFunction = callbackFunction;
+	}
+
+	public EntityRelation getRelation() {
+		return relation;
+	}
+
+	public void setRelation(EntityRelation relation) {
+		this.relation = relation;
 	}
 
 	public EntityStatus getStatus() {
@@ -360,6 +373,10 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	
 	public List<Entity> getAvailableNesteds() {
 		return entityService.getAvailableNestedEntities(getObject());
+	}
+	
+	public List<Entity> getRelationEntities() {
+		return entityService.findNonGenericEntities();
 	}
 	
 	@Override
@@ -572,6 +589,28 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
+	@NotifyChange(C.RELATION)
+	public void newRelation() {
+		relation = entityService.createRelation(getObject());
+		notifyObjectChange(RELATIONS);
+		flagDirty();
+	}
+	
+	@Command
+	@NotifyChange(C.RELATION)
+	public void removeRelation(@BindingParam(C.ELEM) Component component) {
+		try {
+			entityService.removeRelation(getObject(), relation);
+			relation = null;
+			notifyObjectChange(RELATIONS);
+			flagDirty();
+		}
+		catch (ValidationException vex) {
+			showValidationErrors(component, "admin.entity.removerelationfail", vex.getErrors());
+		}
+	}
+	
+	@Command
 	@NotifyChange(C.STATUS)
 	public void newStatus() {
 		entityStatus = entityService.createStatus(getObject());
@@ -756,6 +795,15 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
+	@NotifyChange(C.RELATION)
+	public void selectRelatedEntity( ) {
+		if (relation.getName() == null) {
+			relation.setName(relation.getRelatedEntity().getName());
+		}
+		flagDirty();
+	}
+	
+	@Command
 	@NotifyChange(C.NESTED)
 	public void selectNestedEntity() {
 		if (nested.getName() == null) {
@@ -832,6 +880,12 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	public void swapNesteds(@BindingParam(C.BASE) NestedEntity base, 
 						    @BindingParam(C.ITEM) NestedEntity item) {
 		swapItems(NESTEDS, base, item);
+	}
+	
+	@Command
+	public void swapRelations(@BindingParam(C.BASE) EntityRelation base, 
+						      @BindingParam(C.ITEM) EntityRelation item) {
+		swapItems(RELATIONS, base, item);
 	}
 	
 	@Command
@@ -919,6 +973,8 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 				return MiscUtils.castList(getObject().getStatusTransitions());
 			case NESTEDS:
 				return MiscUtils.castList(getObject().getNesteds());
+			case RELATIONS:
+				return MiscUtils.castList(getObject().getRelations());
 			case CALLBACKS:
 				return MiscUtils.castList(getObject().getCallbackFunctions());
 			default:

@@ -1,0 +1,89 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout>
+	<north border="0">
+		<toolbar width="100%">
+			<toolbarbutton label="${labels.admin.entity.newrelation}" 
+						   iconSclass="z-icon-file-o alpha-icon-lg" 
+					   	   onClick="@command('newRelation')"/>
+			<toolbarbutton label="${labels.admin.entity.removerelation}" 
+						   iconSclass="z-icon-remove alpha-icon-lg" 
+					   	   onClick="@command('removeRelation',elem=self)"
+					   	   visible="@load(not empty vm.relation)"/>
+		</toolbar>
+	</north>
+	<center border="0">
+		<listbox mold="paging" autopaging="true" 
+				 model="@load(vm.object.relations)" 
+		         selectedItem="@bind(vm.relation)"
+		         visible="@load(!empty vm.object.relations)"
+		         class="alpha-noborder"
+		         hflex="1" vflex="1">
+			<listhead sizable="true">
+	            <listheader label="${labels.label.entity}" 
+	            			sort="auto(name)" hflex="1"/>
+	            <listheader label="${labels.label.relatedentity}"
+	            			sort="auto(relatedEntity.name)" hflex="1"/>
+	        </listhead> 
+	        <template name="model" var="relation">
+	            <listitem attributes.item="@load(relation)" 
+	            		  draggable="true" droppable="true" 
+	            		  onDrop="@command('swapRelations',item=event.dragged.attributes.item,base=relation)">
+	            	<listcell>
+	            		<label value="@load(relation.relatedEntity.name)" 
+	            			   style="margin-left:3px"/>
+	            	</listcell>
+	            	<listcell iconSclass="@load(empty relation.relatedEntity ? '' : 'z-icon-table alpha-icon-lg')">
+	            		<label value="@load(relation.relatedEntity.name)"/>
+	            	</listcell>
+	            </listitem>
+		    </template> 
+		</listbox>
+	</center>
+	<east title="${labels.label.properties}" 
+		  visible="@load(!empty vm.relation)"
+		  width="275px" border="0" collapsible="true" 
+		  class="alpha-properties">
+		<vlayout class="alpha-properties-content">
+			<label value="${labels.label.name}:"/>
+            <textbox value="@bind(vm.relation.name) @converter(vm.stringConverter)"
+            		 tooltiptext="@load(vm.relation.internalName)"
+            		 onChange="@command('flagDirty',notify='relation')"
+            		 mandatory="true"
+            		 hflex="1"/>
+           	<label value="${labels.label.relatedentity}:"/>
+           	<combobox model="@load(vm.relationEntities) @template(empty each.name ? 'empty' : 'relation')"
+           			  mandatory="true"
+           			  selectedItem="@bind(vm.relation.relatedEntity)"
+           			  value="@load(vm.relation.relatedEntity.name)"
+           			  onSelect="@command('selectRelatedEntity')"
+				  	  hflex="1">
+           		<template name="empty">
+                   	<comboitem/>
+               	</template>	
+               	<template name="relation" var="relatedEntity">
+                   	<comboitem label="@init(relatedEntity.name)"
+                   			   iconSclass="z-icon-table z-icon-fw alpha-icon-lg"/>
+               	</template>	
+           	</combobox>
+        </vlayout>
+    </east>
+</borderlayout>

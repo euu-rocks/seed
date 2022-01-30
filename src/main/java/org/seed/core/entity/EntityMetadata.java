@@ -98,6 +98,14 @@ public class EntityMetadata extends AbstractApplicationEntity
 			   fetch = FetchType.LAZY)
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@OrderBy("order")
+	private List<EntityRelation> relations;
+	
+	@OneToMany(mappedBy = "entity",
+			   cascade = CascadeType.ALL,
+			   orphanRemoval = true,
+			   fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+	@OrderBy("order")
 	private List<EntityFunction> functions;
 	
 	@OneToMany(mappedBy = "entity",
@@ -399,6 +407,17 @@ public class EntityMetadata extends AbstractApplicationEntity
 	}
 
 	@Override
+	@XmlElement(name="relation")
+	@XmlElementWrapper(name="relations")
+	public List<EntityRelation> getRelations() {
+		return relations;
+	}
+
+	public void setRelations(List<EntityRelation> relations) {
+		this.relations = relations;
+	}
+
+	@Override
 	@XmlElement(name="nested")
 	@XmlElementWrapper(name="nesteds")
 	public List<NestedEntity> getNesteds() {
@@ -419,6 +438,32 @@ public class EntityMetadata extends AbstractApplicationEntity
 		}
 		if (hasNesteds()) {
 			list.addAll(getNesteds());
+		}
+		return list;
+	}
+	
+	@Override
+	public boolean hasRelations() {
+		return !ObjectUtils.isEmpty(getRelations());
+	}
+	
+	@Override
+	public boolean hasAllRelations() {
+		if (genericEntity != null && genericEntity.hasAllRelations()) {
+			return true;
+		}
+		return hasRelations();
+	}
+	
+	// includes generic relations
+	@Override
+	public List<EntityRelation> getAllRelations() {
+		final List<EntityRelation> list = new ArrayList<>();
+		if (genericEntity != null) {
+			list.addAll(genericEntity.getAllRelations());
+		}
+		if (hasRelations()) {
+			list.addAll(getRelations());
 		}
 		return list;
 	}
@@ -544,6 +589,15 @@ public class EntityMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
+	public EntityRelation getRelationByUid(String uid) {
+		EntityRelation relation = null;
+		if (genericEntity != null) {
+			relation = genericEntity.getRelationByUid(uid);
+		}
+		return relation != null ? relation : getObjectByUid(getRelations(), uid);
+	}
+	
+	@Override
 	public NestedEntity getNestedByUid(String uid) {
 		NestedEntity nested = null;
 		if (genericEntity != null) {
@@ -637,6 +691,20 @@ public class EntityMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
+	public boolean isRelatedEntity(Entity entity) {
+		Assert.notNull(entity, C.ENTITY);
+		
+		if (hasAllRelations()) {
+			for (EntityRelation relation : getAllRelations()) {
+				if (relation.getRelatedEntity().equals(entity)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	@Override
 	public boolean hasStatus() {
 		return !ObjectUtils.isEmpty(getStatusList());
 	}
@@ -698,6 +766,24 @@ public class EntityMetadata extends AbstractApplicationEntity
 		Assert.notNull(nested, C.NESTED);
 		
 		getNesteds().remove(nested);
+	}
+	
+	@Override
+	public void addRelation(EntityRelation relation) {
+		Assert.notNull(relation, C.RELATION);
+		
+		if (relations == null) {
+			relations = new ArrayList<>();
+		}
+		relation.setEntity(this);
+		relations.add(relation);
+	}
+	
+	@Override
+	public void removeRelation(EntityRelation relation) {
+		Assert.notNull(relation, C.RELATION);
+		
+		getRelations().remove(relation);
 	}
 	
 	@Override
@@ -891,6 +977,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 			   isEqualStatus(otherEntity) &&
 			   isEqualStatusTransitions(otherEntity) &&
 			   isEqualNesteds(otherEntity) &&
+			   isEqualRelations(otherEntity) &&
 			   isEqualPermissions(otherEntity) &&
 			   isEqualConstraints(otherEntity);
 	}
@@ -1039,6 +1126,24 @@ public class EntityMetadata extends AbstractApplicationEntity
 		return true;
 	}
 	
+	private boolean isEqualRelations(Entity otherEntity) {
+		if (hasRelations()) {
+			for (EntityRelation relation : getRelations()) {
+				if (!relation.isEqual(otherEntity.getRelationByUid(relation.getUid()))) {
+					return false;
+				}
+			}
+		}
+		if (otherEntity.hasRelations()) {
+			for (EntityRelation otherRelation : otherEntity.getRelations()) {
+				if (getRelationByUid(otherRelation.getUid()) == null) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
 	void createLists() {
 		permissions = new ArrayList<>();
 	}
@@ -1048,6 +1153,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 		Order.setOrderIndexes(getFields());
 		Order.setOrderIndexes(getFieldGroups());
 		Order.setOrderIndexes(getNesteds());
+		Order.setOrderIndexes(getRelations());
 		Order.setOrderIndexes(getFunctions());
 	}
 	
@@ -1060,6 +1166,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 		removeNewObjects(getStatusTransitions());
 		removeNewObjects(getFieldConstraints());
 		removeNewObjects(getNesteds());
+		removeNewObjects(getRelations());
 		removeNewObjects(getPermissions());
 		try {
 			if (hasStatusTransitions()) {
@@ -1080,6 +1187,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 		initUids(getFields());
 		initUids(getFieldGroups());
 		initUids(getNesteds());
+		initUids(getRelations());
 		initUids(getFunctions());
 		initUids(getStatusList());
 		initUids(getStatusTransitions());

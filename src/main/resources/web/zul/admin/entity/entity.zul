@@ -21,6 +21,7 @@
 <?component name="entity-fields" macroURI="~./zul/admin/entity/entity_fields.zul" inline="true"?>
 <?component name="entity-fieldgroups" macroURI="~./zul/admin/entity/entity_fieldgroups.zul" inline="true"?>
 <?component name="entity-nesteds" macroURI="~./zul/admin/entity/entity_nesteds.zul" inline="true"?>
+<?component name="entity-relations" macroURI="~./zul/admin/entity/entity_relations.zul" inline="true"?>
 <?component name="entity-statusmodel" macroURI="~./zul/admin/entity/entity_statusmodel.zul" inline="true"?>
 <?component name="entity-permissions" macroURI="~./zul/admin/entity/entity_permissions.zul" inline="true"?>
 <?component name="entity-fieldconstraints" macroURI="~./zul/admin/entity/entity_fieldconstraints.zul" inline="true"?>
@@ -134,6 +135,8 @@
 					<tab id="tabFunctions" label="${labels.label.functions}"/>
 					<tab id="tabNesteds" label="${labels.label.nesteds}"
 						 visible="@load(not empty vm.availableNesteds)"/>
+					<tab id="tabRelations" label="${labels.label.relations}"
+						 visible="@load(not empty vm.relationEntities)"/>	 
 					<tab id="tabFieldConstraints" label="${labels.label.fieldconstraints}"
 						 visible="@load(!empty vm.object.fields and !vm.object.transferable and (vm.existUserGroups() or !empty vm.object.statusList))"
 						 onSelect="@command('selectConstraintTab')"/>
@@ -156,6 +159,9 @@
 					</tabpanel>
 					<tabpanel fulfill="tabNesteds.onSelect">
 						<entity-nesteds/>
+					</tabpanel>
+					<tabpanel fulfill="tabRelations.onSelect">
+						<entity-relations/>
 					</tabpanel>
 					<tabpanel fulfill="tabFieldConstraints.onSelect">
 						<entity-fieldconstraints/>

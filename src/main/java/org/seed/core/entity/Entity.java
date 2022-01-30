@@ -45,6 +45,10 @@ public interface Entity
 	
 	boolean hasAllNesteds(); // includes generic nesteds
 	
+	boolean hasRelations();
+	
+	boolean hasAllRelations(); // includes generic relations
+	
 	boolean hasStatus();
 	
 	boolean hasFunctions(); 
@@ -105,9 +109,15 @@ public interface Entity
 	
 	void removeField(EntityField field);
 	
+	List<EntityRelation> getRelations();
+	
+	List<EntityRelation> getAllRelations();
+	
+	EntityRelation getRelationByUid(String uid);
+	
 	List<NestedEntity> getNesteds();
 	
-	List<NestedEntity> getAllNesteds(); // includes generic fields
+	List<NestedEntity> getAllNesteds();
 	
 	NestedEntity getNestedByEntityId(Long id);
 	
@@ -122,6 +132,12 @@ public interface Entity
 	void addNested(NestedEntity nested);
 	
 	void removeNested(NestedEntity nested);
+	
+	boolean isRelatedEntity(Entity entity);
+	
+	void addRelation(EntityRelation relation);
+	
+	void removeRelation(EntityRelation relation);
 	
 	List<EntityStatus> getStatusList();
 	

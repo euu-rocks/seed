@@ -71,6 +71,8 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	
 	private List<Entity> descendants; // entities that implements a generic entity
 	
+	private List<Entity> inverseRelateds;
+	
 	EntityChangeLogBuilder(DatabaseInfo databaseInfo, Limits limits) {
 		entityUsage = Seed.getBean(EntityUsage.class);
 		Assert.stateAvailable(entityUsage, "entity usage");
@@ -85,6 +87,10 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		this.descendants = descendants;
 	}
 	
+	void setInverseRelateds(List<Entity> inverseRelateds) {
+		this.inverseRelateds = inverseRelateds;
+	}
+
 	@Override
 	public ChangeLog build() {
 		checkValid();
@@ -113,26 +119,53 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	private void buildEntityChanges() {
 		// create table
 		if (currentVersionObject == null) {
-			addCreateTableChangeSet(nextVersionObject);
+			createEntityTables();
 		}
 		// drop table
 		else if (nextVersionObject == null) {
-			addDropTableChangeSet(currentVersionObject);
+			dropEntityTables();
 		}
 		else {
 			// rename table
 			if (!getTableName(currentVersionObject).equals(getTableName(nextVersionObject))) {
-				addRenameTableChange(currentVersionObject, nextVersionObject);
+				renameEntity();
 			}
+			
 			// status field change
 			if (currentVersionObject.hasStatus() != nextVersionObject.hasStatus()) {
 				buildStatusFieldChange();
 			}
+			
 			// field changes
 			if (currentVersionObject.hasAllFields() || nextVersionObject.hasAllFields()) {
 				buildFieldChanges();
 			}
+			
+			// relation changes
+			if (currentVersionObject.hasAllRelations() || nextVersionObject.hasAllRelations()) {
+				buildRelationChanges();
+			}
 		}
+	}
+	
+	private void createEntityTables() {
+		addCreateTableChangeSet(nextVersionObject);
+		// create relation tables
+		if (nextVersionObject.hasAllRelations()) {
+			for (EntityRelation relation : nextVersionObject.getAllRelations()) {
+				addCreateTableChangeSet(relation);
+			}
+		}
+	}
+	
+	private void dropEntityTables() {
+		// drop relation tables
+		if (currentVersionObject.hasAllRelations()) {
+			for (EntityRelation relation : currentVersionObject.getAllRelations()) {
+				addDropTableChangeSet(relation);
+			}
+		}
+		addDropTableChangeSet(currentVersionObject);
 	}
 	
 	static String getTableName(Entity entity) {
@@ -154,6 +187,60 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	private boolean isGeneric() {
 		return (currentVersionObject != null && currentVersionObject.isGeneric()) ||
 			   (nextVersionObject != null && nextVersionObject.isGeneric());
+	}
+	
+	private void renameEntity() {
+		// rename table
+		addRenameTableChange(currentVersionObject, nextVersionObject);
+		
+		// rename relation tables
+		if (nextVersionObject.hasAllRelations()) {
+			for (EntityRelation relation : nextVersionObject.getAllRelations()) {
+				final EntityRelation currentVersionRelation = 
+						currentVersionObject.getRelationByUid(relation.getUid());
+				if (currentVersionRelation != null) {
+					renameRelation(currentVersionRelation, relation);
+				}
+			}
+		}
+		
+		// rename inverse relation tables
+		if (inverseRelateds != null) {
+			for (Entity inverseRelated : inverseRelateds) {
+				for (EntityRelation inverseRelation : inverseRelated.getRelations()) {
+					renameRelation(inverseRelation, inverseRelation.createNewInverseRelation(nextVersionObject));
+				}
+			}
+		}
+	}
+	
+	private void renameRelation(EntityRelation oldRelation, EntityRelation newRelation) {
+		Assert.notNull(oldRelation, "oldRelation");
+		Assert.notNull(newRelation, "newRelation");
+		
+		// rename relation table
+		final RenameTableChange renameTableChange = new RenameTableChange();
+		renameTableChange.setOldTableName(oldRelation.getJoinTableName());
+		renameTableChange.setNewTableName(newRelation.getJoinTableName());
+		addChange(renameTableChange);
+		
+		// rename join column
+		if (!oldRelation.getJoinColumnName().equals(newRelation.getJoinColumnName())) {
+			final RenameColumnChange renameColumnChange = new RenameColumnChange();
+			renameColumnChange.setTableName(newRelation.getJoinTableName());
+			renameColumnChange.setOldColumnName(oldRelation.getJoinColumnName());
+			renameColumnChange.setNewColumnName(newRelation.getJoinColumnName());
+			addChange(renameColumnChange);
+		}
+		
+		// rename inverse join column
+		if (!oldRelation.getInverseJoinColumnName().equals(newRelation.getInverseJoinColumnName())) {
+			final RenameColumnChange renameColumnChange = new RenameColumnChange();
+			renameColumnChange.setTableName(newRelation.getJoinTableName());
+			renameColumnChange.setOldColumnName(oldRelation.getInverseJoinColumnName());
+			renameColumnChange.setNewColumnName(newRelation.getInverseJoinColumnName());
+			addChange(renameColumnChange);
+		}
 	}
 	
 	private void addCreateTableChangeSet(Entity entity) {
@@ -210,11 +297,40 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		}
 	}
 	
+	private void addCreateTableChangeSet(EntityRelation relation) {
+		Assert.notNull(relation, "relation");
+		
+		final ConstraintsConfig pkConfig = new ConstraintsConfig()
+				.setPrimaryKey(Boolean.TRUE)
+				.setPrimaryKeyName(getPrimaryKeyConstraintName(relation));
+		
+		final CreateTableChange createTableChange = new CreateTableChange();
+		createTableChange.setTableName(relation.getJoinTableName());
+		
+		// join column
+		createTableChange.addColumn(createJoinColumn(relation.getJoinColumnName())
+							.setConstraints(pkConfig));
+		
+		// inverse join column 
+		createTableChange.addColumn(createJoinColumn(relation.getInverseJoinColumnName())
+							.setConstraints(pkConfig));
+		addChange(createTableChange);
+		addRelationConstraints(relation);
+	}
+	
 	private void addDropTableChangeSet(Entity entity) {
 		Assert.notNull(entity, C.ENTITY);
 		
 		final DropTableChange dropTableChange = new DropTableChange();
 		dropTableChange.setTableName(getTableName(entity));
+		addChange(dropTableChange);
+	}
+	
+	private void addDropTableChangeSet(EntityRelation relation) {
+		Assert.notNull(relation, C.RELATION);
+		
+		final DropTableChange dropTableChange = new DropTableChange();
+		dropTableChange.setTableName(relation.getJoinTableName());
 		addChange(dropTableChange);
 	}
 	
@@ -365,6 +481,24 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		}
 	}
 	
+	private void buildRelationChanges() {
+		if (currentVersionObject.hasAllRelations()) {
+			for (EntityRelation relation : currentVersionObject.getAllRelations()) {
+				final EntityRelation nextVersionRelation = nextVersionObject.getRelationByUid(relation.getUid());
+				if (nextVersionRelation == null) {
+					addDropTableChangeSet(relation);
+				}
+			}
+		}
+		if (nextVersionObject.hasAllRelations()) {
+			for (EntityRelation relation : nextVersionObject.getAllRelations()) {
+				if (relation.isNew() || currentVersionObject.getRelationByUid(relation.getUid()) == null) {
+					addCreateTableChangeSet(relation);
+				}
+			}
+		}
+	}
+	
 	private void buildFieldChanges() {
 		if (currentVersionObject.hasAllFields()) {
 			for (EntityField field : currentVersionObject.getAllFields()) {
@@ -499,6 +633,12 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		return new ColumnConfig().setName(name).setType(getDBFieldType(fieldType, length));
 	}
 	
+	private ColumnConfig createJoinColumn(String name) {
+		Assert.notNull(name, C.NAME);
+		
+		return new ColumnConfig().setName(name).setType(getDBFieldType(FieldType.REFERENCE, null));
+	}
+	
 	private String getDBFieldType(EntityField field) {
 		Assert.notNull(field, C.FIELD);
 		
@@ -618,6 +758,28 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		}
 	}
 	
+	private void addRelationConstraints(EntityRelation relation) {
+		Assert.notNull(relation, C.RELATION);
+		
+		// join column fk
+		final AddForeignKeyConstraintChange addJoinConstraintChange = new AddForeignKeyConstraintChange();
+		addJoinConstraintChange.setConstraintName(getJoinColumnForeignKeyConstraintName(relation));
+		addJoinConstraintChange.setBaseTableName(relation.getJoinTableName());
+		addJoinConstraintChange.setBaseColumnNames(relation.getJoinColumnName());
+		addJoinConstraintChange.setReferencedColumnNames(SystemField.ID.columName);
+		addJoinConstraintChange.setReferencedTableName(getTableName(relation.getEntity()));
+		addChange(addJoinConstraintChange);
+		
+		// inverse join column fk
+		final AddForeignKeyConstraintChange addInverseJoinConstraintChange = new AddForeignKeyConstraintChange();
+		addInverseJoinConstraintChange.setConstraintName(getInverseJoinColumnForeignKeyConstraintName(relation));
+		addInverseJoinConstraintChange.setBaseTableName(relation.getJoinTableName());
+		addInverseJoinConstraintChange.setBaseColumnNames(relation.getInverseJoinColumnName());
+		addInverseJoinConstraintChange.setReferencedColumnNames(SystemField.ID.columName);
+		addInverseJoinConstraintChange.setReferencedTableName(getTableName(relation.getRelatedEntity()));
+		addChange(addInverseJoinConstraintChange);
+	}
+	
 	private int getLimit(String limitName) {
 		return limits.getLimit(limitName);
 	}
@@ -626,12 +788,24 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		return PREFIX_PRIMARY_KEY + TinyId.get(entity.getId());
 	}
 	
+	private static String getPrimaryKeyConstraintName(EntityRelation relation) {
+		return PREFIX_PRIMARY_KEY + TinyId.get(relation.getId());
+	}
+	
 	private static String getUniqueConstraintName(Entity entity, EntityField field) {
 		return PREFIX_UNIQUE_KEY + getConstraintKey(entity, field);
 	}
 	
 	private static String getForeignKeyConstraintName(Entity entity, EntityField field) {
 		return PREFIX_FOREIGN_KEY + getConstraintKey(entity, field);
+	}
+	
+	private static String getJoinColumnForeignKeyConstraintName(EntityRelation relation) {
+		return PREFIX_FOREIGN_KEY + getConstraintKey(relation, relation.getEntity());
+	}
+	
+	private static String getInverseJoinColumnForeignKeyConstraintName(EntityRelation relation) {
+		return PREFIX_FOREIGN_KEY + getConstraintKey(relation, relation.getRelatedEntity());
 	}
 	
 	private static String getStatusForeignKeyConstraintName(Entity entity) {
@@ -647,10 +821,11 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	}
 	
 	private static String getConstraintKey(Entity entity, EntityField field) {
-		Assert.notNull(entity, C.ENTITY);
-		Assert.notNull(field, C.FIELD);
-		
 		return TinyId.get(entity.getId()) + '_' + TinyId.get(field.getId());
+	}
+	
+	private static String getConstraintKey(EntityRelation relation, Entity entity) {
+		return TinyId.get(relation.getId()) + '_' + TinyId.get(entity.getId());
 	}
 	
 	private static AddColumnChange createAddColumnChange(Entity entity, AddColumnConfig columnConfig) {

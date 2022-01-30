@@ -142,7 +142,15 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		addImport(annotation.annotationClass);
 		if (annotation.hasParameters()) {
 			for (Object value : annotation.parameterMap.values()) {
-				addImport(value.getClass());
+				if (value instanceof AnnotationMetadata[]) {
+					final AnnotationMetadata[] paramAnnotations = (AnnotationMetadata[]) value;
+					for (AnnotationMetadata paramAnnotation : paramAnnotations) {
+						addImport(paramAnnotation);
+					}
+				}
+				else {
+					addImport(value.getClass());
+				}
 			}
 		}
 	}
@@ -360,6 +368,11 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 					buf.append(',');
 				}
 				buf.append(entry.getKey()).append('=');
+				
+				if (entry.getValue() instanceof AnnotationMetadata[]) {
+					buildAnnotations(buf, (AnnotationMetadata[]) entry.getValue());
+					continue;
+				}
 				if (entry.getValue() instanceof Enum) {
 					buf.append(entry.getValue().getClass().getSimpleName()).append('.');
 				}
@@ -370,6 +383,21 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		else if (annotation.singleValue != null) {
 			buf.append("(\"").append(annotation.singleValue).append("\")");
 		}
+	}
+	
+	private static void buildAnnotations(StringBuilder buf, AnnotationMetadata[] annotations) {
+		boolean first = true;
+		buf.append('{');
+		for (AnnotationMetadata annotation : annotations) {
+			if (first) {
+				first = false;
+			}
+			else {
+				buf.append(',');
+			}
+			buildAnnotation(buf, annotation);
+		}
+		buf.append('}');
 	}
 	
 	private static void buildTypeClass(StringBuilder buf, TypeClass typeClass) {

@@ -76,6 +76,11 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 			validateNesteds(entity, errors);
 		}
 		
+		// relations
+		if (entity.hasRelations()) {
+			validateRelations(entity, errors);
+		}
+		
 		// status
 		if (entity.hasStatus()) {
 			validateStatus(entity, errors);
@@ -251,6 +256,15 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		validate(errors);
 	}
 	
+	public void validateRemoveRelation(EntityRelation relation) throws ValidationException {
+		Assert.notNull(relation, C.RELATION);
+		final ValidationErrors errors = new ValidationErrors();
+		
+		// TODO
+		
+		validate(errors);
+	}
+	
 	private void validateFields(Entity entity, final ValidationErrors errors) {
 		int numAutonums = 0;
 		for (EntityField field : entity.getFields()) {
@@ -327,8 +341,8 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 				 NameUtils.isIllegalFieldName(field.getInternalName())) {
 			errors.addIllegalField("label.fieldname", field.getName());
 		}
-		else if (!isNameUnique(field.getName(), entity.getAllFields(), entity.getAllNesteds())) {
-			errors.addError("val.ambiguous.fieldornested", field.getName());
+		else if (!isNameUnique(field.getName(), entity.getAllFields(), entity.getAllNesteds(), entity.getAllRelations())) {
+			errors.addError(AMBIGUOUS_FIELD_OR_NESTED, field.getName());
 		}
 	}
 	
@@ -387,14 +401,37 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 			else if (!isNameAllowed(nested.getInternalName())) {
 				errors.addIllegalField("label.nestedname", nested.getName());
 			}
-			else if (!isNameUnique(nested.getName(), entity.getAllNesteds(), entity.getAllFields())) {
-				errors.addError("val.ambiguous.fieldornested", nested.getName());
+			else if (!isNameUnique(nested.getName(), entity.getAllNesteds(), 
+								   entity.getAllFields(), entity.getAllRelations())) {
+				errors.addError(AMBIGUOUS_FIELD_OR_NESTED, nested.getName());
 			}
 			if (isEmpty(nested.getNestedEntity())) {
 				errors.addEmptyField("label.nested");
 			}
 			if (isEmpty(nested.getReferenceField())) {
 				errors.addEmptyField("label.reffield");
+			}
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void validateRelations(Entity entity, final ValidationErrors errors) {
+		for (EntityRelation relation : entity.getRelations()) {
+			if (isEmpty(relation.getName())) {
+				errors.addEmptyField("label.relationname");
+			}
+			else if (!isNameLengthAllowed(relation.getName())) {
+				errors.addOverlongObjectName("label.relation", getMaxNameLength());
+			}
+			else if (!isNameAllowed(relation.getInternalName())) {
+				errors.addIllegalField("label.relationname", relation.getName());
+			}
+			else if (!isNameUnique(relation.getName(), entity.getAllNesteds(), 
+								   entity.getAllFields(), entity.getAllRelations())) {
+				errors.addError(AMBIGUOUS_FIELD_OR_NESTED, relation.getName());
+			}
+			if (isEmpty(relation.getRelatedEntity())) {
+				errors.addEmptyField("label.relatedentity");
 			}
 		}
 	}
@@ -518,5 +555,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 			return false;
 		}
 	}
+	
+	private static final String AMBIGUOUS_FIELD_OR_NESTED = "val.ambiguous.fieldornested";
 	
 }

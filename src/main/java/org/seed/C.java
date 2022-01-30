@@ -23,6 +23,7 @@ public final class C {
 	public static final String ANALYSIS         = "analysis";
 	public static final String ANNOTATION       = "annotation";
 	public static final String BASE             = "base";
+	public static final String CASCADE          = "cascade";
 	public static final String CHUNKSIZE		= "chunkSize";
 	public static final String CLASSNAME        = "className";
 	public static final String CODE             = "code";
@@ -70,6 +71,7 @@ public final class C {
 	public static final String PROPERTY         = "property";
 	public static final String PROPERTIES       = "properties";
 	public static final String QUALIFIEDNAME    = "qualifiedName";
+	public static final String RELATION         = "relation";
 	public static final String REPORT           = "report";
 	public static final String REST             = "rest";
 	public static final String RESULT           = "result";

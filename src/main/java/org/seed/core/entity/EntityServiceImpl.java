@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -159,6 +160,16 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	@Override
 	@Secured("ROLE_ADMIN_ENTITY")
+	public EntityRelation createRelation(Entity entity) {
+		Assert.notNull(entity, C.ENTITY);
+		
+		final EntityRelation relation = new EntityRelation();
+		entity.addRelation(relation);
+		return relation;
+	}
+	
+	@Override
+	@Secured("ROLE_ADMIN_ENTITY")
 	public EntityStatus createStatus(Entity entity) {
 		Assert.notNull(entity, C.ENTITY);
 		
@@ -228,19 +239,11 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 			if (entity.equals(otherEntity)) {
 				continue;
 			}
-			if (entity.equals(otherEntity.getGenericEntity())) {
+			if (entity.equals(otherEntity.getGenericEntity()) ||
+				!otherEntity.getReferenceFields(entity).isEmpty() ||
+				otherEntity.isNestedEntity(entity) || 
+				otherEntity.isRelatedEntity(entity)) {
 				result.add(otherEntity);
-			}
-			else if (!otherEntity.getReferenceFields(entity).isEmpty()) {
-				result.add(otherEntity);
-			}
-			else if (otherEntity.hasNesteds()) {
-				for (NestedEntity nested : otherEntity.getNesteds()) {
-					if (nested.getNestedEntity().equals(entity)) {
-						result.add(otherEntity);
-						break;
-					}
-				}
 			}
 		}
 		return result;
@@ -331,6 +334,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		try (Session session = entityRepository.getSession()) {
 			for (Entity nested : entityRepository.find(session)) {
 				if (!nested.equals(entity) &&
+					!nested.isGeneric() &&
 					!nested.getReferenceFields(entity).isEmpty()) {
 					result.add(nested);
 				}
@@ -508,6 +512,18 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 			entityValidator.validateRemoveNested(nested);
 		}
 		entity.removeNested(nested);
+	}
+	
+	@Override
+	@Secured("ROLE_ADMIN_ENTITY")
+	public void removeRelation(Entity entity, EntityRelation relation) throws ValidationException {
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(relation, C.RELATION);
+		
+		if (!relation.isNew()) {
+			entityValidator.validateRemoveRelation(relation);
+		}
+		entity.removeRelation(relation);
 	}
 	
 	@Override
@@ -846,16 +862,20 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		if (entity.hasAllNesteds()) {
 			initNesteds(entity, currentVersionEntity);
 		}
+		if (entity.hasAllRelations()) {
+			initRelations(entity, currentVersionEntity);
+		}
 	}
 	
 	private void initEntityReferences(Entity entity, Session session) {
-		if (entity.hasAllFields() || entity.hasAllNesteds()) {
-			if (entity.hasAllFields()) {
-				initReferenceFields(session, entity);
-			}
-			if (entity.hasAllNesteds()) {
-				initNestedEntities(session, entity);
-			}
+		if (entity.hasAllFields()) {
+			initReferenceFields(session, entity);
+		}
+		if (entity.hasAllNesteds()) {
+			initNestedEntities(session, entity);
+		}
+		if (entity.hasAllRelations()) {
+			initRelatedEntities(session, entity);
 		}
 	}
 	
@@ -937,11 +957,33 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		}
 	}
 	
+	private void initRelations(Entity entity, Entity currentVersionEntity) {
+		for (EntityRelation relation : entity.getRelations()) {
+			relation.setEntity(entity);
+			if (currentVersionEntity != null) {
+				final EntityRelation currentVersionRelation =
+					currentVersionEntity.getRelationByUid(relation.getUid());
+				if (currentVersionRelation != null) {
+					currentVersionRelation.copySystemFieldsTo(relation);
+				}
+			}
+		}
+	}
+	
 	private void initNestedEntities(Session session, Entity entity) {
 		for (NestedEntity nested : entity.getAllNesteds()) {
 			final Entity nestedEntity = findByUid(session, nested.getNestedEntityUid());
+			Assert.stateAvailable(nestedEntity, "nested entity");
 			nested.setNestedEntity(nestedEntity);
 			nested.setReferenceField(nestedEntity.getFieldByUid(nested.getReferenceFieldUid()));
+		}
+	}
+	
+	private void initRelatedEntities(Session session, Entity entity) {
+		for (EntityRelation relation : entity.getAllRelations()) {
+			final Entity relatedEntity = findByUid(session, relation.getRelatedEntityUid());
+			Assert.stateAvailable(relatedEntity, "related entity");
+			relation.setRelatedEntity(relatedEntity);
 		}
 	}
 	
@@ -1131,7 +1173,14 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		if (currentVersionEntity != null && currentVersionEntity.isGeneric()) {
 			builder.setDescendants(findDescendants(currentVersionEntity));
 		}
+		builder.setInverseRelateds(findInverseRelatedEntities(currentVersionEntity));
 		return builder.build();
+	}
+	
+	private List<Entity> findInverseRelatedEntities(Entity entity) {
+		return getObjects().stream()
+						   .filter(otherEntity -> otherEntity.isRelatedEntity(entity))
+						   .collect(Collectors.toList());
 	}
 	
 	private List<EntityChangeAware> getChangeAwareObjects() {
