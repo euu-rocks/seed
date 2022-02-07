@@ -322,6 +322,9 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 		 	   	   	   	   		 "'addLayout',contextid='" + element.getContext() + '\''));
 		menus.add(createMenuItem("admin.layout.addsubform", ICON_LIST,
 	   	   	   		  			 "'addSubForm',contextid='" + element.getContext() + '\''));
+		menus.add(createMenuItem("admin.layout.addrelationform", ICON_LINK,
+	   		  			 		 "'addRelationForm',contextid='" + element.getContext() + '\''));
+		
 		menus.add(createTabMenu(element.getTab()));
 		if (element.getTabboxContainer().isLayoutArea()) {
 			menus.add(createLayoutAreaMenu(element.getTabboxContainer().getContext(), false));
@@ -387,6 +390,7 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 	private static final String LABEL_ADDTAB   = "admin.layout.addtab";
 	
 	private static final String ICON_FOLDER    = "z-icon-folder";
+	private static final String ICON_LINK      = "z-icon-link";
 	private static final String ICON_LIST      = "z-icon-list-alt";
 	private static final String ICON_NEWSPAPER = "z-icon-newspaper-o";
 	private static final String ICON_REMOVE    = "z-icon-remove";

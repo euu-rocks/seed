@@ -32,6 +32,7 @@ import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityFunction;
+import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.EntityUsage;
 import org.seed.core.entity.NestedEntity;
@@ -93,6 +94,10 @@ public interface ValueObjectService extends EntityUsage {
 	
 	void removeNestedObject(ValueObject object, NestedEntity nested, ValueObject nestedObject);
 	
+	void addRelation(ValueObject object, EntityRelation relation, ValueObject relatedObject);
+	
+	void removeRelation(ValueObject object, EntityRelation relation, ValueObject relatedObject);
+	
 	List<FileObject> getFileObjects(ValueObject object);
 	
 	void preallocateFileObjects(ValueObject object);
@@ -110,6 +115,8 @@ public interface ValueObjectService extends EntityUsage {
 	List<ValueObject> getAllObjects(Entity entity);
 	
 	List<ValueObject> getAllObjects(Session session, Class<?> entityClass);
+	
+	List<ValueObject> getAvailableRelationObjects(ValueObject object, EntityRelation relation);
 	
 	List<ValueObject> find(Entity entity, Filter filter);
 	

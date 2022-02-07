@@ -47,6 +47,7 @@ import org.seed.core.entity.EntityDependent;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityFieldGroup;
 import org.seed.core.entity.EntityFunction;
+import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.EntityService;
 import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.NestedEntity;
@@ -365,6 +366,16 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
+	public void addRelation(ValueObject object, EntityRelation relation, ValueObject relatedObject) {
+		objectAccess.addRelatedObject(object, relation, relatedObject);
+	}
+	
+	@Override
+	public void removeRelation(ValueObject object, EntityRelation relation, ValueObject relatedObject) {
+		objectAccess.removeRelatedEntity(object, relation, relatedObject);
+	}
+	
+	@Override
 	public ValueObject getObject(Entity entity, Long objectId) {
 		return repository.get(entity, objectId);
 	}
@@ -387,6 +398,15 @@ public class ValueObjectServiceImpl
 	@Override
 	public List<ValueObject> getAllObjects(Session session, Class<?> entityClass) {
 		return repository.findAll(session, entityClass);
+	}
+	
+	@Override
+	public List<ValueObject> getAvailableRelationObjects(ValueObject object, EntityRelation relation) {
+		final List<ValueObject> result = getAllObjects(relation.getRelatedEntity());
+		if (objectAccess.hasRelatedObjects(object, relation)) {
+			result.removeAll(objectAccess.getRelatedObjects(object, relation));
+		}
+		return result;
 	}
 	
 	@Override

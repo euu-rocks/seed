@@ -38,7 +38,7 @@
 		         class="alpha-noborder"
 		         hflex="1" vflex="1">
 			<listhead sizable="true">
-	            <listheader label="${labels.label.entity}" 
+	            <listheader label="${labels.label.name}" 
 	            			sort="auto(name)" hflex="1"/>
 	            <listheader label="${labels.label.relatedentity}"
 	            			sort="auto(relatedEntity.name)" hflex="1"/>
@@ -47,8 +47,8 @@
 	            <listitem attributes.item="@load(relation)" 
 	            		  draggable="true" droppable="true" 
 	            		  onDrop="@command('swapRelations',item=event.dragged.attributes.item,base=relation)">
-	            	<listcell>
-	            		<label value="@load(relation.relatedEntity.name)" 
+	            	<listcell iconSclass="@load(empty relation.relatedEntity ? '' : 'z-icon-link alpha-icon-lg')">
+	            		<label value="@load(relation.name)" 
 	            			   style="margin-left:3px"/>
 	            	</listcell>
 	            	<listcell iconSclass="@load(empty relation.relatedEntity ? '' : 'z-icon-table alpha-icon-lg')">

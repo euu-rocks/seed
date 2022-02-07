@@ -22,6 +22,7 @@ import java.util.List;
 import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
+import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.user.User;
@@ -29,6 +30,8 @@ import org.seed.core.user.User;
 public interface FormService extends ApplicationEntityService<Form> {
 	
 	SubForm addSubForm(Form form, NestedEntity nested) throws ValidationException;
+	
+	void addRelationForm(Form form, EntityRelation relation) throws ValidationException;
 	
 	FormPrintout createPrintout(Form form);
 	

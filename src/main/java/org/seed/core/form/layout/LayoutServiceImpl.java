@@ -39,6 +39,7 @@ import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityFieldGroup;
+import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.form.AbstractFormField;
 import org.seed.core.form.Form;
@@ -442,12 +443,23 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
+	public void addRelationForm(Form form, EntityRelation relation, LayoutElement layoutRoot, String contextId) throws ValidationException {
+		Assert.notNull(form, C.FORM);
+		
+		formService.addRelationForm(form, relation);
+		buildRelationForm(relation, getElementByContextId(layoutRoot, contextId));
+		redecorateLayout(form, layoutRoot);
+	}
+	
+	@Override
+	@Secured("ROLE_ADMIN_FORM")
 	public void removeSubForm(Form form, LayoutElement layoutRoot, String contextId) {
 		Assert.notNull(form, C.FORM);
 		
 		final LayoutElement elemListbox = getElementByContextId(layoutRoot, contextId);
 		final LayoutElement elemBorderlayout = elemListbox.getParent().getParent();
-		final SubForm subForm = form.getSubFormByNestedEntityUid(elemBorderlayout.getId());
+		final String nestedEntityUid = elemBorderlayout.getId().substring(LayoutElementAttributes.PRE_SUBFORM.length());
+		final SubForm subForm = form.getSubFormByNestedEntityUid(nestedEntityUid);
 		form.removeSubForm(subForm);
 		elemBorderlayout.removeFromParent();
 		redecorateLayout(form, layoutRoot);
@@ -897,12 +909,29 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		return createGroupbox(name, elemGrid);
 	}
 	
+	private static void buildRelationForm(EntityRelation relation, LayoutElement elemArea) {
+		Assert.notNull(relation, C.RELATION);
+		Assert.notNull(elemArea, "elemArea");
+		
+		final LayoutElement elemLayout = elemArea.addChild(new LayoutElement(LayoutElement.BORDERLAYOUT));
+		elemLayout.setAttribute(A_ID, PRE_RELATION + relation.getUid());
+		final LayoutElement elemCenter = elemLayout.addChild(createBorderLayoutArea(BorderLayoutArea.CENTER));
+		final LayoutElement elemListbox = elemCenter.addChild(createListBox());
+		final LayoutElement elemListhead = elemListbox.addChild(createListHead(true));
+		elemListbox.setClass(LayoutElementClass.NO_BORDER);
+		elemListbox.setAttribute(A_HFLEX, V_1);
+		elemListbox.setAttribute(A_VFLEX, V_1);
+		final LayoutElement header =  elemListhead.addChild(
+				createListHeader(relation.getRelatedEntity().getName(), V_1, null));
+		header.setAttribute(A_SORT, "sort(" + relation.getRelatedEntity().getName() + ')');
+	}
+	
 	private static void buildSubForm(SubForm subForm, LayoutElement elemArea) {
 		Assert.notNull(subForm, C.SUBFORM);
 		Assert.notNull(elemArea, "elemArea");
 		
 		final LayoutElement elemLayout = elemArea.addChild(new LayoutElement(LayoutElement.BORDERLAYOUT));
-		elemLayout.setAttribute(A_ID, subForm.getNestedEntity().getUid());
+		elemLayout.setAttribute(A_ID, PRE_SUBFORM + subForm.getNestedEntity().getUid());
 		final LayoutElement elemCenter = elemLayout.addChild(createBorderLayoutArea(BorderLayoutArea.CENTER));
 		final LayoutElement elemListbox = elemCenter.addChild(createListBox());
 		final LayoutElement elemListhead = elemListbox.addChild(createListHead(true));

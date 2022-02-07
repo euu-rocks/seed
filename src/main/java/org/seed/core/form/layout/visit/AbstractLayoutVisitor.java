@@ -20,10 +20,12 @@ package org.seed.core.form.layout.visit;
 import org.seed.C;
 import org.seed.Seed;
 import org.seed.core.entity.EntityField;
+import org.seed.core.entity.EntityRelation;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormFieldExtra;
 import org.seed.core.form.SubForm;
 import org.seed.core.form.layout.LayoutElement;
+import org.seed.core.form.layout.LayoutElementAttributes;
 import org.seed.core.form.layout.LayoutService;
 import org.seed.core.form.layout.LayoutUtils;
 import org.seed.core.form.layout.LayoutVisitor;
@@ -98,10 +100,18 @@ abstract class AbstractLayoutVisitor extends LayoutUtils
 		return form.getFieldExtra(entityField);
 	}
 	
+	protected EntityRelation getRelation(LayoutElement element) {
+		Assert.notNull(element, C.ELEMENT);
+		
+		return form.getEntity().getRelationByUid(
+			getElementId(element).substring(LayoutElementAttributes.PRE_RELATION.length()));
+	}
+	
 	protected SubForm getSubForm(LayoutElement element) {
 		Assert.notNull(element, C.ELEMENT);
 		
-		return form.getSubFormByNestedEntityUid(getElementId(element));
+		return form.getSubFormByNestedEntityUid(
+			getElementId(element).substring(LayoutElementAttributes.PRE_SUBFORM.length()));
 	}
 	
 	protected LayoutService getLayoutService() {

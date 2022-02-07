@@ -36,9 +36,9 @@
 							<label value="${labels.label.format}:"/>
 						</cell>
 						<cell style="padding: 4px 4px">
-							<combobox model="@load(vm.formats)"
+							<combobox model="@init(vm.formats)"
 									  selectedItem="@bind(vm.format)"
-									  value="@load(vm.getEnumLabel(vm.format))"
+									  value="@init(vm.getEnumLabel(vm.format))"
 									  mandatory="true">
 								 <template name="model" var="format">
 				                    <comboitem label="@init(vm.getEnumLabel(format))"/>

@@ -1173,7 +1173,9 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		if (currentVersionEntity != null && currentVersionEntity.isGeneric()) {
 			builder.setDescendants(findDescendants(currentVersionEntity));
 		}
-		builder.setInverseRelateds(findInverseRelatedEntities(currentVersionEntity));
+		if (nextVersionEntity != null) {
+			builder.setInverseRelateds(findInverseRelatedEntities(nextVersionEntity));
+		}
 		return builder.build();
 	}
 	

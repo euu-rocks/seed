@@ -26,16 +26,20 @@ public abstract class ObjectAccess {
 	
 	protected ObjectAccess() {}
 	
+	private static final String PRE_IS  = "is";
+	private static final String PRE_GET = "get";
+	private static final String PRE_SET = "set";
+	
 	public static Boolean callBooleanGetter(Object object, String propertyName) {
-		return (Boolean) callMethod(object, "is" + StringUtils.capitalize(propertyName));
+		return (Boolean) callMethod(object, PRE_IS + StringUtils.capitalize(propertyName));
 	}
 	
 	public static Object callGetter(Object object, String propertyName) {
-		return callMethod(object, "get" + StringUtils.capitalize(propertyName));
+		return callMethod(object, PRE_GET + StringUtils.capitalize(propertyName));
 	}
 	
 	protected static void callSetter(Object object, String propertyName, Object ...parameters) {
-		callMethod(object, "set" + StringUtils.capitalize(propertyName), parameters);
+		callMethod(object, PRE_SET + StringUtils.capitalize(propertyName), parameters);
 	}
 	
 	protected static Object callMethod(Object object, String methodName, Object ...parameters) {

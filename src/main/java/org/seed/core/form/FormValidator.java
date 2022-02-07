@@ -24,6 +24,7 @@ import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
+import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
@@ -38,6 +39,12 @@ public class FormValidator extends AbstractSystemEntityValidator<Form> {
 	public void validateAddSubForm(NestedEntity nested) throws ValidationException {
 		if (isEmpty(nested)) {
 			validate(new ValidationErrors().addEmptyField("label.nested"));
+		}
+	}
+	
+	public void validateAddRelationForm(EntityRelation relation) throws ValidationException {
+		if (isEmpty(relation)) {
+			validate(new ValidationErrors().addEmptyField("label.relation"));
 		}
 	}
 	

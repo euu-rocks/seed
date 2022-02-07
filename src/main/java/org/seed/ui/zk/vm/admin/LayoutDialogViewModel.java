@@ -29,6 +29,7 @@ import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
+import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.entity.filter.Filter;
 import org.seed.core.entity.filter.FilterService;
@@ -109,6 +110,8 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	
 	private NestedEntity nestedEntity;
 	
+	private EntityRelation entityRelation;
+	
 	private EntityField entityField;
 	
 	private Filter filter;
@@ -168,6 +171,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 				break;
 				
 			case "addsubform":
+			case "addrelationform":
 				element = getContextElement();
 				break;
 				
@@ -238,7 +242,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 				
 			case "editsubform":
 				element = getContextElement();
-				final String nestedId = element.getParent().getParent().getId();
+				final String nestedId = element.getParent().getParent().getId().substring(LayoutElementAttributes.PRE_SUBFORM.length());
 				Assert.stateAvailable(nestedId, "nested id");
 				final SubForm subForm = parameter.form.getSubFormByNestedEntityUid(nestedId);
 				Assert.stateAvailable(subForm, "sub form for nested " + nestedId);
@@ -302,6 +306,14 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 
 	public void setNestedEntity(NestedEntity nestedEntity) {
 		this.nestedEntity = nestedEntity;
+	}
+
+	public EntityRelation getEntityRelation() {
+		return entityRelation;
+	}
+
+	public void setEntityRelation(EntityRelation entityRelation) {
+		this.entityRelation = entityRelation;
 	}
 
 	public EntityField getEntityField() {
@@ -502,6 +514,10 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 		return subFormColumn != null 
 				? getAvailableTransformers(subFormColumn.subFormField.getEntityField())
 				: Collections.emptyList();
+	}
+	
+	public List<EntityRelation> getEntityRelations() {
+		return parameter.form.getEntity().getRelations();
 	}
 	
 	public List<Form> getDetailForms(Entity entity) {
@@ -805,6 +821,18 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 		}
 		catch (ValidationException vex) {
 			showValidationErrors(elem, "admin.layout.addsubformfail", vex.getErrors());
+		}
+	}
+	
+	@Command
+	public void addRelationForm(@BindingParam(C.ELEM) Component elem) {
+		try {
+			layoutService.addRelationForm(parameter.form, entityRelation, 
+										  parameter.layoutRoot, parameter.contextId);
+			refreshAndClose();
+		}
+		catch (ValidationException vex) {
+			showValidationErrors(elem, "admin.layout.addrelationformfail", vex.getErrors());
 		}
 	}
 	

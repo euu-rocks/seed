@@ -463,6 +463,11 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
+	public void addRelationForm(@BindingParam(CONTEXT_ID) String contextId) {
+		showDialog("/admin/form/addrelationform.zul", newDialogParameter("addrelationform", contextId));
+	}
+	
+	@Command
 	@NotifyChange("layoutInclude")
 	public void removeSubForm(@BindingParam(CONTEXT_ID) String contextId) {
 		layoutService.removeSubForm(getObject(), layoutRoot, contextId);

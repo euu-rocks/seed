@@ -18,7 +18,9 @@
 package org.seed.core.form;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
@@ -45,6 +47,7 @@ import org.seed.core.entity.EntityAccess;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityFunction;
 import org.seed.core.entity.EntityMetadata;
+import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.filter.Filter;
 import org.seed.core.entity.transform.Transformer;
@@ -112,6 +115,9 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Transient
 	private String layoutUid;
+	
+	@Transient
+	private Map<String, RelationForm> mapRelations;
 	
 	@Override
 	@XmlTransient
@@ -347,6 +353,22 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 		Assert.notNull(transformer, C.TRANSFORMER);
 		
 		getTransformers().remove(transformer);
+	}
+	
+	@Override
+	public RelationForm getRelationFormByUid(String relationUid) {
+		if (mapRelations == null) {
+			mapRelations = new HashMap<>();
+		}
+		RelationForm relationForm = mapRelations.get(relationUid);
+		if (relationForm == null) {
+			final EntityRelation relation = getEntity().getRelationByUid(relationUid);
+			Assert.stateAvailable(relation, "relation " + relationUid);
+			
+			relationForm = new RelationForm(relation);
+			mapRelations.put(relationUid, relationForm);
+		}
+		return relationForm;
 	}
 	
 	@Override
@@ -644,9 +666,19 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 		Assert.notNull(user, C.USER);
 		
 		final SubForm subForm = getSubFormByNestedEntityUid(nestedEntityUid);
-		Assert.state(subForm != null, "subForm not found  " + nestedEntityUid);
+		Assert.stateAvailable(subForm, "subForm " + nestedEntityUid);
 		return subForm.getNestedEntity().getNestedEntity()
 						.checkPermissions(user, EntityAccess.READ);
+	}
+	
+	@Override
+	public boolean isRelationFormVisible(String relationEntityUid, User user) {
+		Assert.notNull(relationEntityUid, "relationEntityUid");
+		Assert.notNull(user, C.USER);
+		
+		final EntityRelation relation = getEntity().getRelationByUid(relationEntityUid);
+		Assert.stateAvailable(relation, "relation " + relationEntityUid);
+		return relation.getRelatedEntity().checkPermissions(user, EntityAccess.READ);
 	}
 	
 	@Override

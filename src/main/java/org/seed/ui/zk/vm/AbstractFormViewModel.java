@@ -26,6 +26,7 @@ import org.seed.core.data.QueryCursor;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityFunction;
+import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.EntityService;
 import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.filter.Filter;
@@ -39,6 +40,7 @@ import org.seed.core.form.FormFieldExtra;
 import org.seed.core.form.FormPrintout;
 import org.seed.core.form.FormService;
 import org.seed.core.form.FormTransformer;
+import org.seed.core.form.RelationForm;
 import org.seed.core.form.SubForm;
 import org.seed.core.form.SubFormAction;
 import org.seed.core.form.printout.PrintoutService;
@@ -153,6 +155,10 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 		return form.isSubFormVisible(nestedEntityUid, getUser());
 	}
 	
+	public boolean isRelationFormVisible(String relationEntityUid) {
+		return form.isRelationFormVisible(relationEntityUid, getUser());
+	}
+	
 	public List<SubFormAction> getSubFormActions(String nestedEntityUid) {
 		return getSubForm(nestedEntityUid).getActions();
 	}
@@ -161,6 +167,10 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 		final SubForm subForm = form.getSubFormByNestedEntityUid(nestedEntityUid);
 		Assert.stateAvailable(subForm, "subForm for nested " + nestedEntityUid);
 		return subForm;
+	}
+	
+	public RelationForm getRelationForm(String relationFormUid) {
+		return form.getRelationFormByUid(relationFormUid);
 	}
 	
 	public String getIdentifier(ValueObject object) {
@@ -334,6 +344,11 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 				}
 			}
 		}
+	}
+	
+	void assingRelation(EntityRelation relation, ValueObject relatedObject) {
+		valueObjectService.addRelation(getObject(), relation, relatedObject);
+		notifyObjectChange(relation.getInternalName());
 	}
 	
 	void print(FormPrintout printout) {

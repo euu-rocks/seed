@@ -49,7 +49,7 @@
 	            <listitem attributes.item="@load(nested)" 
 	            		  draggable="true" droppable="true" 
 	            		  onDrop="@command('swapNesteds',item=event.dragged.attributes.item,base=nested)">
-	            	<listcell>
+	            	<listcell iconSclass="@load(empty nested.nestedEntity ? '' : 'z-icon-sitemap alpha-icon-lg')">
 	            		<label value="@load(nested.name)" 
 	            			   style="margin-left:3px"/>
 	            	</listcell>

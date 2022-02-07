@@ -29,6 +29,7 @@ import org.seed.C;
 import org.seed.core.data.FileObject;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.EntityField;
+import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.form.Form;
@@ -165,6 +166,12 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 			setStatus(getObject().getEntityStatus());
 		}
 		initFileObjects();
+	}
+	
+	@Command
+	public void addRelation(@BindingParam("relationId") String relationUid) {
+		final EntityRelation relation = getForm().getEntity().getRelationByUid(relationUid);
+		showDialog("/form/selectrelation.zul", new SelectRelationParameter(this, relation));
 	}
 	
 	@Command

@@ -18,12 +18,14 @@
 package org.seed.core.entity.value;
 
 import java.util.List;
+import java.util.Set;
 
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.data.SystemField;
 import org.seed.core.entity.EntityField;
+import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.util.Assert;
 import org.seed.core.util.BeanUtils;
@@ -36,6 +38,9 @@ import org.springframework.util.StringUtils;
 
 @Component
 public class ValueObjectAccess extends ObjectAccess {
+	
+	private static final String PRE_ADD 	= "add";
+	private static final String PRE_REMOVE	= "remove";
 	
 	@Autowired
 	private CodeManager codeManager;
@@ -88,7 +93,7 @@ public class ValueObjectAccess extends ObjectAccess {
 			final Class<?> nestedClass = codeManager.getGeneratedClass(nested.getNestedEntity());
 			final AbstractValueObject nestedObject = (AbstractValueObject) BeanUtils.instantiate(nestedClass);
 			nestedObject.setTmpId(System.currentTimeMillis());
-			callMethod(object, "add" + StringUtils.capitalize(nested.getInternalName()), nestedObject);
+			callMethod(object, PRE_ADD + StringUtils.capitalize(nested.getInternalName()), nestedObject);
 			return nestedObject;
 		} 
 		catch (Exception ex) {
@@ -101,7 +106,33 @@ public class ValueObjectAccess extends ObjectAccess {
 		Assert.notNull(nested, C.NESTED);
 		Assert.notNull(nestedObject, "nestedObject");
 		
-		callMethod(object, "remove" + StringUtils.capitalize(nested.getInternalName()), nestedObject);
+		callMethod(object, PRE_REMOVE + StringUtils.capitalize(nested.getInternalName()), nestedObject);
+	}
+	
+	public boolean hasRelatedObjects(ValueObject object, EntityRelation relation) {
+		return !ObjectUtils.isEmpty(getRelatedObjects(object, relation));
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Set<ValueObject> getRelatedObjects(ValueObject object, EntityRelation relation) {
+		Assert.notNull(object, C.OBJECT);
+		Assert.notNull(relation, C.RELATION);
+		
+		return (Set<ValueObject>) callGetter(object, relation.getInternalName());
+	}
+	
+	public void addRelatedObject(ValueObject object, EntityRelation relation, ValueObject relatedObject) {
+		Assert.notNull(object, C.OBJECT);
+		Assert.notNull(relation, C.RELATION);
+		
+		callMethod(object, PRE_ADD + StringUtils.capitalize(relation.getInternalName()), relatedObject);
+	}
+	
+	public void removeRelatedEntity(ValueObject object, EntityRelation relation, ValueObject relatedObject) {
+		Assert.notNull(object, C.OBJECT);
+		Assert.notNull(relation, C.RELATION);
+		
+		callMethod(object, PRE_REMOVE + StringUtils.capitalize(relation.getInternalName()), relatedObject);
 	}
 	
 }

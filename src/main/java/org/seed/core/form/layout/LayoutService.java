@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.EntityField;
+import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormLayout;
@@ -83,6 +84,8 @@ public interface LayoutService {
 	void removeTab(Form form, LayoutElement layoutRoot, String contextId);
 	
 	void addSubForm(Form form, NestedEntity nested, LayoutElement layoutRoot, String contextId) throws ValidationException;
+	
+	void addRelationForm(Form form, EntityRelation relation, LayoutElement layoutRoot, String contextId) throws ValidationException;
 	
 	void removeSubForm(Form form, LayoutElement layoutRoot, String contextId);
 	

@@ -74,6 +74,9 @@ public class LayoutElementAttributes {
 	public static final String A_VISIBLE       = "visible";
 	public static final String A_WIDTH         = "width";
 	
+	public static final String PRE_SUBFORM     = "sub_";
+	public static final String PRE_RELATION    = "rel_";
+	
 	public static final String V_0             = "0";
 	public static final String V_1             = "1";
 	public static final String V_MIN           = "min";

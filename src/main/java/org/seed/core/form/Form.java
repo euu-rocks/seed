@@ -73,6 +73,8 @@ public interface Form extends ApplicationEntity {
 	
 	SubForm getSubFormByNestedEntityUid(String nestedEntityUid);
 	
+	RelationForm getRelationFormByUid(String relationFormUid);
+	
 	boolean isFieldVisible(EntityField entityField, EntityStatus status, User user);
 	
 	boolean isFieldReadonly(EntityField entityField, EntityStatus status, User user);
@@ -124,6 +126,8 @@ public interface Form extends ApplicationEntity {
 	boolean hasSubForms();
 	
 	boolean isSubFormVisible(String nestedEntityUid, User user);
+	
+	boolean isRelationFormVisible(String relationEntityUid, User user);
 	
 	void addSubForm(SubForm subForm);
 	

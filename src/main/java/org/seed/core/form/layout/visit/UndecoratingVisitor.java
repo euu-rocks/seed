@@ -23,12 +23,14 @@ import static org.seed.core.form.layout.LayoutElementAttributes.*;
 
 import org.seed.C;
 import org.seed.core.entity.EntityField;
+import org.seed.core.entity.EntityRelation;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormFieldExtra;
 import org.seed.core.form.SubForm;
 import org.seed.core.form.SubFormField;
 import org.seed.core.form.layout.BorderLayoutArea;
 import org.seed.core.form.layout.LayoutElement;
+import org.seed.core.form.layout.LayoutElementAttributes;
 import org.seed.core.form.layout.LayoutElementClass;
 import org.seed.core.util.Assert;
 
@@ -69,7 +71,12 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 				
 			case LayoutElement.BORDERLAYOUT:
 				if (element.getId() != null) {
-					createSubForm(element);
+					if (element.getId().startsWith(LayoutElementAttributes.PRE_SUBFORM)) {
+						createSubForm(element);
+					}
+					else if (element.getId().startsWith(LayoutElementAttributes.PRE_RELATION)) {
+						createRelationForm(element);
+					}
 				}
 				break;
 				
@@ -223,8 +230,36 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 		}
 	}
 	
+	private void createRelationForm(LayoutElement element) {
+		final EntityRelation relation = getRelation(element);
+		element.setAttribute(A_VISIBLE, load("vm.isRelationFormVisible('" + relation.getUid() + "')"));
+		final LayoutElement elemListBox = element.getChild(LayoutElement.CENTER).getChild(LayoutElement.LISTBOX);
+		elemListBox.setAttribute(A_MODEL, load("vm.object." + relation.getInternalName()));
+		elemListBox.setAttribute(A_SELECTEDITEM, bind(selectedRelationFormObject(relation)));
+		elemListBox.setAttribute("nonselectableTags", "");
+		elemListBox.setAttribute(A_AUTOPAGING, V_TRUE);
+		elemListBox.setAttribute(A_MOLD, "paging");
+		
+		// actions
+		final LayoutElement elemNorth = element.addChild(createBorderLayoutArea(BorderLayoutArea.NORTH), 0);
+		final LayoutElement elemToolbar = elemNorth.addChild(new LayoutElement(LayoutElement.TOOLBAR));
+		elemToolbar.addChild(createToolbarButton(getLabel("button.add"), 
+												 "'addRelation',relationId='" + relation.getUid() + '\'',
+												 "z-icon-plus alpha-icon-lg"));
+		final LayoutElement elemButtonRemove = elemToolbar.addChild(createToolbarButton(getLabel("button.remove"), 
+												 "'removeRelation',relationId='" + relation.getUid() + '\'',
+												 "z-icon-minus alpha-icon-lg"));
+		elemButtonRemove.setAttribute(A_VISIBLE, load("!empty " + selectedRelationFormObject(relation)));
+		
+		// values
+		final LayoutElement elemListitem = elemListBox.addChild(createTemplate(A_MODEL, relation.getInternalName()))
+													  .addChild(createListItem(null));
+		final LayoutElement elemCell = elemListitem.addChild(new LayoutElement(LayoutElement.LISTCELL));
+		final LayoutElement elemLabel = elemCell.addChild(new LayoutElement(LayoutElement.LABEL));
+		elemLabel.setAttribute(A_VALUE, load(identifier(relation.getInternalName())));
+	}
+	
 	private void createSubForm(LayoutElement element) {
-		// create sub form
 		final SubForm subForm = getSubForm(element);
 		element.setAttribute(A_VISIBLE, load("vm.isSubFormVisible('" + subForm.getNestedEntity().getUid() + "')"));
 		final LayoutElement elemListBox = element.getChild(LayoutElement.CENTER).getChild(LayoutElement.LISTBOX);
@@ -489,6 +524,10 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 	
 	private static String selectedSubFormObject(SubForm subForm) {
 		return "vm.getSubForm('" + subForm.getNestedEntity().getUid() + "').selectedObject";
+	}
+	
+	private static String selectedRelationFormObject(EntityRelation relation) {
+		return "vm.getRelationForm('" + relation.getUid() + "').selectedObject";
 	}
 	
 }
