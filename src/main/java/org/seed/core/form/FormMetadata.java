@@ -904,6 +904,12 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 		}
 	}
 	
+	public void clearRelationForms() {
+		if (mapRelations != null) {
+			mapRelations.clear();
+		}
+	}
+	
 	void createLists() {
 		fields = new ArrayList<>();
 		transformers = new ArrayList<>();

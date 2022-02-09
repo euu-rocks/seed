@@ -260,7 +260,16 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		Assert.notNull(relation, C.RELATION);
 		final ValidationErrors errors = new ValidationErrors();
 		
-		// TODO
+		for (EntityDependent<? extends SystemEntity> dependent : getEntityDependents()) {
+			for (SystemEntity systemEntity : dependent.findUsage(relation)) {
+				if (C.FORM.equals(getEntityType(systemEntity))) {
+					errors.addError("val.inuse.relationform", systemEntity.getName());
+				}
+				else {
+					unhandledEntity(systemEntity);
+				}
+			}
+		}
 		
 		validate(errors);
 	}

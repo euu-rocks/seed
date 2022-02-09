@@ -301,6 +301,11 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	@Override
+	public List<Entity> findUsage(EntityRelation entityRelation) {
+		return Collections.emptyList();
+	}
+	
+	@Override
 	public FieldType[] getAvailableFieldTypes(Entity entity, EntityField field, boolean existObjects) {
 		Assert.notNull(entity, C.ENTITY);
 		

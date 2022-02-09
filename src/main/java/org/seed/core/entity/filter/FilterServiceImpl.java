@@ -44,6 +44,7 @@ import org.seed.core.entity.EntityDependent;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityFieldGroup;
 import org.seed.core.entity.EntityFunction;
+import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.EntityService;
 import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.NestedEntity;
@@ -396,6 +397,11 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	
 	@Override
 	public List<Filter> findUsage(NestedEntity nestedEntity) {
+		return Collections.emptyList();
+	}
+	
+	@Override
+	public List<Filter> findUsage(EntityRelation entityRelation) {
 		return Collections.emptyList();
 	}
 	

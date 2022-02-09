@@ -45,9 +45,11 @@ public interface LayoutService {
 	
 	LayoutElement getElementByContextId(LayoutElement layoutRoot, String contextId);
 	
-	List<String> getFieldIdList(FormLayout formLayout);
+	List<String> getIdList(FormLayout formLayout);
 	
 	boolean containsField(FormLayout formLayout, EntityField entityField);
+	
+	boolean containsRelation(FormLayout formLayout, EntityRelation relation);
 	
 	List<EntityField> getAvailableEntityFields(Form form, LayoutElement layoutRoot);
 	

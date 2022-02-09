@@ -37,6 +37,7 @@ import org.seed.core.form.Form;
 import org.seed.core.form.FormAction;
 import org.seed.core.form.FormActionType;
 import org.seed.core.form.FormFieldExtra;
+import org.seed.core.form.FormMetadata;
 import org.seed.core.form.FormPrintout;
 import org.seed.core.form.FormService;
 import org.seed.core.form.FormTransformer;
@@ -334,6 +335,18 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 		return subForm;
 	}
 	
+	protected void resetSubForms() {
+		if (getForm().hasSubForms()) {
+			for (SubForm subForm : getForm().getSubForms()) {
+				subForm.setSelectedObject(null);
+			}
+		}
+	}
+	
+	protected void resetRelationForms() {
+		((FormMetadata) getForm()).clearRelationForms();
+	}
+	
 	protected void closeComponent(Component component) {
 		if (component instanceof Listbox) {
 			component = component.getParent();
@@ -349,6 +362,14 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 	void assingRelation(EntityRelation relation, ValueObject relatedObject) {
 		valueObjectService.addRelation(getObject(), relation, relatedObject);
 		notifyObjectChange(relation.getInternalName());
+		flagDirty();
+	}
+	
+	void removeRelationObject(EntityRelation relation) {
+		final ValueObject relatedObject = getRelationForm(relation.getUid()).getSelectedObject();
+		valueObjectService.removeRelation(getObject(), relation, relatedObject);
+		notifyObjectChange(relation.getInternalName());
+		flagDirty();
 	}
 	
 	void print(FormPrintout printout) {

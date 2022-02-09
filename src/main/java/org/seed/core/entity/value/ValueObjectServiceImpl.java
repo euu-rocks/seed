@@ -643,6 +643,11 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
+	public List<SystemEntity> findUsage(EntityRelation entityRelation) {
+		return Collections.emptyList();
+	}
+	
+	@Override
 	public List<Entity> findUsage(ValueObject object) {
 		final List<Entity> result = new ArrayList<>();
 		final Entity entity = repository.getEntity(object);

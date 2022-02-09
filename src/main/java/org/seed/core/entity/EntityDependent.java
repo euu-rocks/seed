@@ -35,4 +35,6 @@ public interface EntityDependent<T extends SystemEntity> {
 	
 	List<T> findUsage(NestedEntity nestedEntity);
 	
+	List<T> findUsage(EntityRelation entityRelation);
+	
 }

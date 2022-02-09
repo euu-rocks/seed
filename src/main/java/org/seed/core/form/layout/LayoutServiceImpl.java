@@ -52,7 +52,7 @@ import org.seed.core.form.FormSettings;
 import org.seed.core.form.SubForm;
 import org.seed.core.form.SubFormField;
 import org.seed.core.form.layout.BorderLayoutProperties.LayoutAreaProperties;
-import org.seed.core.form.layout.visit.CollectFieldIdVisitor;
+import org.seed.core.form.layout.visit.CollectIdVisitor;
 import org.seed.core.form.layout.visit.DecoratingVisitor;
 import org.seed.core.form.layout.visit.FindElementVisitor;
 import org.seed.core.form.layout.visit.SearchDecoratingVisitor;
@@ -71,6 +71,11 @@ import org.xml.sax.SAXException;
 public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	
 	private static final Logger log = LoggerFactory.getLogger(LayoutServiceImpl.class);
+	
+	private static final String PATH_LIST   = "/list";		//NOSONAR
+	private static final String PATH_DETAIL = "/detail/";	//NOSONAR
+	private static final String PATH_EDIT   = "/edit/";		//NOSONAR
+	private static final String PATH_SEARCH = "/search/";	//NOSONAR
 	
 	@Autowired
 	private FormService formService;
@@ -99,23 +104,23 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(path, C.PATH);
 		
 		String content = null;
-		if (path.startsWith("/list")) {
+		if (path.startsWith(PATH_LIST)) {
 			final Long formId = Long.parseLong(path.substring(path.lastIndexOf('/') + 1));
 			content = buildListFormLayout(getForm(formId), settings);
 		}
-		else if (path.startsWith("/detail/")) {
-			final Long formId = Long.parseLong(path.substring(8));
+		else if (path.startsWith(PATH_DETAIL)) {
+			final Long formId = Long.parseLong(path.substring(PATH_DETAIL.length()));
 			content = getForm(formId).getLayout().getContent();
 		}
-		else if (path.startsWith("/edit/")) {
-			final String username = path.substring(6, path.lastIndexOf('/'));
+		else if (path.startsWith(PATH_EDIT)) {
+			final String username = path.substring(PATH_EDIT.length(), path.lastIndexOf('/'));
 			final LayoutElement layout = getEditLayout(username);
 			if (layout != null) {
 				content = buildLayout(layout);
 			}
 		}
-		else if (path.startsWith("/search/")) {
-			final Long formId = Long.parseLong(path.substring(8));
+		else if (path.startsWith(PATH_SEARCH)) {
+			final Long formId = Long.parseLong(path.substring(PATH_SEARCH.length()));
 			final LayoutElement layout = getSearchLayout(getForm(formId));
 			if (layout != null) {
 				content = buildLayout(layout);
@@ -192,23 +197,31 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	}
 	
 	@Override
-	public List<String> getFieldIdList(FormLayout formLayout) {
-		Assert.notNull(formLayout, "formLayout");
+	public List<String> getIdList(FormLayout formLayout) {
+		Assert.notNull(formLayout, C.FORMLAYOUT);
 		
 		if (formLayout.getContent() != null) {
-			final CollectFieldIdVisitor visitor = new CollectFieldIdVisitor();
+			final CollectIdVisitor visitor = new CollectIdVisitor();
 			parseLayout(formLayout).accept(visitor);
-			return visitor.getFieldIdList();
+			return visitor.getIdList();
 		}
 		return Collections.emptyList();
 	}
 	
 	@Override
 	public boolean containsField(FormLayout formLayout, EntityField entityField) {
-		Assert.notNull(formLayout, "formLayout");
+		Assert.notNull(formLayout, C.FORMLAYOUT);
 		Assert.notNull(entityField, C.ENTITYFIELD);
 		
-		return getFieldIdList(formLayout).contains(entityField.getUid());
+		return getIdList(formLayout).contains(entityField.getUid());
+	}
+	
+	@Override
+	public boolean containsRelation(FormLayout formLayout, EntityRelation relation) {
+		Assert.notNull(formLayout, C.FORMLAYOUT);
+		Assert.notNull(relation, C.RELATION);
+		
+		return getIdList(formLayout).contains(LayoutElementAttributes.PRE_RELATION + relation.getUid());
 	}
 	
 	@Override
@@ -217,10 +230,10 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(layoutRoot, C.LAYOUTROOT);
 		
 		final List<EntityField> fields = new ArrayList<>();
-		final CollectFieldIdVisitor visitor = new CollectFieldIdVisitor();
+		final CollectIdVisitor visitor = new CollectIdVisitor();
 		layoutRoot.accept(visitor);
 		for (EntityField entityField : form.getEntity().getAllFields()) {
-			if (!visitor.getFieldIdList().contains(entityField.getUid())) {
+			if (!visitor.getIdList().contains(entityField.getUid())) {
 				fields.add(entityField);
 			}
 		}
@@ -673,7 +686,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		// build layout
 		((FormMetadata) form).clearSubForms();
 		final LayoutElement elemZK = createZK();
-		if (entity.hasAllNesteds()) {
+		if (entity.hasAllNesteds() || entity.hasAllRelations()) {
 			buildAutoLayoutSubForms(form, elemZK, elemMainGrid);
 		}
 		else if (elemMainGrid != null) {
@@ -769,16 +782,25 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		elemTabbox.setClass(LayoutElementClass.TABBOX);
 		final LayoutElement elemTabs = elemTabbox.addChild(new LayoutElement(LayoutElement.TABS));
 		final LayoutElement elemPanels = elemTabbox.addChild(new LayoutElement(LayoutElement.TABPANELS));
-		for (NestedEntity nested : form.getEntity().getAllNesteds()) {
-			try {
-				final SubForm subForm = formService.addSubForm(form, nested);
-				elemTabs.addChild(createTab(nested.getName()));
-				buildSubForm(subForm, elemPanels.addChild(createTabpanel()));
-			}
-			catch (ValidationException ve) {
-				throw new InternalException(ve);
+		if (form.getEntity().hasAllNesteds()) {
+			for (NestedEntity nested : form.getEntity().getAllNesteds()) {
+				try {
+					final SubForm subForm = formService.addSubForm(form, nested);
+					elemTabs.addChild(createTab(nested.getName()));
+					buildSubForm(subForm, elemPanels.addChild(createTabpanel()));
+				}
+				catch (ValidationException ve) {
+					throw new InternalException(ve);
+				}
 			}
 		}
+		if (form.getEntity().hasAllRelations()) {
+			for (EntityRelation relation : form.getEntity().getAllRelations()) {
+				elemTabs.addChild(createTab(relation.getName()));
+				buildRelationForm(relation, elemPanels.addChild(createTabpanel()));
+			}
+		}
+		
 		elemLayout.addChild(createBorderLayoutArea(BorderLayoutArea.CENTER)).addChild(elemTabbox);
 	}
 	

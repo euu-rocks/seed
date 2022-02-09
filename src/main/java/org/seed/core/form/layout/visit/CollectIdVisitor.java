@@ -23,18 +23,18 @@ import java.util.List;
 import org.seed.core.form.layout.LayoutElement;
 import org.seed.core.form.layout.LayoutVisitor;
 
-public class CollectFieldIdVisitor implements LayoutVisitor {
+public class CollectIdVisitor implements LayoutVisitor {
 	
-	private final List<String> fieldIdList = new ArrayList<>();
+	private final List<String> idList = new ArrayList<>();
 
-	public List<String> getFieldIdList() {
-		return fieldIdList;
+	public List<String> getIdList() {
+		return idList;
 	}
 
 	@Override
 	public void visit(LayoutElement element) {
 		if (element.getId() != null) {
-			fieldIdList.add(element.getId());
+			idList.add(element.getId());
 		}
 	}
 

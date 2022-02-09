@@ -223,6 +223,22 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	@Override
+	public List<Form> findUsage(EntityRelation entityRelation) {
+		Assert.notNull(entityRelation, C.RELATION);
+		
+		final List<Form> result = new ArrayList<>();
+		for (Form form : getObjects()) {
+			if (form.isAutoLayout()) {
+				continue;
+			}
+			if (getLayoutService().containsRelation(form.getLayout(), entityRelation)) {
+				result.add(form);
+			}
+		}
+		return result;
+	}
+	
+	@Override
 	public List<Form> findUsage(EntityFieldGroup fieldGroup) {
 		return Collections.emptyList();
 	}
@@ -971,7 +987,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	private void cleanupFieldExtras(Form form) {
-		final List<String> fieldIds = getLayoutService().getFieldIdList(form.getLayout());
+		final List<String> fieldIds = getLayoutService().getIdList(form.getLayout());
 		form.getFieldExtras().removeIf(extra -> !fieldIds.contains(extra.getEntityField().getUid()));
 	}
 	

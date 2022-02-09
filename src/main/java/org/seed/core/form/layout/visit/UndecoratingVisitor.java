@@ -71,12 +71,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 				
 			case LayoutElement.BORDERLAYOUT:
 				if (element.getId() != null) {
-					if (element.getId().startsWith(LayoutElementAttributes.PRE_SUBFORM)) {
-						createSubForm(element);
-					}
-					else if (element.getId().startsWith(LayoutElementAttributes.PRE_RELATION)) {
-						createRelationForm(element);
-					}
+					visitBorderLayout(element);
 				}
 				break;
 				
@@ -136,6 +131,15 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 				break;
 		}
 		element.setDecorated(false);
+	}
+	
+	private void visitBorderLayout(LayoutElement element) {
+		if (element.getId().startsWith(LayoutElementAttributes.PRE_SUBFORM)) {
+			createSubForm(element);
+		}
+		else if (element.getId().startsWith(LayoutElementAttributes.PRE_RELATION)) {
+			createRelationForm(element);
+		}
 	}
 	
 	private void visitCell(LayoutElement element) {
@@ -234,8 +238,9 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 		final EntityRelation relation = getRelation(element);
 		element.setAttribute(A_VISIBLE, load("vm.isRelationFormVisible('" + relation.getUid() + "')"));
 		final LayoutElement elemListBox = element.getChild(LayoutElement.CENTER).getChild(LayoutElement.LISTBOX);
-		elemListBox.setAttribute(A_MODEL, load("vm.object." + relation.getInternalName()));
+		elemListBox.setAttribute(A_MODEL, load(objectProperty(relation.getInternalName())));
 		elemListBox.setAttribute(A_SELECTEDITEM, bind(selectedRelationFormObject(relation)));
+		elemListBox.setAttribute(A_ONSELECT, command("'selectRelationFormObject'"));
 		elemListBox.setAttribute("nonselectableTags", "");
 		elemListBox.setAttribute(A_AUTOPAGING, V_TRUE);
 		elemListBox.setAttribute(A_MOLD, "paging");
@@ -263,7 +268,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 		final SubForm subForm = getSubForm(element);
 		element.setAttribute(A_VISIBLE, load("vm.isSubFormVisible('" + subForm.getNestedEntity().getUid() + "')"));
 		final LayoutElement elemListBox = element.getChild(LayoutElement.CENTER).getChild(LayoutElement.LISTBOX);
-		elemListBox.setAttribute(A_MODEL, load("vm.object." + subForm.getNestedEntity().getInternalName()));
+		elemListBox.setAttribute(A_MODEL, load(objectProperty(subForm.getNestedEntity().getInternalName())));
 		elemListBox.setAttribute(A_SELECTEDITEM, bind(selectedSubFormObject(subForm)));
 		elemListBox.setAttribute(A_ONSELECT, command("'selectSubFormObject'"));
 		elemListBox.setAttribute("nonselectableTags", "");
@@ -490,12 +495,16 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 		return value;
 	}
 	
-	private static String identifier(String name) {
-		return "vm.getIdentifier(" + name + ')';
+	private static String propertyName(EntityField entityField) {
+		return objectProperty(entityField.getInternalName());
 	}
 	
-	private static String propertyName(EntityField entityField) {
-		return "vm.object." + entityField.getInternalName();
+	private static String objectProperty(String propertyName) {
+		return "vm.object." + propertyName;
+	}
+	
+	private static String identifier(String name) {
+		return "vm.getIdentifier(" + name + ')';
 	}
 	
 	private static String not(String expression) {

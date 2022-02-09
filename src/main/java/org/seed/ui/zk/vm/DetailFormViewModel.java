@@ -166,12 +166,19 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 			setStatus(getObject().getEntityStatus());
 		}
 		initFileObjects();
+		resetRelationForms();
 	}
 	
 	@Command
 	public void addRelation(@BindingParam("relationId") String relationUid) {
 		final EntityRelation relation = getForm().getEntity().getRelationByUid(relationUid);
 		showDialog("/form/selectrelation.zul", new SelectRelationParameter(this, relation));
+	}
+	
+	@Command
+	public void removeRelation(@BindingParam("relationId") String relationUid) {
+		final EntityRelation relation = getForm().getEntity().getRelationByUid(relationUid);
+		removeRelationObject(relation);
 	}
 	
 	@Command
@@ -341,6 +348,12 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 		// do nothing, just notify
 	}
 	
+	@Command
+	@NotifyChange("getRelationForm")
+	public void selectRelationFormObject() {
+		// do nothing, just notify
+	}
+	
 	@Override
 	protected String getLayoutPath() {
 		return "/detail";
@@ -430,6 +443,8 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	
 	private void reset() {
 		resetDirty();
+		resetSubForms();
+		resetRelationForms();
 		notifyChangeAll();
 	}
 	
