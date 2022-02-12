@@ -145,4 +145,6 @@ public interface Form extends ApplicationEntity {
 	
 	void removeFieldExtra(FormFieldExtra fieldExtra);
 	
+	void removeRelationForm(RelationForm relationForm);
+	
 }

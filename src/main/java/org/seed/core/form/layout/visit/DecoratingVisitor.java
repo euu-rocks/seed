@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.seed.core.form.Form;
 import org.seed.core.form.layout.LayoutElement;
+import org.seed.core.form.layout.LayoutElementAttributes;
 import org.seed.core.form.layout.LayoutElementClass;
 
 public class DecoratingVisitor extends AbstractLayoutVisitor {
@@ -137,7 +138,7 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 				
 			case LayoutElement.BORDERLAYOUT:
 				if (element.getId() == null) {
-					break;	// no subform
+					break;	// no sub- or relation form
 				}
 				element.removeAttribute(A_VISIBLE);
 				final LayoutElement elemListBox = element.getChild(LayoutElement.CENTER).getChild(LayoutElement.LISTBOX);
@@ -148,7 +149,13 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 				elemListBox.removeAttribute(A_MOLD);
 				elemListBox.removeChildren(A_TEMPLATE);
 				element.removeChildren(LayoutElement.NORTH);
-				addRootChild(createSubFormMenuPopup(elemListBox));
+				
+				if (element.getId().startsWith(LayoutElementAttributes.PRE_SUBFORM)) {
+					addRootChild(createSubFormMenuPopup(elemListBox));
+				}
+				else if (element.getId().startsWith(LayoutElementAttributes.PRE_RELATION)) {
+					addRootChild(createRelationFormMenuPopup(elemListBox));
+				}
 				break;
 			
 			case LayoutElement.TAB:
@@ -212,7 +219,7 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 	}
 	
 	private LayoutElement createCellMenuPopup(LayoutElement element) {
-		final List<LayoutElement> menus = new ArrayList<>();
+		final List<LayoutElement> menus = new ArrayList<>(8);
 		
 		if (!element.hasChildren()) {
 			if (fieldsAvailable()) {
@@ -237,10 +244,12 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 	}
 	
 	private static LayoutElement createBorderLayoutMenuPopup(LayoutElement element) {
-		final List<LayoutElement> menus = new ArrayList<>();
+		final List<LayoutElement> menus = new ArrayList<>(8);
 		if (element.isEmpty()) {
 			menus.add(createMenuItem("admin.layout.addsubform", ICON_LIST,
  	   		  						 "'addSubForm',contextid='" + element.getContext() + '\''));
+			menus.add(createMenuItem("admin.layout.addrelationform", ICON_LINK,
+	  			 		 			 "'addRelationForm',contextid='" + element.getContext() + '\''));
 			menus.add(createMenuItem("admin.layout.addlayout", ICON_NEWSPAPER,
 		 	   	   	   	   			 "'addLayout',contextid='" + element.getContext() + '\''));
 			menus.add(createMenuItem(LABEL_ADDTAB, ICON_FOLDER,
@@ -252,7 +261,7 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 	}
 	
 	private static LayoutElement createLayoutAreaMenu(String contextId, boolean isAreaEmpty) {
-		final List<LayoutElement> menus = new ArrayList<>();
+		final List<LayoutElement> menus = new ArrayList<>(4);
 		
 		menus.add(createMenuItem("admin.layout.editarea", ICON_WRENCH,
 								 "'editBorderLayoutArea',contextid='" + contextId + '\''));
@@ -265,7 +274,7 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 	}
 		
 	private static LayoutElement createBorderLayoutMenu(String contextId, boolean isRootLayout) {
-		final List<LayoutElement> menus = new ArrayList<>();
+		final List<LayoutElement> menus = new ArrayList<>(4);
 		
 		menus.add(createMenuItem("admin.layout.editlayout", ICON_WRENCH,
 		 	   	   				 "'editBorderLayout',contextid='" + contextId + '\''));
@@ -279,7 +288,7 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 	}
 	
 	private static LayoutElement createLabelMenuPopup(LayoutElement element) {
-		final List<LayoutElement> menus = new ArrayList<>();
+		final List<LayoutElement> menus = new ArrayList<>(4);
 		
 		menus.add(createMenu("label.text", "z-icon-paragraph",
 				createMenuItem("admin.layout.edittext", ICON_WRENCH,
@@ -292,7 +301,7 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 	}
 	
 	private static LayoutElement createFieldMenuPopup(LayoutElement element) {
-		final List<LayoutElement> menus = new ArrayList<>();
+		final List<LayoutElement> menus = new ArrayList<>(4);
 		
 		menus.add(createMenu("label.field", "z-icon-edit",
 				createMenuItem("admin.layout.editfield", ICON_WRENCH,
@@ -305,18 +314,27 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 	}
 	
 	private static LayoutElement createSubFormMenuPopup(LayoutElement element) {
-		final List<LayoutElement> menus = new ArrayList<>();
+		final List<LayoutElement> menus = new ArrayList<>(2);
 		
 		menus.add(createMenu("label.subform", ICON_LIST,
 				createMenuItem("admin.layout.editsubform", ICON_WRENCH,
-	 				 	   "'editSubForm',contextid='" + element.getContext() + '\''),
+							   "'editSubForm',contextid='" + element.getContext() + '\''),
 				createMenuItem("admin.layout.removesubform", ICON_REMOVE,
-	  				 	   "'removeSubForm',contextid='" + element.getContext() + '\'')));
+							   "'removeSubForm',contextid='" + element.getContext() + '\'')));
+		return createPopupMenu(element.getContext(), menus);
+	}
+	
+	private static LayoutElement createRelationFormMenuPopup(LayoutElement element) {
+		final List<LayoutElement> menus = new ArrayList<>(2);
+		
+		menus.add(createMenu("label.relation", ICON_LINK,
+				  createMenuItem("admin.layout.removerelation", ICON_REMOVE,
+	  				 			 "'removeRelationForm',contextid='" + element.getContext() + '\'')));
 		return createPopupMenu(element.getContext(), menus);
 	}
 	
 	private static LayoutElement createTabPanelPopupMenu(LayoutElement element) {
-		final List<LayoutElement> menus = new ArrayList<>();
+		final List<LayoutElement> menus = new ArrayList<>(6);
 		
 		menus.add(createMenuItem("admin.layout.addlayout", ICON_NEWSPAPER,
 		 	   	   	   	   		 "'addLayout',contextid='" + element.getContext() + '\''));

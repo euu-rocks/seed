@@ -18,6 +18,7 @@
 package org.seed.core.form.layout;
 
 import java.util.List;
+import java.util.Set;
 
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.EntityField;
@@ -45,7 +46,7 @@ public interface LayoutService {
 	
 	LayoutElement getElementByContextId(LayoutElement layoutRoot, String contextId);
 	
-	List<String> getIdList(FormLayout formLayout);
+	Set<String> getIdSet(FormLayout formLayout);
 	
 	boolean containsField(FormLayout formLayout, EntityField entityField);
 	
@@ -54,6 +55,8 @@ public interface LayoutService {
 	List<EntityField> getAvailableEntityFields(Form form, LayoutElement layoutRoot);
 	
 	List<NestedEntity> getAvailableNesteds(Form form, LayoutElement layoutRoot);
+	
+	List<EntityRelation> getAvailableRelations(Form form, LayoutElement layoutRoot);
 	
 	LayoutElement createGridLayout(Integer columns, Integer rows) throws ValidationException;
 	
@@ -90,6 +93,8 @@ public interface LayoutService {
 	void addRelationForm(Form form, EntityRelation relation, LayoutElement layoutRoot, String contextId) throws ValidationException;
 	
 	void removeSubForm(Form form, LayoutElement layoutRoot, String contextId);
+	
+	void removeRelationForm(Form form, LayoutElement layoutRoot, String contextId);
 	
 	void newColumnLeft(Form form, LayoutElement layoutRoot, String contextId);
 	

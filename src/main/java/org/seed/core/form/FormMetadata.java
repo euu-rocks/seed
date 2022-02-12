@@ -272,7 +272,9 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	public void removeField(FormField field) {
 		Assert.notNull(field, C.FIELD);
 		
-		getFields().remove(field);
+		if (hasFields()) {
+			getFields().remove(field);
+		}
 	}
 	
 	public boolean hasSubForms() {
@@ -294,7 +296,18 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	public void removeSubForm(SubForm subForm) {
 		Assert.notNull(subForm, C.SUBFORM);
 		
-		subForms.remove(subForm);
+		if (hasSubForms()) {
+			subForms.remove(subForm);
+		}
+	}
+	
+	@Override
+	public void removeRelationForm(RelationForm relationForm) {
+		Assert.notNull(relationForm, "relation form");
+		
+		if (mapRelations != null) {
+			mapRelations.remove(relationForm.getUid());
+		}
 	}
 	
 	@Override
@@ -317,7 +330,9 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	public void removePrintout(FormPrintout printout) {
 		Assert.notNull(printout, C.PRINTOUT);
 		
-		getPrintouts().remove(printout);
+		if (hasPrintouts()) {
+			getPrintouts().remove(printout);
+		}
 	}
 	
 	@Override
@@ -339,7 +354,9 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	public void removeAction(FormAction action) {
 		Assert.notNull(action, C.ACTION);
 		
-		getActions().remove(action);
+		if (hasActions()) {
+			getActions().remove(action);
+		}
 	}
 	
 	@Override
@@ -361,7 +378,9 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	public void removeTransformer(FormTransformer transformer) {
 		Assert.notNull(transformer, C.TRANSFORMER);
 		
-		getTransformers().remove(transformer);
+		if (hasTransformers()) {
+			getTransformers().remove(transformer);
+		}
 	}
 	
 	@Override
@@ -753,7 +772,9 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	public void removeFieldExtra(FormFieldExtra fieldExtra) {
 		Assert.notNull(fieldExtra, "fieldExtra");
 		
-		getFieldExtras().remove(fieldExtra);
+		if (hasFieldExtras()) {
+			getFieldExtras().remove(fieldExtra);
+		}
 	}
 	
 	public void setLayoutContent(String content) {

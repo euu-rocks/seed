@@ -40,6 +40,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class EntityRelation extends AbstractOrderedTransferableObject  {
 	
+	private static final String SUFFIX_ID = "_id";
+	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "entity_id")
 	@JsonIgnore
@@ -118,12 +120,12 @@ public class EntityRelation extends AbstractOrderedTransferableObject  {
 	
 	@JsonIgnore
 	public String getJoinColumnName() {
-		return entity.getInternalName().toLowerCase() + "_id";
+		return entity.getInternalName().toLowerCase() + SUFFIX_ID;
 	}
 	
 	@JsonIgnore
 	public String getInverseJoinColumnName() {
-		return relatedEntity.getInternalName().toLowerCase() + "_id";
+		return relatedEntity.getInternalName().toLowerCase() + SUFFIX_ID;
 	}
 	
 	public EntityRelation createNewInverseRelation(Entity relatedEntity) {

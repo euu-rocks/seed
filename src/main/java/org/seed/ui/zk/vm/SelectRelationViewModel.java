@@ -85,12 +85,15 @@ public class SelectRelationViewModel extends AbstractViewModel {
 	}
 	
 	public List<ValueObject> getAvailableRelations() {
-		return valueObjectService.getAvailableRelationObjects(parentVM.getObject(), relation);
+		final List<ValueObject> relations = 
+				valueObjectService.getAvailableRelationObjects(parentVM.getObject(), relation);
+		valueObjectService.sortObjects(relations);
+		return relations;
 	}
 	
 	@Command
 	public void addRelation(@BindingParam(C.ELEM) Component elem) {
-		parentVM.assingRelation(relation, selectedObject);
+		parentVM.addRelationObject(relation, selectedObject);
 		window.detach();
 	}
 	

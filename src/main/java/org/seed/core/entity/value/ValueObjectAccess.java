@@ -129,7 +129,7 @@ public class ValueObjectAccess extends ObjectAccess {
 		callMethod(object, PRE_ADD + StringUtils.capitalize(relation.getInternalName()), relatedObject);
 	}
 	
-	public void removeRelatedEntity(ValueObject object, EntityRelation relation, ValueObject relatedObject) {
+	public void removeRelatedObject(ValueObject object, EntityRelation relation, ValueObject relatedObject) {
 		Assert.notNull(object, C.OBJECT);
 		Assert.notNull(relation, C.RELATION);
 		Assert.notNull(relatedObject, "related object");

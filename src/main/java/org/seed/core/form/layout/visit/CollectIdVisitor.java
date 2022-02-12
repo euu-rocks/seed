@@ -17,24 +17,24 @@
  */
 package org.seed.core.form.layout.visit;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.seed.core.form.layout.LayoutElement;
 import org.seed.core.form.layout.LayoutVisitor;
 
 public class CollectIdVisitor implements LayoutVisitor {
 	
-	private final List<String> idList = new ArrayList<>();
+	private final Set<String> idSet = new HashSet<>();
 
-	public List<String> getIdList() {
-		return idList;
+	public Set<String> getIdSet() {
+		return idSet;
 	}
 
 	@Override
 	public void visit(LayoutElement element) {
 		if (element.getId() != null) {
-			idList.add(element.getId());
+			idSet.add(element.getId());
 		}
 	}
 

@@ -49,6 +49,7 @@ import org.seed.core.form.FormLayout;
 import org.seed.core.form.FormMetadata;
 import org.seed.core.form.FormService;
 import org.seed.core.form.FormSettings;
+import org.seed.core.form.RelationForm;
 import org.seed.core.form.SubForm;
 import org.seed.core.form.SubFormField;
 import org.seed.core.form.layout.BorderLayoutProperties.LayoutAreaProperties;
@@ -197,15 +198,15 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	}
 	
 	@Override
-	public List<String> getIdList(FormLayout formLayout) {
+	public Set<String> getIdSet(FormLayout formLayout) {
 		Assert.notNull(formLayout, C.FORMLAYOUT);
 		
 		if (formLayout.getContent() != null) {
 			final CollectIdVisitor visitor = new CollectIdVisitor();
 			parseLayout(formLayout).accept(visitor);
-			return visitor.getIdList();
+			return visitor.getIdSet();
 		}
-		return Collections.emptyList();
+		return Collections.emptySet();
 	}
 	
 	@Override
@@ -213,7 +214,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(formLayout, C.FORMLAYOUT);
 		Assert.notNull(entityField, C.ENTITYFIELD);
 		
-		return getIdList(formLayout).contains(entityField.getUid());
+		return getIdSet(formLayout).contains(entityField.getUid());
 	}
 	
 	@Override
@@ -221,7 +222,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(formLayout, C.FORMLAYOUT);
 		Assert.notNull(relation, C.RELATION);
 		
-		return getIdList(formLayout).contains(LayoutElementAttributes.PRE_RELATION + relation.getUid());
+		return getIdSet(formLayout).contains(LayoutElementAttributes.PRE_RELATION + relation.getUid());
 	}
 	
 	@Override
@@ -233,7 +234,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		final CollectIdVisitor visitor = new CollectIdVisitor();
 		layoutRoot.accept(visitor);
 		for (EntityField entityField : form.getEntity().getAllFields()) {
-			if (!visitor.getIdList().contains(entityField.getUid())) {
+			if (!visitor.getIdSet().contains(entityField.getUid())) {
 				fields.add(entityField);
 			}
 		}
@@ -254,6 +255,24 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 			}
 		}
 		return nesteds;
+	}
+	
+	@Override
+	public List<EntityRelation> getAvailableRelations(Form form, LayoutElement layoutRoot) {
+		Assert.notNull(form, C.FORM);
+		Assert.notNull(layoutRoot, C.LAYOUTROOT);
+		
+		final List<EntityRelation> relations = new ArrayList<>();
+		final CollectIdVisitor visitor = new CollectIdVisitor();
+		layoutRoot.accept(visitor);
+		if (form.getEntity().hasAllRelations()) {
+			for (EntityRelation relation : form.getEntity().getAllRelations()) {
+				if (!visitor.getIdSet().contains(LayoutElementAttributes.PRE_RELATION + relation.getUid())) {
+					relations.add(relation);
+				}
+			}
+		}
+		return relations;
 	}
 	
 	@Override
@@ -474,6 +493,19 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		final String nestedEntityUid = elemBorderlayout.getId().substring(LayoutElementAttributes.PRE_SUBFORM.length());
 		final SubForm subForm = form.getSubFormByNestedEntityUid(nestedEntityUid);
 		form.removeSubForm(subForm);
+		elemBorderlayout.removeFromParent();
+		redecorateLayout(form, layoutRoot);
+	}
+	
+	@Override
+	@Secured("ROLE_ADMIN_FORM")
+	public void removeRelationForm(Form form, LayoutElement layoutRoot, String contextId) {
+		Assert.notNull(form, C.FORM);
+		
+		final LayoutElement elemListbox = getElementByContextId(layoutRoot, contextId);
+		final LayoutElement elemBorderlayout = elemListbox.getParent().getParent();
+		final RelationForm relationForm = form.getRelationFormByUid(elemBorderlayout.getId().substring(LayoutElementAttributes.PRE_RELATION.length()));
+		form.removeRelationForm(relationForm);
 		elemBorderlayout.removeFromParent();
 		redecorateLayout(form, layoutRoot);
 	}

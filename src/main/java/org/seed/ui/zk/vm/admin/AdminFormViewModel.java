@@ -475,6 +475,13 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
+	@NotifyChange("layoutInclude")
+	public void removeRelationForm(@BindingParam(CONTEXT_ID) String contextId) {
+		layoutService.removeRelationForm(getObject(), layoutRoot, contextId);
+		flagDirty();
+	}
+	
+	@Command
 	public void editSubForm(@BindingParam(CONTEXT_ID) String contextId) {
 		showDialog("/admin/form/subform_properties.zul", newDialogParameter("editsubform", contextId));
 	}

@@ -113,6 +113,10 @@ public class SubForm extends AbstractTransferableObject {
 	public ValueObject getSelectedObject() {
 		return selectedObject;
 	}
+	
+	public void clearSelectedObject() {
+		selectedObject = null;
+	}
 
 	public void setSelectedObject(ValueObject selectedObject) {
 		this.selectedObject = selectedObject;

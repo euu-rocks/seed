@@ -372,7 +372,7 @@ public class ValueObjectServiceImpl
 	
 	@Override
 	public void removeRelation(ValueObject object, EntityRelation relation, ValueObject relatedObject) {
-		objectAccess.removeRelatedEntity(object, relation, relatedObject);
+		objectAccess.removeRelatedObject(object, relation, relatedObject);
 	}
 	
 	@Override
@@ -668,7 +668,9 @@ public class ValueObjectServiceImpl
 	
 	@Override
 	public void sortObjects(List<ValueObject> objectList) {
-		Collections.sort(objectList, objectComparator);
+		Assert.notNull(objectList, "object list");
+		
+		objectList.sort(objectComparator);
 	}
 	
 	private List<ValueObject> loadFullTextObjects(QueryCursor<?> cursor) {

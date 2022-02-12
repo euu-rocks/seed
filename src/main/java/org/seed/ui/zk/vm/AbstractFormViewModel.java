@@ -316,7 +316,7 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 			case DELETE:
 				valueObjectService.removeNestedObject(getObject(), subForm.getNestedEntity(), 
 													  subForm.getSelectedObject());
-				subForm.setSelectedObject(null);
+				subForm.clearSelectedObject();
 				notifyChange("getSubForm");
 				break;
 				
@@ -340,7 +340,7 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 	protected void resetSubForms() {
 		if (getForm().hasSubForms()) {
 			for (SubForm subForm : getForm().getSubForms()) {
-				subForm.setSelectedObject(null);
+				subForm.clearSelectedObject();
 			}
 		}
 	}
@@ -361,7 +361,7 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 		}
 	}
 	
-	void assingRelation(EntityRelation relation, ValueObject relatedObject) {
+	void addRelationObject(EntityRelation relation, ValueObject relatedObject) {
 		valueObjectService.addRelation(getObject(), relation, relatedObject);
 		notifyObjectChange(relation.getInternalName());
 		flagDirty();

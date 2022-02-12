@@ -34,7 +34,7 @@
                 		<label value="${labels.label.relation}:"/>
                 	</cell>
                 	<cell>
-	                	<combobox model="@load(vm.entityRelations) @template(empty each.name ? 'empty' : 'relation')"
+	                	<combobox model="@load(vm.availableRelations) @template(empty each.name ? 'empty' : 'relation')"
 	            				  mandatory="true"
 	            			  	  selectedItem="@bind(vm.entityRelation)"
 	            			  	  value="@load(vm.entityRelation.name)"

@@ -20,6 +20,7 @@ package org.seed.core.form;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.collections.ListUtils;
 import org.hibernate.Session;
@@ -987,7 +988,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	private void cleanupFieldExtras(Form form) {
-		final List<String> fieldIds = getLayoutService().getIdList(form.getLayout());
+		final Set<String> fieldIds = getLayoutService().getIdSet(form.getLayout());
 		form.getFieldExtras().removeIf(extra -> !fieldIds.contains(extra.getEntityField().getUid()));
 	}
 	

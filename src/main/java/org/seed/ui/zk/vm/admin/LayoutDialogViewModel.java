@@ -491,6 +491,11 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 												 parameter.layoutRoot);
 	}
 	
+	public List<EntityRelation> getAvailableRelations() {
+		return layoutService.getAvailableRelations(parameter.form, 
+				 								   parameter.layoutRoot);
+	}
+	
 	public List<Filter> getAvailableFilters(SubFormColumn subFormColumn) {
 		return subFormColumn != null
 				? getAvailableFilters(subFormColumn.subFormField.getEntityField())
@@ -514,10 +519,6 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 		return subFormColumn != null 
 				? getAvailableTransformers(subFormColumn.subFormField.getEntityField())
 				: Collections.emptyList();
-	}
-	
-	public List<EntityRelation> getEntityRelations() {
-		return parameter.form.getEntity().getRelations();
 	}
 	
 	public List<Form> getDetailForms(Entity entity) {
