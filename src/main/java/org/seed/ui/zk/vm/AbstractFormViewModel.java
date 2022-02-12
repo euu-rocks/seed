@@ -166,12 +166,14 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 	
 	public SubForm getSubForm(String nestedEntityUid) {
 		final SubForm subForm = form.getSubFormByNestedEntityUid(nestedEntityUid);
-		Assert.stateAvailable(subForm, "subForm for nested " + nestedEntityUid);
+		Assert.stateAvailable(subForm, "sub form for nested " + nestedEntityUid);
 		return subForm;
 	}
 	
 	public RelationForm getRelationForm(String relationFormUid) {
-		return form.getRelationFormByUid(relationFormUid);
+		final RelationForm relationForm = form.getRelationFormByUid(relationFormUid);
+		Assert.stateAvailable(relationForm, "relation form for relation " + relationFormUid);
+		return relationForm;
 	}
 	
 	public String getIdentifier(ValueObject object) {
@@ -366,8 +368,9 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 	}
 	
 	void removeRelationObject(EntityRelation relation) {
-		final ValueObject relatedObject = getRelationForm(relation.getUid()).getSelectedObject();
-		valueObjectService.removeRelation(getObject(), relation, relatedObject);
+		final RelationForm relationForm = getRelationForm(relation.getUid());
+		valueObjectService.removeRelation(getObject(), relation, relationForm.getSelectedObject());
+		relationForm.clearSelectedObject();
 		notifyObjectChange(relation.getInternalName());
 		flagDirty();
 	}

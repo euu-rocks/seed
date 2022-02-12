@@ -481,7 +481,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 	}
 	
 	private static String subFormContext(SubForm subForm, String elementId) {
-		return subForm.getNestedEntity().getId() + '_' + elementId;
+		return subForm.getNestedEntity().getUid() + '_' + elementId;
 	}
 	
 	private static String value(EntityField entityField, String propertyName) {

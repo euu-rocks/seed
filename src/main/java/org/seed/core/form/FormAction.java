@@ -27,9 +27,12 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
 @Table(name = "sys_form_action")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class FormAction extends AbstractFormAction {
 	
 	@ManyToOne(fetch = FetchType.LAZY)

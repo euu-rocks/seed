@@ -55,6 +55,7 @@ import org.seed.core.data.SystemField;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityFunction;
+import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.EntityRepository;
 import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.EntityStatusTransition;
@@ -701,13 +702,14 @@ public class ValueObjectRepository {
 		
 		// nesteds
 		if (entity.hasAllNesteds()) {
-			for (NestedEntity nestedEntity : entity.getAllNesteds()) {
-				final List<ValueObject> nesteds = objectAccess.getNestedObjects(searchObject, nestedEntity);
-				if (!ObjectUtils.isEmpty(nesteds)) {
-					restrictions.addAll(createNestedRestriction(builder, nestedEntity, nesteds, criteriaMap, query, root));
-				}
-			}
+			restrictions.addAll(createNestedsRestrictions(builder, entity, searchObject, criteriaMap, query, root));
 		}
+		
+		// relations
+		if (entity.hasAllRelations()) {
+			restrictions.addAll(createRelationsRestrictions(builder, entity, searchObject, root));
+		}
+		
 		if (restrictions.size() == 1) {
 			query.where(restrictions.get(0));
 		}
@@ -721,10 +723,23 @@ public class ValueObjectRepository {
 		return root;
 	}
 	
+	private <T> List<Predicate> createNestedsRestrictions(CriteriaBuilder builder, Entity entity, ValueObject searchObject,
+														  Map<Long, Map<String, CriterionOperator>> criteriaMap,
+														  CriteriaQuery<T> query, Root<ValueObject> root) {
+		final List<Predicate> restrictions = new ArrayList<>();
+		for (NestedEntity nestedEntity : entity.getAllNesteds()) {
+			final List<ValueObject> nesteds = objectAccess.getNestedObjects(searchObject, nestedEntity);
+			if (!ObjectUtils.isEmpty(nesteds)) {
+				restrictions.addAll(createNestedRestrictions(builder, nestedEntity, nesteds, criteriaMap, query, root));
+			}
+		}
+		return restrictions;
+	}
+	
 	@SuppressWarnings("unchecked")
-	private <T> List<Predicate> createNestedRestriction(CriteriaBuilder builder, NestedEntity nestedEntity, List<ValueObject> nesteds,
-														Map<Long, Map<String, CriterionOperator>> criteriaMap,
-														CriteriaQuery<T> query, Root<ValueObject> root) {
+	private <T> List<Predicate> createNestedRestrictions(CriteriaBuilder builder, NestedEntity nestedEntity, List<ValueObject> nesteds,
+														 Map<Long, Map<String, CriterionOperator>> criteriaMap,
+														 CriteriaQuery<T> query, Root<ValueObject> root) {
 		final List<Predicate> restrictions = new ArrayList<>();
 		final Entity entityNested = nestedEntity.getNestedEntity();
 		final Class<?> nestedEntityClass = getEntityClass(entityNested);
@@ -759,7 +774,21 @@ public class ValueObjectRepository {
 		}
 		return restrictions;
 	}
-
+	
+	private List<Predicate> createRelationsRestrictions(CriteriaBuilder builder, Entity entity, 
+														ValueObject searchObject, Root<ValueObject> root) {
+		final List<Predicate> restrictions = new ArrayList<>();
+		for (EntityRelation relation : entity.getAllRelations()) {
+			final Set<ValueObject> relatedObjects = objectAccess.getRelatedObjects(searchObject, relation);
+			if (!ObjectUtils.isEmpty(relatedObjects)) {
+				for (ValueObject relatedObject : relatedObjects) {
+					restrictions.add(builder.equal(root.join(relation.getInternalName()), relatedObject));
+				}
+			}
+		}
+		return restrictions;
+	}
+	
 	private static Map<Long, Join<Object, Object>> buildJoinMap(Filter filter, Root<ValueObject> root) {
 		final Map<Long, Join<Object, Object>> joinMap = new HashMap<>();
 		for (NestedEntity nested : getNestedEntities(filter)) {

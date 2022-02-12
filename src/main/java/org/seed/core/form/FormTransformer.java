@@ -26,6 +26,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.core.application.AbstractOrderedTransferableObject;
 import org.seed.core.entity.transform.Transformer;
@@ -33,6 +35,7 @@ import org.seed.core.entity.transform.TransformerMetadata;
 
 @javax.persistence.Entity
 @Table(name = "sys_form_transformer")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class FormTransformer extends AbstractOrderedTransferableObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)

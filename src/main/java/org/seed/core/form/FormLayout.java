@@ -21,12 +21,15 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.core.data.AbstractSystemObject;
 import org.seed.core.util.CDATAXmlAdapter;
 
 @javax.persistence.Entity
 @Table(name = "sys_form_layout")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class FormLayout extends AbstractSystemObject {
 	
 	private String content;

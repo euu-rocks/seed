@@ -25,9 +25,12 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
 @Table(name = "sys_subform_action")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class SubFormAction extends AbstractFormAction {
 	
 	@ManyToOne(fetch = FetchType.LAZY)

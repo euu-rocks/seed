@@ -73,7 +73,7 @@
 			</grid>
 		</vlayout>
 		<div class="alpha-dialog-footer">
-			<button iconSclass="z-icon-print"
+			<button iconSclass="z-icon-check"
 					label="${labels.button.select}" 
 					onClick="@command('selectColumns',elem=self)"/>
 			<space/>

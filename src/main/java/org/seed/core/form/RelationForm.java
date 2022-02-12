@@ -48,5 +48,9 @@ public class RelationForm {
 	public void setSelectedObject(ValueObject selectedObject) {
 		this.selectedObject = selectedObject;
 	}
-
+	
+	public void clearSelectedObject() {
+		selectedObject = null;
+	}
+ 
 }

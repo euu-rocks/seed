@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.seed.C;
 import org.seed.core.entity.EntityField;
+import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.filter.CriterionOperator;
 import org.seed.core.entity.value.AbstractValueObject;
 import org.seed.core.entity.value.ValueObject;
@@ -152,8 +153,27 @@ public class SearchFormViewModel extends AbstractFormViewModel {
 	}
 	
 	@Command
+	public void addRelation(@BindingParam("relationId") String relationUid) {
+		final EntityRelation relation = getForm().getEntity().getRelationByUid(relationUid);
+		showDialog("/form/selectrelation.zul", new SelectRelationParameter(this, relation));
+	}
+	
+	@Command
+	@NotifyChange("getRelationForm")
+	public void removeRelation(@BindingParam("relationId") String relationUid) {
+		final EntityRelation relation = getForm().getEntity().getRelationByUid(relationUid);
+		removeRelationObject(relation);
+	}
+	
+	@Command
 	@NotifyChange({"getSubForm", "isCriterionChecked"})
 	public void selectSubFormObject() {
+		// do nothing, just notify
+	}
+	
+	@Command
+	@NotifyChange("getRelationForm")
+	public void selectRelationFormObject() {
 		// do nothing, just notify
 	}
 	
@@ -227,6 +247,7 @@ public class SearchFormViewModel extends AbstractFormViewModel {
 	private void initNewSearch() {
 		setObject(valueObjectService().createInstance(getForm().getEntity()));
 		fieldOperatorsMap = new ConcurrentHashMap<>();
+		resetRelationForms();
 	}
 	
 	private Map<String, CriterionOperator> getObjectCriteriaMap(ValueObject object) {

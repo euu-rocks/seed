@@ -176,6 +176,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	}
 	
 	@Command
+	@NotifyChange("getRelationForm")
 	public void removeRelation(@BindingParam("relationId") String relationUid) {
 		final EntityRelation relation = getForm().getEntity().getRelationByUid(relationUid);
 		removeRelationObject(relation);

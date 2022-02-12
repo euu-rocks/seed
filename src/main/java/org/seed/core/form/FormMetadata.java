@@ -36,6 +36,8 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntity;
@@ -58,6 +60,7 @@ import org.springframework.util.ObjectUtils;
 
 @javax.persistence.Entity
 @Table(name = "sys_form")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -72,6 +75,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 			   cascade = CascadeType.ALL,
 			   orphanRemoval = true,
 			   fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@OrderBy("order")
 	private List<FormField> fields;
 	
@@ -79,12 +83,14 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 			   cascade = CascadeType.ALL,
 			   orphanRemoval = true,
 			   fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private List<FormFieldExtra> fieldExtras; 
 	
 	@OneToMany(mappedBy = "form",
 			   cascade = CascadeType.ALL,
 			   orphanRemoval = true,
 			   fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@OrderBy("order")
 	private List<FormAction> actions;
 	
@@ -92,6 +98,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 			   cascade = CascadeType.ALL,
 			   orphanRemoval = true,
 			   fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@OrderBy("order")
 	private List<FormTransformer> transformers;
 	
@@ -99,6 +106,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 			   cascade = CascadeType.ALL,
 			   orphanRemoval = true,
 			   fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@OrderBy("order")
 	private List<FormPrintout> printouts;
 	
@@ -106,6 +114,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 			   cascade = CascadeType.ALL,
 			   orphanRemoval = true,
 			   fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private List<SubForm> subForms;
 	
 	private boolean autoLayout;

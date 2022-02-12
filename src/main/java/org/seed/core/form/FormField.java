@@ -26,12 +26,14 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
-
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.seed.Seed;
 import org.seed.core.data.SystemField;
 
 @Entity
 @Table(name = "sys_form_field")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class FormField extends AbstractFormField {
 	
 	@ManyToOne(fetch = FetchType.LAZY)

@@ -105,9 +105,9 @@ public class SearchDecoratingVisitor extends AbstractLayoutVisitor {
 		else { // sub form
 			Assert.notNull(context, C.CONTEXT);
 			final int idx = context.indexOf('_');
-			final Long nestedEntityId = Long.parseLong(context.substring(0, idx));
+			final String nestedEntityUid = context.substring(0, idx);
 			final String fieldUid = context.substring(idx + 1);
-			subForm = getForm().getSubFormByNestedEntityId(nestedEntityId);
+			subForm = getForm().getSubFormByNestedEntityUid(nestedEntityUid);
 			field = subForm.getFieldByEntityFieldUid(fieldUid).getEntityField();
 		}
 		Assert.stateAvailable(field, C.FIELD);

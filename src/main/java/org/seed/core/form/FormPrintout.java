@@ -26,11 +26,14 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.core.application.AbstractOrderedTransferableObject;
 
 @Entity
 @Table(name = "sys_form_printout")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class FormPrintout extends AbstractOrderedTransferableObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)

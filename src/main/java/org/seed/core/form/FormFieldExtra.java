@@ -27,6 +27,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.core.application.AbstractTransferableObject;
 import org.seed.core.entity.EntityField;
@@ -37,6 +39,7 @@ import org.seed.core.entity.transform.TransformerMetadata;
 
 @Entity
 @Table(name = "sys_form_field_extra")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class FormFieldExtra extends AbstractTransferableObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)

@@ -68,7 +68,7 @@ public class ValueObjectAccess extends ObjectAccess {
 	
 	public void setValue(ValueObject object, SystemField systemField, Object value) {
 		Assert.notNull(object, C.OBJECT);
-		Assert.notNull(systemField, "systemField");
+		Assert.notNull(systemField, "system field");
 		
 		callSetter(object, systemField.property, value);
 	}
@@ -104,7 +104,7 @@ public class ValueObjectAccess extends ObjectAccess {
 	public void removeNestedObject(ValueObject object, NestedEntity nested, ValueObject nestedObject) {
 		Assert.notNull(object, C.OBJECT);
 		Assert.notNull(nested, C.NESTED);
-		Assert.notNull(nestedObject, "nestedObject");
+		Assert.notNull(nestedObject, "nested object");
 		
 		callMethod(object, PRE_REMOVE + StringUtils.capitalize(nested.getInternalName()), nestedObject);
 	}
@@ -124,6 +124,7 @@ public class ValueObjectAccess extends ObjectAccess {
 	public void addRelatedObject(ValueObject object, EntityRelation relation, ValueObject relatedObject) {
 		Assert.notNull(object, C.OBJECT);
 		Assert.notNull(relation, C.RELATION);
+		Assert.notNull(relatedObject, "related object");
 		
 		callMethod(object, PRE_ADD + StringUtils.capitalize(relation.getInternalName()), relatedObject);
 	}
@@ -131,6 +132,7 @@ public class ValueObjectAccess extends ObjectAccess {
 	public void removeRelatedEntity(ValueObject object, EntityRelation relation, ValueObject relatedObject) {
 		Assert.notNull(object, C.OBJECT);
 		Assert.notNull(relation, C.RELATION);
+		Assert.notNull(relatedObject, "related object");
 		
 		callMethod(object, PRE_REMOVE + StringUtils.capitalize(relation.getInternalName()), relatedObject);
 	}

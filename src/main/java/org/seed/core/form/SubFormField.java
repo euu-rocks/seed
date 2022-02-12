@@ -27,7 +27,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
-
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.seed.core.entity.filter.Filter;
 import org.seed.core.entity.filter.FilterMetadata;
 import org.seed.core.entity.transform.Transformer;
@@ -35,6 +36,7 @@ import org.seed.core.entity.transform.TransformerMetadata;
 
 @Entity
 @Table(name = "sys_subform_field")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class SubFormField extends AbstractFormField {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
