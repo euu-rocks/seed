@@ -20,8 +20,10 @@ package org.seed.core.form.layout.visit;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.seed.C;
 import org.seed.core.form.layout.LayoutElement;
 import org.seed.core.form.layout.LayoutVisitor;
+import org.seed.core.util.Assert;
 
 public class CollectIdVisitor implements LayoutVisitor {
 	
@@ -29,6 +31,12 @@ public class CollectIdVisitor implements LayoutVisitor {
 
 	public Set<String> getIdSet() {
 		return idSet;
+	}
+	
+	public boolean containsId(String id) {
+		Assert.notNull(id, C.ID);
+		
+		return idSet.contains(id);
 	}
 
 	@Override

@@ -509,6 +509,13 @@ public class EntityMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
+	public boolean containsAllField(EntityField field) {
+		Assert.notNull(field, C.FIELD);
+		
+		return hasAllFields() && getAllFields().contains(field);
+	}
+	
+	@Override
 	public boolean containsFieldGroup(EntityFieldGroup fieldGroup) {
 		Assert.notNull(fieldGroup, C.FIELDGROUP);
 		
@@ -696,7 +703,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 		
 		if (hasAllRelations()) {
 			for (EntityRelation relation : getAllRelations()) {
-				if (relation.getRelatedEntity().equals(entity)) {
+				if (relation.isRelated(entity)) {
 					return true;
 				}
 			}

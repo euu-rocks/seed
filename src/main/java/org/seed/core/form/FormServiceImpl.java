@@ -656,7 +656,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		for (Form form : formRepository.find(session, queryParam(C.ENTITY, entity))) {
 			// remove field if entity field no longer exist
 			form.getFields().removeIf(field -> field.getEntityField() != null && 
-											   !entity.containsField(field.getEntityField()));
+											   !entity.containsAllField(field.getEntityField()));
 			if (form.isAutoLayout()) {
 				updateAutoLayout(entity, form);
 			}

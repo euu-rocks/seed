@@ -72,6 +72,11 @@ public abstract class AbstractSystemEntity extends AbstractSystemObject
 		// do nothing by default
 	}
 	
+	@Override
+	public String toString() {
+		return super.toString() + " name:" + name;
+	}
+	
 	protected static <T extends SystemEntity> T getObjectByName(List<T> list, String name, boolean ignoreCase) {
 		Assert.notNull(name, C.NAME);
 		

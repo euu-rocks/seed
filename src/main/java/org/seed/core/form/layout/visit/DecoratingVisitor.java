@@ -137,24 +137,8 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 				break;
 				
 			case LayoutElement.BORDERLAYOUT:
-				if (element.getId() == null) {
-					break;	// no sub- or relation form
-				}
-				element.removeAttribute(A_VISIBLE);
-				final LayoutElement elemListBox = element.getChild(LayoutElement.CENTER).getChild(LayoutElement.LISTBOX);
-				elemListBox.setContext(newContextId());
-				elemListBox.removeAttribute(A_MODEL);
-				elemListBox.removeAttribute(A_SELECTEDITEM);
-				elemListBox.removeAttribute(A_AUTOPAGING);
-				elemListBox.removeAttribute(A_MOLD);
-				elemListBox.removeChildren(A_TEMPLATE);
-				element.removeChildren(LayoutElement.NORTH);
-				
-				if (element.getId().startsWith(LayoutElementAttributes.PRE_SUBFORM)) {
-					addRootChild(createSubFormMenuPopup(elemListBox));
-				}
-				else if (element.getId().startsWith(LayoutElementAttributes.PRE_RELATION)) {
-					addRootChild(createRelationFormMenuPopup(elemListBox));
+				if (element.getId() != null) {
+					visitBorderLayout(element);
 				}
 				break;
 			
@@ -176,6 +160,25 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 			element.setDecorated(true);
 		}
 		
+	}
+	
+	private void visitBorderLayout(LayoutElement element) {
+		element.removeAttribute(A_VISIBLE);
+		final LayoutElement elemListBox = element.getChild(LayoutElement.CENTER).getChild(LayoutElement.LISTBOX);
+		elemListBox.setContext(newContextId());
+		elemListBox.removeAttribute(A_MODEL);
+		elemListBox.removeAttribute(A_SELECTEDITEM);
+		elemListBox.removeAttribute(A_AUTOPAGING);
+		elemListBox.removeAttribute(A_MOLD);
+		elemListBox.removeChildren(A_TEMPLATE);
+		element.removeChildren(LayoutElement.NORTH);
+		
+		if (element.getId().startsWith(LayoutElementAttributes.PRE_SUBFORM)) {
+			addRootChild(createSubFormMenuPopup(elemListBox));
+		}
+		else if (element.getId().startsWith(LayoutElementAttributes.PRE_RELATION)) {
+			addRootChild(createRelationFormMenuPopup(elemListBox));
+		}
 	}
 	
 	private void visitBorderLayoutElement(LayoutElement element) {

@@ -145,6 +145,11 @@ public abstract class AbstractSystemObject implements SystemObject {
 				 getId().equals(((SystemObject) obj).getId()));
 	}
 	
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + " id:" + id;
+	}
+	
 	public void copySystemFieldsTo(SystemObject object) {
 		Assert.notNull(object, C.OBJECT);
 		

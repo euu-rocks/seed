@@ -100,19 +100,18 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 			}
 			buildEntityChanges();
 		}
-		else {
+		else if (currentVersionObject != null && nextVersionObject != null) { // only on update
 			buildGenericEntityChanges();
 		}
 		return super.build();
 	}
 	
 	private void buildGenericEntityChanges() {
-		// only if generic entity was updated
-		if (currentVersionObject != null && nextVersionObject != null &&
-			// and fields exist
-			(currentVersionObject.hasAllFields() || nextVersionObject.hasAllFields())) {
-			
+		if (currentVersionObject.hasAllFields() || nextVersionObject.hasAllFields()) {
 			buildFieldChanges();
+		}
+		if (currentVersionObject.hasAllRelations() || nextVersionObject.hasAllRelations()) {
+			buildRelationChanges();
 		}
 	}
 	
@@ -208,7 +207,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		if (inverseRelateds != null) {
 			for (Entity inverseRelated : inverseRelateds) {
 				for (EntityRelation inverseRelation : inverseRelated.getRelations()) {
-					renameRelation(inverseRelation, inverseRelation.createNewInverseRelation(nextVersionObject));
+					renameRelation(inverseRelation, inverseRelation.createInverseRelation(nextVersionObject));
 				}
 			}
 		}
@@ -484,18 +483,43 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	private void buildRelationChanges() {
 		if (currentVersionObject.hasAllRelations()) {
 			for (EntityRelation relation : currentVersionObject.getAllRelations()) {
-				final EntityRelation nextVersionRelation = nextVersionObject.getRelationByUid(relation.getUid());
-				if (nextVersionRelation == null) {
-					addDropTableChangeSet(relation);
+				if (nextVersionObject.getRelationByUid(relation.getUid()) == null) {
+					buildRelationChangesCurrentVersion(relation);
 				}
 			}
 		}
 		if (nextVersionObject.hasAllRelations()) {
 			for (EntityRelation relation : nextVersionObject.getAllRelations()) {
 				if (relation.isNew() || currentVersionObject.getRelationByUid(relation.getUid()) == null) {
-					addCreateTableChangeSet(relation);
+					buildRelationChangesNextVersion(relation);
 				}
 			}
+		}
+	}
+	
+	private void buildRelationChangesCurrentVersion(EntityRelation relation) {
+		if (isGeneric()) {
+			if (descendants != null) { // build changes for all implementing entities
+				for (Entity descendant : descendants) {
+					addDropTableChangeSet(relation.createDescendantRelation(descendant));
+				}
+			}
+		}
+		else {
+			addDropTableChangeSet(relation);
+		}
+	}
+	
+	private void buildRelationChangesNextVersion(EntityRelation relation) {
+		if (isGeneric()) {
+			if (descendants != null) { // build changes for all implementing entities
+				for (Entity descendant : descendants) {
+					addCreateTableChangeSet(relation.createDescendantRelation(descendant));
+				}
+			}
+		}
+		else {
+			addCreateTableChangeSet(relation);
 		}
 	}
 	
@@ -506,8 +530,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 			}
 		}
 		if (nextVersionObject.hasAllFields()) {
-			// generic
-			if (nextVersionObject.isGeneric()) {
+			if (isGeneric()) {
 				if (descendants != null) { // build changes for all implementing entities
 					descendants.forEach(this::buildFieldChangesNextVersion);
 				}
@@ -526,7 +549,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		
 		final EntityField nextVersionField = nextVersionObject.getFieldById(field.getId());
 		// generic
-		if (currentVersionObject.isGeneric()) {
+		if (isGeneric()) {
 			if (descendants != null) { // build changes for all implementing entities
 				descendants.forEach(descendant -> buildFieldChanges(descendant, field, nextVersionField));
 			}
@@ -789,7 +812,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	}
 	
 	private static String getPrimaryKeyConstraintName(EntityRelation relation) {
-		return PREFIX_PRIMARY_KEY + TinyId.get(relation.getId());
+		return PREFIX_PRIMARY_KEY + TinyId.get(relation.getEntity().getId()) + '_' + TinyId.get(relation.getRelatedEntity().getId());
 	}
 	
 	private static String getUniqueConstraintName(Entity entity, EntityField field) {
@@ -825,7 +848,9 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	}
 	
 	private static String getConstraintKey(EntityRelation relation, Entity entity) {
-		return TinyId.get(relation.getId()) + '_' + TinyId.get(entity.getId());
+		return TinyId.get(relation.getEntity().getId()) + '_' + 
+			   TinyId.get(relation.getRelatedEntity().getId()) + '_' +  
+			   TinyId.get(entity.getId());
 	}
 	
 	private static AddColumnChange createAddColumnChange(Entity entity, AddColumnConfig columnConfig) {

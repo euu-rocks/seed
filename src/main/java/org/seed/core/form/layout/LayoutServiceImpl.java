@@ -234,7 +234,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		final CollectIdVisitor visitor = new CollectIdVisitor();
 		layoutRoot.accept(visitor);
 		for (EntityField entityField : form.getEntity().getAllFields()) {
-			if (!visitor.getIdSet().contains(entityField.getUid())) {
+			if (!visitor.containsId(entityField.getUid())) {
 				fields.add(entityField);
 			}
 		}
@@ -267,7 +267,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		layoutRoot.accept(visitor);
 		if (form.getEntity().hasAllRelations()) {
 			for (EntityRelation relation : form.getEntity().getAllRelations()) {
-				if (!visitor.getIdSet().contains(LayoutElementAttributes.PRE_RELATION + relation.getUid())) {
+				if (!visitor.containsId(LayoutElementAttributes.PRE_RELATION + relation.getUid())) {
 					relations.add(relation);
 				}
 			}

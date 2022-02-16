@@ -55,6 +55,8 @@ public interface Entity
 	
 	boolean containsField(EntityField field);
 	
+	boolean containsAllField(EntityField field);
+	
 	boolean containsFieldGroup(EntityFieldGroup fieldGroup);
 	
 	String getGenericEntityUid();

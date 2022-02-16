@@ -38,7 +38,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @javax.persistence.Entity
 @Table(name = "sys_entity_relation")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class EntityRelation extends AbstractOrderedTransferableObject  {
+public class EntityRelation extends AbstractOrderedTransferableObject {
 	
 	private static final String SUFFIX_ID = "_id";
 	
@@ -128,15 +128,6 @@ public class EntityRelation extends AbstractOrderedTransferableObject  {
 		return relatedEntity.getInternalName().toLowerCase() + SUFFIX_ID;
 	}
 	
-	public EntityRelation createNewInverseRelation(Entity relatedEntity) {
-		Assert.notNull(relatedEntity, "related entity");
-		
-		final EntityRelation relation = new EntityRelation();
-		relation.setEntity(entity);
-		relation.setRelatedEntity(relatedEntity);
-		return relation;
-	}
-	
 	public boolean isRelated(Entity entity) {
 		return relatedEntity.equals(entity);
 	}
@@ -154,6 +145,25 @@ public class EntityRelation extends AbstractOrderedTransferableObject  {
 			.append(name, otherRelation.getName())
 			.append(relatedEntityUid, otherRelation.getRelatedEntityUid())
 			.isEquals();
+	}
+	
+	public EntityRelation createInverseRelation(Entity relatedEntity) {
+		Assert.notNull(relatedEntity, "related entity");
+		
+		return createRelation(entity, relatedEntity);
+	}
+	
+	public EntityRelation createDescendantRelation(Entity descendantEntity) {
+		Assert.notNull(descendantEntity, "descendant entity");
+		
+		return createRelation(descendantEntity, relatedEntity);
+	}
+	
+	private static EntityRelation createRelation(Entity entity, Entity relatedEntity) {
+		final EntityRelation relation = new EntityRelation();
+		relation.setEntity(entity);
+		relation.setRelatedEntity(relatedEntity);
+		return relation;
 	}
 	
 }

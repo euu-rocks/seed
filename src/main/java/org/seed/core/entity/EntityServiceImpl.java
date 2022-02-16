@@ -713,6 +713,14 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				changeAware.notifyCreate(entity, session);
 			}
 			else {
+				if (entity.isGeneric()) {
+					for (Entity descendant : findDescendants(entity)) {
+						changeAware.notifyChange(descendant, session);
+					}
+				}
+				else {
+					changeAware.notifyChange(entity, session);
+				}
 				changeAware.notifyChange(entity, session);
 			}
 		}

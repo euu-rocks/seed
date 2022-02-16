@@ -99,7 +99,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 		}
 		
 		// check related entities
-		if (entity.hasRelations()) {
+		if (entity.hasAllRelations()) {
 			timestamp = getRelationsLastModified(timestamp);
 		}
 		return timestamp;
@@ -130,7 +130,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 		}
 		
 		// relations
-		if (entity.hasRelations()) {
+		if (!entity.isGeneric() && entity.hasAllRelations()) {
 			buildRelations();
 		}
 		
@@ -146,7 +146,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 		}
 		
 		// relation methods
-		if (entity.hasRelations()) {
+		if (!entity.isGeneric() && entity.hasAllRelations()) {
 			buildRelationMethods();
 		}
 		
@@ -253,7 +253,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 		if (entity.hasNesteds()) {
 			buildNestedGetterAndSetter();
 		}
-		if (entity.hasRelations()) {
+		if (!entity.isGeneric() && entity.hasAllRelations()) {
 			buildRelationGetterAndSetter();
 		}
 	}
@@ -282,7 +282,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	}
 	
 	private void buildRelationGetterAndSetter() {
-		for (EntityRelation relation : entity.getRelations()) {
+		for (EntityRelation relation : entity.getAllRelations()) {
 			addGetterAndSetter(relation.getInternalName());
 		}
 	}
@@ -305,16 +305,17 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 		annotationParamMapM2M.put(C.FETCH, FetchType.LAZY);
 		annotationParamMapM2M.put(C.CASCADE, CascadeType.ALL);
 		
-		for (EntityRelation relation : entity.getRelations()) {
+		for (EntityRelation relation : entity.getAllRelations()) {
+			final EntityRelation descendantRelation = relation.createDescendantRelation(entity);
 			final AnnotationMetadata[] joinColumns = new AnnotationMetadata[] {
-				createJoinColumnAnnotation(relation.getJoinColumnName())	
+				createJoinColumnAnnotation(descendantRelation.getJoinColumnName())
 			};
 			final AnnotationMetadata[] inverseJoinColumns = new AnnotationMetadata[] {
 				createJoinColumnAnnotation(relation.getInverseJoinColumnName())	
 			};
 			
 			final Map<String, Object> annotationParamMapJoin = new HashMap<>();
-			annotationParamMapJoin.put(C.NAME, quote(relation.getJoinTableName()));
+			annotationParamMapJoin.put(C.NAME, quote(descendantRelation.getJoinTableName()));
 			annotationParamMapJoin.put("joinColumns", joinColumns);
 			annotationParamMapJoin.put("inverseJoinColumns", inverseJoinColumns);
 			addMember(relation.getInternalName(), 
@@ -353,7 +354,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	}
 	
 	private void buildRelationMethods() {
-		for (EntityRelation relation : entity.getRelations()) {
+		for (EntityRelation relation : entity.getAllRelations()) {
 			addImport(HashSet.class);
 			final String relationName = relation.getInternalName();
 			final ParameterMetadata[] parameters = new ParameterMetadata[] { 
@@ -394,7 +395,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	}
 	
 	private Date getRelationsLastModified(Date timestamp) {
-		for (EntityRelation relation : entity.getRelations()) {
+		for (EntityRelation relation : entity.getAllRelations()) {
 			final Entity relatedEntity = relation.getRelatedEntity();
 			if (relatedEntity.getLastModified().after(timestamp)) {
 				timestamp = relatedEntity.getLastModified();
