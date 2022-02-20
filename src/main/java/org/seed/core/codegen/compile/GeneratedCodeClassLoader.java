@@ -25,6 +25,7 @@ import java.util.zip.ZipInputStream;
 
 import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.util.Assert;
+import org.seed.core.util.StreamUtils;
 
 import static org.seed.core.codegen.CodeUtils.*;
 
@@ -63,7 +64,7 @@ class GeneratedCodeClassLoader extends ClassLoader {
 	
 	private List<JavaClassFileObject> defineJarClasses(CustomJar customJar) {
 		final List<JavaClassFileObject> notDefinedClasses = new ArrayList<>();
-		try (ZipInputStream zis = createZipStream(customJar.getContent())) {
+		try (ZipInputStream zis = StreamUtils.getZipStream(customJar.getContent())) {
 			ZipEntry entry;
 			while ((entry = zis.getNextEntry()) != null) {
 				if (isClassFile(entry.getName())) {

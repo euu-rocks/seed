@@ -173,7 +173,7 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	public TransferResult doImport(Transfer transfer, ImportOptions options, 
 								   FileObject importFile) throws ValidationException {
 		Assert.notNull(transfer, C.TRANSFER);
-		Assert.notNull(transfer, "options");
+		Assert.notNull(transfer, C.OPTIONS);
 		Assert.notNull(importFile, "importFile");
 		
 		validator.validateImport(importFile);
@@ -195,7 +195,10 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	
 	@Override
 	public List<Transfer> findUsage(Entity entity) {
-		return findTransfers(entity);
+		if (!entity.isGeneric()) {
+			return findTransfers(entity);
+		}
+		return Collections.emptyList();
 	}
 
 	@Override

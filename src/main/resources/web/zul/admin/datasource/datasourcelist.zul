@@ -48,9 +48,11 @@
 		         selectedItem="@bind(vm.object)" 
 		         visible="@load(vm.existObjects())">
 			<listhead sizable="true">
-	            <listheader hflex="2" label="${labels.label.datasource}" 
+	            <listheader hflex="3" label="${labels.label.datasource}" 
 	            			sort="auto(name)" onCreate="self.sort(true)"/>
-	            <listheader hflex="1" label="${labels.label.module}"
+	            <listheader hflex="1" label="${labels.label.type}" 
+	            			sort="auto(type)"/>
+	            <listheader hflex="2" label="${labels.label.module}"
 	            			sort="auto(module.name)"
 	            			visible="@load(vm.existModules())"/>
 		    </listhead>
@@ -58,6 +60,18 @@
 		    	<auxheader>
 		            <textbox value="@bind(vm.getFilter('list','name').value)" 
 		            		 instant="true" hflex="1"/>
+		        </auxheader>
+		        <auxheader>
+		        	<combobox model="@load(vm.getFilter('list','type').values) @template(empty each ? 'empty' : 'type')"
+		            		  selectedItem="@bind(vm.getFilter('list','type').value)"
+		            		  hflex="1">
+		                <template name="empty">
+		                    <comboitem/>
+		                </template>
+		           		<template name="type" var="typename">
+		                    <comboitem label="@load(typename)"/>
+		                </template>
+		           	</combobox>
 		        </auxheader>
 		        <auxheader>
 		        	<combobox model="@load(vm.getFilter('list','module').values) @template(empty each ? 'empty' : 'module')"
@@ -77,6 +91,9 @@
 	            <listitem onDoubleClick="@command('editDataSource')">
 	            	<listcell iconSclass="z-icon-share-alt z-icon-fw alpha-icon-lg">
 	            		<label value="@init(datasource.name)" style="margin-left:3px"/>
+	            	</listcell>
+	            	<listcell>
+	            		<label value="@init(vm.getEnumLabel(datasource.type))" style="margin-left:3px"/>
 	            	</listcell>
 	            	<listcell iconSclass="@load(empty datasource.module ? '' : 'z-icon-cube alpha-icon-lg')">
 	            		<label value="@init(datasource.module.name)" style="margin-left:3px"/>

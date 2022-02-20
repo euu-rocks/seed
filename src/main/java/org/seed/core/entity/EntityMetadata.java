@@ -428,20 +428,6 @@ public class EntityMetadata extends AbstractApplicationEntity
 		this.nesteds = nesteds;
 	}
 	
-	// includes generic fields
-	@Override
-	@JsonIgnore
-	public List<NestedEntity> getAllNesteds() {
-		final List<NestedEntity> list = new ArrayList<>();
-		if (genericEntity != null) {
-			list.addAll(genericEntity.getAllNesteds());
-		}
-		if (hasNesteds()) {
-			list.addAll(getNesteds());
-		}
-		return list;
-	}
-	
 	@Override
 	public boolean hasRelations() {
 		return !ObjectUtils.isEmpty(getRelations());
@@ -491,8 +477,8 @@ public class EntityMetadata extends AbstractApplicationEntity
 				}
 			}
 		}
-		if (hasAllNesteds()) {
-			for (NestedEntity nested : getAllNesteds()) {
+		if (hasNesteds()) {
+			for (NestedEntity nested : getNesteds()) {
 				if (nested.getNestedEntity().hasFullTextSearchFields()) {
 					return true;
 				}
@@ -675,20 +661,11 @@ public class EntityMetadata extends AbstractApplicationEntity
 		return !ObjectUtils.isEmpty(getNesteds());
 	}
 	
-	@Override
-	public boolean hasAllNesteds() {
-		if (genericEntity != null && genericEntity.hasAllNesteds()) {
-			return true;
-		}
-		return hasNesteds();
-	}
-	
-	@Override
 	public boolean isNestedEntity(Entity entity) {
 		Assert.notNull(entity, C.ENTITY);
 		
-		if (hasAllNesteds()) {
-			for (NestedEntity nested : getAllNesteds()) {
+		if (hasNesteds()) {
+			for (NestedEntity nested : getNesteds()) {
 				if (nested.getNestedEntity().equals(entity)) {
 					return true;
 				}
@@ -922,7 +899,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	@Override
 	@JsonIgnore
 	public List<EntityFunction> getMemberFunctions() {
-		return subList(getFunctions(), f -> !f.isCallback());
+		return subList(getFunctions(), function -> !function.isCallback());
 	}
 	
 	@Override

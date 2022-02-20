@@ -19,6 +19,7 @@ package org.seed.core.form.navigation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 
@@ -70,9 +71,24 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 	}
 	
 	@Override
+	public List<Menu> getCustomTopLevelMenus() {
+		return filterDefaultMenu(getTopLevelMenus());
+	}
+	
+	@Override
 	public List<Menu> findObjectsWithoutModule() {
 		return menuRepository.find(queryParam("parent", QueryParameter.IS_NULL),
 								   queryParam(C.MODULE, QueryParameter.IS_NULL));
+	}
+	
+	@Override
+	public boolean existCustomMenus() {
+		return !findCustomMenusWithoutModule().isEmpty();
+	}
+	
+	@Override
+	public List<Menu> findCustomMenusWithoutModule() {
+		return filterDefaultMenu(findObjectsWithoutModule());
 	}
 	
 	@Override
@@ -265,18 +281,6 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 		}
 	}
 	
-	private boolean removeSubMenus(Module module, Menu menu) {
-		boolean subMenuChanged = false;
-		for (Menu subMenu : new ArrayList<>(menu.getSubMenus())) {
-			if (subMenu.getForm() != null &&
-				module.getFormByUid(subMenu.getFormUid()) == null) {
-					menu.removeSubMenu(subMenu);
-					subMenuChanged = true;
-			}
-		}
-		return subMenuChanged;
-	}
-	
 	@Override
 	@Secured("ROLE_ADMIN_MENU")
 	public void saveObject(Menu menu) throws ValidationException {
@@ -297,6 +301,24 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 	@Secured("ROLE_ADMIN_MENU")
 	public void deleteObject(Menu menu) throws ValidationException {
 		super.deleteObject(menu);
+	}
+	
+	private List<Menu> filterDefaultMenu(List<Menu> menus) {
+		return menus.stream()
+					.filter(menu -> !menu.getName().equals(labelProvider.getLabel("label.defaultmenu")))
+					.collect(Collectors.toList());
+	}
+	
+	private boolean removeSubMenus(Module module, Menu menu) {
+		boolean subMenuChanged = false;
+		for (Menu subMenu : new ArrayList<>(menu.getSubMenus())) {
+			if (subMenu.getForm() != null &&
+				module.getFormByUid(subMenu.getFormUid()) == null) {
+					menu.removeSubMenu(subMenu);
+					subMenuChanged = true;
+			}
+		}
+		return subMenuChanged;
 	}
 	
 }

@@ -191,9 +191,11 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	
 	@Override
 	public List<Form> findUsage(Entity entity) {
-		// ignore auto layout forms
-		return formRepository.find(queryParam(C.ENTITY, entity), 
-								   queryParam("autoLayout", false));
+		if (!entity.isGeneric()) {
+			return formRepository.find(queryParam(C.ENTITY, entity), 
+									   queryParam("autoLayout", false)); // ignore auto layout forms
+		}
+		return Collections.emptyList();
 	}
 	
 	@Override

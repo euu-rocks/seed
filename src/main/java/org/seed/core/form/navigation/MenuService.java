@@ -25,7 +25,13 @@ import org.seed.core.user.User;
 
 public interface MenuService extends ApplicationEntityService<Menu> {
 	
+	boolean existCustomMenus();
+	
 	List<Menu> getTopLevelMenus();
+	
+	List<Menu> getCustomTopLevelMenus();
+	
+	List<Menu> findCustomMenusWithoutModule();
 	
 	List<Menu> getMenus(User user);
 	

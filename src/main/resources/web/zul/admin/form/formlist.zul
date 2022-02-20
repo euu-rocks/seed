@@ -73,7 +73,7 @@
 		                </template>
 		           	</combobox>
 		        </auxheader>
-		        <auxheader>
+		        <auxheader style="text-align:center">
 		        	<checkbox checked="@bind(vm.getFilter('list','autoLayout').booleanValue)"/>
 		        </auxheader>
 		        <auxheader>

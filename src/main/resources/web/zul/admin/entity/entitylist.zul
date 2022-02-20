@@ -53,7 +53,7 @@
 	            <listheader hflex="2" label="${labels.label.basedon}"
 	            			sort="auto(genericEntity.name)" 
 	            			visible="@load(vm.existGenericEntities())"/>			
-	            <listheader hflex="min" label="${labels.label.module}"
+	            <listheader hflex="min" label="${labels.label.masterdata}"
 	            			sort="auto(transferable)"/>
 	            <listheader hflex="min" label="${labels.label.generic}"
 	            			sort="auto(generic)"/>			
@@ -79,10 +79,10 @@
 		                </template>
 		           	</combobox>
 		        </auxheader>
-		        <auxheader>
+		        <auxheader style="text-align:center">
 		        	<checkbox checked="@bind(vm.getFilter('list','transferable').booleanValue)"/>
 		        </auxheader>
-		        <auxheader>
+		        <auxheader style="text-align:center">
 		        	<checkbox checked="@bind(vm.getFilter('list','generic').booleanValue)"/>
 		        </auxheader>
 		        <auxheader>

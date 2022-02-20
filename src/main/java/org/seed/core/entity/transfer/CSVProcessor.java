@@ -26,6 +26,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.value.ValueObject;
@@ -86,7 +87,7 @@ class CSVProcessor extends AbstractTransferProcessor {
 	
 	@Override
 	public TransferResult doImport(ImportOptions options, InputStream inputStream) throws ValidationException {
-		Assert.notNull(options, "options");
+		Assert.notNull(options, C.OPTIONS);
 		Assert.notNull(inputStream, "inputStream");
 		final TransferResult result = new TransferResult(options);
 		

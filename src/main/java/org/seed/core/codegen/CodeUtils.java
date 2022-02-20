@@ -17,13 +17,11 @@
  */
 package org.seed.core.codegen;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.util.Scanner;
 import java.util.regex.Pattern;
-import java.util.zip.ZipInputStream;
 
 import javax.tools.JavaFileObject.Kind;
 
@@ -34,12 +32,11 @@ public abstract class CodeUtils {
 	
 	private static final String[] CLASS_TYPES = { "class ", "interface ", "enum " };
 	
+	private static final String EXT_JAR = ".jar";
+	
 	private CodeUtils() { }
 	
 	public static URI createJarURI(URL packageURL, String classFileName) {
-		Assert.notNull(packageURL, "packageURL");
-		Assert.notNull(classFileName, "classFileName");
-		
 		final String packageURLString = packageURL.toExternalForm();
 		final String jarURI = packageURLString.substring(0, packageURLString.lastIndexOf('!'));
 		return URI.create(jarURI + "!/" + classFileName);
@@ -51,12 +48,6 @@ public abstract class CodeUtils {
 				: null;
 	}
 	
-	public static ZipInputStream createZipStream(byte[] bytes) {
-		Assert.notNull(bytes, "bytes");
-		
-		return new ZipInputStream(new ByteArrayInputStream(bytes));
-	}
-	
 	public static boolean isClassFile(String fileName) {
 		return isKind(fileName, Kind.CLASS);
 	}
@@ -66,52 +57,36 @@ public abstract class CodeUtils {
 	}
 	
 	public static boolean isJarFile(String fileName) {
-		return fileName != null && fileName.toLowerCase().endsWith(".jar");
+		return fileName != null && fileName.toLowerCase().endsWith(EXT_JAR);
 	}
 	
 	public static boolean isSubPackage(String path, String packagePath) {
-		Assert.notNull(path, C.PATH);
-		Assert.notNull(packagePath, "packagePath");
-		
 		return path.indexOf('/', packagePath.length() + 1) != -1;
 	}
 	
 	public static String getPackagePath(String packageName) {
-		Assert.notNull(packageName, C.PACKAGENAME);
-		
 		return packageName.replace('.', '/');
 	}
 	
 	public static String getQualifiedName(String entryName) {
-		Assert.notNull(entryName, "entryName");
-		
 		return removeClassExtension(entryName).replace('/', '.');
 	}
 	
 	public static String getQualifiedName(String packageName, String className) {
-		Assert.notNull(packageName, C.PACKAGENAME);
-		Assert.notNull(className, C.CLASSNAME);
-		
 		return packageName + '.' + className;
 	}
 	
 	public static String extractClassName(String qualifiedName) {
-		Assert.notNull(qualifiedName, C.QUALIFIEDNAME);
-		
 		final int idx = qualifiedName.lastIndexOf('.');
 		return idx >= 0 ? qualifiedName.substring(idx + 1) : qualifiedName; 
 	}
 	
 	public static String extractPackageName(String qualifiedName) {
-		Assert.notNull(qualifiedName, C.QUALIFIEDNAME);
-		
 		final int idx = qualifiedName.lastIndexOf('.');
 		return idx >= 0 ? qualifiedName.substring(0, idx) : "java.lang"; // primitives have no package
 	}
 	
 	public static String extractQualifiedName(String code) {
-		Assert.notNull(code, C.CODE);
-		
 		// extract package name
 		int startIdx = code.indexOf("package ");
 		Assert.state(startIdx >= 0, "package not found");

@@ -53,6 +53,12 @@ abstract class AbstractViewModel {
 	private static final String AFTER_CENTER = "after_center";
 	private static final String NOBR_START   = "<nobr>";
 	private static final String NOBR_END     = "</nobr>";
+	private static final String UL_START	 = "<ul>";
+	private static final String UL_END		 = "</ul>";
+	private static final String LI_START	 = "<li>";
+	private static final String LI_END		 = "</li>";
+	private static final String PRE_LABEL	 = "label.";
+	private static final String NOTIFY_ALL	 = "*";
 	
 	@WireVariable(value="ZKLabelProvider")
 	private LabelProvider labelProvider;
@@ -126,7 +132,7 @@ abstract class AbstractViewModel {
 	}
 	
 	protected final void notifyChangeAll() {
-		notifyChange("*");
+		notifyChange(NOTIFY_ALL);
 	}
 	
 	protected final void showNotification(Component component, boolean warning, String msgKey, String ...params) {
@@ -149,19 +155,19 @@ abstract class AbstractViewModel {
 			buf.append(getLabel("val.error.header", getLabel(errorKey)));
 		}
 		if (isList) {
-			buf.append("<ul>");
+			buf.append(UL_START);
 		}
 		for (ValidationError error : validationErrors) {
 			if (isList) {
-				buf.append("<li>");
+				buf.append(LI_START);
 			}
 			buildError(buf, error);
 			if (isList) {
-				buf.append("</li>");
+				buf.append(LI_END);
 			}
 		}
 		if (isList) {
-			buf.append("</ul>");
+			buf.append(UL_END);
 		}
 		Clients.showNotification(buf.toString(),
 				 				 Clients.NOTIFICATION_TYPE_WARNING, 
@@ -202,7 +208,7 @@ abstract class AbstractViewModel {
 		else {
 			final String[] params = error.getParameters();
 			for (int i = 0; i < params.length; i++) {
-				if (params[i].startsWith("label.")) {
+				if (params[i].startsWith(PRE_LABEL)) {
 					params[i] = getLabel(params[i]);
 				}
 			}

@@ -247,8 +247,8 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(layoutRoot, C.LAYOUTROOT);
 		
 		final List<NestedEntity> nesteds = new ArrayList<>();
-		if (form.getEntity().hasAllNesteds()) {
-			for (NestedEntity nested : form.getEntity().getAllNesteds()) {
+		if (form.getEntity().hasNesteds()) {
+			for (NestedEntity nested : form.getEntity().getNesteds()) {
 				if (form.getSubFormByNestedEntityId(nested.getId()) == null) {
 					nesteds.add(nested);
 				}
@@ -718,7 +718,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		// build layout
 		((FormMetadata) form).clearSubForms();
 		final LayoutElement elemZK = createZK();
-		if (entity.hasAllNesteds() || entity.hasAllRelations()) {
+		if (entity.hasNesteds() || entity.hasAllRelations()) {
 			buildAutoLayoutSubForms(form, elemZK, elemMainGrid);
 		}
 		else if (elemMainGrid != null) {
@@ -814,8 +814,8 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		elemTabbox.setClass(LayoutElementClass.TABBOX);
 		final LayoutElement elemTabs = elemTabbox.addChild(new LayoutElement(LayoutElement.TABS));
 		final LayoutElement elemPanels = elemTabbox.addChild(new LayoutElement(LayoutElement.TABPANELS));
-		if (form.getEntity().hasAllNesteds()) {
-			for (NestedEntity nested : form.getEntity().getAllNesteds()) {
+		if (form.getEntity().hasNesteds()) {
+			for (NestedEntity nested : form.getEntity().getNesteds()) {
 				try {
 					final SubForm subForm = formService.addSubForm(form, nested);
 					elemTabs.addChild(createTab(nested.getName()));
@@ -839,7 +839,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Override
 	public void rebuildLayout(Form form) {
 		Assert.notNull(form, C.FORM);
-		Assert.notNull(form.getLayout() != null, "form has no layout");
+		Assert.stateAvailable(form.getLayout(), "layout");
 		
 		final FormLayout formLayout = form.getLayout();
 		final LayoutElement layoutRoot = parseLayout(formLayout);

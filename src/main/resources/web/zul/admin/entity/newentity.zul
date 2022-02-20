@@ -39,7 +39,7 @@
 								 hflex="1"/> 
                 	</cell>
             	</row>
-            	<row visible="@load(!vm.object.transferable and vm.existGenericEntities())"> 
+            	<row visible="@load(!(vm.object.generic or vm.object.transferable) and vm.existGenericEntities())"> 
             		<cell align="right">
                 		<label value="${labels.label.basedon}:"/>
                 	</cell>
@@ -75,6 +75,24 @@
 		                </combobox>
 		            </cell>
                 </row>
+                <row visible="@load(vm.object.options.autoLayout and !empty vm.menus)"> 
+                	<cell align="right">
+                		<label value="${labels.label.menuentry}:"/>
+                	</cell>
+                	<cell>
+	                	<combobox model="@init(vm.menus) @template(empty each.name ? 'empty' : 'menu')" 
+	                			  selectedItem="@bind(vm.object.options.menu)"
+	                			  hflex="1">
+			                <template name="empty">
+			                    <comboitem/>
+			                </template>
+			                <template name="menu" var="menu">
+			                    <comboitem label="@init(menu.name)" 
+			                    		   iconSclass="z-icon-navicon z-icon-fw alpha-icon-lg" />
+			                </template>
+		                </combobox>
+		            </cell>	
+                </row>
                 <row>
                 	<cell/>
                 	<cell>
@@ -101,24 +119,6 @@
                 		<label value="${labels.label.autoform}"
                 			   style="margin-left: 5px"/>
                 	</cell>
-                </row>
-                <row visible="@load(vm.object.options.autoLayout and !empty vm.menus)"> 
-                	<cell align="right">
-                		<label value="${labels.label.menuentry}:"/>
-                	</cell>
-                	<cell>
-	                	<combobox model="@init(vm.menus) @template(empty each.name ? 'empty' : 'menu')" 
-	                			  selectedItem="@bind(vm.object.options.menu)"
-	                			  hflex="1">
-			                <template name="empty">
-			                    <comboitem/>
-			                </template>
-			                <template name="menu" var="menu">
-			                    <comboitem label="@init(menu.name)" 
-			                    		   iconSclass="z-icon-navicon z-icon-fw alpha-icon-lg" />
-			                </template>
-		                </combobox>
-		            </cell>	
                 </row>
             </rows>
 		</grid>

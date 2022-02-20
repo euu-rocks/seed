@@ -118,8 +118,8 @@ public class ValueObjectValidator implements ApplicationContextAware {
 		}
 		
 		// nesteds
-		if (entity.hasAllNesteds()) {
-			for (NestedEntity nested : entity.getAllNesteds()) {
+		if (entity.hasNesteds()) {
+			for (NestedEntity nested : entity.getNesteds()) {
 				if (nested.getNestedEntity().hasFields()) {
 					final List<ValueObject> nestedObjects = objectAccess.getNestedObjects(object, nested);
 					if (nestedObjects != null) {

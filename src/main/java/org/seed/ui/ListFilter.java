@@ -101,6 +101,7 @@ public class ListFilter<T extends SystemObject> {
 	
 	public void reset() {
 		value = null;
+		booleanValue = false;
 	}
 	
 	public Set<String> getValues() {

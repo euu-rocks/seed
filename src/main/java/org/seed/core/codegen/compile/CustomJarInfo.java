@@ -25,10 +25,11 @@ import java.util.zip.ZipInputStream;
 
 import org.seed.C;
 import org.seed.core.util.Assert;
-
-import static org.seed.core.codegen.CodeUtils.*;
+import org.seed.core.util.StreamUtils;
 
 final class CustomJarInfo {
+	
+	private static final String META_INF = "META-INF";
 	
 	private final CustomJar customJar;
 	
@@ -53,10 +54,10 @@ final class CustomJarInfo {
 	
 	private static Set<String> extractPackageNames(CustomJar customJar) {
 		final Set<String> packageNames = new HashSet<>();
-		try (ZipInputStream zis = createZipStream(customJar.getContent())) {
+		try (ZipInputStream zis = StreamUtils.getZipStream(customJar.getContent())) {
 			ZipEntry entry;
 			while ((entry = zis.getNextEntry()) != null) {
-                if (entry.isDirectory() && !entry.getName().startsWith("META-INF")) {
+                if (entry.isDirectory() && !entry.getName().startsWith(META_INF)) {
                 	packageNames.add(entry.getName()
                 						  .substring(0, entry.getName().length() - 1)
                 						  .replace('/', '.'));

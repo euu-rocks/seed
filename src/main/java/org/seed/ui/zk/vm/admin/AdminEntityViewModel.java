@@ -81,7 +81,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	private static final String NESTEDS = "nesteds";
 	private static final String RELATIONS = "relations";
 	private static final String STATUS = C.STATUS;
-	private static final String STATUSTRANSITIONS = "statusTransition";
+	private static final String STATUSTRANSITIONS = "statusTransitions";
 	private static final String TRANSITIONFUNCTIONS = "transitionFunctions";
 	private static final String TRANSITIONPERMISSIONS = "transitionPermissions";
 	private static final String PERMISSIONS = "permissions";
@@ -173,6 +173,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 			}
 		}
 		getFilter(FILTERGROUP_LIST, C.GENERIC).setBooleanFilter(true);
+		getFilter(FILTERGROUP_LIST, C.TRANSFERABLE).setBooleanFilter(true);
 	}
 	
 	public boolean existGenericEntities() {
@@ -185,7 +186,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	public List<Menu> getMenus() {
-		return menuService.getTopLevelMenus();
+		return menuService.getCustomTopLevelMenus();
 	}
 	
 	public Object getReferenceValue(ValueObject valueObject) {
@@ -692,15 +693,15 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	@Command
 	public void selectOption(@BindingParam("option") String option) {
 		switch (option) {
-			case "generic": 
+			case C.GENERIC: 
 				if (getObject().isGeneric()) {
 					getOptions().setAutoLayout(false);
 					((EntityMetadata) getObject()).setTransferable(false);
-					notifyObjectChange("options", "transferable");
+					notifyObjectChange(C.OPTIONS, C.TRANSFERABLE);
 				}
 				break;
 				
-			case "transferable":
+			case C.TRANSFERABLE:
 				if (getObject().isTransferable()) {
 					((EntityMetadata) getObject()).setGeneric(false);
 					((EntityMetadata) getObject()).setGenericEntity(null);
@@ -723,7 +724,6 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	private FormOptions getOptions() {
 		return (FormOptions) getObject().getOptions();
 	}
-	
 	
 	@Command
 	public void selectConstraintField() {

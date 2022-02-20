@@ -75,10 +75,7 @@ public class DataSourceValidator extends AbstractSystemEntityValidator<IDataSour
 		if (isEmpty(dataSource.getContent())) {
 			errors.addEmptyField("label.sqlstatement");
 		}
-		else if (!dataSource.getContent().toLowerCase().contains("select ")) {
-			errors.addError("val.query.noselect");
-		}
-		else {
+		else if (validateContent(dataSource, errors)) {
 			if (dataSource.hasParameters()) {
 				validateParameters(dataSource, errors);
 			}
@@ -89,7 +86,7 @@ public class DataSourceValidator extends AbstractSystemEntityValidator<IDataSour
 			}
 		}
 		
-		// test sql
+		// test query
 		if (errors.isEmpty()) {	
 			try {
 				repository.testQuery(dataSource, createTestParameterMap(dataSource));
@@ -102,6 +99,20 @@ public class DataSourceValidator extends AbstractSystemEntityValidator<IDataSour
 		validate(errors);
 	}
 	
+	private boolean validateContent(IDataSource dataSource, ValidationErrors errors) {
+		if (dataSource.getType().isSQL() && 
+			!dataSource.getContent().toLowerCase().contains("select ")) {
+			errors.addError("val.query.noselect");
+			return false;
+		}
+		else if (dataSource.getType().isHQL() && 
+				 !dataSource.getContent().toLowerCase().contains("from ")) {
+			errors.addError("val.query.nofrom");
+			return false;
+		}
+		return true;
+	}
+ 	
 	@SuppressWarnings("unchecked")
 	private void validateParameters(IDataSource dataSource, final ValidationErrors errors) {
 		for (DataSourceParameter parameter : dataSource.getParameters()) {

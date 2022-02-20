@@ -290,8 +290,8 @@ public class ValueObjectServiceImpl
 		final List<FileObject> fileObjects = new ArrayList<>();
 		final Entity entity = repository.getEntity(object);
 		collectFileObjects(object, entity, fileObjects);
-		if (entity.hasAllNesteds()) {
-			for (NestedEntity nested : entity.getAllNesteds()) {
+		if (entity.hasNesteds()) {
+			for (NestedEntity nested : entity.getNesteds()) {
 				if (nested.getNestedEntity().hasAllFields() && hasNestedObjects(object, nested)) {
 					for (ValueObject nestedObject : getNestedObjects(object, nested)) {
 						collectFileObjects(nestedObject, nested.getNestedEntity(), fileObjects);
@@ -606,7 +606,7 @@ public class ValueObjectServiceImpl
 	
 	@Override
 	public List<SystemEntity> findUsage(Entity entity) {
-		if (repository.exist(entity, null)) {
+		if (!entity.isGeneric() && repository.exist(entity, null)) {
 			return Collections.singletonList(VALUE_ENTITY);
 		}
 		return Collections.emptyList();
@@ -698,8 +698,8 @@ public class ValueObjectServiceImpl
 				}
 			}
 		}
-		if (entity.hasAllNesteds()) {
-			for (NestedEntity nested : entity.getAllNesteds()) {
+		if (entity.hasNesteds()) {
+			for (NestedEntity nested : entity.getNesteds()) {
 				// get nested maps
 				final List<Map<String, Object>> listNestedMaps = 
 						(List<Map<String, Object>>) valueMap.get(nested.getInternalName());
@@ -788,8 +788,8 @@ public class ValueObjectServiceImpl
 		
 		final Entity entity = repository.getEntity(object);
 		setFileFields(object, entity, createObject);
-		if (entity.hasAllNesteds()) {
-			for (NestedEntity nested : entity.getAllNesteds()) {
+		if (entity.hasNesteds()) {
+			for (NestedEntity nested : entity.getNesteds()) {
 				if (nested.getNestedEntity().hasAllFields() && hasNestedObjects(object, nested)) {
 					for (ValueObject nestedObject : getNestedObjects(object, nested)) {
 						setFileFields(nestedObject, nested.getNestedEntity(), createObject);

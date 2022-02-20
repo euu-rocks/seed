@@ -27,6 +27,7 @@ import java.nio.charset.Charset;
 import java.util.Base64;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterOutputStream;
+import java.util.zip.ZipInputStream;
 
 import org.seed.InternalException;
 
@@ -48,6 +49,10 @@ public abstract class StreamUtils {
 	
 	public static InputStream getStringAsStream(String string) {
 		return new ByteArrayInputStream(string.getBytes(CHARSET));
+	}
+	
+	public static ZipInputStream getZipStream(byte[] bytes) {
+		return new ZipInputStream(new ByteArrayInputStream(bytes));
 	}
 	
 	public static String compress(String text) {

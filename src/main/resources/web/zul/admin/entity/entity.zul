@@ -89,7 +89,7 @@
 									  disabled="true"/>   
 						</cell>
 					</row>
-					<row>
+					<row visible="@load(!vm.object.generic)">
 						<cell style="padding: 4px 10px" align="right">
 							<label value="${labels.label.basedon}:"
 								   visible="@load(!vm.object.transferable)"/>
@@ -110,7 +110,7 @@
 						<cell style="padding: 4px 10px" align="right">
 							<label value="${labels.label.tablename}:"
 								   visible="@load(!(vm.object.generic or vm.object.transferable))"/>
-							<label value="${labels.label.transferableentity}:"
+							<label value="${labels.label.masterdata}:"
 								   visible="@load(vm.object.transferable)"/>
 						</cell>
 						<cell>
@@ -134,9 +134,9 @@
 					<tab id="tabFieldGroups" label="${labels.label.fieldgroups}"/>
 					<tab id="tabFunctions" label="${labels.label.functions}"/>
 					<tab id="tabNesteds" label="${labels.label.nesteds}"
-						 visible="@load(not empty vm.availableNesteds)"/>
+						 visible="@load((!(vm.object.generic or vm.object.transferable)) and !empty vm.availableNesteds)"/>
 					<tab id="tabRelations" label="${labels.label.relations}"
-						 visible="@load(not empty vm.relationEntities)"/>	 
+						 visible="@load(!vm.object.transferable and !empty vm.relationEntities)"/>	 
 					<tab id="tabFieldConstraints" label="${labels.label.fieldconstraints}"
 						 visible="@load(!empty vm.object.fields and !vm.object.transferable and (vm.existUserGroups() or !empty vm.object.statusList))"
 						 onSelect="@command('selectConstraintTab')"/>

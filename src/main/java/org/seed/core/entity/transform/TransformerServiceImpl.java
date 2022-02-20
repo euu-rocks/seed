@@ -134,10 +134,13 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	public List<Transformer> findUsage(Entity entity) {
 		Assert.notNull(entity, C.ENTITY);
 		
-		final Set<Transformer> result = new HashSet<>();
-		result.addAll(repository.find(queryParam(C.SOURCEENTITY, entity)));
-		result.addAll(repository.find(queryParam(C.TARGETENTITY, entity)));
-		return new ArrayList<>(result);
+		if (!entity.isGeneric()) {
+			final Set<Transformer> result = new HashSet<>();
+			result.addAll(repository.find(queryParam(C.SOURCEENTITY, entity)));
+			result.addAll(repository.find(queryParam(C.TARGETENTITY, entity)));
+			return new ArrayList<>(result);
+		}
+		return Collections.emptyList();
 	}
 	
 	public List<TransformerPermission> getAvailablePermissions(Transformer transformer) {

@@ -721,7 +721,6 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				else {
 					changeAware.notifyChange(entity, session);
 				}
-				changeAware.notifyChange(entity, session);
 			}
 		}
 	}
@@ -872,7 +871,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		if (entity.hasFieldConstraints()) {
 			initFieldConstraints(session, entity, currentVersionEntity);
 		}
-		if (entity.hasAllNesteds()) {
+		if (entity.hasNesteds()) {
 			initNesteds(entity, currentVersionEntity);
 		}
 		if (entity.hasAllRelations()) {
@@ -884,7 +883,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		if (entity.hasAllFields()) {
 			initReferenceFields(session, entity);
 		}
-		if (entity.hasAllNesteds()) {
+		if (entity.hasNesteds()) {
 			initNestedEntities(session, entity);
 		}
 		if (entity.hasAllRelations()) {
@@ -958,7 +957,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	private void initNesteds(Entity entity, Entity currentVersionEntity) {
-		for (NestedEntity nested : entity.getAllNesteds()) {
+		for (NestedEntity nested : entity.getNesteds()) {
 			nested.setParentEntity(entity);
 			if (currentVersionEntity != null) {
 				final NestedEntity currentVersionNested = 
@@ -984,7 +983,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	private void initNestedEntities(Session session, Entity entity) {
-		for (NestedEntity nested : entity.getAllNesteds()) {
+		for (NestedEntity nested : entity.getNesteds()) {
 			final Entity nestedEntity = findByUid(session, nested.getNestedEntityUid());
 			Assert.stateAvailable(nestedEntity, "nested entity");
 			nested.setNestedEntity(nestedEntity);

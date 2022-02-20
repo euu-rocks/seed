@@ -219,7 +219,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 		existTransformers = transformerService.existObjects();
 		existTransfers = transferService.existObjects();
 		existForms = formService.existObjects();
-		existMenus = menuService.existObjects();
+		existMenus = menuService.existCustomMenus();
 		existTasks = taskService.existObjects();
 		existReports = reportService.existObjects();
 		existRests = restService.existObjects();
@@ -455,7 +455,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	private List<SystemObject> getListManagerSourceMenu(int listNum) {
 		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getMenus()
-				: menuService.findObjectsWithoutModule());
+				: menuService.findCustomMenusWithoutModule());
 	}
 	
 	private List<SystemObject> getListManagerSourceTask(int listNum) {

@@ -63,6 +63,7 @@ public final class C {
 	public static final String NESTEDENTITY     = "nestedEntity";
 	public static final String OBJECT           = "object";
 	public static final String OBJECTCLASS      = "objectClass";
+	public static final String OPTIONS          = "options";
 	public static final String PACKAGENAME      = "packageName";
 	public static final String PARAM            = "param";
 	public static final String PARAMETER        = "parameter";
@@ -89,6 +90,7 @@ public final class C {
 	public static final String TARGETENTITY     = "targetEntity";
 	public static final String TEXT             = "text";
 	public static final String TRANSFER         = "transfer";
+	public static final String TRANSFERABLE     = "transferable";
 	public static final String TRANSFORMER      = "transformer";
 	public static final String TRANSITION       = "transition";
 	public static final String TRUE             = "true";

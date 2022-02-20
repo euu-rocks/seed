@@ -51,8 +51,9 @@
 	            		<label value="@load(!empty datasource.label ? datasource.label : datasource.dataSource.name)" 
 	            			   style="margin-left:3px"/>
 	            	</listcell>
-	            	<listcell>
-	            		<label value="@load(datasource.dataSource.name)" />
+	            	<listcell iconSclass="@load(empty datasource.dataSource ? '' : 'z-icon-share-alt alpha-icon-lg')">
+	            		<label value="@load(datasource.dataSource.name)" 
+	            			   style="margin-left:3px"/>
 	            	</listcell>
 	            </listitem>
 		    </template> 

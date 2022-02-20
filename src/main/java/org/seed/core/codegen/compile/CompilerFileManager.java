@@ -44,6 +44,7 @@ import javax.tools.StandardJavaFileManager;
 import org.seed.C;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.util.Assert;
+import org.seed.core.util.StreamUtils;
 
 import static org.seed.core.codegen.CodeUtils.*;
 
@@ -194,7 +195,7 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	
 	private void listCustomJar(List<JavaFileObject> result, String packageName, CustomJarInfo customJar) {
 		final String packagePath = getPackagePath(packageName);
-		try (ZipInputStream zis = createZipStream(customJar.getContent())) {
+		try (ZipInputStream zis = StreamUtils.getZipStream(customJar.getContent())) {
 			ZipEntry entry;
 			while ((entry = zis.getNextEntry()) != null) {
 				final String entryName = entry.getName();

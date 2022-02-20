@@ -321,13 +321,19 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	
 	@Override
 	public List<Filter> findUsage(Entity entity) {
-		return findFilters(entity);
+		if (!entity.isGeneric()) {
+			return findFilters(entity);
+		}
+		return Collections.emptyList();
 	}
 
 	@Override
 	public List<Filter> findUsage(EntityField entityField) {
 		Assert.notNull(entityField, C.ENTITYFIELD);
 		
+		if (entityField.getEntity().isGeneric()) {
+			return Collections.emptyList();
+		}
 		final List<Filter> result = new ArrayList<>();
 		for (Filter filter : findFilters(entityField.getEntity())) {
 			if (filter.hasCriteria()) {

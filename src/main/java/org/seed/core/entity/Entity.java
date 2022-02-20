@@ -43,8 +43,6 @@ public interface Entity
 	
 	boolean hasNesteds();
 	
-	boolean hasAllNesteds(); // includes generic nesteds
-	
 	boolean hasRelations();
 	
 	boolean hasAllRelations(); // includes generic relations
@@ -118,8 +116,6 @@ public interface Entity
 	EntityRelation getRelationByUid(String uid);
 	
 	List<NestedEntity> getNesteds();
-	
-	List<NestedEntity> getAllNesteds();
 	
 	NestedEntity getNestedByEntityId(Long id);
 	

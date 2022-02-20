@@ -121,6 +121,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 		for (Form form : getObjectList()) {
 			filterEntity.addValue(form.getEntity().getName());
 		}
+		getFilter(FILTERGROUP_LIST, "autoLayout").setBooleanFilter(true);
 	}
 	
 	public FormField getField() {

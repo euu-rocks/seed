@@ -701,7 +701,7 @@ public class ValueObjectRepository {
 		}
 		
 		// nesteds
-		if (entity.hasAllNesteds()) {
+		if (entity.hasNesteds()) {
 			restrictions.addAll(createNestedsRestrictions(builder, entity, searchObject, criteriaMap, query, root));
 		}
 		
@@ -727,7 +727,7 @@ public class ValueObjectRepository {
 														  Map<Long, Map<String, CriterionOperator>> criteriaMap,
 														  CriteriaQuery<T> query, Root<ValueObject> root) {
 		final List<Predicate> restrictions = new ArrayList<>();
-		for (NestedEntity nestedEntity : entity.getAllNesteds()) {
+		for (NestedEntity nestedEntity : entity.getNesteds()) {
 			final List<ValueObject> nesteds = objectAccess.getNestedObjects(searchObject, nestedEntity);
 			if (!ObjectUtils.isEmpty(nesteds)) {
 				restrictions.addAll(createNestedRestrictions(builder, nestedEntity, nesteds, criteriaMap, query, root));

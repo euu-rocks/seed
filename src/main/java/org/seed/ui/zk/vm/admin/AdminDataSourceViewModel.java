@@ -30,6 +30,7 @@ import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityService;
 import org.seed.core.user.Authorisation;
 import org.seed.core.util.ExceptionUtils;
+import org.seed.ui.ListFilter;
 
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
@@ -94,6 +95,15 @@ public class AdminDataSourceViewModel extends AbstractAdminViewModel<IDataSource
 	public void init(@ContextParam(ContextType.VIEW) Component view,
 					 @ExecutionArgParam(C.PARAM) Object object) {
 		super.init(object, view);
+	}
+	
+	@Override
+	protected void initFilters() {
+		final ListFilter<IDataSource> filterType = getFilter(FILTERGROUP_LIST, C.TYPE);
+		filterType.setValueFunction(o -> getEnumLabel(o.getType()));
+		for (IDataSource dataSource : getObjectList()) {
+			filterType.addValue(getEnumLabel(dataSource.getType()));
+		}
 	}
 	
 	@Command
