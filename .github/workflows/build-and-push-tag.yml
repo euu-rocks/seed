@@ -23,7 +23,9 @@ jobs:
         with:
           java-version: 1.11
       - name: Build with Maven
-        run: mvn -B clean deploy --file pom.xml
+        run: |
+          mvn -B clean deploy --file pom.xml
+          cp ./target/seed-*jar ./target/seed.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create Release
@@ -37,7 +39,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./target/seed-${{ env.RELEASE_VERSION }}.jar
+          asset_path: ./target/seed.jar
           asset_name: seed-${{ env.RELEASE_VERSION }}.jar
           asset_content_type: application/java-archive
       - name: Install doctl
