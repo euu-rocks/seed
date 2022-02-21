@@ -35,6 +35,7 @@ jobs:
           asset_path: ./target/seed-${{ env.RELEASE_VERSION }}.jar
           asset_name: seed-${{ env.RELEASE_VERSION }}.jar
           asset_content_type: application/java-archive
+
       - uses: eregon/publish-release@v1
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
