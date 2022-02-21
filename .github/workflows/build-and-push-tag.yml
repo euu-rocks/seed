@@ -35,12 +35,12 @@ jobs:
           asset_path: ./target/seed-${{ env.RELEASE_VERSION }}.jar
           asset_name: seed-${{ env.RELEASE_VERSION }}.jar
           asset_content_type: application/java-archive
-
-      - uses: eregon/publish-release@v1
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          with:
-            release_id: ${{ steps.create_release.outputs.id }}
+      - name: Publish Github Release
+        uses: eregon/publish-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          release_id: ${{ steps.create_release.outputs.id }}
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
         with:
