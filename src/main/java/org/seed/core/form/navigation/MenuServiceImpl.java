@@ -53,6 +53,8 @@ import org.springframework.stereotype.Service;
 public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 	implements MenuService, FormDependent<Menu>, FormChangeAware {
 	
+	private static final String LABEL_DEFAULT_MENU = "label.defaultmenu";
+	
 	@Autowired
 	private FormService formService;
 	
@@ -66,8 +68,13 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 	private LabelProvider labelProvider;
 	
 	@Override
+	public String getDefaultMenuName() {
+		return labelProvider.getLabel(LABEL_DEFAULT_MENU);
+	}
+	
+	@Override
 	public List<Menu> getTopLevelMenus() {
-		return menuRepository.find(queryParam("parent", QueryParameter.IS_NULL));
+		return menuRepository.find(queryParam(C.PARENT, QueryParameter.IS_NULL));
 	}
 	
 	@Override
@@ -77,7 +84,7 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 	
 	@Override
 	public List<Menu> findObjectsWithoutModule() {
-		return menuRepository.find(queryParam("parent", QueryParameter.IS_NULL),
+		return menuRepository.find(queryParam(C.PARENT, QueryParameter.IS_NULL),
 								   queryParam(C.MODULE, QueryParameter.IS_NULL));
 	}
 	
@@ -134,7 +141,7 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 			if (formOptions != null) {
 				Menu parentMenu = formOptions.getMenu();
 				if (parentMenu == null) {
-					final String defaultMenuName = labelProvider.getLabel("label.defaultmenu");
+					final String defaultMenuName = getDefaultMenuName();
 					parentMenu = findByName(defaultMenuName, session);
 					if (parentMenu == null) {
 						parentMenu = createInstance(null);
@@ -305,7 +312,7 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 	
 	private List<Menu> filterDefaultMenu(List<Menu> menus) {
 		return menus.stream()
-					.filter(menu -> !menu.getName().equals(labelProvider.getLabel("label.defaultmenu")))
+					.filter(menu -> !menu.getName().equals(getDefaultMenuName()))
 					.collect(Collectors.toList());
 	}
 	

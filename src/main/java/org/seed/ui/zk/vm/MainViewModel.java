@@ -122,7 +122,7 @@ public class MainViewModel extends AbstractApplicationViewModel {
     public void init() {
 		Clients.confirmClose(getLabel("question.quit"));
 		openNodes.add(getLabel("label.administration"));
-		openNodes.add(getLabel("label.defaultmenu"));
+		openNodes.add(menuManager.getDefaultMenuName());
 		openNodes.add(getUserName());
 	}
 	

@@ -57,6 +57,8 @@ public interface Entity
 	
 	boolean containsFieldGroup(EntityFieldGroup fieldGroup);
 	
+	boolean containsNested(NestedEntity nested);
+	
 	String getGenericEntityUid();
 	
 	String getTableName();

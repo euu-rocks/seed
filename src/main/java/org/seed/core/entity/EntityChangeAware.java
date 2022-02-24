@@ -23,6 +23,8 @@ public interface EntityChangeAware {
 	
 	void notifyCreate(Entity entity, Session session);
 	
+	void notifyBeforeChange(Entity entity, Session session);
+	
 	void notifyChange(Entity entity, Session session);
 	
 	void notifyDelete(Entity entity, Session session);

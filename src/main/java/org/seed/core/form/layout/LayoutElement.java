@@ -132,13 +132,13 @@ public final class LayoutElement {
 	}
 
 	public LayoutElement getParent() {
-		Assert.stateAvailable(parent, "parent");
+		Assert.stateAvailable(parent, C.PARENT);
 		
 		return parent;
 	}
 
 	private void setParent(LayoutElement parent) {
-		Assert.notNull(parent, "parent");
+		Assert.notNull(parent, C.PARENT);
 		Assert.state(this.parent == null, "parent reassigned");
 		
 		this.parent = parent;

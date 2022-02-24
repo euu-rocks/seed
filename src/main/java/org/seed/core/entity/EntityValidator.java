@@ -42,6 +42,17 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 	
 	private List<EntityDependent<? extends SystemEntity>> entityDependents;
 	
+	void validateCreateNested(Entity entity) throws ValidationException {
+		Assert.notNull(entity, C.ENTITY);
+		final ValidationErrors errors = new ValidationErrors();
+		
+		if (isEmpty(((EntityMetadata)entity).getParentEntity())) {
+			errors.addError("val.empty.parententity");
+		}
+		
+		validate(errors);
+	}
+		
 	@Override
 	public void validateSave(Entity entity) throws ValidationException {
 		Assert.notNull(entity, C.ENTITY);

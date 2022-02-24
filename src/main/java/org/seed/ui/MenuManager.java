@@ -44,6 +44,10 @@ public class MenuManager {
 	@Autowired
 	private MenuService menuService;
 	
+	public String getDefaultMenuName() {
+		return menuService.getDefaultMenuName();
+	}
+	
 	public List<TreeNode> getMenuList(User user, boolean reportsExist, boolean tasksExist, 
 									  boolean fullTextSearchAvailable) {
 		Assert.notNull(user, C.USER);

@@ -34,12 +34,14 @@ public abstract class CodeUtils {
 	
 	private static final String EXT_JAR = ".jar";
 	
+	private static final String JAR_SEPARATOR = "!/"; 
+	
 	private CodeUtils() { }
 	
 	public static URI createJarURI(URL packageURL, String classFileName) {
 		final String packageURLString = packageURL.toExternalForm();
 		final String jarURI = packageURLString.substring(0, packageURLString.lastIndexOf('!'));
-		return URI.create(jarURI + "!/" + classFileName);
+		return URI.create(jarURI + JAR_SEPARATOR + classFileName);
 	}
 	
 	public static URI createSourceURI(String className) {

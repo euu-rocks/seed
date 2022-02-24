@@ -148,6 +148,9 @@ public class EntityMetadata extends AbstractApplicationEntity
 	private String genericEntityUid;
 	
 	@Transient
+	private Entity parentEntity;
+	
+	@Transient
 	private EntityField uidField;
 
 	@Override
@@ -176,9 +179,19 @@ public class EntityMetadata extends AbstractApplicationEntity
 	public String getGenericEntityUid() {
 		return genericEntity != null ? genericEntity.getUid() : genericEntityUid;
 	}
-
+	
 	public void setGenericEntityUid(String genericEntityUid) {
 		this.genericEntityUid = genericEntityUid;
+	}
+	
+	@JsonIgnore
+	@XmlTransient
+	public Entity getParentEntity() {
+		return parentEntity;
+	}
+
+	public void setParentEntity(Entity parentEntity) {
+		this.parentEntity = parentEntity;
 	}
 
 	@Override
@@ -506,6 +519,13 @@ public class EntityMetadata extends AbstractApplicationEntity
 		Assert.notNull(fieldGroup, C.FIELDGROUP);
 		
 		return hasFieldGroups() && getFieldGroups().contains(fieldGroup);
+	}
+	
+	@Override
+	public boolean containsNested(NestedEntity nested) {
+		Assert.notNull(nested, C.NESTED);
+		
+		return hasNesteds() && getNesteds().contains(nested);
 	}
 	
 	@Override

@@ -39,7 +39,7 @@
 								 hflex="1"/> 
                 	</cell>
             	</row>
-            	<row visible="@load(!(vm.object.generic or vm.object.transferable) and vm.existGenericEntities())"> 
+            	<row visible="@load(!(vm.nestedEntity or vm.object.generic or vm.object.transferable) and vm.existGenericEntities())"> 
             		<cell align="right">
                 		<label value="${labels.label.basedon}:"/>
                 	</cell>
@@ -57,7 +57,26 @@
 		                </combobox>
 		            </cell>
                 </row>
-                <row visible="@load(!empty vm.modules)"> 
+                <row visible="@load(vm.nestedEntity and vm.existParentEntities())"> 
+            		<cell align="right">
+                		<label value="${labels.label.parententity}:"/>
+                	</cell>
+                	<cell>
+	                	<combobox model="@init(vm.parentEntities) @template(empty each.name ? 'empty' : 'entity')" 
+	                			  selectedItem="@bind(vm.object.parentEntity)"
+	                			  mandatory="true"
+	                			  hflex="1">
+	                		<template name="empty">
+			                    <comboitem/>
+			                </template>
+			                <template name="entity" var="entity">
+			                    <comboitem label="@init(entity.name)" 
+			                    		   iconSclass="z-icon-table alpha-icon-lg"/>
+			                </template>
+		                </combobox>
+		            </cell>
+                </row>
+                <row visible="@load(!(vm.nestedEntity or vm.object.generic) and !empty vm.modules)"> 
                 	<cell align="right">
                 		<label value="${labels.label.module}:"/>
                 	</cell>
@@ -75,7 +94,7 @@
 		                </combobox>
 		            </cell>
                 </row>
-                <row visible="@load(vm.object.options.autoLayout and !empty vm.menus)"> 
+                <row visible="@load(!(vm.nestedEntity or vm.object.generic) and vm.object.options.autoLayout and !empty vm.menus)"> 
                 	<cell align="right">
                 		<label value="${labels.label.menuentry}:"/>
                 	</cell>
@@ -99,6 +118,15 @@
                 		<checkbox checked="@bind(vm.object.generic)"
                 				  onCheck="@command('selectOption',option='generic')"/>
                 		<label value="${labels.label.genericentity}"
+                			   style="margin-left: 5px"/>
+                	</cell>
+                </row>
+                <row visible="@init(vm.existParentEntities())">
+                	<cell/>
+                	<cell>
+                		<checkbox checked="@bind(vm.nestedEntity)"
+                				  onCheck="@command('selectOption',option='nested')"/>
+                		<label value="${labels.label.nested}"
                 			   style="margin-left: 5px"/>
                 	</cell>
                 </row>

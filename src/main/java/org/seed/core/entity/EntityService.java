@@ -44,6 +44,8 @@ public interface EntityService extends ApplicationEntityService<Entity> {
 	
 	boolean existGenericEntities();
 	
+	boolean existNonGenericEntities();
+	
 	List<Entity> findGenericEntities();
 	
 	List<Entity> findNonGenericEntities();
@@ -63,6 +65,8 @@ public interface EntityService extends ApplicationEntityService<Entity> {
 	List<EntityStatusTransitionFunction> getAvailableStatusTransitionFunctions(Entity entity, EntityStatusTransition transition);
 	
 	List<EntityStatusTransitionPermission> getAvailableStatusTransitionPermissions(EntityStatusTransition transition);
+	
+	void initNestedEntity(Entity entity) throws ValidationException;
 	
 	void removeField(Entity entity, EntityField field) throws ValidationException;
 	

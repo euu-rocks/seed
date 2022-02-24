@@ -257,6 +257,9 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		final List<Form> result = new ArrayList<>();
 		
 		for (Form form : getObjects()) {
+			if (form.isAutoLayout()) {
+				continue;
+			}
 			if (form.hasSubForms()) {
 				for (SubForm subForm : form.getSubForms()) {
 					if (nestedEntity.equals(subForm.getNestedEntity())) {
@@ -646,6 +649,24 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 			} 
 			catch (ValidationException vex) {
 				throw new InternalException(vex);
+			}
+		}
+	}
+	
+	@Override
+	public void notifyBeforeChange(Entity entity, Session session) {
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(session, C.SESSION);
+		
+		for (Form form : formRepository.find(session, queryParam(C.ENTITY, entity))) {
+			if (form.hasSubForms()) {
+				// delete sub form if nested no longer exist
+				for (SubForm subForm : new ArrayList<>(form.getSubForms())) {
+					if (!entity.containsNested(subForm.getNestedEntity())) {
+						form.removeSubForm(subForm);
+						session.delete(subForm);
+					}
+				}
 			}
 		}
 	}

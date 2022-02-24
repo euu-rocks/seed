@@ -27,6 +27,8 @@ public interface MenuService extends ApplicationEntityService<Menu> {
 	
 	boolean existCustomMenus();
 	
+	String getDefaultMenuName();
+	
 	List<Menu> getTopLevelMenus();
 	
 	List<Menu> getCustomTopLevelMenus();

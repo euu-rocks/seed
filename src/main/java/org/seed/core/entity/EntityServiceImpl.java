@@ -204,7 +204,12 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	@Override
 	public boolean existGenericEntities() {
-		return entityRepository.exist(queryParam("isGeneric", true));
+		return existGeneric(true);
+	}
+	
+	@Override
+	public boolean existNonGenericEntities() {
+		return existGeneric(false);
 	}
 	
 	@Override
@@ -570,6 +575,20 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	@Override
+	public void initNestedEntity(Entity entity) throws ValidationException {
+		Assert.notNull(entity, C.ENTITY);
+		entityValidator.validateCreateNested(entity);
+		
+		// add reference field to parent
+		final Entity parent = ((EntityMetadata) entity).getParentEntity();
+		final EntityField referenceField = new EntityField();
+		referenceField.setName(parent.getName());
+		referenceField.setType(FieldType.REFERENCE);
+		referenceField.setReferenceEntity(parent);
+		entity.addField(referenceField);
+	}
+	
+	@Override
 	public void importObjects(TransferContext context, Session session) {
 		Assert.notNull(context, C.CONTEXT);
 		Assert.notNull(session, C.SESSION);
@@ -706,21 +725,50 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(session, C.SESSION);
 		
 		final boolean isInsert = entity.isNew();
+		final Entity parentEntity = ((EntityMetadata) entity).getParentEntity();
+		
+		beforeSaveObject(entity, session, isInsert);
+		
 		super.saveObject(entity, session);
-		// notify listeners
+		
+		// add nested to parent
+		if (parentEntity != null) {
+			final NestedEntity nested = new NestedEntity();
+			nested.setName(entity.getName());
+			nested.setNestedEntity(entity);
+			nested.setReferenceField(entity.getReferenceFields(parentEntity).get(0));
+			parentEntity.addNested(nested);
+			super.saveObject(parentEntity, session);
+		}
+		
+		afterSaveObject(entity, parentEntity, session, isInsert);
+	}
+	
+	private void beforeSaveObject(Entity entity, Session session, boolean isInsert) {
+		if (!isInsert && !entity.isGeneric()) {
+			for (EntityChangeAware changeAware : getChangeAwareObjects()) {
+				changeAware.notifyBeforeChange(entity, session);
+			}
+		}
+	}
+	
+	private void afterSaveObject(Entity entity, Entity parentEntity, Session session, boolean isInsert) {
+		final List<Entity> descendants = entity.isGeneric() ? findDescendants(entity) : null;
 		for (EntityChangeAware changeAware : getChangeAwareObjects()) {
 			if (isInsert) {
 				changeAware.notifyCreate(entity, session);
+				// notify nested parent
+				if (parentEntity != null) {
+					changeAware.notifyChange(parentEntity, session);
+				}
+			}
+			else if (entity.isGeneric()) {
+				for (Entity descendant : descendants) {
+					changeAware.notifyChange(descendant, session);
+				}
 			}
 			else {
-				if (entity.isGeneric()) {
-					for (Entity descendant : findDescendants(entity)) {
-						changeAware.notifyChange(descendant, session);
-					}
-				}
-				else {
-					changeAware.notifyChange(entity, session);
-				}
+				changeAware.notifyChange(entity, session);
 			}
 		}
 	}
@@ -798,6 +846,10 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	private List<Entity> findGeneric(boolean generic) {
 		return entityRepository.find(queryParam("isGeneric", generic));
+	}
+	
+	private boolean existGeneric(boolean generic) {
+		return entityRepository.exist(queryParam("isGeneric", generic));
 	}
 	
 	private EntityField getDeletedAutonumField(Entity currentVersion, Entity entity) {

@@ -103,6 +103,11 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 	}
 	
 	@Override
+	public void notifyBeforeChange(Entity entity, Session session) {
+		// do nothing
+	}
+	
+	@Override
 	public void notifyDelete(Entity entity, Session session) {
 		if (isAvailable()) {
 			delete(entity);
@@ -302,5 +307,5 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 	private static String createEntityFilter(Entity entity) {
 		return FIELD_ENTITY_ID + ':' + entity.getId();
 	}
-	
+
 }

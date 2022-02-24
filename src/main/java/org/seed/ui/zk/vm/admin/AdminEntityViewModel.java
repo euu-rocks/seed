@@ -20,6 +20,7 @@ package org.seed.ui.zk.vm.admin;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.seed.C;
 import org.seed.core.application.ContentObject;
@@ -132,6 +133,8 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	
 	private String originalName;
 	
+	private boolean isNestedEntity;
+	
 	// see selectFieldType()
 	private boolean resetUnique;
 	private boolean resetMandatory;
@@ -178,6 +181,10 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	
 	public boolean existGenericEntities() {
 		return entityService.existGenericEntities();
+	}
+	
+	public boolean existParentEntities() {
+		return entityService.existNonGenericEntities();
 	}
 	
 	public boolean existValueObjects() {
@@ -336,6 +343,14 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 		this.transitionFunction = transitionFunction;
 	}
 	
+	public boolean isNestedEntity() {
+		return isNestedEntity;
+	}
+
+	public void setNestedEntity(boolean isNestedEntity) {
+		this.isNestedEntity = isNestedEntity;
+	}
+
 	public String getFieldName(EntityField field) {
 		if (field != null) {
 			if (field.getEntity().equals(getObject())) {
@@ -376,6 +391,12 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 		return entityService.getAvailableNestedEntities(getObject());
 	}
 	
+	public List<Entity> getParentEntities() {
+		return entityService.findNonGenericEntities().stream()
+							.filter(e -> !e.isTransferable())
+							.collect(Collectors.toList());
+	}
+	
 	public List<Entity> getRelationEntities() {
 		return entityService.findNonGenericEntities();
 	}
@@ -387,12 +408,20 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	
 	@Command
 	public void createEntity(@BindingParam(C.ELEM) Component elem) {
-		// set module in options
-		final FormOptions formOptions = getObject().getOptions();
-		if (formOptions != null) {
-			formOptions.setModule(getObject().getModule());
+		try {
+			if (isNestedEntity) {
+				entityService.initNestedEntity(getObject());
+			}
+			// set module in options
+			final FormOptions formOptions = getObject().getOptions();
+			if (formOptions != null) {
+				formOptions.setModule(getObject().getModule());
+			}
+			cmdInitObject(elem, window);
 		}
-		cmdInitObject(elem, window);
+		catch (ValidationException vex) {
+			showValidationErrors(elem, "admin.entity.createfail", vex.getErrors());
+		}
 	}
 	
 	@Command
@@ -451,8 +480,8 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 					refreshMenu();
 				}
 			}
-			
-		} catch (ValidationException vex) {
+		} 
+		catch (ValidationException vex) {
 			showValidationErrors(component, "admin.entity.savefail", vex.getErrors());
 		}
 	}
@@ -692,33 +721,50 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	
 	@Command
 	public void selectOption(@BindingParam("option") String option) {
+		final EntityMetadata entityMeta = (EntityMetadata) getObject();
 		switch (option) {
 			case C.GENERIC: 
 				if (getObject().isGeneric()) {
 					getOptions().setAutoLayout(false);
-					((EntityMetadata) getObject()).setTransferable(false);
-					notifyObjectChange(C.OPTIONS, C.TRANSFERABLE);
+					getOptions().setMenu(null);
+					entityMeta.setTransferable(false);
+					entityMeta.setParentEntity(null);
+					entityMeta.setModule(null);
+					isNestedEntity = false;
 				}
 				break;
 				
+			case C.NESTED:
+				if (isNestedEntity) {
+					getOptions().setAutoLayout(false);
+					getOptions().setMenu(null);
+					entityMeta.setTransferable(false);
+					entityMeta.setGeneric(false);
+					entityMeta.setGenericEntity(null);
+					entityMeta.setModule(null);
+				}
+				
 			case C.TRANSFERABLE:
 				if (getObject().isTransferable()) {
-					((EntityMetadata) getObject()).setGeneric(false);
-					((EntityMetadata) getObject()).setGenericEntity(null);
-					notifyObjectChange(C.GENERIC);
+					entityMeta.setGeneric(false);
+					entityMeta.setGenericEntity(null);
+					entityMeta.setParentEntity(null);
+					isNestedEntity = false;
 				}
 				break;
 				
 			case "autolayout":
 				if (getOptions().isAutoLayout()) {
-					((EntityMetadata) getObject()).setGeneric(false);
-					notifyObjectChange(C.GENERIC);
+					entityMeta.setGeneric(false);
+					entityMeta.setParentEntity(null);
+					isNestedEntity = false;
 				}
 				break;
 			
 			default:
 				throw new UnsupportedOperationException(option);
 		}
+		notifyChangeAll();
 	}
 	
 	private FormOptions getOptions() {
