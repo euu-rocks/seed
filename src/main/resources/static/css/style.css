@@ -68,6 +68,11 @@ body {
     background: linear-gradient(to bottom, #FEFEFE 0%, #EEEEEE 100%)
 }
 
+.z-html {
+	font-family: sans-serif;
+	font-size: 10pt
+}
+
 .z-tab-text {
     padding: 0px 8px 2px;
 }
@@ -191,6 +196,17 @@ body {
 	
 .alpha-log-elem-failed {
 	background-color: #FFE6E6;
+}
+
+.alpha-richtext-button {
+	text-align: right;
+	margin-right: 5px
+}
+
+.alpha-richtext-edit {
+	border: 1px solid;
+	border-color: #CCCCCC;
+	background-color: #F8F8F8;
 }
 
 .alpha-system-fields {

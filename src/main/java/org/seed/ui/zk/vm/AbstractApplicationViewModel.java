@@ -40,6 +40,7 @@ import org.seed.ui.DoubleClickDetector;
 import org.seed.ui.FormParameter;
 import org.seed.ui.TabParameterMap;
 import org.seed.ui.ViewParameterMap;
+import org.seed.ui.zk.UIUtils;
 import org.seed.ui.zk.convert.Converters;
 import org.seed.ui.zk.convert.DateTimeConverter;
 import org.seed.ui.zk.convert.FileIconConverter;
@@ -57,7 +58,7 @@ import org.zkoss.zul.Filedownload;
 
 public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	
-	protected static final String ZUL_PATH = "~./zul";
+	private static final String INCLUDE_PATH = "/inc/";
 	
 	@WireVariable(value="applicationSettingServiceImpl")
 	protected ApplicationSettingService settingService;
@@ -162,7 +163,7 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	protected final <T extends Component> T getComponentById(String id) {
 		Assert.notNull(id, C.ID);
 		
-		return (T) getComponent("/inc/" + id);
+		return (T) UIUtils.getComponent(INCLUDE_PATH.concat(id));
 	}
 	
 	protected final void refreshMenu() {
@@ -193,7 +194,7 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	protected static void showDialog(String view, Object param) {
 		Assert.notNull(view, C.VIEW);
 		
-		createComponents(ZUL_PATH + view, param);
+		UIUtils.showDialog(view, param);
 	}
 	
 	protected static void showView(String view, Object param) {

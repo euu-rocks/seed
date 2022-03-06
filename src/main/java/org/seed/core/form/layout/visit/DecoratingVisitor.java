@@ -113,15 +113,10 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 				/* falls through */
 				
 			case LayoutElement.TEXTBOX:
-				/* falls through */
 			case LayoutElement.DATEBOX:
-				/* falls through */
 			case LayoutElement.DECIMALBOX:
-				/* falls through */
 			case LayoutElement.DOUBLEBOX:
-				/* falls through */
 			case LayoutElement.INTBOX:
-				/* falls through */
 			case LayoutElement.LONGBOX:
 				element.removeAttribute(A_INSTANT);
 				element.removeAttribute(A_READONLY);
@@ -135,7 +130,21 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 					addRootChild(createFieldMenuPopup(element));
 				}
 				break;
-				
+			
+			case LayoutElement.RICHTEXTAREA:
+				element.removeAttribute(A_MANDATORY);
+				element.removeAttribute(A_VISIBLE);
+				element.removeAttribute(A_VALUE);
+				element.removeAttribute(A_ONCHANGE);
+				element.setAttribute(A_READONLY, V_TRUE);
+				element.setClass(LayoutElementClass.RICHTEXT_EDIT);
+				if (element.getId() != null) {
+					element.setContext(newContextId())
+						   .setAttribute(A_TOOLTIPTEXT, getEntityField(element).getName());
+					addRootChild(createRichTextMenuPopup(element));
+				}
+				break;
+			
 			case LayoutElement.BORDERLAYOUT:
 				if (element.getId() != null) {
 					visitBorderLayout(element);
@@ -229,6 +238,10 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 				menus.add(createMenuItem("admin.layout.addfield", "z-icon-edit",
 						   				 "'addField',contextid='" + element.getContext() + '\''));
 			}
+			if (richTextFieldsAvailable()) {
+				menus.add(createMenuItem("admin.layout.addrichtextfield", "z-icon-html5",
+										 "'addRichTextField',contextid='" + element.getContext() + '\''));
+			}
 			menus.add(createMenuItem("admin.layout.addtext", "z-icon-paragraph",
 	   				 				 "'addText',contextid='" + element.getContext() + '\''));
 			menus.add(createMenuItem(LABEL_ADDTAB, ICON_FOLDER,
@@ -311,6 +324,17 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 		 				 	   "'editField',contextid='" + element.getContext() + '\''),
 				createMenuItem("admin.layout.removefield", ICON_REMOVE,
 		  				 	   "'removeField',contextid='" + element.getContext() + '\'')));
+		menus.add(createCellMenu(element.getParent().getContext()));
+		menus.add(createGridMenu(element.getParent().getContext(), isRootGrid(element.getParent())));
+		return createPopupMenu(element.getContext(), menus);
+	}
+	
+	private static LayoutElement createRichTextMenuPopup(LayoutElement element) {
+		final List<LayoutElement> menus = new ArrayList<>(4);
+		
+		menus.add(createMenu("label.richtext", "z-icon-html5",
+				createMenuItem("admin.layout.removerichtextfield", ICON_REMOVE,
+		  				 	   "'removeRichTextField',contextid='" + element.getContext() + '\'')));
 		menus.add(createCellMenu(element.getParent().getContext()));
 		menus.add(createGridMenu(element.getParent().getContext(), isRootGrid(element.getParent())));
 		return createPopupMenu(element.getContext(), menus);
@@ -406,6 +430,10 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 	
 	private boolean fieldsAvailable() {
 		return !getLayoutService().getAvailableEntityFields(getForm(), getRootElement()).isEmpty();
+	}
+	
+	private boolean richTextFieldsAvailable() {
+		return !getLayoutService().getAvailableRichTextFields(getForm(), getRootElement()).isEmpty();
 	}
 	
 	private static final String LABEL_ADDTAB   = "admin.layout.addtab";

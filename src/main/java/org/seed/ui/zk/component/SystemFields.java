@@ -23,11 +23,11 @@ import org.seed.core.data.SystemObject;
 
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Label;
-import org.zkoss.zul.Space;
 
 @SuppressWarnings("serial")
 public class SystemFields extends Div {
 	
+	private static final String CSS_CLASS		 = "alpha-system-fields";
 	private static final String LABEL_SUFFIX     = ": ";
 	private static final String LABEL_PROGRESS   = "...";
 	private static final String LABEL_BY         = "label.by";
@@ -37,12 +37,11 @@ public class SystemFields extends Div {
 	
 	private final Label labelCreated = new Label();
 	private final Label labelModified = new Label();
-	private final Space space = new Space();
 	
 	public SystemFields() {
-		setClass("alpha-system-fields");
+		setClass(CSS_CLASS);
 		appendChild(labelCreated);
-		appendChild(space);
+		appendChild(space());
 		appendChild(labelModified);
 	}
 
@@ -61,7 +60,6 @@ public class SystemFields extends Div {
 			
 			// last modification info
 			final boolean isModified = object.getModifiedOn() != null;
-			space.setVisible(isModified);
 			labelModified.setVisible(isModified);
 			if (isModified) {
 				labelModified.setValue(getLabel(LABEL_MODIFIEDON) + LABEL_SUFFIX + formatDate(object.getModifiedOn()) + ' ' +

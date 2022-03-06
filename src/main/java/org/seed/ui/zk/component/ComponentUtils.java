@@ -24,6 +24,9 @@ import org.seed.core.form.LabelProvider;
 import org.seed.core.util.Assert;
 
 import org.springframework.util.StringUtils;
+import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.event.Events;
+import org.zkoss.zul.Space;
 import org.zkoss.zul.impl.InputElement;
 
 abstract class ComponentUtils {
@@ -54,6 +57,14 @@ abstract class ComponentUtils {
 	
 	static void setMandatoryStatusStyle(InputElement inputElement) {
 		inputElement.setStyle(StringUtils.hasText(inputElement.getText()) ? null : STYLE_MANDATORY);
+	}
+	
+	static void postOnChangeEvent(Component component, Object data) {
+		Events.postEvent(Events.ON_CHANGE, component, data);
+	}
+	
+	static Space space() {
+		return new Space();
 	}
 	
 	private static LabelProvider getLabelProvider() {

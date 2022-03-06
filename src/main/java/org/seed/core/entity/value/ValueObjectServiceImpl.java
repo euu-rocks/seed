@@ -451,6 +451,7 @@ public class ValueObjectServiceImpl
 	public void reloadObject(ValueObject object) {
 		Assert.notNull(object, C.OBJECT);
 		
+		clearEmptyFileObjects(object);
 		repository.reload(object);
 	}
 	

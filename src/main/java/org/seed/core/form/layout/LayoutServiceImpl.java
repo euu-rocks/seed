@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -242,6 +243,13 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	}
 	
 	@Override
+	public List<EntityField> getAvailableRichTextFields(Form form, LayoutElement layoutRoot) {
+		return getAvailableEntityFields(form, layoutRoot).stream()
+				.filter(field -> field.getType().isTextLong())
+				.collect(Collectors.toList());
+	}
+	
+	@Override
 	public List<NestedEntity> getAvailableNesteds(Form form, LayoutElement layoutRoot) {
 		Assert.notNull(form, C.FORM);
 		Assert.notNull(layoutRoot, C.LAYOUTROOT);
@@ -338,12 +346,25 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		
 		// add label
 		if (labelProperties.orient != null) {
-			final LayoutElement neighborCell = elemCell.getCellNeighbor(labelProperties.orient);
-			if (neighborCell != null && !neighborCell.hasChildren()) {
-				neighborCell.setOrRemoveAttribute(A_ALIGN, labelProperties.align);
-				neighborCell.setOrRemoveAttribute(A_VALIGN, labelProperties.valign);
-				neighborCell.addChild(createLabel(entityField.getName()));
-			}
+			addFieldLabel(entityField, labelProperties, elemCell);
+		}
+		redecorateLayout(form, layoutRoot);
+	}
+	
+	@Override
+	@Secured("ROLE_ADMIN_FORM")
+	public void addRichTextField(Form form, EntityField entityField, LabelProperties labelProperties, 
+			 					 LayoutElement layoutRoot, String contextId) throws ValidationException {
+		Assert.notNull(form, C.FORM);
+		
+		layoutValidator.validateEntityField(entityField);
+		final LayoutElement elemCell = getElementByContextId(layoutRoot, contextId);
+		final LayoutElement elemField = createRichTextField(entityField);
+		elemCell.addChild(elemField);
+		
+		// add label
+		if (labelProperties.orient != null) {
+			addFieldLabel(entityField, labelProperties, elemCell);
 		}
 		redecorateLayout(form, layoutRoot);
 	}
@@ -742,6 +763,15 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 			return layoutRoot;
 		}
 		return null;
+	}
+	
+	private void addFieldLabel(EntityField entityField, LabelProperties labelProperties, LayoutElement elemCell) {
+		final LayoutElement neighborCell = elemCell.getCellNeighbor(labelProperties.orient);
+		if (neighborCell != null && !neighborCell.hasChildren()) {
+			neighborCell.setOrRemoveAttribute(A_ALIGN, labelProperties.align);
+			neighborCell.setOrRemoveAttribute(A_VALIGN, labelProperties.valign);
+			neighborCell.addChild(createLabel(entityField.getName()));
+		}
 	}
 	
 	private void analyzeAutoLayoutFields(Form form, List<EntityField> fieldsWithoutGroup, Set<EntityFieldGroup> usedFieldGroups) {

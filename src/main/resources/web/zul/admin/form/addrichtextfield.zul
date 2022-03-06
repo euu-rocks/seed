@@ -1,0 +1,103 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<?page contentType="text/html;charset=UTF-8"?>
+<window id="layoutDialogWin" width="350px" title="@init(vm.title)"
+		viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.LayoutDialogViewModel')" 
+		mode="modal" closable="true">
+	<div class="alpha-dialog">
+		<grid class="alpha-noborder">
+            <columns>
+                <column width="35%"/>
+                <column/>
+            </columns>
+            <rows>
+            	<row>
+            		<cell align="right">
+                		<label value="${labels.label.field}:"/>
+                	</cell>
+                	<cell>
+	                	<combobox model="@load(vm.availableRichTextFields) @template(empty each.name ? 'empty' : 'field')"
+	            				  mandatory="true"
+	            			  	  selectedItem="@bind(vm.entityField)"
+	            			  	  value="@load(vm.entityField.name)"
+	            			  	  hflex="1">
+		            		<template name="empty">
+		                    	<comboitem/>
+		                	</template>
+		                	<template name="field" var="entityField">
+		                    	<comboitem label="@init(entityField.name)"
+		                    			   iconSclass="z-icon-edit alpha-icon-lg"/>
+		                	</template>
+		        		</combobox>
+		            </cell>
+                </row>
+                <row visible="@load(!empty vm.entityField)">
+                	<cell align="right">
+                		<label value="${labels.label.withlabel}:"/>
+                	</cell>
+                	<cell>
+	                	<combobox model="@init(vm.orientations)"
+								  selectedItem="@bind(vm.orient)">
+			                <template name="model" var="orient">
+			                    <comboitem label="@init(vm.getEnumLabel(orient))" />
+			                </template>
+			            </combobox>
+		            </cell>
+                </row>
+                <row visible="@load(!empty vm.entityField and !empty vm.orient)">
+            		<cell align="right">
+                		<label value="${labels.label.align}:"/>
+                	</cell>
+                	<cell>
+	                	<combobox model="@init(vm.aligns)"
+								  selectedItem="@bind(vm.align)">
+			                <template name="model" var="align">
+			                    <comboitem label="@init(vm.getEnumLabel(align))" />
+			                </template>
+			            </combobox>
+		            </cell>
+                </row>
+                <row visible="@load(!empty vm.entityField and !empty vm.orient)">
+            		<cell align="right">
+                		<label value="${labels.label.valign}:"/>
+                	</cell>
+                	<cell>
+	                	<combobox model="@init(vm.valigns)"
+								  selectedItem="@bind(vm.valign)">
+			                <template name="model" var="valign">
+			                    <comboitem label="@init(vm.getEnumLabel(valign))" />
+			                </template>
+			            </combobox>
+		            </cell>
+                </row>
+            </rows>
+        </grid>
+        <div class="alpha-dialog-footer">
+			<button iconSclass="z-icon-check"
+					label="${labels.button.add}" 
+					onClick="@command('addRichTextField',elem=self)"/>
+			<space/>
+			<button iconSclass="z-icon-close" 
+					label="${labels.button.cancel}" 
+					onClick="@command('cancel')"/>
+		</div>
+    </div> 		
+</window>

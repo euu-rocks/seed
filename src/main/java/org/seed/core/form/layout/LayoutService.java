@@ -54,6 +54,8 @@ public interface LayoutService {
 	
 	List<EntityField> getAvailableEntityFields(Form form, LayoutElement layoutRoot);
 	
+	List<EntityField> getAvailableRichTextFields(Form form, LayoutElement layoutRoot);
+	
 	List<NestedEntity> getAvailableNesteds(Form form, LayoutElement layoutRoot);
 	
 	List<EntityRelation> getAvailableRelations(Form form, LayoutElement layoutRoot);
@@ -75,6 +77,8 @@ public interface LayoutService {
 	void addField(Form form, EntityField entityField, LabelProperties labelProperties, String width, String height, LayoutElement layoutRoot, String contextId) throws ValidationException;
 	
 	void removeField(Form form, LayoutElement layoutRoot, String contextId);
+	
+	void addRichTextField(Form form, EntityField entityField, LabelProperties labelProperties, LayoutElement layoutRoot, String contextId) throws ValidationException;
 	
 	LayoutElement replaceCombobox(Form form, EntityField entityField, LayoutElement layoutRoot, String contextId);
 	

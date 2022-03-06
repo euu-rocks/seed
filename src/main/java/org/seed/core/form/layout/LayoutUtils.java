@@ -228,6 +228,14 @@ public abstract class LayoutUtils {
 		return elemField;
 	}
 	
+	public static LayoutElement createRichTextField(EntityField field) {
+		Assert.notNull(field, C.FIELD);
+		
+		final LayoutElement elemField = new LayoutElement(LayoutElement.RICHTEXTAREA);
+		elemField.setAttribute(A_ID, field.getUid());
+		return elemField;
+	}
+	
 	public static LayoutElement createButton(String icon) {
 		Assert.notNull(icon, C.ICON);
 		

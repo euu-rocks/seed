@@ -33,6 +33,7 @@ import org.seed.ui.MenuManager;
 import org.seed.ui.Tab;
 import org.seed.ui.TreeNode;
 import org.seed.ui.zk.TreeModel;
+import org.seed.ui.zk.UIUtils;
 
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
@@ -240,11 +241,11 @@ public class MainViewModel extends AbstractApplicationViewModel {
 		Assert.notNull(view, C.VIEW);
 		
 		if (MenuManager.URL_FULLTEXTSEARCH.equals(view)) {
-			selectedTab = new Tab(name, ZUL_PATH + view, icon);
+			selectedTab = new Tab(name, UIUtils.getZulPath(view), icon);
 			selectedTab.setParameter(selectedTab);
 		}
 		else {
-			selectedTab = new Tab(name, ZUL_PATH + view, icon, parameter);
+			selectedTab = new Tab(name, UIUtils.getZulPath(view), icon, parameter);
 		}
 		if (parameter != null) {
 			parameter.setTab(selectedTab);
@@ -267,7 +268,7 @@ public class MainViewModel extends AbstractApplicationViewModel {
 			selectedTab.resetName();
 		}
 		
-		selectedTab.setPath(ZUL_PATH + view);
+		selectedTab.setPath(UIUtils.getZulPath(view));
 		selectedTab.setParameter(param);
 		notifyObjectChange(selectedTab, C.NAME, C.PARAMETER, C.PATH);
 	}

@@ -164,6 +164,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 				break;
 				
 			case "addfield":
+			case "addrichtextfield":
 				final LayoutDialogPreferences prefs = getPreferences();
 				orient = prefs.getLabelOrientation();
 				align = prefs.getLabelAlign();
@@ -486,6 +487,11 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 													  parameter.layoutRoot);
 	}
 	
+	public List<EntityField> getAvailableRichTextFields() {
+		return layoutService.getAvailableRichTextFields(parameter.form, 
+													    parameter.layoutRoot);
+	}
+	
 	public List<NestedEntity> getAvailableNesteds() {
 		return layoutService.getAvailableNesteds(parameter.form, 
 												 parameter.layoutRoot);
@@ -604,17 +610,26 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	@Command
 	public void addField(@BindingParam(C.ELEM) Component elem) {
 		try {
-			layoutService.addField(parameter.form, entityField, new LabelProperties(orient, align, valign),
+			layoutService.addField(parameter.form, entityField, getLabelProperties(),
 					   			   width, height, parameter.layoutRoot, parameter.contextId);
-			
-			final LayoutDialogPreferences prefs = getPreferences();
-			prefs.setLabelOrientation(orient);
-			prefs.setLabelAlign(align);
-			prefs.setLabelValign(valign);
+			saveLayoutDialogPreferences();
 			refreshAndClose();
 		}
 		catch (ValidationException vex) {
 			showValidationErrors(elem, "admin.layout.addfieldfail", vex.getErrors());
+		}
+	}
+	
+	@Command
+	public void addRichTextField(@BindingParam(C.ELEM) Component elem) {
+		try {
+			layoutService.addRichTextField(parameter.form, entityField, getLabelProperties(),
+					   					   parameter.layoutRoot, parameter.contextId);
+			saveLayoutDialogPreferences();
+			refreshAndClose();
+		}
+		catch (ValidationException vex) {
+			showValidationErrors(elem, "admin.layout.addrichtextfieldfail", vex.getErrors());
 		}
 	}
 	
@@ -850,6 +865,10 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 		return layoutService.getElementByContextId(parameter.layoutRoot, parameter.contextId);
 	}
 	
+	private LabelProperties getLabelProperties() {
+		return new LabelProperties(orient, align, valign);
+	}
+	
 	private LayoutDialogPreferences getPreferences() {
 		LayoutDialogPreferences prefs = getSessionObject("layoutPreferences");
 		if (prefs == null) {
@@ -863,6 +882,13 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 		parentVM().flagDirty();
 		parentVM().refreshLayout();
 		window.detach();
+	}
+	
+	private void saveLayoutDialogPreferences() {
+		final LayoutDialogPreferences prefs = getPreferences();
+		prefs.setLabelOrientation(orient);
+		prefs.setLabelAlign(align);
+		prefs.setLabelValign(valign);
 	}
 
 	@Override

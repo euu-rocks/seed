@@ -179,8 +179,7 @@ public class Filebox extends Inputgroup implements EventListener<Event> {
 		setContent(UIUtils.getBytes(media));
 		setContentType(media != null ? media.getContentType() : null);
 		setFileName(media != null ? trimFileName(media.getName()) : null);
-	
-		Events.postEvent(Events.ON_CHANGE, this, content);
+		postOnChangeEvent(this, content);
 	}
 	
 	private void enableButtons() {
@@ -190,7 +189,7 @@ public class Filebox extends Inputgroup implements EventListener<Event> {
 	}
 	
 	private void updateMandatoryStatus() {
-		setStyle(content != null ?  null : ComponentUtils.STYLE_MANDATORY); 
+		setStyle(content != null ?  null : STYLE_MANDATORY); 
 	}
 	
 	private static String trimFileName(String fileName) {

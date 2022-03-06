@@ -386,6 +386,11 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
+	public void addRichTextField(@BindingParam(CONTEXT_ID) String contextId) {
+		showDialog("/admin/form/addrichtextfield.zul", newDialogParameter("addrichtextfield", contextId));
+	}
+	
+	@Command
 	public void editField(@BindingParam(CONTEXT_ID) String contextId) {
 		showDialog("/admin/form/field_properties.zul", newDialogParameter("editfield", contextId));
 	}

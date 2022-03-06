@@ -32,15 +32,10 @@ import org.seed.ui.zk.UIUtils;
 
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
-import org.zkoss.bind.BindUtils;
 import org.zkoss.util.media.Media;
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zk.ui.Executions;
-import org.zkoss.zk.ui.Path;
-import org.zkoss.zk.ui.Sessions;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
-import org.zkoss.zk.ui.select.Selectors;
 import org.zkoss.zk.ui.select.annotation.VariableResolver;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
 import org.zkoss.zk.ui.util.Clients;
@@ -50,7 +45,6 @@ import org.zkoss.zul.Messagebox;
 @VariableResolver(DelegatingVariableResolver.class)
 abstract class AbstractViewModel {
 	
-	private static final String AFTER_CENTER = "after_center";
 	private static final String NOBR_START   = "<nobr>";
 	private static final String NOBR_END     = "</nobr>";
 	private static final String UL_START	 = "<ul>";
@@ -76,29 +70,19 @@ abstract class AbstractViewModel {
 	}
 	
 	protected final boolean hasSessionObject(String name) {
-		Assert.notNull(name, C.NAME);
-		
-		return Sessions.getCurrent().hasAttribute(name);
+		return UIUtils.hasSessionObject(name);
 	}
 	
-	@SuppressWarnings("unchecked")
 	protected final <T> T getSessionObject(String name) {
-		Assert.notNull(name, C.NAME);
-		
-		return (T) Sessions.getCurrent().getAttribute(name);
+		return UIUtils.getSessionObject(name);
 	}
 	
 	protected final void setSessionObject(String name, Object object) {
-		Assert.notNull(name, C.NAME);
-		Assert.notNull(object, C.OBJECT);
-		
-		Sessions.getCurrent().setAttribute(name, object);
+		UIUtils.setSessionObject(name, object);
 	}
 	
 	protected final void removeSessionObject(String name) {
-		Assert.notNull(name, C.NAME);
-		
-		Sessions.getCurrent().removeAttribute(name);
+		UIUtils.removeSessionObject(name);
 	}
 	
 	protected final void confirm(String questionKey, final Component elem, final Object confirmParam, String ...params) {
@@ -122,9 +106,7 @@ abstract class AbstractViewModel {
 	}
 	
 	protected final void wireComponents(Component component) {
-		Assert.notNull(component, C.COMPONENT);
-		
-		Selectors.wireComponents(component, this, false);
+		UIUtils.wireComponents(component, this);
 	}
 	
 	protected final void notifyChange(String ...properties) {
@@ -138,12 +120,10 @@ abstract class AbstractViewModel {
 	protected final void showNotification(Component component, boolean warning, String msgKey, String ...params) {
 		Assert.notNull(msgKey, "msgKey");
 		
-		Clients.showNotification(NOBR_START + getLabel(msgKey, params) + NOBR_END, 
+		UIUtils.showNotification(component, 
 								 warning ? Clients.NOTIFICATION_TYPE_WARNING : Clients.NOTIFICATION_TYPE_INFO, 
-								 component, 
-								 AFTER_CENTER,
-								 warning ? 3000 : 2000,  // milliseconds
-								 true); // closable
+								 warning ? 3000 : 2000, 
+								 NOBR_START + getLabel(msgKey, params) + NOBR_END);
 	}
 	
 	protected final void showValidationErrors(Component component, String errorKey, Set<ValidationError> validationErrors) {
@@ -169,35 +149,31 @@ abstract class AbstractViewModel {
 		if (isList) {
 			buf.append(UL_END);
 		}
-		Clients.showNotification(buf.toString(),
-				 				 Clients.NOTIFICATION_TYPE_WARNING, 
-				 				 component, 
-				 				 AFTER_CENTER,
-				 				 5000 + (validationErrors.size() * 1000),
-				 				 true); // closable
+		UIUtils.showNotification(component, 
+								 Clients.NOTIFICATION_TYPE_WARNING, 
+								 5000 + (validationErrors.size() * 1000), 
+								 buf.toString());
 	}
 	
 	protected final void showError(Component component, String msgKey, String ...params) {
 		Assert.notNull(msgKey, "msgKey");
 		
-		showError(component, NOBR_START + getLabel(msgKey, params) + NOBR_END);
+		UIUtils.showError(component, NOBR_START + getLabel(msgKey, params) + NOBR_END);
 	}
 	
 	protected final void showError(Component component, Exception ex) {
 		final String msg = StringUtils.hasText(ex.getMessage()) 
 							? ex.getMessage()
 							: ExceptionUtils.getStackTraceAsString(ex);
-		showError(component, msg);
+		UIUtils.showError(component, msg);
 	}
 	
 	protected final void showErrorMessage(String message) {
-		Messagebox.show(message, getLabel("label.erroroccurred"), 
-						Messagebox.OK, Messagebox.ERROR);
+		UIUtils.showErrorMessage(getLabel("label.erroroccurred"), message);
 	}
 	
 	protected final void showWarnMessage(String message) {
-		Messagebox.show(message, getLabel("label.warning"), 
-						Messagebox.OK, Messagebox.EXCLAMATION);
+		UIUtils.showWarnMessage(getLabel("label.warning"), message);
 	}
 	
 	private void buildError(StringBuilder buf, ValidationError error) {
@@ -217,27 +193,6 @@ abstract class AbstractViewModel {
 		buf.append(NOBR_END);
 	}
 	
-	private void showError(Component component, String message) {
-		Clients.showNotification(message, 
-				 Clients.NOTIFICATION_TYPE_ERROR, 
-				 component, 
-				 AFTER_CENTER,
-				 5000,  // milliseconds
-				 true); // closable
-	}
-	
-	protected static void createComponents(String view, Object param) {
-		Assert.notNull(view, C.VIEW);
-		
-		Executions.createComponents(view, null, createParameterMap(param));
-	}
-	
-	protected static Component getComponent(String path) {
-		Assert.notNull(path, C.PATH);
-		
-		return Path.getComponent(path);
-	}
-	
 	protected static int getChildIndex(Component component) {
 		Assert.notNull(component, C.COMPONENT);
 		
@@ -251,21 +206,15 @@ abstract class AbstractViewModel {
 	}
 	
 	protected static void globalCommand(String command, Object param) {
-		Assert.notNull(command, C.COMMAND);
-		
-		BindUtils.postGlobalCommand(null, null, command, createParameterMap(param));
+		UIUtils.globalCommand(command, createParameterMap(param));
 	}
 	
 	protected static void notifyObjectChange(Object object, String ...properties) {
-		Assert.notNull(object, C.OBJECT);
-		
-		BindUtils.postNotifyChange(object, properties);
+		UIUtils.notifyChange(object, properties);
 	}
 	
 	protected static void redirect(String url) {
-		Assert.notNull(url, C.URL);
-		
-		Executions.getCurrent().sendRedirect(url);
+		UIUtils.redirect(url);
 	}
 	
 	@SuppressWarnings("unchecked")

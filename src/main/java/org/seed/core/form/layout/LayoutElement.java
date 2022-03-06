@@ -65,7 +65,8 @@ public final class LayoutElement {
 	public static final String MENUITEM 		= "menuitem";
 	public static final String MENUPOPUP 		= "menupopup";
 	public static final String NORTH 			= "north";
-	public static final String ROW 				= "row";
+	public static final String RICHTEXTAREA		= "richtextarea";
+	public static final String ROW				= "row";
 	public static final String ROWS 			= "rows";
 	public static final String SOUTH 			= "south";
 	public static final String TABBOX 			= "tabbox";

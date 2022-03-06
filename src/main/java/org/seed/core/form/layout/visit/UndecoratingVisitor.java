@@ -116,6 +116,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 			case LayoutElement.DOUBLEBOX:
 			case LayoutElement.INTBOX:
 			case LayoutElement.LONGBOX:
+			case LayoutElement.RICHTEXTAREA:
 				final EntityField entityField = getEntityField(element);
 				element.setAttribute(A_VISIBLE, load(isVisible(entityField)));
 				element.setAttribute(A_READONLY, load(isReadonly(entityField)));
@@ -123,6 +124,9 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 				element.setAttribute(A_VALUE, value(entityField, propertyName(entityField)));
 				if (!(entityField.isCalculated() || entityField.getType().isAutonum())) {
 					element.setAttribute(A_ONCHANGE, command(onChange(entityField)));
+				}
+				if (element.is(LayoutElement.RICHTEXTAREA)) {
+					element.removeAttribute(A_CLASS);
 				}
 				break;
 				
