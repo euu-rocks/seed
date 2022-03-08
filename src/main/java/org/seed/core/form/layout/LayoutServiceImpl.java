@@ -361,11 +361,6 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		final LayoutElement elemCell = getElementByContextId(layoutRoot, contextId);
 		final LayoutElement elemField = createRichTextField(entityField);
 		elemCell.addChild(elemField);
-		
-		// add label
-		if (labelProperties.orient != null) {
-			addFieldLabel(entityField, labelProperties, elemCell);
-		}
 		redecorateLayout(form, layoutRoot);
 	}
 	

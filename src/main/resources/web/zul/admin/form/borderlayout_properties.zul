@@ -70,7 +70,7 @@
 		        		<checkbox checked="@bind(vm.layoutAreaProperties.collapsible)"/>
 		        		<label value="${labels.label.collapsible}"/>
 		       		</hlayout>
-		       		<hlayout visible="@load(vm.layoutAreaProperties.layoutArea.isCenter())">
+		       		<hlayout>
 		        		<checkbox checked="@bind(vm.layoutAreaProperties.autoscroll)"/>
 		        		<label value="${labels.label.autoscroll}"/>
 		       		</hlayout>

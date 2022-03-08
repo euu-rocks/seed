@@ -133,9 +133,12 @@ public class LayoutValidator extends AbstractSystemEntityValidator<Form> {
 	public void validateBorderLayoutAreaProperties(LayoutAreaProperties properties) throws ValidationException {
 		Assert.notNull(properties, C.PROPERTIES);
 		
-		if (isZeroOrBelow(properties.getMaxsize())) {
-			validate(new ValidationErrors().addEmptyField(LABEL_FIELD));
+		final ValidationErrors errors = new ValidationErrors();
+		if (properties.isVisible() && isZeroOrBelow(properties.getMaxsize())) {
+			errors.addError("val.zero.fieldinarea", "label.maxsize", 
+							labelProvider.getEnumLabel(properties.getLayoutArea()));
 		}
+		validate(errors);
 	}
 	
 	

@@ -173,9 +173,10 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 				
 			case "addsubform":
 			case "addrelationform":
+			case "addtabbox":
 				element = getContextElement();
 				break;
-				
+			
 			case "edittab":
 				element = getContextElement();
 				tabboxProperties = new LayoutElementAttributes(element.getParent().getParent());

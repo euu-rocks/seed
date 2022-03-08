@@ -110,7 +110,7 @@ public abstract class AbstractSystemEntityValidator<T extends SystemEntity>
 	}
 	
 	protected static boolean isZeroOrBelow(Number number) {
-		return number == null || number.longValue() <= 0;
+		return number != null && number.longValue() <= 0;
 	}
 	
 	@SuppressWarnings("unchecked")

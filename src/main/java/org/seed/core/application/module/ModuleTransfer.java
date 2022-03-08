@@ -65,7 +65,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ModuleTransfer {
 	
-	static final String MODULE_META_FILENAME = "module.xml";
+	static final String MODULE_XML_FILENAME = "module.xml";
 	
 	static final String MODULE_FILE_EXTENSION = ".seed";
 	
@@ -102,7 +102,7 @@ public class ModuleTransfer {
 			ZipEntry entry;
 			while ((entry = zis.getNextEntry()) != null) {
 				// read module
-				if (MODULE_META_FILENAME.equals(entry.getName())) {
+				if (MODULE_XML_FILENAME.equals(entry.getName())) {
 					module = (Module) marshaller.unmarshal(
 							new StreamSource(new ByteArrayInputStream(zis.readAllBytes())));
 				}
@@ -122,7 +122,7 @@ public class ModuleTransfer {
 				}
 			}
 		}
-		Assert.stateAvailable(module, MODULE_META_FILENAME);
+		Assert.stateAvailable(module, MODULE_XML_FILENAME);
 		if (module != null) {
 			initModuleContent(module, mapJars, mapTransferContents);
 		}
@@ -156,7 +156,7 @@ public class ModuleTransfer {
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 	    try (ZipOutputStream zos = new ZipOutputStream(baos)) {
 		    // write module
-		    writeZipEntry(zos, MODULE_META_FILENAME, getModuleContent(module));
+		    writeZipEntry(zos, MODULE_XML_FILENAME, getModuleContent(module));
 		    // write custom libs
 		    for (CustomLib customLib : module.getCustomLibs()) {
 		    	writeZipEntry(zos, customLib.getFilename(), customLib.getContent());

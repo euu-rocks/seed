@@ -239,7 +239,7 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 						   				 "'addField',contextid='" + element.getContext() + '\''));
 			}
 			if (richTextFieldsAvailable()) {
-				menus.add(createMenuItem("admin.layout.addrichtextfield", "z-icon-html5",
+				menus.add(createMenuItem("admin.layout.addrichtextfield", ICON_RICHTEXT,
 										 "'addRichTextField',contextid='" + element.getContext() + '\''));
 			}
 			menus.add(createMenuItem("admin.layout.addtext", "z-icon-paragraph",
@@ -259,13 +259,17 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 		return createPopupMenu(element.getContext(), menus);
 	}
 	
-	private static LayoutElement createBorderLayoutMenuPopup(LayoutElement element) {
+	private LayoutElement createBorderLayoutMenuPopup(LayoutElement element) {
 		final List<LayoutElement> menus = new ArrayList<>(8);
 		if (element.isEmpty()) {
 			menus.add(createMenuItem("admin.layout.addsubform", ICON_LIST,
  	   		  						 "'addSubForm',contextid='" + element.getContext() + '\''));
 			menus.add(createMenuItem("admin.layout.addrelationform", ICON_LINK,
 	  			 		 			 "'addRelationForm',contextid='" + element.getContext() + '\''));
+			if (richTextFieldsAvailable()) {
+				menus.add(createMenuItem("admin.layout.addrichtextfield", ICON_RICHTEXT,
+						 				 "'addRichTextField',contextid='" + element.getContext() + '\''));
+			}	
 			menus.add(createMenuItem("admin.layout.addlayout", ICON_NEWSPAPER,
 		 	   	   	   	   			 "'addLayout',contextid='" + element.getContext() + '\''));
 			menus.add(createMenuItem(LABEL_ADDTAB, ICON_FOLDER,
@@ -332,11 +336,13 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 	private static LayoutElement createRichTextMenuPopup(LayoutElement element) {
 		final List<LayoutElement> menus = new ArrayList<>(4);
 		
-		menus.add(createMenu("label.richtext", "z-icon-html5",
+		menus.add(createMenu("label.richtext", ICON_RICHTEXT,
 				createMenuItem("admin.layout.removerichtextfield", ICON_REMOVE,
-		  				 	   "'removeRichTextField',contextid='" + element.getContext() + '\'')));
-		menus.add(createCellMenu(element.getParent().getContext()));
-		menus.add(createGridMenu(element.getParent().getContext(), isRootGrid(element.getParent())));
+		  				 	   "'removeField',contextid='" + element.getContext() + '\'')));
+		if (element.parentIs(LayoutElement.CELL)) {
+			menus.add(createCellMenu(element.getParent().getContext()));
+			menus.add(createGridMenu(element.getParent().getContext(), isRootGrid(element.getParent())));
+		}
 		return createPopupMenu(element.getContext(), menus);
 	}
 	
@@ -360,8 +366,8 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 		return createPopupMenu(element.getContext(), menus);
 	}
 	
-	private static LayoutElement createTabPanelPopupMenu(LayoutElement element) {
-		final List<LayoutElement> menus = new ArrayList<>(6);
+	private LayoutElement createTabPanelPopupMenu(LayoutElement element) {
+		final List<LayoutElement> menus = new ArrayList<>(8);
 		
 		menus.add(createMenuItem("admin.layout.addlayout", ICON_NEWSPAPER,
 		 	   	   	   	   		 "'addLayout',contextid='" + element.getContext() + '\''));
@@ -369,7 +375,10 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 	   	   	   		  			 "'addSubForm',contextid='" + element.getContext() + '\''));
 		menus.add(createMenuItem("admin.layout.addrelationform", ICON_LINK,
 	   		  			 		 "'addRelationForm',contextid='" + element.getContext() + '\''));
-		
+		if (richTextFieldsAvailable()) {
+			menus.add(createMenuItem("admin.layout.addrichtextfield", ICON_RICHTEXT,
+					 				 "'addRichTextField',contextid='" + element.getContext() + '\''));
+		}
 		menus.add(createTabMenu(element.getTab()));
 		if (element.getTabboxContainer().isLayoutArea()) {
 			menus.add(createLayoutAreaMenu(element.getTabboxContainer().getContext(), false));
@@ -444,5 +453,6 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 	private static final String ICON_NEWSPAPER = "z-icon-newspaper-o";
 	private static final String ICON_REMOVE    = "z-icon-remove";
 	private static final String ICON_WRENCH    = "z-icon-wrench";
+	private static final String ICON_RICHTEXT  = "z-icon-html5";
 	
 }
