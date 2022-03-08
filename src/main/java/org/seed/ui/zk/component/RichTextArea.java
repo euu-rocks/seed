@@ -33,6 +33,8 @@ import org.zkoss.zul.Html;
 @SuppressWarnings("serial")
 public class RichTextArea extends Div implements EventListener<Event> {
 	
+	private static final String PATH_EDITOR = "/component/richtexteditor.zul";
+	
 	private Html html;
 	
 	private A aEditMode;
@@ -92,7 +94,7 @@ public class RichTextArea extends Div implements EventListener<Event> {
 	@Override
 	public void onEvent(Event event) throws Exception {
 		if (!readonly) {
-			UIUtils.showDialog("/component/richtexteditor.zul", this);
+			UIUtils.showDialog(PATH_EDITOR, this);
 		}
 	}
 	

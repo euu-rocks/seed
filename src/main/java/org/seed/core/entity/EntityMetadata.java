@@ -456,6 +456,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	// includes generic relations
 	@Override
+	@JsonIgnore
 	public List<EntityRelation> getAllRelations() {
 		final List<EntityRelation> list = new ArrayList<>();
 		if (genericEntity != null) {
@@ -1308,6 +1309,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
+	@JsonIgnore
 	public EntityField getUidField() {
 		if (uidField == null) {
 			Assert.state(isTransferable(), "entity is not transferable");

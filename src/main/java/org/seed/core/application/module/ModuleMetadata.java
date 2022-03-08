@@ -36,6 +36,7 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import org.seed.C;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.TransferableObject;
