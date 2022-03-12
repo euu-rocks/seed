@@ -24,10 +24,13 @@ import org.seed.core.application.AbstractRestController;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+
+import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping("/seed/rest/transform")
@@ -42,11 +45,15 @@ public class TransformerRestController extends AbstractRestController<Transforme
 	}
 	
 	@Override
+	@ApiOperation(value = "getAllTransformations", notes="returns a list of all authorized transformations")
+	@GetMapping
 	public List<Transformer> getAll() {
 		return getAll(this::checkPermissions);
 	}
 	
 	@Override
+	@ApiOperation(value = "getTransformationById", notes="returns the transformation with the given id")
+	@GetMapping(value = "/{id}")
 	public Transformer get(@PathVariable(C.ID) Long id) {
 		final Transformer transformer = super.get(id);
 		if (!checkPermissions(transformer)) {

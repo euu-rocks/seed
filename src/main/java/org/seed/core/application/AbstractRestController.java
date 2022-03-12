@@ -27,32 +27,24 @@ import org.seed.core.user.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
-
-import io.swagger.annotations.ApiOperation;
 
 public abstract class AbstractRestController<T extends ApplicationEntity> {
 	
 	@Autowired
 	private UserService userService;
 	
-	@ApiOperation(value = "getAllObjects", notes="returns a list of all authorized objects")
-	@GetMapping
-	public List<T> getAll() {
+	protected List<T> getAll() {
 		return getService().getObjects();
 	}
 	
 	protected List<T> getAll(Predicate<T> filter) {
 		return getService().getObjects().stream()
-										.filter(filter)
-										.collect(Collectors.toList());
+					.filter(filter).collect(Collectors.toList());
 	}
 	
-	@ApiOperation(value = "getObjectById", notes="returns an object with specified id")
-	@GetMapping(value = "/{id}")
-	public T get(@PathVariable(C.ID) Long id) {
+	protected T get(@PathVariable(C.ID) Long id) {
 		final T object = getService().getObject(id);
 		if (object == null) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);

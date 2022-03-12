@@ -50,11 +50,23 @@ public class SwaggerConfig {
 	
 	@Bean
     public Docket api() { 
-        return new Docket(DocumentationType.SWAGGER_2)
+        return new Docket(DocumentationType.OAS_30)
 						  .select()                                  
 						  .apis(RequestHandlerSelectors.any())              
-						  .paths(PathSelectors.any())                          
-						  .build();                                           
+						  .paths(PathSelectors.ant("/seed/**"))
+						  .build()
+						  .ignoredParameterTypes(org.seed.core.customcode.CustomCode.class,
+								  				 org.seed.core.customcode.CustomLib.class,
+								  				 org.seed.core.data.dbobject.DBObject.class,
+								  				 org.seed.core.data.datasource.IDataSource.class,
+								  				 org.seed.core.data.datasource.DataSourceParameter.class,
+								  				 org.seed.core.form.Form.class,
+								  				 org.seed.core.form.navigation.Menu.class,
+								  				 org.seed.core.application.module.Module.class,
+								  				 org.seed.core.data.Options.class,
+								  				 org.seed.core.user.User.class,
+								  				 org.seed.core.user.UserGroup.class,
+								  				 org.seed.core.entity.value.ValueObject.class);                                           
     }
 	
 	@Bean

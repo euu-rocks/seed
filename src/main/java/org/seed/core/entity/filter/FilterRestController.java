@@ -24,10 +24,13 @@ import org.seed.core.application.AbstractRestController;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+
+import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping("/seed/rest/filter")
@@ -42,11 +45,15 @@ public class FilterRestController extends AbstractRestController<Filter> {
 	}
 	
 	@Override
+	@ApiOperation(value = "getAllFilters", notes="returns a list of all authorized filters")
+	@GetMapping
 	public List<Filter> getAll() {
 		return getAll(this::checkPermissions);
 	}
 	
 	@Override
+	@ApiOperation(value = "getFilterById", notes="returns the filter with the given id")
+	@GetMapping(value = "/{id}")
 	public Filter get(@PathVariable(C.ID) Long id) {
 		final Filter filter = super.get(id);
 		if (!checkPermissions(filter)) {

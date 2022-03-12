@@ -39,8 +39,6 @@ public abstract class UIUtils {
 	private static final String ZUL_PATH 	 = "~./zul";
 	private static final String AFTER_CENTER = "after_center";
 	
-	private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
-	
 	private UIUtils() {}
 	
 	public static byte[] getBytes(Media media) {
@@ -49,7 +47,7 @@ public abstract class UIUtils {
 					? media.getByteData()
 					: media.getStringData().getBytes(MiscUtils.CHARSET);
 		}
-		return EMPTY_BYTE_ARRAY;
+		return new byte[0];
 	}
 	
 	public static Component getComponent(String path) {
