@@ -45,6 +45,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 @RequestMapping("/seed/rest/object")
 public class ValueObjectRestController {
@@ -64,17 +66,23 @@ public class ValueObjectRestController {
 	@Autowired
 	private UserService userService;
 	
+	@ApiOperation(value = "findByEntityName", 
+				  notes = "returns a list of all objects of entity with specified name")
 	@GetMapping(value = "/{name}")
 	public List<ValueObject> getObjects(@PathVariable(C.NAME) String name) {
 		return service.getAllObjects(getEntity(name));
 	}
 	
+	@ApiOperation(value = "findFilteredByEntityName", 
+				  notes = "returns a list of entity objects with specified name filtered by filter with the given filter id")
 	@GetMapping(value = "/{name}/filter/{filterid}")
 	public List<ValueObject> findObjects(@PathVariable(C.NAME) String name, 
 										 @PathVariable("filterid") Long filterid) {
 		return service.find(getEntity(name), getFilter(filterid));
 	}
 	
+	@ApiOperation(value = "insertObject", 
+				  notes = "insert a new entity object with specified name based on value map")
 	@PostMapping(value = "/{name}")
 	public ValueObject createObject(@PathVariable(C.NAME) String name, 
 									@RequestBody Map<String, Object> valueMap) {
@@ -83,6 +91,8 @@ public class ValueObjectRestController {
 		return service.createObject(entity, valueMap);
 	}
 	
+	@ApiOperation(value = "getByNameAndId", 
+				  notes = "returns an entity object with specified id and entity name")
 	@GetMapping(value = "/{name}/{id}")
 	public ValueObject getObject(@PathVariable(C.NAME) String name, 
 								 @PathVariable(C.ID) Long id) {
@@ -93,6 +103,8 @@ public class ValueObjectRestController {
 		return object;
 	}
 	
+	@ApiOperation(value = "saveObject", 
+				  notes = "updates an entity object with specified name and id based on value map")
 	@PostMapping(value = "/{name}/{id}")
 	public ValueObject updateObject(@PathVariable(C.NAME) String name, 
 									@PathVariable(C.ID) Long id,
@@ -107,6 +119,8 @@ public class ValueObjectRestController {
 		}
 	}
 	
+	@ApiOperation(value = "changeObjectStatus", 
+				  notes = "changes the entity status of an entity object with the given name and id to the status with the given status id")
 	@PostMapping(value = "/{name}/{id}/status/{statusid}")
 	public ValueObject changeStatus(@PathVariable(C.NAME) String name, 
 								    @PathVariable(C.ID) Long id,
@@ -123,6 +137,9 @@ public class ValueObjectRestController {
 		}
 	}
 	
+	
+	@ApiOperation(value = "transformObject", 
+				  notes = "return an object based on an entity object with the given name and id transformed by a transformation with the given transformation id")
 	@PostMapping(value = "/{name}/{id}/transform/{transformationid}")
 	public ValueObject transformObject(@PathVariable(C.NAME) String name, 
 		    						   @PathVariable(C.ID) Long id,
@@ -132,6 +149,8 @@ public class ValueObjectRestController {
 		
 	}
 	
+	@ApiOperation(value = "callCustomFunction", 
+				  notes = "calls a custom function with specific function id on an entity object with the given name and id and returns the object afterwards")
 	@PostMapping(value = "/{name}/{id}/function/{functionid}")
 	public ValueObject callFunction(@PathVariable(C.NAME) String name, 
 			   						@PathVariable(C.ID) Long id,
@@ -141,6 +160,8 @@ public class ValueObjectRestController {
 		return object;
 	}
 	
+	@ApiOperation(value = "deleteObject", 
+				  notes = "deletes the entity object with specified id and entity name")
 	@DeleteMapping(value = "/{name}/{id}")
 	public void deleteObject(@PathVariable(C.NAME) String name, 
 			 				 @PathVariable(C.ID) Long id) {

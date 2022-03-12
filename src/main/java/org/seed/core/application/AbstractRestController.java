@@ -31,11 +31,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
 
+import io.swagger.annotations.ApiOperation;
+
 public abstract class AbstractRestController<T extends ApplicationEntity> {
 	
 	@Autowired
 	private UserService userService;
 	
+	@ApiOperation(value = "getAllObjects", notes="returns a list of all authorized objects")
 	@GetMapping
 	public List<T> getAll() {
 		return getService().getObjects();
@@ -47,6 +50,7 @@ public abstract class AbstractRestController<T extends ApplicationEntity> {
 										.collect(Collectors.toList());
 	}
 	
+	@ApiOperation(value = "getObjectById", notes="returns an object with specified id")
 	@GetMapping(value = "/{id}")
 	public T get(@PathVariable(C.ID) Long id) {
 		final T object = getService().getObject(id);

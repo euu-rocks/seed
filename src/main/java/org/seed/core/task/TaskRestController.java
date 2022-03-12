@@ -31,6 +31,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 @RequestMapping("/seed/rest/job")
 public class TaskRestController extends AbstractRestController<Task> {
@@ -60,6 +62,7 @@ public class TaskRestController extends AbstractRestController<Task> {
 		return task;
 	}
 	
+	@ApiOperation(value = "startJob", notes="starts job for task with specified id")
 	@PostMapping(value = "/{id}/run")
 	public Task run(@PathVariable(C.ID) Long id) {
 		final Task task = get(id);

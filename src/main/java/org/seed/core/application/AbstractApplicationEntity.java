@@ -37,10 +37,8 @@ import org.seed.core.util.Assert;
 import org.seed.core.util.ReferenceJsonSerializer;
 import org.seed.core.util.UID;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @MappedSuperclass
 public abstract class AbstractApplicationEntity extends AbstractSystemEntity 
 	implements ApplicationEntity  {

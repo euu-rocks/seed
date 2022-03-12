@@ -35,7 +35,9 @@ import org.seed.C;
 import org.seed.core.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties("hibernateLazyInitializer")
 @MappedSuperclass
 public abstract class AbstractSystemObject implements SystemObject {
 	

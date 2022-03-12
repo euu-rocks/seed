@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 @RequestMapping("/seed/rest/module")
 public class ModuleRestController {
@@ -34,6 +36,7 @@ public class ModuleRestController {
 	@Autowired
 	private ModuleService moduleService;
 	
+	@ApiOperation(value = "importModule", notes="imports module file specified by parameter 'file'")
 	@PostMapping("/import")
 	public ResponseEntity<String> importModule(@RequestParam("file") MultipartFile file) {
 		if (file == null) {
