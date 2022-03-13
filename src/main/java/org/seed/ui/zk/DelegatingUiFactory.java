@@ -26,19 +26,23 @@ import org.zkoss.zk.ui.sys.RequestInfo;
 
 public class DelegatingUiFactory extends SimpleUiFactory {
 	
+	private static final String EMPTY_CONTENT  = "<zk/>";
+	private static final String EXTENSION_ZUL  = "zul";
+	private static final String PATH_GENERATED = "/generated";
+	
 	private LayoutProvider layoutProvider;
 	
 	@Override
 	public PageDefinition getPageDefinition(RequestInfo requestInfo, String path) {
-		if (path.startsWith("/generated/")) {
+		if (path.startsWith(PATH_GENERATED)) {
 			final String pageContent = getLayoutProvider()
-											.getLayout(path.substring(10), 
+											.getLayout(path.substring(PATH_GENERATED.length()), 
 													   ViewUtils.getSettings(requestInfo.getSession()));
 			return getPageDefinitionDirectly(requestInfo, 
 											 pageContent != null 
 												? pageContent 
-												: "<zk/>", 
-											 "zul");
+												: EMPTY_CONTENT, 
+											 EXTENSION_ZUL);
 		}
 		return super.getPageDefinition(requestInfo, path);
 	}

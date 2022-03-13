@@ -333,14 +333,15 @@ public final class LayoutElement {
 	public void removeChild(LayoutElement element) {
 		Assert.notNull(element, C.ELEMENT);
 		checkChildren();
-	
+		
 		children.remove(element);
+		element.removeParent();
 	}
 	
 	public void removeChildAt(int index) {
 		checkChildren();
 		
-		children.remove(index);
+		children.remove(index).removeParent();
 	}
 	
 	public void removeChildren() {
@@ -351,7 +352,12 @@ public final class LayoutElement {
 		Assert.notNull(name, C.NAME);
 		
 		if (children != null) {
-			children.removeIf(c -> c.is(name));
+			for (LayoutElement child : children) {
+				if (child.is(name)) {
+					children.remove(child);
+					child.removeParent();
+				}
+			}
 		}
 	}
 	
@@ -460,6 +466,10 @@ public final class LayoutElement {
 		checkCell();
 		//     row		   rows
 		return getParent().getParent().getChildIndex(getParent());
+	}
+	
+	void removeParent() {
+		parent = null;
 	}
 	
 	void setOrRemoveAttribute(String name, Object value) {

@@ -702,6 +702,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		else if (hasGroupbox) {
 			final LayoutElement elemGroupbox = element.getParent();
 			final LayoutElement elemContainer = elemGroupbox.getParent();
+			element.removeParent();
 			elemContainer.removeChild(elemGroupbox);
 			elemContainer.addChild(element);
 			hasStructureChanged = true;

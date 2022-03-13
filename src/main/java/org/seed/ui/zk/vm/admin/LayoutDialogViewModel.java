@@ -174,6 +174,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 			case "addsubform":
 			case "addrelationform":
 			case "addtabbox":
+			case "addtext":
 				element = getContextElement();
 				break;
 			
