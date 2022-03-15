@@ -54,6 +54,7 @@ public final class C {
 	public static final String ITEM             = "item";
 	public static final String KEY              = "key";
 	public static final String LABEL            = "label";
+	public static final String LAYOUT           = "layout";
 	public static final String LAYOUTROOT       = "layoutRoot";
 	public static final String LIST             = "list";
 	public static final String MENU             = "menu";

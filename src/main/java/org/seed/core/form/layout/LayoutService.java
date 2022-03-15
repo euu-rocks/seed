@@ -17,8 +17,11 @@
  */
 package org.seed.core.form.layout;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.EntityField;
@@ -28,6 +31,8 @@ import org.seed.core.form.Form;
 import org.seed.core.form.FormLayout;
 import org.seed.core.form.layout.BorderLayoutProperties.LayoutAreaProperties;
 
+import org.xml.sax.SAXException;
+
 public interface LayoutService {
 	
 	String buildLayout(LayoutElement layoutRoot);
@@ -35,6 +40,8 @@ public interface LayoutService {
 	LayoutElement getEditLayout(String username);
 	
 	LayoutElement parseLayout(FormLayout layout);
+	
+	LayoutElement parseLayout(String content) throws SAXException, IOException, ParserConfigurationException;
 	
 	void registerEditLayout(Form form, String username, LayoutElement layout);
 	

@@ -154,15 +154,22 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	
 	@Override
 	public LayoutElement parseLayout(FormLayout layout) {
-		Assert.notNull(layout, "layout");
+		Assert.notNull(layout, C.LAYOUT);
 		Assert.notNull(layout.getContent(), "layout content");
 		
 		try {
-			return layoutParser.parse(layout.getContent());
+			return parseLayout(layout.getContent());
 		} 
 		catch (SAXException | IOException | ParserConfigurationException ex) {
 			throw new InternalException(ex);
 		}
+	}
+	
+	@Override
+	public LayoutElement parseLayout(String content) throws SAXException, IOException, ParserConfigurationException {
+		Assert.notNull(content, C.CONTENT);
+		
+		return layoutParser.parse(content);
 	}
 	
 	@Override
@@ -865,7 +872,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Override
 	public void rebuildLayout(Form form) {
 		Assert.notNull(form, C.FORM);
-		Assert.stateAvailable(form.getLayout(), "layout");
+		Assert.stateAvailable(form.getLayout(), C.LAYOUT);
 		
 		final FormLayout formLayout = form.getLayout();
 		final LayoutElement layoutRoot = parseLayout(formLayout);

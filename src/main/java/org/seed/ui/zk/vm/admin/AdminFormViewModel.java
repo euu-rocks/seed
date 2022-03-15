@@ -265,6 +265,16 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 		super.flagDirty();
 	}
 	
+	String getLayoutContent() {
+		if (layoutRoot != null) {
+			layoutService.undecorateLayout(getObject(), layoutRoot);
+			final String layoutContent = layoutService.buildLayout(layoutRoot);
+			layoutService.decorateLayout(getObject(), layoutRoot);
+			return layoutContent;
+		}
+		return null;
+	}
+	
 	@Command
 	public void saveForm(@BindingParam(C.ELEM) Component component) {
 		final boolean isCreate = getObject().isNew(); 
@@ -273,10 +283,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 		adjustLists(getObject().getTransformers(), getListManagerList(TRANSFORMERS, LIST_SELECTED));
 		
 		if (layoutRoot != null) {
-			layoutService.undecorateLayout(getObject(), layoutRoot);
-			final String layoutContent = layoutService.buildLayout(layoutRoot);
-			layoutService.decorateLayout(getObject(), layoutRoot);
-			((FormMetadata) getObject()).setLayoutContent(layoutContent);
+			((FormMetadata) getObject()).setLayoutContent(getLayoutContent());
 			notifyChange(LAYOUT_INCLUDE);
 		}
 		if (cmdSaveObject(component) && isCreate) {
@@ -490,6 +497,11 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	@Command
 	public void editSubForm(@BindingParam(CONTEXT_ID) String contextId) {
 		showDialog("/admin/form/subform_properties.zul", newDialogParameter("editsubform", contextId));
+	}
+	
+	@Command
+	public void editLayoutSource() {
+		showDialog("/admin/form/layout_source.zul", this);
 	}
 	
 	@Command

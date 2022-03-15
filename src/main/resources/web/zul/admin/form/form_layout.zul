@@ -27,6 +27,9 @@
 			<toolbarbutton iconSclass="z-icon-newspaper-o alpha-icon-lg" 
 						   label="${labels.label.autolayout}"
 						   onClick="@command('newAutoLayout')"/>
+			<toolbarbutton iconSclass="z-icon-code alpha-icon-lg" 
+						   label="${labels.label.editsourcecode}"
+						   onClick="@command('editLayoutSource')"/>
 		</toolbar>
 	</north>
 	<center border="0"
