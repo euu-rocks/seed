@@ -24,13 +24,19 @@ import org.seed.core.data.ValidationException;
 
 public interface ModuleService extends SystemEntityService<Module> {
 	
+	boolean isExternalDirEnabled();
+	
 	ModuleParameter createParameter(Module module);
 	
 	Module readModule(InputStream inputStream);
 	
+	Module readModuleFromDir(String moduleName);
+	
 	ImportAnalysis analyzeModule(Module module) throws ValidationException;
 	
 	byte[] exportModule(Module module);
+	
+	void exportModuleToDir(Module module);
 	
 	void importModule(Module module);
 	

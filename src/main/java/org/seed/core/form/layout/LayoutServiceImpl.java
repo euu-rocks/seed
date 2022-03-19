@@ -469,7 +469,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	public void addBorderLayout(Form form, BorderLayoutProperties layoutProperties,
 						  		LayoutElement layoutRoot, String contextId) {
 		Assert.notNull(form, C.FORM);
-		Assert.notNull(layoutProperties, "layoutProperties is null");
+		Assert.notNull(layoutProperties, "layout properties");
 		
 		final LayoutElement elemArea = getElementByContextId(layoutRoot, contextId);
 		elemArea.addChild(LayoutUtils.createBorderLayout(layoutProperties));
@@ -906,7 +906,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	
 	private String buildListFormLayout(Form form, FormSettings formSettings) {
 		Assert.notNull(form, C.FORM);
-		Assert.notNull(formSettings, "formSettings");
+		Assert.notNull(formSettings, "form settings");
 		
 		final LayoutElement elemListbox = createListFormList();
 		final LayoutElement elemListhead = elemListbox.addChild(createListHead(true));

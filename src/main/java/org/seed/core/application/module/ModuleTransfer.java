@@ -19,6 +19,9 @@ package org.seed.core.application.module;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -31,6 +34,7 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import javax.annotation.PostConstruct;
+import javax.xml.bind.Marshaller;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
@@ -41,6 +45,7 @@ import org.seed.C;
 import org.seed.InternalException;
 import org.seed.Seed;
 import org.seed.core.application.ApplicationEntityService;
+import org.seed.core.config.ApplicationProperties;
 import org.seed.core.config.SchemaVersion;
 import org.seed.core.config.SessionProvider;
 import org.seed.core.config.UpdatableConfiguration;
@@ -51,6 +56,9 @@ import org.seed.core.entity.Entity;
 import org.seed.core.entity.transfer.TransferFormat;
 import org.seed.core.entity.transfer.TransferService;
 import org.seed.core.util.Assert;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.seed.core.codegen.CodeUtils.isJarFile;
 
@@ -65,9 +73,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class ModuleTransfer {
 	
+	private static final Logger log = LoggerFactory.getLogger(ModuleTransfer.class);
+	
 	static final String MODULE_XML_FILENAME = "module.xml";
 	
 	static final String MODULE_FILE_EXTENSION = ".seed";
+	
+	@Autowired
+	private ApplicationProperties applicationProperties;
 	
 	@Autowired
 	private ModuleRepository moduleRepository;
@@ -83,16 +96,37 @@ public class ModuleTransfer {
 	
 	private List<ApplicationEntityService<?>> sortedServices; // sorted by dependencies
 	
+	private File externalModuleDir;	// application.properties module.external.dir
+	
 	private final Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
 	
 	@PostConstruct
 	private void init() throws Exception {
 		marshaller.setPackagesToScan("org.seed.core");
+		marshaller.setMarshallerProperties(Collections.singletonMap(Marshaller.JAXB_FORMATTED_OUTPUT, true));
 		marshaller.afterPropertiesSet();
 		sortedServices = sortByDependencies(applicationServices);
+		
+		final String propExternalModuleDir = applicationProperties.getProperty(Seed.PROP_MODULE_EXT_ROOT_DIR);
+		if (propExternalModuleDir == null) {
+			return;
+		}
+		
+		log.info("Enable external module files at {}", propExternalModuleDir);
+		final File fileExternalModuleDir = new File(propExternalModuleDir);
+		if (fileExternalModuleDir.exists() && fileExternalModuleDir.isDirectory()) {
+			externalModuleDir = fileExternalModuleDir;
+		}
+		else {
+			log.warn("Location {} does not exist or is not a directory", fileExternalModuleDir);
+		}
 	}
 	
-	public Module readModule(InputStream inputStream) throws IOException {
+	boolean isExternalDirEnabled() {
+		return externalModuleDir != null;
+	}
+	
+	Module readModule(InputStream inputStream) throws IOException {
 		Assert.notNull(inputStream, "input stream");
 		Map<String, byte[]> mapJars = null;
 		Map<String, byte[]> mapTransferContents = null;
@@ -114,12 +148,13 @@ public class ModuleTransfer {
 					mapJars.put(entry.getName(), zis.readAllBytes());
 				}
 				// read transfer files
-				else {
+				else if (isTransferFile(entry.getName())) {
 					if (mapTransferContents == null) {
 						mapTransferContents = new HashMap<>();
 					}
 					mapTransferContents.put(entry.getName(), zis.readAllBytes());
 				}
+				// ignore other entries
 			}
 		}
 		Assert.stateAvailable(module, MODULE_XML_FILENAME);
@@ -129,28 +164,50 @@ public class ModuleTransfer {
 		return module;
 	}
 	
-	private void initModuleContent(Module module, 
-								   Map<String, byte[]> mapJars, 
-								   Map<String, byte[]> mapTransferContents) {
-		// init custom libs content
-		if (mapJars != null && module.getCustomLibs() != null) {
-			for (CustomLib customLib : module.getCustomLibs()) {
-				Assert.stateAvailable(mapJars.containsKey(customLib.getFilename()), customLib.getFilename());
-				((CustomLibMetadata) customLib).setContent(mapJars.get(customLib.getFilename()));
-			}
+	Module readModuleFromDir(String moduleName) throws IOException {
+		Assert.notNull(moduleName, "module name");
+		Assert.stateAvailable(externalModuleDir, "external module dir");
+		Map<String, byte[]> mapJars = null;
+		Map<String, byte[]> mapTransferContents = null;
+		Module module = null;
+		
+		final File moduleDir = new File(externalModuleDir, moduleName);
+		if (!moduleDir.exists() || !moduleDir.isDirectory()) {
+			return null;
 		}
-		// store transfer file content in module
-		if (mapTransferContents != null && module.getTransferableEntities() != null) {
-			for (Entity entity : module.getTransferableEntities()) {
-				final byte[] content = mapTransferContents.get(entity.getInternalName() + TransferFormat.CSV.fileExtension);
-				if (content != null) {
-					module.addTransferContent(entity, content);
+		for (File file : moduleDir.listFiles()) {
+			if (!file.isFile() || file.isHidden()) {
+				continue;
+			}
+			try (InputStream fis = new FileInputStream(file)) {
+				// read module
+				if (MODULE_XML_FILENAME.equals(file.getName())) {
+					module = (Module) marshaller.unmarshal(new StreamSource(fis));
 				}
+				// read jar files
+				else if (isJarFile(file.getName())) {
+					if (mapJars == null) {
+						mapJars = new HashMap<>();
+					}
+					mapJars.put(file.getName(), fis.readAllBytes());
+				}
+				// read transfer files
+				else if (isTransferFile(file.getName())) {
+					if (mapTransferContents == null) {
+						mapTransferContents = new HashMap<>();
+					}
+					mapTransferContents.put(file.getName(), fis.readAllBytes());
+				}
+				// ignore other entries
 			}
 		}
+		if (module != null) {
+			initModuleContent(module, mapJars, mapTransferContents);
+		}
+		return module;
 	}
 	
-	public byte[] exportModule(Module module) throws IOException {
+	byte[] exportModule(Module module) throws IOException {
 		Assert.notNull(module, C.MODULE);
 		
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -164,13 +221,32 @@ public class ModuleTransfer {
 		    // write transferable objects
 		    for (Entity entity : module.getTransferableEntities()) {
 		    	writeZipEntry(zos, entity.getInternalName() + TransferFormat.CSV.fileExtension, 
-		    					transferService.doExport(entity));
+		    				  transferService.doExport(entity));
 		    }
 	    }
 	    return baos.toByteArray();
 	}
 	
-	public ImportAnalysis analyzeModule(Module module) {
+	void exportModuleToDir(Module module) throws IOException {
+		Assert.notNull(module, C.MODULE);
+		Assert.stateAvailable(externalModuleDir, "external module dir");
+		
+		final File moduleDir = new File(externalModuleDir, module.getName());
+		moduleDir.mkdir();
+		// write module
+		writeToExternalDir(moduleDir, MODULE_XML_FILENAME, getModuleContent(module));
+		// write custom libs
+	    for (CustomLib customLib : module.getCustomLibs()) {
+	    	writeToExternalDir(moduleDir, customLib.getFilename(), customLib.getContent());
+	    }
+	    // write transferable objects
+	    for (Entity entity : module.getTransferableEntities()) {
+	    	writeToExternalDir(moduleDir, entity.getInternalName() + TransferFormat.CSV.fileExtension, 
+	    					   transferService.doExport(entity));
+	    }
+	}
+	
+	ImportAnalysis analyzeModule(Module module) {
 		Assert.notNull(module, C.MODULE);
 		final ImportAnalysis analysis = new ImportAnalysis(module);
 		final Module currentVersionModule = getCurrentVersionModule(module);
@@ -179,7 +255,7 @@ public class ModuleTransfer {
 		return analysis;
 	}
 	
-	public void importModule(Module module) {
+	void importModule(Module module) {
 		Assert.notNull(module, C.MODULE);
 		final Module currentVersionModule = getCurrentVersionModule(module);
 		final TransferContext context = new DefaultTransferContext(module);
@@ -236,6 +312,31 @@ public class ModuleTransfer {
 		importModuleContent(module);
 	}
 	
+	private boolean isTransferFile(String fileName) {
+		return fileName != null && fileName.toLowerCase().endsWith(TransferFormat.CSV.fileExtension);
+	}
+	
+	private void initModuleContent(Module module, 
+								   Map<String, byte[]> mapJars, 
+								   Map<String, byte[]> mapTransferContents) {
+		// init custom libs content
+		if (mapJars != null && module.getCustomLibs() != null) {
+			for (CustomLib customLib : module.getCustomLibs()) {
+				Assert.stateAvailable(mapJars.containsKey(customLib.getFilename()), customLib.getFilename());
+				((CustomLibMetadata) customLib).setContent(mapJars.get(customLib.getFilename()));
+			}
+		}
+		// store transfer file content in module
+		if (mapTransferContents != null && module.getTransferableEntities() != null) {
+			for (Entity entity : module.getTransferableEntities()) {
+				final byte[] content = mapTransferContents.get(entity.getInternalName() + TransferFormat.CSV.fileExtension);
+				if (content != null) {
+					module.addTransferContent(entity, content);
+				}
+			}
+		}
+	}
+	
 	private void importModuleContent(Module module) {
 		// import transferable entity content
 		if (module.getTransferableEntities() != null) {
@@ -268,6 +369,12 @@ public class ModuleTransfer {
 		((ModuleMetadata) module).setSchemaVersion(SchemaVersion.currentVersion());
 		marshaller.marshal(module, new StreamResult(baos));
 		return baos.toByteArray();
+	}
+	
+	private static void writeToExternalDir(File moduleDir, String name, byte[] content) throws IOException {
+		try (FileOutputStream fos = new FileOutputStream(new File(moduleDir, name))) {
+			fos.write(content);
+		}
 	}
 	
 	private static void writeZipEntry(ZipOutputStream zos, String name, byte[] content) throws IOException {

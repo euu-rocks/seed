@@ -17,8 +17,8 @@
  */
 package org.seed.ui.zk.vm.admin;
 
-import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.seed.C;
@@ -31,6 +31,7 @@ import org.seed.core.application.module.ModuleService;
 import org.seed.core.customcode.CustomCodeService;
 import org.seed.core.customcode.CustomLibService;
 import org.seed.core.data.SystemObject;
+import org.seed.core.data.ValidationError;
 import org.seed.core.data.ValidationException;
 import org.seed.core.data.datasource.DataSourceService;
 import org.seed.core.data.dbobject.DBObjectService;
@@ -204,6 +205,10 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 		return existUserGroups;
 	}
 	
+	public boolean isExternalDirEnabled() {
+		return moduleService.isExternalDirEnabled();
+	}
+	
 	@Init
 	public void init(@ContextParam(ContextType.VIEW) Component view,
 					 @ExecutionArgParam(C.PARAM) Object object) {
@@ -285,10 +290,35 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	}
 	
 	@Command
+	public void exportModuleToDir(@BindingParam(C.ELEM) Component component) {
+		moduleService.exportModuleToDir(getObject());
+		showNotification(component, false, "admin.module.exportsuccess");
+	}
+	
+	@Command
 	public void analyzeModule(@BindingParam(C.ELEM) Component elem,
 			 				  @ContextParam(ContextType.TRIGGER_EVENT) UploadEvent event) {
-		try (InputStream inputStream = getMediaStream(event.getMedia())) {
-			final Module module = moduleService.readModule(inputStream);
+		analyzeModule(moduleService.readModule(getMediaStream(event.getMedia())), elem);
+	}
+	
+	@Command
+	public void analyzeModuleFromDir(@BindingParam(C.ELEM) Component elem) {
+		if (getObject() == null || getObject().isNew()) {
+			showDialog("/admin/module/namedialog.zul", this);
+			return;
+		}
+		final Module module = moduleService.readModuleFromDir(getObject().getName());
+		if (module != null) {
+			analyzeModule(module, elem);
+		}
+		else {
+			showValidationErrors(elem, "admin.transfer.importfail", 
+								 Collections.singleton(new ValidationError("admin.module.notfound")));
+		}
+	}
+	
+	void analyzeModule(Module module, Component elem) {
+		try {
 			final ImportAnalysis analysis = moduleService.analyzeModule(module);
 			showDialog("/admin/module/importanalysis.zul", new TransferDialogParameter(this, analysis));
 		}

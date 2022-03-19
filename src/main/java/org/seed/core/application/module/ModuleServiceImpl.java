@@ -76,6 +76,11 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 	}
 	
 	@Override
+	public boolean isExternalDirEnabled() {
+		return transfer.isExternalDirEnabled();
+	}
+	
+	@Override
 	@Secured("ROLE_ADMIN_MODULE")
 	public Module readModule(InputStream inputStream) {
 		try {
@@ -88,9 +93,31 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 	
 	@Override
 	@Secured("ROLE_ADMIN_MODULE")
+	public Module readModuleFromDir(String moduleName) {
+		try {
+			return transfer.readModuleFromDir(moduleName);
+		} 
+		catch (IOException ioex) {
+			throw new InternalException(ioex);
+		}	
+	}
+	
+	@Override
+	@Secured("ROLE_ADMIN_MODULE")
 	public byte[] exportModule(Module module) {
 		try {
 			return transfer.exportModule(module);
+		} 
+		catch (IOException ioex) {
+			throw new InternalException(ioex);
+		}
+	}
+	
+	@Override
+	@Secured("ROLE_ADMIN_MODULE")
+	public void exportModuleToDir(Module module) {
+		try {
+			transfer.exportModuleToDir(module);
 		} 
 		catch (IOException ioex) {
 			throw new InternalException(ioex);

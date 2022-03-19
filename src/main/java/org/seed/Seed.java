@@ -54,9 +54,11 @@ public class Seed {
 	public static final String PROP_SEARCH_SOLR_ENABLE           = "search.solr.enable";
 	public static final String PROP_SEARCH_SOLR_URL              = "search.solr.url";
 	
-	public static final String PROP_CODEGEN_EXT_ROOTDIR          = "codegen.external.rootdir";
+	public static final String PROP_CODEGEN_EXT_ROOT_DIR         = "codegen.external.rootdir";
 	public static final String PROP_CODEGEN_EXT_DOWNLOAD_SOURCES = "codegen.external.downloadsources";
 	public static final String PROP_CODEGEN_EXT_UPLOAD_CHANGES   = "codegen.external.uploadchanges";
+	
+	public static final String PROP_MODULE_EXT_ROOT_DIR          = "module.external.rootdir";
 	
 	private static ApplicationContext applicationContext;
 	

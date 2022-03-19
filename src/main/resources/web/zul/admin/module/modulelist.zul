@@ -48,6 +48,14 @@
 						   label="${labels.button.export}" 
 						   onClick="@command('exportModule', elem=self)"
 						   visible="@load(!empty vm.object)"/>
+			<toolbarbutton iconSclass="z-icon-sign-in alpha-icon-lg" 
+						   label="${labels.button.importfromdir}"
+						   visible="@init(vm.externalDirEnabled)"
+						   onClick="@command('analyzeModuleFromDir', elem=self)"/>
+			<toolbarbutton iconSclass="z-icon-sign-out alpha-icon-lg" 
+						   label="${labels.button.exporttodir}" 
+						   onClick="@command('exportModuleToDir', elem=self)"
+						   visible="@load(vm.externalDirEnabled and !empty vm.object)"/>
 		</toolbar>
 	</north>
 	<center border="0">

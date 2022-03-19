@@ -93,9 +93,9 @@ public class ExternalCodeManager implements ApplicationContextAware {
 		}
 		
 		// init download
-		final String propExternalRootDir = applicationProperties.getProperty(Seed.PROP_CODEGEN_EXT_ROOTDIR);
+		final String propExternalRootDir = applicationProperties.getProperty(Seed.PROP_CODEGEN_EXT_ROOT_DIR);
 		if (propExternalRootDir == null) {
-			log.warn("property {} is not defined", Seed.PROP_CODEGEN_EXT_ROOTDIR);
+			log.warn("property {} is not defined", Seed.PROP_CODEGEN_EXT_ROOT_DIR);
 			return;
 		}
 		
