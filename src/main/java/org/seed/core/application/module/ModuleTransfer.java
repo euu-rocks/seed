@@ -312,31 +312,6 @@ public class ModuleTransfer {
 		importModuleContent(module);
 	}
 	
-	private boolean isTransferFile(String fileName) {
-		return fileName != null && fileName.toLowerCase().endsWith(TransferFormat.CSV.fileExtension);
-	}
-	
-	private void initModuleContent(Module module, 
-								   Map<String, byte[]> mapJars, 
-								   Map<String, byte[]> mapTransferContents) {
-		// init custom libs content
-		if (mapJars != null && module.getCustomLibs() != null) {
-			for (CustomLib customLib : module.getCustomLibs()) {
-				Assert.stateAvailable(mapJars.containsKey(customLib.getFilename()), customLib.getFilename());
-				((CustomLibMetadata) customLib).setContent(mapJars.get(customLib.getFilename()));
-			}
-		}
-		// store transfer file content in module
-		if (mapTransferContents != null && module.getTransferableEntities() != null) {
-			for (Entity entity : module.getTransferableEntities()) {
-				final byte[] content = mapTransferContents.get(entity.getInternalName() + TransferFormat.CSV.fileExtension);
-				if (content != null) {
-					module.addTransferContent(entity, content);
-				}
-			}
-		}
-	}
-	
 	private void importModuleContent(Module module) {
 		// import transferable entity content
 		if (module.getTransferableEntities() != null) {
@@ -369,6 +344,31 @@ public class ModuleTransfer {
 		((ModuleMetadata) module).setSchemaVersion(SchemaVersion.currentVersion());
 		marshaller.marshal(module, new StreamResult(baos));
 		return baos.toByteArray();
+	}
+	
+	private static boolean isTransferFile(String fileName) {
+		return fileName != null && fileName.toLowerCase().endsWith(TransferFormat.CSV.fileExtension);
+	}
+	
+	private static void initModuleContent(Module module, 
+								   Map<String, byte[]> mapJars, 
+								   Map<String, byte[]> mapTransferContents) {
+		// init custom libs content
+		if (mapJars != null && module.getCustomLibs() != null) {
+			for (CustomLib customLib : module.getCustomLibs()) {
+				Assert.stateAvailable(mapJars.containsKey(customLib.getFilename()), customLib.getFilename());
+				((CustomLibMetadata) customLib).setContent(mapJars.get(customLib.getFilename()));
+			}
+		}
+		// store transfer file content in module
+		if (mapTransferContents != null && module.getTransferableEntities() != null) {
+			for (Entity entity : module.getTransferableEntities()) {
+				final byte[] content = mapTransferContents.get(entity.getInternalName() + TransferFormat.CSV.fileExtension);
+				if (content != null) {
+					module.addTransferContent(entity, content);
+				}
+			}
+		}
 	}
 	
 	private static void writeToExternalDir(File moduleDir, String name, byte[] content) throws IOException {

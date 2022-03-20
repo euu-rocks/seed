@@ -45,7 +45,7 @@
 	            <listitem attributes.item="@load(group)" 
 	            		  draggable="true" droppable="true" 
 	            		  onDrop="@command('swapFieldGroups',item=event.dragged.attributes.item,base=group)">
-	            	<listcell>
+	            	<listcell iconSclass="@load(empty vm.fieldGroup.name ? '' : 'z-icon-object-group alpha-icon-lg')">
 	            		<label value="@load(group.name)" 
 	            			   style="margin-left:3px"/>
 	            	</listcell>
