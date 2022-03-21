@@ -61,6 +61,11 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		// name
 		validateName(entity, errors);
 		
+		// validate ref field to parent (nested entity insert) 
+		if (entity.isNew()) {
+			validateFieldToParent(entity, errors);
+		}
+		
 		// identifier
 		if (entity.getIdentifierPattern() != null && 
 			!isNameLengthAllowed(entity.getIdentifierPattern())) {
@@ -307,6 +312,13 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 				     isEmpty(field.getReferenceEntity())) {
 				errors.addEmptyField("label.refentity");
 			}
+		}
+	}
+	
+	private void validateFieldToParent(Entity entity, final ValidationErrors errors) {
+		final Entity parentEntity = ((EntityMetadata) entity).getParentEntity();
+		if (parentEntity != null && entity.getReferenceFields(parentEntity).isEmpty()) {
+			errors.addError("val.missing.fieldtoparent", parentEntity.getName());
 		}
 	}
 	

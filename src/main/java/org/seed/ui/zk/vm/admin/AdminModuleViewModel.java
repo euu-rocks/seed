@@ -217,6 +217,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	
 	@Override
 	public void initObject(Module module) {
+		super.initObject(module);
 		existDBObjects = dbObjectService.existObjects();
 		existDataSources = dataSourceService.existObjects();
 		existEntities = entityService.existObjects();

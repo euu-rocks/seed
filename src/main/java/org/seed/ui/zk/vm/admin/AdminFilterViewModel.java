@@ -147,6 +147,7 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 	
 	@Override
 	protected void initObject(Filter filter) {
+		super.initObject(filter);
 		if (filter.getHqlQuery() != null) {
 			hqlInput = true;
 		}

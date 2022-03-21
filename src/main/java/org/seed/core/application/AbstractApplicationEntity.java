@@ -19,6 +19,7 @@ package org.seed.core.application;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.Nullable;
 import javax.persistence.FetchType;
@@ -101,10 +102,10 @@ public abstract class AbstractApplicationEntity extends AbstractSystemEntity
 		Assert.notNull(uid, C.UID);
 		
 		if (list != null) {
-			for (T object : list) {
-				if (uid.equals(object.getUid())) {
-					return object;
-				}
+			final Optional<T> optional = list.stream().filter(object -> uid.equals(object.getUid()))
+											 .findFirst();
+			if (optional.isPresent()) {
+				return optional.get();
 			}
 		}
 		return null;

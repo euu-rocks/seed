@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
@@ -286,8 +287,23 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	@Override
 	public List<Entity> findUsage(EntityField entityField) {
-		return Collections.emptyList();
+		Assert.notNull(entityField, C.ENTITYFIELD);
+		if (!entityField.getType().isReference()) {
+			return Collections.emptyList();
+		}
 		
+		final List<Entity> result = new ArrayList<>();
+		for (Entity entity : getObjects()) {
+			if (entity.hasNesteds()) {
+				final Optional<NestedEntity> optional = entity.getNesteds().stream()
+						.filter(nested -> nested.getReferenceField().equals(entityField))
+						.findFirst();
+				if (optional.isPresent()) {
+					result.add(entity);
+				}
+			}
+		}
+		return result;
 	}
 	
 	@Override

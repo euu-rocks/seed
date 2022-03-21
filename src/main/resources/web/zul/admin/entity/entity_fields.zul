@@ -57,7 +57,7 @@
 	            		<label value="@load(field.name)" 
 	            			   style="margin-left:3px"/>
 	            	</listcell>
-	            	<listcell>
+	            	<listcell iconSclass="@load(empty field.fieldGroup ? '' : 'z-icon-object-group alpha-icon-lg')">
 	            		<label value="@load(field.fieldGroup.name)"/>
 	            	</listcell>
 	            	<listcell>
@@ -91,13 +91,17 @@
             		 onChange="@command('flagDirty')"/>
             <vlayout visible="@load(!empty vm.object.allFieldGroups)">
 	            <label value="${labels.label.fieldgroup}:"/>
-	            <combobox model="@load(vm.object.allFieldGroups)"
+	            <combobox model="@load(vm.object.allFieldGroups) @template(empty each.name ? 'empty' : 'group')"
 						  selectedItem="@bind(vm.field.fieldGroup)"
 						  value="@load(vm.field.fieldGroup.name)"
 						  onSelect="@command('flagDirty')"
 						  hflex="1">
-	                <template name="model" var="fieldGroup">
-	                    <comboitem label="@load(fieldGroup.name)"/>
+					<template name="empty" var="fieldGroup">
+	                    <comboitem/>
+	                </template>
+	                <template name="group" var="fieldGroup">
+	                    <comboitem label="@load(fieldGroup.name)"
+	                    		   iconSclass="z-icon-object-group z-icon-fw alpha-icon-lg"/>
 	                </template>
 	            </combobox>
 	        </vlayout> 		 

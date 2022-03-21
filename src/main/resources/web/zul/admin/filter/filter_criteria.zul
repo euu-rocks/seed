@@ -83,7 +83,7 @@
 	              	</template>
 					<template name="nested" var="nested">
 	                	<comboitem label="@init(nested.name)"
-	                			   iconSclass="z-icon-table z-icon-fw alpha-icon-lg"/>
+	                			   iconSclass="z-icon-sitemap z-icon-fw alpha-icon-lg"/>
 	              	</template>
 				</combobox>
 			</vlayout>

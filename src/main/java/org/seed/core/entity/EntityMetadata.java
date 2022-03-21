@@ -20,6 +20,7 @@ package org.seed.core.entity;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
@@ -648,11 +649,11 @@ public class EntityMetadata extends AbstractApplicationEntity
 			result = genericEntity.getNestedByEntityId(id);
 		}
 		if (result == null && hasNesteds()) {
-			for (NestedEntity nested : getNesteds()) {
-				if (nested.getNestedEntity().getId().equals(id)) {
-					result = nested;
-					break;
-				}
+			final Optional<NestedEntity> optional = getNesteds().stream()
+					.filter(nested -> nested.getNestedEntity().getId().equals(id))
+					.findFirst();
+			if (optional.isPresent()) {
+				result = optional.get();
 			}
 		}
 		return result;
@@ -663,15 +664,12 @@ public class EntityMetadata extends AbstractApplicationEntity
 		Assert.notNull(field, C.FIELD);
 		
 		NestedEntity result = null;
-		if (genericEntity != null) {
-			result = genericEntity.getNestedByEntityField(field);
-		}
-		if (result == null && hasNesteds()) {
-			for (NestedEntity nested : getNesteds()) {
-				if (nested.getNestedEntity().containsField(field)) {
-					result = nested;
-					break;
-				}
+		if (hasNesteds()) {
+			final Optional<NestedEntity> optional = getNesteds().stream()
+					.filter(nested -> nested.getNestedEntity().containsField(field))
+					.findFirst();
+			if (optional.isPresent()) {
+				result = optional.get();
 			}
 		}
 		return result;
@@ -686,10 +684,11 @@ public class EntityMetadata extends AbstractApplicationEntity
 		Assert.notNull(entity, C.ENTITY);
 		
 		if (hasNesteds()) {
-			for (NestedEntity nested : getNesteds()) {
-				if (nested.getNestedEntity().equals(entity)) {
-					return true;
-				}
+			final Optional<NestedEntity> optional = getNesteds().stream()
+					.filter(nested -> nested.getNestedEntity().equals(entity))
+					.findFirst();
+			if (optional.isPresent()) {
+				return true;
 			}
 		}
 		return false;
@@ -700,10 +699,11 @@ public class EntityMetadata extends AbstractApplicationEntity
 		Assert.notNull(entity, C.ENTITY);
 		
 		if (hasAllRelations()) {
-			for (EntityRelation relation : getAllRelations()) {
-				if (relation.isRelated(entity)) {
-					return true;
-				}
+			final Optional<EntityRelation> optional = getAllRelations().stream()
+					.filter(relation -> relation.isRelated(entity))
+					.findFirst();
+			if (optional.isPresent()) {
+				return true;
 			}
 		}
 		return false;

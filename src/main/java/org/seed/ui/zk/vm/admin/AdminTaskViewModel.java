@@ -158,6 +158,7 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	
 	@Override
 	protected void initObject(Task task) {
+		super.initObject(task);
 		initialContent = task.getContent();
 		initialActive = task.isActive();
 		initialInterval = Objects.hash(task.getStartTime(),

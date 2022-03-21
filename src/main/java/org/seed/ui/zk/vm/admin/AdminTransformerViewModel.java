@@ -103,6 +103,7 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	
 	@Override
 	protected void initObject(Transformer transformer) {
+		super.initObject(transformer);
 		elements = transformerService.getMainObjectElements(transformer);
 		nesteds = transformerService.getNestedTransformers(transformer);
 	}

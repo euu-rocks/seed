@@ -105,6 +105,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	
 	@Override
 	protected void initObject(Form form) {
+		super.initObject(form);
 		if (form.getLayout() != null) {
 			initLayout(layoutService.parseLayout(form.getLayout()));
 		}

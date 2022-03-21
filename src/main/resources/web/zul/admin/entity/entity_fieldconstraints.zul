@@ -62,7 +62,7 @@
 	            		<label value="@load(vm.getFieldName(constraint.field))" 
 	            			   style="margin-left:3px"/>
 	            	</listcell>
-	            	<listcell>
+	            	<listcell iconSclass="@load(empty constraint.fieldGroup.name ? '' : 'z-icon-object-group alpha-icon-lg')">
 	            		<label value="@load(constraint.fieldGroup.name)"/>
 	            	</listcell>
 	            	<listcell>
@@ -103,7 +103,7 @@
 	              	</template>
 					<template name="nested" var="nested">
 	                	<comboitem label="@init(nested.name)"
-	                			   iconSclass="z-icon-table z-icon-fw alpha-icon-lg"/>
+	                			   iconSclass="z-icon-sitemap z-icon-fw alpha-icon-lg"/>
 	              	</template>
 				</combobox>
 			</vlayout>
@@ -128,14 +128,18 @@
         	</combobox>
         	<vlayout visible="@load(!empty vm.object.allFieldGroups)">
         		<label value="${labels.label.fieldgroup}:"/>
-        		<combobox model="@load(vm.object.allFieldGroups)"
+        		<combobox model="@load(vm.object.allFieldGroups) @template(empty each.name ? 'empty' : 'group')"
 						  selectedItem="@bind(vm.fieldConstraint.fieldGroup)"
 						  value="@load(vm.fieldConstraint.fieldGroup.name)"
 						  onSelect="@command('selectConstraintFieldGroup')"
 						  disabled="@load(!empty vm.fieldConstraint.field)"
 						  hflex="1">
-	                <template name="model" var="fieldGroup">
-	                    <comboitem label="@load(fieldGroup.name)"/>
+					<template name="empty" var="fieldGroup">
+	                    <comboitem/>
+	                </template>
+	                <template name="group" var="fieldGroup">
+	                    <comboitem label="@load(fieldGroup.name)"
+	                    		   iconSclass="z-icon-object-group z-icon-fw alpha-icon-lg"/>
 	                </template>
 	            </combobox>	
         	</vlayout>

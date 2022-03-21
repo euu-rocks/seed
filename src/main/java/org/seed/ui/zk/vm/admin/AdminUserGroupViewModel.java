@@ -56,6 +56,7 @@ public class AdminUserGroupViewModel extends AbstractAdminViewModel<UserGroup> {
 	
 	@Override
 	protected void initObject(UserGroup userGroup) {
+		super.initObject(userGroup);
 		if (!userGroup.isNew() && userGroup.hasUsers()) {
 			for (User user : userGroup.getUsers()) {
 				originalUserIds.add(user.getId());

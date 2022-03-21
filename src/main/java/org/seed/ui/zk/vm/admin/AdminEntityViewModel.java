@@ -154,6 +154,9 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	
 	@Override
 	protected void initObject(Entity entity) {
+		if (((EntityMetadata) entity).getParentEntity() == null) {
+			super.initObject(entity);
+		}
 		originalName = entity.getInternalName();
 		if (!entity.isNew() && entity.hasFields()) {
 			for (EntityField entityField : entity.getFields()) {

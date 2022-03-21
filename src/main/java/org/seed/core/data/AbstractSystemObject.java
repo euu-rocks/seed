@@ -20,6 +20,7 @@ package org.seed.core.data;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -172,10 +173,10 @@ public abstract class AbstractSystemObject implements SystemObject {
 		Assert.notNull(id, C.ID);
 		
 		if (list != null) {
-			for (T object : list) {
-				if (id.equals(object.getId())) {
-					return object;
-				}
+			final Optional<T> optional = list.stream().filter(object -> id.equals(object.getId()))
+											 .findFirst();
+			if (optional.isPresent()) {
+				return optional.get();
 			}
 		}
 		return null;
@@ -191,12 +192,7 @@ public abstract class AbstractSystemObject implements SystemObject {
 	
 	protected static <T extends SystemObject> void removeNewObjects(List<T> list) {
 		if (list != null) {
-			try {
-				list.removeIf(SystemObject::isNew);
-			}
-			catch (Exception ex) {
-				// ignore exceptions
-			}
+			list.removeIf(SystemObject::isNew);
 		}
 	}
 
