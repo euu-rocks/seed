@@ -57,7 +57,7 @@
 		                </combobox>
 		            </cell>
                 </row>
-                <row visible="@load(vm.nestedEntity and vm.existParentEntities())"> 
+                <row visible="@load(vm.nestedEntity)"> 
             		<cell align="right">
                 		<label value="${labels.label.parententity}:"/>
                 	</cell>
@@ -121,7 +121,7 @@
                 			   style="margin-left: 5px"/>
                 	</cell>
                 </row>
-                <row visible="@init(vm.existParentEntities())">
+                <row>
                 	<cell/>
                 	<cell>
                 		<checkbox checked="@bind(vm.nestedEntity)"

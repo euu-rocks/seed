@@ -38,6 +38,7 @@ import org.seed.ui.zk.convert.ThumbnailConverter;
 
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.DependsOn;
 import org.zkoss.bind.annotation.ExecutionArgParam;
 import org.zkoss.bind.annotation.Init;
 import org.zkoss.bind.annotation.NotifyChange;
@@ -49,6 +50,8 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	
 	@WireVariable(value="filterServiceImpl")
 	private FilterService filterService;
+	
+	private LoadOnDemandListModel<ValueObject> listModel;
 	
 	private Map<Long, ThumbnailConverter> thumbnailConverterMap;
 	
@@ -75,6 +78,12 @@ public class ListFormViewModel extends AbstractFormViewModel {
 		
 		filterList = filterService.getFilters(getForm().getEntity(), getUser());
 		editAction = getForm().getActionByType(FormActionType.DETAIL);
+		getListModel();
+	}
+	
+	@DependsOn("listModel")
+	public int getCursorTotalCount() {
+		return listModel.getSize();
 	}
 	
 	@Override
@@ -125,8 +134,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 				cursor = valueObjectService().createCursor(getForm().getEntity(), currentFilter);
 			}
 		}
-		
-		return new LoadOnDemandListModel<ValueObject>(cursor, false) {
+		listModel = new LoadOnDemandListModel<ValueObject>(cursor, false) {
 			private static final long serialVersionUID = 6122960735585906371L;
 			
 			@Override
@@ -134,6 +142,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 				return valueObjectService().loadChunk(cursor);
 			}
 		};
+		return listModel;
 	}
 	
 	public ThumbnailConverter getThumbnailConverter(Long fieldId) {
@@ -259,8 +268,14 @@ public class ListFormViewModel extends AbstractFormViewModel {
 			sortMap.clear();
 		}
 		sortMap.put(fieldId, directionAscending);
-		sort = new Sort(getForm().getFieldById(fieldId).getEntityField().getInternalName(), 
-						directionAscending);
+		
+		final FormField formField = getForm().getFieldById(fieldId);
+		if (formField.getEntityField() != null) {
+			sort = new Sort(formField.getEntityField().getInternalName(), directionAscending);
+		}
+		else if (formField.getSystemField() != null) {
+			sort = new Sort(formField.getSystemField().property, directionAscending);
+		}
 	}
 	
 	@Override
@@ -271,6 +286,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 				try {
 					deleteObject();
 					reload();
+					notifyChange("listModel");
 				}
 				catch (ValidationException vex) {
 					showValidationErrors(component, "form.action.deletefail", vex.getErrors());

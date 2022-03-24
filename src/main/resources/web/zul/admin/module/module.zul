@@ -54,11 +54,11 @@
 						   label="${labels.button.delete}" 
 						   onClick="@command('deleteModule', elem=self)"
 						   visible="@load(!vm.object.isNew())"/>
-			<toolbarbutton iconSclass="z-icon-arrow-down alpha-icon-lg" 
+			<toolbarbutton iconSclass="z-icon-upload alpha-icon-lg" 
 						   label="${labels.button.importing}"
 						   upload="true"
 						   onUpload="@command('analyzeModule', elem=self, upload=event)"/>			   
-			<toolbarbutton iconSclass="z-icon-arrow-up alpha-icon-lg" 
+			<toolbarbutton iconSclass="z-icon-download alpha-icon-lg" 
 						   label="${labels.button.export}" 
 						   onClick="@command('exportModule', elem=self)"
 						   visible="@load(!vm.object.isNew())"

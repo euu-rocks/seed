@@ -684,12 +684,10 @@ public class EntityMetadata extends AbstractApplicationEntity
 		Assert.notNull(entity, C.ENTITY);
 		
 		if (hasNesteds()) {
-			final Optional<NestedEntity> optional = getNesteds().stream()
+			return getNesteds().stream()
 					.filter(nested -> nested.getNestedEntity().equals(entity))
-					.findFirst();
-			if (optional.isPresent()) {
-				return true;
-			}
+					.findFirst()
+					.isPresent();
 		}
 		return false;
 	}
@@ -699,12 +697,10 @@ public class EntityMetadata extends AbstractApplicationEntity
 		Assert.notNull(entity, C.ENTITY);
 		
 		if (hasAllRelations()) {
-			final Optional<EntityRelation> optional = getAllRelations().stream()
+			return getAllRelations().stream()
 					.filter(relation -> relation.isRelated(entity))
-					.findFirst();
-			if (optional.isPresent()) {
-				return true;
-			}
+					.findFirst()
+					.isPresent();
 		}
 		return false;
 	}

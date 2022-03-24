@@ -120,4 +120,14 @@
 	<center border="0">
 		<include src="@load(vm.layoutInclude)"/>
 	</center>
+	<south border="0">
+		<div>
+			<div class="alpha-status-footer" visible="@load(vm.cursorTotalCount gt 0)">
+				<label value="@load(vm.cursorTotalCount)"/> <label value="${labels.label.entries}"/>
+			</div>
+			<div class="alpha-status-footer" visible="@load(vm.cursorTotalCount eq 0)">
+				<label value="${labels.label.noentries}"/>
+			</div>
+		</div>
+	</south>
 </borderlayout>

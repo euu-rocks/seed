@@ -27,7 +27,7 @@ import org.zkoss.zul.Label;
 @SuppressWarnings("serial")
 public class SystemFields extends Div {
 	
-	private static final String CSS_CLASS		 = "alpha-system-fields";
+	private static final String CSS_CLASS		 = "alpha-status-footer";
 	private static final String LABEL_SUFFIX     = ": ";
 	private static final String LABEL_PROGRESS   = "...";
 	private static final String LABEL_BY         = "label.by";
