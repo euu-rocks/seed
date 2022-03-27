@@ -15,9 +15,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.task;
+package org.seed.core.task.job;
 
 import org.quartz.JobListener;
+
+import org.seed.core.task.SystemTask;
+import org.seed.core.task.Task;
 
 public interface JobScheduler {
 	

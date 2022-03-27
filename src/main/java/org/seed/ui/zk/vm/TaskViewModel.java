@@ -19,9 +19,9 @@ package org.seed.ui.zk.vm;
 
 import java.util.List;
 
-import org.seed.core.task.JobScheduler;
 import org.seed.core.task.Task;
 import org.seed.core.task.TaskService;
+import org.seed.core.task.job.JobScheduler;
 
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.zk.ui.select.annotation.WireVariable;

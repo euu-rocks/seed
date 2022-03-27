@@ -25,6 +25,10 @@ public enum TaskResult {
 	WARNING,
 	ERROR;
 	
+	public boolean failed() {
+		return this == ERROR;
+	}
+	
 	public static TaskResult getResult(LogLevel level) {
 		Assert.notNull(level, "level");
 		

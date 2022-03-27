@@ -59,7 +59,9 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 	
 	private final StringBuilder codeBuffer = new StringBuilder();
 	
-	private final Set<TypeClass> imports = new HashSet<>();
+	private final Set<TypeClass> importTypes = new HashSet<>();
+	
+	private final Set<String> importPackages = new HashSet<>();
 	
 	private final Map<String, MemberMetadata> memberMap = new HashMap<>();
 	
@@ -100,9 +102,10 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		if (classMetadata.superClass != null) {
 			addImport(classMetadata.superClass);
 		}
-		final List<TypeClass> importList = new ArrayList<>(imports);
+		final List<TypeClass> importList = new ArrayList<>(importTypes);
 		TypeClass.sort(importList);
 		importList.forEach(i -> buildImport(buildBuffer, i));
+		importPackages.forEach(i -> buildImportPackage(buildBuffer, i));
 		buildBuffer.append(LF);
 		
 		// class
@@ -132,7 +135,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		}
 		if (!(typeClass.packageName.startsWith("java.lang") ||
 			  typeClass.packageName.equals(classMetadata.packageName))) {
-			imports.add(typeClass);
+			importTypes.add(typeClass);
 		}
 	}
 	
@@ -153,6 +156,12 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 				}
 			}
 		}
+	}
+	
+	protected void addImportPackage(String packageName) {
+		Assert.notNull(packageName, "package name");
+		
+		importPackages.add(packageName);
 	}
 
 	protected void addMember(String name, TypeClass typeClass, AnnotationMetadata ...annotations) {
@@ -351,7 +360,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		buf.append("\tpublic void set").append(StringUtils.capitalize(member.name)).append('(');
 		buildTypeClass(buf, member.typeClass);
 		buf.append(' ').append(member.name).append(") {").append(LF)
-			.append("\t\tthis.").append(member.name).append(" = ").append(member.name).append(';').append(LF)
+			.append("\t\tthis.").append(member.name).append('=').append(member.name).append(';').append(LF)
 			.append("\t}").append(LFLF);
 	}
 	
@@ -402,8 +411,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 	
 	private static void buildTypeClass(StringBuilder buf, TypeClass typeClass) {
 		if (typeClass.genericClass != null) {
-			buf.append(typeClass.genericClass.getSimpleName())
-			   .append('<');
+			buf.append(typeClass.genericClass.getSimpleName()).append('<');
 		}
 		buf.append(typeClass.className);
 		if (!ObjectUtils.isEmpty(typeClass.typeClasses)) {
@@ -423,6 +431,10 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 	
 	private static void buildImport(StringBuilder buf, TypeClass typeClass) {
 		buf.append("import ").append(typeClass.getQualifiedName()).append(';').append(LF);
+	}
+	
+	private static void buildImportPackage(StringBuilder buf, String packageName) {
+		buf.append("import ").append(packageName).append(".*;").append(LF);
 	}
 	
 	protected static AnnotationMetadata newAnnotation(Class<?> annotationClass) {

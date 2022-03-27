@@ -62,7 +62,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public class EntityMetadata extends AbstractApplicationEntity 
 	implements Entity {
 	
-	static final String PACKAGE_NAME = "org.seed.generated.entity";
+	public static final String PACKAGE_NAME = "org.seed.generated.entity";
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "generic_entity_id")

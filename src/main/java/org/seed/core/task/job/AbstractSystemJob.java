@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.task;
+package org.seed.core.task.job;
 
 import org.hibernate.Session;
 import org.quartz.Job;
@@ -24,6 +24,10 @@ import org.quartz.JobExecutionException;
 
 import org.seed.C;
 import org.seed.core.config.SessionProvider;
+import org.seed.core.task.LogLevel;
+import org.seed.core.task.SystemTask;
+import org.seed.core.task.SystemTaskRun;
+import org.seed.core.task.SystemTaskRunLog;
 import org.seed.core.util.Assert;
 
 import org.springframework.context.ApplicationContext;

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.task;
+package org.seed.core.task.job;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +25,10 @@ import org.quartz.JobExecutionContext;
 
 import org.seed.core.api.JobContext;
 import org.seed.core.entity.value.event.ValueObjectFunctionContext;
+import org.seed.core.task.LogLevel;
+import org.seed.core.task.Task;
+import org.seed.core.task.TaskParameter;
+import org.seed.core.task.TaskRunLog;
 
 class DefaultJobContext extends ValueObjectFunctionContext
 	implements JobContext {

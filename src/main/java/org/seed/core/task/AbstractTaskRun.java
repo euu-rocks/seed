@@ -48,6 +48,12 @@ public abstract class AbstractTaskRun extends AbstractSystemObject {
 	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
 	}
+	
+	public long getDuration() {
+		return startTime != null && endTime != null 
+				? endTime.getTime() - startTime.getTime() 
+				: -1L;
+	}
 
 	public TaskResult getResult() {
 		return result;

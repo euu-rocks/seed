@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.task;
+package org.seed.core.task.job;
 
 import java.util.Date;
 import java.util.List;
@@ -42,6 +42,16 @@ import org.seed.core.api.Job;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.config.SessionProvider;
+import org.seed.core.task.AbstractTaskRun;
+import org.seed.core.task.LogLevel;
+import org.seed.core.task.SystemTask;
+import org.seed.core.task.SystemTaskRun;
+import org.seed.core.task.SystemTaskRunLog;
+import org.seed.core.task.Task;
+import org.seed.core.task.TaskResult;
+import org.seed.core.task.TaskRun;
+import org.seed.core.task.TaskRunLog;
+import org.seed.core.task.TaskService;
 import org.seed.core.util.Assert;
 import org.seed.core.util.BeanUtils;
 import org.seed.core.util.ExceptionUtils;
@@ -60,8 +70,6 @@ public class DefaultJobScheduler
 	
 	private static final Logger log = LoggerFactory.getLogger(DefaultJobScheduler.class);
 	
-	private static final String GROUP_SEED = C.SEED;
-	
 	@Autowired
 	private SchedulerFactoryBean schedulerFactory;
 	
@@ -73,6 +81,9 @@ public class DefaultJobScheduler
 	
 	@Autowired
 	private SessionProvider sessionProvider;
+	
+	@Autowired
+	private JobStatistics jobStatistics;
 	
 	private ApplicationContext applicationContext;
 	
@@ -110,7 +121,7 @@ public class DefaultJobScheduler
 		Assert.notNull(task, C.TASK);
 		try {
 			for (JobExecutionContext context : getScheduler().getCurrentlyExecutingJobs()) {
-				if (context.getJobDetail().getKey().getGroup().equals(GROUP_SEED) &&
+				if (context.getJobDetail().getKey().getGroup().equals(C.SEED) &&
 					context.getJobDetail().getKey().getName().equals(task.getUid())) {
 					return true;
 				}
@@ -198,7 +209,7 @@ public class DefaultJobScheduler
 	public void unscheduleTask(Task task) {
 		Assert.notNull(task, C.TASK);
 		try {
-			getScheduler().deleteJob(JobKey.jobKey(task.getUid(), GROUP_SEED));
+			getScheduler().deleteJob(JobKey.jobKey(task.getUid(), C.SEED));
 		} 
 		catch (SchedulerException ex) {
 			throw new InternalException(ex);
@@ -286,6 +297,8 @@ public class DefaultJobScheduler
 		}
 		run.setEndTime(new Date());
 		run.setResult(TaskResult.getResult(maxLevel));
+		
+		jobStatistics.registerRun(run);
 		taskService.saveTaskDirectly(task);
 		
 		if (task.hasNotifications()) {
@@ -346,20 +359,20 @@ public class DefaultJobScheduler
 	@SuppressWarnings("unchecked")
 	private JobDetail createImmediateJobDetail(Task task) {
 		return JobBuilder.newJob((Class<? extends org.quartz.Job>) getJobClass(task))
-				 .withIdentity(task.getId().toString(), GROUP_SEED)
+				 .withIdentity(task.getId().toString(), C.SEED)
 				 .build();
 	}
 	
 	private JobDetail createImmediateJobDetail(SystemTask systemTask) {
 		return JobBuilder.newJob(taskService.getSystemJobClass(systemTask))
-				.withIdentity(systemTask.name(), GROUP_SEED)
+				.withIdentity(systemTask.name(), C.SEED)
 				.build();
 	}
 	
 	@SuppressWarnings("unchecked")
 	private JobDetail createJobDetail(Task task) {
 		return JobBuilder.newJob((Class<? extends org.quartz.Job>) getJobClass(task))
-				 .withIdentity(task.getUid(), GROUP_SEED)
+				 .withIdentity(task.getUid(), C.SEED)
 				 .build();
 	}
 	
@@ -373,14 +386,14 @@ public class DefaultJobScheduler
 	
 	private static Trigger createImmediateTrigger(String name) {
 		return TriggerBuilder.newTrigger()
-		   		.withIdentity(name, GROUP_SEED)
+		   		.withIdentity(name, C.SEED)
 		   		.startNow()
 		   		.build();
 	}
 	
 	private static Trigger createTrigger(Task task) {
 		final TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger()
-														.withIdentity(task.getUid(), GROUP_SEED);
+														.withIdentity(task.getUid(), C.SEED);
 		if (task.getStartTime() != null) {
 			triggerBuilder.startAt(task.getStartTime());
 		}

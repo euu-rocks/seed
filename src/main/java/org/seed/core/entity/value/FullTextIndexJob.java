@@ -22,8 +22,8 @@ import java.util.List;
 import org.seed.core.data.QueryCursor;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityService;
-import org.seed.core.task.AbstractSystemJob;
 import org.seed.core.task.SystemTask;
+import org.seed.core.task.job.AbstractSystemJob;
 
 public class FullTextIndexJob extends AbstractSystemJob {
 	

@@ -43,6 +43,7 @@ import org.seed.core.data.ValidationException;
 import org.seed.core.form.LabelProvider;
 import org.seed.core.mail.MailBuilder;
 import org.seed.core.mail.MailService;
+import org.seed.core.task.job.AbstractSystemJob;
 import org.seed.core.user.User;
 import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupDependent;

@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.seed.C;
 import org.seed.core.application.AbstractRestController;
+import org.seed.core.task.job.JobScheduler;
 import org.seed.core.user.Authorisation;
 
 import org.springframework.beans.factory.annotation.Autowired;

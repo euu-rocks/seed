@@ -27,12 +27,12 @@ import org.quartz.JobExecutionException;
 import org.quartz.JobListener;
 
 import org.seed.C;
-import org.seed.core.task.AbstractSystemJob;
-import org.seed.core.task.JobScheduler;
 import org.seed.core.task.SystemTask;
 import org.seed.core.task.SystemTaskRun;
 import org.seed.core.task.TaskResult;
 import org.seed.core.task.TaskService;
+import org.seed.core.task.job.AbstractSystemJob;
+import org.seed.core.task.job.JobScheduler;
 import org.seed.core.util.NameUtils;
 import org.seed.ui.zk.vm.AbstractApplicationViewModel;
 

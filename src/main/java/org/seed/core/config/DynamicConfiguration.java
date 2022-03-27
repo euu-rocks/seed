@@ -27,7 +27,7 @@ import org.seed.Seed;
 import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.entity.value.ValueEntity;
-import org.seed.core.task.JobScheduler;
+import org.seed.core.task.job.JobScheduler;
 import org.seed.core.user.UserService;
 import org.seed.core.util.Assert;
 import org.seed.core.util.BeanUtils;

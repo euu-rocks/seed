@@ -26,6 +26,7 @@ import org.seed.Seed;
 import org.seed.core.config.DatabaseInfo;
 import org.seed.core.config.SchemaManager;
 import org.seed.core.config.SessionProvider;
+import org.seed.core.task.job.JobStatistics;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 import org.seed.ui.zk.vm.AbstractApplicationViewModel;
@@ -47,6 +48,9 @@ public class SystemInfoViewModel extends AbstractApplicationViewModel {
 	
 	@WireVariable(value="schemaManager")
 	private SchemaManager schemaManager;
+	
+	@WireVariable(value="jobStatistics")
+	private JobStatistics jobStatistics;
 	
 	public String getVersion() {
 		return seed.getVersion();
@@ -95,6 +99,24 @@ public class SystemInfoViewModel extends AbstractApplicationViewModel {
 										  Runtime.getRuntime().freeMemory());
 	}
 	
+	public String getJobTotalDuration() {
+		return jobStatistics.getTotalRunsDurationTime() > 0 
+				? MiscUtils.formatDurationTime(jobStatistics.getTotalRunsDurationTime()) 
+				: null;
+	}
+	
+	public String getJobLongestDuration() {
+		return jobStatistics.getLongestRunDurationTime() > 0 
+				? MiscUtils.formatDurationTime(jobStatistics.getLongestRunDurationTime())
+				: null;	
+	}
+	
+	public String getJobAverageDuration() {
+		return jobStatistics.getAverageDurationTime() > 0 
+				? MiscUtils.formatDurationTime(jobStatistics.getAverageDurationTime())
+				: null;
+	}
+	
 	public Statistic getZkStatistic() {
 		final Statistic statistic = (Statistic) WebApps.getCurrent().getConfiguration().getMonitor();
 		Assert.stateAvailable(statistic, "statistic");
@@ -104,6 +126,10 @@ public class SystemInfoViewModel extends AbstractApplicationViewModel {
 	
 	public Statistics getHbnStatistic() {
 		return sessionProvider.getStatistics();
+	}
+	
+	public JobStatistics getJobStatistics() {
+		return jobStatistics;
 	}
 	
 	public DatabaseInfo getDbInfo() {

@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.seed.core.api.Job;
 import org.seed.core.application.ApplicationEntityService;
+import org.seed.core.task.job.AbstractSystemJob;
 import org.seed.core.user.User;
 
 public interface TaskService extends ApplicationEntityService<Task> {
