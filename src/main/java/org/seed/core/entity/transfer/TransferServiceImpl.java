@@ -37,6 +37,7 @@ import org.seed.core.application.module.TransferContext;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.data.FileObject;
 import org.seed.core.data.Options;
+import org.seed.core.data.QueryCursor;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityDependent;
@@ -164,7 +165,18 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 		Assert.notNull(transferableEntity, C.ENTITY);
 		Assert.state(transferableEntity.isTransferable(), "entity is not transferable");
 		
-		return createProcessor(createAutoTransfer(transferableEntity, false))
+		return doExport(createAutoTransfer(transferableEntity, false));
+	}
+	
+	@Override
+	public byte[] doExport(Entity entity, List<TransferElement> elements, 
+						   QueryCursor<ValueObject> cursor) {
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(cursor, C.CURSOR);
+		Assert.notNull(elements, "elements");
+		
+		return createProcessor(createTransfer(entity, elements))
+				.setCursor(cursor)
 				.doExport();
 	}
 	
@@ -364,6 +376,21 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 			return new CSVProcessor(valueObjectService, valueObjectClass, transfer);
 		}
 		throw new UnsupportedOperationException(transfer.getFormat().name());
+	}
+	
+	private Transfer createTransfer(Entity entity, List<TransferElement> elements)  {
+		final TransferMetadata transfer = (TransferMetadata) createInstance(null);
+		transfer.setFormat(TransferFormat.CSV);
+		transfer.setEntity(entity);
+		transfer.setElements(elements);
+		transfer.setHeader(true);
+		try {
+			initObject(transfer);
+		} 
+		catch (ValidationException vex) {
+			throw new InternalException(vex);
+		}
+		return transfer;
 	}
 	
 	private Transfer createAutoTransfer(Entity entity, boolean forImport) {

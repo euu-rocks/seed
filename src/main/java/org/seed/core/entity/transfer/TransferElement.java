@@ -30,6 +30,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.core.application.AbstractOrderedTransferableObject;
+import org.seed.core.data.SystemField;
 import org.seed.core.entity.EntityField;
 
 @javax.persistence.Entity
@@ -46,6 +47,9 @@ public class TransferElement extends AbstractOrderedTransferableObject {
 	private EntityField entityField;
 	
 	private boolean isIdentifier;
+	
+	@Transient
+	private SystemField systemField;
 	
 	@Transient
 	private String fieldUid;
@@ -86,6 +90,14 @@ public class TransferElement extends AbstractOrderedTransferableObject {
 		this.entityField = entityField;
 	}
 	
+	public SystemField getSystemField() {
+		return systemField;
+	}
+
+	public void setSystemField(SystemField systemField) {
+		this.systemField = systemField;
+	}
+
 	@Override
 	public boolean isEqual(Object other) {
 		if (other == null || !TransferElement.class.isAssignableFrom(other.getClass())) {

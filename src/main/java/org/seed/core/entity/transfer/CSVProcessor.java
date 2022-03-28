@@ -126,7 +126,12 @@ class CSVProcessor extends AbstractTransferProcessor {
 		if (getTransfer().hasElements()) {
 			final List<String> fieldNames = new ArrayList<>();
 			for (TransferElement element : getTransfer().getElements()) {
-				fieldNames.add(element.getEntityField().getInternalName());
+				if (element.getEntityField() != null) {
+					fieldNames.add(element.getEntityField().getInternalName());
+				}
+				else if (element.getSystemField() != null) {
+					fieldNames.add(element.getSystemField().property);
+				}
 			}
 			mappingStrategy.setColumnMapping(fieldNames.toArray(new String[fieldNames.size()]));
 		}
@@ -164,7 +169,12 @@ class CSVProcessor extends AbstractTransferProcessor {
 			if (getTransfer().isQuoteAll()) {
 				writer.write(quote);
 			}
-			writer.write(element.getEntityField().getInternalName());
+			if (element.getEntityField() != null) {
+				writer.write(element.getEntityField().getName());
+			}
+			else if (element.getSystemField() != null) {
+				writer.write(getEnumLabel(element.getSystemField()));
+			}
 			if (getTransfer().isQuoteAll()) {
 				writer.write(quote);
 			}

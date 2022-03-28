@@ -19,9 +19,13 @@ package org.seed.core.entity.transfer;
 
 import java.io.InputStream;
 
+import org.seed.core.data.QueryCursor;
 import org.seed.core.data.ValidationException;
+import org.seed.core.entity.value.ValueObject;
 
 public interface TransferProcessor {
+	
+	TransferProcessor setCursor(QueryCursor<ValueObject> cursor);
 	
 	byte[] doExport();
 	

@@ -17,9 +17,11 @@
  */
 package org.seed.ui.zk.vm;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.seed.C;
 import org.seed.core.data.QueryCursor;
@@ -27,13 +29,20 @@ import org.seed.core.data.Sort;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.filter.Filter;
 import org.seed.core.entity.filter.FilterService;
+import org.seed.core.entity.transfer.TransferElement;
+import org.seed.core.entity.transfer.TransferFormat;
+import org.seed.core.entity.transfer.TransferService;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.form.FormAction;
 import org.seed.core.form.FormActionType;
 import org.seed.core.form.FormField;
+import org.seed.core.util.MiscUtils;
 import org.seed.ui.FormParameter;
 import org.seed.ui.SearchParameter;
+import org.seed.ui.settings.ColumnSetting;
+import org.seed.ui.settings.ListFormSettings;
 import org.seed.ui.zk.LoadOnDemandListModel;
+import org.seed.ui.zk.ViewUtils;
 import org.seed.ui.zk.convert.ThumbnailConverter;
 
 import org.zkoss.bind.annotation.BindingParam;
@@ -44,12 +53,16 @@ import org.zkoss.bind.annotation.Init;
 import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
+import org.zkoss.zul.Filedownload;
 import org.zkoss.zul.ListModel;
 
 public class ListFormViewModel extends AbstractFormViewModel {
 	
 	@WireVariable(value="filterServiceImpl")
 	private FilterService filterService;
+	
+	@WireVariable(value="transferServiceImpl")
+	private TransferService transferService;
 	
 	private LoadOnDemandListModel<ValueObject> listModel;
 	
@@ -247,6 +260,10 @@ public class ListFormViewModel extends AbstractFormViewModel {
 			case SELECTCOLS:
 				showSelectFieldsDialog();
 				break;
+			
+			case EXPORTLIST:
+				exportList();
+				break;
 				
 			default:
 				throw new UnsupportedOperationException(action.getType().name());
@@ -318,6 +335,43 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	
 	private void reload() {
 		notifyChange("listModel");
+	}
+	
+	private void exportList() {
+		final List<TransferElement> elements = new ArrayList<>();
+		for (FormField field : getVisibleFields()) {
+			final TransferElement element = new TransferElement();
+			if (field.getEntityField() != null) {
+				element.setEntityField(field.getEntityField());
+			}
+			else if (field.getSystemField() != null) {
+				element.setSystemField(field.getSystemField());
+			}
+			elements.add(element);
+		}
+		final QueryCursor<ValueObject> cursor = listModel.getCursor().newCursorFromStart();
+		Filedownload.save(transferService.doExport(getForm().getEntity(), elements, cursor), 
+						  TransferFormat.CSV.contentType, 
+						  getForm().getName() + '_' + MiscUtils.getTimestampString() + 
+						  	TransferFormat.CSV.fileExtension);
+	}
+	
+	private List<FormField> getVisibleFields() {
+		final ListFormSettings listSettings = 
+				ViewUtils.getSettings().getListFormSettings(getForm().getId());
+		listSettings.sortFields(getForm().getFields());
+		return getForm().getFields().stream()
+						.filter(field -> isFieldVisible(field, listSettings))
+						.collect(Collectors.toList());
+	}
+	
+	private static boolean isFieldVisible(FormField field, ListFormSettings listSettings) {
+		final ColumnSetting columnSetting = listSettings.getColumnSetting(field.getId());
+		boolean visible = field.isSelected();
+		if (columnSetting != null) {
+			visible = !columnSetting.isHidden();
+		}
+		return visible;
 	}
 	
  }

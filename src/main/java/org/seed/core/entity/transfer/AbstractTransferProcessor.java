@@ -29,11 +29,13 @@ import org.hibernate.Transaction;
 
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.Seed;
 import org.seed.core.data.QueryCursor;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.entity.value.ValueObjectService;
+import org.seed.core.form.LabelProvider;
 import org.seed.core.util.Assert;
 
 import org.springframework.util.ObjectUtils;
@@ -45,6 +47,8 @@ public abstract class AbstractTransferProcessor implements TransferProcessor {
 	private final Class<? extends ValueObject> objectClass;
 	
 	private final Transfer transfer;
+	
+	private LabelProvider labelProvider;
 	
 	private QueryCursor<ValueObject> cursor;
 	
@@ -66,6 +70,14 @@ public abstract class AbstractTransferProcessor implements TransferProcessor {
 		this.transfer = transfer;
 	}
 	
+	@Override
+	public final TransferProcessor setCursor(QueryCursor<ValueObject> cursor) {
+		Assert.notNull(cursor, C.CURSOR);
+		
+		this.cursor = cursor;
+		return this;
+	}
+	
 	protected Transfer getTransfer() {
 		return transfer;
 	}
@@ -82,6 +94,14 @@ public abstract class AbstractTransferProcessor implements TransferProcessor {
 		return transfer != null && transfer.getEncoding() != null 
 				? Charset.forName(transfer.getEncoding().charset)
 				: Charset.defaultCharset();
+	}
+	
+	protected String getLabel(String key, String ...params) {
+		return getLabelProvider().getLabel(key, params);
+	}
+	
+	protected String getEnumLabel(Enum<?> enm) {
+		return getLabelProvider().getEnumLabel(enm);
 	}
 	
 	protected ValueObject getNextObject() {
@@ -210,9 +230,16 @@ public abstract class AbstractTransferProcessor implements TransferProcessor {
 		}
 	}
 	
+	private LabelProvider getLabelProvider() {
+		if (labelProvider == null) {
+			labelProvider = Seed.getBean(LabelProvider.class);
+		}
+		return labelProvider;
+	}
+	
 	private QueryCursor<ValueObject> getCursor() {
 		if (cursor == null) {
-			cursor = valueObjectService.createCursor(transfer.getEntity(), 500);
+			cursor = valueObjectService.createCursor(transfer.getEntity(), 100);
 		}
 		return cursor;
 	}

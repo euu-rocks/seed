@@ -21,8 +21,10 @@ import java.util.List;
 
 import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.data.FileObject;
+import org.seed.core.data.QueryCursor;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
+import org.seed.core.entity.value.ValueObject;
 
 public interface TransferService extends ApplicationEntityService<Transfer> {
 	
@@ -35,6 +37,8 @@ public interface TransferService extends ApplicationEntityService<Transfer> {
 	byte[] doExport(Transfer transfer);
 	
 	byte[] doExport(Entity transferableEntity);
+	
+	byte[] doExport(Entity entity, List<TransferElement> elements, QueryCursor<ValueObject> cursor);
 	
 	TransferResult doImport(Transfer transfer, ImportOptions options, FileObject importFile) throws ValidationException;
 	

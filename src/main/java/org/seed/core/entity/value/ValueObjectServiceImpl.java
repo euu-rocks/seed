@@ -255,7 +255,7 @@ public class ValueObjectServiceImpl
 	
 	@Override
 	public List<ValueObject> loadChunk(QueryCursor<ValueObject> cursor) {
-		Assert.notNull(cursor, "cursor");
+		Assert.notNull(cursor, C.CURSOR);
 		
 		if (cursor.isFullTextSearch()) {
 			return loadFullTextObjects(cursor);
@@ -274,7 +274,7 @@ public class ValueObjectServiceImpl
 	
 	@Override
 	public List<FullTextResult> loadFullTextChunk(QueryCursor<FullTextResult> cursor) {
-		Assert.notNull(cursor, "cursor");
+		Assert.notNull(cursor, C.CURSOR);
 		
 		final List<ValueObject> listObjects = loadFullTextObjects(cursor);
 		final Map<Long, String> mapTexts = fullTextSearch.getTextMap(listObjects, cursor.getQueryText());

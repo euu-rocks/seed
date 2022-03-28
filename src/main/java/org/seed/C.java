@@ -31,6 +31,7 @@ public final class C {
 	public static final String COMPONENT        = "component";
 	public static final String CONTENT          = "content";
 	public static final String CONTEXT          = "context";
+	public static final String CURSOR           = "cursor";
 	public static final String DATASOURCE       = "dataSource";
 	public static final String DBOBJECT			= "dbObject";
 	public static final String ELEM             = "elem";

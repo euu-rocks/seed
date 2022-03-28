@@ -19,6 +19,7 @@ package org.seed.ui.zk;
 
 import java.util.List;
 
+import org.seed.C;
 import org.seed.core.data.QueryCursor;
 import org.seed.core.data.SystemObject;
 import org.seed.core.util.Assert;
@@ -37,12 +38,16 @@ public abstract class LoadOnDemandListModel<T extends SystemObject> extends Abst
 	private int chunkIndex = -1;
 	
 	protected LoadOnDemandListModel(QueryCursor<T> cursor, boolean nullable) {
-		Assert.notNull(cursor, "cursor");
+		Assert.notNull(cursor, C.CURSOR);
 		
 		this.cursor = cursor;
 		this.nullable = nullable;
 	}
 	
+	public QueryCursor<T> getCursor() {
+		return cursor;
+	}
+
 	@Override
 	public final T getElementAt(int index) {
 		if (nullable) {

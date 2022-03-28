@@ -73,6 +73,15 @@ public final class QueryCursor<T extends SystemObject> {
 		this.chunkSize = chunkSize;
 	}
 	
+	private QueryCursor(CriteriaQuery<T> query, String queryText, 
+						List<Tupel<Long, Long>> fullTextResult, int totalCount, int chunkSize) {
+		this.query = query;
+		this.queryText = queryText;
+		this.fullTextResult = fullTextResult;
+		this.totalCount = totalCount;
+		this.chunkSize = chunkSize;
+	}
+
 	public boolean isFullTextSearch() {
 		return fullTextResult != null;
 	}
@@ -109,6 +118,10 @@ public final class QueryCursor<T extends SystemObject> {
 		
 		startIndex = chunkIndex * chunkSize;
 		Assert.state(startIndex < totalCount, "chunk index too big: " + chunkIndex);
+	}
+	
+	public QueryCursor<T> newCursorFromStart() {
+		return new QueryCursor<T>(query, queryText, fullTextResult, totalCount, chunkSize);
 	}
 	
 }
