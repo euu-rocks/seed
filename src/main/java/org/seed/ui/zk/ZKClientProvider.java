@@ -17,8 +17,8 @@
  */
 package org.seed.ui.zk;
 
+import org.seed.LabelProvider;
 import org.seed.core.api.ClientProvider;
-import org.seed.core.form.LabelProvider;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

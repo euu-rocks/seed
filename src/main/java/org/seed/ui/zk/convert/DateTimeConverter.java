@@ -19,8 +19,7 @@ package org.seed.ui.zk.convert;
 
 import java.util.Date;
 
-import org.seed.core.form.LabelProvider;
-
+import org.seed.LabelProvider;
 import org.zkoss.bind.BindContext;
 import org.zkoss.zk.ui.Component;
 

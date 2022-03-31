@@ -39,8 +39,7 @@ import org.seed.core.form.FormField;
 import org.seed.core.util.MiscUtils;
 import org.seed.ui.FormParameter;
 import org.seed.ui.SearchParameter;
-import org.seed.ui.settings.ColumnSetting;
-import org.seed.ui.settings.ListFormSettings;
+import org.seed.ui.settings.ViewSettings;
 import org.seed.ui.zk.LoadOnDemandListModel;
 import org.seed.ui.zk.ViewUtils;
 import org.seed.ui.zk.convert.ThumbnailConverter;
@@ -339,7 +338,8 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	
 	private void exportList() {
 		final List<TransferElement> elements = new ArrayList<>();
-		for (FormField field : getVisibleFields()) {
+		final QueryCursor<ValueObject> cursor = listModel.getCursor().newCursorFromStart();
+		for (FormField field : getVisibleSortedFields()) {
 			final TransferElement element = new TransferElement();
 			if (field.getEntityField() != null) {
 				element.setEntityField(field.getEntityField());
@@ -349,29 +349,18 @@ public class ListFormViewModel extends AbstractFormViewModel {
 			}
 			elements.add(element);
 		}
-		final QueryCursor<ValueObject> cursor = listModel.getCursor().newCursorFromStart();
 		Filedownload.save(transferService.doExport(getForm().getEntity(), elements, cursor), 
 						  TransferFormat.CSV.contentType, 
 						  getForm().getName() + '_' + MiscUtils.getTimestampString() + 
-						  	TransferFormat.CSV.fileExtension);
+						  						TransferFormat.CSV.fileExtension);
 	}
 	
-	private List<FormField> getVisibleFields() {
-		final ListFormSettings listSettings = 
-				ViewUtils.getSettings().getListFormSettings(getForm().getId());
-		listSettings.sortFields(getForm().getFields());
+	private List<FormField> getVisibleSortedFields() {
+		final ViewSettings viewSettings = ViewUtils.getSettings();
+		viewSettings.sortFields(getForm().getFields());
 		return getForm().getFields().stream()
-						.filter(field -> isFieldVisible(field, listSettings))
+						.filter(viewSettings::isFormFieldVisible)
 						.collect(Collectors.toList());
-	}
-	
-	private static boolean isFieldVisible(FormField field, ListFormSettings listSettings) {
-		final ColumnSetting columnSetting = listSettings.getColumnSetting(field.getId());
-		boolean visible = field.isSelected();
-		if (columnSetting != null) {
-			visible = !columnSetting.isHidden();
-		}
-		return visible;
 	}
 	
  }

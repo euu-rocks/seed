@@ -58,7 +58,7 @@ import org.zkoss.zul.Filedownload;
 
 public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	
-	private static final String INCLUDE_PATH = "/inc/";
+	private static final String INCLUDE_PATH = "/inc/";  //NOSONAR
 	
 	@WireVariable(value="applicationSettingServiceImpl")
 	protected ApplicationSettingService settingService;

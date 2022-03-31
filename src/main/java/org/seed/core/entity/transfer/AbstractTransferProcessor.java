@@ -35,7 +35,6 @@ import org.seed.core.data.ValidationException;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.entity.value.ValueObjectService;
-import org.seed.core.form.LabelProvider;
 import org.seed.core.util.Assert;
 
 import org.springframework.util.ObjectUtils;
@@ -48,8 +47,6 @@ public abstract class AbstractTransferProcessor implements TransferProcessor {
 	
 	private final Transfer transfer;
 	
-	private LabelProvider labelProvider;
-	
 	private QueryCursor<ValueObject> cursor;
 	
 	private List<ValueObject> chunk;
@@ -58,9 +55,9 @@ public abstract class AbstractTransferProcessor implements TransferProcessor {
 	
 	private int chunkIndex = -1;
 	
-	public AbstractTransferProcessor(ValueObjectService valueObjectService,
-									 Class<? extends ValueObject> objectClass,
-									 Transfer transfer) {
+	protected AbstractTransferProcessor(ValueObjectService valueObjectService,
+										Class<? extends ValueObject> objectClass,
+										Transfer transfer) {
 		Assert.notNull(valueObjectService, "valueObjectService");
 		Assert.notNull(objectClass, C.OBJECTCLASS);
 		Assert.notNull(transfer, C.TRANSFER);
@@ -97,11 +94,11 @@ public abstract class AbstractTransferProcessor implements TransferProcessor {
 	}
 	
 	protected String getLabel(String key, String ...params) {
-		return getLabelProvider().getLabel(key, params);
+		return Seed.getLabel(key, params);
 	}
 	
 	protected String getEnumLabel(Enum<?> enm) {
-		return getLabelProvider().getEnumLabel(enm);
+		return Seed.getEnumLabel(enm);
 	}
 	
 	protected ValueObject getNextObject() {
@@ -228,13 +225,6 @@ public abstract class AbstractTransferProcessor implements TransferProcessor {
 				throw pex;
 			}
 		}
-	}
-	
-	private LabelProvider getLabelProvider() {
-		if (labelProvider == null) {
-			labelProvider = Seed.getBean(LabelProvider.class);
-		}
-		return labelProvider;
 	}
 	
 	private QueryCursor<ValueObject> getCursor() {

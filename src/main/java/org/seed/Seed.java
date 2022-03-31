@@ -62,6 +62,8 @@ public class Seed {
 	
 	private static ApplicationContext applicationContext;
 	
+	private static LabelProvider labelProvider;
+	
 	@Autowired
 	private BuildProperties buildProperties;
 	
@@ -80,6 +82,14 @@ public class Seed {
 				: null;
 	}
 	
+	public static String getLabel(String key, String ...params) {
+		return getLabelProvider().getLabel(key, params);
+	}
+	
+	public static String getEnumLabel(Enum<?> enm) {
+		return getLabelProvider().getEnumLabel(enm);
+	}
+	
 	public static <T> T getBean(Class<T> typeClass) {
 		if (typeClass == null) {
 			throw new IllegalArgumentException("type class is null");
@@ -90,5 +100,12 @@ public class Seed {
 		}
     	return applicationContext.getBean(typeClass);
 	}
+	
+	private static LabelProvider getLabelProvider() {
+		if (labelProvider == null) {
+			labelProvider = getBean(LabelProvider.class);
+		}
+		return labelProvider;
+ 	}
 
 }

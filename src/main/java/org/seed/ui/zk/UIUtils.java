@@ -36,9 +36,6 @@ import org.zkoss.zul.Messagebox;
 
 public abstract class UIUtils {
 	
-	private static final String ZUL_PATH 	 = "~./zul";
-	private static final String AFTER_CENTER = "after_center";
-	
 	private UIUtils() {}
 	
 	public static byte[] getBytes(Media media) {
@@ -59,7 +56,7 @@ public abstract class UIUtils {
 	public static String getZulPath(String view) {
 		Assert.notNull(view, C.VIEW);
 		
-		return ZUL_PATH.concat(view);
+		return "~./zul".concat(view);
 	}
 	
 	public static boolean hasSessionObject(String name) {
@@ -108,8 +105,8 @@ public abstract class UIUtils {
 		showNotification(component, Clients.NOTIFICATION_TYPE_ERROR, 5000, message);
 	}
 	
-	public static void showNotification(Component component, String type, int duration, String message, String ...params) {
-		Clients.showNotification(message, type, component, AFTER_CENTER, duration, true);
+	public static void showNotification(Component component, String type, int duration, String message) {
+		Clients.showNotification(message, type, component, "after_center", duration, true);
 	}
 	
 	public static void globalCommand(String command, Map<String, Object> paramMap) {

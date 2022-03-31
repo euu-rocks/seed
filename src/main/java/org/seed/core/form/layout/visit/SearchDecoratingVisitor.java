@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.seed.C;
+import org.seed.Seed;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.filter.CriterionOperator;
 import org.seed.core.form.Form;
@@ -115,7 +116,7 @@ public class SearchDecoratingVisitor extends AbstractLayoutVisitor {
 		final List<LayoutElement> items = new ArrayList<>();
 		for (CriterionOperator operator : CriterionOperator.getOperators(field.getType())) {
 			final LayoutElement elemMenuItem = new LayoutElement(LayoutElement.MENUITEM);
-			elemMenuItem.setLabel(getEnumLabel(operator));
+			elemMenuItem.setLabel(Seed.getEnumLabel(operator));
 			elemMenuItem.setAttribute("autocheck", V_TRUE);
 			elemMenuItem.setAttribute("checkmark", V_TRUE);
 			if (subForm != null) {

@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.seed.C;
-import org.seed.core.form.LabelProvider;
+import org.seed.LabelProvider;
 import org.seed.core.form.navigation.Menu;
 import org.seed.core.form.navigation.MenuService;
 import org.seed.core.user.Authorisation;

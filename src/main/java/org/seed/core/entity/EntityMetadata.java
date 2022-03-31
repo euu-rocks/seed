@@ -685,9 +685,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 		
 		if (hasNesteds()) {
 			return getNesteds().stream()
-					.filter(nested -> nested.getNestedEntity().equals(entity))
-					.findFirst()
-					.isPresent();
+					.anyMatch(nested -> nested.getNestedEntity().equals(entity));
 		}
 		return false;
 	}
@@ -698,9 +696,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 		
 		if (hasAllRelations()) {
 			return getAllRelations().stream()
-					.filter(relation -> relation.isRelated(entity))
-					.findFirst()
-					.isPresent();
+					.anyMatch(relation -> relation.isRelated(entity));
 		}
 		return false;
 	}

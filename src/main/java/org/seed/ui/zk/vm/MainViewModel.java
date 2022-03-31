@@ -113,9 +113,7 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	
 	public TreeModel getMenuTree() {
 		final TreeNode root = new TreeNode("root", null, null);
-		for (TreeNode menuNode : getMenuList()) {
-			root.addChild(menuNode);
-		}
+		getMenuList().forEach(root::addChild);
 		return new TreeModel(root);
 	}
 	

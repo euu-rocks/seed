@@ -49,7 +49,7 @@ public class ModuleRestController {
 		catch (Exception ex) {
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<String>(file.getOriginalFilename(), HttpStatus.OK);
+		return new ResponseEntity<>(file.getOriginalFilename(), HttpStatus.OK);
 	}
 
 }

@@ -121,7 +121,7 @@ public final class QueryCursor<T extends SystemObject> {
 	}
 	
 	public QueryCursor<T> newCursorFromStart() {
-		return new QueryCursor<T>(query, queryText, fullTextResult, totalCount, chunkSize);
+		return new QueryCursor<>(query, queryText, fullTextResult, totalCount, chunkSize);
 	}
 	
 }

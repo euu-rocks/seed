@@ -27,10 +27,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.seed.C;
+import org.seed.LabelProvider;
 import org.seed.Seed;
 import org.seed.core.data.datasource.ColumnMetadata;
 import org.seed.core.data.datasource.DataSourceResult;
-import org.seed.core.form.LabelProvider;
 import org.seed.core.report.Report;
 import org.seed.core.report.ReportDataSource;
 import org.seed.core.report.ReportGenerator;

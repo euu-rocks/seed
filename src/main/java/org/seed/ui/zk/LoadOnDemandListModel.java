@@ -44,7 +44,7 @@ public abstract class LoadOnDemandListModel<T extends SystemObject> extends Abst
 		this.nullable = nullable;
 	}
 	
-	public QueryCursor<T> getCursor() {
+	public final QueryCursor<T> getCursor() {
 		return cursor;
 	}
 

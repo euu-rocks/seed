@@ -24,12 +24,12 @@ import java.util.Date;
 import java.util.List;
 
 import org.seed.C;
+import org.seed.LabelProvider;
 import org.seed.core.data.FileObject;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.form.FormPrintout;
-import org.seed.core.form.LabelProvider;
 import org.seed.core.util.Assert;
 import org.seed.core.util.ObjectAccess;
 
@@ -42,7 +42,7 @@ public abstract class AbstractPrintoutProcessor extends ObjectAccess implements 
 	
 	private final LabelProvider labelProvider;
 	
-	public AbstractPrintoutProcessor(Entity entity, LabelProvider labelProvider) {
+	protected AbstractPrintoutProcessor(Entity entity, LabelProvider labelProvider) {
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(labelProvider, "labelPrivider");
 		

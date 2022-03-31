@@ -25,6 +25,7 @@ import org.hibernate.Session;
 
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.LabelProvider;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -41,7 +42,6 @@ import org.seed.core.form.FormChangeAware;
 import org.seed.core.form.FormDependent;
 import org.seed.core.form.FormOptions;
 import org.seed.core.form.FormService;
-import org.seed.core.form.LabelProvider;
 import org.seed.core.user.User;
 import org.seed.core.util.Assert;
 

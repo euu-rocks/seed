@@ -100,7 +100,7 @@ public abstract class MiscUtils {
 				buf.append(durationMs).append(" ms");
 			}
 			else {
-				buf.append(((double) durationMs) / 1000d).append(" sec");
+				buf.append(durationMs / 1000d).append(" sec");
 			}
 		}
 		else {

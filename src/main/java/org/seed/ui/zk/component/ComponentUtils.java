@@ -19,8 +19,8 @@ package org.seed.ui.zk.component;
 
 import java.util.Date;
 
+import org.seed.LabelProvider;
 import org.seed.Seed;
-import org.seed.core.form.LabelProvider;
 import org.seed.core.util.Assert;
 
 import org.springframework.util.StringUtils;

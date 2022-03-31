@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.seed.Seed;
 import org.seed.core.form.Form;
 import org.seed.core.form.layout.LayoutElement;
 import org.seed.core.form.layout.LayoutElementAttributes;
@@ -53,14 +54,7 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 				break;
 			
 			case LayoutElement.CELL:
-				element.setContext(newContextId())
-					   .setClass(LayoutElementClass.LAYOUT_GRID);
-				if (element.isEmpty()) {
-					element.setAlign("center")
-						   .setText('(' + String.valueOf(element.getColumnIndex() + 1) + 
-									',' + String.valueOf(element.getRowIndex() + 1) + ')');
-				}
-				addRootChild(createCellMenuPopup(element));
+				visitCell(element);
 				break;
 			
 			case LayoutElement.LABEL:
@@ -221,11 +215,22 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 		addRootChild(createBorderLayoutMenuPopup(element));
 	}
 	
+	private void visitCell(LayoutElement element) {
+		element.setContext(newContextId())
+		   .setClass(LayoutElementClass.LAYOUT_GRID);
+		if (element.isEmpty()) {
+			element.setAlign("center")
+				   .setText('(' + String.valueOf(element.getColumnIndex() + 1) + 
+							',' + String.valueOf(element.getRowIndex() + 1) + ')');
+		}
+		addRootChild(createCellMenuPopup(element));
+	}
+	
 	private void visitTabpanel(LayoutElement element) {
 		element.setContext(newContextId());
 		if (element.isEmpty() && element.getParent().getParent().parentIs(LayoutElement.CELL)) {
 			element.setAttribute(A_STYLE, "padding: 5px;text-align:center")
-				   .setText(getLabel(LABEL_EMPTY));
+				   .setText(Seed.getLabel(LABEL_EMPTY));
 		}
 		addRootChild(createTabPanelPopupMenu(element));
 	}
@@ -239,8 +244,8 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 						   				 "'addField',contextid='" + element.getContext() + '\''));
 			}
 			if (richTextFieldsAvailable()) {
-				menus.add(createMenuItem("admin.layout.addrichtextfield", ICON_RICHTEXT,
-										 "'addRichTextField',contextid='" + element.getContext() + '\''));
+				menus.add(createMenuItem(LABEL_ADDRICHTEXT, ICON_RICHTEXT,
+										 CMD_ADDRICHTEXT + element.getContext() + '\''));
 			}
 			menus.add(createMenuItem("admin.layout.addtext", "z-icon-paragraph",
 	   				 				 "'addText',contextid='" + element.getContext() + '\''));
@@ -267,8 +272,8 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 			menus.add(createMenuItem("admin.layout.addrelationform", ICON_LINK,
 	  			 		 			 "'addRelationForm',contextid='" + element.getContext() + '\''));
 			if (richTextFieldsAvailable()) {
-				menus.add(createMenuItem("admin.layout.addrichtextfield", ICON_RICHTEXT,
-						 				 "'addRichTextField',contextid='" + element.getContext() + '\''));
+				menus.add(createMenuItem(LABEL_ADDRICHTEXT, ICON_RICHTEXT,
+						 				 CMD_ADDRICHTEXT + element.getContext() + '\''));
 			}	
 			menus.add(createMenuItem("admin.layout.addlayout", ICON_NEWSPAPER,
 		 	   	   	   	   			 "'addLayout',contextid='" + element.getContext() + '\''));
@@ -376,8 +381,8 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 		menus.add(createMenuItem("admin.layout.addrelationform", ICON_LINK,
 	   		  			 		 "'addRelationForm',contextid='" + element.getContext() + '\''));
 		if (richTextFieldsAvailable()) {
-			menus.add(createMenuItem("admin.layout.addrichtextfield", ICON_RICHTEXT,
-					 				 "'addRichTextField',contextid='" + element.getContext() + '\''));
+			menus.add(createMenuItem(LABEL_ADDRICHTEXT, ICON_RICHTEXT,
+					 				 CMD_ADDRICHTEXT + element.getContext() + '\''));
 		}
 		menus.add(createTabMenu(element.getTab()));
 		if (element.getTabboxContainer().isLayoutArea()) {
@@ -445,7 +450,10 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 		return !getLayoutService().getAvailableRichTextFields(getForm(), getRootElement()).isEmpty();
 	}
 	
-	private static final String LABEL_ADDTAB   = "admin.layout.addtab";
+	private static final String CMD_ADDRICHTEXT   = "'addRichTextField',contextid='";
+	
+	private static final String LABEL_ADDTAB      = "admin.layout.addtab";
+	private static final String LABEL_ADDRICHTEXT = "admin.layout.addrichtextfield";
 	
 	private static final String ICON_FOLDER    = "z-icon-folder";
 	private static final String ICON_LINK      = "z-icon-link";

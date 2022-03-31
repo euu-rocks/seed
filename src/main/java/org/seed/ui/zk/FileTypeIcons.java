@@ -22,14 +22,28 @@ import java.util.Map;
 
 public abstract class FileTypeIcons {
 	
+	private static final String TYPE_IMAGE      = "image";
+	private static final String TYPE_AUDIO      = "audio";
+	private static final String TYPE_VIDEO      = "video";
+	private static final String TYPE_TEXT       = "text";
+	private static final String TYPE_ARCHIVE    = "archive";
+	
 	private static final String ICON_ARCHIVE    = "file-archive-o";
+	private static final String ICON_AUDIO      = "file-audio-o";
 	private static final String ICON_CODE       = "file-code-o";
 	private static final String ICON_EXCEL      = "file-excel-o";
+	private static final String ICON_FILE       = "file-o";
+	private static final String ICON_IMAGE      = "file-image-o";
 	private static final String ICON_PDF        = "file-pdf-o";
 	private static final String ICON_POWERPOINT = "file-powerpoint-o";
+	private static final String ICON_TEXT       = "file-text-o";
+	private static final String ICON_VIDEO      = "file-video-o";
 	private static final String ICON_WORD       = "file-word-o";
 	
-	private static final Map<String, String> contentTypeMap = new HashMap<>();
+	private static final String PRE_ICON        = "z-icon-";
+	private static final String SUF_ICON        = " alpha-icon-lg";
+	
+	private static final Map<String, String> contentTypeMap = new HashMap<>(32);
 	
 	static {
 		contentTypeMap.put("text/html", ICON_CODE);
@@ -57,30 +71,30 @@ public abstract class FileTypeIcons {
 	public static String getIcon(String contentType) {
 		String icon = null;
 		if (contentType != null) {
-			if (contentType.startsWith("image")) {
-				icon = "file-image-o";
+			if (contentType.startsWith(TYPE_IMAGE)) {
+				icon = ICON_IMAGE;
 			}
-			else if (contentType.startsWith("audio")) {
-				icon = "file-audio-o";
+			else if (contentType.startsWith(TYPE_AUDIO)) {
+				icon = ICON_AUDIO;
 			}
-			else if (contentType.startsWith("video")) {
-				icon = "file-video-o";
+			else if (contentType.startsWith(TYPE_VIDEO)) {
+				icon = ICON_VIDEO;
 			}
 			else {
 				icon = contentTypeMap.get(contentType);
 			}
 			if (icon == null) {
-				if (contentType.startsWith("text")) {
-					icon = "file-text-o";
+				if (contentType.startsWith(TYPE_TEXT)) {
+					icon = ICON_TEXT;
 				}
-				else if (contentType.contains("archive")) {
+				else if (contentType.contains(TYPE_ARCHIVE)) {
 					icon = ICON_ARCHIVE;
 				}
 				else {
-					icon = "file-o";
+					icon = ICON_FILE;
 				}
 			}
-			icon = "z-icon-" + icon + " alpha-icon-lg";
+			icon = PRE_ICON + icon + SUF_ICON;
 		}
 		return icon;
 	}

@@ -22,9 +22,8 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 import org.seed.InternalException;
+import org.seed.LabelProvider;
 import org.seed.core.data.FileObject;
-import org.seed.core.form.LabelProvider;
-
 import org.zkoss.bind.BindContext;
 import org.zkoss.image.AImage;
 import org.zkoss.zk.ui.Component;

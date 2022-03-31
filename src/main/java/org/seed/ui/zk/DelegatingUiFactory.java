@@ -26,9 +26,7 @@ import org.zkoss.zk.ui.sys.RequestInfo;
 
 public class DelegatingUiFactory extends SimpleUiFactory {
 	
-	private static final String EMPTY_CONTENT  = "<zk/>";
-	private static final String EXTENSION_ZUL  = "zul";
-	private static final String PATH_GENERATED = "/generated";
+	private static final String PATH_GENERATED = "/generated";	//NOSONAR
 	
 	private LayoutProvider layoutProvider;
 	
@@ -41,8 +39,8 @@ public class DelegatingUiFactory extends SimpleUiFactory {
 			return getPageDefinitionDirectly(requestInfo, 
 											 pageContent != null 
 												? pageContent 
-												: EMPTY_CONTENT, 
-											 EXTENSION_ZUL);
+												: "<zk/>", 
+											 "zul");
 		}
 		return super.getPageDefinition(requestInfo, path);
 	}

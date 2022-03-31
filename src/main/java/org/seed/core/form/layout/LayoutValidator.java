@@ -18,12 +18,12 @@
 package org.seed.core.form.layout;
 
 import org.seed.C;
+import org.seed.LabelProvider;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.EntityField;
 import org.seed.core.form.Form;
-import org.seed.core.form.LabelProvider;
 import org.seed.core.form.layout.BorderLayoutProperties.LayoutAreaProperties;
 import org.seed.core.util.Assert;
 

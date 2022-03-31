@@ -94,7 +94,10 @@ public class FormField extends AbstractFormField {
 		if (getEntityField() != null) {
 			return getEntityField().getName();
 		}
-		return Seed.getBean(LabelProvider.class).getEnumLabel(systemField);
+		else if (getSystemField() != null) {
+			return Seed.getEnumLabel(getSystemField());
+		}
+		return null;
 	}
 	
 	@Override

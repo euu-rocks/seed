@@ -128,8 +128,8 @@ public class ModuleTransfer {
 	
 	Module readModule(InputStream inputStream) throws IOException {
 		Assert.notNull(inputStream, "input stream");
-		Map<String, byte[]> mapJars = null;
-		Map<String, byte[]> mapTransferContents = null;
+		Map<String, byte[]> mapJars = new HashMap<>();
+		Map<String, byte[]> mapTransferContents = new HashMap<>();
 		Module module = null;
 		
 		try (ZipInputStream zis = new ZipInputStream(inputStream)) {
@@ -142,16 +142,10 @@ public class ModuleTransfer {
 				}
 				// read jar files
 				else if (isJarFile(entry.getName())) {
-					if (mapJars == null) {
-						mapJars = new HashMap<>();
-					}
 					mapJars.put(entry.getName(), zis.readAllBytes());
 				}
 				// read transfer files
 				else if (isTransferFile(entry.getName())) {
-					if (mapTransferContents == null) {
-						mapTransferContents = new HashMap<>();
-					}
 					mapTransferContents.put(entry.getName(), zis.readAllBytes());
 				}
 				// ignore other entries
@@ -167,8 +161,8 @@ public class ModuleTransfer {
 	Module readModuleFromDir(String moduleName) throws IOException {
 		Assert.notNull(moduleName, "module name");
 		Assert.stateAvailable(externalModuleDir, "external module dir");
-		Map<String, byte[]> mapJars = null;
-		Map<String, byte[]> mapTransferContents = null;
+		Map<String, byte[]> mapJars = new HashMap<>();
+		Map<String, byte[]> mapTransferContents = new HashMap<>();
 		Module module = null;
 		
 		final File moduleDir = new File(externalModuleDir, moduleName);
@@ -186,16 +180,10 @@ public class ModuleTransfer {
 				}
 				// read jar files
 				else if (isJarFile(file.getName())) {
-					if (mapJars == null) {
-						mapJars = new HashMap<>();
-					}
 					mapJars.put(file.getName(), fis.readAllBytes());
 				}
 				// read transfer files
 				else if (isTransferFile(file.getName())) {
-					if (mapTransferContents == null) {
-						mapTransferContents = new HashMap<>();
-					}
 					mapTransferContents.put(file.getName(), fis.readAllBytes());
 				}
 				// ignore other entries
@@ -354,14 +342,14 @@ public class ModuleTransfer {
 								   Map<String, byte[]> mapJars, 
 								   Map<String, byte[]> mapTransferContents) {
 		// init custom libs content
-		if (mapJars != null && module.getCustomLibs() != null) {
+		if (!mapJars.isEmpty() && module.getCustomLibs() != null) {
 			for (CustomLib customLib : module.getCustomLibs()) {
 				Assert.stateAvailable(mapJars.containsKey(customLib.getFilename()), customLib.getFilename());
 				((CustomLibMetadata) customLib).setContent(mapJars.get(customLib.getFilename()));
 			}
 		}
 		// store transfer file content in module
-		if (mapTransferContents != null && module.getTransferableEntities() != null) {
+		if (!mapTransferContents.isEmpty() && module.getTransferableEntities() != null) {
 			for (Entity entity : module.getTransferableEntities()) {
 				final byte[] content = mapTransferContents.get(entity.getInternalName() + TransferFormat.CSV.fileExtension);
 				if (content != null) {

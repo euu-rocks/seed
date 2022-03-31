@@ -158,11 +158,9 @@ public class ApplicationSettingServiceImpl implements ApplicationSettingService 
 	private Map<Setting, String> getSettingMap() {
 		if (settingMap == null) {
 			final Map<Setting, String> map = new EnumMap<>(Setting.class);
+			map.computeIfAbsent(Setting.MENU_MODE, mode -> "NAVIGATION");
 			for (ApplicationSetting setting : repository.find()) {
 				map.put(setting.getSetting(), setting.getValue());
-			}
-			if (!map.containsKey(Setting.MENU_MODE)) {
-				map.put(Setting.MENU_MODE, "NAVIGATION");
 			}
 			settingMap = new ConcurrentHashMap<>(map);
 		}

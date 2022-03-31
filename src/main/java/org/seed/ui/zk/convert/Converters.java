@@ -17,8 +17,8 @@
  */
 package org.seed.ui.zk.convert;
 
+import org.seed.LabelProvider;
 import org.seed.Seed;
-import org.seed.core.form.LabelProvider;
 
 public abstract class Converters {
 	

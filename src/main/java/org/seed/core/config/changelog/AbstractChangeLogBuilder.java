@@ -58,7 +58,7 @@ public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 	            if (++i < children.size()) {
 	                serialized = serialized.replaceFirst("}\\s*$", "},\n");
 	            }
-	            writer.write(PADDING + serialized.replaceAll("\n", '\n' + PADDING) + '\n');
+	            writer.write(PADDING + serialized.replace("\n", '\n' + PADDING) + '\n');
 	        }
 	        writer.flush();
 	    }

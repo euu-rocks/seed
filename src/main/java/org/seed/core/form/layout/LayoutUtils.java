@@ -27,7 +27,6 @@ import org.seed.C;
 import org.seed.Seed;
 import org.seed.core.data.FieldType;
 import org.seed.core.entity.EntityField;
-import org.seed.core.form.LabelProvider;
 import org.seed.core.util.Assert;
 
 public abstract class LayoutUtils {
@@ -35,8 +34,6 @@ public abstract class LayoutUtils {
 	private static final Map<FieldType, String> mapElements  = new EnumMap<>(FieldType.class);
 	
 	private static final Map<BorderLayoutArea, String> mapBorderLayoutArea = new EnumMap<>(BorderLayoutArea.class);
-	
-	private static LabelProvider labelProvider;
 	
 	static {
 		mapElements.put(FieldType.AUTONUM,   LayoutElement.TEXTBOX);
@@ -85,14 +82,6 @@ public abstract class LayoutUtils {
 		
 		return "@load(" + property + ')';
  	}
-	
-	public static String getLabel(String key) {
-		return labelProvider().getLabel(key);
-	}
-	
-	public static String getEnumLabel(Enum<?> enm) {
-		return labelProvider().getEnumLabel(enm);
-	}
 	
 	public static LayoutElement createZK() {
 		return new LayoutElement(LayoutElement.ZK);
@@ -272,7 +261,7 @@ public abstract class LayoutUtils {
 		Assert.notNull(label, C.LABEL);
 		
 		final LayoutElement elemMenu = new LayoutElement(LayoutElement.MENU);
-		elemMenu.setLabel(getLabel(label));
+		elemMenu.setLabel(Seed.getLabel(label));
 		if (icon != null) {
 			elemMenu.setIcon(icon);
 		}
@@ -288,7 +277,7 @@ public abstract class LayoutUtils {
 		Assert.notNull(command, C.COMMAND);
 		
 		final LayoutElement elemMenuItem = new LayoutElement(LayoutElement.MENUITEM);
-		elemMenuItem.setLabel(getLabel(label));
+		elemMenuItem.setLabel(Seed.getLabel(label));
 		if (icon != null) {
 			elemMenuItem.setIcon(icon);
 		}
@@ -408,13 +397,13 @@ public abstract class LayoutUtils {
 		return elemListcell;
 	}
 	
-	public static LayoutElement createTemplate(String name, String var) {
+	public static LayoutElement createTemplate(String name, String variable) {
 		Assert.notNull(name, C.NAME);
-		Assert.notNull(var, A_VAR);
+		Assert.notNull(variable, A_VAR);
 		
 		final LayoutElement elemTemplate = new LayoutElement(LayoutElement.TEMPLATE);
 		elemTemplate.setAttribute(A_NAME, name);
-		elemTemplate.setAttribute(A_VAR, var);
+		elemTemplate.setAttribute(A_VAR, variable);
 		return elemTemplate;
 	}
 	
@@ -422,13 +411,6 @@ public abstract class LayoutUtils {
 		final String element = mapElements.get(type);
 		Assert.state(element != null, "unsupported type " + type);
 		return new LayoutElement(element);
-	}
-	
-	private static LabelProvider labelProvider() {
-		if (labelProvider == null) {
-			labelProvider = Seed.getBean(LabelProvider.class);
-		}
-		return labelProvider;
 	}
 	
 }

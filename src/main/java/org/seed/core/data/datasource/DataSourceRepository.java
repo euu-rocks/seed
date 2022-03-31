@@ -30,8 +30,8 @@ import java.util.Map;
 import org.hibernate.Session;
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.LabelProvider;
 import org.seed.core.data.AbstractSystemEntityRepository;
-import org.seed.core.form.LabelProvider;
 import org.seed.core.util.Assert;
 
 import org.slf4j.Logger;

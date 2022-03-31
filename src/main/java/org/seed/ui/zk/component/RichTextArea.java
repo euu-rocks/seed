@@ -33,7 +33,7 @@ import org.zkoss.zul.Html;
 @SuppressWarnings("serial")
 public class RichTextArea extends Div implements EventListener<Event> {
 	
-	private static final String PATH_EDITOR = "/component/richtexteditor.zul";
+	private static final String PATH_EDITOR = "/component/richtexteditor.zul";  //NOSONAR
 	
 	private Html html;
 	

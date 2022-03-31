@@ -24,8 +24,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.seed.C;
+import org.seed.LabelProvider;
 import org.seed.core.data.ValidationError;
-import org.seed.core.form.LabelProvider;
 import org.seed.core.util.Assert;
 import org.seed.core.util.ExceptionUtils;
 import org.seed.ui.zk.UIUtils;
@@ -47,12 +47,6 @@ abstract class AbstractViewModel {
 	
 	private static final String NOBR_START   = "<nobr>";
 	private static final String NOBR_END     = "</nobr>";
-	private static final String UL_START	 = "<ul>";
-	private static final String UL_END		 = "</ul>";
-	private static final String LI_START	 = "<li>";
-	private static final String LI_END		 = "</li>";
-	private static final String PRE_LABEL	 = "label.";
-	private static final String NOTIFY_ALL	 = "*";
 	
 	@WireVariable(value="ZKLabelProvider")
 	private LabelProvider labelProvider;
@@ -114,7 +108,7 @@ abstract class AbstractViewModel {
 	}
 	
 	protected final void notifyChangeAll() {
-		notifyChange(NOTIFY_ALL);
+		notifyChange("*");
 	}
 	
 	protected final void showNotification(Component component, boolean warning, String msgKey, String ...params) {
@@ -135,19 +129,19 @@ abstract class AbstractViewModel {
 			buf.append(getLabel("val.error.header", getLabel(errorKey)));
 		}
 		if (isList) {
-			buf.append(UL_START);
+			buf.append("<ul>");
 		}
 		for (ValidationError error : validationErrors) {
 			if (isList) {
-				buf.append(LI_START);
+				buf.append("<li>");
 			}
 			buildError(buf, error);
 			if (isList) {
-				buf.append(LI_END);
+				buf.append("</li>");
 			}
 		}
 		if (isList) {
-			buf.append(UL_END);
+			buf.append("</ul>");
 		}
 		UIUtils.showNotification(component, 
 								 Clients.NOTIFICATION_TYPE_WARNING, 
@@ -184,7 +178,7 @@ abstract class AbstractViewModel {
 		else {
 			final String[] params = error.getParameters();
 			for (int i = 0; i < params.length; i++) {
-				if (params[i].startsWith(PRE_LABEL)) {
+				if (params[i].startsWith("label.")) {
 					params[i] = getLabel(params[i]);
 				}
 			}
@@ -227,7 +221,7 @@ abstract class AbstractViewModel {
 				return Collections.singletonMap(C.PARAM, param);
 			}
 		}
-		return null;
+		return Collections.emptyMap();
 	}
 	
 }

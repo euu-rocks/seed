@@ -22,6 +22,7 @@ import java.util.Collections;
 import static org.seed.core.form.layout.LayoutElementAttributes.*;
 
 import org.seed.C;
+import org.seed.Seed;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityRelation;
 import org.seed.core.form.Form;
@@ -226,7 +227,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 		elemListbox.addChild(createListHead(true));
 		elemListbox.addChild(createTemplate("empty", entityField.getReferenceEntity().getInternalName()))
 		   		   .addChild(createListItem(null))		   
-		   		   .addChild(createListCell('[' + getLabel(LABEL_EMPTY) + ']', null, null));
+		   		   .addChild(createListCell('[' + Seed.getLabel(LABEL_EMPTY) + ']', null, null));
 		elemListbox.addChild(createTemplate(A_MODEL, entityField.getReferenceEntity().getInternalName()))
 				   .addChild(createListItem(null))		   
 				   .addChild(createListCell(load(identifier(entityField.getReferenceEntity().getInternalName())) , null, null));
@@ -252,10 +253,10 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 		// actions
 		final LayoutElement elemNorth = element.addChild(createBorderLayoutArea(BorderLayoutArea.NORTH), 0);
 		final LayoutElement elemToolbar = elemNorth.addChild(new LayoutElement(LayoutElement.TOOLBAR));
-		elemToolbar.addChild(createToolbarButton(getLabel("button.add"), 
+		elemToolbar.addChild(createToolbarButton(Seed.getLabel("button.add"), 
 												 "'addRelation',relationId='" + relation.getUid() + '\'',
 												 "z-icon-plus alpha-icon-lg"));
-		final LayoutElement elemButtonRemove = elemToolbar.addChild(createToolbarButton(getLabel("button.remove"), 
+		final LayoutElement elemButtonRemove = elemToolbar.addChild(createToolbarButton(Seed.getLabel("button.remove"), 
 												 "'removeRelation',relationId='" + relation.getUid() + '\'',
 												 "z-icon-minus alpha-icon-lg"));
 		elemButtonRemove.setAttribute(A_VISIBLE, load("!empty " + selectedRelationFormObject(relation)));
@@ -456,7 +457,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 		elemList.addChild(createListHead(true));
 		elemList.addChild(createTemplate("empty", nestedEntityField.getReferenceEntity().getInternalName()))
 			.addChild(createListItem(null))		   
-			.addChild(createListCell('[' + getLabel(LABEL_EMPTY) + ']', null, null));
+			.addChild(createListCell('[' + Seed.getLabel(LABEL_EMPTY) + ']', null, null));
 		elemList.addChild(createTemplate(A_MODEL, nestedEntityField.getReferenceEntity().getInternalName()))
 			.addChild(createListItem(null))		   
 			.addChild(createListCell(load(identifier(nestedEntityField.getReferenceEntity().getInternalName())), null, null));

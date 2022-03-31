@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.PostConstruct;
 
 import org.seed.C;
-import org.seed.core.form.LabelProvider;
+import org.seed.LabelProvider;
 import org.seed.core.util.Assert;
 
 import org.springframework.stereotype.Component;

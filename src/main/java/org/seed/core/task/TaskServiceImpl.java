@@ -29,6 +29,7 @@ import org.hibernate.Transaction;
 
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.LabelProvider;
 import org.seed.core.api.Job;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
@@ -40,7 +41,6 @@ import org.seed.core.codegen.CodeChangeAware;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.data.Options;
 import org.seed.core.data.ValidationException;
-import org.seed.core.form.LabelProvider;
 import org.seed.core.mail.MailBuilder;
 import org.seed.core.mail.MailService;
 import org.seed.core.task.job.AbstractSystemJob;

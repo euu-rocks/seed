@@ -17,7 +17,7 @@
  */
 package org.seed.ui.zk.convert;
 
-import org.seed.core.form.LabelProvider;
+import org.seed.LabelProvider;
 import org.seed.core.util.Assert;
 
 import org.zkoss.bind.BindContext;

@@ -85,7 +85,7 @@ public class ListFormSettings {
 		
 		if (columnSettings != null) {
 			final Map<Long,FormField> fieldMap = new HashMap<>();
-			fields.forEach(f -> fieldMap.put(f.getId(), f));
+			fields.forEach(field -> fieldMap.put(field.getId(), field));
 			fields.clear();
 			for (ColumnSetting setting : columnSettings) {
 				final FormField field = fieldMap.get(setting.getFieldId());

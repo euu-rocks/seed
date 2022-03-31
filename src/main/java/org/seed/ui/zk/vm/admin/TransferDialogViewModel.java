@@ -149,7 +149,7 @@ public class TransferDialogViewModel extends AbstractApplicationViewModel {
 	public String getErrorDetail(TransferError error) {
 		if (error.validationError != null) {
 			if (ObjectUtils.isEmpty(error.validationError.getParameters())) {
-				return getLabel(error.validationError.getError()).replaceAll("\\<.*?>","");
+				return getLabel(error.validationError.getError()).replaceAll("\\<[^>]++>","");
 			}
 			else {
 				final String[] params = error.validationError.getParameters();
@@ -158,7 +158,7 @@ public class TransferDialogViewModel extends AbstractApplicationViewModel {
 						params[i] = getLabel(params[i]);
 					}
 				}
-				return getLabel(error.validationError.getError(), params).replaceAll("\\<.*?>","");
+				return getLabel(error.validationError.getError(), params).replaceAll("\\<[^>]++>","");
 			}
 		}
 		else if (error.message != null) {

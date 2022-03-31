@@ -669,7 +669,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	@NotifyChange(C.STATUSTRANSITION)
 	public void newStatusTransition() {
 		statusTransition = entityService.createStatusTransition(getObject());
-		notifyObjectChange("statusTransitions");
+		notifyObjectChange(STATUSTRANSITIONS);
 		flagDirty();
 	}
 	
@@ -679,7 +679,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 		try {
 			entityService.removeStatusTransition(getObject(), statusTransition);
 			statusTransition = null;
-			notifyObjectChange("statusTransitions");
+			notifyObjectChange(STATUSTRANSITIONS);
 			flagDirty();
 		}
 		catch (ValidationException vex) {
@@ -746,6 +746,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 					entityMeta.setGenericEntity(null);
 					entityMeta.setModule(null);
 				}
+				break;
 				
 			case C.TRANSFERABLE:
 				if (getObject().isTransferable()) {

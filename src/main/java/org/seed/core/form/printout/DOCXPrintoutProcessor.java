@@ -32,11 +32,11 @@ import org.apache.xmlbeans.XmlException;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTRow;
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.LabelProvider;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.form.FormPrintout;
-import org.seed.core.form.LabelProvider;
 import org.seed.core.util.Assert;
 
 import org.springframework.util.ObjectUtils;
