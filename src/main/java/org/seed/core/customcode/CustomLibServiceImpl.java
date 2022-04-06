@@ -137,18 +137,6 @@ public class CustomLibServiceImpl extends AbstractApplicationEntityService<Custo
 	}
 	
 	@Override
-	public void reportError(CustomJar customJar, String error) {
-		Assert.notNull(error, C.ERROR);
-		
-		saveError(customJar, error);
-	}
-	
-	@Override
-	public void resetError(CustomJar customJar) {
-		saveError(customJar, null);
-	}
-	
-	@Override
 	@Secured("ROLE_ADMIN_SOURCECODE")
 	public void saveObject(CustomLib customLib) throws ValidationException {
 		Assert.notNull(customLib, "customLib");
@@ -178,15 +166,6 @@ public class CustomLibServiceImpl extends AbstractApplicationEntityService<Custo
 	
 	private void resetCustomJars() {
 		Seed.getBean(Compiler.class).resetCustomJars();
-	}
-	
-	private void saveError(CustomJar customJar, String error) {
-		Assert.notNull(customJar, "customJar");
-		final CustomLibMetadata libMeta = (CustomLibMetadata) customJar;
-		Assert.state(!libMeta.isNew(), "customJar is new");
-		
-		libMeta.setError(error);
-		saveObjectDirectly(libMeta);
 	}
 	
 }

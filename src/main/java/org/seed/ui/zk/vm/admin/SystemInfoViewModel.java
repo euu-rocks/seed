@@ -18,6 +18,7 @@
 package org.seed.ui.zk.vm.admin;
 
 import java.util.Date;
+import java.util.List;
 
 import org.hibernate.stat.Statistics;
 
@@ -26,6 +27,8 @@ import org.seed.Seed;
 import org.seed.core.config.DatabaseInfo;
 import org.seed.core.config.SchemaManager;
 import org.seed.core.config.SessionProvider;
+import org.seed.core.config.SystemLog;
+import org.seed.core.config.SystemLog.LogEntry;
 import org.seed.core.task.job.JobStatistics;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
@@ -52,8 +55,25 @@ public class SystemInfoViewModel extends AbstractApplicationViewModel {
 	@WireVariable(value="jobStatistics")
 	private JobStatistics jobStatistics;
 	
+	@WireVariable(value="systemLog")
+	private SystemLog systemLog;
+	
+	private LogEntry logEntry;
+	
 	public String getVersion() {
 		return seed.getVersion();
+	}
+	
+	public LogEntry getLogEntry() {
+		return logEntry;
+	}
+
+	public void setLogEntry(LogEntry logEntry) {
+		this.logEntry = logEntry;
+	}
+
+	public List<LogEntry> getLogEntries() {
+		return systemLog.getEntries();
 	}
 	
 	public Date getStartTime() {

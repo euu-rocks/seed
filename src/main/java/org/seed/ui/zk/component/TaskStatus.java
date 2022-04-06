@@ -17,6 +17,8 @@
  */
 package org.seed.ui.zk.component;
 
+import static org.seed.ui.zk.component.ComponentUtils.*;
+
 import org.seed.core.task.TaskResult;
 
 import org.zkoss.zul.A;
@@ -24,10 +26,8 @@ import org.zkoss.zul.A;
 @SuppressWarnings("serial")
 public class TaskStatus extends A {
 	
-	private static final String CURSOR_DEFAULT = "cursor:default";
-	
 	public TaskStatus() {
-		setIconSclass("z-icon-circle alpha-icon-lg");
+		setIconSclass(ICON_CIRCLE);
 		setResult(null);
 	}
 	
@@ -35,20 +35,23 @@ public class TaskStatus extends A {
 		if (result != null) {
 			switch (result) {
 				case SUCCESS:
-					setStyle("color:green;" + CURSOR_DEFAULT);
+					setStyle(STYLE_INFO);
 					break;
 					
 				case WARNING:
-					setStyle("color:orange;" + CURSOR_DEFAULT);
+					setStyle(STYLE_WARNIUNG);
 					break;
 					
 				case ERROR:
-					setStyle("color:red;" + CURSOR_DEFAULT);
+					setStyle(STYLE_ERROR);
 					break;
+					
+				default:
+					throw new UnsupportedOperationException(result.name());
 			}
 		}
 		else {
-			setStyle("color:lightgrey;" + CURSOR_DEFAULT);
+			setStyle(STYLE_UNDEFINED);
 		}
 	}
 	

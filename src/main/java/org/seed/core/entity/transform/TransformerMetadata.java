@@ -61,8 +61,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public class TransformerMetadata extends AbstractApplicationEntity 
 	implements Transformer {
 	
-	static final String PACKAGE_NAME = "org.seed.generated.transform";
-	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "source_entity_id")
 	@JsonSerialize(using = ReferenceJsonSerializer.class)

@@ -39,6 +39,8 @@ public class AdminCustomLibViewModel extends AbstractAdminViewModel<CustomLib> {
 	@WireVariable(value="customLibServiceImpl")
 	private CustomLibService customLibService;
 	
+	private String error;
+	
 	public AdminCustomLibViewModel() {
 		super(Authorisation.ADMIN_SOURCECODE, "customlib",
 			  "/admin/customcode/customliblist.zul", 
@@ -51,6 +53,10 @@ public class AdminCustomLibViewModel extends AbstractAdminViewModel<CustomLib> {
 		super.init(object, view);
 	}
 	
+	public String getError() {
+		return error;
+	}
+
 	@Command
 	public void flagDirty(@BindingParam("notify") String notify, 
 						  @BindingParam("notifyObject") String notifyObject) {
@@ -66,8 +72,9 @@ public class AdminCustomLibViewModel extends AbstractAdminViewModel<CustomLib> {
 		}
 		else if(customLib.getFilename() == null) {
 			customLib.setName(null);
-			customLib.setError(null);
-			notifyObjectChange(C.NAME, C.ERROR);
+			error = null;
+			notifyObjectChange(C.NAME);
+			notifyChange(C.ERROR);
 		}
 	}
 	
@@ -94,7 +101,7 @@ public class AdminCustomLibViewModel extends AbstractAdminViewModel<CustomLib> {
 	@Command
 	public void saveLib(@BindingParam(C.ELEM) Component component) {
 		cmdSaveObject(component);
-		notifyObjectChange(C.ERROR);
+		notifyChange(C.ERROR);
 	}
 	
 	@Command
@@ -104,9 +111,9 @@ public class AdminCustomLibViewModel extends AbstractAdminViewModel<CustomLib> {
 	
 	@Override
 	protected void handleValidationException(ValidationException vex, Component component, String msgKey) {
-		for (ValidationError error : vex.getErrors()) {
-			if ("val.illegal.jar".equals(error.getError())) {
-				((CustomLibMetadata) getObject()).setError(error.getParameters()[0]);
+		for (ValidationError valError : vex.getErrors()) {
+			if ("val.illegal.jar".equals(valError.getError())) {
+				error = valError.getParameters()[0];
 				break;
 			}
 		}
@@ -120,7 +127,7 @@ public class AdminCustomLibViewModel extends AbstractAdminViewModel<CustomLib> {
 
 	@Override
 	protected void resetProperties() {
-		// do nothing
+		error = null;
 	}
 	
 }

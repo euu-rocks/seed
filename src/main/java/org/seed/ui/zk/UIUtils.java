@@ -36,6 +36,8 @@ import org.zkoss.zul.Messagebox;
 
 public abstract class UIUtils {
 	
+	private static final String ZUL_PATH = "~./zul";
+	
 	private UIUtils() {}
 	
 	public static byte[] getBytes(Media media) {
@@ -56,7 +58,7 @@ public abstract class UIUtils {
 	public static String getZulPath(String view) {
 		Assert.notNull(view, C.VIEW);
 		
-		return "~./zul".concat(view);
+		return ZUL_PATH.concat(view);
 	}
 	
 	public static boolean hasSessionObject(String name) {

@@ -15,34 +15,44 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.task;
+package org.seed.ui.zk.component;
 
-import javax.persistence.MappedSuperclass;
+import static org.seed.ui.zk.component.ComponentUtils.*;
 
 import org.seed.core.config.LogLevel;
-import org.seed.core.data.AbstractSystemObject;
 
-@MappedSuperclass
-public abstract class AbstractTaskRunLog extends AbstractSystemObject {
+import org.zkoss.zul.A;
+
+@SuppressWarnings("serial")
+public class LogLevelStatus extends A {
 	
-	private LogLevel level;
+	public LogLevelStatus() {
+		setIconSclass(ICON_CIRCLE);
+		setLogLevel(null);
+	}
 	
-	private String content;
-
-	public LogLevel getLevel() {
-		return level;
-	}
-
-	public void setLevel(LogLevel level) {
-		this.level = level;
-	}
-
-	public String getContent() {
-		return content;
-	}
-
-	public void setContent(String content) {
-		this.content = content;
+	public void setLogLevel(LogLevel level) {
+		if (level != null) {
+			switch (level) {
+				case INFO:
+					setStyle(STYLE_INFO);
+					break;
+					
+				case WARNING:
+					setStyle(STYLE_WARNIUNG);
+					break;
+					
+				case ERROR:
+					setStyle(STYLE_ERROR);
+					break;
+				
+				default:
+					throw new UnsupportedOperationException(level.name());
+			}
+		}
+		else {
+			setStyle(STYLE_ERROR);
+		}
 	}
 	
 }

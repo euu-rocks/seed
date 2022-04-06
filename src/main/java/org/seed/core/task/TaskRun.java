@@ -28,6 +28,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.seed.core.config.LogLevel;
 import org.seed.core.util.Assert;
 
 @Entity

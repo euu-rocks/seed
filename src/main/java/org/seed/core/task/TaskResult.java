@@ -17,6 +17,7 @@
  */
 package org.seed.core.task;
 
+import org.seed.core.config.LogLevel;
 import org.seed.core.util.Assert;
 
 public enum TaskResult {
@@ -36,7 +37,7 @@ public enum TaskResult {
 			case INFO:
 				return SUCCESS;
 				
-			case WARN:
+			case WARNING:
 				return WARNING;
 				
 			case ERROR:

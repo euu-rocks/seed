@@ -19,6 +19,7 @@ package org.seed.ui.zk.component;
 
 import static org.seed.ui.zk.component.ComponentUtils.*;
 
+import org.seed.Seed;
 import org.seed.ui.zk.UIUtils;
 
 import org.springframework.util.StringUtils;
@@ -53,7 +54,7 @@ public class RichTextArea extends Div implements EventListener<Event> {
 		div.setClass("alpha-richtext-button");
 		aEditMode = new A();
 		aEditMode.setIconSclass("z-icon-wrench");
-		aEditMode.setLabel(' ' + getLabel("label.edit"));
+		aEditMode.setLabel(' ' + Seed.getLabel("label.edit"));
 		aEditMode.addEventListener(Events.ON_CLICK, this);
 		div.appendChild(aEditMode);
 		appendChild(div);

@@ -41,6 +41,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntity;
+import org.seed.core.codegen.CodeManagerImpl;
 import org.seed.core.data.FieldAccess;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.Order;
@@ -61,8 +62,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class EntityMetadata extends AbstractApplicationEntity 
 	implements Entity {
-	
-	public static final String PACKAGE_NAME = "org.seed.generated.entity";
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "generic_entity_id")
@@ -198,7 +197,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	@Override
 	@JsonIgnore
 	public String getGeneratedPackage() {
-		return PACKAGE_NAME;
+		return CodeManagerImpl.GENERATED_ENTITY_PACKAGE;
 	}
 
 	@Override

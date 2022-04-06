@@ -1,0 +1,20 @@
+    {
+        "changeSet": {
+            "id": "system update 0.9.29",
+            "author": "seed",
+            "changes": [
+               {
+                  "dropColumn":  {
+                     "columns":[
+                        {
+                           "column": {
+                              "name": "error"
+                           }
+                        }
+                     ],
+                     "tableName":  "sys_customlib"
+                  } 
+               }
+            ]
+        }
+    }

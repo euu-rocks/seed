@@ -33,6 +33,7 @@ import org.seed.C;
 import org.seed.core.codegen.Compiler;
 import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.codegen.SourceCode;
+import org.seed.core.config.SystemLog;
 import org.seed.core.util.Assert;
 
 import org.slf4j.Logger;
@@ -46,6 +47,9 @@ public class InMemoryCompiler implements Compiler {
 	private static final Logger log = LoggerFactory.getLogger(InMemoryCompiler.class);
 	
 	private static final String JAR_ERROR_MSG = "Can't load {} {}";
+	
+	@Autowired
+	private SystemLog systemLog;
 	
 	@Autowired
 	private CustomJarProvider customJarProvider;
@@ -98,6 +102,9 @@ public class InMemoryCompiler implements Compiler {
 	@Override
 	public synchronized void compile(List<SourceCode> sourceCodes) {
 		Assert.notNull(sourceCodes, "sourceCodes");
+		if (sourceCodes.isEmpty()) {
+			return;
+		}
 		
 		log.info("Compiling: {}", sourceCodes);
 		getCustomJars(); // load jars and init fileManager
@@ -139,13 +146,10 @@ public class InMemoryCompiler implements Compiler {
 		for (CustomJar customJar : getCustomJars()) {
 			try {
 				classLoader.defineJar(customJar);
-				if (saveErrors && customJar.getError() != null) {
-					customJarProvider.resetError(customJar);
-				}
 			}
 			catch (CustomJarException cjex) {
 				if (saveErrors) {
-					customJarProvider.reportError(customJar, cjex.getMessage());
+					systemLog.logError("systemlog.error.customjar", cjex, customJar.getName());
 				}
 				log.error(JAR_ERROR_MSG, customJar.getName(), cjex.getMessage());
 			}

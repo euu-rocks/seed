@@ -19,6 +19,7 @@ package org.seed.ui.zk.component;
 
 import static org.seed.ui.zk.component.ComponentUtils.*;
 
+import org.seed.Seed;
 import org.seed.core.data.SystemObject;
 
 import org.zkoss.zul.Div;
@@ -50,11 +51,11 @@ public class SystemFields extends Div {
 		if (object != null) {
 			// creation info
 			if (object.isNew()) {
-				labelCreated.setValue(getLabel(LABEL_INCREATION) + LABEL_PROGRESS);
+				labelCreated.setValue(Seed.getLabel(LABEL_INCREATION) + LABEL_PROGRESS);
 			}
 			else {
-				labelCreated.setValue(getLabel(LABEL_CREATEDON) + LABEL_SUFFIX + formatDate(object.getCreatedOn()) + ' ' +
-									  getLabel(LABEL_BY) + LABEL_SUFFIX + object.getCreatedBy());
+				labelCreated.setValue(Seed.getLabel(LABEL_CREATEDON) + LABEL_SUFFIX + formatDate(object.getCreatedOn()) + ' ' +
+									  Seed.getLabel(LABEL_BY) + LABEL_SUFFIX + object.getCreatedBy());
 				labelCreated.setTooltiptext(formatDateTime(object.getCreatedOn()));
 			}
 			
@@ -62,8 +63,8 @@ public class SystemFields extends Div {
 			final boolean isModified = object.getModifiedOn() != null;
 			labelModified.setVisible(isModified);
 			if (isModified) {
-				labelModified.setValue(getLabel(LABEL_MODIFIEDON) + LABEL_SUFFIX + formatDate(object.getModifiedOn()) + ' ' +
-									   getLabel(LABEL_BY) + LABEL_SUFFIX + object.getModifiedBy());
+				labelModified.setValue(Seed.getLabel(LABEL_MODIFIEDON) + LABEL_SUFFIX + formatDate(object.getModifiedOn()) + ' ' +
+									   Seed.getLabel(LABEL_BY) + LABEL_SUFFIX + object.getModifiedBy());
 				labelModified.setTooltiptext(formatDateTime(object.getModifiedOn()));
 			}
 		}

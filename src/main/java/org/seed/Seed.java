@@ -90,6 +90,13 @@ public class Seed {
 		return getLabelProvider().getEnumLabel(enm);
 	}
 	
+	public static LabelProvider getLabelProvider() {
+		if (labelProvider == null) {
+			labelProvider = getBean(LabelProvider.class);
+		}
+		return labelProvider;
+ 	}
+	
 	public static <T> T getBean(Class<T> typeClass) {
 		if (typeClass == null) {
 			throw new IllegalArgumentException("type class is null");
@@ -100,12 +107,5 @@ public class Seed {
 		}
     	return applicationContext.getBean(typeClass);
 	}
-	
-	private static LabelProvider getLabelProvider() {
-		if (labelProvider == null) {
-			labelProvider = getBean(LabelProvider.class);
-		}
-		return labelProvider;
- 	}
 
 }

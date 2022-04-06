@@ -30,6 +30,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.core.application.AbstractContentObject;
+import org.seed.core.codegen.CodeManagerImpl;
 import org.seed.core.codegen.GeneratedObject;
 
 import org.springframework.util.StringUtils;
@@ -81,7 +82,8 @@ public class TransformerFunction extends AbstractContentObject
 	@Override
 	@JsonIgnore
 	public String getGeneratedPackage() {
-		return TransformerMetadata.PACKAGE_NAME + '.' + getTransformer().getInternalName().toLowerCase();
+		return CodeManagerImpl.GENERATED_TRANSFORM_PACKAGE + '.' + 
+				getTransformer().getInternalName().toLowerCase();
 	}
 	
 	@Override

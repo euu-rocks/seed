@@ -1,0 +1,59 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<?component name="info-system" macroURI="~./zul/admin/systeminfo/systeminfo_system.zul" inline="true"?>
+<?component name="info-environment" macroURI="~./zul/admin/systeminfo/systeminfo_environment.zul" inline="true"?>
+<?component name="info-hibernate" macroURI="~./zul/admin/systeminfo/systeminfo_hibernate.zul" inline="true"?>
+<?component name="info-jobs" macroURI="~./zul/admin/systeminfo/systeminfo_jobs.zul" inline="true"?>
+<?component name="info-zk" macroURI="~./zul/admin/systeminfo/systeminfo_zk.zul" inline="true"?>
+<borderlayout>
+	<north border="0">
+		<toolbar>
+			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+						   label="${labels.button.refresh}" 
+						   onClick="@command('refresh',elem=self)"/>
+		</toolbar>
+	</north>
+	<center border="0">
+		<grid hflex="1" class="alpha-noborder">
+			<columns>
+            	<column/>
+              	<column/>
+            </columns>
+            <rows>
+            	<row>
+            		<cell valign="top">
+            			<vlayout>
+            				<info-system/>
+            				<info-environment/>
+            				<info-jobs/>
+            			</vlayout>
+            		</cell>
+            		<cell valign="top">
+            			<vlayout>
+		            		<info-hibernate/>
+		            		<info-zk/>
+	            		</vlayout>
+            		</cell>
+            	</row>
+            </rows>
+        </grid>
+	</center>
+</borderlayout>

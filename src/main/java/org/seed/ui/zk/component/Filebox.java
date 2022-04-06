@@ -21,6 +21,7 @@ import static org.seed.ui.zk.component.ComponentUtils.*;
 
 import javax.annotation.Nullable;
 
+import org.seed.Seed;
 import org.seed.core.form.layout.LayoutElementAttributes;
 import org.seed.core.util.Assert;
 import org.seed.ui.zk.FileTypeIcons;
@@ -65,7 +66,7 @@ public class Filebox extends Inputgroup implements EventListener<Event> {
 		// file icon
 		elemIcon = new A();
 		elemIcon.setStyle("color:black");
-		elemIcon.setTooltiptext(getLabel("label.downloadfile"));
+		elemIcon.setTooltiptext(Seed.getLabel("label.downloadfile"));
 		elemIcon.setIconSclass("z-icon-file-o alpha-icon-lg");
 		elemIcon.addEventListener(Events.ON_CLICK, this);
 		
@@ -74,19 +75,19 @@ public class Filebox extends Inputgroup implements EventListener<Event> {
 		elemFilename.setHflex(LayoutElementAttributes.V_1);
 		elemFilename.setReadonly(true);
 		elemFilename.setStyle("cursor:pointer");
-		elemFilename.setPlaceholder(getLabel("label.uploadfile"));
+		elemFilename.setPlaceholder(Seed.getLabel("label.uploadfile"));
 		elemFilename.addEventListener(Events.ON_CLICK, this);
 		
 		// delete button
 		buttonDelete = new Button();
-		buttonDelete.setTooltiptext(getLabel("label.deletefile"));
+		buttonDelete.setTooltiptext(Seed.getLabel("label.deletefile"));
 		buttonDelete.setIconSclass("z-icon-remove alpha-icon-lg");
 		buttonDelete.addEventListener(Events.ON_CLICK, this);
 		
 		// upload button
 		buttonUpload = new Button();
 		buttonUpload.setUpload(LayoutElementAttributes.V_TRUE);
-		buttonUpload.setTooltiptext(getLabel("label.uploadfile"));
+		buttonUpload.setTooltiptext(Seed.getLabel("label.uploadfile"));
 		buttonUpload.setIconSclass("z-icon-arrow-up alpha-icon-lg");
 		buttonUpload.addEventListener(Events.ON_UPLOAD, this);
 		

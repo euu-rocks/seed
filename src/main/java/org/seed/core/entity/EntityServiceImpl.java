@@ -38,6 +38,7 @@ import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
 import org.seed.core.codegen.CodeChangeAware;
+import org.seed.core.codegen.CodeManagerImpl;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.config.Limits;
 import org.seed.core.config.SchemaManager;
@@ -835,13 +836,13 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(sourceCode, "sourceCode");
 		Assert.notNull(session, C.SESSION);
 		
-		return sourceCode.getPackageName().startsWith(EntityMetadata.PACKAGE_NAME) &&
-			   !sourceCode.getPackageName().equals(EntityMetadata.PACKAGE_NAME) &&
+		return sourceCode.getPackageName().startsWith(CodeManagerImpl.GENERATED_ENTITY_PACKAGE) &&
+			   !sourceCode.getPackageName().equals(CodeManagerImpl.GENERATED_ENTITY_PACKAGE) &&
 			   processCallbackFunctionChange(sourceCode, session);
 	}
 	
 	private boolean processCallbackFunctionChange(SourceCode sourceCode, Session session) {
-		final String entityName = sourceCode.getPackageName().substring(EntityMetadata.PACKAGE_NAME.length() + 1);
+		final String entityName = sourceCode.getPackageName().substring(CodeManagerImpl.GENERATED_ENTITY_PACKAGE.length() + 1);
 		for (Entity entity : getObjects()) {
 			if (entity.getName().equalsIgnoreCase(entityName)) {
 				for (EntityFunction function : entity.getFunctions()) {

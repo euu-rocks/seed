@@ -38,6 +38,7 @@ import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
 import org.seed.core.codegen.CodeChangeAware;
+import org.seed.core.codegen.CodeManagerImpl;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.data.Options;
 import org.seed.core.data.ValidationException;
@@ -366,7 +367,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		Assert.notNull(sourceCode, "sourceCode");
 		Assert.notNull(session, C.SESSION);
 		
-		if (sourceCode.getPackageName().equals(TaskMetadata.PACKAGE_NAME)) {
+		if (sourceCode.getPackageName().equals(CodeManagerImpl.GENERATED_TASK_PACKAGE)) {
 			for (Task task : getObjects()) {
 				if (task.getInternalName().equalsIgnoreCase(sourceCode.getClassName())) {
 					if (!task.getContent().equals(sourceCode.getContent())) {

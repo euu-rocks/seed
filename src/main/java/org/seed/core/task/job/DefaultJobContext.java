@@ -24,8 +24,8 @@ import org.hibernate.Session;
 import org.quartz.JobExecutionContext;
 
 import org.seed.core.api.JobContext;
+import org.seed.core.config.LogLevel;
 import org.seed.core.entity.value.event.ValueObjectFunctionContext;
-import org.seed.core.task.LogLevel;
 import org.seed.core.task.Task;
 import org.seed.core.task.TaskParameter;
 import org.seed.core.task.TaskRunLog;
@@ -81,7 +81,7 @@ class DefaultJobContext extends ValueObjectFunctionContext
 	
 	@Override
 	public void logWarning(String content) {
-		log(LogLevel.WARN, content);
+		log(LogLevel.WARNING, content);
 	}
 	
 	@Override

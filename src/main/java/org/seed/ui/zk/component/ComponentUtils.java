@@ -19,9 +19,7 @@ package org.seed.ui.zk.component;
 
 import java.util.Date;
 
-import org.seed.LabelProvider;
 import org.seed.Seed;
-import org.seed.core.util.Assert;
 
 import org.springframework.util.StringUtils;
 import org.zkoss.zk.ui.Component;
@@ -31,24 +29,25 @@ import org.zkoss.zul.impl.InputElement;
 
 abstract class ComponentUtils {
 	
-	static final String CLASS_MANDATORY = "alpha-mandatory";
-	
 	static final String STYLE_MANDATORY = "border:1px solid #FF8888;border-radius:3px";
 	
-	private static LabelProvider labelProvider;
+	static final String CLASS_MANDATORY = "alpha-mandatory";
+	
+	static final String ICON_CIRCLE 	= "z-icon-circle alpha-icon-lg";
+	
+	static final String STYLE_INFO 		= "color:green;cursor:default"; 
+	static final String STYLE_WARNIUNG 	= "color:orange;cursor:default";
+	static final String STYLE_ERROR 	= "color:red;cursor:default";
+	static final String STYLE_UNDEFINED = "color:lightgrey;cursor:default";
 	
 	private ComponentUtils() {}
 	
-	static String getLabel(String labelKey) {
-		return getLabelProvider().getLabel(labelKey);
-	}
-	
 	static String formatDate(Date date) {
-		return getLabelProvider().formatDate(date);
+		return Seed.getLabelProvider().formatDate(date);
 	}
 	
 	static String formatDateTime(Date date) {
-		return getLabelProvider().formatDateTime(date);
+		return Seed.getLabelProvider().formatDateTime(date);
 	}
 	
 	static void setMandatoryStatus(InputElement inputElement) {
@@ -65,14 +64,6 @@ abstract class ComponentUtils {
 	
 	static Space space() {
 		return new Space();
-	}
-	
-	private static LabelProvider getLabelProvider() {
-		if (labelProvider == null) {
-			labelProvider = Seed.getBean(LabelProvider.class);
-			Assert.stateAvailable(labelProvider, "labelProvider");
-		}
-		return labelProvider;
 	}
 	
 }

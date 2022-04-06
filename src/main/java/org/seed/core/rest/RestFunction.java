@@ -31,6 +31,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.core.api.RestFunction.MethodType;
 import org.seed.core.application.AbstractContentObject;
+import org.seed.core.codegen.CodeManagerImpl;
 import org.seed.core.codegen.GeneratedObject;
 
 import org.springframework.util.StringUtils;
@@ -40,8 +41,6 @@ import org.springframework.util.StringUtils;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class RestFunction extends AbstractContentObject
 	implements GeneratedObject {
-	
-	static final String PACKAGE_NAME = "org.seed.generated.rest";
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rest_id")
@@ -101,7 +100,7 @@ public class RestFunction extends AbstractContentObject
 
 	@Override
 	public String getGeneratedPackage() {
-		return PACKAGE_NAME + '.' + rest.getInternalName().toLowerCase();
+		return CodeManagerImpl.GENERATED_REST_PACKAGE + '.' + rest.getInternalName().toLowerCase();
 	}
 
 	@Override

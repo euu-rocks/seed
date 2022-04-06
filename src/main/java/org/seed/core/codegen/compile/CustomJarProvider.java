@@ -23,8 +23,4 @@ public interface CustomJarProvider {
 	
 	List<CustomJar> getCustomJars();
 	
-	void reportError(CustomJar jar, String error);
-	
-	void resetError(CustomJar jar);
-	
 }

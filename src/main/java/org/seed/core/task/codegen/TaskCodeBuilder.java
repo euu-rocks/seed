@@ -22,9 +22,9 @@ import java.util.Date;
 import org.seed.C;
 import org.seed.core.api.JobContext;
 import org.seed.core.codegen.AbstractSourceCodeBuilder;
+import org.seed.core.codegen.CodeManagerImpl;
 import org.seed.core.codegen.ParameterMetadata;
 import org.seed.core.codegen.SourceCode;
-import org.seed.core.entity.EntityMetadata;
 import org.seed.core.task.Task;
 import org.seed.core.task.job.AbstractJob;
 import org.seed.core.util.Assert;
@@ -52,7 +52,7 @@ class TaskCodeBuilder extends AbstractSourceCodeBuilder {
 		
 		switch (buildMode) {
 			case TEMPLATE:
-				addImportPackage(EntityMetadata.PACKAGE_NAME);
+				addImportPackage(CodeManagerImpl.GENERATED_ENTITY_PACKAGE);
 				addMethod(null, "execute", 
 						  new ParameterMetadata[] {
 							newParameter(C.CONTEXT, newTypeClass(JobContext.class))

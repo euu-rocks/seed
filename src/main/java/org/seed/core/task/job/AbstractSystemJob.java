@@ -23,8 +23,8 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import org.seed.C;
+import org.seed.core.config.LogLevel;
 import org.seed.core.config.SessionProvider;
-import org.seed.core.task.LogLevel;
 import org.seed.core.task.SystemTask;
 import org.seed.core.task.SystemTaskRun;
 import org.seed.core.task.SystemTaskRunLog;
@@ -85,7 +85,7 @@ public abstract class AbstractSystemJob implements Job {
 	}
 	
 	protected void logWarning(String content) {
-		log(LogLevel.WARN, content);
+		log(LogLevel.WARNING, content);
 	}
 	
 	protected void logError(String content) {

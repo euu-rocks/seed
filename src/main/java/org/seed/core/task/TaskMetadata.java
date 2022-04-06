@@ -39,6 +39,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntity;
+import org.seed.core.codegen.CodeManagerImpl;
 import org.seed.core.util.Assert;
 import org.seed.core.util.CDATAXmlAdapter;
 
@@ -52,8 +53,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class TaskMetadata extends AbstractApplicationEntity 
 	implements Task {
-	
-	static final String PACKAGE_NAME = "org.seed.generated.task";
 	
 	private Date startTime;
 	
@@ -169,7 +168,7 @@ public class TaskMetadata extends AbstractApplicationEntity
 	@Override
 	@JsonIgnore
 	public String getGeneratedPackage() {
-		return PACKAGE_NAME;
+		return CodeManagerImpl.GENERATED_TASK_PACKAGE;
 	}
 
 	@Override

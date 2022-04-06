@@ -79,6 +79,11 @@
 	     <component-class>org.seed.ui.zk.component.TaskStatus</component-class>
 	</component>
 	<component>
+		 <component-name>loglevelstatus</component-name>
+	     <extends>a</extends>
+	     <component-class>org.seed.ui.zk.component.LogLevelStatus</component-class>
+	</component>
+	<component>
 		 <component-name>helpinfo</component-name>
 	     <extends>div</extends>
 	     <component-class>org.seed.ui.zk.component.HelpInfo</component-class>

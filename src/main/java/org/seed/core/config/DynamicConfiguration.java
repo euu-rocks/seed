@@ -93,6 +93,9 @@ public class DynamicConfiguration implements UpdatableConfiguration {
 	@Autowired
 	private UserService userService;
 	
+	@Autowired
+	private SystemLog systemLog;
+	
 	private ClassLoader classLoader;	// current class loader
 	
 	@PostConstruct
@@ -104,10 +107,12 @@ public class DynamicConfiguration implements UpdatableConfiguration {
 	@EventListener(ApplicationReadyEvent.class)
 	public void initConfiguration() {
 		if (updateSchemaConfiguration()) { // new system schema version detected
+			systemLog.logInfo("systemlog.info.schemaupdated", SchemaVersion.currentVersion().name());
 			updateConfiguration();
 		}
 		else {
 			buildConfiguration();
+			systemLog.logInfo("systemlog.info.configcreated");
 		}
 	}
 	
@@ -118,6 +123,7 @@ public class DynamicConfiguration implements UpdatableConfiguration {
 		jobScheduler.unscheduleAllTasks();
 		buildBootSessionFactory();
 		buildConfiguration();
+		systemLog.logInfo("systemlog.info.configupdated");
 	}
 	
 	private void buildBootSessionFactory() {

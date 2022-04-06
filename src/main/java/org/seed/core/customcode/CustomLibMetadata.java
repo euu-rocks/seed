@@ -39,8 +39,6 @@ public class CustomLibMetadata extends AbstractApplicationEntity
 	
 	private byte[] content;
 	
-	private String error;
-	
 	@Column(name = "ordernum")
 	private Integer order;
 	
@@ -64,16 +62,6 @@ public class CustomLibMetadata extends AbstractApplicationEntity
 		this.content = content;
 	}
 	
-	@Override
-	@XmlTransient
-	public String getError() {
-		return error;
-	}
-
-	public void setError(String error) {
-		this.error = error;
-	}
-
 	@Override
 	@XmlAttribute
 	public Integer getOrder() {

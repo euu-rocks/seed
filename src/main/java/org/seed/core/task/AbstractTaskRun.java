@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.persistence.MappedSuperclass;
 
+import org.seed.core.config.LogLevel;
 import org.seed.core.data.AbstractSystemObject;
 
 @MappedSuperclass
