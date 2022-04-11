@@ -17,11 +17,7 @@
  */
 package org.seed.core.customcode;
 
-import org.seed.Seed;
 import org.seed.core.codegen.CodeUtils;
-import org.seed.core.codegen.Compiler;
-import org.seed.core.codegen.compile.CustomJarException;
-import org.seed.core.codegen.compile.InMemoryCompiler;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
@@ -53,23 +49,7 @@ public class CustomLibValidator extends AbstractSystemEntityValidator<CustomLib>
 		else if (!CodeUtils.isJarFile(lib.getFilename())) {
 			errors.addError("val.illegal.fileformat", "JAR");
 		}
-		else {
-			final String jarError = testCustomLib(lib);
-			if (jarError != null) {
-				errors.addError("val.illegal.jar", jarError);
-			}
-		}
 		validate(errors);
-	}
-	
-	private String testCustomLib(CustomLib customLib) {
-		try {
-			((InMemoryCompiler) Seed.getBean(Compiler.class)).testCustomJar(customLib);
-		}
-		catch (CustomJarException cjex) {
-			return cjex.getMessage();
-		}
-		return null;
 	}
 	
 }

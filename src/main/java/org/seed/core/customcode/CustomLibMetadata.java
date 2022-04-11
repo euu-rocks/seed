@@ -17,7 +17,6 @@
  */
 package org.seed.core.customcode;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -38,9 +37,6 @@ public class CustomLibMetadata extends AbstractApplicationEntity
 	private String filename;
 	
 	private byte[] content;
-	
-	@Column(name = "ordernum")
-	private Integer order;
 	
 	@Override
 	@XmlAttribute
@@ -63,16 +59,6 @@ public class CustomLibMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
-	@XmlAttribute
-	public Integer getOrder() {
-		return order;
-	}
-
-	public void setOrder(Integer order) {
-		this.order = order;
-	}
-	
-	@Override
 	public boolean isEqual(Object other) {
 		if (other == null || !CustomLib.class.isAssignableFrom(other.getClass())) {
 			return false;
@@ -85,7 +71,6 @@ public class CustomLibMetadata extends AbstractApplicationEntity
 				.append(getName(), otherLib.getName())
 				.append(filename, otherLib.getFilename())
 				.append(content, otherLib.getContent())
-				.append(order, otherLib.getOrder())
 				.isEquals();
 	}
 	
