@@ -23,4 +23,6 @@ public interface CustomJar {
 	
 	byte[] getContent();
 	
+	Integer getOrder();
+	
 }

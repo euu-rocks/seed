@@ -78,13 +78,14 @@
 		    </auxhead>
 		    <template name="model" var="customlib">
 	            <listitem onDoubleClick="@command('editLib')">
-	            	<listcell iconSclass="z-icon-file-archive-o z-icon-fw alpha-icon-lg">
+	            	<listcell style="@load(empty customlib.error ? '' : 'color:red')" 
+	            			  iconSclass="z-icon-file-archive-o z-icon-fw alpha-icon-lg">
 	            		<label value="@init(customlib.name)" style="margin-left:3px"/>
 	            	</listcell>
-	            	<listcell>
+	            	<listcell style="@load(empty customlib.error ? '' : 'color:red')">
 	            		<label value="@init(customlib.filename)" style="margin-left:3px"/>
 	            	</listcell>
-	            	<listcell>
+	            	<listcell iconSclass="@load(empty customlib.module ? '' : 'z-icon-cube alpha-icon-lg')">
 	            		<label value="@init(customlib.module.name)" style="margin-left:3px"/>
 	            	</listcell>
 	            </listitem>

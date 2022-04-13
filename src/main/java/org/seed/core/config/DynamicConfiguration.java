@@ -25,7 +25,6 @@ import javax.persistence.Entity;
 import org.seed.C;
 import org.seed.Seed;
 import org.seed.core.codegen.GeneratedCode;
-import org.seed.core.data.SystemObjectEventListener;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.entity.value.ValueEntity;
 import org.seed.core.task.job.JobScheduler;
@@ -40,24 +39,20 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.SessionFactoryBuilder;
 import org.hibernate.boot.internal.MetadataImpl;
 import org.hibernate.boot.internal.SessionFactoryBuilderImpl;
 import org.hibernate.boot.internal.SessionFactoryOptionsBuilder;
+import org.hibernate.boot.registry.BootstrapServiceRegistry;
 import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.event.service.spi.EventListenerRegistry;
-import org.hibernate.event.spi.EventType;
-import org.hibernate.integrator.spi.Integrator;
-import org.hibernate.service.spi.SessionFactoryServiceRegistry;
+import org.hibernate.service.ServiceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Component
-public class DynamicConfiguration implements UpdatableConfiguration, Integrator {
+public class DynamicConfiguration implements UpdatableConfiguration {
 	
 	private static final Logger log = LoggerFactory.getLogger(DynamicConfiguration.class);
 	
@@ -131,19 +126,6 @@ public class DynamicConfiguration implements UpdatableConfiguration, Integrator 
 		systemLog.logInfo("systemlog.info.configupdated");
 	}
 	
-	@Override
-	public void integrate(Metadata metadata, SessionFactoryImplementor sessionFactory,
-						  SessionFactoryServiceRegistry serviceRegistry) {
-		final EventListenerRegistry eventListenerRegistry = serviceRegistry.getService(EventListenerRegistry.class);
-		eventListenerRegistry.getEventListenerGroup(EventType.SAVE_UPDATE)
-							 .appendListener(new SystemObjectEventListener());
-	}
-
-	@Override
-	public void disintegrate(SessionFactoryImplementor sessionFactory, SessionFactoryServiceRegistry serviceRegistry) {
-		// do nothing
-	}
-	
 	private void buildBootSessionFactory() {
 		schemaManager.updateSchema();
 		sessionProvider.setSessionFactory(createSessionFactoryBuilder(true).build());
@@ -206,16 +188,19 @@ public class DynamicConfiguration implements UpdatableConfiguration, Integrator 
 	}
 	
 	private SessionFactoryBuilder createSessionFactoryBuilder(boolean boot) {
-		final BootstrapServiceRegistryBuilder bootstrapServiceRegistryBuilder = new BootstrapServiceRegistryBuilder()
-																					.applyIntegrator(this);
+		final BootstrapServiceRegistryBuilder bootstrapServiceRegistryBuilder = 
+				new BootstrapServiceRegistryBuilder();
 		if (!boot) {
 			Assert.stateAvailable(classLoader, "class loader");
 			bootstrapServiceRegistryBuilder.applyClassLoader(classLoader);
 		}
-		final MetadataSources metaSources = new MetadataSources(
-												new StandardServiceRegistryBuilder(bootstrapServiceRegistryBuilder.build())
-													.applySettings(createSettings(boot))
-													.build());
+		final BootstrapServiceRegistry bootstrapServiceRegistry = 
+				bootstrapServiceRegistryBuilder.applyIntegrator(new EventListenerIntegrator()).build();
+		final ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder(bootstrapServiceRegistry)
+				.applySettings(createSettings(boot))
+				.build();
+		final MetadataSources metaSources = new MetadataSources(serviceRegistry);
+		
 		// register system entities
 		for (Class<?> annotatedClass : BeanUtils.getAnnotatedClasses(Entity.class)) {
 			metaSources.addAnnotatedClass(annotatedClass);
@@ -230,11 +215,12 @@ public class DynamicConfiguration implements UpdatableConfiguration, Integrator 
 			}
 			log.info("Generated entities registered");
 		}
-		return new DynamicSessionFactoryBuilder((MetadataImpl) metaSources.getMetadataBuilder().build());
+		final MetadataImpl metaImpl = (MetadataImpl) metaSources.getMetadataBuilder().build();
+		return new DynamicSessionFactoryBuilder(metaImpl);
 	}
 	
 	private Map<String, Object> createSettings(boolean boot) {
-		final Map<String, Object> settings = new HashMap<>();
+		final Map<String, Object> settings = new HashMap<>(20, 1.0f);
 		
 		// data source
 		settings.put("hibernate.connection.url", appProperties.getRequiredProperty(Seed.PROP_DATASOURCE_URL));                                

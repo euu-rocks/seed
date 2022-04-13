@@ -8,18 +8,6 @@
                      "columns":[
                         {
                            "column": {
-                              "name": "ordernum"
-                           }
-                        }
-                     ],
-                     "tableName":  "sys_customlib"
-                  } 
-               },
-               {
-                  "dropColumn":  {
-                     "columns":[
-                        {
-                           "column": {
                               "name": "error"
                            }
                         }

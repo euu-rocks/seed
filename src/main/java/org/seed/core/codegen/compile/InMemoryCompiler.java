@@ -33,6 +33,7 @@ import org.seed.C;
 import org.seed.core.codegen.Compiler;
 import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.codegen.SourceCode;
+import org.seed.core.config.SystemLog;
 import org.seed.core.util.Assert;
 
 import org.slf4j.Logger;
@@ -46,6 +47,9 @@ public class InMemoryCompiler implements Compiler {
 	private static final Logger log = LoggerFactory.getLogger(InMemoryCompiler.class);
 	
 	private static final String JAR_ERROR_MSG = "Can't load {} {}";
+	
+	@Autowired
+	private SystemLog systemLog;
 	
 	@Autowired
 	private CustomJarProvider customJarProvider;
@@ -116,6 +120,12 @@ public class InMemoryCompiler implements Compiler {
 		}
 	}
 	
+	public void testCustomJar(CustomJar customJar) {
+		Assert.notNull(customJar, "customJar");
+		
+		((GeneratedCodeClassLoader) createClassLoader(false)).defineJar(customJar);
+	}
+	
 	private List<CustomJar> getCustomJars() {
 		if (customJars == null) {
 			customJars = customJarProvider.getCustomJars();
@@ -131,11 +141,22 @@ public class InMemoryCompiler implements Compiler {
 	}
 	
 	private synchronized ClassLoader createClassLoader(boolean saveErrors) {
-		final GeneratedCodeClassLoader classLoader = 
-				new GeneratedCodeClassLoader(getCustomJars().isEmpty() 
-						? getClass().getClassLoader()
-						: new CustomJarClassLoader(getCustomJars(), getClass().getClassLoader())
-				);
+		final GeneratedCodeClassLoader classLoader = new GeneratedCodeClassLoader(getClass().getClassLoader());
+		// define custom jar classes
+		for (CustomJar customJar : getCustomJars()) {
+			try {
+				classLoader.defineJar(customJar);
+			}
+			catch (CustomJarException cjex) {
+				if (saveErrors) {
+					systemLog.logError("systemlog.error.customjar", cjex, customJar.getName());
+				}
+				log.error(JAR_ERROR_MSG, customJar.getName(), cjex.getMessage());
+			}
+			catch (LinkageError error) {
+				log.error(JAR_ERROR_MSG, customJar.getName(), error.getMessage());
+			}
+		}
 		
 		// define generated classes
 		mapClasses.clear();

@@ -60,8 +60,13 @@
 								 mandatory="true"
 								 hflex="1"/>
 					</cell>
-					<cell/>
-					<cell/>
+					<cell style="padding: 4px 10px" align="right">
+						<label value="${labels.label.order}:"/>
+					</cell>
+					<cell style="padding: 4px 4px">
+						<intbox value="@bind(vm.object.order)"
+								onChange="@command('flagDirty')"/> 
+					</cell>
 				</row>
 				<row>
 					<cell style="padding: 4px 10px" align="right">
