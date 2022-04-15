@@ -60,13 +60,8 @@
 								 mandatory="true"
 								 hflex="1"/>
 					</cell>
-					<cell style="padding: 4px 10px" align="right">
-						<label value="${labels.label.order}:"/>
-					</cell>
-					<cell style="padding: 4px 4px">
-						<intbox value="@bind(vm.object.order)"
-								onChange="@command('flagDirty')"/> 
-					</cell>
+					<cell/>
+					<cell/>
 				</row>
 				<row>
 					<cell style="padding: 4px 10px" align="right">
@@ -82,21 +77,6 @@
 					</cell>
 					<cell/>
 					<cell/>
-				</row>
-				<row visible="@load(!empty vm.error)">
-					<cell style="padding: 4px 10px" valign="top" align="right"/>
-					<cell style="padding: 4px 4px" colspan="3">
-						<label value="${labels.label.missingdependencies}"
-							   style="color:red"/>	
-					</cell>	
-				</row>
-				<row visible="@load(!empty vm.error)">
-					<cell style="padding: 4px 10px" valign="top" align="right"/>
-					<cell style="padding: 4px 4px" colspan="3">
-						<textbox value="@load(vm.error.replace(',',' '))"
-								 rows="15"
-								 hflex="1"/>
-					</cell>
 				</row>
 			</rows>
 		</grid>
