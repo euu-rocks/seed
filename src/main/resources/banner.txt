@@ -1,9 +1,9 @@
-                                  .
+                                   .
    ___________________________..${AnsiColor.GREEN}.___.${AnsiColor.DEFAULT}___
-  // /   ${AnsiColor.GREEN}______ ____   ____   __//_/${AnsiColor.DEFAULT} \  \  
- //_/   ${AnsiColor.GREEN}// ___///__ \_//__ \ //__ |${AnsiColor.DEFAULT}   \_ \ 
- \  \   ${AnsiColor.GREEN}\____\\  ___/\  ___// /_/ |${AnsiColor.DEFAULT}   / // 
-  \__\.${AnsiColor.GREEN}//___  >\\__  >\\__  >\___ >.${AnsiColor.DEFAULT}_/_//  
--==========-${AnsiColor.GREEN}\/${AnsiColor.DEFAULT}-===-${AnsiColor.GREEN}\/${AnsiColor.DEFAULT}-===-${AnsiColor.GREEN}\/${AnsiColor.DEFAULT}-===-${AnsiColor.GREEN}\|${AnsiColor.DEFAULT}-=====-{ ${AnsiColor.BLUE}0.9.29${AnsiColor.DEFAULT} }-- 
-${AnsiColor.MAGENTA} --- Spring Boot ${spring-boot.version} ---
+  // /   ${AnsiColor.GREEN}______ ____   ____   __// /${AnsiColor.DEFAULT} \ \\  
+ //_/   ${AnsiColor.GREEN}//____///__ \_//__ \ //__ /${AnsiColor.DEFAULT}   \_\\ 
+ \  \   ${AnsiColor.GREEN}\____\\  ___/\  ___// /_/ |${AnsiColor.DEFAULT}   /  / 
+  \__\${AnsiColor.GREEN}.//___  >\\__  >\\__  >\___ >.${AnsiColor.DEFAULT}_/__/  
+-==========-${AnsiColor.GREEN}\/${AnsiColor.DEFAULT}-===-${AnsiColor.GREEN}\/${AnsiColor.DEFAULT}-===-${AnsiColor.GREEN}\/${AnsiColor.DEFAULT}-===-${AnsiColor.GREEN}\|${AnsiColor.DEFAULT}-=====-{ ${AnsiColor.BLUE}${info.app.version}${AnsiColor.DEFAULT} }-- 
+${AnsiColor.MAGENTA} --- Spring Boot ${spring-boot.version} ---        ${AnsiColor.GREEN}.
 ${AnsiColor.DEFAULT}
