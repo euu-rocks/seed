@@ -23,7 +23,6 @@ import java.util.List;
 import org.hibernate.stat.Statistics;
 
 import org.seed.C;
-import org.seed.Seed;
 import org.seed.core.config.DatabaseInfo;
 import org.seed.core.config.SchemaManager;
 import org.seed.core.config.SessionProvider;
@@ -34,6 +33,7 @@ import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 import org.seed.ui.zk.vm.AbstractApplicationViewModel;
 
+import org.springframework.core.env.Environment;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.zk.ui.Component;
@@ -43,8 +43,8 @@ import org.zkoss.zk.ui.util.Statistic;
 
 public class SystemInfoViewModel extends AbstractApplicationViewModel {
 	
-	@WireVariable(value="seed")
-	private Seed seed;
+	@WireVariable(value="environment")
+	private Environment environment;
 	
 	@WireVariable(value="defaultSessionProvider")
 	private SessionProvider sessionProvider;
@@ -61,7 +61,7 @@ public class SystemInfoViewModel extends AbstractApplicationViewModel {
 	private LogEntry logEntry;
 	
 	public String getVersion() {
-		return seed.getVersion();
+		return environment.getProperty("info.app.version");
 	}
 	
 	public LogEntry getLogEntry() {

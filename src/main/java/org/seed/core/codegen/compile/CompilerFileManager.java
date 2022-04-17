@@ -50,10 +50,6 @@ import static org.seed.core.codegen.CodeUtils.*;
 
 class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	
-	private static final String PATTERN_GENERATED = ".generated.";
-	
-	private static final String PATTERN_JAVA_BASE = "java.";
-	
 	private final Map<String, JavaClassFileObject> classFileObjectMap = new HashMap<>();
 	
 	private List<CustomJarInfo> customJars;
@@ -120,10 +116,10 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	public Iterable<JavaFileObject> list(Location location, String packageName, 
 										 Set<JavaFileObject.Kind> kinds, boolean recurse) throws IOException {
 		if (location == StandardLocation.CLASS_PATH && kinds.contains(Kind.CLASS)) {
-			if (packageName.contains(PATTERN_GENERATED)) {
+			if (packageName.contains(".generated.")) {
 				return listGeneratedClasses(packageName);
 			}
-			if (!packageName.startsWith(PATTERN_JAVA_BASE)) {
+			if (!packageName.startsWith("java.")) {
 				return listDependencies(packageName);
 			}
 		}

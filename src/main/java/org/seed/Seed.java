@@ -19,10 +19,8 @@ package org.seed;
 
 import org.seed.config.ZKCEApplication;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -64,9 +62,6 @@ public class Seed {
 	
 	private static LabelProvider labelProvider;
 	
-	@Autowired
-	private BuildProperties buildProperties;
-	
 	public static void main(String[] args) {
 		applicationContext = SpringApplication.run(Seed.class, args);
 	}
@@ -74,12 +69,6 @@ public class Seed {
 	@GetMapping("/seed")
 	public String seed() {
 		return C.SEED;
-	}
-	
-	public String getVersion() {
-		return buildProperties != null
-				? buildProperties.getVersion()
-				: null;
 	}
 	
 	public static String getLabel(String key, String ...params) {
