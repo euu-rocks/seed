@@ -26,6 +26,10 @@ public enum DataSourceParameterType {
 	DATE,
 	REFERENCE;
 	
+	public String getName() {
+		return name().toLowerCase();
+	}
+	
 	public boolean isReference() {
 		return this == REFERENCE;
 	}

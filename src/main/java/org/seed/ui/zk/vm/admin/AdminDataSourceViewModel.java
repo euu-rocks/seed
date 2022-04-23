@@ -144,6 +144,11 @@ public class AdminDataSourceViewModel extends AbstractAdminViewModel<IDataSource
 	}
 	
 	@Command
+	public void runQuery() {
+		showDialog("/admin/datasource/querydialog.zul", getObject());
+	}
+	
+	@Command
 	@NotifyChange(C.PARAMETER)
 	public void newParameter() {
 		parameter = dataSourceService.createParameter(getObject());

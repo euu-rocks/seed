@@ -133,12 +133,14 @@ public class DataSourceServiceImpl extends AbstractApplicationEntityService<IDat
 	}
 	
 	@Override
-	public DataSourceResult query(IDataSource dataSource, Map<String, Object> parameters, Session session) {
+	public DataSourceResult query(IDataSource dataSource, Map<String, Object> parameters, Session session) throws ValidationException {
+		validator.validateParameterValues(dataSource, parameters);
 		return repository.query(dataSource, parameters, session);
 	}
 	
 	@Override
-	public DataSourceResult query(IDataSource dataSource, Map<String, Object> parameters) {
+	public DataSourceResult query(IDataSource dataSource, Map<String, Object> parameters) throws ValidationException {
+		validator.validateParameterValues(dataSource, parameters);
 		return repository.query(dataSource, parameters);
 	}
 	

@@ -24,8 +24,6 @@ import org.seed.core.data.ValidationException;
 
 public interface UserService extends SystemEntityService<User> {
 	
-	void createDefaultUserAndGroup();
-	
 	User getCurrentUser();
 	
 	List<UserGroup> getAvailableUserGroups(User user);

@@ -22,13 +22,14 @@ import java.util.Map;
 import org.hibernate.Session;
 
 import org.seed.core.application.ApplicationEntityService;
+import org.seed.core.data.ValidationException;
 
 public interface DataSourceService extends ApplicationEntityService<IDataSource> {
 	
 	DataSourceParameter createParameter(IDataSource dataSource);
 	
-	DataSourceResult query(IDataSource dataSource, Map<String, Object> parameters, Session session);
+	DataSourceResult query(IDataSource dataSource, Map<String, Object> parameters, Session session) throws ValidationException;
 	
-	DataSourceResult query(IDataSource dataSource, Map<String, Object> parameters);
+	DataSourceResult query(IDataSource dataSource, Map<String, Object> parameters) throws ValidationException;
 	
 }

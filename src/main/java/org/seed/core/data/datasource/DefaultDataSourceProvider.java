@@ -21,10 +21,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.seed.C;
+import org.seed.InternalException;
 import org.seed.Seed;
 import org.seed.core.api.AbstractFunctionContext;
 import org.seed.core.api.DataSource;
 import org.seed.core.api.DataSourceProvider;
+import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
 
 public class DefaultDataSourceProvider implements DataSourceProvider {
@@ -51,9 +53,13 @@ public class DefaultDataSourceProvider implements DataSourceProvider {
 	public List<Object[]> query(DataSource dataSource, Map<String, Object> parameters) {
 		Assert.notNull(dataSource, C.DATASOURCE);
 		Assert.notNull(parameters, "parameters");
-		
-		return dataSourceService.query((IDataSource) dataSource, parameters, functionContext.getSession())
-								.getResultList();
+		try {
+			return dataSourceService.query((IDataSource) dataSource, parameters, functionContext.getSession())
+									.getResultList();
+		} 
+		catch (ValidationException vex) {
+			throw new InternalException(vex);
+		}
 	}
 
 }

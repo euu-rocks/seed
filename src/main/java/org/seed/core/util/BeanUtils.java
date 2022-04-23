@@ -73,13 +73,13 @@ public abstract class BeanUtils {
 		final ClassPathScanningCandidateComponentProvider scanner =
 				new ClassPathScanningCandidateComponentProvider(false);
 		scanner.addIncludeFilter(typeFilter);
-		for (BeanDefinition beanDef : scanner.findCandidateComponents(PACKAGE_SCAN_ROOT)) {
-			try {
+		try {
+			for (BeanDefinition beanDef : scanner.findCandidateComponents(PACKAGE_SCAN_ROOT)) {
 				listClasses.add((Class<? extends T>) Class.forName(beanDef.getBeanClassName()));
-			} 
-			catch (ClassNotFoundException cnfex) {
-				throw new InternalException(cnfex);
 			}
+		}
+		catch (ClassNotFoundException cnfex) {
+			throw new InternalException(cnfex);
 		}
 		return listClasses;
 	}

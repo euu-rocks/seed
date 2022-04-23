@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Nullable;
+import javax.annotation.PostConstruct;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -67,54 +68,14 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
-	@Override
-	public void createDefaultUserAndGroup() {
-		
-		// if no user exist, create default user und groups
+	@PostConstruct
+	private void init() {
+		// if no user exist, create default user und group
 		if (!repository.exist()) {
-			try (Session session = repository.openSession()) {
-				Transaction tx = null;
-				try {
-					tx = session.beginTransaction();
-					
-					// create admin user group
-					final UserGroupMetadata groupAdmin = new UserGroupMetadata();
-					groupAdmin.createLists();
-					groupAdmin.setName("Administration");
-					groupAdmin.setSystemGroup(true);
-					
-					// grant authorisations
-					for (Authorisation authorisation : Authorisation.values()) {
-						final UserGroupAuthorisation groupAuthorisation = new UserGroupAuthorisation();
-						groupAuthorisation.setUserGroup(groupAdmin);
-						groupAuthorisation.setAuthorisation(authorisation);
-						groupAdmin.getAuthorisations().add(groupAuthorisation);
-					}
-					userGroupService.saveObject(groupAdmin, session);
-					log.info("User group 'Administration' created.");
-					
-					// create defaut user
-					final UserMetadata user = (UserMetadata) createInstance(null);
-					user.setEnabled(true);
-					user.setName(C.SEED);
-					user.setEmail("seed@seed.org");
-					user.setPassword(passwordEncoder.encode(C.SEED));
-					user.getUserGroups().add(groupAdmin);
-					saveObject(user, session);
-					log.info("Default user 'seed' created.");
-					
-					tx.commit();
-				}
-				catch (Exception ex) {
-					if (tx != null) {
-						tx.rollback();
-					}
-					throw new InternalException(ex);
-				}
-			}
+			createDefaultUserAndGroup();
 		}
 	}
-
+	
 	@Override
 	public User createInstance(@Nullable Options options) {
 		final UserMetadata user = (UserMetadata) super.createInstance(options);
@@ -257,6 +218,49 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 				.setSubject(registration ? "Registrierung bei seed" : "Passwort-Änderung bei seed")
 				.setText(buf.toString());
 		mailService.sendMail(mailBuilder.build());
+	}
+	
+	private void createDefaultUserAndGroup() {
+		try (Session session = repository.openSession()) {
+			Transaction tx = null;
+			try {
+				tx = session.beginTransaction();
+				
+				// create admin user group
+				final UserGroupMetadata groupAdmin = new UserGroupMetadata();
+				groupAdmin.createLists();
+				groupAdmin.setName("Administration");
+				groupAdmin.setSystemGroup(true);
+				
+				// grant authorisations
+				for (Authorisation authorisation : Authorisation.values()) {
+					final UserGroupAuthorisation groupAuthorisation = new UserGroupAuthorisation();
+					groupAuthorisation.setUserGroup(groupAdmin);
+					groupAuthorisation.setAuthorisation(authorisation);
+					groupAdmin.getAuthorisations().add(groupAuthorisation);
+				}
+				userGroupService.saveObject(groupAdmin, session);
+				log.info("User group 'Administration' created.");
+				
+				// create defaut user
+				final UserMetadata user = (UserMetadata) createInstance(null);
+				user.setEnabled(true);
+				user.setName(C.SEED);
+				user.setEmail("seed@seed.org");
+				user.setPassword(passwordEncoder.encode(C.SEED));
+				user.getUserGroups().add(groupAdmin);
+				saveObject(user, session);
+				log.info("Default user 'seed' created.");
+				
+				tx.commit();
+			}
+			catch (Exception ex) {
+				if (tx != null) {
+					tx.rollback();
+				}
+				throw new InternalException(ex);
+			}
+		}
 	}
 	
 }

@@ -28,7 +28,6 @@ import org.seed.core.data.SystemObjectEventListener;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.entity.value.ValueEntity;
 import org.seed.core.task.job.JobScheduler;
-import org.seed.core.user.UserService;
 import org.seed.core.util.Assert;
 import org.seed.core.util.BeanUtils;
 import org.seed.core.util.MiscUtils;
@@ -95,9 +94,6 @@ public class DynamicConfiguration implements UpdatableConfiguration, Integrator 
 	private SchemaManager schemaManager;
 	
 	@Autowired
-	private UserService userService;
-	
-	@Autowired
 	private SystemLog systemLog;
 	
 	private ClassLoader classLoader;	// current class loader
@@ -105,7 +101,6 @@ public class DynamicConfiguration implements UpdatableConfiguration, Integrator 
 	@PostConstruct
 	private void init() {
 		buildBootSessionFactory();
-		userService.createDefaultUserAndGroup();
 	}
 	
 	@EventListener(ApplicationReadyEvent.class)

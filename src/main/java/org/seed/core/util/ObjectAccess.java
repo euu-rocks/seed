@@ -20,6 +20,7 @@ package org.seed.core.util;
 import java.lang.reflect.Method;
 
 import org.seed.InternalException;
+
 import org.springframework.util.StringUtils;
 
 public abstract class ObjectAccess {
@@ -31,15 +32,15 @@ public abstract class ObjectAccess {
 	private static final String PRE_SET = "set";
 	
 	public static Boolean callBooleanGetter(Object object, String propertyName) {
-		return (Boolean) callMethod(object, PRE_IS + StringUtils.capitalize(propertyName));
+		return (Boolean) callMethod(object, PRE_IS.concat(StringUtils.capitalize(propertyName)));
 	}
 	
 	public static Object callGetter(Object object, String propertyName) {
-		return callMethod(object, PRE_GET + StringUtils.capitalize(propertyName));
+		return callMethod(object, PRE_GET.concat(StringUtils.capitalize(propertyName)));
 	}
 	
 	protected static void callSetter(Object object, String propertyName, Object ...parameters) {
-		callMethod(object, PRE_SET + StringUtils.capitalize(propertyName), parameters);
+		callMethod(object, PRE_SET.concat(StringUtils.capitalize(propertyName)), parameters);
 	}
 	
 	protected static Object callMethod(Object object, String methodName, Object ...parameters) {

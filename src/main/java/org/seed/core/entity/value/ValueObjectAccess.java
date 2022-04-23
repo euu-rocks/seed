@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.seed.C;
-import org.seed.InternalException;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.data.SystemField;
 import org.seed.core.entity.EntityField;
@@ -89,16 +88,11 @@ public class ValueObjectAccess extends ObjectAccess {
 		Assert.notNull(object, C.OBJECT);
 		Assert.notNull(nested, C.NESTED);
 		
-		try {
-			final Class<?> nestedClass = codeManager.getGeneratedClass(nested.getNestedEntity());
-			final AbstractValueObject nestedObject = (AbstractValueObject) BeanUtils.instantiate(nestedClass);
-			nestedObject.setTmpId(System.currentTimeMillis());
-			callMethod(object, PRE_ADD + StringUtils.capitalize(nested.getInternalName()), nestedObject);
-			return nestedObject;
-		} 
-		catch (Exception ex) {
-			throw new InternalException(ex);
-		}
+		final Class<?> nestedClass = codeManager.getGeneratedClass(nested.getNestedEntity());
+		final AbstractValueObject nestedObject = (AbstractValueObject) BeanUtils.instantiate(nestedClass);
+		nestedObject.setTmpId(System.currentTimeMillis());
+		callMethod(object, PRE_ADD.concat(StringUtils.capitalize(nested.getInternalName())), nestedObject);
+		return nestedObject;
 	}
 	
 	public void removeNestedObject(ValueObject object, NestedEntity nested, ValueObject nestedObject) {
@@ -106,7 +100,7 @@ public class ValueObjectAccess extends ObjectAccess {
 		Assert.notNull(nested, C.NESTED);
 		Assert.notNull(nestedObject, "nested object");
 		
-		callMethod(object, PRE_REMOVE + StringUtils.capitalize(nested.getInternalName()), nestedObject);
+		callMethod(object, PRE_REMOVE.concat(StringUtils.capitalize(nested.getInternalName())), nestedObject);
 	}
 	
 	public boolean hasRelatedObjects(ValueObject object, EntityRelation relation) {
@@ -126,7 +120,7 @@ public class ValueObjectAccess extends ObjectAccess {
 		Assert.notNull(relation, C.RELATION);
 		Assert.notNull(relatedObject, "related object");
 		
-		callMethod(object, PRE_ADD + StringUtils.capitalize(relation.getInternalName()), relatedObject);
+		callMethod(object, PRE_ADD.concat(StringUtils.capitalize(relation.getInternalName())), relatedObject);
 	}
 	
 	public void removeRelatedObject(ValueObject object, EntityRelation relation, ValueObject relatedObject) {
@@ -134,7 +128,7 @@ public class ValueObjectAccess extends ObjectAccess {
 		Assert.notNull(relation, C.RELATION);
 		Assert.notNull(relatedObject, "related object");
 		
-		callMethod(object, PRE_REMOVE + StringUtils.capitalize(relation.getInternalName()), relatedObject);
+		callMethod(object, PRE_REMOVE.concat(StringUtils.capitalize(relation.getInternalName())), relatedObject);
 	}
 	
 }

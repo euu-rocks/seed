@@ -99,6 +99,21 @@ public class DataSourceValidator extends AbstractSystemEntityValidator<IDataSour
 		validate(errors);
 	}
 	
+	void validateParameterValues(IDataSource dataSource, Map<String, Object> parameters) throws ValidationException {
+		Assert.notNull(dataSource, C.DATASOURCE);
+		
+		if (!dataSource.hasParameters()) {
+			return;
+		}
+		final ValidationErrors errors = new ValidationErrors();
+		for (DataSourceParameter parameter : dataSource.getParameters()) {
+			if (parameters.get(parameter.getName()) == null) {
+				errors.addError("val.empty.parametervalue", parameter.getName());
+			}
+		}
+		validate(errors);
+	}
+	
 	private boolean validateContent(IDataSource dataSource, ValidationErrors errors) {
 		if (dataSource.getType().isSQL() && 
 			!dataSource.getContent().toLowerCase().contains("select ")) {

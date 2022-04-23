@@ -40,6 +40,9 @@
 						   label="${labels.button.delete}" 
 						   onClick="@command('deleteDataSource', elem=self)"
 						   visible="@load(!vm.object.isNew())"/>
+			<toolbarbutton iconSclass="z-icon-play alpha-icon-lg" 
+						   label="${labels.button.start}" 
+						   onClick="@command('runQuery', elem=self)"/>
 		</toolbar>
 	</north>
 	<center border="0">

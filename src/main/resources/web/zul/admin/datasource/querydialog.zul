@@ -1,0 +1,101 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<?page contentType="text/html;charset=UTF-8"?>
+<window width="90%" height="90%" 
+		viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.QueryDialogViewModel')" 
+		title="${labels.admin.datasource.runquery}"
+		mode="modal" closable="true" sizable="true">
+	<borderlayout>
+		<north border="0">
+			<toolbar>
+				<toolbarbutton iconSclass="z-icon-play alpha-icon-lg" 
+						   label="${labels.button.start}" 
+						   onClick="@command('query',elem=self)"/>
+			</toolbar>
+		</north>
+		<center border="0">
+			<listbox model="@load(vm.result.resultList)"
+					 visible="@load(!empty vm.result.resultList)">
+				<listhead children="@load(vm.result.columns)">
+				    <template name="children">
+				    	<listheader label="@load(each.name)" />
+				    </template>
+				</listhead>
+				<template name="model">
+				    <listitem children="@load(each)">
+						<template name="children">
+							<listcell label="@load(each)" />
+						</template>
+					</listitem>
+				</template>
+			</listbox>
+		</center>
+		<east title="${labels.label.parameter}" 
+		  	  visible="@load(vm.dataSource.hasParameters())"
+		 	  width="250px" border="0" collapsible="true" 
+		  	  class="alpha-properties">
+			<vlayout class="alpha-properties-content"
+					 children="@init(vm.dataSource.parameters) @template(each.type.name)">
+				<template name="text">
+					<vlayout>
+			           <label value="@init(each.name)"/>
+			           <textbox hflex="1"
+	            		 		value="@bind(each.value) @converter(vm.stringConverter)"
+	            		 		mandatory="true"/>
+	            	</vlayout>
+		        </template>
+		        <template name="integer">
+					<vlayout>
+			           <label value="@init(each.name)"/>
+			           <intbox hflex="1"
+	            		 	   value="@bind(each.value)"
+	            		 	   mandatory="true"/>
+	            	</vlayout>
+		        </template>
+		        <template name="double">
+					<vlayout>
+			           <label value="@init(each.name)"/>
+			           <doublebox hflex="1"
+	            				  value="@bind(each.value)"
+	            				  mandatory="true"/>
+	            	</vlayout>
+		        </template>
+		        <template name="decimal">
+					<vlayout>
+			           <label value="@init(each.name)"/>
+			           <decimalbox hflex="1"
+	            				   value="@bind(each.value)"
+	           					   mandatory="true"/>
+	            	</vlayout>
+		        </template>
+		        <template name="date">
+					<vlayout>
+			           <label value="@init(each.name)"/>
+			           <datebox hflex="1"
+	            				value="@bind(each.value)"
+	           					mandatory="true"/>
+	            	</vlayout>
+		        </template>
+			</vlayout>
+		</east>
+	</borderlayout>
+</window>
+	
