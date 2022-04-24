@@ -58,7 +58,7 @@
 					<vlayout>
 			           <label value="@init(each.name)"/>
 			           <textbox hflex="1"
-	            		 		value="@bind(each.value) @converter(vm.stringConverter)"
+	            		 		value="@bind(each.value)"
 	            		 		mandatory="true"/>
 	            	</vlayout>
 		        </template>
@@ -92,6 +92,24 @@
 			           <datebox hflex="1"
 	            				value="@bind(each.value)"
 	           					mandatory="true"/>
+	            	</vlayout>
+		        </template>
+		        <template name="reference">
+					<vlayout>
+			           <label value="@init(each.name)"/>
+			           <combobox model="@load(vm.getReferenceObjects(each)) @template(empty each.name ? 'empty' : 'entity')"
+		            			  mandatory="true"
+		            			  selectedItem="@bind(each.value)"
+		            			  value="@load(each.value.name)"
+		            		  	  hflex="1">
+							<template name="empty">
+		                    	<comboitem/>
+		                	</template>	
+		            		<template name="entity" var="entity">
+		                    	<comboitem label="@init(entity.name)"
+		                    			   iconSclass="z-icon-table z-icon-fw alpha-icon-lg"/>
+		                	</template>	
+		            	</combobox>
 	            	</vlayout>
 		        </template>
 			</vlayout>

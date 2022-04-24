@@ -28,23 +28,24 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
+
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.LabelProvider;
 import org.seed.core.data.AbstractSystemEntityRepository;
+import org.seed.core.data.SystemObject;
 import org.seed.core.util.Assert;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 @Repository
 public class DataSourceRepository extends AbstractSystemEntityRepository<IDataSource> {
 	
 	private static final Logger log = LoggerFactory.getLogger(DataSourceRepository.class);
-	
-	private static final String QUOTE = "'";
 	
 	@Autowired
 	private javax.sql.DataSource sqlDataSource;
@@ -115,7 +116,6 @@ public class DataSourceRepository extends AbstractSystemEntityRepository<IDataSo
 			default:
 				throw new UnsupportedOperationException(dataSource.getType().name());
 		}
-		
 	}
 	
 	private String buildQuery(IDataSource dataSource, Map<String, Object> parameters) {
@@ -135,7 +135,7 @@ public class DataSourceRepository extends AbstractSystemEntityRepository<IDataSo
 	
 	private String formatParameter(Object parameter) {
 		if (parameter instanceof String) {
-			return QUOTE + parameter + QUOTE;
+			return StringUtils.quote((String) parameter);
 		}
 		if (parameter instanceof BigDecimal) {
 			return labelProvider.formatBigDecimal((BigDecimal) parameter);
@@ -143,7 +143,11 @@ public class DataSourceRepository extends AbstractSystemEntityRepository<IDataSo
 		if (parameter instanceof Date) {
 			return labelProvider.formatDate((Date) parameter);
 		}
-		return parameter.toString();
+		if (parameter instanceof SystemObject) {
+			final Long id = ((SystemObject) parameter).getId();
+			return id != null ? id.toString() : null;
+		}
+		return parameter != null ? parameter.toString() : "null";
 	}
 	
 }

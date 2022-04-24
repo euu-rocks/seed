@@ -27,8 +27,10 @@ import javax.persistence.PersistenceException;
 
 import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityValidator;
+import org.seed.core.data.AbstractSystemObject;
 import org.seed.core.data.DataException;
 import org.seed.core.data.SystemEntity;
+import org.seed.core.data.SystemObject;
 import org.seed.core.data.ValidationError;
 import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
@@ -99,7 +101,8 @@ public class DataSourceValidator extends AbstractSystemEntityValidator<IDataSour
 		validate(errors);
 	}
 	
-	void validateParameterValues(IDataSource dataSource, Map<String, Object> parameters) throws ValidationException {
+	void validateParameterValues(IDataSource dataSource, Map<String, Object> parameters) 
+			throws ValidationException {
 		Assert.notNull(dataSource, C.DATASOURCE);
 		
 		if (!dataSource.hasParameters()) {
@@ -107,8 +110,12 @@ public class DataSourceValidator extends AbstractSystemEntityValidator<IDataSour
 		}
 		final ValidationErrors errors = new ValidationErrors();
 		for (DataSourceParameter parameter : dataSource.getParameters()) {
-			if (parameters.get(parameter.getName()) == null) {
+			final Object value = parameters.get(parameter.getName());
+			if (value == null) {
 				errors.addError("val.empty.parametervalue", parameter.getName());
+			}
+			else if (value instanceof SystemObject && ((SystemObject) value).isNew()) {
+				errors.addError("val.empty.parameterobjectid", parameter.getName());
 			}
 		}
 		validate(errors);
@@ -160,18 +167,34 @@ public class DataSourceValidator extends AbstractSystemEntityValidator<IDataSour
 				case TEXT:
 					value = "text";
 					break;
+					
 				case INTEGER:
 					value = 1;
 					break;
+					
 				case DOUBLE:
 					value = 1.23d;
 					break;
+					
 				case DECIMAL:
 					value = BigDecimal.valueOf(1.23d);
 					break;
+					
 				case DATE:
 					value = new Date();
 					break;
+				
+				case REFERENCE:
+					value = new AbstractSystemObject() {
+						
+						@Override
+						public Long getId() {
+							return 0L;
+						}
+						
+					};
+					break;
+					
 				default:
 					throw new UnsupportedOperationException(parameter.getType().name());
 			}

@@ -18,6 +18,7 @@
 package org.seed.ui.zk.vm.admin;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -28,6 +29,8 @@ import org.seed.core.data.datasource.DataSourceParameter;
 import org.seed.core.data.datasource.DataSourceResult;
 import org.seed.core.data.datasource.DataSourceService;
 import org.seed.core.data.datasource.IDataSource;
+import org.seed.core.entity.value.ValueObject;
+import org.seed.core.entity.value.ValueObjectService;
 import org.seed.core.util.Assert;
 import org.seed.ui.zk.vm.AbstractApplicationViewModel;
 
@@ -46,6 +49,9 @@ public class QueryDialogViewModel extends AbstractApplicationViewModel {
 	@WireVariable(value="dataSourceServiceImpl")
 	private DataSourceService dataSourceService;
 	
+	@WireVariable(value="valueObjectServiceImpl")
+	private ValueObjectService valueObjectService;
+	
 	private IDataSource dataSource;
 	
 	private DataSourceResult result;
@@ -57,7 +63,11 @@ public class QueryDialogViewModel extends AbstractApplicationViewModel {
 	public DataSourceResult getResult() {
 		return result;
 	}
-
+	
+	public List<ValueObject> getReferenceObjects(DataSourceParameter parameter) {
+		return valueObjectService.getAllObjects(parameter.getReferenceEntity());
+	}
+	
 	@Init
     public void init(@ContextParam(ContextType.VIEW) Component view,
     				 @ExecutionArgParam(C.PARAM) IDataSource param) {
