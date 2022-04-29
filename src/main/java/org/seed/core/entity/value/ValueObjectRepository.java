@@ -69,6 +69,7 @@ import org.seed.core.entity.value.event.ValueObjectEventHandler;
 import org.seed.core.entity.value.event.ValueObjectFunctionContext;
 import org.seed.core.util.Assert;
 import org.seed.core.util.BeanUtils;
+import org.seed.core.util.MiscUtils;
 import org.seed.core.util.UID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -836,13 +837,13 @@ public class ValueObjectRepository {
 			case NOT_EMPTY:
 				return builder.isNotNull(path);
 			case EQUAL:
-				return builder.equal(path, criterion.getValue());
+				return builder.equal(path, formatValue(criterion));
 			case LIKE:
 				return builder.like(path, criterion.getLike());
 			case NOT_LIKE:
 				return builder.notLike(path, criterion.getLike());
 			case NOT_EQUAL:
-				return builder.notEqual(path, criterion.getValue());
+				return builder.notEqual(path, formatValue(criterion));
 			case GREATER:
 				return builder.greaterThan(path, (Comparable) criterion.getValue());
 			case GREATER_EQUAL:
@@ -854,6 +855,15 @@ public class ValueObjectRepository {
 			default:
 				throw new UnsupportedOperationException(criterion.getOperator().name());
 		}
+	}
+	
+	private static Object formatValue(FilterCriterion criterion) {
+		if ((criterion.getSystemField() == SystemField.CREATEDBY || 
+			 criterion.getSystemField() == SystemField.MODIFIEDBY) &&
+			 criterion.getValue() instanceof String) {
+			return ((String) criterion.getValue()).replace("{username}", MiscUtils.geUserName());
+		}
+		return criterion.getValue();
 	}
 	
 	private static void checkFilter(Entity entity, Filter filter) {

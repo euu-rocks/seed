@@ -113,7 +113,7 @@ public abstract class AbstractSystemEntityRepository<T extends SystemEntity>
 	}
 	
 	@Override
-	@SuppressWarnings({ "unchecked" })
+	@SuppressWarnings("unchecked")
 	public List<T> find(Session session, QueryParameter ...params) {
 		Assert.notNull(session, C.SESSION);
 		

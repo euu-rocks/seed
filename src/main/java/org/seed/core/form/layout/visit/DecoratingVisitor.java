@@ -63,7 +63,7 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 				break;
 			
 			case LayoutElement.IMAGE:
-				element.setAttribute(A_CONTENT, "@init(null) @converter('org.seed.ui.zk.ImageConverter')");
+				element.setAttribute(A_CONTENT, "@init(null) @converter('org.seed.ui.zk.convert.ImageConverter')");
 				element.removeAttribute(A_ONCLICK);
 				element.removeAttribute(A_VISIBLE);
 				if (element.getId() != null) {

@@ -52,6 +52,7 @@ import org.seed.core.entity.EntityMetadata;
 import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.filter.Filter;
+import org.seed.core.entity.filter.FilterMetadata;
 import org.seed.core.entity.transform.Transformer;
 import org.seed.core.user.User;
 import org.seed.core.util.Assert;
@@ -70,6 +71,10 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "layout_id")
 	private FormLayout layout;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "filter_id")
+	private FilterMetadata filter;
 	
 	@OneToMany(mappedBy = "form",
 			   cascade = CascadeType.ALL,
@@ -126,6 +131,9 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	private String layoutUid;
 	
 	@Transient
+	private String filterUid;
+	
+	@Transient
 	private Map<String, RelationForm> mapRelations;
 	
 	@Override
@@ -138,6 +146,25 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 		this.entity = (EntityMetadata) entity;
 	}
 	
+	@Override
+	public FormLayout getLayout() {
+		return layout;
+	}
+	
+	public void setLayout(FormLayout layout) {
+		this.layout = layout;
+	}
+	
+	@Override
+	@XmlTransient
+	public Filter getFilter() {
+		return filter;
+	}
+
+	public void setFilter(Filter filter) {
+		this.filter = (FilterMetadata) filter;
+	}
+
 	@Override
 	@XmlAttribute
 	public boolean isAutoLayout() {
@@ -229,15 +256,6 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	}
 
 	@Override
-	public FormLayout getLayout() {
-		return layout;
-	}
-	
-	public void setLayout(FormLayout layout) {
-		this.layout = layout;
-	}
-	
-	@Override
 	@XmlAttribute
 	public String getEntityUid() {
 		return entity != null ? entity.getUid() : entityUid;
@@ -247,6 +265,16 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 		this.entityUid = entityUid;
 	}
 	
+	@Override
+	@XmlAttribute
+	public String getFilterUid() {
+		return filter != null ? filter.getUid() : filterUid;
+	}
+
+	public void setFilterUid(String filterUid) {
+		this.filterUid = filterUid;
+	}
+
 	@Override
 	public boolean hasFields() {
 		return !ObjectUtils.isEmpty(getFields());
@@ -445,6 +473,9 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	public boolean containsFilter(Filter filter) {
 		Assert.notNull(filter, C.FILTER);
 		
+		if (filter.equals(this.filter)) {
+			return true;
+		}
 		if (hasFieldExtras()) {
 			for (FormFieldExtra fieldExtra : getFieldExtras()) {
 				if (filter.equals(fieldExtra.getFilter())) {
@@ -797,6 +828,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 		final Form otherForm = (Form) other;
 		if (!new EqualsBuilder()
 			.append(getName(), otherForm.getName())
+			.append(getFilterUid(), otherForm.getFilterUid())
 			.append(autoLayout, otherForm.isAutoLayout())
 			.isEquals()) {
 			return false;

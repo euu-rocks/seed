@@ -49,6 +49,9 @@
 	            			sort="auto(name)" onCreate="self.sort(true)"/>
 	            <listheader hflex="2" label="${labels.label.entity}"
 	            			sort="auto(entity.name)"/>
+	            <listheader hflex="2" label="${labels.label.filter}"
+	            			sort="auto(filter.name)"
+	            			visible="@load(vm.existFilters())"/>			
 	            <listheader hflex="min" label="${labels.label.auto}"
 	            			sort="auto(autoLayout)"/>	
 	            <listheader hflex="1" label="${labels.label.module}"
@@ -70,6 +73,19 @@
 		           		<template name="entity" var="entityname">
 		                    <comboitem label="@load(entityname)" 
 		                    		   iconSclass="z-icon-table alpha-icon-lg"/>
+		                </template>
+		           	</combobox>
+		        </auxheader>
+		        <auxheader>
+		            <combobox model="@load(vm.getFilter('list','filter').values) @template(empty each ? 'empty' : 'filter')"
+		            		  selectedItem="@bind(vm.getFilter('list','filter').value)"
+		            		  hflex="1">
+		            	<template name="empty">
+		                    <comboitem/>
+		                </template>
+		           		<template name="filter" var="filtername">
+		                    <comboitem label="@load(filtername)" 
+		                    		   iconSclass="z-icon-filter alpha-icon-lg"/>
 		                </template>
 		           	</combobox>
 		        </auxheader>
@@ -97,6 +113,9 @@
 	            	</listcell>
 	            	<listcell iconSclass="z-icon-table z-icon-fw alpha-icon-lg">
 	            		<label value="@load(form.entity.name)" style="margin-left:3px"/>
+	            	</listcell>
+	            	<listcell iconSclass="@load(empty form.filter ? '' : 'z-icon-filter alpha-icon-lg')">
+	            		<label value="@load(form.filter.name)" style="margin-left:3px"/>
 	            	</listcell>
 	            	<listcell style="text-align:center">
 	            		<checkbox checked="@load(form.autoLayout)" disabled="true"/>

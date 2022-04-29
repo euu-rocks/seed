@@ -25,6 +25,7 @@ import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.NestedEntity;
+import org.seed.core.entity.filter.Filter;
 import org.seed.core.user.User;
 
 public interface FormService extends ApplicationEntityService<Form> {
@@ -36,6 +37,8 @@ public interface FormService extends ApplicationEntityService<Form> {
 	FormPrintout createPrintout(Form form);
 	
 	FormAction createCustomAction(Form form);
+	
+	List<Filter> getFilters(Form form);
 	
 	List<Form> findForms(Entity entity);
 	

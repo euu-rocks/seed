@@ -133,6 +133,13 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	@Override
+	public List<Filter> getFilters(Form form) {
+		Assert.notNull(form, C.FORM);
+		
+		return filterService.findFilters(form.getEntity());
+	}
+	
+	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public SubForm addSubForm(Form form, NestedEntity nested) throws ValidationException {
 		Assert.notNull(form, C.FORM);
@@ -767,6 +774,9 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		}
 		if (form.hasSubForms()) {
 			initSubForms(session, form, currentVersionForm);
+		}
+		if (form.getFilterUid() != null) {
+			((FormMetadata) form).setFilter(filterService.findByUid(session, form.getFilterUid()));
 		}
 		if (form.getLayout() != null) {
 			final FormLayout currentVersionLayout =

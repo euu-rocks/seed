@@ -81,7 +81,7 @@
 					</combobox>
 				</template>
 			</toolbar>
-			<toolbar visible="@load(vm.filtersAvailable)"
+			<toolbar visible="@load(empty vm.form.filter and vm.filtersAvailable)"
 					 overflowPopup="false"
 					 align="end" hflex="min" 
 					 height="30px">

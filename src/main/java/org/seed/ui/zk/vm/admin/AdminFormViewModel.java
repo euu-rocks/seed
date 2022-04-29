@@ -25,6 +25,7 @@ import org.seed.C;
 import org.seed.core.data.SystemObject;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityService;
+import org.seed.core.entity.filter.Filter;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormAction;
 import org.seed.core.form.FormField;
@@ -90,6 +91,8 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	
 	private LayoutElement layoutRoot;
 	
+	private boolean existFilters;
+	
 	public AdminFormViewModel() {
 		super(Authorisation.ADMIN_FORM, C.FORM,
 			  "/admin/form/formlist.zul", 
@@ -119,8 +122,15 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	protected void initFilters() {
 		final ListFilter<Form> filterEntity = getFilter(FILTERGROUP_LIST, C.ENTITY);
 		filterEntity.setValueFunction(o -> o.getEntity().getName());
+		final ListFilter<Form> filterFilter = getFilter(FILTERGROUP_LIST, C.FILTER);
+		filterFilter.setValueFunction(o -> o.getFilter() != null ? o.getFilter().getName() : null);
+		
 		for (Form form : getObjectList()) {
 			filterEntity.addValue(form.getEntity().getName());
+			if (form.getFilter() != null) {
+				filterFilter.addValue(form.getFilter().getName());
+				existFilters = true;
+			}
 		}
 		getFilter(FILTERGROUP_LIST, "autoLayout").setBooleanFilter(true);
 	}
@@ -155,6 +165,14 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 
 	public void setPrintout(FormPrintout printout) {
 		this.printout = printout;
+	}
+	
+	public List<Filter> getFilters() {
+		return formService.getFilters(getObject());
+	}
+
+	public boolean existFilters() {
+		return existFilters;
 	}
 
 	public String getActionLabel(FormAction action) {

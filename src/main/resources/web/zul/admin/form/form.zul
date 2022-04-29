@@ -51,7 +51,7 @@
 			<grid hflex="1" class="alpha-noborder">
 				<columns>
 	            	<column hflex="min"/>
-	              	<column hflex="4"/>
+	              	<column hflex="3"/>
 	              	<column hflex="min"/>
 	              	<column hflex="2"/>
 	            </columns>
@@ -67,11 +67,11 @@
 									 hflex="1"/>
 						</cell>
 						<cell style="padding: 4px 10px" align="right">
-							<label value="${labels.label.autolayout}"/>
+							<checkbox checked="@bind(vm.object.autoLayout)"
+									  onCheck="@command('flagDirty')"/> 	
 						</cell>
 						<cell style="padding: 4px 4px">
-							<checkbox checked="@bind(vm.object.autoLayout)"
-									  onCheck="@command('flagDirty')"/>   
+							<label value="${labels.label.autolayout}"/>  
 						</cell>
 					</row>
 					<row>
@@ -82,8 +82,24 @@
 							<textbox value="@load(vm.object.entity.name)" hflex="1" 
 									 cols="40" readonly="true"/>
 						</cell>	
-						<cell/>
-						<cell/>
+						<cell style="padding: 4px 10px" align="right">
+							<label value="${labels.label.filter}:"/>
+						</cell>
+						<cell style="padding: 4px 4px">
+							<combobox model="@load(vm.filters) @template(empty each.name ? 'empty' : 'filter')"
+									  selectedItem="@bind(vm.object.filter)"
+									  value="@load(vm.object.filter.name)"
+									  onSelect="@command('flagDirty')"
+									  hflex="1">
+								<template name="empty">
+				                    <comboitem/>
+				                </template>
+				                <template name="filter" var="filter">
+				                    <comboitem label="@load(filter.name)"
+				                    		   iconSclass="z-icon-filter z-icon-fw alpha-icon-lg"/>
+				                </template>						
+							</combobox>
+						</cell>	
 					</row>
 				</rows>
 			</grid>

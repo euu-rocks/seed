@@ -19,6 +19,33 @@
                      ],
                      "tableName":  "sys_customlib"
                   } 
+               },
+               {
+                  "addColumn":  {
+                     "columns":[
+                        {
+                           "column": {
+                              "name": "filter_id",
+                              "type": "BIGINT"
+                           }
+                        }
+                     ],
+                     "tableName":  "sys_form"
+                  } 
+               },
+               {
+                  "addForeignKeyConstraint": {
+                     "baseColumnNames": "filter_id",
+                     "baseTableName": "sys_form",
+                     "constraintName": "fk_sys_form_filter",
+                     "deferrable": "false",
+                     "initiallyDeferred": "false",
+                     "onDelete": "NO ACTION",
+                     "onUpdate": "NO ACTION",
+                     "referencedColumnNames": "id",
+                     "referencedTableName": "sys_entity_filter",
+                     "validate": "true"
+                  }
                }
             ]
         }

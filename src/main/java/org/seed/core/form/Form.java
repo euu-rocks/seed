@@ -37,6 +37,10 @@ public interface Form extends ApplicationEntity {
 	
 	FormLayout getLayout();
 	
+	Filter getFilter();
+	
+	String getFilterUid();
+	
 	boolean isAutoLayout();
 	
 	boolean hasFields();

@@ -293,7 +293,7 @@ public class FilterCriterion extends AbstractTransferableObject {
 			case AUTONUM:
 			case TEXT:
 			case TEXTLONG:
-				if (getEntityField().isUidField()) {
+				if (entityField != null && entityField.isUidField()) {
 					return referenceUid;
 				}
 				return stringValue;
@@ -338,7 +338,7 @@ public class FilterCriterion extends AbstractTransferableObject {
 			case AUTONUM:
 			case TEXT:
 			case TEXTLONG:
-				if (getEntityField().isUidField()) {
+				if (entityField != null && entityField.isUidField()) {
 					referenceUid = (String) value;
 				}
 				stringValue = (String) value;

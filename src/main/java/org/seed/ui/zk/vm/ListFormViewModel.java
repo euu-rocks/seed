@@ -90,6 +90,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 		
 		filterList = filterService.getFilters(getForm().getEntity(), getUser());
 		editAction = getForm().getActionByType(FormActionType.DETAIL);
+		currentFilter = getForm().getFilter();
 		getListModel();
 	}
 	
