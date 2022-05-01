@@ -134,6 +134,13 @@ public class EntityField extends AbstractOrderedTransferableObject {
 	public void setColumnName(String columnName) {
 		this.columnName = columnName;
 	}
+	
+	@JsonIgnore
+	public String getEffectiveColumnName() {
+		return columnName != null 
+				? columnName.toLowerCase()
+				: getInternalName().toLowerCase();
+	}
 
 	@XmlAttribute
 	public FieldType getType() {

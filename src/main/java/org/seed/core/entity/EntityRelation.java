@@ -101,31 +101,18 @@ public class EntityRelation extends AbstractOrderedTransferableObject {
 	
 	@JsonIgnore
 	public String getJoinTableName() {
-		final StringBuilder buf = new StringBuilder();
-		if (entity.getTableName() != null) {
-			buf.append(entity.getTableName());
-		}
-		else {
-			buf.append(entity.getInternalName().toLowerCase());
-		}
-		buf.append('_');
-		if (relatedEntity.getTableName() != null) {
-			buf.append(relatedEntity.getTableName());
-		}
-		else {
-			buf.append(relatedEntity.getInternalName().toLowerCase());
-		}
-		return buf.toString();
+		return entity.getEffectiveTableName() + '_' + 
+			   relatedEntity.getEffectiveTableName();
 	}
 	
 	@JsonIgnore
 	public String getJoinColumnName() {
-		return entity.getInternalName().toLowerCase() + SUFFIX_ID;
+		return entity.getEffectiveTableName().concat(SUFFIX_ID);
 	}
 	
 	@JsonIgnore
 	public String getInverseJoinColumnName() {
-		return relatedEntity.getInternalName().toLowerCase() + SUFFIX_ID;
+		return relatedEntity.getEffectiveTableName().concat(SUFFIX_ID);
 	}
 	
 	public boolean isRelated(Entity entity) {

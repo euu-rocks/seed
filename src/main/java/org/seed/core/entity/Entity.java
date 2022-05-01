@@ -63,6 +63,8 @@ public interface Entity
 	
 	String getTableName();
 	
+	String getEffectiveTableName();
+	
 	String getIdentifierPattern();
 	
 	String getDefaultIdentifierPattern();

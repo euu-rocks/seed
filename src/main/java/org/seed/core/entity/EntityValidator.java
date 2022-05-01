@@ -164,7 +164,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		for (EntityField entityField : field.getEntity().getFields()) {
 			if (!entityField.equals(field) && 
 				entityField.getFormula() != null &&
-				entityField.getFormula().contains(EntityChangeLogBuilder.getColumnName(field))) {
+				entityField.getFormula().contains(field.getEffectiveColumnName())) {
 					errors.addError("val.inuse.fieldformula", entityField.getName());
 			}
 		}
@@ -577,7 +577,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		
 		final StringBuilder buf = new StringBuilder()
 									.append("select ").append(formula).append(" from ")
-									.append(EntityChangeLogBuilder.getTableName(entity));
+									.append(entity.getEffectiveTableName());
 		try (Session session = repository.getSession()) {
 			session.createSQLQuery(buf.toString())
 					.setMaxResults(0).list();

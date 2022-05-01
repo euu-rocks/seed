@@ -217,6 +217,14 @@ public class EntityMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
+	@JsonIgnore
+	public String getEffectiveTableName() {
+		return tableName != null 
+				? tableName.toLowerCase() 
+				: getInternalName().toLowerCase();
+	}
+	
+	@Override
 	@XmlAttribute
 	public String getIdentifierPattern() {
 		return identifierPattern;

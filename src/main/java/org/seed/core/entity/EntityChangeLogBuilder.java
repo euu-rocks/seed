@@ -126,7 +126,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		}
 		else {
 			// rename table
-			if (!getTableName(currentVersionObject).equals(getTableName(nextVersionObject))) {
+			if (!currentVersionObject.getEffectiveTableName().equals(nextVersionObject.getEffectiveTableName())) {
 				renameEntity();
 			}
 			
@@ -165,22 +165,6 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 			}
 		}
 		addDropTableChangeSet(currentVersionObject);
-	}
-	
-	static String getTableName(Entity entity) {
-		Assert.notNull(entity, C.ENTITY);
-		
-		return entity.getTableName() != null 
-				? entity.getTableName() 
-				: entity.getInternalName().toLowerCase();
-	}
-	
-	static String getColumnName(EntityField entityField) {
-		Assert.notNull(entityField, C.ENTITYFIELD);
-		
-		return entityField.getColumnName() != null 
-				? entityField.getColumnName().toLowerCase()
-				: entityField.getInternalName().toLowerCase();
 	}
 	
 	private boolean isGeneric() {
@@ -246,7 +230,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		Assert.notNull(entity, C.ENTITY);
 		
 		final CreateTableChange createTableChange = new CreateTableChange();
-		createTableChange.setTableName(getTableName(entity));
+		createTableChange.setTableName(entity.getEffectiveTableName());
 		
 		// system fields
 		createTableChange.addColumn(createColumn(SystemField.ID)
@@ -321,7 +305,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		Assert.notNull(entity, C.ENTITY);
 		
 		final DropTableChange dropTableChange = new DropTableChange();
-		dropTableChange.setTableName(getTableName(entity));
+		dropTableChange.setTableName(entity.getEffectiveTableName());
 		addChange(dropTableChange);
 	}
 	
@@ -338,8 +322,8 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		Assert.notNull(newEntity, "newEntity");
 		
 		final RenameTableChange renameTableChange = new RenameTableChange();
-		renameTableChange.setOldTableName(getTableName(oldEntity));
-		renameTableChange.setNewTableName(getTableName(newEntity));
+		renameTableChange.setOldTableName(oldEntity.getEffectiveTableName());
+		renameTableChange.setNewTableName(newEntity.getEffectiveTableName());
 		addChange(renameTableChange);
 	}
 	
@@ -348,8 +332,8 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		Assert.notNull(field, C.FIELD);
 		
 		final DropColumnChange dropColumnChange = new DropColumnChange();
-		dropColumnChange.setTableName(getTableName(entity));
-		dropColumnChange.setColumnName(getColumnName(field));
+		dropColumnChange.setTableName(entity.getEffectiveTableName());
+		dropColumnChange.setColumnName(field.getEffectiveColumnName());
 		addChange(dropColumnChange);
 	}
 	
@@ -359,9 +343,9 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		Assert.notNull(newField, "newField");
 		
 		final RenameColumnChange renameColumnChange = new RenameColumnChange();
-		renameColumnChange.setTableName(getTableName(entity));
-		renameColumnChange.setOldColumnName(getColumnName(oldField));
-		renameColumnChange.setNewColumnName(getColumnName(newField));
+		renameColumnChange.setTableName(entity.getEffectiveTableName());
+		renameColumnChange.setOldColumnName(oldField.getEffectiveColumnName());
+		renameColumnChange.setNewColumnName(newField.getEffectiveColumnName());
 		addChange(renameColumnChange);
 	}
 	
@@ -370,8 +354,8 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		Assert.notNull(field, C.FIELD);
 		
 		final ModifyDataTypeChange modifyDataTypeChange = new ModifyDataTypeChange();
-		modifyDataTypeChange.setTableName(getTableName(entity));
-		modifyDataTypeChange.setColumnName(getColumnName(field));
+		modifyDataTypeChange.setTableName(entity.getEffectiveTableName());
+		modifyDataTypeChange.setColumnName(field.getEffectiveColumnName());
 		modifyDataTypeChange.setNewDataType(getDBFieldType(field));
 		addChange(modifyDataTypeChange);
 	}
@@ -381,8 +365,8 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		Assert.notNull(field, C.FIELD);
 		
 		final AddNotNullConstraintChange addNotNullConstraintChange = new AddNotNullConstraintChange();
-		addNotNullConstraintChange.setTableName(getTableName(entity));
-		addNotNullConstraintChange.setColumnName(getColumnName(field));
+		addNotNullConstraintChange.setTableName(entity.getEffectiveTableName());
+		addNotNullConstraintChange.setColumnName(field.getEffectiveColumnName());
 		addNotNullConstraintChange.setColumnDataType(getDBFieldType(field));
 		String defaultValue = null;
 		if (field.getDefaultString() != null) {
@@ -408,8 +392,8 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		Assert.notNull(field, C.FIELD);
 		
 		final DropNotNullConstraintChange dropNotNullConstraintChange = new DropNotNullConstraintChange();
-		dropNotNullConstraintChange.setTableName(getTableName(entity));
-		dropNotNullConstraintChange.setColumnName(getColumnName(field));
+		dropNotNullConstraintChange.setTableName(entity.getEffectiveTableName());
+		dropNotNullConstraintChange.setColumnName(field.getEffectiveColumnName());
 		dropNotNullConstraintChange.setColumnDataType(getDBFieldType(field));
 		addChange(dropNotNullConstraintChange);
 	}
@@ -419,7 +403,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		Assert.notNull(fields, "fields");
 		
 		final AddUniqueConstraintChange addUniqueConstraintChange = new AddUniqueConstraintChange();
-		addUniqueConstraintChange.setTableName(getTableName(entity));
+		addUniqueConstraintChange.setTableName(entity.getEffectiveTableName());
 		addUniqueConstraintChange.setConstraintName(getUniqueConstraintName(entity, fields[0]));
 		addUniqueConstraintChange.setColumnNames(createColumnNameList(fields));
 		addChange(addUniqueConstraintChange);
@@ -430,7 +414,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		Assert.notNull(fields, "fields");
 	
 		final DropUniqueConstraintChange dropUniqueConstraintChange = new DropUniqueConstraintChange();
-		dropUniqueConstraintChange.setTableName(getTableName(entity));
+		dropUniqueConstraintChange.setTableName(entity.getEffectiveTableName());
 		dropUniqueConstraintChange.setConstraintName(getUniqueConstraintName(entity, fields[0]));
 		addChange(dropUniqueConstraintChange);
 	}
@@ -440,7 +424,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		Assert.notNull(field, C.FIELD);
 		
 		final DropIndexChange dropIndexChange = new DropIndexChange();
-		dropIndexChange.setTableName(getTableName(entity));
+		dropIndexChange.setTableName(entity.getEffectiveTableName());
 		dropIndexChange.setIndexName(getIndexName(entity, field));
 		addChange(dropIndexChange);
 	}
@@ -449,7 +433,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		Assert.notNull(entity, C.ENTITY);
 		
 		final AddForeignKeyConstraintChange addFKConstraintChange = new AddForeignKeyConstraintChange();
-		addFKConstraintChange.setBaseTableName(getTableName(entity));
+		addFKConstraintChange.setBaseTableName(entity.getEffectiveTableName());
 		addFKConstraintChange.setConstraintName(getStatusForeignKeyConstraintName(entity));
 		addFKConstraintChange.setBaseColumnNames(SystemField.ENTITYSTATUS.columName);
 		addFKConstraintChange.setReferencedTableName(EntityStatus.class.getAnnotation(Table.class).name());
@@ -457,7 +441,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		addChange(addFKConstraintChange);
 		
 		final CreateIndexChange createIndexChange = new CreateIndexChange();
-		createIndexChange.setTableName(getTableName(entity));
+		createIndexChange.setTableName(entity.getEffectiveTableName());
 		createIndexChange.setIndexName(getStatusIndexName(entity));
 		
 		final AddColumnConfig column = new AddColumnConfig();
@@ -587,7 +571,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		}
 		
 		// rename column
-		if (!getColumnName(field).equals(getColumnName(nextVersionField))) {
+		if (!field.getEffectiveColumnName().equals(nextVersionField.getEffectiveColumnName())) {
 			addRenameColumnChangeSet(entity, field, nextVersionField);
 		}
 		
@@ -633,7 +617,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		}
 		else { // remove status field
 			final DropColumnChange dropColumnChange = new DropColumnChange();
-			dropColumnChange.setTableName(getTableName(nextVersionObject));
+			dropColumnChange.setTableName(nextVersionObject.getEffectiveTableName());
 			dropColumnChange.setColumnName(SystemField.ENTITYSTATUS.columName);
 			addChange(dropColumnChange);
 		}
@@ -693,7 +677,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(field, C.FIELD);
 		
-		column.setName(getColumnName(field));
+		column.setName(field.getEffectiveColumnName());
 		column.setType(getDBFieldType(field));
 		// constraints
 		if (field.isMandatory() || field.isUnique() || field.getType().isBoolean()) {
@@ -745,11 +729,11 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		Assert.notNull(field, C.FIELD);
 		
 		final CreateIndexChange createIndexChange = new CreateIndexChange();
-		createIndexChange.setTableName(getTableName(entity));
+		createIndexChange.setTableName(entity.getEffectiveTableName());
 		createIndexChange.setIndexName(getIndexName(entity, field));
 		
 		final AddColumnConfig column = new AddColumnConfig();
-		column.setName(getColumnName(field));
+		column.setName(field.getEffectiveColumnName());
 		column.setType(getDBFieldType(field));
 		createIndexChange.addColumn(column);
 		addChange(createIndexChange);
@@ -763,11 +747,11 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		if (field.getType().isReference() || field.getType().isFile()) {
 			final AddForeignKeyConstraintChange addFKConstraintChange = new AddForeignKeyConstraintChange();
 			addFKConstraintChange.setConstraintName(getForeignKeyConstraintName(entity, field));
-			addFKConstraintChange.setBaseTableName(getTableName(entity));
-			addFKConstraintChange.setBaseColumnNames(getColumnName(field));
+			addFKConstraintChange.setBaseTableName(entity.getEffectiveTableName());
+			addFKConstraintChange.setBaseColumnNames(field.getEffectiveColumnName());
 			addFKConstraintChange.setReferencedColumnNames(SystemField.ID.columName);
 			if (field.getType().isReference()) {
-				addFKConstraintChange.setReferencedTableName(getTableName(field.getReferenceEntity()));
+				addFKConstraintChange.setReferencedTableName(field.getReferenceEntity().getEffectiveTableName());
 			}
 			else if (field.getType().isFile()) {
 				addFKConstraintChange.setReferencedTableName(FileObject.class.getAnnotation(Table.class).name());
@@ -790,7 +774,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		addJoinConstraintChange.setBaseTableName(relation.getJoinTableName());
 		addJoinConstraintChange.setBaseColumnNames(relation.getJoinColumnName());
 		addJoinConstraintChange.setReferencedColumnNames(SystemField.ID.columName);
-		addJoinConstraintChange.setReferencedTableName(getTableName(relation.getEntity()));
+		addJoinConstraintChange.setReferencedTableName(relation.getEntity().getEffectiveTableName());
 		addChange(addJoinConstraintChange);
 		
 		// inverse join column fk
@@ -799,7 +783,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		addInverseJoinConstraintChange.setBaseTableName(relation.getJoinTableName());
 		addInverseJoinConstraintChange.setBaseColumnNames(relation.getInverseJoinColumnName());
 		addInverseJoinConstraintChange.setReferencedColumnNames(SystemField.ID.columName);
-		addInverseJoinConstraintChange.setReferencedTableName(getTableName(relation.getRelatedEntity()));
+		addInverseJoinConstraintChange.setReferencedTableName(relation.getRelatedEntity().getEffectiveTableName());
 		addChange(addInverseJoinConstraintChange);
 	}
 	
@@ -858,7 +842,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		Assert.notNull(columnConfig, "columnConfig");
 		
 		final AddColumnChange addColumnChange = new AddColumnChange();
-		addColumnChange.setTableName(getTableName(entity));
+		addColumnChange.setTableName(entity.getEffectiveTableName());
 		addColumnChange.addColumn(columnConfig);
 		return addColumnChange;
 	}
@@ -869,7 +853,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 			if (buf.length() > 0) {
 				buf.append(',');
 			}
-			buf.append(getColumnName(field));
+			buf.append(field.getEffectiveColumnName());
 		}
 		return buf.toString();
 	}
