@@ -40,6 +40,7 @@
 		<poi.version>5.1.0</poi.version>
 		<itext.version>5.5.13.2</itext.version>
 		<opencsv.version>5.5.2</opencsv.version>
+		<plantuml.version>1.2022.5</plantuml.version>
 		<mycila-license-version>3.0</mycila-license-version>
 	</properties>
 	
@@ -163,6 +164,13 @@
 		    <groupId>com.opencsv</groupId>
 		    <artifactId>opencsv</artifactId>
 		    <version>${opencsv.version}</version>
+		</dependency>
+		
+		<!-- plantUML -->
+		<dependency>
+			<groupId>net.sourceforge.plantuml</groupId>
+			<artifactId>plantuml</artifactId>
+			<version>${plantuml.version}</version>
 		</dependency>
 		
 		<!-- ZK -->

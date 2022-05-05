@@ -602,6 +602,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		referenceField.setName(parent.getName());
 		referenceField.setType(FieldType.REFERENCE);
 		referenceField.setReferenceEntity(parent);
+		referenceField.setMandatory(true);
 		entity.addField(referenceField);
 	}
 	

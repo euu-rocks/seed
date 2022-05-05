@@ -20,27 +20,36 @@
 <!DOCTYPE xml>
 <borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminEntityViewModel')">
 	<north border="0">
-		<toolbar hflex="1">
-			<toolbarbutton mode="toggle" 
-						   iconSclass="z-icon-filter alpha-icon-lg" 
-						   tooltiptext="${labels.label.togglefilter}"
-						   checked="@bind(vm.listViewFilterGroup.visible)" 
-						   visible="@load(vm.listViewFilterGroup.visible or vm.existObjects())"/>
-			<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
-						   label="${labels.admin.entity.create}" 
-						   onClick="@command('newEntity')"/>
-			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
-						   label="${labels.button.refresh}" 
-						   onClick="@command('refreshEntity')"/>
-			<toolbarbutton iconSclass="z-icon-wrench alpha-icon-lg" 
-						   label="${labels.admin.entity.edit}" 
-						   onClick="@command('editEntity')"
-						   visible="@load(!empty vm.object)"/>
-			<toolbarbutton iconSclass="z-icon-remove alpha-icon-lg" 
-						   label="${labels.admin.entity.delete}" 
-						   onClick="@command('deleteEntity', elem=self)"
-						   visible="@load(!empty vm.object)"/>
-		</toolbar>
+		<hbox hflex="1">
+			<toolbar hflex="1">
+				<toolbarbutton mode="toggle" 
+							   iconSclass="z-icon-filter alpha-icon-lg" 
+							   tooltiptext="${labels.label.togglefilter}"
+							   checked="@bind(vm.listViewFilterGroup.visible)" 
+							   visible="@load(vm.listViewFilterGroup.visible or vm.existObjects())"/>
+				<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
+							   label="${labels.admin.entity.create}" 
+							   onClick="@command('newEntity')"/>
+				<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+							   label="${labels.button.refresh}" 
+							   onClick="@command('refreshEntity')"/>
+				<toolbarbutton iconSclass="z-icon-wrench alpha-icon-lg" 
+							   label="${labels.admin.entity.edit}" 
+							   onClick="@command('editEntity')"
+							   visible="@load(!empty vm.object)"/>
+				<toolbarbutton iconSclass="z-icon-remove alpha-icon-lg" 
+							   label="${labels.admin.entity.delete}" 
+							   onClick="@command('deleteEntity', elem=self)"
+							   visible="@load(!empty vm.object)"/>
+			</toolbar>
+			<toolbar visible="@load(vm.existNonGenericEntities())"
+					 overflowPopup="false"
+					 align="end" hflex="min">
+				<toolbarbutton iconSclass="z-icon-map-o alpha-icon-lg" 
+							   label="${labels.admin.entity.showerdiagram}" 
+							   onClick="@command('showERDiagram')"/>			 
+			</toolbar>
+		</hbox>
 	</north>
 	<center border="0">
 		<listbox style="margin:5px" mold="paging" autopaging="true" vflex="true"

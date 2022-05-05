@@ -186,8 +186,12 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 		return entityService.existGenericEntities();
 	}
 	
-	public boolean existParentEntities() {
+	public boolean existNonGenericEntities() {
 		return entityService.existNonGenericEntities();
+	}
+	
+	public boolean existParentEntities() {
+		return existNonGenericEntities();
 	}
 	
 	public boolean existValueObjects() {
@@ -455,6 +459,11 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	@Command
 	public void deleteEntity(@BindingParam(C.ELEM) Component component) {
 		cmdDeleteObject(component);
+	}
+	
+	@Command
+	public void showERDiagram() {
+		showDialog("/admin/entity/diagram_erd.zul", null);
 	}
 	
 	@Command
