@@ -19,9 +19,12 @@ package org.seed.core.entity.doc;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 import org.seed.InternalException;
+import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityService;
+import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,15 +41,20 @@ public class DocumentationServiceImpl implements DocumentationService {
 	private EntityService entityService;
 	
 	@Override
-	public String createPlantUML() {
-		return new PlantUMLBuilder(entityService.findNonGenericEntities())
-					.build();
+	public String createERDiagramPlantUML() {
+		return new ERDiagramBuilder(getEntities()).build();
 	}
 	
 	@Override
-	public String createERDiagramSVG() {
+	public String createStatusDiagramPlantUML(Entity entity) {
+		return new StatusDiagramBuilder(entity).build();
+	}
+	
+	public String createSVG(String plantUML) {
+		Assert.notNull(plantUML, "plantUML");
+		
 		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-			new SourceStringReader(createPlantUML())
+			new SourceStringReader(plantUML)
 				.outputImage(baos, new FileFormatOption(FileFormat.SVG));
 			return MiscUtils.toString(baos.toByteArray());
 		} 
@@ -55,4 +63,8 @@ public class DocumentationServiceImpl implements DocumentationService {
 		}
 	}
 	
+	private List<Entity> getEntities() {
+		return entityService.findNonGenericEntities();
+	}
+ 	
 }

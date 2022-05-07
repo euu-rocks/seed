@@ -19,16 +19,16 @@
 -->
 <!DOCTYPE xml>
 <?page contentType="text/html;charset=UTF-8"?>
-<window id="codeDialogWin" width="90%" height="90%" 
+<window width="90%" height="90%" 
 		viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.DiagramViewModel')" 
-		title="${labels.label.diagramer}"
+		title="@init(vm.title)"
 		mode="modal" closable="true" sizable="true">
 	<borderlayout>
 		<north border="0">
 			<toolbar>
 				<toolbarbutton iconSclass="z-icon-download alpha-icon-lg" 
-						   label="${labels.admin.entity.dowloadplantuml}" 
-						   onClick="@command('downloadPlantUml')"/>
+							   label="${labels.admin.entity.dowloadplantuml}" 
+							   onClick="@command('downloadPlantUml')"/>
 			</toolbar>
 		</north>
 		<center border="0" autoscroll="true">

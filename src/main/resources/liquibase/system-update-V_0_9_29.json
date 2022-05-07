@@ -34,6 +34,19 @@
                   } 
                },
                {
+                  "addColumn":  {
+                     "columns":[
+                        {
+                           "column": {
+                              "name": "description",
+                              "type": "CLOB"
+                           }
+                        }
+                     ],
+                     "tableName":  "sys_entity_statustransition"
+                  } 
+               },
+               {
                   "addForeignKeyConstraint": {
                      "baseColumnNames": "filter_id",
                      "baseTableName": "sys_form",

@@ -17,10 +17,14 @@
  */
 package org.seed.core.entity.doc;
 
+import org.seed.core.entity.Entity;
+
 public interface DocumentationService {
 	
-	String createPlantUML();
+	String createERDiagramPlantUML();
 	
-	String createERDiagramSVG();
+	String createStatusDiagramPlantUML(Entity entity);
+	
+	String createSVG(String plantUML);
 	
 }

@@ -26,30 +26,27 @@ import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityRelation;
 import org.seed.core.util.Assert;
 
-class PlantUMLBuilder {
+class ERDiagramBuilder extends AbstractPlantUMLBuilder {
 	
 	private final List<Entity> entities;
 	
-	PlantUMLBuilder(List<Entity> entities) {
+	ERDiagramBuilder(List<Entity> entities) {
 		Assert.notNull(entities, "entities");
 		
 		this.entities = entities;
 	}
 
-	String build() {
-		final StringBuilder buf = new StringBuilder();
-		buildHeader(buf);
+	@Override
+	protected void build(StringBuilder buf) {
 		entities.forEach(entity -> buildEntity(buf, entity));
 		entities.forEach(entity -> buildRelationEntities(buf, entity));
 		entities.forEach(entity -> buildReferences(buf, entity));
 		entities.forEach(entity -> buildRelations(buf, entity));
-		buildFooter(buf);
-		return buf.toString();
 	}
 	
 	private static void buildEntity(StringBuilder buf, Entity entity) {
 		buf.append("entity ").append(entity.getEffectiveTableName()).append(" {\n")
-		   .append(SystemField.ID.columName).append(" : number <<generated>>\n")
+		   .append(SystemField.ID.columName).append(COLON).append("number <<generated>>\n")
 		   .append("--\n");
 		if (entity.hasAllFields()) {
 			entity.getAllFields().forEach(field -> buildField(buf, field));
@@ -70,8 +67,8 @@ class PlantUMLBuilder {
 	
 	private static void buildRelationEntity(StringBuilder buf, EntityRelation relation) {
 		buf.append("entity ").append(relation.getJoinTableName()).append(" {\n")
-		   .append('*').append(relation.getJoinColumnName()).append(" : number <<FK>>\n")
-		   .append('*').append(relation.getInverseJoinColumnName()).append(" : number <<FK>>\n")
+		   .append('*').append(relation.getJoinColumnName()).append(COLON).append("number <<FK>>\n")
+		   .append('*').append(relation.getInverseJoinColumnName()).append(COLON).append("number <<FK>>\n")
 		   .append("}\n\n");
 	}
 	
@@ -86,7 +83,7 @@ class PlantUMLBuilder {
 	private static void buildReference(StringBuilder buf, EntityField field) {
 		buf.append(field.getEntity().getEffectiveTableName()).append(" }o..")
 		.append(field.isMandatory() ? "||" : "o|")
-		.append(field.getReferenceEntity().getEffectiveTableName()).append('\n');
+		.append(field.getReferenceEntity().getEffectiveTableName()).append("\n\n");
 	}
 	
 	private static void buildRelations(StringBuilder buf, Entity entity) {
@@ -99,14 +96,14 @@ class PlantUMLBuilder {
 		buf.append(relation.getEntity().getEffectiveTableName()).append(" ||..o{ ")
 		   .append(relation.getJoinTableName()).append('\n')
 		   .append(relation.getJoinTableName()).append(" }o..|| ")
-		   .append(relation.getRelatedEntity().getEffectiveTableName()).append('\n');
+		   .append(relation.getRelatedEntity().getEffectiveTableName()).append("\n\n");
 	}
 	
 	private static void buildField(StringBuilder buf, EntityField field) {
 		if (field.isMandatory()) {
 			buf.append('*');
 		}
-		buf.append(field.getEffectiveColumnName()).append(" : ")
+		buf.append(field.getEffectiveColumnName()).append(COLON)
 		   .append(getType(field.getType()));
 		if (field.getType().isAutonum()) {
 			buf.append(" <<generated>>");
@@ -118,7 +115,7 @@ class PlantUMLBuilder {
 	}
 	
 	private static void buildSystemField(StringBuilder buf, SystemField field) {
-		buf.append(field.columName).append(" : ")
+		buf.append(field.columName).append(COLON)
 		   .append(getType(field.type)).append('\n');
 	}
 	
@@ -145,14 +142,6 @@ class PlantUMLBuilder {
 			default:
 				throw new UnsupportedOperationException(type.name());
 		}
-	}
-	
-	private static void buildHeader(StringBuilder buf) {
-		buf.append("@startuml\n\n");
-	}
-	
-	private static void buildFooter(StringBuilder buf) {
-		buf.append("\n@enduml\n");
 	}
 	
 }

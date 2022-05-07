@@ -73,6 +73,7 @@ public class EntityStatus extends AbstractSystemEntity
 		this.entity = (EntityMetadata) entity;
 	}
 	
+	@Override
 	@XmlAttribute
 	public Integer getStatusNumber() {
 		return statusnumber;
@@ -81,7 +82,9 @@ public class EntityStatus extends AbstractSystemEntity
 	public void setStatusNumber(Integer statusNumber) {
 		this.statusnumber = statusNumber;
 	}
-
+	
+	@Override
+	@XmlAttribute
 	public String getDescription() {
 		return description;
 	}
@@ -99,6 +102,7 @@ public class EntityStatus extends AbstractSystemEntity
 		this.isInitial = isInitial;
 	}
 	
+	@Override
 	@JsonIgnore
 	public String getNumberAndName() {
 		final StringBuilder buf = new StringBuilder();

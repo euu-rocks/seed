@@ -20,15 +20,24 @@
 <!DOCTYPE xml>
 <borderlayout>
 	<north border="0">
-		<toolbar width="100%">
-			<toolbarbutton label="${labels.admin.entity.newstatustransition}" 
-						   iconSclass="z-icon-plus alpha-icon-lg" 
-					   	   onClick="@command('newStatusTransition')"/>
-			<toolbarbutton label="${labels.admin.entity.removestatustransition}" 
-						   iconSclass="z-icon-remove alpha-icon-lg" 
-					   	   onClick="@command('removeStatusTransition')"
-					   	   visible="@load(not empty vm.statusTransition)"/>
-		</toolbar>
+		<hbox hflex="1">
+			<toolbar hflex="1">
+				<toolbarbutton label="${labels.admin.entity.newstatustransition}" 
+							   iconSclass="z-icon-plus alpha-icon-lg" 
+						   	   onClick="@command('newStatusTransition')"/>
+				<toolbarbutton label="${labels.admin.entity.removestatustransition}" 
+							   iconSclass="z-icon-remove alpha-icon-lg" 
+						   	   onClick="@command('removeStatusTransition')"
+						   	   visible="@load(not empty vm.statusTransition)"/>
+			</toolbar>
+			<toolbar visible="@load(!empty vm.object.statusList)"
+					 overflowPopup="false"
+					 align="end" hflex="min">
+				<toolbarbutton iconSclass="z-icon-map-o alpha-icon-lg" 
+							   label="${labels.admin.entity.showstatusdiagram}" 
+							   onClick="@command('showStatusDiagram')"/>			 
+			</toolbar>
+		</hbox>
 	</north>
 	<center border="0">
 		<listbox mold="paging" autopaging="true"
@@ -84,6 +93,10 @@
 	            	<comboitem label="@load(status.numberAndName)"/>
 	            </template>
 	     	</combobox>
-    	</vlayout>
+	     	<label value="${labels.label.description}:"/>
+            <textbox hflex="1" rows="5"
+               		 value="@bind(vm.statusTransition.description) @converter(vm.stringConverter)"
+               		 onChanging="@command('flagDirty')"/>
+		</vlayout>
 	</east>
 </borderlayout>

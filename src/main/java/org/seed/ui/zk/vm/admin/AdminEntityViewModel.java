@@ -48,6 +48,7 @@ import org.seed.core.entity.EntityFieldGroup;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.entity.codegen.EntityFunctionCodeProvider;
 import org.seed.core.entity.codegen.EntitySourceCodeProvider;
+import org.seed.core.entity.doc.DocumentationService;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.entity.value.ValueObjectService;
 import org.seed.core.form.FormOptions;
@@ -97,6 +98,9 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	
 	@WireVariable(value="menuServiceImpl")
 	private MenuService menuService;
+	
+	@WireVariable(value="documentationServiceImpl")
+	private DocumentationService documentationService;
 	
 	@WireVariable(value="valueObjectServiceImpl")
 	private ValueObjectService valueObjectService;
@@ -463,7 +467,16 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	
 	@Command
 	public void showERDiagram() {
-		showDialog("/admin/entity/diagram_erd.zul", null);
+		showDialog("/admin/entity/diagram.zul", 
+				   new DiagramParameter(getLabel("label.diagramer"),
+						documentationService.createERDiagramPlantUML()));
+	}
+	
+	@Command
+	public void showStatusDiagram() {
+		showDialog("/admin/entity/diagram.zul", 
+				   new DiagramParameter(getObject().getName() + ' ' + getLabel("label.diagramstatus"),
+						documentationService.createStatusDiagramPlantUML(getObject())));
 	}
 	
 	@Command

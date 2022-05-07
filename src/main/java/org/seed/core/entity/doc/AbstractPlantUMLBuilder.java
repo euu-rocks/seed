@@ -15,17 +15,28 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.ui.zk.vm.admin;
+package org.seed.core.entity.doc;
 
-class DialogParameter {
+abstract class AbstractPlantUMLBuilder {
 	
-	public final AbstractAdminViewModel<?> parentViewModel;
+	protected static final String COLON = " : ";
 	
-	public final Object parameter;
-
-	DialogParameter(AbstractAdminViewModel<?> parentViewModel, Object parameter) {
-		this.parentViewModel = parentViewModel;
-		this.parameter = parameter;
+	final String build() {
+		final StringBuilder buf = new StringBuilder();
+		buildHeader(buf);
+		build(buf);
+		buildFooter(buf);
+		return buf.toString();
+	}
+	
+	protected abstract void build(StringBuilder buf);
+	
+	protected void buildHeader(StringBuilder buf) {
+		buf.append("@startuml\n\n");
+	}
+	
+	protected void buildFooter(StringBuilder buf) {
+		buf.append("@enduml\n");
 	}
 	
 }

@@ -17,15 +17,15 @@
  */
 package org.seed.ui.zk.vm.admin;
 
-class DialogParameter {
+class DiagramParameter {
 	
-	public final AbstractAdminViewModel<?> parentViewModel;
+	public final String title;
 	
-	public final Object parameter;
+	public final String plantUml;
 
-	DialogParameter(AbstractAdminViewModel<?> parentViewModel, Object parameter) {
-		this.parentViewModel = parentViewModel;
-		this.parameter = parameter;
+	DiagramParameter(String title, String plantUml) {
+		this.title = title;
+		this.plantUml = plantUml;
 	}
 	
 }

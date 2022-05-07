@@ -85,6 +85,8 @@ public class EntityStatusTransition extends AbstractTransferableObject {
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private List<EntityStatusTransitionPermission> permissions;
 	
+	private String description;
+	
 	@Transient
 	@JsonIgnore
 	private String sourceStatusUid;
@@ -100,6 +102,15 @@ public class EntityStatusTransition extends AbstractTransferableObject {
 
 	public void setEntity(Entity entity) {
 		this.entity = (EntityMetadata) entity;
+	}
+	
+	@XmlAttribute
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	
 	@XmlTransient
@@ -239,6 +250,7 @@ public class EntityStatusTransition extends AbstractTransferableObject {
 		}
 		final EntityStatusTransition otherTransition = (EntityStatusTransition) other;
 		if (!new EqualsBuilder()
+			.append(description, otherTransition.getDescription())
 			.append(sourceStatusUid, otherTransition.getSourceStatusUid())
 			.append(targetStatusUid, otherTransition.getTargetStatusUid())
 			.isEquals()) {
