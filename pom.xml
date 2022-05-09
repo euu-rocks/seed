@@ -38,7 +38,7 @@
 		<java.version>11</java.version>
 		<zk.version>9.6.0.1</zk.version>
 		<poi.version>5.1.0</poi.version>
-		<itext.version>5.5.13.2</itext.version>
+		<itext.version>7.2.2</itext.version>
 		<opencsv.version>5.5.2</opencsv.version>
 		<plantuml.version>1.2022.5</plantuml.version>
 		<mycila-license-version>3.0</mycila-license-version>
@@ -155,8 +155,14 @@
 		<!-- itext -->
   		<dependency>
 		    <groupId>com.itextpdf</groupId>
-		    <artifactId>itextpdf</artifactId>
+		    <artifactId>itext7-core</artifactId>
 		    <version>${itext.version}</version>
+		    <type>pom</type>
+		</dependency>
+		<dependency>
+    		<groupId>com.itextpdf</groupId>
+    		<artifactId>svg</artifactId>
+    		<version>${itext.version}</version>
 		</dependency>
 		
 		<!-- opencsv -->

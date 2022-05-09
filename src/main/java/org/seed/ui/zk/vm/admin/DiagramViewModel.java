@@ -38,12 +38,17 @@ public class DiagramViewModel extends AbstractApplicationViewModel {
 	
 	private String plantUML;
 	
+	private String svg;
+	
 	public String getTitle() {
 		return title;
 	}
 
 	public String getSvg() {
-		return documentationService.createSVG(plantUML);
+		if (svg == null) {
+			svg = documentationService.createSVG(plantUML);
+		}
+		return svg;
 	}
 	
 	@Init
@@ -52,6 +57,12 @@ public class DiagramViewModel extends AbstractApplicationViewModel {
 		
 		title = param.title;
 		plantUML = param.plantUml;
+	}
+	
+	@Command
+	public void downloadPDF() {
+		Filedownload.save(documentationService.createPDF(getSvg()), "application/pdf",
+						  title + '_' + MiscUtils.getTimestampString() + ".pdf");
 	}
 	
 	@Command

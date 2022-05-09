@@ -26,6 +26,9 @@
 	<borderlayout>
 		<north border="0">
 			<toolbar>
+				<toolbarbutton iconSclass="z-icon-print alpha-icon-lg" 
+							   label="${labels.button.print}" 
+							   onClick="@command('downloadPDF')"/>
 				<toolbarbutton iconSclass="z-icon-download alpha-icon-lg" 
 							   label="${labels.admin.entity.dowloadplantuml}" 
 							   onClick="@command('downloadPlantUml')"/>

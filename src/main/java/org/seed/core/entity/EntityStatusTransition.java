@@ -104,7 +104,6 @@ public class EntityStatusTransition extends AbstractTransferableObject {
 		this.entity = (EntityMetadata) entity;
 	}
 	
-	@XmlAttribute
 	public String getDescription() {
 		return description;
 	}

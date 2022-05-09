@@ -27,4 +27,6 @@ public interface DocumentationService {
 	
 	String createSVG(String plantUML);
 	
+	byte[] createPDF(String svg);
+	
 }

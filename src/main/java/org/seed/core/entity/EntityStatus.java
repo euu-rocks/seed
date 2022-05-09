@@ -84,7 +84,6 @@ public class EntityStatus extends AbstractSystemEntity
 	}
 	
 	@Override
-	@XmlAttribute
 	public String getDescription() {
 		return description;
 	}

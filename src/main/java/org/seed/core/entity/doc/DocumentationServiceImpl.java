@@ -26,9 +26,12 @@ import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityService;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
+import org.seed.core.util.StreamUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.itextpdf.svg.converter.SvgConverter;
 
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
@@ -50,6 +53,7 @@ public class DocumentationServiceImpl implements DocumentationService {
 		return new StatusDiagramBuilder(entity).build();
 	}
 	
+	@Override
 	public String createSVG(String plantUML) {
 		Assert.notNull(plantUML, "plantUML");
 		
@@ -57,6 +61,19 @@ public class DocumentationServiceImpl implements DocumentationService {
 			new SourceStringReader(plantUML)
 				.outputImage(baos, new FileFormatOption(FileFormat.SVG));
 			return MiscUtils.toString(baos.toByteArray());
+		} 
+		catch (IOException ioex) {
+			throw new InternalException(ioex);
+		}
+	}
+	
+	@Override
+	public byte[] createPDF(String svg) {
+		Assert.notNull(svg, "svg");
+		
+		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+			SvgConverter.createPdf(StreamUtils.getStringAsStream(svg), baos);
+			return baos.toByteArray();
 		} 
 		catch (IOException ioex) {
 			throw new InternalException(ioex);
