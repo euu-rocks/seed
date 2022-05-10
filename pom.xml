@@ -23,12 +23,12 @@
 		<snapshotRepository>
 			<id>github</id>
 			<name>GitHub EUU ROCKS Apache Maven Snapshot Packages</name>
-			<url>https://maven.pkg.github.com/euu-rocks/seed</url>
+			<url>${snapshotRepositoryUrl}</url>
 		</snapshotRepository>
 		<repository>
 			<id>github</id>
 			<name>GitHub EUU ROCKS Apache Maven Packages</name>
-			<url>https://maven.pkg.github.com/euu-rocks/seed</url>
+			<url>${repositoryUrl}</url>
 		</repository>
 	</distributionManagement>
 
@@ -217,10 +217,31 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<classifier>exec</classifier>
+				</configuration>
 				<executions>
 					<execution>
 						<goals>
 							<goal>build-info</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
 						</goals>
 					</execution>
 				</executions>
@@ -277,4 +298,23 @@
 		</plugins>
 	</build>
 
+	<profiles>
+		<profile>
+			<id>github</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<snapshotRepositoryUrl>https://maven.pkg.github.com/euu-rocks/seed</snapshotRepositoryUrl>
+				<repositoryUrl>https://maven.pkg.github.com/euu-rocks/seed</repositoryUrl>
+			</properties>
+		</profile>
+		<profile>
+			<id>local</id>
+			<properties>
+				<snapshotRepositoryUrl>file:///tmp/maven.pkg.github.com/euu-rocks/seed</snapshotRepositoryUrl>
+				<repositoryUrl>file:///tmp/maven.pkg.github.com/euu-rocks/seed</repositoryUrl>
+			</properties>
+		</profile>
+	</profiles>
 </project>
