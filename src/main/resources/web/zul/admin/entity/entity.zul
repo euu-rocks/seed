@@ -58,6 +58,8 @@
 	              	<column hflex="max"/>
 	              	<column hflex="min"/>
 	              	<column hflex="max"/>
+	              	<column hflex="min"/>
+	              	<column hflex="min"/>
 	            </columns>
 				<rows>
 					<row>
@@ -87,6 +89,13 @@
 							<checkbox checked="@load(vm.object.generic)"
 									  visible="@load(vm.object.generic)"
 									  disabled="true"/>   
+						</cell>
+						<cell style="padding: 4px 4px">
+							<checkbox checked="@bind(vm.object.audited)"
+									  onCheck="@command('flagDirty')"/> 
+						</cell>
+						<cell style="padding: 4px 4px">
+							<label value="${labels.label.audited}"/>	
 						</cell>
 					</row>
 					<row visible="@load(!vm.object.generic)">
@@ -124,6 +133,8 @@
 									  visible="@load(vm.object.transferable)"
 									  disabled="true"/>  
 						</cell>
+						<cell/>
+						<cell/>
 					</row>
 				</rows>
 			</grid>

@@ -32,7 +32,8 @@ public enum SchemaVersion {
 	V_0_9_21,
 	V_0_9_22,
 	V_0_9_23,
-	V_0_9_29; // add new versions below
+	V_0_9_29,
+	V_0_9_31; // add new versions below
 	
 	public static SchemaVersion currentVersion() {
 		return lastVersion();

@@ -40,6 +40,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Formula;
+import org.hibernate.envers.Audited;
 
 import org.seed.C;
 import org.seed.core.application.TransferableObject;
@@ -431,7 +432,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	}
 	
 	private static AnnotationMetadata[] getEntityAnnotations(Entity entity) {
-		final List<AnnotationMetadata> annotations = new ArrayList<>(3);
+		final List<AnnotationMetadata> annotations = new ArrayList<>(4);
 		if (entity.isGeneric()) {
 			annotations.add(newAnnotation(MappedSuperclass.class));
 		}
@@ -443,6 +444,9 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 				annotations.add(newAnnotation(Table.class, C.NAME, quote(entity.getTableName())));
 			}
 			annotations.add(newAnnotation(javax.persistence.Entity.class));
+			if (entity.isAudited()) {
+				annotations.add(newAnnotation(Audited.class));
+			}
 		}
 		return annotations.toArray(new AnnotationMetadata[annotations.size()]);
 	}

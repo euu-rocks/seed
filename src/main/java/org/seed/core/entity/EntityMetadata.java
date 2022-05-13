@@ -144,6 +144,8 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	private boolean isTransferable;
 	
+	private boolean isAudited;
+	
 	@Transient
 	private String genericEntityUid;
 	
@@ -171,6 +173,16 @@ public class EntityMetadata extends AbstractApplicationEntity
 
 	public void setTransferable(boolean isTransferable) {
 		this.isTransferable = isTransferable;
+	}
+	
+	@Override
+	@XmlAttribute
+	public boolean isAudited() {
+		return isAudited;
+	}
+
+	public void setAudited(boolean isAudited) {
+		this.isAudited = isAudited;
 	}
 
 	@Override
@@ -972,6 +984,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 				.append(genericEntityUid, otherEntity.getGenericEntityUid())
 				.append(isGeneric, otherEntity.isGeneric())
 				.append(isTransferable, otherEntity.isTransferable())
+				.append(isAudited, otherEntity.isAudited())
 				.isEquals()) {
 			return false;
 		}

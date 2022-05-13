@@ -1,0 +1,54 @@
+    {
+        "changeSet": {
+            "id": "system update 0.9.31",
+            "author": "seed",
+            "changes": [
+               {
+                  "createSequence": {
+                     "sequenceName": "hibernate_sequence",
+                     "startValue": 1
+                  }
+               },
+               {
+                  "createTable": {
+                     "tableName": "revinfo",
+                     "columns": [
+                       {
+                           "column": {
+                              "name": "rev",
+                              "type": "BIGINT",
+                              "constraints": {
+                                  "primaryKey": "true",
+                                  "primaryKeyName": "pk_revinfo"
+                              }
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "revtstmp",
+                              "type": "BIGINT"
+                           }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "addColumn":  {
+                     "columns":[
+                        {
+                           "column": {
+                              "name": "isaudited",
+                              "type": "BOOLEAN",
+                              "defaultValue": false,
+                              "constraints": {
+                                  "nullable": "false"
+                              }
+                           }
+                        }
+                     ],
+                     "tableName":  "sys_entity"
+                  } 
+               }
+            ]
+        }
+    }

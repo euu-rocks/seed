@@ -142,6 +142,15 @@
                 <row>
                 	<cell/>
                 	<cell>
+                		<checkbox checked="@bind(vm.object.audited)"
+                				  onCheck="@command('selectOption',option='audited')"/>
+                		<label value="${labels.label.audited}"
+                			   style="margin-left: 5px"/>
+                	</cell>
+                </row>
+                <row>
+                	<cell/>
+                	<cell>
                 		<checkbox checked="@bind(vm.object.options.autoLayout)"
                 				  onCheck="@command('selectOption',option='autolayout')"/>
                 		<label value="${labels.label.autoform}"

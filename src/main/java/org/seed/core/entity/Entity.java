@@ -33,6 +33,8 @@ public interface Entity
 	
 	boolean isTransferable();
 	
+	boolean isAudited();
+	
 	boolean hasFields();
 	
 	boolean hasAllFields(); // includes generic fields

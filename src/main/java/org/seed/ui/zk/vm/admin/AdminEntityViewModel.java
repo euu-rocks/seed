@@ -184,6 +184,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 		}
 		getFilter(FILTERGROUP_LIST, C.GENERIC).setBooleanFilter(true);
 		getFilter(FILTERGROUP_LIST, C.TRANSFERABLE).setBooleanFilter(true);
+		getFilter(FILTERGROUP_LIST, "audited").setBooleanFilter(true);
 	}
 	
 	public boolean existGenericEntities() {
@@ -753,6 +754,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 					getOptions().setAutoLayout(false);
 					getOptions().setMenu(null);
 					entityMeta.setTransferable(false);
+					entityMeta.setAudited(false);
 					entityMeta.setParentEntity(null);
 					entityMeta.setModule(null);
 					isNestedEntity = false;
@@ -765,6 +767,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 					getOptions().setMenu(null);
 					entityMeta.setTransferable(false);
 					entityMeta.setGeneric(false);
+					entityMeta.setAudited(false);
 					entityMeta.setGenericEntity(null);
 					entityMeta.setModule(null);
 				}
@@ -773,6 +776,17 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 			case C.TRANSFERABLE:
 				if (getObject().isTransferable()) {
 					entityMeta.setGeneric(false);
+					entityMeta.setAudited(false);
+					entityMeta.setGenericEntity(null);
+					entityMeta.setParentEntity(null);
+					isNestedEntity = false;
+				}
+				break;
+				
+			case "audited":
+				if (getObject().isAudited()) {
+					entityMeta.setGeneric(false);
+					entityMeta.setTransferable(false);
 					entityMeta.setGenericEntity(null);
 					entityMeta.setParentEntity(null);
 					isNestedEntity = false;

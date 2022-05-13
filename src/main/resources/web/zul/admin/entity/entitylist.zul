@@ -65,7 +65,9 @@
 	            <listheader hflex="min" label="${labels.label.masterdata}"
 	            			sort="auto(transferable)"/>
 	            <listheader hflex="min" label="${labels.label.generic}"
-	            			sort="auto(generic)"/>			
+	            			sort="auto(generic)"/>
+	            <listheader hflex="min" label="${labels.label.version}."
+	            			sort="auto(audited)"/>			
 	            <listheader hflex="1" label="${labels.label.module}"
 	            			sort="auto(module.name)"
 	            			visible="@load(vm.existModules())"/>
@@ -94,6 +96,9 @@
 		        <auxheader style="text-align:center">
 		        	<checkbox checked="@bind(vm.getFilter('list','generic').booleanValue)"/>
 		        </auxheader>
+		        <auxheader style="text-align:center">
+		        	<checkbox checked="@bind(vm.getFilter('list','audited').booleanValue)"/>
+		        </auxheader>
 		        <auxheader>
 		        	<combobox model="@load(vm.getFilter('list','module').values) @template(empty each ? 'empty' : 'module')"
 		            		  selectedItem="@bind(vm.getFilter('list','module').value)"
@@ -121,6 +126,9 @@
 	            	</listcell>
 	            	<listcell style="text-align:center">
 	            		<checkbox checked="@load(entity.generic)" disabled="true"/>
+	            	</listcell>
+	            	<listcell style="text-align:center">
+	            		<checkbox checked="@load(entity.audited)" disabled="true"/>
 	            	</listcell>
 	            	<listcell iconSclass="@load(empty entity.module ? '' : 'z-icon-cube alpha-icon-lg')">
 	            		<label value="@load(entity.module.name)" style="margin-left:3px"/>
