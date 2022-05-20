@@ -32,8 +32,8 @@ import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
 import org.seed.core.config.changelog.ChangeLog;
 import org.seed.core.data.ValidationException;
+import org.seed.core.entity.EntityService;
 import org.seed.core.util.Assert;
-import org.seed.core.util.MiscUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
@@ -94,7 +94,7 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<? extends ApplicationEntityService<ApplicationEntity>>[] getImportDependencies() {
-		return MiscUtils.toArray(); // independent
+		return new Class[] { EntityService.class };
 	}
 
 	@Override
