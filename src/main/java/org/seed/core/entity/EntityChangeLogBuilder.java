@@ -17,6 +17,7 @@
  */
 package org.seed.core.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Table;
@@ -249,34 +250,12 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	private void addCreateTableChangeSet(Entity entity, boolean isAuditTable) {
 		Assert.notNull(entity, C.ENTITY);
 		
-		final ConstraintsConfig pkConfig = new ConstraintsConfig()
-				.setPrimaryKey(Boolean.TRUE)
-				.setPrimaryKeyName(getPrimaryKeyConstraintName(entity, isAuditTable));
-		
 		final CreateTableChange createTableChange = new CreateTableChange();
 		// table name
-		createTableChange.setTableName(isAuditTable 
-										? entity.getEffectiveTableName().concat(SUFFIX_AUDIT)
-										: entity.getEffectiveTableName());
+		createTableChange.setTableName(getTableName(entity, isAuditTable));
 		// system fields
-		createTableChange.addColumn(createColumn(SystemField.ID)
-										.setConstraints(pkConfig));
-		if (isAuditTable) {
-			createTableChange.addColumn(createColumn("rev", FieldType.LONG, null)
-											.setConstraints(pkConfig));
-			createTableChange.addColumn(createColumn("revtype", FieldType.INTEGER, null)
-											.setConstraints(new ConstraintsConfig()
-											.setNullable(Boolean.FALSE)));
-		}
-		else {
-			createTableChange.addColumn(createColumn(SystemField.VERSION)
-											.setConstraints(new ConstraintsConfig()
-											.setNullable(Boolean.FALSE)));
-			createTableChange.addColumn(createColumn(SystemField.CREATEDON));
-			createTableChange.addColumn(createColumn(SystemField.CREATEDBY, getLimit(Limits.LIMIT_USER_LENGTH)));
-			createTableChange.addColumn(createColumn(SystemField.MODIFIEDON));
-			createTableChange.addColumn(createColumn(SystemField.MODIFIEDBY, getLimit(Limits.LIMIT_USER_LENGTH)));
-		}
+		createSystemFields(entity, isAuditTable).forEach(createTableChange::addColumn);
+		
 		// uid
 		if (entity.isTransferable()) {
 			createTableChange.addColumn(createColumn(SystemField.UID, getLimit(Limits.LIMIT_UID_LENGTH))
@@ -313,6 +292,31 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		}
 	}
 	
+	private List<ColumnConfig> createSystemFields(Entity entity, boolean isAuditTable) {
+		final List<ColumnConfig> columns = new ArrayList<>(8);
+		final ConstraintsConfig pkConfig = new ConstraintsConfig()
+				.setPrimaryKey(Boolean.TRUE)
+				.setPrimaryKeyName(getPrimaryKeyConstraintName(entity, isAuditTable));
+		
+		columns.add(createColumn(SystemField.ID).setConstraints(pkConfig));
+		if (isAuditTable) {
+			columns.add(createColumn("rev", FieldType.LONG, null).setConstraints(pkConfig));
+			columns.add(createColumn("revtype", FieldType.INTEGER, null)
+							.setConstraints(new ConstraintsConfig()
+							.setNullable(Boolean.FALSE)));
+		}
+		else {
+			columns.add(createColumn(SystemField.VERSION)
+							.setConstraints(new ConstraintsConfig()
+							.setNullable(Boolean.FALSE)));
+			columns.add(createColumn(SystemField.CREATEDON));
+			columns.add(createColumn(SystemField.CREATEDBY, getLimit(Limits.LIMIT_USER_LENGTH)));
+			columns.add(createColumn(SystemField.MODIFIEDON));
+			columns.add(createColumn(SystemField.MODIFIEDBY, getLimit(Limits.LIMIT_USER_LENGTH)));
+		}
+		return columns;
+	}
+	
 	private void addCreateTableChangeSet(EntityRelation relation) {
 		Assert.notNull(relation, "relation");
 		
@@ -338,9 +342,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		Assert.notNull(entity, C.ENTITY);
 		
 		final DropTableChange dropTableChange = new DropTableChange();
-		dropTableChange.setTableName(isAuditTable 
-										? entity.getEffectiveTableName().concat(SUFFIX_AUDIT)
-										: entity.getEffectiveTableName());
+		dropTableChange.setTableName(getTableName(entity, isAuditTable));
 		addChange(dropTableChange);
 	}
 	
@@ -357,12 +359,8 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		Assert.notNull(newEntity, "newEntity");
 		
 		final RenameTableChange renameTableChange = new RenameTableChange();
-		renameTableChange.setOldTableName(isAuditTable 
-											? oldEntity.getEffectiveTableName().concat(SUFFIX_AUDIT)
-											: oldEntity.getEffectiveTableName());
-		renameTableChange.setNewTableName(isAuditTable 
-											? newEntity.getEffectiveTableName().concat(SUFFIX_AUDIT)
-											: newEntity.getEffectiveTableName());
+		renameTableChange.setOldTableName(getTableName(oldEntity, isAuditTable));
+		renameTableChange.setNewTableName(getTableName(newEntity, isAuditTable));
 		addChange(renameTableChange);
 	}
 	
@@ -371,9 +369,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		Assert.notNull(field, C.FIELD);
 		
 		final DropColumnChange dropColumnChange = new DropColumnChange();
-		dropColumnChange.setTableName(isAuditTable 
-										? entity.getEffectiveTableName().concat(SUFFIX_AUDIT)
-										: entity.getEffectiveTableName());
+		dropColumnChange.setTableName(getTableName(entity, isAuditTable));
 		dropColumnChange.setColumnName(field.getEffectiveColumnName());
 		addChange(dropColumnChange);
 	}
@@ -384,9 +380,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		Assert.notNull(newField, "newField");
 		
 		final RenameColumnChange renameColumnChange = new RenameColumnChange();
-		renameColumnChange.setTableName(isAuditTable 
-										? entity.getEffectiveTableName().concat(SUFFIX_AUDIT)
-										: entity.getEffectiveTableName());
+		renameColumnChange.setTableName(getTableName(entity, isAuditTable));
 		renameColumnChange.setOldColumnName(oldField.getEffectiveColumnName());
 		renameColumnChange.setNewColumnName(newField.getEffectiveColumnName());
 		addChange(renameColumnChange);
@@ -397,9 +391,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		Assert.notNull(field, C.FIELD);
 		
 		final ModifyDataTypeChange modifyDataTypeChange = new ModifyDataTypeChange();
-		modifyDataTypeChange.setTableName(isAuditTable 
-											? entity.getEffectiveTableName().concat(SUFFIX_AUDIT)
-											: entity.getEffectiveTableName());
+		modifyDataTypeChange.setTableName(getTableName(entity, isAuditTable));
 		modifyDataTypeChange.setColumnName(field.getEffectiveColumnName());
 		modifyDataTypeChange.setNewDataType(getDBFieldType(field));
 		addChange(modifyDataTypeChange);
@@ -410,9 +402,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		Assert.notNull(field, C.FIELD);
 		
 		final AddNotNullConstraintChange addNotNullConstraintChange = new AddNotNullConstraintChange();
-		addNotNullConstraintChange.setTableName(isAuditTable 
-												? entity.getEffectiveTableName().concat(SUFFIX_AUDIT)
-												: entity.getEffectiveTableName());
+		addNotNullConstraintChange.setTableName(getTableName(entity, isAuditTable));
 		addNotNullConstraintChange.setColumnName(field.getEffectiveColumnName());
 		addNotNullConstraintChange.setColumnDataType(getDBFieldType(field));
 		String defaultValue = null;
@@ -439,35 +429,29 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		Assert.notNull(field, C.FIELD);
 		
 		final DropNotNullConstraintChange dropNotNullConstraintChange = new DropNotNullConstraintChange();
-		dropNotNullConstraintChange.setTableName(isAuditTable 
-													? entity.getEffectiveTableName().concat(SUFFIX_AUDIT)
-													: entity.getEffectiveTableName());
+		dropNotNullConstraintChange.setTableName(getTableName(entity, isAuditTable));
 		dropNotNullConstraintChange.setColumnName(field.getEffectiveColumnName());
 		dropNotNullConstraintChange.setColumnDataType(getDBFieldType(field));
 		addChange(dropNotNullConstraintChange);
 	}
 	
-	private void addAddUniqueConstraintChangeSet(Entity entity, boolean isAuditTable, EntityField ...fields) {
+	private void addAddUniqueConstraintChangeSet(Entity entity, EntityField ...fields) {
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(fields, "fields");
 		
 		final AddUniqueConstraintChange addUniqueConstraintChange = new AddUniqueConstraintChange();
-		addUniqueConstraintChange.setTableName(isAuditTable 
-												? entity.getEffectiveTableName().concat(SUFFIX_AUDIT)
-												: entity.getEffectiveTableName());
+		addUniqueConstraintChange.setTableName(entity.getEffectiveTableName());
 		addUniqueConstraintChange.setConstraintName(getUniqueConstraintName(entity, fields[0]));
 		addUniqueConstraintChange.setColumnNames(createColumnNameList(fields));
 		addChange(addUniqueConstraintChange);
 	}
 	
-	private void addDropUniqueConstraintChangeSet(Entity entity, boolean isAuditTable, EntityField ...fields) {
+	private void addDropUniqueConstraintChangeSet(Entity entity, EntityField ...fields) {
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(fields, "fields");
 	
 		final DropUniqueConstraintChange dropUniqueConstraintChange = new DropUniqueConstraintChange();
-		dropUniqueConstraintChange.setTableName(isAuditTable 
-												? entity.getEffectiveTableName().concat(SUFFIX_AUDIT)
-												: entity.getEffectiveTableName());
+		dropUniqueConstraintChange.setTableName(entity.getEffectiveTableName());
 		dropUniqueConstraintChange.setConstraintName(getUniqueConstraintName(entity, fields[0]));
 		addChange(dropUniqueConstraintChange);
 	}
@@ -510,8 +494,10 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		
 		final AddColumnConfig columnConfig = new AddColumnConfig();
 		initColumn(columnConfig, entity, field);
-		addChange(createAddColumnChange(entity, columnConfig));
-		
+		addChange(createAddColumnChange(entity, columnConfig, false));
+		if (entity.isAudited()) {
+			addChange(createAddColumnChange(entity, columnConfig, true));
+		}
 		if (field.getType().isReference() || field.getType().isFile() || field.isIndexed()) {
 			addFieldConstraintsAndIndex(entity, field);
 		}
@@ -611,59 +597,70 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	private void buildFieldChanges(Entity entity, EntityField field, EntityField nextVersionField) {
 		//  drop column
 		if (nextVersionField == null) {
-			addDropColumChangeSet(entity, field, false);
-			if (entity.isAudited()) {
-				addDropColumChangeSet(entity, field, true);
-			}
+			buildFieldDropChanges(entity, field);
 			return;
 		}
 		
 		// change data type
 		if (field.getType() != nextVersionField.getType() ||
 		    !ObjectUtils.nullSafeEquals(field.getLength(), nextVersionField.getLength())) {
-			addModifyDataTypeChangeSet(entity, nextVersionField, false);
-			if (entity.isAudited()) {
-				addModifyDataTypeChangeSet(entity, nextVersionField, true);
-			}
+			buildFieldTypeChanges(entity, nextVersionField);
 		}
-		
 		// rename column
 		if (!field.getEffectiveColumnName().equals(nextVersionField.getEffectiveColumnName())) {
-			addRenameColumnChangeSet(entity, field, nextVersionField, false);
-			if (entity.isAudited()) {
-				addRenameColumnChangeSet(entity, field, nextVersionField, true);
-			}
+			buildFieldNameChanges(entity, field, nextVersionField);
 		}
-		
 		// mandatory state changed
 		if (!field.isMandatory() && nextVersionField.isMandatory()) {
-			addAddMandatoryConstraintChangeSet(entity, nextVersionField, false);
-			if (entity.isAudited()) {
-				addAddMandatoryConstraintChangeSet(entity, nextVersionField, true);
-			}
+			buildFieldMandatoryEnableChanges(entity, nextVersionField);
 		}
 		else if (field.isMandatory() && !nextVersionField.isMandatory()) {
-			addDropMandatoryConstraintChangeSet(entity, nextVersionField, false);
-			if (entity.isAudited()) {
-				addDropMandatoryConstraintChangeSet(entity, nextVersionField, true);
-			}
+			buildFieldMandatoryDisableChanges(entity, field);
 		}
-		
 		// unique state changed
 		if (!field.isUnique() && nextVersionField.isUnique()) {
-			addAddUniqueConstraintChangeSet(entity, false, nextVersionField);
-			if (entity.isAudited()) {
-				addAddUniqueConstraintChangeSet(entity, true, nextVersionField);
-			}
+			addAddUniqueConstraintChangeSet(entity, nextVersionField);
 		}
 		else if (field.isUnique() && !nextVersionField.isUnique()) {
-			addDropUniqueConstraintChangeSet(entity, false, nextVersionField);
-			if (entity.isAudited()) {
-				addDropUniqueConstraintChangeSet(entity, true, nextVersionField);
-			}
+			addDropUniqueConstraintChangeSet(entity, field);
 		}
 		
 		buildFieldIndex(entity, field, nextVersionField);
+	}
+	
+	private void buildFieldDropChanges(Entity entity, EntityField field) {
+		addDropColumChangeSet(entity, field, false);
+		if (entity.isAudited()) {
+			addDropColumChangeSet(entity, field, true);
+		}
+	}
+	
+	private void buildFieldTypeChanges(Entity entity, EntityField nextVersionField) {
+		addModifyDataTypeChangeSet(entity, nextVersionField, false);
+		if (entity.isAudited()) {
+			addModifyDataTypeChangeSet(entity, nextVersionField, true);
+		}
+	}
+	
+	private void buildFieldNameChanges(Entity entity, EntityField field, EntityField nextVersionField) {
+		addRenameColumnChangeSet(entity, field, nextVersionField, false);
+		if (entity.isAudited()) {
+			addRenameColumnChangeSet(entity, field, nextVersionField, true);
+		}
+	}
+	
+	private void buildFieldMandatoryEnableChanges(Entity entity, EntityField nextVersionField) {
+		addAddMandatoryConstraintChangeSet(entity, nextVersionField, false);
+		if (entity.isAudited()) {
+			addAddMandatoryConstraintChangeSet(entity, nextVersionField, true);
+		}
+	}
+	
+	private void buildFieldMandatoryDisableChanges(Entity entity, EntityField nextVersionField) {
+		addDropMandatoryConstraintChangeSet(entity, nextVersionField, false);
+		if (entity.isAudited()) {
+			addDropMandatoryConstraintChangeSet(entity, nextVersionField, true);
+		}
 	}
 	
 	private void buildFieldIndex(Entity entity, EntityField field, EntityField nextVersionField) {
@@ -684,14 +681,17 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 			columnConfig.setType(FieldType.LONG.dataType.name());
 			columnConfig.setConstraints(new ConstraintsConfig().setNullable(Boolean.FALSE));
 			columnConfig.setDefaultValueNumeric(nextVersionObject.getInitialStatus().getId());
-			addChange(createAddColumnChange(nextVersionObject, columnConfig));
+			addChange(createAddColumnChange(nextVersionObject, columnConfig, false));
+			if (nextVersionObject.isAudited()) {
+				addChange(createAddColumnChange(nextVersionObject, columnConfig, true));
+			}
 			buildStatusConstraintAndIndex(nextVersionObject);
 		}
 		else { // remove status field
-			final DropColumnChange dropColumnChange = new DropColumnChange();
-			dropColumnChange.setTableName(nextVersionObject.getEffectiveTableName());
-			dropColumnChange.setColumnName(SystemField.ENTITYSTATUS.columName);
-			addChange(dropColumnChange);
+			addChange(createDropColumnChange(nextVersionObject, SystemField.ENTITYSTATUS, false));
+			if (nextVersionObject.isAudited()) {
+				addChange(createDropColumnChange(nextVersionObject, SystemField.ENTITYSTATUS, true));
+			}
 		}
 	}
 	
@@ -872,8 +872,14 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		return limits.getLimit(limitName);
 	}
 	
+	private static String getTableName(Entity entity, boolean isAudit) {
+		final String tableName = entity.getEffectiveTableName();
+		return isAudit ? tableName.concat(SUFFIX_AUDIT) : tableName;
+	}
+	
 	private static String getPrimaryKeyConstraintName(Entity entity, boolean isAudit) {
-		return PREFIX_PRIMARY_KEY + TinyId.get(entity.getId()) + (isAudit ? SUFFIX_AUDIT : "");
+		final String constraintName = PREFIX_PRIMARY_KEY.concat(TinyId.get(entity.getId()));
+		return isAudit ? constraintName.concat(SUFFIX_AUDIT) : constraintName;
 	}
 	
 	private static String getPrimaryKeyConstraintName(EntityRelation relation) {
@@ -918,14 +924,18 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 			   TinyId.get(entity.getId());
 	}
 	
-	private static AddColumnChange createAddColumnChange(Entity entity, AddColumnConfig columnConfig) {
-		Assert.notNull(entity, C.ENTITY);
-		Assert.notNull(columnConfig, "columnConfig");
-		
+	private static AddColumnChange createAddColumnChange(Entity entity, AddColumnConfig columnConfig, boolean isAuditTable) {
 		final AddColumnChange addColumnChange = new AddColumnChange();
-		addColumnChange.setTableName(entity.getEffectiveTableName());
+		addColumnChange.setTableName(getTableName(entity, isAuditTable));
 		addColumnChange.addColumn(columnConfig);
 		return addColumnChange;
+	}
+	
+	private static DropColumnChange createDropColumnChange(Entity entity, SystemField systemField, boolean isAuditTable) {
+		final DropColumnChange dropColumnChange = new DropColumnChange();
+		dropColumnChange.setTableName(getTableName(entity, isAuditTable));
+		dropColumnChange.setColumnName(systemField.columName);
+		return dropColumnChange;
 	}
 	
 	private static String createColumnNameList(EntityField ...fields) {

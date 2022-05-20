@@ -41,6 +41,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Formula;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 
 import org.seed.C;
 import org.seed.core.application.TransferableObject;
@@ -445,7 +446,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 			}
 			annotations.add(newAnnotation(javax.persistence.Entity.class));
 			if (entity.isAudited()) {
-				annotations.add(newAnnotation(Audited.class));
+				annotations.add(newAnnotation(Audited.class, "targetAuditMode", RelationTargetAuditMode.NOT_AUDITED));
 			}
 		}
 		return annotations.toArray(new AnnotationMetadata[annotations.size()]);

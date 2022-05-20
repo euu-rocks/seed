@@ -4,29 +4,29 @@
             "author": "seed",
             "changes": [
                {
-                  "createSequence": {
-                     "sequenceName": "hibernate_sequence",
-                     "startValue": 1
-                  }
-               },
-               {
                   "createTable": {
-                     "tableName": "revinfo",
+                     "tableName": "sys_revision",
                      "columns": [
                        {
                            "column": {
-                              "name": "rev",
-                              "type": "BIGINT",
+                              "name": "id",
+                              "type": "INT",
                               "constraints": {
                                   "primaryKey": "true",
-                                  "primaryKeyName": "pk_revinfo"
+                                  "primaryKeyName": "pk_sys_revision"
                               }
                            }
                        },
                        {
                            "column": {
-                              "name": "revtstmp",
+                              "name": "revisiontime",
                               "type": "BIGINT"
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "author",
+                              "type": "VARCHAR(<#USERNAME_LEN#>)"
                            }
                        }
                      ]

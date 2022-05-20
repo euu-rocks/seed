@@ -50,6 +50,13 @@
 						   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
 						   	   visible="@load(vm.form.hasPrintouts())"/>
 			</template>
+			<template name="history" var="action">
+				<toolbarbutton label="@init(vm.getActionLabel(action))"
+							   enable="@init(vm.isActionEnabled(action))"
+						   	   onClick="@command('callAction',action=action,elem=self)"
+						   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
+						   	   visible="@load(!vm.object.isNew() and vm.audited and vm.revisions.size() gt 1)"/>
+			</template>
 			<template name="status" var="action">
 				<combobox model="@load(vm.availableStatusList)"
 						  selectedItem="@bind(vm.status)"

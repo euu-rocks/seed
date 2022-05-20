@@ -32,6 +32,8 @@ import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.entity.value.ValueObject;
+import org.seed.core.entity.value.revision.Revision;
+import org.seed.core.entity.value.revision.RevisionService;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormAction;
 import org.seed.core.form.FormFieldExtra;
@@ -48,13 +50,25 @@ import org.zkoss.bind.annotation.ExecutionArgParam;
 import org.zkoss.bind.annotation.Init;
 import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.select.annotation.WireVariable;
 import org.zkoss.zul.ListModel;
 
 public class DetailFormViewModel extends AbstractFormViewModel {
 	
 	private final Map<MultiKey, ListModel<ValueObject>> listModelMap = new ConcurrentHashMap<>();
 	
+	@WireVariable(value="revisionServiceImpl")
+	private RevisionService revisionService;
+	
 	private List<FileObject> fileObjects; // initial file objects
+	
+	public List<Revision> getRevisions() {
+		return revisionService.getRevisions(getForm().getEntity(), getObject().getId());
+	}
+	
+	public boolean isAudited() {
+		return getForm().getEntity().isAudited();
+	}
 	
 	public boolean isFieldVisible(String fieldUid) {
 		final EntityField field = getEntityField(fieldUid);
