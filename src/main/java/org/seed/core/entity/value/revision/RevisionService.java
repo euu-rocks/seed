@@ -17,7 +17,6 @@
  */
 package org.seed.core.entity.value.revision;
 
-import java.util.Date;
 import java.util.List;
 
 import org.seed.core.entity.Entity;
@@ -28,7 +27,5 @@ public interface RevisionService {
 	List<Revision> getRevisions(Entity entity, Long valueId);
 	
 	ValueObject getRevisionObject(Entity entity, Long id, Revision revision);
-	
-	ValueObject getRevisionObject(Entity entity, Long id, Date timestamp);
 	
 }

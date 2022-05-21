@@ -36,6 +36,7 @@ import org.seed.core.entity.value.revision.Revision;
 import org.seed.core.entity.value.revision.RevisionService;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormAction;
+import org.seed.core.form.FormActionType;
 import org.seed.core.form.FormFieldExtra;
 import org.seed.core.form.SubForm;
 import org.seed.core.form.SubFormAction;
@@ -62,12 +63,33 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	
 	private List<FileObject> fileObjects; // initial file objects
 	
+	private List<Revision> revisions;
+	
+	private Revision revision;
+	
+	public Revision getRevision() {
+		return revision;
+	}
+
+	public void setRevision(Revision revision) {
+		this.revision = revision;
+	}
+
 	public List<Revision> getRevisions() {
-		return revisionService.getRevisions(getForm().getEntity(), getObject().getId());
+		if (revisions == null && !getObject().isNew()) {
+			revisions = revisionService.getRevisions(getForm().getEntity(), getObject().getId());
+		}
+		return revisions;
 	}
 	
 	public boolean isAudited() {
 		return getForm().getEntity().isAudited();
+	}
+	
+	public boolean isActionDisabled(FormAction action) {
+		return revision != null && 
+			   action.getType() != FormActionType.OVERVIEW &&
+			   action.getType() != FormActionType.REFRESH;
 	}
 	
 	public boolean isFieldVisible(String fieldUid) {
@@ -310,6 +332,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 					confirm("question.dirty", component, action);
 				}
 				else {
+					revision = null;
 					refreshObject();
 				}
 				break;
@@ -355,6 +378,21 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 								  @BindingParam(C.ELEM) Component component) {
 		callSubFormAction(component, getSubForm(nestedUid), action);
 		flagDirty();
+	}
+	
+	@Command
+	@NotifyChange("isActionEnabled")
+	public void selectRevision() {
+		
+		if (revisions.indexOf(revision) == revisions.size() - 1) {
+			setObject(valueObjectService().getObject(getForm().getEntity(), getObject().getId()));
+			revision = null;
+		}
+		else {
+			setObject(revisionService.getRevisionObject(getForm().getEntity(), getObject().getId(), revision));
+		}
+		initFileObjects();
+		reset();
 	}
 	
 	@Command
@@ -457,6 +495,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	}
 	
 	private void reset() {
+		revisions = null;
 		resetDirty();
 		resetSubForms();
 		resetRelationForms();

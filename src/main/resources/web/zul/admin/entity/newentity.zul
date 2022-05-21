@@ -46,6 +46,7 @@
                 	<cell>
 	                	<combobox model="@init(vm.genericEntities) @template(empty each.name ? 'empty' : 'entity')" 
 	                			  selectedItem="@bind(vm.object.genericEntity)"
+	                			  onSelect="@command('selectGenericEntity')"
 	                			  hflex="1">
 	                		<template name="empty">
 			                    <comboitem/>

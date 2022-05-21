@@ -17,7 +17,6 @@
  */
 package org.seed.core.entity.value.revision;
 
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,16 +59,6 @@ public class RevisionServiceImpl implements RevisionService {
 		try (Session session = sessionProvider.getSession()) {
 			return (ValueObject) createAuditReader(session)
 									.find(getEntityClass(entity), id, revision.getId());
-		}
-	}
-	
-	@Override
-	public ValueObject getRevisionObject(Entity entity, Long id, Date timestamp) {
-		Assert.notNull(id, C.ID);
-		Assert.notNull(timestamp, "timestamp");
-		try (Session session = sessionProvider.getSession()) {
-			return (ValueObject) createAuditReader(session)
-									.find(getEntityClass(entity), id, timestamp);
 		}
 	}
 	

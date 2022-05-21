@@ -94,6 +94,11 @@
 	     <component-class>org.seed.ui.zk.component.SystemFields</component-class>
 	</component>
 	<component>
+		 <component-name>revisioninfo</component-name>
+	     <extends>div</extends>
+	     <component-class>org.seed.ui.zk.component.RevisionInfo</component-class>
+	</component>
+	<component>
 		 <component-name>toolbar</component-name>
 	     <extends>toolbar</extends>
 	     <component-class>org.seed.ui.zk.component.OverflowToolbar</component-class>

@@ -27,20 +27,22 @@
 				<toolbarbutton label="@init(vm.getActionLabel(action))"
 							   enable="@init(vm.isActionEnabled(action))"
 						   	   onClick="@command('callAction',action=action,elem=self)"
-						   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"/>
+						   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
+						   	   disabled="@load(vm.isActionDisabled(action))"/>
 			</template>
 			<template name="dirty" var="action">
 				<toolbarbutton label="@init(vm.getActionLabel(action))"
 							   enable="@init(vm.isActionEnabled(action))"
 						   	   onClick="@command('callAction',action=action,elem=self)"
 						   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
-						   	   disabled="@load(!vm.isDirty())"/>
+						   	   disabled="@load(!vm.isDirty() or vm.isActionDisabled(action))"/>
 			</template>
 			<template name="notnew" var="action">
 				<toolbarbutton label="@init(vm.getActionLabel(action))"
 							   enable="@init(vm.isActionEnabled(action))"
 						   	   onClick="@command('callAction',action=action,elem=self)"
 						   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
+						   	   disabled="@load(vm.isActionDisabled(action))"
 						   	   visible="@load(!vm.object.isNew())"/>
 			</template>
 			<template name="print" var="action">
@@ -48,6 +50,7 @@
 							   enable="@init(vm.isActionEnabled(action))"
 						   	   onClick="@command('callAction',action=action,elem=self)"
 						   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
+						   	   disabled="@load(vm.isActionDisabled(action))"
 						   	   visible="@load(vm.form.hasPrintouts())"/>
 			</template>
 			<template name="history" var="action">
@@ -55,6 +58,7 @@
 							   enable="@init(vm.isActionEnabled(action))"
 						   	   onClick="@command('callAction',action=action,elem=self)"
 						   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
+						   	   disabled="@load(vm.isActionDisabled(action))"
 						   	   visible="@load(!vm.object.isNew() and vm.audited and vm.revisions.size() gt 1)"/>
 			</template>
 			<template name="status" var="action">
@@ -62,7 +66,7 @@
 						  selectedItem="@bind(vm.status)"
 						  onSelect="@command('changeStatus',action=action,elem=self)"
 						  value="@load(vm.status.numberAndName)"
-						  disabled="@load(vm.isDirty())"
+						  disabled="@load(vm.isDirty() or vm.isActionDisabled(action))"
 						  style="padding-left:10px"
 						  nullable="false" readonly="true">
 					<template name="model" var="status">
@@ -76,7 +80,7 @@
 						  selectedItem="@bind(vm.transformer)"
 						  onSelect="@command('callAction',action=action,elem=self)"
 						  value="@load(vm.transformer.name)"
-						  disabled="@load(vm.isDirty())"
+						  disabled="@load(vm.isDirty() or vm.isActionDisabled(action))"
 						  style="padding-left:10px"
 						  placeholder="${labels.label.transformobject}"
 						  nullable="false" readonly="true">
@@ -92,7 +96,37 @@
 		<include id="incLayout"
 				 src="@load(vm.layoutInclude)"/>
 	</center>
+	<east title="${labels.label.versions}" 
+		  visible="@load(!vm.object.isNew() and vm.audited and vm.revisions.size() gt 1)"
+		  width="250px" border="0" collapsible="true" 
+		  open="false" class="alpha-properties">
+		<listbox vflex="true" hflex="true"
+				 model="@load(vm.revisions)" 
+		         selectedItem="@bind(vm.revision)"
+		         onSelect="@command('selectRevision')">
+			<listhead sizable="true">
+	        	<listheader hflex="2" label="${labels.label.timestamp}" 
+	            			sort="auto(revisionDate)" onCreate="self.sort(true)"/> 		
+	            <listheader hflex="1" label="${labels.label.author}" 
+	            			sort="auto(author)"/>
+		 	</listhead>
+		 	<template name="model" var="revision">
+            	<listitem>
+            		<listcell>
+	            		<label value="@load(revision.revisionDate)
+	            					  @converter(vm.dateTimeConverter)" style="margin-left:3px"/>
+	            	</listcell>
+	            	<listcell>
+	            		<label value="@load(revision.author)" style="margin-left:3px"/>
+	            	</listcell>
+            	</listitem>
+            </template>       
+		</listbox>
+	</east>
 	<south border="0">
-		<systemfields object="@load(vm.object)"/>
+		<div>
+			<systemfields object="@load(vm.object)" visible="@load(empty vm.revision)"/>
+			<revisioninfo revision="@load(vm.revision)" visible="@load(!empty vm.revision)"/>
+		</div>
 	</south>
 </borderlayout>

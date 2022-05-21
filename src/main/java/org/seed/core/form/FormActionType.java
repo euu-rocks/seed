@@ -37,8 +37,7 @@ public enum FormActionType {
 	STATUS		(true,  false, true,  true,  false, Template.STATUS,	Template.STATUS,	null),
 	TRANSFORM	(true,  false, true,  true,  false, Template.TRANSFORM, Template.TRANSFORM, null),
 	SELECTCOLS	(true,	false, true,  false, false, null,		 		null,		  		"z-icon-columns"),
-	EXPORTLIST	(false, true,  true,  false, false, null,				null,				"z-icon-download"),
-	HISTORY		(false, true,  false, true,  false, null,				Template.HISTORY,   "z-icon-history");
+	EXPORTLIST	(false, true,  true,  false, false, null,				null,				"z-icon-download");
 	
 	// if true, action is always present and can't be deseleted 
 	public final boolean isDefault;

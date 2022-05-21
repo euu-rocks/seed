@@ -32,6 +32,7 @@ abstract class ComponentUtils {
 	static final String STYLE_MANDATORY = "border:1px solid #FF8888;border-radius:3px";
 	
 	static final String CLASS_MANDATORY = "alpha-mandatory";
+	static final String CLASS_FOOTER	= "alpha-status-footer";
 	
 	static final String ICON_CIRCLE 	= "z-icon-circle alpha-icon-lg";
 	
@@ -39,6 +40,10 @@ abstract class ComponentUtils {
 	static final String STYLE_WARNIUNG 	= "color:orange;cursor:default";
 	static final String STYLE_ERROR 	= "color:red;cursor:default";
 	static final String STYLE_UNDEFINED = "color:lightgrey;cursor:default";
+	
+	static final String LABEL_SUFFIX	= ": ";
+	static final String LABEL_CREATEDON = "data.systemfield.createdon";
+	static final String LABEL_BY		= "label.by";
 	
 	private ComponentUtils() {}
 	

@@ -25,7 +25,9 @@ class DefaultRevisionListener implements RevisionListener {
 
 	@Override
 	public void newRevision(Object revisionEntity) {
-		((RevisionEntity) revisionEntity).setAuthor(MiscUtils.geUserName());
+		if (revisionEntity instanceof RevisionEntity) {
+			((RevisionEntity) revisionEntity).setAuthor(MiscUtils.geUserName());
+		}
 	}
 
 }

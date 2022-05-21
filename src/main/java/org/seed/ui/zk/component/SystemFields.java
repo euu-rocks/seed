@@ -28,26 +28,21 @@ import org.zkoss.zul.Label;
 @SuppressWarnings("serial")
 public class SystemFields extends Div {
 	
-	private static final String CSS_CLASS		 = "alpha-status-footer";
-	private static final String LABEL_SUFFIX     = ": ";
 	private static final String LABEL_PROGRESS   = "...";
-	private static final String LABEL_BY         = "label.by";
 	private static final String LABEL_INCREATION = "label.increation";
-	private static final String LABEL_CREATEDON  = "data.systemfield.createdon";
 	private static final String LABEL_MODIFIEDON = "data.systemfield.modifiedon";
 	
 	private final Label labelCreated = new Label();
 	private final Label labelModified = new Label();
 	
 	public SystemFields() {
-		setClass(CSS_CLASS);
+		setClass(CLASS_FOOTER);
 		appendChild(labelCreated);
 		appendChild(space());
 		appendChild(labelModified);
 	}
 
 	public void setObject(SystemObject object) {
-		setVisible(object != null);
 		if (object != null) {
 			// creation info
 			if (object.isNew()) {

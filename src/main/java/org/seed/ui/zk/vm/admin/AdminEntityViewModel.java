@@ -812,6 +812,14 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
+	public void selectGenericEntity() {
+		if (getObject().getGenericEntity() != null) {
+			((EntityMetadata)getObject()).setAudited(false);
+			notifyObjectChange("audited");
+		}
+	}
+	
+	@Command
 	public void selectConstraintField() {
 		if (fieldConstraint.getFieldGroup() != null) {
 			fieldConstraint.setFieldGroup(null);
