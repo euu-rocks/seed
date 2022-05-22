@@ -76,7 +76,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	}
 
 	public List<Revision> getRevisions() {
-		if (revisions == null && !getObject().isNew()) {
+		if (revisions == null && isAudited() && !getObject().isNew()) {
 			revisions = revisionService.getRevisions(getForm().getEntity(), getObject().getId());
 		}
 		return revisions;
@@ -89,6 +89,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	public boolean isActionDisabled(FormAction action) {
 		return revision != null && 
 			   action.getType() != FormActionType.OVERVIEW &&
+			   action.getType() != FormActionType.NEWOBJECT &&
 			   action.getType() != FormActionType.REFRESH;
 	}
 	
@@ -103,6 +104,9 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	}
 	
 	public boolean isFieldReadonly(String fieldUid) {
+		if (revision != null) {
+			return true;
+		}
 		final EntityField field = getEntityField(fieldUid);
 		return getForm().isFieldReadonly(field, getStatus(), getUser());
 	}
@@ -381,9 +385,8 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	}
 	
 	@Command
-	@NotifyChange("isActionEnabled")
 	public void selectRevision() {
-		
+		// current version
 		if (revisions.indexOf(revision) == revisions.size() - 1) {
 			setObject(valueObjectService().getObject(getForm().getEntity(), getObject().getId()));
 			revision = null;
@@ -462,6 +465,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	private void newObject() {
 		setObject(valueObjectService().createInstance(getForm().getEntity()));
 		initFileObjects();
+		revision = null;
 		reset();
 		flagDirty(); // new object is always dirty
 	}
@@ -469,6 +473,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	private void refreshObject() {
 		valueObjectService().reloadObject(getObject());
 		initFileObjects();
+		revision = null;
 		reset();
 	}
 	
@@ -479,6 +484,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 			deletedFileObjects.removeAll(valueObjectService().getFileObjects(getObject()));
 			valueObjectService().saveObject(getObject(), deletedFileObjects);
 			initFileObjects();
+			revision = null;
 			reset();
 		}
 		catch (ValidationException vex) {

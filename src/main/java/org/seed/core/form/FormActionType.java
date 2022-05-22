@@ -108,8 +108,7 @@ public enum FormActionType {
 		SEARCH,
 		SELECT,
 		STATUS,
-		TRANSFORM,
-		HISTORY;
+		TRANSFORM;
 		
 		private String getName() {
 			return name().toLowerCase();

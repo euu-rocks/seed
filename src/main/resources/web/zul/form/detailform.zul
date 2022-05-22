@@ -53,14 +53,6 @@
 						   	   disabled="@load(vm.isActionDisabled(action))"
 						   	   visible="@load(vm.form.hasPrintouts())"/>
 			</template>
-			<template name="history" var="action">
-				<toolbarbutton label="@init(vm.getActionLabel(action))"
-							   enable="@init(vm.isActionEnabled(action))"
-						   	   onClick="@command('callAction',action=action,elem=self)"
-						   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
-						   	   disabled="@load(vm.isActionDisabled(action))"
-						   	   visible="@load(!vm.object.isNew() and vm.audited and vm.revisions.size() gt 1)"/>
-			</template>
 			<template name="status" var="action">
 				<combobox model="@load(vm.availableStatusList)"
 						  selectedItem="@bind(vm.status)"
@@ -99,11 +91,11 @@
 	<east title="${labels.label.versions}" 
 		  visible="@load(!vm.object.isNew() and vm.audited and vm.revisions.size() gt 1)"
 		  width="250px" border="0" collapsible="true" 
-		  open="false" class="alpha-properties">
-		<listbox vflex="true" hflex="true"
-				 model="@load(vm.revisions)" 
+		  open="false" autoscroll="true" class="alpha-properties">
+		<listbox model="@load(vm.revisions)" 
 		         selectedItem="@bind(vm.revision)"
-		         onSelect="@command('selectRevision')">
+		         onSelect="@command('selectRevision')"
+		         vflex="true" hflex="true">
 			<listhead sizable="true">
 	        	<listheader hflex="2" label="${labels.label.timestamp}" 
 	            			sort="auto(revisionDate)" onCreate="self.sort(true)"/> 		

@@ -27,8 +27,11 @@ import org.hibernate.envers.AuditReaderFactory;
 import org.seed.C;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.config.SessionProvider;
+import org.seed.core.data.FieldType;
 import org.seed.core.entity.Entity;
+import org.seed.core.entity.EntityField;
 import org.seed.core.entity.value.ValueObject;
+import org.seed.core.entity.value.ValueObjectAccess;
 import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +39,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class RevisionServiceImpl implements RevisionService {
+	
+	@Autowired
+	private ValueObjectAccess valueObjectAccess;
 	
 	@Autowired
 	private SessionProvider sessionProvider;
@@ -57,8 +63,16 @@ public class RevisionServiceImpl implements RevisionService {
 		Assert.notNull(id, C.ID);
 		Assert.notNull(revision, "revision");
 		try (Session session = sessionProvider.getSession()) {
-			return (ValueObject) createAuditReader(session)
-									.find(getEntityClass(entity), id, revision.getId());
+			final ValueObject object = (ValueObject) createAuditReader(session)
+					.find(getEntityClass(entity), id, revision.getId());
+			// load all references in this session to avoid lazy load issues
+			for (EntityField referenceField : entity.getAllFieldsByType(FieldType.REFERENCE)) {
+				final Object reference = valueObjectAccess.getValue(object, referenceField);
+				if (reference != null) {
+					reference.toString(); // to really load reference object
+				}
+			}
+			return object;
 		}
 	}
 	
