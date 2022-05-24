@@ -38,6 +38,7 @@ import org.seed.core.application.TransferableObject;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.SystemField;
 import org.seed.core.entity.EntityField;
+import org.seed.core.entity.value.ValueObject;
 import org.seed.core.util.Assert;
 import org.seed.core.util.ReferenceJsonSerializer;
 
@@ -94,6 +95,10 @@ public class FilterCriterion extends AbstractTransferableObject {
 	@Transient
 	@JsonIgnore
 	private TransferableObject reference;
+	
+	@Transient
+	@JsonIgnore
+	private ValueObject valueObject;
 	
 	@XmlAttribute
 	public String getEntityFieldUid() {
@@ -320,7 +325,13 @@ public class FilterCriterion extends AbstractTransferableObject {
 				return dateTimeValue;
 				
 			case REFERENCE:
-				return reference != null ? reference.getId() : null;
+				if (reference != null) {
+					return reference.getId();
+				}
+				if (valueObject != null) {
+					return valueObject;
+				}
+				return null;
 				
 			default:
 				throw new UnsupportedOperationException(fieldType.name());
@@ -376,6 +387,9 @@ public class FilterCriterion extends AbstractTransferableObject {
 				if (value instanceof TransferableObject) {
 					referenceUid = ((TransferableObject) value).getUid();
 				}
+				else if (value instanceof ValueObject) {
+					valueObject = (ValueObject) value; 
+				}
 				else {
 					referenceUid = (String) value;
 				}
@@ -419,6 +433,7 @@ public class FilterCriterion extends AbstractTransferableObject {
 		dateTimeValue = null;
 		referenceUid = null;
 		this.reference = null;
+		this.valueObject = null;
 		
 		// set value again
 		if (needsValue()) {

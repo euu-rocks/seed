@@ -89,8 +89,8 @@
 				 src="@load(vm.layoutInclude)"/>
 	</center>
 	<east title="${labels.label.versions}" 
-		  visible="@load(!vm.object.isNew() and vm.audited and vm.revisions.size() gt 1)"
-		  width="250px" border="0" collapsible="true" 
+		  visible="@load(vm.audited)"
+		  width="250px" border="0" collapsible="true" splittable="true"
 		  open="false" autoscroll="true" class="alpha-properties">
 		<listbox model="@load(vm.revisions)" 
 		         selectedItem="@bind(vm.revision)"

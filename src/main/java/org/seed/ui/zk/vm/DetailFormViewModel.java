@@ -394,6 +394,9 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 		else {
 			setObject(revisionService.getRevisionObject(getForm().getEntity(), getObject().getId(), revision));
 		}
+		if (hasStatus()) {
+			setStatus(getObject().getEntityStatus());
+		}
 		initFileObjects();
 		reset();
 	}
@@ -441,7 +444,8 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 					}
 				}
 				setStatus(getObject().getEntityStatus());
-				notifyChange(C.STATUS, "availableStatusList", "transformers", 
+				revisions = null;
+				notifyChange(C.STATUS, "availableStatusList", "transformers", "revisions",
 							 "isFieldReadonly", "isFieldVisible", "getReferenceValues");
 				break;
 				

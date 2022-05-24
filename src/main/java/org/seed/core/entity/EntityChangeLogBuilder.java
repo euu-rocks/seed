@@ -279,16 +279,8 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		
 		addChange(createTableChange);
 		
-		// field constraints and index
-		if (entity.hasAllFields()) {
-			for (EntityField field : entity.getAllFields()) {
-				if (field.getType().isReference() || field.getType().isFile() || field.isIndexed()) {
-					addFieldConstraintsAndIndex(entity, field);
-				}
-			}
-		}
-		if (entity.hasStatus()) {
-			buildStatusConstraintAndIndex(entity);
+		if (!isAuditTable) {
+			buildFieldConstraintsAndIndexChanges(entity);
 		}
 	}
 	
@@ -300,7 +292,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		
 		columns.add(createColumn(SystemField.ID).setConstraints(pkConfig));
 		if (isAuditTable) {
-			columns.add(createColumn("rev", FieldType.LONG, null).setConstraints(pkConfig));
+			columns.add(createColumn("rev", FieldType.INTEGER, null).setConstraints(pkConfig));
 			columns.add(createColumn("revtype", FieldType.INTEGER, null)
 							.setConstraints(new ConstraintsConfig()
 							.setNullable(Boolean.FALSE)));
@@ -673,17 +665,33 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		}
 	}
 	
+	private void buildFieldConstraintsAndIndexChanges(Entity entity) {
+		if (entity.hasAllFields()) {
+			for (EntityField field : entity.getAllFields()) {
+				if (field.getType().isReference() || field.getType().isFile() || field.isIndexed()) {
+					addFieldConstraintsAndIndex(entity, field);
+				}
+			}
+		}
+		if (entity.hasStatus()) {
+			buildStatusConstraintAndIndex(entity);
+		}
+	}
+	
 	private void buildStatusFieldChange() {
 		// add status field
 		if (nextVersionObject.hasStatus()) {
 			final AddColumnConfig columnConfig = new AddColumnConfig();
-			columnConfig.setName(SystemField.ENTITYSTATUS.columName);
-			columnConfig.setType(FieldType.LONG.dataType.name());
-			columnConfig.setConstraints(new ConstraintsConfig().setNullable(Boolean.FALSE));
-			columnConfig.setDefaultValueNumeric(nextVersionObject.getInitialStatus().getId());
+			columnConfig.setName(SystemField.ENTITYSTATUS.columName)
+						.setType(getDBFieldType(SystemField.ENTITYSTATUS.type, null))
+						.setConstraints(new ConstraintsConfig().setNullable(Boolean.FALSE))
+						.setDefaultValueNumeric(nextVersionObject.getInitialStatus().getId());
 			addChange(createAddColumnChange(nextVersionObject, columnConfig, false));
 			if (nextVersionObject.isAudited()) {
-				addChange(createAddColumnChange(nextVersionObject, columnConfig, true));
+				final AddColumnConfig auditColumnConfig = new AddColumnConfig();
+				auditColumnConfig.setName(SystemField.ENTITYSTATUS.columName)
+								 .setType(getDBFieldType(SystemField.ENTITYSTATUS.type, null));
+				addChange(createAddColumnChange(nextVersionObject, auditColumnConfig, true));
 			}
 			buildStatusConstraintAndIndex(nextVersionObject);
 		}

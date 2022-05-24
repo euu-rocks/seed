@@ -87,6 +87,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	private static final String TRANSITIONFUNCTIONS = "transitionFunctions";
 	private static final String TRANSITIONPERMISSIONS = "transitionPermissions";
 	private static final String PERMISSIONS = "permissions";
+	private static final String AUDITED = "audited";
 	
 	private final List<Long> mandatoryFieldIds = new ArrayList<>();
 	
@@ -184,7 +185,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 		}
 		getFilter(FILTERGROUP_LIST, C.GENERIC).setBooleanFilter(true);
 		getFilter(FILTERGROUP_LIST, C.TRANSFERABLE).setBooleanFilter(true);
-		getFilter(FILTERGROUP_LIST, "audited").setBooleanFilter(true);
+		getFilter(FILTERGROUP_LIST, AUDITED).setBooleanFilter(true);
 	}
 	
 	public boolean existGenericEntities() {
@@ -767,7 +768,6 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 					getOptions().setMenu(null);
 					entityMeta.setTransferable(false);
 					entityMeta.setGeneric(false);
-					entityMeta.setAudited(false);
 					entityMeta.setGenericEntity(null);
 					entityMeta.setModule(null);
 				}
@@ -783,13 +783,12 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 				}
 				break;
 				
-			case "audited":
+			case AUDITED:
 				if (getObject().isAudited()) {
 					entityMeta.setGeneric(false);
 					entityMeta.setTransferable(false);
 					entityMeta.setGenericEntity(null);
 					entityMeta.setParentEntity(null);
-					isNestedEntity = false;
 				}
 				break;
 				
@@ -815,7 +814,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	public void selectGenericEntity() {
 		if (getObject().getGenericEntity() != null) {
 			((EntityMetadata)getObject()).setAudited(false);
-			notifyObjectChange("audited");
+			notifyObjectChange(AUDITED);
 		}
 	}
 	
