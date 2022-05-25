@@ -604,6 +604,11 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		referenceField.setReferenceEntity(parent);
 		referenceField.setMandatory(true);
 		entity.addField(referenceField);
+		
+		// set audited if parent is audited
+		if (parent.isAudited()) {
+			((EntityMetadata) entity).setAudited(true);
+		}
 	}
 	
 	@Override

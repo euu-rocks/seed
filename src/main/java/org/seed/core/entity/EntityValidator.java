@@ -61,9 +61,12 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		// name
 		validateName(entity, errors);
 		
-		// validate ref field to parent (nested entity insert) 
+		// parent dependencies
 		if (entity.isNew()) {
-			validateFieldToParent(entity, errors);
+			validateParentCreate(entity, errors);
+		}
+		else {
+			validateParentEdit(entity, errors);
 		}
 		
 		// identifier
@@ -315,10 +318,26 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		}
 	}
 	
-	private void validateFieldToParent(Entity entity, final ValidationErrors errors) {
-		final Entity parentEntity = ((EntityMetadata) entity).getParentEntity();
-		if (parentEntity != null && entity.getReferenceFields(parentEntity).isEmpty()) {
-			errors.addError("val.missing.fieldtoparent", parentEntity.getName());
+	private void validateParentCreate(Entity entity, final ValidationErrors errors) {
+		final Entity parent = ((EntityMetadata) entity).getParentEntity();
+		if (parent != null) {
+			// ref field to parent
+			if (entity.getReferenceFields(parent).isEmpty()) {
+				errors.addError("val.missing.fieldtoparent", parent.getName());
+			}
+			// audited state
+			if (parent.isAudited() && !entity.isAudited()) {
+				errors.addError("val.illegal.parentaudited", parent.getName());
+			}
+		}
+	}
+	
+	private void validateParentEdit(Entity entity, final ValidationErrors errors) {
+		for (Entity parent : repository.findParentEntities(entity)) {
+			// audited state
+			if (parent.isAudited() && !entity.isAudited()) {
+				errors.addError("val.illegal.parentaudited", parent.getName());
+			}
 		}
 	}
 	
@@ -439,6 +458,9 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 			}
 			if (isEmpty(nested.getNestedEntity())) {
 				errors.addEmptyField("label.nested");
+			}
+			else if (entity.isAudited() && !nested.getNestedEntity().isAudited()) {
+				errors.addError("val.illegal.nestedaudited", nested.getName());
 			}
 			if (isEmpty(nested.getReferenceField())) {
 				errors.addEmptyField("label.reffield");
@@ -579,8 +601,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 									.append("select ").append(formula).append(" from ")
 									.append(entity.getEffectiveTableName());
 		try (Session session = repository.getSession()) {
-			session.createSQLQuery(buf.toString())
-					.setMaxResults(0).list();
+			session.createSQLQuery(buf.toString()).setMaxResults(0).list();
 			return true;
 		}
 		catch (Exception ex) {

@@ -17,9 +17,14 @@
  */
 package org.seed.core.entity;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.hibernate.Session;
 
+import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityRepository;
+import org.seed.core.util.Assert;
 
 import org.springframework.stereotype.Repository;
 
@@ -33,6 +38,13 @@ public class EntityRepository extends AbstractSystemEntityRepository<Entity> {
 	@Override
 	public Session getSession() {
 		return super.getSession();
+	}
+	
+	public List<Entity> findParentEntities(Entity entity) {
+		Assert.notNull(entity, C.ENTITY);
+		
+		return find().stream().filter(parent -> parent.isNestedEntity(entity))
+					 .collect(Collectors.toList());
 	}
 	
 }

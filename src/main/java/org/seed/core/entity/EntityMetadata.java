@@ -699,25 +699,22 @@ public class EntityMetadata extends AbstractApplicationEntity
 		return !ObjectUtils.isEmpty(getNesteds());
 	}
 	
+	@Override
 	public boolean isNestedEntity(Entity entity) {
 		Assert.notNull(entity, C.ENTITY);
 		
-		if (hasNesteds()) {
-			return getNesteds().stream()
-					.anyMatch(nested -> nested.getNestedEntity().equals(entity));
-		}
-		return false;
+		return hasNesteds() && 
+			   getNesteds().stream()
+			   			   .anyMatch(nested -> nested.getNestedEntity().equals(entity));
 	}
 	
 	@Override
 	public boolean isRelatedEntity(Entity entity) {
 		Assert.notNull(entity, C.ENTITY);
 		
-		if (hasAllRelations()) {
-			return getAllRelations().stream()
-					.anyMatch(relation -> relation.isRelated(entity));
-		}
-		return false;
+		return hasAllRelations() &&
+				getAllRelations().stream()
+								 .anyMatch(relation -> relation.isRelated(entity));
 	}
 	
 	@Override
