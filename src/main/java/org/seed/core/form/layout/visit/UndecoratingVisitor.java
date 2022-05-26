@@ -295,6 +295,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 					"'callSubFormAction',nestedId='" + subForm.getNestedEntity().getUid() + "',action=action,elem=self", // command
 					"@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"); // icon
 			elemToolbarButton.setAttribute("enable", load("vm.isActionEnabled(action)"));
+			elemToolbarButton.setAttribute(A_DISABLED, load("vm.isActionDisabled(action)"));
 			final LayoutElement elemToolbarButtonSelect = elemToolbarButton.copy();
 			elemToolbarButtonSelect.setAttribute(A_VISIBLE, load("!empty " + selectedSubFormObject(subForm)));
 			elemActionTemplate.addChild(elemToolbarButton);

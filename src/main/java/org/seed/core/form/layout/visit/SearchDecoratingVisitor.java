@@ -81,6 +81,10 @@ public class SearchDecoratingVisitor extends AbstractLayoutVisitor {
 				element.removeAttribute(A_INSTANT);
 				createPopup(element);
 				break;
+				
+			case LayoutElement.TOOLBARBUTTON:
+				element.removeAttribute(A_DISABLED);
+				break;
 			
 			default:
 				// do nothing

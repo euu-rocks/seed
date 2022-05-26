@@ -93,6 +93,10 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 			   action.getType() != FormActionType.REFRESH;
 	}
 	
+	public boolean isActionDisabled(SubFormAction action) {
+		return revision != null;
+	}
+	
 	public boolean isFieldVisible(String fieldUid) {
 		final EntityField field = getEntityField(fieldUid);
 		return getForm().isFieldVisible(field, getStatus(), getUser());
