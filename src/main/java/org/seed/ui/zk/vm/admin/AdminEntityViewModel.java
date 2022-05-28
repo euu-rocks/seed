@@ -755,9 +755,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 					getOptions().setAutoLayout(false);
 					getOptions().setMenu(null);
 					entityMeta.setTransferable(false);
-					entityMeta.setAudited(false);
 					entityMeta.setParentEntity(null);
-					entityMeta.setModule(null);
 					isNestedEntity = false;
 				}
 				break;
@@ -769,26 +767,15 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 					entityMeta.setTransferable(false);
 					entityMeta.setGeneric(false);
 					entityMeta.setGenericEntity(null);
-					entityMeta.setModule(null);
 				}
 				break;
 				
 			case C.TRANSFERABLE:
 				if (getObject().isTransferable()) {
 					entityMeta.setGeneric(false);
-					entityMeta.setAudited(false);
 					entityMeta.setGenericEntity(null);
 					entityMeta.setParentEntity(null);
 					isNestedEntity = false;
-				}
-				break;
-				
-			case AUDITED:
-				if (getObject().isAudited()) {
-					entityMeta.setGeneric(false);
-					entityMeta.setTransferable(false);
-					entityMeta.setGenericEntity(null);
-					entityMeta.setParentEntity(null);
 				}
 				break;
 				
@@ -799,6 +786,9 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 					isNestedEntity = false;
 				}
 				break;
+				
+			case AUDITED:
+				break;	
 			
 			default:
 				throw new UnsupportedOperationException(option);
@@ -808,14 +798,6 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	
 	private FormOptions getOptions() {
 		return (FormOptions) getObject().getOptions();
-	}
-	
-	@Command
-	public void selectGenericEntity() {
-		if (getObject().getGenericEntity() != null) {
-			((EntityMetadata)getObject()).setAudited(false);
-			notifyObjectChange(AUDITED);
-		}
 	}
 	
 	@Command

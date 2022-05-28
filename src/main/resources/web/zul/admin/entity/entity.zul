@@ -58,10 +58,8 @@
 	              	<column hflex="max"/>
 	              	<column hflex="min"/>
 	              	<column hflex="max"/>
-	              	<column visible="@load(!(vm.object.generic or vm.object.transferable) and empty vm.object.genericEntity)"
-	              			hflex="min"/>
-	              	<column visible="@load(!(vm.object.generic or vm.object.transferable) and empty vm.object.genericEntity)"
-	              			hflex="min"/>
+	              	<column hflex="min"/>
+	              	<column hflex="min"/>
 	            </columns>
 				<rows>
 					<row>

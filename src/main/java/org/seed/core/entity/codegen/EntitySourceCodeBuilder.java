@@ -137,7 +137,9 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 		}
 		
 		// entityId
-		buildEntityIdGetter();
+		if (!entity.isGeneric()) {
+			buildEntityIdGetter();
+		}
 		
 		// getters / setters
 		buildGetterAndSetter();
@@ -433,7 +435,10 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	}
 	
 	private static AnnotationMetadata[] getEntityAnnotations(Entity entity) {
-		final List<AnnotationMetadata> annotations = new ArrayList<>(4);
+		final List<AnnotationMetadata> annotations = new ArrayList<>(8);
+		if (entity.isAudited()) {
+			annotations.add(newAnnotation(Audited.class, "targetAuditMode", RelationTargetAuditMode.NOT_AUDITED));
+		}
 		if (entity.isGeneric()) {
 			annotations.add(newAnnotation(MappedSuperclass.class));
 		}
@@ -445,9 +450,6 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 				annotations.add(newAnnotation(Table.class, C.NAME, quote(entity.getTableName())));
 			}
 			annotations.add(newAnnotation(javax.persistence.Entity.class));
-			if (entity.isAudited()) {
-				annotations.add(newAnnotation(Audited.class, "targetAuditMode", RelationTargetAuditMode.NOT_AUDITED));
-			}
 		}
 		return annotations.toArray(new AnnotationMetadata[annotations.size()]);
 	}
