@@ -24,6 +24,7 @@ import javax.persistence.Entity;
 
 import org.seed.C;
 import org.seed.Seed;
+import org.seed.core.data.RevisionField;
 import org.seed.core.data.SystemObjectEventListener;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.entity.value.ValueEntity;
@@ -259,6 +260,8 @@ public class DynamicConfiguration implements UpdatableConfiguration, Integrator 
 		
 		// misc settings
 		settings.put("hibernate.enable_lazy_load_no_trans", C.TRUE);
+		settings.put("org.hibernate.envers.revision_field_name", RevisionField.REV.columName);
+		settings.put("org.hibernate.envers.revision_type_field_name", RevisionField.REVTYPE.columName);
 		return settings;
 	}
 	

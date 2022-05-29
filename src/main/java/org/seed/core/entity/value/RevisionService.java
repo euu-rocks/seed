@@ -15,12 +15,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.entity.value.revision;
+package org.seed.core.entity.value;
 
 import java.util.List;
 
+import org.seed.core.data.Revision;
 import org.seed.core.entity.Entity;
-import org.seed.core.entity.value.ValueObject;
 
 public interface RevisionService {
 

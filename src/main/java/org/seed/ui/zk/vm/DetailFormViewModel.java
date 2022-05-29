@@ -27,13 +27,13 @@ import javax.persistence.OptimisticLockException;
 
 import org.seed.C;
 import org.seed.core.data.FileObject;
+import org.seed.core.data.Revision;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.NestedEntity;
+import org.seed.core.entity.value.RevisionService;
 import org.seed.core.entity.value.ValueObject;
-import org.seed.core.entity.value.revision.Revision;
-import org.seed.core.entity.value.revision.RevisionService;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormAction;
 import org.seed.core.form.FormActionType;

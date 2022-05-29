@@ -15,19 +15,20 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.entity.value.revision;
+package org.seed.core.data;
 
-import org.hibernate.envers.RevisionListener;
-
-import org.seed.core.util.MiscUtils;
-
-class DefaultRevisionListener implements RevisionListener {
-
-	@Override
-	public void newRevision(Object revisionEntity) {
-		if (revisionEntity instanceof RevisionEntity) {
-			((RevisionEntity) revisionEntity).setAuthor(MiscUtils.geUserName());
-		}
+public enum RevisionField {
+	
+	REV		(FieldType.INTEGER, "revision_id"),
+	REVTYPE	(FieldType.INTEGER, "revisiontype");
+	
+	public final FieldType type;
+	
+	public final String columName;
+	
+	private RevisionField(FieldType type, String columName) {
+		this.type = type;
+		this.columName = columName;
 	}
-
+	
 }

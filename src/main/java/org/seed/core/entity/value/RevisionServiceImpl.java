@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.entity.value.revision;
+package org.seed.core.entity.value;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,12 +29,12 @@ import org.seed.C;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.config.SessionProvider;
 import org.seed.core.data.FieldType;
+import org.seed.core.data.Revision;
+import org.seed.core.data.RevisionEntity;
 import org.seed.core.data.SystemField;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.NestedEntity;
-import org.seed.core.entity.value.ValueObject;
-import org.seed.core.entity.value.ValueObjectAccess;
 import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;

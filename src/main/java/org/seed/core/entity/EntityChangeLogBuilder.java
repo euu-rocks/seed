@@ -30,6 +30,8 @@ import org.seed.core.config.changelog.AbstractChangeLogBuilder;
 import org.seed.core.config.changelog.ChangeLog;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.FileObject;
+import org.seed.core.data.RevisionEntity;
+import org.seed.core.data.RevisionField;
 import org.seed.core.data.SystemField;
 import org.seed.core.util.Assert;
 import org.seed.core.util.TinyId;
@@ -62,6 +64,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	private static final String PREFIX_INDEX       = "idx_";
 	private static final String SUFFIX_STATUS      = "_status";
 	private static final String SUFFIX_AUDIT       = "_aud";
+	private static final String SUFFIX_REV         = "_rev";
 	
 	private final EntityUsage entityUsage;
 	
@@ -259,15 +262,12 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		// uid
 		if (!isAuditTable && entity.isTransferable()) {
 			createTableChange.addColumn(createColumn(SystemField.UID, getLimit(Limits.LIMIT_UID_LENGTH))
-											.setConstraints(new ConstraintsConfig()
-												.setNullable(Boolean.FALSE)
-												.setUnique(Boolean.TRUE)));
+											.setConstraints(notNullConstraint().setUnique(Boolean.TRUE)));
 		}
 		// status
 		if (entity.hasStatus()) {
 			createTableChange.addColumn(createColumn(SystemField.ENTITYSTATUS)
-											.setConstraints(new ConstraintsConfig()
-											.setNullable(Boolean.FALSE)));
+											.setConstraints(notNullConstraint()));
 		}
 		// fields
 		if (entity.hasAllFields()) {
@@ -279,7 +279,10 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		
 		addChange(createTableChange);
 		
-		if (!isAuditTable) {
+		if (isAuditTable) {
+			buildRevisionFieldConstraint(entity);
+		}
+		else {
 			buildFieldConstraintsAndIndexChanges(entity);
 		}
 	}
@@ -292,15 +295,14 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		
 		columns.add(createColumn(SystemField.ID).setConstraints(pkConfig));
 		if (isAuditTable) {
-			columns.add(createColumn("rev", FieldType.INTEGER, null).setConstraints(pkConfig));
-			columns.add(createColumn("revtype", FieldType.INTEGER, null)
-							.setConstraints(new ConstraintsConfig()
-							.setNullable(Boolean.FALSE)));
+			columns.add(createColumn(RevisionField.REV)
+							.setConstraints(pkConfig));
+			columns.add(createColumn(RevisionField.REVTYPE)
+							.setConstraints(notNullConstraint()));
 		}
 		else {
 			columns.add(createColumn(SystemField.VERSION)
-							.setConstraints(new ConstraintsConfig()
-							.setNullable(Boolean.FALSE)));
+							.setConstraints(notNullConstraint()));
 			columns.add(createColumn(SystemField.CREATEDON));
 			columns.add(createColumn(SystemField.CREATEDBY, getLimit(Limits.LIMIT_USER_LENGTH)));
 			columns.add(createColumn(SystemField.MODIFIEDON));
@@ -651,6 +653,16 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		}
 	}
 	
+	private void buildRevisionFieldConstraint(Entity entity) {
+		final AddForeignKeyConstraintChange addFKConstraintChange = new AddForeignKeyConstraintChange();
+		addFKConstraintChange.setConstraintName(getRevisionForeignKeyConstraintName(entity));
+		addFKConstraintChange.setBaseTableName(entity.getEffectiveTableName().concat(SUFFIX_AUDIT));
+		addFKConstraintChange.setBaseColumnNames(RevisionField.REV.columName);
+		addFKConstraintChange.setReferencedTableName(RevisionEntity.class.getAnnotation(Table.class).name());
+		addFKConstraintChange.setReferencedColumnNames(SystemField.ID.columName);
+		addChange(addFKConstraintChange);
+	}
+	
 	private void buildFieldConstraintsAndIndexChanges(Entity entity) {
 		if (entity.hasAllFields()) {
 			for (EntityField field : entity.getAllFields()) {
@@ -670,7 +682,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 			final AddColumnConfig columnConfig = new AddColumnConfig();
 			columnConfig.setName(SystemField.ENTITYSTATUS.columName)
 						.setType(getDBFieldType(SystemField.ENTITYSTATUS.type, null))
-						.setConstraints(new ConstraintsConfig().setNullable(Boolean.FALSE))
+						.setConstraints(notNullConstraint())
 						.setDefaultValueNumeric(nextVersionObject.getInitialStatus().getId());
 			addChange(createAddColumnChange(nextVersionObject, columnConfig, false));
 			if (nextVersionObject.isAudited()) {
@@ -706,6 +718,12 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		Assert.notNull(systemField, "system field");
 		
 		return createColumn(systemField.columName, systemField.type, length);
+	}
+	
+	private ColumnConfig createColumn(RevisionField revisionField) {
+		Assert.notNull(revisionField, "revision field");
+		
+		return createColumn(revisionField.columName, revisionField.type, null);
 	}
 	
 	private ColumnConfig createColumn(String name, FieldType fieldType, Integer length) {
@@ -892,6 +910,10 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		return PREFIX_FOREIGN_KEY + getConstraintKey(entity, field);
 	}
 	
+	private static String getRevisionForeignKeyConstraintName(Entity entity) {
+		return PREFIX_FOREIGN_KEY + TinyId.get(entity.getId()) + SUFFIX_REV;
+	}
+	
 	private static String getJoinColumnForeignKeyConstraintName(EntityRelation relation) {
 		return PREFIX_FOREIGN_KEY + getConstraintKey(relation, relation.getEntity());
 	}
@@ -910,6 +932,10 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	
 	private static String getStatusIndexName(Entity entity) {
 		return PREFIX_INDEX + TinyId.get(entity.getId()) + SUFFIX_STATUS;
+	}
+	
+	private static ConstraintsConfig notNullConstraint() {
+		return new ConstraintsConfig().setNullable(Boolean.FALSE);
 	}
 	
 	private static String getConstraintKey(Entity entity, EntityField field) {

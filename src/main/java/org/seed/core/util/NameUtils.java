@@ -37,7 +37,7 @@ public abstract class NameUtils {
 	private static final String[] ILLEGAL_FIELDNAMES = {
 
 		"createdby", "createdon", "entityid", "entitystatus", "id", "lastmodified", 
-		"modifiedby", "modifiedon", "rev", "revtype", "status_id", "uid", "version"
+		"modifiedby", "modifiedon", "revision_id", "revisiontype", "status_id", "uid", "version"
     };
 	
 	private static final String[] TRUE_VALUES = {
