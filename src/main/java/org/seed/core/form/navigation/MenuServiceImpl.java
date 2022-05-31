@@ -90,7 +90,7 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 	
 	@Override
 	public boolean existCustomMenus() {
-		return !findCustomMenusWithoutModule().isEmpty();
+		return !getCustomTopLevelMenus().isEmpty();
 	}
 	
 	@Override

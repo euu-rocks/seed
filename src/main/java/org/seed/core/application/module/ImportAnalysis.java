@@ -22,9 +22,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.seed.C;
-import org.seed.core.application.ApplicationEntity;
 import org.seed.core.customcode.CustomCode;
 import org.seed.core.customcode.CustomLib;
+import org.seed.core.data.SystemEntity;
 import org.seed.core.data.datasource.IDataSource;
 import org.seed.core.data.dbobject.DBObject;
 import org.seed.core.entity.Entity;
@@ -55,19 +55,19 @@ public class ImportAnalysis {
 		return module;
 	}
 
-	public void addChangeNew(ApplicationEntity entity) {
+	public void addChangeNew(SystemEntity entity) {
 		Assert.notNull(entity, C.ENTITY);
 		
 		addChange(ChangeType.NEW, entity);
 	}
 	
-	public void addChangeModify(ApplicationEntity entity) {
+	public void addChangeModify(SystemEntity entity) {
 		Assert.notNull(entity, C.ENTITY);
 		
 		addChange(ChangeType.MODIFY, entity);
 	}
 	
-	public void addChangeDelete(ApplicationEntity entity) {
+	public void addChangeDelete(SystemEntity entity) {
 		Assert.notNull(entity, C.ENTITY);
 		
 		addChange(ChangeType.DELETE, entity);
@@ -91,6 +91,10 @@ public class ImportAnalysis {
 	
 	public long getNumDeleteChanges() {
 		return countChanges(ChangeType.DELETE);
+	}
+	
+	public List<Change> getParameterChanges() {
+		return getChanges(ModuleParameter.class);
 	}
 	
 	public List<Change> getDBObjectChanges() {
@@ -149,7 +153,7 @@ public class ImportAnalysis {
 		return getChanges(UserGroup.class);
 	}
 	
-	private void addChange(ChangeType type, ApplicationEntity entity) {
+	private void addChange(ChangeType type, SystemEntity entity) {
 		changes.add(new Change(type, entity));
 	}
 	
@@ -159,7 +163,7 @@ public class ImportAnalysis {
 				      .count();
 	}
 	
-	private List<Change> getChanges(Class<? extends ApplicationEntity> entityClass) {
+	private List<Change> getChanges(Class<? extends SystemEntity> entityClass) {
 		return changes.stream()
 					  .filter(change -> entityClass.isAssignableFrom(change.getEntity().getClass()))
 					  .collect(Collectors.toList());
@@ -177,9 +181,9 @@ public class ImportAnalysis {
 		
 		private final ChangeType type;
 		
-		private final ApplicationEntity entity;
+		private final SystemEntity entity;
 
-		private Change(ChangeType type, ApplicationEntity entity) {
+		private Change(ChangeType type, SystemEntity entity) {
 			this.type = type;
 			this.entity = entity;
 		}
@@ -188,7 +192,7 @@ public class ImportAnalysis {
 			return type;
 		}
 
-		public ApplicationEntity getEntity() {
+		public SystemEntity getEntity() {
 			return entity;
 		}
 		

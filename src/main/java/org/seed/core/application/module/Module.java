@@ -83,6 +83,8 @@ public interface Module extends SystemEntity, TransferableObject {
 	
 	String getFileName();
 	
+	ModuleParameter getParameterByUid(String parameterUid);
+	
 	Entity getEntityByUid(String entityUid);
 	
 	Filter getFilterByUid(String filterUid);

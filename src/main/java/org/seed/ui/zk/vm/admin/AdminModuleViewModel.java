@@ -299,7 +299,14 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	@Command
 	public void analyzeModule(@BindingParam(C.ELEM) Component elem,
 			 				  @ContextParam(ContextType.TRIGGER_EVENT) UploadEvent event) {
-		analyzeModule(moduleService.readModule(getMediaStream(event.getMedia())), elem);
+		final Module module = moduleService.readModule(getMediaStream(event.getMedia()));
+		if (module != null) {
+			analyzeModule(module, elem);
+		}
+		else {
+			showValidationErrors(elem, "admin.transfer.importfail", 
+							     Collections.singleton(new ValidationError("admin.module.illegalformat")));
+		}
 	}
 	
 	@Command

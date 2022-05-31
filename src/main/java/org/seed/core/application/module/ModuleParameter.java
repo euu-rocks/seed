@@ -25,8 +25,10 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import org.seed.core.application.TransferableObject;
 import org.seed.core.data.AbstractSystemEntity;
 
@@ -71,6 +73,21 @@ public class ModuleParameter extends AbstractSystemEntity
 
 	public void setValue(String value) {
 		this.value = value;
+	}
+	
+	@Override
+	public boolean isEqual(Object other) {
+		if (other == null || !ModuleParameter.class.isAssignableFrom(other.getClass())) {
+			return false;
+		}
+		if (other == this) {
+			return true;
+		}
+		final ModuleParameter otherParameter = (ModuleParameter) other;
+		return new EqualsBuilder()
+				.append(getName(), otherParameter.getName())
+				.append(getValue(), otherParameter.getValue())
+				.isEquals();
 	}
 	
 }

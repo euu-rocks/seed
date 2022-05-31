@@ -92,45 +92,59 @@ public class ModuleMetadata extends AbstractSystemEntity
 	private List<ModuleParameter> parameters;
 	
 	@OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private List<EntityMetadata> entities;
 	
 	@OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private List<FilterMetadata> filters;
 	
 	@OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private List<TransformerMetadata> transformers;
 	
 	@OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private List<TransferMetadata> transfers;
 	
 	@OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private List<FormMetadata> forms;
 	
 	@OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private List<MenuMetadata> menus;
 	
 	@OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private List<TaskMetadata> tasks;
 	
 	@OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private List<UserGroupMetadata> userGroups;
 	
 	@OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private List<DBObjectMetadata> dbObjects;
 	
 	@OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private List<DataSourceMetadata> dataSources;
 	
 	@OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private List<ReportMetadata> reports;
 	
 	@OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private List<CustomCodeMetadata> customCodes;
 	
 	@OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private List<CustomLibMetadata> customLibs;
 	
 	@OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private List<RestMetadata> rests;
 	
 	private String uid;
@@ -467,6 +481,13 @@ public class ModuleMetadata extends AbstractSystemEntity
 		return mapTransferContent != null
 				? mapTransferContent.get(entity.getUid())
 				: null;
+	}
+	
+	@Override
+	public ModuleParameter getParameterByUid(String parameterUid) {
+		Assert.notNull(parameterUid, "parameterUid");
+		
+		return getObjectByUid(getParameters(), parameterUid);
 	}
 	
 	@Override

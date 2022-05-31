@@ -151,7 +151,6 @@ public class ModuleTransfer {
 				// ignore other entries
 			}
 		}
-		Assert.stateAvailable(module, MODULE_XML_FILENAME);
 		if (module != null) {
 			initModuleContent(module, mapJars, mapTransferContents);
 		}
@@ -239,6 +238,26 @@ public class ModuleTransfer {
 		final ImportAnalysis analysis = new ImportAnalysis(module);
 		final Module currentVersionModule = getCurrentVersionModule(module);
 		
+		// module parameters
+		if (module.hasParameters()) {
+			for (ModuleParameter parameter : module.getParameters()) {
+				if (currentVersionModule == null) {
+					analysis.addChangeNew(parameter);
+				}
+				else {
+					final ModuleParameter currentVersionParameter =
+						currentVersionModule.getParameterByUid(parameter.getUid());
+					if (currentVersionParameter == null) {
+						analysis.addChangeNew(parameter);
+					}
+					else if (!parameter.isEqual(currentVersionParameter)) {
+						analysis.addChangeModify(parameter);
+					}
+				}
+			}
+		}
+		
+		// module objects
 		sortedServices.forEach(service -> service.analyzeObjects(analysis, currentVersionModule));
 		return analysis;
 	}
@@ -258,6 +277,11 @@ public class ModuleTransfer {
 					deleteObjects(session, module, currentVersionModule);
 					((ModuleMetadata) currentVersionModule).copySystemFieldsTo(module);
 					session.detach(currentVersionModule);
+				}
+				
+				// parameters
+				if (module.hasParameters()) {
+					importModuleParameters(module, currentVersionModule);
 				}
 				
 				// module schema version
@@ -298,6 +322,18 @@ public class ModuleTransfer {
 		}
 		
 		importModuleContent(module);
+	}
+	
+	private void importModuleParameters(Module module, Module currentVersionModule) {
+		for (ModuleParameter parameter : module.getParameters()) {
+			parameter.setModule(module);
+			if (currentVersionModule != null) {
+				final ModuleParameter currentVersionParam = currentVersionModule.getParameterByUid(parameter.getUid());
+				if (currentVersionParam != null) {
+					currentVersionParam.copySystemFieldsTo(parameter);
+				}
+			}
+		}
 	}
 	
 	private void importModuleContent(Module module) {

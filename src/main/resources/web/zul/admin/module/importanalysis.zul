@@ -28,6 +28,8 @@
 			<tabbox id="mainTabbox" hflex="1" vflex="1" class="alpha-tabbox">
 				<tabs>
 					<tab label="${labels.label.overview}"/>
+					<tab id="tabParameters" label="${labels.label.parameters}"
+						 visible="@init(!empty vm.importAnalysis.parameterChanges)"/>
 					<tab id="tabEntities" label="${labels.label.entities}"
 						 visible="@init(!empty vm.importAnalysis.entityChanges)"/>
 					<tab id="tabFilter" label="${labels.label.filter}"
@@ -104,6 +106,27 @@
 				            </rows>
 				        </grid>
 				    </tabpanel>
+				    <tabpanel fulfill="tabParameters.onSelect">
+						<listbox mold="paging" autopaging="true" 
+				 				 model="@init(vm.importAnalysis.parameterChanges)"
+				 				 class="alpha-noborder"
+		         				 hflex="1" vflex="1">
+		         			<listhead sizable="true">
+					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.parameter}" hflex="max"/>
+					        </listhead>
+					        <template name="model" var="change">
+					        	<listitem>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(vm.getEnumLabel(change.type))"/>
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.entity.name)"/>
+					        		</listcell>
+					        	</listitem>
+					        </template>
+		         		</listbox>
+					</tabpanel>
 					<tabpanel fulfill="tabEntities.onSelect">
 						<listbox mold="paging" autopaging="true" 
 				 				 model="@init(vm.importAnalysis.entityChanges)"
