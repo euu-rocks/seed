@@ -43,7 +43,7 @@
 			<tree model="@load(vm.menuTree)" 
 				  selectedItem="@bind(vm.selectedNode)"
 				  onClick="@command('nodeClicked')"
-				  vflex="1">
+				  class="alpha-noborder">
 				<treecols>
 			 		<treecol/>
 			 	</treecols>

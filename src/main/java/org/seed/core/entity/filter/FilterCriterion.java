@@ -332,6 +332,9 @@ public class FilterCriterion extends AbstractTransferableObject {
 					return valueObject;
 				}
 				return null;
+			
+			case FILE:
+				return null;
 				
 			default:
 				throw new UnsupportedOperationException(fieldType.name());

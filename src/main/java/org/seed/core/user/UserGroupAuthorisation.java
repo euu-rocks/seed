@@ -17,6 +17,7 @@
  */
 package org.seed.core.user;
 
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -29,7 +30,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.core.data.AbstractSystemObject;
 
-@javax.persistence.Entity
+@Entity
 @Table(name = "sys_usergroup_auth")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class UserGroupAuthorisation extends AbstractSystemObject {
@@ -60,7 +61,8 @@ public class UserGroupAuthorisation extends AbstractSystemObject {
 		this.authorisation = authorisation;
 		setRoleName(authorisation != null ? authorisation.roleName() : null);
 	}
-
+	
+	@XmlTransient
 	public String getRoleName() {
 		return roleName;
 	}

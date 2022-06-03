@@ -331,19 +331,17 @@ public class ValueObjectRepository {
 		Assert.notNull(object, C.OBJECT);
 		checkSessionAndContext(session, functionContext);
 		
+		final Session localSession = functionContext != null ? functionContext.getSession() : session;
+		final Entity entity = getEntity(object);
 		final boolean isInsert = object.isNew();
 		if (isInsert) {
-			final Entity entity = getEntity(object);
-			// uid
-			if (entity.isTransferable() && objectAccess.getValue(object, SystemField.UID) == null) {
+			if (entity.isTransferable()) {
 				objectAccess.setValue(object, SystemField.UID, UID.createUID());
 			}
-			// autonum
-			final EntityField autonumField = entity.findAutonumField();
-			if (autonumField != null) {
-				final String autonum = autonumService.getNextValue(autonumField, session);
-				objectAccess.setValue(object, autonumField, autonum);
-			}
+			setAutonumValuesInsert(entity, object, localSession);
+		}
+		else {
+			setAutonumValuesUpdate(entity, object, localSession);
 		}
 		
 		// fire before-event
@@ -353,10 +351,7 @@ public class ValueObjectRepository {
 		fireEvent(eventTypeBefore, object, session, functionContext);
 		
 		// save object
-		final Session localSession = functionContext != null ? functionContext.getSession() : session;
-		if (localSession != null) {
-			localSession.saveOrUpdate(object);
-		}
+		localSession.saveOrUpdate(object);
 		
 		// fire after-event
 		final CallbackEventType eventTypeAfter = isInsert 
@@ -788,6 +783,38 @@ public class ValueObjectRepository {
 			}
 		}
 		return restrictions;
+	}
+	
+	private void setAutonumValuesInsert(Entity entity, ValueObject object, Session session) {
+		final EntityField autonumField = entity.findAutonumField();
+		if (autonumField != null) {
+			objectAccess.setValue(object, autonumField,
+								  autonumService.getNextValue(autonumField, session));
+		}
+		if (entity.hasNesteds()) {
+			for (NestedEntity nested : entity.getNesteds()) {
+				final EntityField nestedAutonumField = nested.getNestedEntity().findAutonumField();
+				if (nestedAutonumField != null && objectAccess.hasNestedObjects(object, nested)) {
+					objectAccess.getNestedObjects(object, nested)
+								.forEach(obj -> objectAccess.setValue(obj, nestedAutonumField, 
+													autonumService.getNextValue(nestedAutonumField, session)));
+				}
+			}
+		}
+	}
+	
+	private void setAutonumValuesUpdate(Entity entity, ValueObject object, Session session) {
+		if (entity.hasNesteds()) {
+			for (NestedEntity nested : entity.getNesteds()) {
+				final EntityField nestedAutonumField = nested.getNestedEntity().findAutonumField();
+				if (nestedAutonumField != null && objectAccess.hasNestedObjects(object, nested)) {
+					objectAccess.getNestedObjects(object, nested)
+								.stream().filter(ValueObject::isNew)
+								.forEach(obj -> objectAccess.setValue(obj, nestedAutonumField, 
+													autonumService.getNextValue(nestedAutonumField, session)));
+				}
+			}
+		}
 	}
 	
 	private static Map<Long, Join<Object, Object>> buildJoinMap(Filter filter, Root<ValueObject> root) {

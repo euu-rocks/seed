@@ -330,6 +330,11 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 		elemField.setContext(subFormContext(subForm, elemField));
 		elemField.removeAttribute(A_ID);
 		switch (nestedEntityField.getType()) {
+			case AUTONUM:
+				elemField.setAttribute(A_VALUE, value(nestedEntityField, subFormPropertyName));
+				elemField.setAttribute(A_READONLY, V_TRUE);
+				break;
+				
 			case DATE:
 			case DATETIME:
 			case DECIMAL:

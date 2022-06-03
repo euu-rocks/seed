@@ -76,7 +76,7 @@
 		                </combobox>
 		            </cell>
                 </row>
-                <row visible="@load(!(vm.nestedEntity or vm.object.generic) and !empty vm.modules)"> 
+                <row visible="@load(!empty vm.modules)"> 
                 	<cell align="right">
                 		<label value="${labels.label.module}:"/>
                 	</cell>

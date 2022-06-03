@@ -56,9 +56,12 @@
 	            		<label value="@load(vm.getEnumLabel(criterion.operator))"/>
 	            	</listcell>
 	            	<listcell>
-	            		<label visible="@load(!criterion.element.reference)"
+	            		<label visible="@load(!criterion.element.reference and !criterion.element.dateTimeField)"
 	            		       value="@load(criterion.value)
 	            					  @converter(vm.valueConverter)"/>
+	            		<label visible="@load(!criterion.element.reference and criterion.element.dateTimeField)"
+	            		       value="@load(criterion.dateTimeValue)
+	            					  @converter(vm.dateTimeConverter)"/>			  
 	            		<label visible="@load(criterion.element.reference)"
 	            			   value="@load(vm.getReferenceValue(criterion))"/>
 	            	</listcell>
@@ -139,9 +142,9 @@
 	    				 onChange="@command('flagDirty',notify='criterion')"
 	    				 mandatory="true" hflex="1"/>
 	    		<datebox visible="@load(vm.criterion.element.type.isDateTime())"
-	    				 value="@bind(vm.criterion.dateValue)"
+	    				 value="@bind(vm.criterion.dateTimeValue)"
 	    				 onChange="@command('flagDirty',notify='criterion')"
-	    				 format="long+medium"
+	    				 format="medium+medium"
 	    				 mandatory="true" hflex="1"/>		 
 	    		<decimalbox visible="@load(vm.criterion.element.type.isDecimal())"
 	    					value="@bind(vm.criterion.decimalValue)"

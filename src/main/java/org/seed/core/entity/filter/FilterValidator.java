@@ -78,7 +78,7 @@ public class FilterValidator extends AbstractSystemEntityValidator<Filter> {
 				errors.addEmptyCriterionField("label.field");
 			}
 			if (isEmpty(criterion.getOperator())) {
-				errors.addEmptyCriterionField("label.oparator");
+				errors.addEmptyCriterionField("label.operator");
 			}
 			if (criterion.needsValue() && !criterion.hasValue()) {
 				errors.addEmptyCriterionField("label.value");

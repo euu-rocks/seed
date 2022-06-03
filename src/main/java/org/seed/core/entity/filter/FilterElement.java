@@ -53,6 +53,10 @@ public class FilterElement {
 			   (entityField != null && getType().isReference());
 	}
 	
+	public boolean isDateTimeField() {
+		return getType() == FieldType.DATETIME;
+	}
+	
 	public FieldType getType() {
 		return entityField != null 
 				? entityField.getType() 

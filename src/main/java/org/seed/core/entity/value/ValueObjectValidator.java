@@ -185,6 +185,9 @@ public class ValueObjectValidator implements ApplicationContextAware {
 									   ValidationErrors errors) {
 		for (ValueObject nestedObject : nestedObjects) {
 			for (EntityField field : nested.getFields(true)) {
+				if (field.getType().isAutonum()) {
+					continue;
+				}
 				final Object value = objectAccess.getValue(nestedObject, field);
 				if (field.isMandatory() && isEmpty(value)) {
 					errors.addError("val.empty.subfield", field.getName(), nested.getName());
