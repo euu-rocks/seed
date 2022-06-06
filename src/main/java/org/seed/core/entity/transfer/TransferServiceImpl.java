@@ -137,6 +137,7 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 		final Entity entity = transfer.getEntity();
 		final List<TransferElement> result = new ArrayList<>();
 		if (entity.hasAllFields()) {
+			boolean identifierFound = false;
 			for (EntityField entityField : entity.getAllFields()) {
 				// skip non-transferable types
 				if (entityField.getType().isBinary() || 
@@ -145,7 +146,12 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 					continue;
 				}
 				if (!transfer.containsField(entityField)) {
-					result.add(createElement(transfer, entityField));
+					final TransferElement element = createElement(transfer, entityField);
+					if (entityField.isUnique() && !identifierFound) {
+						element.setIdentifier(true);
+						identifierFound = true;
+					}
+					result.add(element);
 				}
 			}
 		}
@@ -401,12 +407,15 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 			options.setModifyExisting(true);
 		}
 		final TransferMetadata transfer = (TransferMetadata) createInstance(options);
-		final List<TransferElement> elements = new ArrayList<>();
 		transfer.setFormat(TransferFormat.CSV);
 		transfer.setEntity(entity);
-		transfer.setElements(elements);
-		elements.add(createElement(transfer, transfer.getEntity().getUidField()));
+		
+		final List<TransferElement> elements = new ArrayList<>();
+		final TransferElement elementUid = createElement(transfer, transfer.getEntity().getUidField());
+		elementUid.setIdentifier(true);
+		elements.add(elementUid);
 		elements.addAll(getAvailableElements(transfer));
+		transfer.setElements(elements);
 		try {
 			initObject(transfer);
 		} 
@@ -420,9 +429,6 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 		final TransferElement element = new TransferElement();
 		element.setTransfer(transfer);
 		element.setEntityField(entityField);
-		if (entityField.isUnique() && transfer.getIdentifierField() == null) {
-			element.setIdentifier(true);
-		}
 		return element;
 	}
 

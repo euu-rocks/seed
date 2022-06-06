@@ -162,6 +162,10 @@ public class TransformerMetadata extends AbstractApplicationEntity
 		return elements;
 	}
 	
+	public void setElements(List<TransformerElement> elements) {
+		this.elements = elements;
+	}
+
 	@Override
 	public TransformerElement getElementByUid(String uid) {
 		return getObjectByUid(getElements(), uid);

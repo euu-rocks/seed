@@ -29,6 +29,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -100,7 +101,7 @@ public class SubForm extends AbstractTransferableObject {
 		this.nestedEntity = nestedEntity;
 	}
 	
-	@XmlTransient
+	@XmlAttribute
 	public String getNestedEntityUid() {
 		return nestedEntity != null ? nestedEntity.getUid() : nestedEntityUid;
 	}

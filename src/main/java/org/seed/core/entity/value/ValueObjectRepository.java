@@ -335,8 +335,8 @@ public class ValueObjectRepository {
 		final Entity entity = getEntity(object);
 		final boolean isInsert = object.isNew();
 		if (isInsert) {
-			if (entity.isTransferable()) {
-				objectAccess.setValue(object, SystemField.UID, UID.createUID());
+			if (entity.isTransferable()) { 
+				initUid(object);
 			}
 			setAutonumValuesInsert(entity, object, localSession);
 		}
@@ -783,6 +783,13 @@ public class ValueObjectRepository {
 			}
 		}
 		return restrictions;
+	}
+	
+	private void initUid(ValueObject object) {
+		// imported transferable objects already have a uid
+		if (objectAccess.getValue(object, SystemField.UID) == null) {
+			objectAccess.setValue(object, SystemField.UID, UID.createUID());
+		}
 	}
 	
 	private void setAutonumValuesInsert(Entity entity, ValueObject object, Session session) {

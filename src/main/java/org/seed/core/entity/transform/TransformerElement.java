@@ -93,7 +93,7 @@ public class TransformerElement extends AbstractTransferableObject {
 	
 	@XmlAttribute
 	public String getSourceFieldUid() {
-		return sourceFieldUid;
+		return sourceField != null ? sourceField.getUid() : sourceFieldUid;
 	}
 
 	public void setSourceFieldUid(String sourceFieldUid) {
@@ -102,7 +102,7 @@ public class TransformerElement extends AbstractTransferableObject {
 	
 	@XmlAttribute
 	public String getTargetFieldUid() {
-		return targetFieldUid;
+		return targetField != null ? targetField.getUid() : targetFieldUid;
 	}
 
 	public void setTargetFieldUid(String targetFieldUid) {
