@@ -187,7 +187,7 @@ public class MenuManager {
 		final TreeNode nodeEntities = nodeAdmin.addChild(new TreeNode(getLabel("label.entities"), 
 										 "/admin/entity/entitylist.zul", 
 										 "z-icon-table z-icon-fw alpha-icon-lg"));
-		nodeEntities.addChild(new TreeNode(getLabel("label.filter"), 
+		nodeEntities.addChild(new TreeNode(getLabel("label.filters"), 
 										 "/admin/filter/filterlist.zul", 
 										 "z-icon-filter z-icon-fw alpha-icon-lg"));
 		nodeEntities.addChild(new TreeNode(getLabel("label.transfer"), 
@@ -208,7 +208,7 @@ public class MenuManager {
 	}
 	
 	private void createUserMenu(TreeNode nodeAdmin) {
-		final TreeNode nodeUsers = nodeAdmin.addChild(new TreeNode(getLabel("label.user"), 
+		final TreeNode nodeUsers = nodeAdmin.addChild(new TreeNode(getLabel("label.users"), 
 										"/admin/user/userlist.zul", 
 										"z-icon-user z-icon-fw alpha-icon-lg"));
 		nodeUsers.addChild(new TreeNode(getLabel("label.usergroups"), 
