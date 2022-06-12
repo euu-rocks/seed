@@ -33,14 +33,17 @@ import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
+import org.seed.core.config.SchemaVersion;
 import org.seed.core.data.Options;
 import org.seed.core.data.QueryParameter;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
+import org.seed.core.util.UID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 @Service
 public class UserGroupServiceImpl extends AbstractApplicationEntityService<UserGroup> 
@@ -122,6 +125,25 @@ public class UserGroupServiceImpl extends AbstractApplicationEntityService<UserG
 	}
 	
 	@Override
+	public void handleSchemaUpdate(TransferContext context, SchemaVersion schemaVersion) {
+		Assert.notNull(context, C.CONTEXT);
+		Assert.notNull(schemaVersion, "schema version");
+		
+		if (ObjectUtils.isEmpty(context.getModule().getUserGroups())) {
+			return;
+		}
+		if (schemaVersion == SchemaVersion.V_0_9_32) {
+			for (UserGroup userGroup : context.getModule().getUserGroups()) {
+				if (userGroup.hasAuthorisations()) {
+					userGroup.getAuthorisations().stream()
+							 .filter(auth -> auth.getUid() == null)
+							 .forEach(auth -> auth.setUid(UID.createUID()));
+				}
+			}
+		}
+	}
+	
+	@Override
 	protected void analyzeNextVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
 		if (analysis.getModule().getUserGroups() != null) {
 			for (UserGroup group : analysis.getModule().getUserGroups()) {
@@ -172,10 +194,8 @@ public class UserGroupServiceImpl extends AbstractApplicationEntityService<UserG
 						((UserGroupMetadata) currentVersionGroup).copySystemFieldsTo(group);
 						session.detach(currentVersionGroup);
 					}
-					if (group.getAuthorisations() != null) {
-						for (UserGroupAuthorisation auth : group.getAuthorisations()) {
-							auth.setUserGroup(group);
-						}
+					if (group.hasAuthorisations()) {
+						initAuthorisations(group, currentVersionGroup);
 					}
 					saveObject(group, session);
 				}
@@ -185,6 +205,19 @@ public class UserGroupServiceImpl extends AbstractApplicationEntityService<UserG
 			throw new InternalException(vex);
 		}
  	}
+	
+	private void initAuthorisations(UserGroup group, UserGroup currentVersionGroup) {
+		for (UserGroupAuthorisation auth : group.getAuthorisations()) {
+			auth.setUserGroup(group);
+			final UserGroupAuthorisation currentVersionAuth =
+					currentVersionGroup != null
+						? currentVersionGroup.getAuthorisationByUid(auth.getUid())
+						: null;
+			if (currentVersionAuth != null) {
+				currentVersionAuth.copySystemFieldsTo(auth);
+			}
+		}
+	}
 	
 	@Override
 	public void deleteObjects(Module module, Module currentVersionModule, Session session) {

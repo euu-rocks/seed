@@ -1042,7 +1042,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 		}
 		if (otherEntity.hasFunctions()) {
 			for (EntityFunction otherFunction : otherEntity.getFunctions()) {
-				if (getFieldByUid(otherFunction.getUid()) == null) {
+				if (getFunctionByUid(otherFunction.getUid()) == null) {
 					return false;
 				}
 			}

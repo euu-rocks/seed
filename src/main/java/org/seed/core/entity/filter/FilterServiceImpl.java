@@ -216,6 +216,10 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 					analysis.addChangeNew(filter);
 				}
 				else {
+					// entity needs to be set to determine field types
+					if (filter.getEntityUid() != null) {
+						((FilterMetadata) filter).setEntity(analysis.getModule().getEntityByUid(filter.getEntityUid()));
+					}
 					final Filter currentVersionFilter = 
 						currentVersionModule.getFilterByUid(filter.getUid());
 					if (currentVersionFilter == null) {

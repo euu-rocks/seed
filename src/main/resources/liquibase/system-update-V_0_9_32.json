@@ -1,0 +1,25 @@
+    {
+        "changeSet": {
+            "id": "system update 0.9.32",
+            "author": "seed",
+            "changes": [
+               {
+                  "addColumn":  {
+                     "columns":[
+                        {
+                           "column": {
+                              "name": "uid",
+                              "type": "VARCHAR(<#UID_LEN#>)",
+                              "defaultValue": "initial",
+                              "constraints": {
+                                  "nullable": "false"
+                              }
+                           }
+                        }
+                     ],
+                     "tableName":  "sys_usergroup_auth"
+                  } 
+               }
+            ]
+        }
+    }

@@ -198,6 +198,10 @@ public class FilterMetadata extends AbstractApplicationEntity implements Filter 
 	private boolean isEqualCriteria(Filter otherFilter) {
 		if (hasCriteria()) {
 			for (FilterCriterion criterion : getCriteria()) {
+				// entity field needs to be set to determine field type
+				if (criterion.getEntityFieldUid() != null) {
+					criterion.setEntityField(entity.getFieldByUid(criterion.getEntityFieldUid()));
+				}
 				if (!criterion.isEqual(otherFilter.getCriterionByUid(criterion.getUid()))) {
 					return false;
 				}

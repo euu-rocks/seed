@@ -25,15 +25,16 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import org.seed.core.data.AbstractSystemObject;
+import org.seed.core.application.AbstractTransferableObject;
 
 @Entity
 @Table(name = "sys_usergroup_auth")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class UserGroupAuthorisation extends AbstractSystemObject {
+public class UserGroupAuthorisation extends AbstractTransferableObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id")
@@ -69,6 +70,20 @@ public class UserGroupAuthorisation extends AbstractSystemObject {
 
 	public void setRoleName(String roleName) {
 		this.roleName = roleName;
+	}
+	
+	@Override
+	public boolean isEqual(Object other) {
+		if (other == null || !UserGroupAuthorisation.class.isAssignableFrom(other.getClass())) {
+			return false;
+		}
+		if (other == this) {
+			return true;
+		}
+		final UserGroupAuthorisation otherAuth = (UserGroupAuthorisation) other;
+		return new EqualsBuilder()
+				.append(getAuthorisation(), otherAuth.getAuthorisation())
+				.isEquals();
 	}
 	
 }

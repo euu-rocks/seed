@@ -1117,19 +1117,21 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 			transition.setEntity(entity);
 			transition.setSourceStatus(entity.getStatusByUid(transition.getSourceStatusUid()));
 			transition.setTargetStatus(entity.getStatusByUid(transition.getTargetStatusUid()));
+			
+			EntityStatusTransition currentVersionTransition = null;
 			if (currentVersionEntity != null) {
-				final EntityStatusTransition currentVersionTransition = 
-					currentVersionEntity.getStatusTransitionByUid(transition.getUid());
+				currentVersionTransition = currentVersionEntity.getStatusTransitionByUid(transition.getUid());
 				if (currentVersionTransition != null) {
 					currentVersionTransition.copySystemFieldsTo(transition);
 				}
-				
-				// functions
-				initStatusTransitionFunctions(currentVersionEntity, transition, currentVersionTransition);
-				
-				// permissions
-				initStatusTransitionPermission(transition, currentVersionTransition, session);
 			}
+			
+			// functions
+			initStatusTransitionFunctions(entity, transition, currentVersionTransition);
+			
+			// permissions
+			initStatusTransitionPermission(transition, currentVersionTransition, session);
+			
 		}
 	}
 	

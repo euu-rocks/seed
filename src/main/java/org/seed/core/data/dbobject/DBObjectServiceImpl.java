@@ -84,7 +84,7 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
 		if (currentVersionModule!= null && currentVersionModule.getDBObjects() != null) {
 			for (DBObject currentVersionObject : currentVersionModule.getDBObjects()) {
-				if (analysis.getModule().getEntityByUid(currentVersionObject.getUid()) == null) {
+				if (analysis.getModule().getDBObjectByUid(currentVersionObject.getUid()) == null) {
 					analysis.addChangeDelete(currentVersionObject);
 				}
 			}

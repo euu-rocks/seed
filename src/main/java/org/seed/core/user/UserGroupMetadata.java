@@ -97,7 +97,7 @@ public class UserGroupMetadata extends AbstractApplicationEntity implements User
 	public boolean isAuthorised(Authorisation authorisation) {
 		Assert.notNull(authorisation, "authorisation");
 		
-		if (hasAuthorisation()) {
+		if (hasAuthorisations()) {
 			for (UserGroupAuthorisation auth : getAuthorisations()) {
 				if (auth.getAuthorisation() == authorisation) {
 					return true;
@@ -107,8 +107,14 @@ public class UserGroupMetadata extends AbstractApplicationEntity implements User
 		return false;
 	}
 	
-	public boolean hasAuthorisation() {
+	@Override
+	public boolean hasAuthorisations() {
 		return !ObjectUtils.isEmpty(getAuthorisations());
+	}
+	
+	@Override
+	public UserGroupAuthorisation getAuthorisationByUid(String uid) {
+		return getObjectByUid(getAuthorisations(), uid);
 	}
 
 	@Override
@@ -132,9 +138,42 @@ public class UserGroupMetadata extends AbstractApplicationEntity implements User
 			return true;
 		}
 		final UserGroup otherGroup = (UserGroup) other;
-		return new EqualsBuilder()
-			.append(getName(), otherGroup.getName())
-			.isEquals();
+		if (!new EqualsBuilder()
+				.append(getName(), otherGroup.getName())
+				.append(isSystemGroup, isSystemGroup)
+				.isEquals()) {
+			return false;
+		}
+		return isEqualAuthorisations(otherGroup);
+	}
+	
+	private boolean isEqualAuthorisations(UserGroup otherGroup) {
+		if (hasAuthorisations()) {
+			for (UserGroupAuthorisation auth : getAuthorisations()) {
+				if (!auth.isEqual(otherGroup.getAuthorisationByUid(auth.getUid()))) {
+					return false;
+				}
+			}
+		}
+		if (otherGroup.hasAuthorisations()) {
+			for (UserGroupAuthorisation otherAuth : otherGroup.getAuthorisations()) {
+				if (getAuthorisationByUid(otherAuth.getUid()) == null) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	@Override
+	public void removeNewObjects() {
+		removeNewObjects(getAuthorisations());
+	}
+	
+	@Override
+	public void initUid() {
+		super.initUid();
+		initUids(getAuthorisations());
 	}
 	
 	void createLists() {

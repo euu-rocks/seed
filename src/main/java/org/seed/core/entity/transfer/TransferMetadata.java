@@ -225,7 +225,7 @@ public class TransferMetadata extends AbstractApplicationEntity implements Trans
 			.append(escapeChar, otherTransfer.getEscapeChar())
 			.append(encoding, otherTransfer.getEncoding())
 			.append(newline, otherTransfer.getNewline())
-			.append(quoteAll, otherTransfer.getQuoteChar())
+			.append(quoteAll, otherTransfer.isQuoteAll())
 			.append(header, otherTransfer.isHeader())
 			.isEquals()) {
 			return false;

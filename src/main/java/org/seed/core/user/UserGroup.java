@@ -24,9 +24,13 @@ import org.seed.core.application.ApplicationEntity;
 
 public interface UserGroup extends ApplicationEntity {
 	
+	boolean hasAuthorisations();
+	
 	List<UserGroupAuthorisation> getAuthorisations();
 	
 	boolean isAuthorised(Authorisation authorisation);
+	
+	UserGroupAuthorisation getAuthorisationByUid(String uid);
 	
 	boolean hasUsers();
 	

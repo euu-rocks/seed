@@ -29,6 +29,7 @@ import org.seed.core.data.SystemObjectEventListener;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.entity.value.ValueEntity;
 import org.seed.core.task.job.JobScheduler;
+import org.seed.core.user.UserService;
 import org.seed.core.util.Assert;
 import org.seed.core.util.BeanUtils;
 import org.seed.core.util.MiscUtils;
@@ -95,6 +96,9 @@ public class DynamicConfiguration implements UpdatableConfiguration, Integrator 
 	private SchemaManager schemaManager;
 	
 	@Autowired
+	private UserService userService;
+	
+	@Autowired
 	private SystemLog systemLog;
 	
 	private ClassLoader classLoader;	// current class loader
@@ -109,6 +113,7 @@ public class DynamicConfiguration implements UpdatableConfiguration, Integrator 
 		if (updateSchemaConfiguration()) { // new system schema version detected
 			systemLog.logInfo("systemlog.info.schemaupdated", SchemaVersion.currentVersion().name());
 			updateConfiguration();
+			userService.initDefaults();
 		}
 		else {
 			buildConfiguration();
