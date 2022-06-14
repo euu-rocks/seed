@@ -19,6 +19,12 @@
                      ],
                      "tableName":  "sys_usergroup_auth"
                   } 
+               },
+               {
+                  "dropNotNullConstraint":  {
+                    "columnName": "related_entity_id",
+                    "tableName": "sys_entity_relation"
+                  }
                }
             ]
         }

@@ -222,9 +222,12 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	public List<EntityField> getConstraintFields(NestedEntity nested) {
-		return nested != null 
-				? nested.getFields(true) 
-				: getObject().getFields();
+		final List<EntityField> fields = nested != null 
+											? nested.getFields(true) 
+											: getObject().getAllFields();
+		return fields.stream()
+					 .filter(field -> !field.getType().isAutonum())
+					 .collect(Collectors.toList());
 	}
 	
 	public boolean isAlreadyMandatory(EntityField field) {

@@ -389,7 +389,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				final EntityPermission permission = new EntityPermission();
 				permission.setEntity(entity);
 				permission.setUserGroup(group);
-				permission.setAccess(EntityAccess.READ);
+				permission.setAccess(EntityAccess.DELETE);
 				result.add(permission);
 			}
 		}
@@ -625,6 +625,8 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 							: null;
 					((EntityMetadata) entity).setGenericEntity(genericEntity);
 					initEntityReferences(entity, session);
+					initRelationEntities(session, entity);
+					initConstraintFields(entity);
 					// validate and save
 					saveObject(entity, session);
 				}
@@ -963,6 +965,23 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		}
 		if (entity.hasAllRelations()) {
 			initRelatedEntities(session, entity);
+		}
+	}
+	
+	private void initConstraintFields(Entity entity) {
+		if (entity.hasFieldConstraints()) {
+			for (EntityFieldConstraint constraint : entity.getFieldConstraints()) {
+				if (constraint.getField() == null && constraint.getFieldGroup() == null) {
+					constraint.setField(entity.findFieldByUid(constraint.getFieldUid()));
+				}
+			}
+		}
+	}
+	
+	private void initRelationEntities(Session session, Entity entity) {
+		if (entity.hasRelations()) {
+			entity.getRelations().forEach(rel -> 
+				rel.setRelatedEntity(findByUid(session, rel.getRelatedEntityUid())));
 		}
 	}
 	
