@@ -300,13 +300,15 @@ public class ListFormViewModel extends AbstractFormViewModel {
 		final FormAction action = (FormAction) confirmParam;
 		switch (action.getType()) {
 			case DELETE:
-				try {
-					deleteObject();
-					reload();
-					notifyChange("listModel");
-				}
-				catch (ValidationException vex) {
-					showValidationErrors(component, "form.action.deletefail", vex.getErrors());
+				if (confirmed) {
+					try {
+						deleteObject();
+						reload();
+						notifyChange("listModel");
+					}
+					catch (ValidationException vex) {
+						showValidationErrors(component, "form.action.deletefail", vex.getErrors());
+					}
 				}
 				break;
 				
