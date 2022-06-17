@@ -27,9 +27,7 @@ public interface Revision {
 
 		@Override
 		public void newRevision(Object revisionEntity) {
-			if (revisionEntity instanceof RevisionEntity) {
-				((RevisionEntity) revisionEntity).setAuthor(MiscUtils.geUserName());
-			}
+			((RevisionEntity) revisionEntity).setAuthor(MiscUtils.geUserName());
 		}
 
 	}

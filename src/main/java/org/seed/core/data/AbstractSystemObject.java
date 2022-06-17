@@ -165,6 +165,10 @@ public abstract class AbstractSystemObject implements SystemObject {
 		other.modifiedOn = modifiedOn;
 	}
 	
+	public void resetId() {
+		id = null;
+	}
+	
 	protected void setOrderIndexes() {
 		// do nothing by default
 	}

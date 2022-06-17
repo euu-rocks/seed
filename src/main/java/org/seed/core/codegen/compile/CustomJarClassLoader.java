@@ -26,11 +26,10 @@ import javax.tools.JavaFileObject.Kind;
 
 import org.seed.core.codegen.CodeUtils;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 import org.seed.core.util.StreamUtils;
 
 class CustomJarClassLoader extends ClassLoader {
-	
-	private static final byte[] EMPTY_CLASS = new byte[0];
 	
 	private final List<CustomJar> customJars;
 
@@ -46,7 +45,7 @@ class CustomJarClassLoader extends ClassLoader {
 		final String resourceName = CodeUtils.getPackagePath(className).concat(Kind.CLASS.extension);
 		for (CustomJar customJar : customJars) {
 			final byte[] byteCode = findCustomJarClass(customJar, resourceName);
-			if (byteCode != EMPTY_CLASS) {
+			if (byteCode != MiscUtils.EMPTY_BYTE_ARRAY) {
 				return defineClass(className, byteCode, 0, byteCode.length);
 			}
 		}
@@ -61,7 +60,7 @@ class CustomJarClassLoader extends ClassLoader {
 					return zipStream.readAllBytes();
 				}
 			}
-			return EMPTY_CLASS;
+			return MiscUtils.EMPTY_BYTE_ARRAY;
 		}
 		catch (IOException ioex) {
 			throw new CompilerException(ioex);

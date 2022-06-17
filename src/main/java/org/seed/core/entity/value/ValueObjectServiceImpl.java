@@ -41,6 +41,7 @@ import org.seed.core.data.FieldType;
 import org.seed.core.data.FileObject;
 import org.seed.core.data.Sort;
 import org.seed.core.data.SystemEntity;
+import org.seed.core.data.ValidationError;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityDependent;
@@ -59,6 +60,7 @@ import org.seed.core.entity.value.event.ValueObjectEvent;
 import org.seed.core.entity.value.event.ValueObjectEventHandler;
 import org.seed.core.entity.value.event.ValueObjectFunctionContext;
 import org.seed.core.util.Assert;
+import org.seed.core.util.ExceptionUtils;
 import org.seed.core.util.Tupel;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -524,6 +526,7 @@ public class ValueObjectServiceImpl
 		Assert.notNull(object, C.OBJECT);
 		clearEmptyFileObjects(object);
 		
+		final boolean isInsert = object.isNew();
 		try (Session session = repository.getSession()) {
 			Transaction tx = null;
 			try {
@@ -538,10 +541,21 @@ public class ValueObjectServiceImpl
 				tx.commit();
 			}
 			catch (Exception ex) {
+				if (isInsert) {
+					// reset id because its assigned even if insert fails
+					((AbstractSystemEntity) object).resetId();
+				}
 				if (tx != null) {
 					tx.rollback();
 				}
-				throw ex;
+				if (ExceptionUtils.isUniqueConstraintViolation(ex)) {
+					final Tupel<String, String> details = ExceptionUtils.getUniqueConstraintDetails(ex);
+					throw new ValidationException(
+							new ValidationError("val.ambiguous.unique", details.x, details.y));
+				}
+				else {
+					throw ex;
+				}
 			}
 		}
 	}

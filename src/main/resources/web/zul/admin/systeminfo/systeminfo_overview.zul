@@ -31,7 +31,7 @@
 						   onClick="@command('refresh',elem=self)"/>
 		</toolbar>
 	</north>
-	<center border="0">
+	<center border="0" autoscroll="true">
 		<grid hflex="1" class="alpha-noborder">
 			<columns>
             	<column/>

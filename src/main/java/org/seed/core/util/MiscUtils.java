@@ -39,6 +39,8 @@ public abstract class MiscUtils {
 	
 	public static final String TIMESTAMP_FORMAT = "dd-MM-yyyy_HH-mm-ss";
 	
+	public static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
+	
 	private static final long SEC_MINUTE = 60;
 	private static final long SEC_HOUR = 60 * SEC_MINUTE;
 	private static final long SEC_DAY = 24 * SEC_HOUR;

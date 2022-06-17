@@ -148,6 +148,7 @@ public abstract class AbstractSystemEntityRepository<T extends SystemEntity>
 	public void save(T object) {
 		Assert.notNull(object, C.OBJECT);
 		
+		final boolean isInsert = object.isNew();
 		try (Session session = getSession()) {
 			Transaction tx = null;
 			try {
@@ -158,6 +159,10 @@ public abstract class AbstractSystemEntityRepository<T extends SystemEntity>
 			catch (Exception ex) {
 				if (tx != null) {
 					tx.rollback();
+				}
+				if (isInsert) {
+					// reset id because its assigned even if insert fails
+					((AbstractSystemObject) object).resetId();
 				}
 				handleException(ex);
 			}

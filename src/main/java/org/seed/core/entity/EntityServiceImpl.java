@@ -45,6 +45,7 @@ import org.seed.core.config.SchemaManager;
 import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.config.changelog.ChangeLog;
 import org.seed.core.config.changelog.ReferenceChangeLog;
+import org.seed.core.data.AbstractSystemObject;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.Options;
 import org.seed.core.data.ValidationException;
@@ -737,6 +738,10 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				tx.commit();
 			}
 			catch (Exception ex) {
+				if (isInsert) {
+					// reset id because its assigned even if insert fails
+					((AbstractSystemObject) entity).resetId();
+				}
 				handleException(tx, ex);
 			}
 		}

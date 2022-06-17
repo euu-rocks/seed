@@ -35,6 +35,7 @@ import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
+import org.seed.core.data.AbstractSystemObject;
 import org.seed.core.data.SystemField;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
@@ -582,6 +583,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		Assert.notNull(form, C.FORM);
 		
 		cleanupForm(form);
+		final boolean isInsert = form.isNew();
 		try (Session session = formRepository.openSession()) {
 			Transaction tx = null;
 			try {
@@ -590,6 +592,10 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 				tx.commit();
 			}
 			catch (Exception ex) {
+				if (isInsert) {
+					// reset id because its assigned even if insert fails
+					((AbstractSystemObject) form).resetId();
+				}
 				handleException(tx, ex);
 			}
 		}

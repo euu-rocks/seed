@@ -31,6 +31,7 @@ import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
 import org.seed.core.config.changelog.ChangeLog;
+import org.seed.core.data.AbstractSystemObject;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.EntityService;
 import org.seed.core.util.Assert;
@@ -210,6 +211,10 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 				tx.commit();
 			}
 			catch (Exception ex) {
+				if (isInsert) {
+					// reset id because its assigned even if insert fails
+					((AbstractSystemObject) dbObject).resetId();
+				}
 				handleException(tx, ex);
 			}
 		}

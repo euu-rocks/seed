@@ -304,7 +304,6 @@ public class ListFormViewModel extends AbstractFormViewModel {
 					try {
 						deleteObject();
 						reload();
-						notifyChange("listModel");
 					}
 					catch (ValidationException vex) {
 						showValidationErrors(component, "form.action.deletefail", vex.getErrors());

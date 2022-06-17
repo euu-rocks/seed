@@ -46,7 +46,7 @@ public abstract class UIUtils {
 					? media.getByteData()
 					: media.getStringData().getBytes(MiscUtils.CHARSET);
 		}
-		return new byte[0];
+		return MiscUtils.EMPTY_BYTE_ARRAY;
 	}
 	
 	public static Component getComponent(String path) {

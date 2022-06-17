@@ -40,6 +40,7 @@ import org.seed.core.user.Authorisation;
 import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupService;
 import org.seed.core.util.Assert;
+import org.seed.core.util.ExceptionUtils;
 import org.seed.ui.DragDropListManager;
 import org.seed.ui.DragDropListSorter;
 import org.seed.ui.ListFilter;
@@ -624,14 +625,13 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 			showError(component, errMsgKey);
 		}
 		catch (PersistenceException persitenceException) {
-			final Throwable cause =  persitenceException.getCause();
-			if (cause instanceof org.hibernate.exception.ConstraintViolationException &&
-				cause.getCause().getMessage().contains("(name)=")) {
+			if (ExceptionUtils.isUniqueConstraintViolation(persitenceException)) {
 				final String errMsgKey = PRE_ADMIN + objectLabelKey + ".failunique";
 				showError(component, errMsgKey, object.getName());
 			}
-			else
+			else {
 				throw persitenceException;
+			}
 		}
 		return false;
 	}

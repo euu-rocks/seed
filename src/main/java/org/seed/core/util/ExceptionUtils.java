@@ -19,6 +19,12 @@ package org.seed.core.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.persistence.PersistenceException;
+
+import org.hibernate.exception.ConstraintViolationException;
 
 public abstract class ExceptionUtils {
 	
@@ -46,6 +52,27 @@ public abstract class ExceptionUtils {
 		final StringWriter stringWriter = new StringWriter();
 		throwable.printStackTrace(new PrintWriter(stringWriter));
 		return stringWriter.toString();
+	}
+	
+	public static boolean isUniqueConstraintViolation(Exception ex) {
+		return ex instanceof PersistenceException && 
+			   ex.getCause() instanceof ConstraintViolationException &&
+			   ((ConstraintViolationException) ex.getCause()).getSQLException()
+			   	.getMessage().contains("unique constraint");
+	}
+	
+	public static Tupel<String,String> getUniqueConstraintDetails(Exception ex) {
+		final String msg = ((ConstraintViolationException) ex.getCause())
+							.getSQLException().getMessage();
+		String column = "?", value = "?";
+		final Matcher matcher = Pattern.compile("\\((.*?)\\)").matcher(msg);
+		if (matcher.find()) {
+			column = matcher.group(1);
+			if (matcher.find()) {
+				value = matcher.group(1);
+			}
+		}
+		return new Tupel<>(column, value);
 	}
 	
 }
