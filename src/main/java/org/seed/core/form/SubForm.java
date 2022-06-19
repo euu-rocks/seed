@@ -30,6 +30,8 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -127,6 +129,8 @@ public class SubForm extends AbstractTransferableObject {
 		return !ObjectUtils.isEmpty(getFields());
 	}
 	
+	@XmlElement(name="subformfield")
+	@XmlElementWrapper(name="subformfields")
 	public List<SubFormField> getFields() {
 		return fields;
 	}
@@ -148,10 +152,16 @@ public class SubForm extends AbstractTransferableObject {
 		return !ObjectUtils.isEmpty(getActions());
 	}
 	
+	@XmlElement(name="subformaction")
+	@XmlElementWrapper(name="subformactions")
 	public List<SubFormAction> getActions() {
 		return actions;
 	}
 	
+	public void setActions(List<SubFormAction> actions) {
+		this.actions = actions;
+	}
+
 	public void addAction(SubFormAction action) {
 		Assert.notNull(action, C.ACTION);
 		
