@@ -126,7 +126,7 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 		Assert.notNull(report, C.REPORT);
 		
 		final List<ReportPermission> result = new ArrayList<>();
-		for (UserGroup group : userGroupService.getObjects()) {
+		for (UserGroup group : userGroupService.findNonSystemGroups()) {
 			boolean found = false;
 			if (report.hasPermissions()) {
 				for (ReportPermission permission : report.getPermissions()) {

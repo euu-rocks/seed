@@ -186,7 +186,7 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 		Assert.notNull(rest, C.REST);
 		
 		final List<RestPermission> result = new ArrayList<>();
-		for (UserGroup group : userGroupService.getObjects()) {
+		for (UserGroup group : userGroupService.findNonSystemGroups()) {
 			boolean found = false;
 			if (rest.hasPermissions()) {
 				for (RestPermission permission : rest.getPermissions()) {

@@ -278,11 +278,11 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	}
 	
 	public final List<UserGroup> getUserGroups() {
-		return userGroupService.getObjects();
+		return userGroupService.findNonSystemGroups();
 	}
 	
 	public final boolean existUserGroups() {
-		return userGroupService.existObjects();
+		return !getUserGroups().isEmpty();
 	}
 	
 	protected UserGroupService userGroupService() {

@@ -194,7 +194,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		Assert.notNull(task, C.TASK);
 		
 		final List<TaskPermission> result = new ArrayList<>();
-		for (UserGroup group : userGroupService.getObjects()) {
+		for (UserGroup group : userGroupService.findNonSystemGroups()) {
 			boolean found = false;
 			if (task.hasPermissions()) {
 				for (TaskPermission permission : task.getPermissions()) {

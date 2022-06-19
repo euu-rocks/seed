@@ -376,7 +376,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(entity, C.ENTITY);
 		
 		final List<EntityPermission> result = new ArrayList<>();
-		for (UserGroup group : userGroupService.getObjects()) {
+		for (UserGroup group : userGroupService.findNonSystemGroups()) {
 			boolean found = false;
 			if (entity.hasPermissions()) {
 				for (EntityPermission permission : entity.getPermissions()) {
@@ -402,7 +402,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(transition, C.TRANSITION);
 		
 		final List<EntityStatusTransitionPermission> result = new ArrayList<>();
-		for (UserGroup group : userGroupService.getObjects()) {
+		for (UserGroup group : userGroupService.findNonSystemGroups()) {
 			boolean found = false;
 			if (transition.hasPermissions()) {
 				for (EntityStatusTransitionPermission permission : transition.getPermissions()) {

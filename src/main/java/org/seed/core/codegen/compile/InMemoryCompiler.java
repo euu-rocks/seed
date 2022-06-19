@@ -17,7 +17,6 @@
  */
 package org.seed.core.codegen.compile;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -48,7 +47,7 @@ public class InMemoryCompiler implements Compiler {
 	@Autowired
 	private CustomJarProvider customJarProvider;
 	
-	private final Map<String, Class<GeneratedCode>> mapClasses = new HashMap<>();
+	private Map<String, Class<GeneratedCode>> mapClasses;
 	
 	private JavaCompiler javaCompiler;
 	
@@ -69,6 +68,7 @@ public class InMemoryCompiler implements Compiler {
 	@Override
 	public synchronized Class<GeneratedCode> getGeneratedClass(String qualifiedName) {
 		Assert.notNull(qualifiedName, C.QUALIFIEDNAME);
+		Assert.stateAvailable(mapClasses, "class map");
 		
 		return mapClasses.get(qualifiedName);
 	}
@@ -76,6 +76,7 @@ public class InMemoryCompiler implements Compiler {
 	@Override
 	public synchronized List<Class<GeneratedCode>> getGeneratedClasses(Class<?> typeClass) {
 		Assert.notNull(typeClass, C.TYPECLASS);
+		Assert.stateAvailable(mapClasses, "class map");
 		
 		return mapClasses.values().stream().filter(typeClass::isAssignableFrom)
 						 				   .collect(Collectors.toList());
@@ -114,8 +115,7 @@ public class InMemoryCompiler implements Compiler {
 				: new CustomJarClassLoader(getCustomJars(), getClass().getClassLoader());
 		final GeneratedCodeClassLoader classLoader 
 				= new GeneratedCodeClassLoader(fileManager.getClassFileObjects(), parent);
-		mapClasses.clear();
-		mapClasses.putAll(classLoader.getClassMap());
+		mapClasses = classLoader.getClassMap();
 		return classLoader;
 	}
 	

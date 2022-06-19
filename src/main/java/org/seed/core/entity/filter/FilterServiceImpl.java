@@ -187,7 +187,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		Assert.notNull(filter, C.FILTER);
 		
 		final List<FilterPermission> result = new ArrayList<>();
-		for (UserGroup group : userGroupService.getObjects()) {
+		for (UserGroup group : userGroupService.findNonSystemGroups()) {
 			boolean found = false;
 			if (filter.hasPermissions()) {
 				for (FilterPermission permission : filter.getPermissions()) {

@@ -172,12 +172,12 @@ public class MenuManager {
 			menuNode.setTop(true);
 			menuList.add(menuNode);
 			if (menu.hasSubMenus()) {
-				for (Menu subMenu : menu.getSubMenus()) {
-					menuNode.addChild(new TreeNode(subMenu.getName(), 
-												   "/form/listform.zul", 
-												   subMenu.getIcon(), 
-												   subMenu.getForm().getId()));
-				}
+				menu.getSubMenus().stream()
+					.filter(subMenu -> subMenu.getForm().getEntity().checkPermissions(user))
+					.forEach(subMenu -> menuNode.addChild(new TreeNode(subMenu.getName(), 
+														   "/form/listform.zul", 
+														   subMenu.getIcon(), 
+														   subMenu.getForm().getId())));
 			}
 		}
 		return menuList;

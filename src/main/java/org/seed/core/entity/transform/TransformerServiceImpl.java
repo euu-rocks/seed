@@ -147,7 +147,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		Assert.notNull(transformer, C.TRANSFORMER);
 		
 		final List<TransformerPermission> result = new ArrayList<>();
-		for (UserGroup group : userGroupService.getObjects()) {
+		for (UserGroup group : userGroupService.findNonSystemGroups()) {
 			boolean found = false;
 			if (transformer.hasPermissions()) {
 				for (TransformerPermission permission : transformer.getPermissions()) {

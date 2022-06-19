@@ -588,6 +588,9 @@ public class ValueObjectServiceImpl
 	
 	@Override
 	public void changeStatus(ValueObject object, EntityStatus targetStatus) throws ValidationException {
+		Assert.notNull(object, C.OBJECT);
+		
+		clearEmptyFileObjects(object);
 		validator.validateChangeStatus(object, targetStatus);
 		repository.changeStatus(object, targetStatus);
 	}
@@ -595,6 +598,9 @@ public class ValueObjectServiceImpl
 	@Override
 	public void changeStatus(ValueObject object, EntityStatus targetStatus,
 			 Session session, ValueObjectFunctionContext functionContext) throws ValidationException {
+		Assert.notNull(object, C.OBJECT);
+		
+		clearEmptyFileObjects(object);
 		validator.validateChangeStatus(object, targetStatus);
 		repository.changeStatus(object, targetStatus, session, functionContext);
 	}

@@ -1245,6 +1245,9 @@ public class EntityMetadata extends AbstractApplicationEntity
 			  FieldAccess ...fieldAccess) {
 		if (user.hasUserGroups()) {
 			for (UserGroup group : user.getUserGroups()) {
+				if (group.isSystemGroup()) {
+					continue;
+				}
 				final EntityFieldConstraint constraint = getGroupConstraint(field, group, status);
 				if (constraint == null) {
 					return true;
