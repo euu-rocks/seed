@@ -82,17 +82,20 @@
 			</tabbox>
 		</center>
 		<south border="0">
-			<menupopup id="popupTab" onOpen="@command('openTabPopup')">
-				<menuitem label="${labels.label.close}"
-						  iconSclass="z-icon-remove alpha-icon-lg"
-						  onClick="@command('closePopupTab')"/>
-				<menuitem label="${labels.label.closeother}"
-						  iconSclass="z-icon-remove alpha-icon-lg"
-						  onClick="@command('closeOtherTabs')"/>
-				<menuitem label="${labels.label.closeall}"
-						  iconSclass="z-icon-remove alpha-icon-lg"
-						  onClick="@command('closeAllTabs')"/>
-			</menupopup>
+			<vlayout>
+				<menupopup id="popupTab" onOpen="@command('openTabPopup')">
+					<menuitem label="${labels.label.close}"
+							  iconSclass="z-icon-remove alpha-icon-lg"
+							  onClick="@command('closePopupTab')"/>
+					<menuitem label="${labels.label.closeother}"
+							  iconSclass="z-icon-remove alpha-icon-lg"
+							  onClick="@command('closeOtherTabs')"/>
+					<menuitem label="${labels.label.closeall}"
+							  iconSclass="z-icon-remove alpha-icon-lg"
+							  onClick="@command('closeAllTabs')"/>
+				</menupopup>
+				<timer delay="@init(vm.sessionKeepAliveInterval)" repeats="true" onTimer=""/>
+			</vlayout>
 		</south>
 	</borderlayout>
 </zk>

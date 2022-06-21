@@ -87,6 +87,14 @@ public abstract class UIUtils {
 		Sessions.getCurrent().removeAttribute(name);
 	}
 	
+	public static int getSessionKeepAliveInterval() {
+		final int sessionTimeoutSec = Sessions.getCurrent().getMaxInactiveInterval();
+		if (sessionTimeoutSec > 60) {
+			return (sessionTimeoutSec - 60) * 1000;
+		}
+		return (sessionTimeoutSec / 4) * 3000;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public static void showDialog(String view, Object param) {
 		Executions.createComponents(getZulPath(view), null, 

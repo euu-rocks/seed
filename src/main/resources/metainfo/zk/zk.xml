@@ -32,6 +32,9 @@
 	<listener>
 		<listener-class>org.zkoss.zk.ui.util.Statistic</listener-class>
 	</listener>
+	<session-config>
+		<timer-keep-alive>true</timer-keep-alive>
+	</session-config>
 	<system-config>
 		<max-upload-size>102400</max-upload-size>
         <ui-factory-class>org.seed.ui.zk.DelegatingUiFactory</ui-factory-class>

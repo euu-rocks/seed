@@ -84,6 +84,10 @@ public class MainViewModel extends AbstractApplicationViewModel {
 		return getSetting(Setting.MENU_MODE).equals(mode);
 	}
 	
+	public int getSessionKeepAliveInterval() {
+		return UIUtils.getSessionKeepAliveInterval();
+	}
+	
 	public List<Tab> getTabs() {
 		return Collections.unmodifiableList(tabs);
 	}
