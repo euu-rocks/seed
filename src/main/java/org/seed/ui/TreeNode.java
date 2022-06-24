@@ -20,6 +20,7 @@ package org.seed.ui;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.Nullable;
 
@@ -42,8 +43,12 @@ public final class TreeNode {
 	
 	private List<TreeNode> children;
 	
+	public TreeNode(String label) {
+		this(label, null, null, null);
+	}
+	
 	public TreeNode(String label, @Nullable String viewName, @Nullable String iconClass) {
-		this (label, viewName, iconClass, null);
+		this(label, viewName, iconClass, null);
 	}
 	
 	TreeNode(String label, @Nullable String viewName, @Nullable String iconClass, @Nullable Long formId) {
@@ -114,6 +119,20 @@ public final class TreeNode {
 			children = new ArrayList<>();
 		}
 		children.add(child);
+		return child;
+	}
+	
+	TreeNode findChild(String label) {
+		Assert.notNull(label, C.LABEL);
+		
+		TreeNode child = null;
+		if (countChildren() > 0) {
+			final Optional<TreeNode> optional = getChildren().stream()
+					.filter(node -> label.equalsIgnoreCase(node.getLabel())).findFirst();
+			if (optional.isPresent()) {
+				child = optional.get();
+			}
+		}
 		return child;
 	}
 	

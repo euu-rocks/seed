@@ -21,6 +21,13 @@
                   } 
                },
                {
+                  "modifyDataType": {
+                    "newDataType": "VARCHAR(<#STRING_LEN#>)",
+                    "columnName": "name",
+                    "tableName": "sys_menu"
+                  }
+               },
+               {
                   "dropNotNullConstraint":  {
                     "columnName": "related_entity_id",
                     "tableName": "sys_entity_relation"

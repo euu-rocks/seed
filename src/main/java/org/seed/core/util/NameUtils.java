@@ -114,6 +114,14 @@ public abstract class NameUtils {
 		return buf.toString();
 	}
 	
+	public static String[] splitAndTrim(String str, String separator) {
+		final String[] parts = str.split(separator);
+		for (int i = 0; i < parts.length; i++) {
+			parts[i] = parts[i].trim();
+		}
+		return parts;
+	}
+	
 	public static String getRandomName() {
 		return UUID.randomUUID().toString();
 	}

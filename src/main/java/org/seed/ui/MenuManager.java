@@ -19,6 +19,7 @@ package org.seed.ui;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.seed.C;
 import org.seed.LabelProvider;
@@ -27,6 +28,7 @@ import org.seed.core.form.navigation.MenuService;
 import org.seed.core.user.Authorisation;
 import org.seed.core.user.User;
 import org.seed.core.util.Assert;
+import org.seed.core.util.NameUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -34,9 +36,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class MenuManager {
 	
-	public static final String REDIRECT_LOGOUT = "/logout";
+	public static final String REDIRECT_LOGOUT		= "/logout";
 	
-	public static final String URL_FULLTEXTSEARCH = "/form/fulltextsearch.zul";
+	public static final String URL_FULLTEXTSEARCH 	= "/form/fulltextsearch.zul";
+	public static final String URL_LISTFORM 		= "/form/listform.zul";
 	
 	@Autowired
 	private LabelProvider labelProvider;
@@ -88,8 +91,20 @@ public class MenuManager {
 		return menuList;
 	}
 	
+	private List<TreeNode> getMenusForUser(User user) {
+		final List<TreeNode> menuList = new ArrayList<>();
+		for (Menu menu : menuService.getMenus(user)) {
+			final TreeNode menuRoot = createMenuTree(menu, menuList, user);
+			if (findNode(menuList, menuRoot.getLabel()) == null) {
+				menuRoot.setTop(true);
+				menuList.add(menuRoot);
+			}
+		}
+		return menuList;
+	}
+	
 	private TreeNode createAdminMenu(User user) {
-		final TreeNode nodeAdmin = new TreeNode(labelProvider.getLabel("label.administration"), null, null);
+		final TreeNode nodeAdmin = new TreeNode(getLabel("label.administration"));
 		nodeAdmin.setTop(true);
 		
 		if (user.isAuthorised(Authorisation.ADMIN_ENTITY)) {
@@ -159,30 +174,6 @@ public class MenuManager {
 		return nodeAdmin;
 	}
 	
-	private List<TreeNode> getMenusForUser(User user) {
-		final List<TreeNode> menuList = new ArrayList<>();
-		for (Menu menu : menuService.getMenus(user)) {
-			final TreeNode menuNode = menu.getForm() != null 
-										? new TreeNode(menu.getName(), 
-													   "/form/listform.zul", 
-													   menu.getIcon(),
-													   menu.getForm().getId())
-										: new TreeNode(menu.getName(), null, 
-													   menu.getIcon());
-			menuNode.setTop(true);
-			menuList.add(menuNode);
-			if (menu.hasSubMenus()) {
-				menu.getSubMenus().stream()
-					.filter(subMenu -> subMenu.getForm().getEntity().checkPermissions(user))
-					.forEach(subMenu -> menuNode.addChild(new TreeNode(subMenu.getName(), 
-														   "/form/listform.zul", 
-														   subMenu.getIcon(), 
-														   subMenu.getForm().getId())));
-			}
-		}
-		return menuList;
-	}
-	
 	private void createEntityMenu(TreeNode nodeAdmin) {
 		final TreeNode nodeEntities = nodeAdmin.addChild(new TreeNode(getLabel("label.entities"), 
 										 "/admin/entity/entitylist.zul", 
@@ -219,14 +210,63 @@ public class MenuManager {
 	private TreeNode createAccountMenu(User user) {
 		final TreeNode nodeAccount = new TreeNode(user.getName(), null, 
 				 								  "z-icon-user z-icon-fw alpha-icon-lg");
-		nodeAccount.addChild(new TreeNode(getLabel("label.logout"), 
-										  REDIRECT_LOGOUT, 
-										  "z-icon-sign-out z-icon-fw alpha-icon-lg"));
+		nodeAccount.addChild(new TreeNode(getLabel("label.logout"), REDIRECT_LOGOUT, 
+										  		   "z-icon-sign-out z-icon-fw alpha-icon-lg"));
 		return nodeAccount;
 	}
 	
 	private String getLabel(String key, String ...params) {
 		return labelProvider.getLabel(key, params);
+	}
+	
+	private static TreeNode createMenuTree(Menu menu, List<TreeNode> nodeList, User user) {
+		TreeNode rootNode = null;
+		final String[] nameParts = NameUtils.splitAndTrim(menu.getName(), "/");
+		if (nameParts.length > 1) {
+			// first part
+			rootNode = findNode(nodeList, nameParts[0]);
+			if (rootNode == null) {
+				rootNode = new TreeNode(nameParts[0]);
+			}
+			
+			// all parts between first and last part
+			TreeNode parentNode = rootNode;
+			for (int i = 1; i < nameParts.length - 1; i++) {
+				TreeNode node = parentNode.findChild(nameParts[i]);
+				if (node == null) {
+					node = new TreeNode(nameParts[i]);
+					parentNode.addChild(node);
+				}
+				parentNode = node;
+			}
+			
+			// last part
+			parentNode.addChild(createMenuNode(menu, nameParts[nameParts.length - 1], user));
+		}
+		else {
+			rootNode = createMenuNode(menu, menu.getName(), user);
+		}
+		return rootNode;
+	}
+	
+	private static TreeNode createMenuNode(Menu menu, String label, User user) {
+		final TreeNode menuNode = menu.getForm() != null 
+				? new TreeNode(label, URL_LISTFORM, menu.getIcon(), menu.getForm().getId())
+				: new TreeNode(label, null, menu.getIcon());
+		if (menu.hasSubMenus()) {
+			menu.getSubMenus().stream()
+				.filter(subMenu -> subMenu.getForm().getEntity().checkPermissions(user))
+				.forEach(subMenu -> menuNode.addChild(
+										new TreeNode(subMenu.getName(), URL_LISTFORM, 
+													 subMenu.getIcon(), subMenu.getForm().getId())));
+		}
+		return menuNode;
+	}
+	
+	private static TreeNode findNode(List<TreeNode> nodeList, String name) {
+		final Optional<TreeNode> optional = nodeList.stream()
+				.filter(node -> name.equalsIgnoreCase(node.getLabel())).findFirst();
+		return optional.isPresent() ? optional.get() : null;
 	}
 
 }

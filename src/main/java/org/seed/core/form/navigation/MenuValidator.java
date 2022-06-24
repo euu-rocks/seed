@@ -36,8 +36,8 @@ public class MenuValidator extends AbstractSystemEntityValidator<Menu> {
 		if (isEmpty(menu.getName())) {
 			errors.addEmptyName();
 		}
-		else if (!isNameLengthAllowed(menu.getName())) {
-			errors.addOverlongName(getMaxNameLength());
+		else if (menu.getName().length() > getMaxStringLength()) {
+			errors.addOverlongName(getMaxStringLength());
 		}
 		if (menu.getIcon() != null &&
 		    menu.getIcon().length() > getMaxStringLength()) {
