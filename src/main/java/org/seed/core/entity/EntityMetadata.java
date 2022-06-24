@@ -594,21 +594,6 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	// includes nested fields
 	@Override
-	public EntityField findFieldById(Long id) {
-		EntityField field = getFieldById(id);
-		if (field == null && hasNesteds()) {
-			for (NestedEntity nested : getNesteds()) {
-				field = nested.getNestedEntity().getFieldById(id);
-				if (field != null) {
-					break;
-				}
-			}
-		}
-		return field;
-	}
-	
-	// includes nested fields
-	@Override
 	public EntityField findFieldByUid(String uid) {
 		EntityField field = getFieldByUid(uid);
 		if (field == null && hasNesteds()) {

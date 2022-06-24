@@ -93,8 +93,6 @@ public interface Entity
 	
 	EntityField getFieldByUid(String uid);
 	
-	EntityField findFieldById(Long id); // search in nestends too
-	
 	EntityField findFieldByUid(String uid); // search in nestends too
 	
 	EntityField findAutonumField();

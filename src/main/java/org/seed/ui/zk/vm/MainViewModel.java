@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.seed.C;
-import org.seed.Seed;
 import org.seed.core.application.setting.Setting;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormService;
@@ -58,9 +57,6 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	
 	@WireVariable(value="menuManager")
 	private MenuManager menuManager;
-	
-	@WireVariable(value="seed")
-	private Seed seed;
 	
 	private final List<String> openNodes = new ArrayList<>();
 	
