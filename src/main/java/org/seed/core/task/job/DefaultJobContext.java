@@ -19,6 +19,7 @@ package org.seed.core.task.job;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.hibernate.Session;
 import org.quartz.JobExecutionContext;
@@ -29,6 +30,7 @@ import org.seed.core.entity.value.event.ValueObjectFunctionContext;
 import org.seed.core.task.Task;
 import org.seed.core.task.TaskParameter;
 import org.seed.core.task.TaskRunLog;
+import org.seed.core.util.Assert;
 
 class DefaultJobContext extends ValueObjectFunctionContext
 	implements JobContext {
@@ -53,11 +55,28 @@ class DefaultJobContext extends ValueObjectFunctionContext
 	
 	@Override
 	public String getJobParameter(String name) {
+		Assert.notNull(name, "parameter name");
+		
 		if (parameters != null) {
-			for (TaskParameter paramwter : parameters) {
-				if (paramwter.getName().equalsIgnoreCase(name)) {
-					return paramwter.getValue();
-				}
+			final Optional<TaskParameter> optional = parameters.stream()
+					.filter(param -> param.getName().equalsIgnoreCase(name)).findFirst();
+			if (optional.isPresent()) {
+				return optional.get().getValue();
+			}
+		}
+		return null;
+	}
+	
+	@Override
+	public Integer getJobParameterAsInt(String name) {
+		final String param = getJobParameter(name);
+		if (param != null) {
+			try {
+				return Integer.parseInt(param);
+			}
+			catch (NumberFormatException nfe) {
+				throw new IllegalStateException("value of parameter '" + name + 
+												"' is not an integer: " + param);
 			}
 		}
 		return null;
@@ -66,6 +85,12 @@ class DefaultJobContext extends ValueObjectFunctionContext
 	@Override
 	public String getJobParameter(String name, String defaultValue) {
 		final String value = getJobParameter(name);
+		return value != null ? value : defaultValue;
+	}
+	
+	@Override
+	public Integer getJobParameterAsInt(String name, Integer defaultValue) {
+		final Integer value = getJobParameterAsInt(name);
 		return value != null ? value : defaultValue;
 	}
 	
@@ -90,13 +115,15 @@ class DefaultJobContext extends ValueObjectFunctionContext
 	}
 	
 	private void log(LogLevel level, String content) {
-		final TaskRunLog log = new TaskRunLog();
-		log.setLevel(level);
-		if (content != null && content.length() > 1024) {
-			content = content.substring(0, 1020) + "...";
+		if (content != null) {
+			final TaskRunLog log = new TaskRunLog();
+			log.setLevel(level);
+			if (content.length() > 1024) {
+				content = content.substring(0, 1020) + "...";
+			}
+			log.setContent(content);
+			logs.add(log);
 		}
-		log.setContent(content);
-		logs.add(log);
 	}
 	
 }

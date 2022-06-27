@@ -19,6 +19,7 @@ package org.seed.core.api;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 
@@ -29,6 +30,10 @@ public interface EntityObjectProvider {
 	BatchOperation startBatchOperation();
 	
 	CriteriaBuilder getCriteriaBuilder();
+	
+	<T extends EntityObject> DBCursor<T> createCursor(Class<T> objectClass, int chunkSize);
+	
+	<T extends EntityObject> DBCursor<T> createCursor(Class<T> objectClass, @Nullable EntityFilter filter, int chunkSize);
 	
 	<T extends EntityObject> T createObject(Class<T> objectClass);
 	
@@ -51,6 +56,8 @@ public interface EntityObjectProvider {
 	<T extends EntityObject> void save(T entityObject, BatchOperation batchOperation) throws ValidationException;
 	
 	<T extends EntityObject> void delete(T entityObject) throws ValidationException;
+	
+	<T extends EntityObject> void delete(T entityObject, BatchOperation batchOperation) throws ValidationException;
 	
 	<T extends EntityObject> Status getStatus(T entityObject, Integer statusNumber);
 	

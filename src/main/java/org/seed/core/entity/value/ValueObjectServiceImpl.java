@@ -220,14 +220,21 @@ public class ValueObjectServiceImpl
 	public QueryCursor<ValueObject> createCursor(Entity entity, @Nullable Filter filter, Sort ...sort) {
 		Assert.notNull(entity, C.ENTITY);
 		
-		return repository.createCursor(entity, filter, sort);
+		return repository.createCursor(entity, filter, ValueObjectRepository.DEFAULT_CHUNK_SIZE, sort);
 	}
 	
 	@Override
-	public QueryCursor<ValueObject> createCursor(Entity entity, int chuckSize) {
+	public QueryCursor<ValueObject> createCursor(Session session, Entity entity, @Nullable Filter filter, int chunkSize, Sort ...sort) {
 		Assert.notNull(entity, C.ENTITY);
 		
-		return repository.createCursor(entity, chuckSize);
+		return repository.createCursor(session, entity, filter, chunkSize, sort);
+	}
+	
+	@Override
+	public QueryCursor<ValueObject> createCursor(Entity entity, int chunkSize) {
+		Assert.notNull(entity, C.ENTITY);
+		
+		return repository.createCursor(entity, chunkSize);
 	}
 	
 	@Override
@@ -263,15 +270,20 @@ public class ValueObjectServiceImpl
 			return loadFullTextObjects(cursor);
 		}
 		try (Session session = repository.getSession()) {
-			@SuppressWarnings("unchecked")
-			final Query<ValueObject> query = cursor.getQueryText() != null
-								? session.createQuery(cursor.getQueryText())
-								: session.createQuery(cursor.getQuery());
-			query.setFirstResult(cursor.getStartIndex());
-			query.setMaxResults(cursor.getChunkSize());
-			query.setCacheable(true);
-			return query.getResultList();
+			return loadChunk(session, cursor);
 		}
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<ValueObject> loadChunk(Session session, QueryCursor<ValueObject> cursor) {
+		final Query<ValueObject> query = cursor.getQueryText() != null
+							? session.createQuery(cursor.getQueryText())
+							: session.createQuery(cursor.getQuery());
+		query.setFirstResult(cursor.getStartIndex());
+		query.setMaxResults(cursor.getChunkSize());
+		query.setCacheable(true);
+		return query.getResultList();
 	}
 	
 	@Override
@@ -422,6 +434,14 @@ public class ValueObjectServiceImpl
 		
 		filterService.initFilterCriteria(filter);
 		return repository.find(entity, filter);
+	}
+	
+	@Override
+	public List<ValueObject> find(Session session, Entity entity, Filter filter) {
+		Assert.notNull(filter, C.FILTER);
+		
+		filterService.initFilterCriteria(filter);
+		return repository.find(session, entity, filter);
 	}
 	
 	@Override

@@ -17,22 +17,18 @@
  */
 package org.seed.core.api;
 
-public interface JobContext extends CallbackFunctionContext {
+import java.util.List;
+
+public interface DBCursor<T extends EntityObject> {
 	
-	boolean hasJobParameter(String name);
+	int getTotalCount();
 	
-	String getJobParameter(String name);
+	int getChunkCount();
 	
-	Integer getJobParameterAsInt(String name);
-		
-	String getJobParameter(String name, String defaultValue);
+	int getChunkSize();
 	
-	Integer getJobParameterAsInt(String name, Integer defaultValue);
+	boolean hasNextChunk();
 	
-	void logInfo(String content);
-	
-	void logWarning(String content);
-	
-	void logError(String content);
+	List<T> loadChunk();
 	
 }

@@ -51,9 +51,11 @@ public interface ValueObjectService extends EntityUsage {
 	
 	ValueObject createObject(Entity entity, Map<String,Object> valueMap);
 	
-	QueryCursor<ValueObject> createCursor(Entity entity, int chuckSize);
+	QueryCursor<ValueObject> createCursor(Entity entity, int chunkSize);
 	
 	QueryCursor<ValueObject> createCursor(Entity entity, @Nullable Filter filter, Sort ...sort);
+	
+	QueryCursor<ValueObject> createCursor(Session session, Entity entity, @Nullable Filter filter, int chunkSize, Sort ...sort);
 	
 	QueryCursor<ValueObject> createCursor(ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sort);
 	
@@ -62,6 +64,8 @@ public interface ValueObjectService extends EntityUsage {
 	QueryCursor<FullTextResult> createFullTextSearchCursor(String fullTextQueryString);
 	
 	List<ValueObject> loadChunk(QueryCursor<ValueObject> cursor);
+	
+	List<ValueObject> loadChunk(Session session, QueryCursor<ValueObject> cursor);
 	
 	List<FullTextResult> loadFullTextChunk(QueryCursor<FullTextResult> cursor);
 	
@@ -119,6 +123,8 @@ public interface ValueObjectService extends EntityUsage {
 	List<ValueObject> getAvailableRelationObjects(ValueObject object, EntityRelation relation);
 	
 	List<ValueObject> find(Entity entity, Filter filter);
+	
+	List<ValueObject> find(Session session, Entity entity, Filter filter);
 	
 	List<ValueObject> find(Session session, CriteriaQuery<ValueObject> query);
 	

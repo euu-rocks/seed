@@ -19,6 +19,7 @@ package org.seed.core.entity.value.event;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 
@@ -26,6 +27,7 @@ import org.seed.C;
 import org.seed.InternalException;
 import org.seed.Seed;
 import org.seed.core.api.BatchOperation;
+import org.seed.core.api.DBCursor;
 import org.seed.core.api.EntityFilter;
 import org.seed.core.api.EntityObject;
 import org.seed.core.api.EntityObjectProvider;
@@ -33,6 +35,7 @@ import org.seed.core.api.EntityTransformer;
 import org.seed.core.api.Status;
 import org.seed.core.config.ApplicationProperties;
 import org.seed.core.data.BatchCursor;
+import org.seed.core.data.QueryCursor;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityService;
@@ -42,6 +45,7 @@ import org.seed.core.entity.filter.FilterService;
 import org.seed.core.entity.transform.Transformer;
 import org.seed.core.entity.transform.TransformerService;
 import org.seed.core.entity.value.ValueObject;
+import org.seed.core.entity.value.ValueObjectCursor;
 import org.seed.core.entity.value.ValueObjectService;
 import org.seed.core.util.Assert;
 import org.seed.core.util.BeanUtils;
@@ -117,12 +121,33 @@ class ValueObjectProvider implements EntityObjectProvider {
 	}
 	
 	@Override
+	public <T extends EntityObject> DBCursor<T> createCursor(Class<T> objectClass, int chunkSize) {
+		return createCursor(objectClass, null, chunkSize);
+	}
+	
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public <T extends EntityObject> DBCursor<T> createCursor(Class<T> objectClass, @Nullable EntityFilter filter, int chunkSize) {
+		Assert.notNull(objectClass, C.OBJECTCLASS);
+		
+		final Entity entity = getEntity((Class<ValueObject>) objectClass);
+		return new ValueObjectCursor(valueObjectService.createCursor(functionContext.getSession(), entity,(Filter) filter, chunkSize)) {
+
+			@Override
+			protected List loadChunk(QueryCursor cursor) {
+				return valueObjectService.loadChunk(functionContext.getSession(), cursor);
+			}
+			
+		};
+	}
+	
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T extends EntityObject> List<T> find(EntityFilter entityFilter) {
 		Assert.notNull(entityFilter, "entityFilter");
 		
 		final Filter filter = (Filter) entityFilter;
-		return (List<T>) valueObjectService.find(filter.getEntity(), filter);
+		return (List<T>) valueObjectService.find(functionContext.getSession(), filter.getEntity(), filter);
 	}
 	
 	@Override
@@ -206,15 +231,10 @@ class ValueObjectProvider implements EntityObjectProvider {
 	
 	@Override
 	public <T extends EntityObject> void save(T entityObject, BatchOperation batchOperation) throws ValidationException {
-		Assert.notNull(entityObject, C.ENTITYOBJECT);
 		Assert.notNull(batchOperation, "batch operation");
 		
-		valueObjectService.saveObject((ValueObject) entityObject, null, functionContext);
-		final BatchCursor batchCursor = (BatchCursor) batchOperation;
-		if (batchCursor.flushNeeded()) {
-			functionContext.getSession().flush();
-			functionContext.getSession().clear();
-		}
+		save(entityObject);
+		flushIfNeeded(batchOperation);
 	}
 	
 	@Override
@@ -224,9 +244,25 @@ class ValueObjectProvider implements EntityObjectProvider {
 		valueObjectService.deleteObject((ValueObject) entityObject, null, functionContext);
 	}
 	
+	@Override
+	public <T extends EntityObject> void delete(T entityObject, BatchOperation batchOperation) throws ValidationException {
+		Assert.notNull(batchOperation, "batch operation");
+		
+		delete(entityObject);
+		flushIfNeeded(batchOperation);
+	}
+	
+	private void flushIfNeeded(BatchOperation batchOperation) {
+		final BatchCursor batchCursor = (BatchCursor) batchOperation;
+		if (batchCursor.flushNeeded()) {
+			functionContext.getSession().flush();
+			functionContext.getSession().clear();
+		}
+	}
+	
 	private Entity getEntity(Class<ValueObject> clas) {
-			final ValueObject object = BeanUtils.instantiate(clas);
-			return entityService.getObject(object.getEntityId());
+		final ValueObject object = BeanUtils.instantiate(clas);
+		return entityService.getObject(object.getEntityId());
 	}
 	
 }

@@ -217,20 +217,24 @@ public class ValueObjectRepository {
 		return find(session, query.select((Selection<? extends ValueObject>) query.from(entityClass)));
 	}
 	
-	@SuppressWarnings("unchecked")
 	List<ValueObject> find(Entity entity, Filter filter, Sort ...sorts) {
+		try (Session session = getSession()) {
+			return find(session, entity, filter, sorts);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	List<ValueObject> find(Session session, Entity entity, Filter filter, Sort ...sorts) {
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(filter, C.FILTER);
 		checkFilter(entity, filter);
 		
-		try (Session session = getSession()) {
-			if (filter.getHqlQuery() != null) {
-				return session.createQuery(filter.getHqlQuery())
-							  .setCacheable(true)
-							  .list();
-			}
-			return find(session, buildQuery(session, entity, filter, sorts));
+		if (filter.getHqlQuery() != null) {
+			return session.createQuery(filter.getHqlQuery())
+						  .setCacheable(true)
+						  .list();
 		}
+		return find(session, buildQuery(session, entity, filter, sorts));
 	}
 	
 	List<ValueObject> find(Session session, CriteriaQuery<ValueObject> query) {
@@ -625,21 +629,25 @@ public class ValueObjectRepository {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
-	QueryCursor<ValueObject> createCursor(Entity entity, @Nullable Filter filter, Sort ...sort) {
+	QueryCursor<ValueObject> createCursor(Entity entity, @Nullable Filter filter, int chuckSize, Sort ...sort) {
 		try (Session session = getSession()) {
-			if (filter != null && filter.getHqlQuery() != null) {
-				final StringBuilder queryBuilder = new StringBuilder("select count(*) ").append(filter.getHqlQuery());
-				final Query<Long> query = session.createQuery(queryBuilder.toString());
-				final Long totalSize = query.uniqueResult();
-				return new QueryCursor<>(filter.getHqlQuery(), totalSize.intValue(), DEFAULT_CHUNK_SIZE);
-			}
-			
-			final CriteriaQuery<Long> countQuery = buildCountQuery(session, entity, filter); 
-			final Long totalSize = querySingleResult(session, countQuery);
-			final CriteriaQuery<ValueObject> query = buildQuery(session, entity, filter, sort);
-			return new QueryCursor<>(query, totalSize.intValue(), DEFAULT_CHUNK_SIZE);
+			return createCursor(session, entity, filter, chuckSize, sort);
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	QueryCursor<ValueObject> createCursor(Session session, Entity entity, @Nullable Filter filter, int chuckSize, Sort ...sort) {
+		if (filter != null && filter.getHqlQuery() != null) {
+			final StringBuilder queryBuilder = new StringBuilder("select count(*) ").append(filter.getHqlQuery());
+			final Query<Long> query = session.createQuery(queryBuilder.toString());
+			final Long totalSize = query.uniqueResult();
+			return new QueryCursor<>(filter.getHqlQuery(), totalSize.intValue(), chuckSize);
+		}
+		
+		final CriteriaQuery<Long> countQuery = buildCountQuery(session, entity, filter); 
+		final Long totalSize = querySingleResult(session, countQuery);
+		final CriteriaQuery<ValueObject> query = buildQuery(session, entity, filter, sort);
+		return new QueryCursor<>(query, totalSize.intValue(), chuckSize);
 	}
 	
 	QueryCursor<ValueObject> createCursor(ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sort) {
