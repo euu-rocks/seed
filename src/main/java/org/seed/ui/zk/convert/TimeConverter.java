@@ -20,17 +20,25 @@ package org.seed.ui.zk.convert;
 import java.util.Date;
 
 import org.seed.LabelProvider;
+import org.seed.core.util.MiscUtils;
 import org.zkoss.bind.BindContext;
 import org.zkoss.zk.ui.Component;
 
 public class TimeConverter extends AbstractConverter<String, Date, Component> {
 	
-	public TimeConverter(LabelProvider labelProvider) {
+	private final boolean showMilliseconds;
+	
+	public TimeConverter(LabelProvider labelProvider, boolean showMilliseconds) {
 		super(labelProvider);
+		this.showMilliseconds = showMilliseconds;
 	} 
 	
 	@Override
 	public String coerceToUi(Date beanProp, Component component, BindContext ctx) {
+		if (showMilliseconds && beanProp != null) {
+			return labelProvider().formatTime(beanProp) + '.' + 
+					MiscUtils.addLeadingChars(Long.toString(beanProp.getTime() % 1000L), '0', 3);
+		}
 		return labelProvider().formatTime(beanProp);
 	}
 

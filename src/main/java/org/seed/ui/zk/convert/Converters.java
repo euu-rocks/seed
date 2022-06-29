@@ -54,7 +54,7 @@ public abstract class Converters {
 	
 	public static TimeConverter getTimeConverter() {
 		if (timeConverter == null) {
-			timeConverter = new TimeConverter(getLabelProvider());
+			timeConverter = new TimeConverter(getLabelProvider(), true);
 		}
 		return timeConverter;
 	}

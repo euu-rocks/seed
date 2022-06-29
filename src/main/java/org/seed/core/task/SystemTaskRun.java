@@ -24,6 +24,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
 import org.seed.core.config.LogLevel;
@@ -39,6 +40,7 @@ public class SystemTaskRun extends AbstractTaskRun {
 			   cascade = CascadeType.ALL,
 			   orphanRemoval = true,
 			   fetch = FetchType.LAZY)
+	@OrderBy("moment")
 	private List<SystemTaskRunLog> logs;
 	
 	public SystemTask getSystemTask() {

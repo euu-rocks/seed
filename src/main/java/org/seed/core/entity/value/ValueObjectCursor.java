@@ -27,7 +27,7 @@ public abstract class ValueObjectCursor<T extends ValueObject> implements DBCurs
 	
 	private final QueryCursor<T> queryCursor;
 	
-	private final int totalChunkCount;
+	private final int chunkCount;
 	
 	private int chunkIndex = 0;
 	
@@ -35,11 +35,11 @@ public abstract class ValueObjectCursor<T extends ValueObject> implements DBCurs
 		Assert.notNull(queryCursor, "query cursor");
 		
 		this.queryCursor = queryCursor;
-		int chunkCount = getTotalCount() / getChunkSize();
-		if (chunkCount * getChunkSize() < getTotalCount()) {
-			chunkCount++;
+		int numChunks = getTotalCount() / getChunkSize();
+		if (numChunks * getChunkSize() < getTotalCount()) {
+			numChunks++;
 		}
-		totalChunkCount = chunkCount;
+		chunkCount = numChunks;
 	}
 	
 	protected abstract List<T> loadChunk(QueryCursor<T> cursor);
@@ -56,16 +56,18 @@ public abstract class ValueObjectCursor<T extends ValueObject> implements DBCurs
 	
 	@Override
 	public boolean hasNextChunk() {
-		return chunkIndex < totalChunkCount;
+		return chunkIndex < chunkCount;
 	}
 	
 	@Override
 	public int getChunkCount() {
-		return totalChunkCount;
+		return chunkCount;
 	}
 	
 	@Override
 	public List<T> loadChunk() {
+		Assert.stateAvailable(hasNextChunk(), "chunk");
+		
 		queryCursor.setChunkIndex(chunkIndex++);
 		return loadChunk(queryCursor);
 	}

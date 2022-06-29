@@ -26,6 +26,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
 import org.seed.core.config.LogLevel;
@@ -43,6 +44,7 @@ public class TaskRun extends AbstractTaskRun {
 			   cascade = CascadeType.ALL,
 			   orphanRemoval = true,
 			   fetch = FetchType.LAZY)
+	@OrderBy("moment")
 	private List<TaskRunLog> logs;
 	
 	public Task getTask() {

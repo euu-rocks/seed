@@ -21,6 +21,32 @@
                   } 
                },
                {
+                  "addColumn":  {
+                     "columns":[
+                        {
+                           "column": {
+                              "name": "moment",
+                              "type": "DATETIME"
+                           }
+                        }
+                     ],
+                     "tableName":  "sys_task_run_log"
+                  } 
+               },
+               {
+                  "addColumn":  {
+                     "columns":[
+                        {
+                           "column": {
+                              "name": "moment",
+                              "type": "DATETIME"
+                           }
+                        }
+                     ],
+                     "tableName":  "sys_systemtask_run_log"
+                  } 
+               },
+               {
                   "modifyDataType": {
                     "newDataType": "VARCHAR(<#STRING_LEN#>)",
                     "columnName": "name",

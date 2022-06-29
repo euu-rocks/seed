@@ -18,6 +18,7 @@
 package org.seed.core.task.job;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -117,6 +118,7 @@ class DefaultJobContext extends ValueObjectFunctionContext
 	private void log(LogLevel level, String content) {
 		if (content != null) {
 			final TaskRunLog log = new TaskRunLog();
+			log.setMoment(new Date());
 			log.setLevel(level);
 			if (content.length() > 1024) {
 				content = content.substring(0, 1020) + "...";

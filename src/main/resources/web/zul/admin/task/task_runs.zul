@@ -28,10 +28,10 @@
 			         class="alpha-noborder"
 			         hflex="1" vflex="1">
 				<listhead sizable="true">
-		            <listheader label="${labels.label.resultshort}" hflex="min"
-		            			sort="auto(result)"/>
-		            <listheader label="${labels.label.starttime}" hflex="1"
-		            			sort="auto(startTime)" onCreate="self.sort(false)"/>
+		            <listheader label="${labels.label.resultshort}" 
+		            			sort="auto(result)" hflex="min"/>
+		            <listheader label="${labels.label.starttime}" 
+		            			sort="auto(startTime)" hflex="1"/>
 		            <listheader label="${labels.label.endtime}" 
 		            			sort="auto(endTime)" hflex="1"/>
 		        </listhead>
@@ -60,9 +60,12 @@
 			         class="alpha-noborder"
 			         hflex="1" vflex="1">
 				<listhead sizable="true">
-		            <listheader label="${labels.label.level}" hflex="min"/>
-		            <listheader label="${labels.label.time}" hflex="min"/>
-		            <listheader label="${labels.label.message}" hflex="max"/>
+		            <listheader label="${labels.label.level}" 
+		            			sort="auto(level)" hflex="min"/>
+		            <listheader label="${labels.label.time}"
+		            			sort="auto(moment)" hflex="min"/>
+		            <listheader label="${labels.label.message}" 
+		            			sort="auto(content)" hflex="max"/>
 		        </listhead>
 		        <template name="model" var="entry">
 		            <listitem>
@@ -70,7 +73,7 @@
 		            		<label value="@load(vm.getEnumLabel(entry.level))"/>
 		            	</listcell>
 		            	<listcell>
-		            		<label value="@load(entry.createdOn)
+		            		<label value="@load(entry.moment)
 		            					  @converter(vm.timeConverter)"/>
 		            	</listcell>
 		            	<listcell>

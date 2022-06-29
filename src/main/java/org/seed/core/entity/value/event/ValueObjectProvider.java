@@ -79,7 +79,7 @@ class ValueObjectProvider implements EntityObjectProvider {
 	@Override
 	public <T extends EntityObject> Status getStatus(T entityObject, Integer statusNumber) {
 		Assert.notNull(entityObject, C.ENTITYOBJECT);
-		Assert.notNull(statusNumber, "statusNumber");
+		Assert.notNull(statusNumber, "status number");
 		
 		final Entity entity = entityService.getObject(((ValueObject) entityObject).getEntityId());
 		final Status status = entity.getStatusByNumber(statusNumber); 
@@ -107,7 +107,7 @@ class ValueObjectProvider implements EntityObjectProvider {
 	@SuppressWarnings("unchecked")
 	public <T extends EntityObject> T getObject(Class<T> objectClass, Long id) {
 		Assert.notNull(objectClass, C.OBJECTCLASS);
-		Assert.notNull(id, "id is null");
+		Assert.notNull(id, C.ID);
 		
 		return (T) valueObjectService.getObject(functionContext.getSession(), objectClass, id);
 	}
@@ -129,6 +129,7 @@ class ValueObjectProvider implements EntityObjectProvider {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public <T extends EntityObject> DBCursor<T> createCursor(Class<T> objectClass, @Nullable EntityFilter filter, int chunkSize) {
 		Assert.notNull(objectClass, C.OBJECTCLASS);
+		Assert.greaterThanZero(chunkSize, "chunk size");
 		
 		final Entity entity = getEntity((Class<ValueObject>) objectClass);
 		return new ValueObjectCursor(valueObjectService.createCursor(functionContext.getSession(), entity,(Filter) filter, chunkSize)) {
@@ -144,7 +145,7 @@ class ValueObjectProvider implements EntityObjectProvider {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T extends EntityObject> List<T> find(EntityFilter entityFilter) {
-		Assert.notNull(entityFilter, "entityFilter");
+		Assert.notNull(entityFilter, "entity filter");
 		
 		final Filter filter = (Filter) entityFilter;
 		return (List<T>) valueObjectService.find(functionContext.getSession(), filter.getEntity(), filter);
@@ -161,7 +162,7 @@ class ValueObjectProvider implements EntityObjectProvider {
 	@Override
 	public BatchOperation startBatchOperation() {
 		final Integer batchSize = applicationProperties.getIntegerProperty(Seed.PROP_BATCH_SIZE);
-		Assert.stateAvailable(batchSize, "batch processing");
+		Assert.stateAvailable(batchSize, "batch size");
 		
 		return new BatchCursor(batchSize);
 	}
@@ -174,7 +175,7 @@ class ValueObjectProvider implements EntityObjectProvider {
 	@Override
 	public void changeStatus(EntityObject entityObject, Status targetStatus) throws ValidationException {
 		Assert.notNull(entityObject, C.ENTITYOBJECT);
-		Assert.notNull(targetStatus, "targetStatus");
+		Assert.notNull(targetStatus, "target status");
 		
 		valueObjectService.changeStatus((ValueObject) entityObject, (EntityStatus) targetStatus, null, functionContext);
 	}
@@ -182,8 +183,8 @@ class ValueObjectProvider implements EntityObjectProvider {
 	@Override
 	public <T extends EntityObject,U extends EntityObject> void transform(EntityTransformer transformer, T sourceObject, U targetObject) {
 		Assert.notNull(transformer, C.TRANSFORMER);
-		Assert.notNull(sourceObject, "sourceObject");
-		Assert.notNull(targetObject, "targetObject");
+		Assert.notNull(sourceObject, "source object");
+		Assert.notNull(targetObject, "target object");
 		
 		valueObjectService.transform((Transformer) transformer, (ValueObject) sourceObject, (ValueObject) targetObject);
 	}
@@ -192,7 +193,7 @@ class ValueObjectProvider implements EntityObjectProvider {
 	@Override
 	public <T extends EntityObject,U extends EntityObject> U transform(EntityTransformer transformer, T sourceObject) {
 		Assert.notNull(transformer, C.TRANSFORMER);
-		Assert.notNull(sourceObject, "sourceObject");
+		Assert.notNull(sourceObject, "source object");
 		
 		return (U) valueObjectService.transform((Transformer) transformer, (ValueObject) sourceObject);
 	}
@@ -201,7 +202,7 @@ class ValueObjectProvider implements EntityObjectProvider {
 	@Override
 	public <T extends EntityObject> EntityFilter getFilter(Class<T> objectClass, String filterName) {
 		Assert.notNull(objectClass, C.OBJECTCLASS);
-		Assert.notNull(filterName, "filterName");
+		Assert.notNull(filterName, "filter name");
 		
 		final Entity entity = getEntity((Class<ValueObject>) objectClass);
 		return filterService.getFilterByName(entity, filterName);

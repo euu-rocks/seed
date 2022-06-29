@@ -17,6 +17,8 @@
  */
 package org.seed.core.task;
 
+import java.util.Date;
+
 import javax.persistence.MappedSuperclass;
 
 import org.seed.core.config.LogLevel;
@@ -25,9 +27,19 @@ import org.seed.core.data.AbstractSystemObject;
 @MappedSuperclass
 public abstract class AbstractTaskRunLog extends AbstractSystemObject {
 	
+	private Date moment;
+	
 	private LogLevel level;
 	
 	private String content;
+
+	public Date getMoment() {
+		return moment;
+	}
+
+	public void setMoment(Date moment) {
+		this.moment = moment;
+	}
 
 	public LogLevel getLevel() {
 		return level;

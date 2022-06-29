@@ -416,6 +416,7 @@ public class DefaultJobScheduler
 	
 	private static void log(TaskRun run, LogLevel level, String message) {
 		final TaskRunLog runLog = new TaskRunLog();
+		runLog.setMoment(new Date());
 		runLog.setLevel(level);
 		runLog.setContent(message);
 		run.addLog(runLog);
