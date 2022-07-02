@@ -185,7 +185,7 @@ public class CodeManagerImpl implements CodeManager {
 	
 	private void compileCustomClasses(List<SourceCode> sourceCodeList) {
 		try {
-			compiler.compile(sourceCodeList.stream().filter(this::isOtherSource)
+			compiler.compile(sourceCodeList.stream().filter(this::isCustomSource)
 										   .collect(Collectors.toList()));
 			lastCompilerRun = new Date();
 		}
@@ -211,7 +211,7 @@ public class CodeManagerImpl implements CodeManager {
 		return code.getPackageName().equals(GENERATED_TASK_PACKAGE);
 	}
 	
-	private boolean isOtherSource(SourceCode code) {
+	private boolean isCustomSource(SourceCode code) {
 		return !(isEntitySource(code) ||
 				 isTransformSource(code) ||
 				 isRestSource(code) ||

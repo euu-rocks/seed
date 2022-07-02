@@ -98,13 +98,11 @@
 						<cell style="padding: 4px 4px">
 							<inputgroup hflex="1">
 								<intbox value="@bind(vm.object.repeatInterval)"
-										onChange="@command('flagDirty')"
-										hflex="1"/>
+										onChange="@command('flagDirty')"/>
 								<combobox model="@load(vm.intervalUnits)"
 										  selectedItem="@bind(vm.object.repeatIntervalUnit)"
 										  value="@load(vm.getEnumLabel(vm.object.repeatIntervalUnit))"
-										  onSelect="@command('flagDirty')"
-										  hflex="1">
+										  onSelect="@command('flagDirty')">
 					                <template name="model" var="intervalUnit">
 					                    <comboitem label="@load(vm.getEnumLabel(intervalUnit))" />
 					                </template>

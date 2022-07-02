@@ -41,6 +41,8 @@ public interface EntityObjectProvider {
 	
 	<T extends EntityObject> T getObject(Class<T> objectClass, Long id);
 	
+	<T extends EntityObject> String getIdentifier(T entityObject);
+	
 	<T extends EntityObject> List<T> findAll(Class<T> objectClass);
 	
 	<T extends EntityObject> List<T> find(EntityFilter filter);

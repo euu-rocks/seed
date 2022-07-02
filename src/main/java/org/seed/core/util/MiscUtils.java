@@ -97,13 +97,11 @@ public abstract class MiscUtils {
 	
 	public static String formatDurationTime(long durationMs) {
 		final StringBuilder buf = new StringBuilder();
-		if (durationMs < 60000) { // < 1min
-			if (durationMs < 1000) {
-				buf.append(durationMs).append(" ms");
-			}
-			else {
-				buf.append(durationMs / 1000d).append(" sec");
-			}
+		if (durationMs < 1000L) { // < 1sec
+			buf.append(durationMs).append(" ms");
+		}
+		else if (durationMs < 60000L) {    // < 1min
+			buf.append(durationMs / 1000d).append(" sec");
 		}
 		else {
 			final long durationSec = durationMs / 1000L;

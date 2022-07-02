@@ -88,6 +88,13 @@ class ValueObjectProvider implements EntityObjectProvider {
 	}
 	
 	@Override
+	public <T extends EntityObject> String getIdentifier(T entityObject) {
+		Assert.notNull(entityObject, C.ENTITYOBJECT);
+		
+		return valueObjectService.getIdentifier((ValueObject) entityObject);
+	}
+	
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T extends EntityObject> T createObject(Class<T> objectClass) {
 		Assert.notNull(objectClass, C.OBJECTCLASS);

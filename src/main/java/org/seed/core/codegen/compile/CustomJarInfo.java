@@ -29,8 +29,6 @@ import org.seed.core.util.StreamUtils;
 
 final class CustomJarInfo {
 	
-	private static final String META_INF = "META-INF";
-	
 	private final CustomJar customJar;
 	
 	private final Set<String> packageNames;
@@ -57,7 +55,7 @@ final class CustomJarInfo {
 		try (ZipInputStream zis = StreamUtils.getZipStream(customJar.getContent())) {
 			ZipEntry entry;
 			while ((entry = zis.getNextEntry()) != null) {
-                if (entry.isDirectory() && !entry.getName().startsWith(META_INF)) {
+                if (entry.isDirectory() && !entry.getName().startsWith("META-INF")) {
                 	packageNames.add(entry.getName()
                 						  .substring(0, entry.getName().length() - 1)
                 						  .replace('/', '.'));

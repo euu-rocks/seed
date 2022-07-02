@@ -48,9 +48,4 @@ public final class Tupel<X, Y> {
 		return x.equals(otherTupel.x) && y.equals(otherTupel.y);
 	}
 	
-	@Override
-	public String toString() {
-		return "(" + x + ',' + y + ')';
-	}
-	
 }
