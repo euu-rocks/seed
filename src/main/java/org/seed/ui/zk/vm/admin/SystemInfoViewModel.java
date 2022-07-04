@@ -17,6 +17,7 @@
  */
 package org.seed.ui.zk.vm.admin;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 
@@ -119,6 +120,15 @@ public class SystemInfoViewModel extends AbstractApplicationViewModel {
 										  Runtime.getRuntime().freeMemory());
 	}
 	
+	public String getFilesystemTotalInfo() {
+		return MiscUtils.formatMemorySize(new File("/").getTotalSpace());
+	}
+	
+	public String getFilesystemUsedInfo() {
+		final File root = new File("/");
+		return MiscUtils.formatMemorySize(root.getTotalSpace() - root.getFreeSpace());
+	}
+ 	
 	public String getJobTotalDuration() {
 		return jobStatistics.getTotalRunsDurationTime() > 0 
 				? MiscUtils.formatDurationTime(jobStatistics.getTotalRunsDurationTime()) 

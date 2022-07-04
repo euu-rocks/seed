@@ -60,6 +60,15 @@
 					<label value="@load(vm.memUsedInfo)"/> 
 				</cell>
 			</row>
+			<row>
+				<cell style="padding: 4px 10px" align="right">
+					<label value="${labels.systeminfo.environment.filesystem}:"/>
+				</cell>
+				<cell style="padding: 4px 4px">
+					<label value="@load(vm.filesystemTotalInfo)"/> / 
+					<label value="@load(vm.filesystemUsedInfo)"/>
+				</cell>
+			</row>
 		</rows>
 	</grid>
 </groupbox>
