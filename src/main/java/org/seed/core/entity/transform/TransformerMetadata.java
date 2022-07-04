@@ -18,15 +18,11 @@
 package org.seed.core.entity.transform;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
@@ -93,14 +89,12 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private List<TransformerPermission> permissions;
 	
-	@ManyToMany(fetch = FetchType.LAZY, 
-				cascade = CascadeType.ALL)
-	@JoinTable(name = "sys_entity_transform_status", 
-			   joinColumns = { 
-					   @JoinColumn(name = "transformer_id", nullable = false, updatable = false) }, 
-			   inverseJoinColumns = { 
-					   @JoinColumn(name = "status_id", nullable = false, updatable = false) })
-	private Set<EntityStatus> statusSet;
+	@OneToMany(mappedBy = "transformer",
+			   cascade = CascadeType.ALL,
+			   orphanRemoval = true,
+			   fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+	private List<TransformerStatus> statusList;
 	
 	@Transient
 	@JsonIgnore
@@ -182,7 +176,7 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
-	public EntityStatus getStatusByUid(String uid) {
+	public TransformerStatus getStatusByUid(String uid) {
 		return getObjectByUid(getStatus(), uid);
 	}
 	
@@ -197,7 +191,12 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	public boolean containsStatus(EntityStatus status) {
 		Assert.notNull(status, C.STATUS);
 		
-		return hasStatus() && getStatus().contains(status);
+		if (hasStatus()) {
+			return getStatus().stream()
+					.filter(ts ->  status.equals(ts.getStatus()))
+					.findFirst().isPresent();
+		}
+		return false;
 	}
 	
 	@Override
@@ -267,13 +266,6 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	public void setPermissions(List<TransformerPermission> permissions) {
 		this.permissions = permissions;
 	}
-
-	@Override
-	public boolean isEnabled(EntityStatus entityStatus) {
-		Assert.notNull(entityStatus, "entityStatus");
-		
-		return !hasStatus() || getStatus().contains(entityStatus);
-	}
 	
 	@Override
 	public boolean hasStatus() {
@@ -281,10 +273,16 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
-	public Set<EntityStatus> getStatus() {
-		return statusSet;
+	@XmlElement(name="status")
+	@XmlElementWrapper(name="statuses")
+	public List<TransformerStatus> getStatus() {
+		return statusList;
 	}
 	
+	public void setStatus(List<TransformerStatus> statusList) {
+		this.statusList = statusList;
+	}
+
 	@Override
 	public boolean isEqual(Object other) {
 		if (other == null || !Transformer.class.isAssignableFrom(other.getClass())) {
@@ -362,14 +360,14 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	
 	private boolean isEqualStatus(Transformer otherTransformer) {
 		if (hasStatus()) {
-			for (EntityStatus status : getStatus()) {
+			for (TransformerStatus status : getStatus()) {
 				if (otherTransformer.getStatusByUid(status.getUid()) == null) {
 					return false;
 				}
 			}
 		}
 		if (otherTransformer.hasStatus()) {
-			for (EntityStatus otherStatus : otherTransformer.getStatus()) {
+			for (TransformerStatus otherStatus : otherTransformer.getStatus()) {
 				if (getStatusByUid(otherStatus.getUid()) == null) {
 					return false;
 				}
@@ -383,6 +381,7 @@ public class TransformerMetadata extends AbstractApplicationEntity
 		removeNewObjects(getElements());
 		removeNewObjects(getFunctions());
 		removeNewObjects(getPermissions());
+		removeNewObjects(getStatus());
 	}
 	
 	@Override
@@ -391,6 +390,7 @@ public class TransformerMetadata extends AbstractApplicationEntity
 		initUids(getElements());
 		initUids(getFunctions());
 		initUids(getPermissions());
+		initUids(getStatus());
 	}
 	
 	@Override
@@ -399,7 +399,7 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	}
 	
 	void createLists() {
-		statusSet = new HashSet<>();
+		statusList = new ArrayList<>();
 		permissions = new ArrayList<>();
 	}
 	

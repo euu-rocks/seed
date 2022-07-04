@@ -18,7 +18,6 @@
 package org.seed.core.entity.transform;
 
 import java.util.List;
-import java.util.Set;
 
 import org.seed.core.api.EntityTransformer;
 import org.seed.core.application.ApplicationEntity;
@@ -59,14 +58,12 @@ public interface Transformer
 	
 	void removeFunction(TransformerFunction function);
 	
-	boolean isEnabled(EntityStatus entityStatus);
-	
 	boolean hasStatus();
 	
 	boolean containsStatus(EntityStatus status);
 	
-	EntityStatus getStatusByUid(String uid);
+	TransformerStatus getStatusByUid(String uid);
 	
-	Set<EntityStatus> getStatus();
+	List<TransformerStatus> getStatus();
 	
 }

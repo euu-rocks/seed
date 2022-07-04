@@ -376,7 +376,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		if (form.hasTransformers()) {
 			for (FormTransformer transformer : form.getTransformers()) {
 				if (transformer.getTransformer().checkPermissions(user) &&
-					(status == null || transformer.getTransformer().isEnabled(status))) {
+					(status == null || transformer.getTransformer().containsStatus(status))) {
 					result.add(transformer);
 				}
 			}

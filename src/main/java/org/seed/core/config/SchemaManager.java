@@ -163,7 +163,7 @@ public class SchemaManager {
 				}
 			}
 		}
-		return buf.toString();
+		return buf.toString().replace('\t', ' ');
 	}
 	
 	private String loadSchemaUpdateChangeSet(SchemaVersion version) {

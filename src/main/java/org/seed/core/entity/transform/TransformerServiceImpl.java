@@ -168,14 +168,17 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	}
 	
 	@Override
-	public List<EntityStatus> getAvailableStatus(Transformer transformer) {
+	public List<TransformerStatus> getAvailableStatus(Transformer transformer) {
 		Assert.notNull(transformer, C.TRANSFORMER);
 		
-		final List<EntityStatus> result = new ArrayList<>();
+		final List<TransformerStatus> result = new ArrayList<>();
 		if (transformer.getSourceEntity().hasStatus()) {
 			for (EntityStatus status : transformer.getSourceEntity().getStatusList()) {
 				if (!transformer.containsStatus(status)) {
-					result.add(status);
+					final TransformerStatus transformerStatus = new TransformerStatus();
+					transformerStatus.setTransformer(transformer);
+					transformerStatus.setStatus(status);
+					result.add(transformerStatus);
 				}
 			}
 		}
@@ -408,21 +411,20 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 			session.detach(currentVersionTransformer);
 		}
 		if (transformer.hasElements()) {
-			for (TransformerElement element : transformer.getElements()) {
-				initTransformerElement(element, transformer, sourceEntity, targetEntity, 
-									   currentVersionTransformer);
-			}
+			transformer.getElements().forEach(element -> 
+				initTransformerElement(element, transformer, sourceEntity, targetEntity, currentVersionTransformer));
 		}
 		if (transformer.hasFunctions()) {
-			for (TransformerFunction function : transformer.getFunctions()) {
-				initTransformerFunction(function, transformer, currentVersionTransformer);
-			}
+			transformer.getFunctions().forEach(function -> 
+				initTransformerFunction(function, transformer, currentVersionTransformer));
+		}
+		if (transformer.hasStatus()) {
+			transformer.getStatus().forEach(status -> 
+				initTransformerStatus(status, transformer, currentVersionTransformer, session));
 		}
 		if (transformer.hasPermissions()) {
-			for (TransformerPermission permission : transformer.getPermissions()) {
-				initTransformerPermission(permission, transformer, 
-										  currentVersionTransformer, session);
-			}
+			transformer.getPermissions().forEach(permission -> 
+				initTransformerPermission(permission, transformer, currentVersionTransformer, session));
 		}
 	}
 	
@@ -463,6 +465,19 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 				: null;
 		if (currentVersionPermission != null) {
 			currentVersionPermission.copySystemFieldsTo(permission);
+		}
+	}
+	
+	private void initTransformerStatus(TransformerStatus status, Transformer transformer,
+									   Transformer currentVersionTransformer, Session session) {
+		status.setTransformer(transformer);
+		status.setStatus(transformer.getSourceEntity().getStatusByUid(status.getStatusUid()));
+		final TransformerStatus currentVersionStatus =
+			currentVersionTransformer != null
+				? currentVersionTransformer.getStatusByUid(status.getUid())
+				: null;
+		if (currentVersionStatus != null) {
+			currentVersionStatus.copySystemFieldsTo(status);
 		}
 	}
 	

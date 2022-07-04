@@ -1,0 +1,88 @@
+    {
+        "changeSet": {
+            "id": "system update 0.9.33",
+            "author": "seed",
+            "changes": [
+               {
+                  "dropPrimaryKey": {
+                     "tableName": "sys_entity_transform_status",
+                     "constraintName": "pk_sys_entity_trans_status"
+                  }
+               },
+               {
+                  "addColumn":  {
+                     "columns":[
+                        {
+                           "column": {
+                              "name": "id",
+                              "type": "BIGINT",
+                              "constraints": {
+                                  "nullable": "false"
+                              }
+                           }
+                        },
+                        {
+                           "column": {
+                              "name": "uid",
+                              "type": "VARCHAR(<#UID_LEN#>)",
+                              "defaultValue": "initial",
+                              "constraints": {
+                                  "nullable": "false"
+                              }
+                           }
+                        },
+                        {
+                           "column": {
+                              "name": "createdby",
+                              "type": "VARCHAR(<#USERNAME_LEN#>)"
+                           }
+                        },
+                        {
+                           "column": {
+                              "name": "createdon",
+                              "type": "DATETIME"
+                           }
+                        },
+                        {
+                           "column": {
+                              "name": "modifiedby",
+                              "type": "VARCHAR(<#USERNAME_LEN#>)"
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "modifiedon",
+                              "type": "DATETIME"
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "version",
+                              "type": "INT",
+                              "defaultValue": "0",
+                              "constraints": {
+                                  "nullable": "false"
+                              }
+                           }
+                       }
+                     ],
+                     "tableName": "sys_entity_transform_status"
+                  } 
+               },
+               {
+                  "addDefaultValue": {
+                     "tableName": "sys_entity_transform_status",
+                     "columnName": "id",
+                     "defaultValueSequenceNext":"seed_id_seq"
+                  } 
+               },
+               {
+                  "addPrimaryKey": {
+                     "tableName": "sys_entity_transform_status",
+                     "columnNames": "id",
+                     "constraintName": "pk_sys_entity_trans_status"
+                  }
+               }
+            ]
+        }
+    }

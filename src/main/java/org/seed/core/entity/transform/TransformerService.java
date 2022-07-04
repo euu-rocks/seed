@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.entity.Entity;
-import org.seed.core.entity.EntityStatus;
 
 public interface TransformerService extends ApplicationEntityService<Transformer> {
 	
@@ -39,7 +38,7 @@ public interface TransformerService extends ApplicationEntityService<Transformer
 	
 	List<TransformerPermission> getAvailablePermissions(Transformer transformer);
 	
-	List<EntityStatus> getAvailableStatus(Transformer transformer);
+	List<TransformerStatus> getAvailableStatus(Transformer transformer);
 	
 	void adjustElements(Transformer transformer, List<TransformerElement> elements, List<NestedTransformer> nesteds);
 	

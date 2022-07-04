@@ -28,13 +28,13 @@ import org.seed.core.data.SystemObject;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityService;
-import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.transform.NestedTransformer;
 import org.seed.core.entity.transform.Transformer;
 import org.seed.core.entity.transform.TransformerElement;
 import org.seed.core.entity.transform.TransformerFunction;
 import org.seed.core.entity.transform.TransformerPermission;
 import org.seed.core.entity.transform.TransformerService;
+import org.seed.core.entity.transform.TransformerStatus;
 import org.seed.core.entity.transform.codegen.TransformerFunctionCodeProvider;
 import org.seed.core.user.Authorisation;
 import org.seed.core.util.Assert;
@@ -367,14 +367,14 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	}
 	
 	@Command
-	public void dropToStatusList(@BindingParam(C.ITEM) EntityStatus item,
+	public void dropToStatusList(@BindingParam(C.ITEM) TransformerStatus item,
 								 @BindingParam(C.LIST) int listNum) {
 		dropToList(STATUS, listNum, item);
 	}
 	
 	@Command
-	public void insertToStatusList(@BindingParam(C.BASE) EntityStatus base,
-								   @BindingParam(C.ITEM) EntityStatus item,
+	public void insertToStatusList(@BindingParam(C.BASE) TransformerStatus base,
+								   @BindingParam(C.ITEM) TransformerStatus item,
 								   @BindingParam(C.LIST) int listNum) {
 		insertToList(STATUS, listNum, base, item);
 	}

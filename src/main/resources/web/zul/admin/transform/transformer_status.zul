@@ -26,13 +26,13 @@
 					 model="@load(vm.getListManagerList('status',0))"
 					 droppable="true" onDrop="@command('dropToStatusList',item=event.dragged.attributes.item,list=0)"
 					 hflex="1" vflex="1"
-					 class="alpha-noborder" 
+					 class="alpha-noborder alpha-nobg" 
 					 oddRowSclass="non-odd">
 				<template name="model" var="status">
 					<listitem attributes.item="@init(status)" 
 							  draggable="true" droppable="true" 
 	 						  onDrop="@command('insertToStatusList',item=event.dragged.attributes.item,base=status,list=0)">
-						<listcell label="@init(status.numberAndName)"/>
+						<listcell label="@init(status.status.numberAndName)"/>
 					</listitem>
 				</template>
 			</listbox>
@@ -44,17 +44,22 @@
 			<listbox mold="paging" autopaging="true" 
 					 model="@load(vm.getListManagerList('status',1))"
 					 droppable="true" onDrop="@command('dropToStatusList',item=event.dragged.attributes.item,list=1)"
-					 class="alpha-noborder"
+					 class="alpha-noborder alpha-nobg"
 					 hflex="1" vflex="1"
 					 oddRowSclass="non-odd">
 				<template name="model" var="status">
 					<listitem attributes.item="@init(status)" 
 							  draggable="true" droppable="true" 
 							  onDrop="@command('insertToStatusList',item=event.dragged.attributes.item,base=status,list=1)">
-						<listcell label="@init(status.numberAndName)"/>
+						<listcell label="@init(status.status.numberAndName)"/>
 					</listitem>
 				</template>
 			</listbox>
 		</groupbox>
 	</center>
+	<south border="0">
+		<div align="center">
+			<label value="${labels.info.dragndropinfo}"/>
+		</div>
+	</south>
 </borderlayout>
