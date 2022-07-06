@@ -556,6 +556,15 @@ public class EntityMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
+	public EntityFieldGroup getFieldGroupById(Long id) {
+		EntityFieldGroup group = null;
+		if (genericEntity != null) {
+			group = genericEntity.getFieldGroupById(id);
+		}
+		return group != null ? group : getObjectById(getFieldGroups(), id);
+	}
+	
+	@Override
 	public EntityFieldGroup getFieldGroupByUid(String uid) {
 		EntityFieldGroup group = null;
 		if (genericEntity != null) {

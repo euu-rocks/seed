@@ -24,6 +24,7 @@ import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.seed.core.data.ValidationException;
+import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.NestedEntity;
@@ -71,11 +72,11 @@ public interface LayoutService {
 	
 	LayoutElement createBorderLayout(BorderLayoutProperties layoutProperties);
 	
-	String buildAutoLayout(Form form);
+	String buildAutoLayout(Entity entity, Form form);
 	
 	void rebuildLayout(Form form);
 	
-	LayoutElement createAutoLayout(Form form);
+	LayoutElement createAutoLayout(Entity entity, Form form);
 	
 	void addText(Form form, String text, LayoutElement layoutRoot, String contextId) throws ValidationException;
 	

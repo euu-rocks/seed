@@ -720,20 +720,19 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	}
 	
 	@Override
-	public String buildAutoLayout(Form form) {
-		return buildLayout(createAutoLayout(form));
+	public String buildAutoLayout(Entity entity, Form form) {
+		return buildLayout(createAutoLayout(entity, form));
 	}
 	
 	@Override
-	public LayoutElement createAutoLayout(Form form) {
+	public LayoutElement createAutoLayout(Entity entity, Form form) {
 		Assert.notNull(form, C.FORM);
 		
 		// analyze and init field and field groups
-		final Entity entity = form.getEntity();
 		List<EntityField> fieldsWithoutGroup = new ArrayList<>();
 		Set<EntityFieldGroup> usedFieldGroups = new HashSet<>();
 		if (entity.hasAllFields()) {
-			analyzeAutoLayoutFields(form, fieldsWithoutGroup, usedFieldGroups);
+			analyzeAutoLayoutFields(entity, form, fieldsWithoutGroup, usedFieldGroups);
 		}
 		
 		// build field group grids
@@ -777,10 +776,10 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		}
 	}
 	
-	private void analyzeAutoLayoutFields(Form form, List<EntityField> fieldsWithoutGroup, Set<EntityFieldGroup> usedFieldGroups) {
-		for (EntityField entityField : form.getEntity().getAllFields()) {
+	private void analyzeAutoLayoutFields(Entity entity, Form form, List<EntityField> fieldsWithoutGroup, Set<EntityFieldGroup> usedFieldGroups) {
+		for (EntityField entityField : entity.getAllFields()) {
 			if (entityField.getFieldGroup() != null) {
-				usedFieldGroups.add(entityField.getFieldGroup());
+				usedFieldGroups.add(entity.getFieldGroupById(entityField.getFieldGroup().getId()));
 			}
 			else {
 				fieldsWithoutGroup.add(entityField);

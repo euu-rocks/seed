@@ -119,7 +119,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 			formMeta.setModule(formOptions.getModule());
 			if (formOptions.isAutoLayout()) {
 				formMeta.setAutoLayout(true);
-				formMeta.setLayoutContent(getLayoutService().buildAutoLayout(form));
+				formMeta.setLayoutContent(getLayoutService().buildAutoLayout(form.getEntity(), form));
 			}
 		}
 		// list form fields
@@ -727,7 +727,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 			}
 		}
 		final FormMetadata formMeta = (FormMetadata) form;
-		formMeta.setLayoutContent(getLayoutService().buildAutoLayout(form));
+		formMeta.setLayoutContent(getLayoutService().buildAutoLayout(entity, form));
 		formMeta.setOrderIndexes();
 		formMeta.initUid();
 		getLayoutService().rebuildLayout(form);

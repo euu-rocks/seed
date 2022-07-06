@@ -526,7 +526,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	@Command
 	@NotifyChange("layoutInclude")
 	public void newAutoLayout() {
-		initLayout(layoutService.createAutoLayout(getObject()));
+		initLayout(layoutService.createAutoLayout(getObject().getEntity(), getObject()));
 		flagDirty();
 	}
 	

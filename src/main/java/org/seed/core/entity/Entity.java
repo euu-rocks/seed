@@ -85,6 +85,8 @@ public interface Entity
 	
 	List<EntityField> getFullTextSearchFields();
 	
+	EntityFieldGroup getFieldGroupById(Long id);
+	
 	EntityFieldGroup getFieldGroupByUid(String uid);
 	
 	EntityField getUidField();
