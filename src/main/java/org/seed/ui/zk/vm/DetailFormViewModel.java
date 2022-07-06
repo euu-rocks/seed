@@ -479,7 +479,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	}
 	
 	private void refreshObject() {
-		valueObjectService().reloadObject(getObject());
+		setObject(valueObjectService().getObject(getForm().getEntity(), getObject().getId()));
 		initFileObjects();
 		revision = null;
 		reset();

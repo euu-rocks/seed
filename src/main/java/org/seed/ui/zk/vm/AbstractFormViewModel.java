@@ -217,7 +217,7 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 		tab = formParameter.getTab();
 		Assert.stateAvailable(form, C.FORM);
 		Assert.stateAvailable(tab, C.TAB);
-		formService.reloadObject(form);
+		form = formService.getObject(form.getId());
 	}
 	
 	protected void showListForm() {
