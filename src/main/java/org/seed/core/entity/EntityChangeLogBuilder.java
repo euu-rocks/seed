@@ -266,8 +266,11 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		}
 		// status
 		if (entity.hasStatus()) {
-			createTableChange.addColumn(createColumn(SystemField.ENTITYSTATUS)
-											.setConstraints(notNullConstraint()));
+			final ColumnConfig columnStatus = createColumn(SystemField.ENTITYSTATUS);
+			if (!isAuditTable) {
+				columnStatus.setConstraints(notNullConstraint());
+			}
+			createTableChange.addColumn(columnStatus);
 		}
 		// fields
 		if (entity.hasAllFields()) {
