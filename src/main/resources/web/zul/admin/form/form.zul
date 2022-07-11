@@ -51,9 +51,9 @@
 			<grid hflex="1" class="alpha-noborder">
 				<columns>
 	            	<column hflex="min"/>
-	              	<column hflex="3"/>
+	              	<column hflex="1"/>
 	              	<column hflex="min"/>
-	              	<column hflex="2"/>
+	              	<column hflex="1"/>
 	            </columns>
 				<rows>
 					<row>
@@ -67,11 +67,25 @@
 									 hflex="1"/>
 						</cell>
 						<cell style="padding: 4px 10px" align="right">
-							<checkbox checked="@bind(vm.object.autoLayout)"
-									  onCheck="@command('flagDirty')"/> 	
+							<label value="${labels.label.auto}"/>
 						</cell>
 						<cell style="padding: 4px 4px">
-							<label value="${labels.label.autolayout}"/>  
+							<hlayout style="padding-top:4px">
+								<checkbox checked="@bind(vm.object.autoLayout)"
+									  	  onCheck="@command('flagDirty')"/> 
+								<space/>
+								<combobox model="@load(vm.autoLayoutTypes)"
+										  selectedItem="@bind(vm.object.autolayoutType)"
+										  value="@load(vm.getEnumLabel(vm.object.autolayoutType))"
+										  onSelect="@command('flagDirty')"
+										  visible="@load(vm.object.autoLayout)"
+										  placeholder="@init(vm.getEnumLabel(vm.defaultAutolayoutType))"
+										  hflex="1">
+					                <template name="model" var="autolayoutType">
+					                    <comboitem label="@load(vm.getEnumLabel(autolayoutType))"/>
+					                </template>
+					            </combobox> 	
+							</hlayout>	
 						</cell>
 					</row>
 					<row>

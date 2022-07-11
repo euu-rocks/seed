@@ -82,6 +82,19 @@
                      "columnNames": "id",
                      "constraintName": "pk_sys_entity_trans_status"
                   }
+               },
+               {
+                  "addColumn":  {
+                     "columns":[
+                        {
+                           "column": {
+                              "name": "autolayouttype",
+                              "type": "INT"
+                           }
+                        }
+                     ],
+                     "tableName": "sys_form"
+                  } 
                }
             ]
         }

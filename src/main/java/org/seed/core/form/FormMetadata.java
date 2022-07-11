@@ -124,6 +124,8 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	private boolean autoLayout;
 	
+	private AutolayoutType autolayoutType;
+	
 	@Transient
 	private String entityUid;
 	
@@ -173,6 +175,16 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 
 	public void setAutoLayout(boolean autoLayout) {
 		this.autoLayout = autoLayout;
+	}
+	
+	@Override
+	@XmlAttribute
+	public AutolayoutType getAutolayoutType() {
+		return autolayoutType;
+	}
+
+	public void setAutolayoutType(AutolayoutType autolayoutType) {
+		this.autolayoutType = autolayoutType;
 	}
 
 	@Override
@@ -819,7 +831,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public boolean isEqual(Object other) {
-		if (other == null || !Form.class.isAssignableFrom(other.getClass())) {
+		if (other == null || !isAssignableFrom(other)) {
 			return false;
 		}
 		if (other == this) {
@@ -830,6 +842,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 			.append(getName(), otherForm.getName())
 			.append(getFilterUid(), otherForm.getFilterUid())
 			.append(autoLayout, otherForm.isAutoLayout())
+			.append(autolayoutType, otherForm.getAutolayoutType())
 			.isEquals()) {
 			return false;
 		}

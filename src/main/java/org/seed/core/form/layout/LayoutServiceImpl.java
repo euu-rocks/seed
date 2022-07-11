@@ -23,7 +23,6 @@ import static org.seed.core.form.layout.LayoutUtils.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,12 +33,10 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.seed.C;
 import org.seed.InternalException;
-import org.seed.core.data.Order;
 import org.seed.core.data.SystemField;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
-import org.seed.core.entity.EntityFieldGroup;
 import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.form.AbstractFormField;
@@ -721,33 +718,39 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	
 	@Override
 	public String buildAutoLayout(Entity entity, Form form) {
+		for (EntityField entityField : entity.getAllFields()) {
+			if (entityField.getType().isReference()) {
+				final List<Form> forms = formService.findForms(entityField.getReferenceEntity());
+				if (!forms.isEmpty()) {
+					FormFieldExtra fieldExtra = form.getFieldExtra(entityField);
+					if (fieldExtra == null) {
+						fieldExtra = new FormFieldExtra();
+						fieldExtra.setEntityField(entityField);
+						form.addFieldExtra(fieldExtra);
+					}
+					fieldExtra.setDetailForm(forms.get(0));
+				}
+			}
+		}
 		return buildLayout(createAutoLayout(entity, form));
 	}
 	
 	@Override
 	public LayoutElement createAutoLayout(Entity entity, Form form) {
+		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(form, C.FORM);
 		
-		// analyze and init field and field groups
-		List<EntityField> fieldsWithoutGroup = new ArrayList<>();
-		Set<EntityFieldGroup> usedFieldGroups = new HashSet<>();
-		if (entity.hasAllFields()) {
-			analyzeAutoLayoutFields(entity, form, fieldsWithoutGroup, usedFieldGroups);
-		}
-		
-		// build field group grids
-		final LayoutElement elemMainGrid = buildAutoLayoutFieldGroupGrids(entity, fieldsWithoutGroup, usedFieldGroups);
-		
-		// build layout
 		((FormMetadata) form).clearSubForms();
-		final LayoutElement elemZK = createZK();
-		if (entity.hasNesteds() || entity.hasAllRelations()) {
-			buildAutoLayoutSubForms(form, elemZK, elemMainGrid);
+		if (entity.hasNesteds()) {
+			for (NestedEntity nested : form.getEntity().getNesteds()) {
+				try {
+					formService.addSubForm(form, nested);
+				} catch (ValidationException vex) {
+					throw new InternalException(vex);
+				}
+			}
 		}
-		else if (elemMainGrid != null) {
-			elemZK.addChild(elemMainGrid);
-		}
-		return elemZK;
+		return new AutolayoutBuilder(entity, form).build();
 	}
 	
 	private Form getForm(Long formId) {
@@ -774,98 +777,6 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 			neighborCell.setOrRemoveAttribute(A_VALIGN, labelProperties.valign);
 			neighborCell.addChild(createLabel(entityField.getName()));
 		}
-	}
-	
-	private void analyzeAutoLayoutFields(Entity entity, Form form, List<EntityField> fieldsWithoutGroup, Set<EntityFieldGroup> usedFieldGroups) {
-		for (EntityField entityField : entity.getAllFields()) {
-			if (entityField.getFieldGroup() != null) {
-				usedFieldGroups.add(entity.getFieldGroupById(entityField.getFieldGroup().getId()));
-			}
-			else {
-				fieldsWithoutGroup.add(entityField);
-			}
-			if (entityField.getType().isReference()) {
-				final List<Form> forms = formService.findForms(entityField.getReferenceEntity());
-				if (!forms.isEmpty()) {
-					FormFieldExtra fieldExtra = form.getFieldExtra(entityField);
-					if (fieldExtra == null) {
-						fieldExtra = new FormFieldExtra();
-						fieldExtra.setEntityField(entityField);
-						form.addFieldExtra(fieldExtra);
-					}
-					fieldExtra.setDetailForm(forms.get(0));
-				}
-			}
-		}
-	}
-	
-	private LayoutElement buildAutoLayoutFieldGroupGrids(Entity entity, List<EntityField> fieldsWithoutGroup, Set<EntityFieldGroup> usedFieldGroups) {
-		LayoutElement elemMainGrid = null;
-		int numFieldGroups = usedFieldGroups.size();
-		if (!fieldsWithoutGroup.isEmpty()) {
-			numFieldGroups++;
-		}
-		if (numFieldGroups > 0) {
-			final int numGridRows = numFieldGroups / 2 + numFieldGroups % 2;
-			elemMainGrid = createGrid(2, numGridRows, null);
-			int col = 0;
-			int row = 0;
-			// fields without group
-			if (!fieldsWithoutGroup.isEmpty()) {
-				elemMainGrid.getGridCell(0, 0)
-							.setValign(V_TOP)
-							.addChild(buildFieldGrid(fieldsWithoutGroup, entity.getName()));
-				col++;
-			}
-			// field groups
-			if (!usedFieldGroups.isEmpty()) {
-				final List<EntityFieldGroup> fieldGroups = new ArrayList<>(usedFieldGroups);
-				Order.sort(fieldGroups);
-				for (EntityFieldGroup fieldGroup : fieldGroups) {
-					elemMainGrid.getGridCell(col, row)
-								.setValign(V_TOP)
-								.addChild(buildFieldGrid(entity.getAllFieldsByGroup(fieldGroup), fieldGroup.getName()));
-					if (++col > 1) {
-						col = 0;
-						row++;
-					}
-				}
-			}
-		}
-		return elemMainGrid;
-	}
-	
-	private void buildAutoLayoutSubForms(Form form, LayoutElement elemZK, LayoutElement elemMainGrid) {
-		final LayoutElement elemLayout = elemZK.addChild(new LayoutElement(LayoutElement.BORDERLAYOUT));
-		if (elemMainGrid != null) {
-			elemLayout.addChild(createBorderLayoutArea(BorderLayoutArea.NORTH)).addChild(elemMainGrid);
-		}
-		final LayoutElement elemTabbox = new LayoutElement(LayoutElement.TABBOX);
-		elemTabbox.setAttribute(A_HFLEX, V_1);
-		elemTabbox.setAttribute(A_VFLEX, V_1);
-		elemTabbox.setClass(LayoutElementClass.TABBOX);
-		final LayoutElement elemTabs = elemTabbox.addChild(new LayoutElement(LayoutElement.TABS));
-		final LayoutElement elemPanels = elemTabbox.addChild(new LayoutElement(LayoutElement.TABPANELS));
-		if (form.getEntity().hasNesteds()) {
-			for (NestedEntity nested : form.getEntity().getNesteds()) {
-				try {
-					final SubForm subForm = formService.addSubForm(form, nested);
-					elemTabs.addChild(createTab(nested.getName()));
-					buildSubForm(subForm, elemPanels.addChild(createTabpanel()));
-				}
-				catch (ValidationException ve) {
-					throw new InternalException(ve);
-				}
-			}
-		}
-		if (form.getEntity().hasAllRelations()) {
-			for (EntityRelation relation : form.getEntity().getAllRelations()) {
-				elemTabs.addChild(createTab(relation.getName()));
-				buildRelationForm(relation, elemPanels.addChild(createTabpanel()));
-			}
-		}
-		
-		elemLayout.addChild(createBorderLayoutArea(BorderLayoutArea.CENTER)).addChild(elemTabbox);
 	}
 	
 	@Override
@@ -969,37 +880,11 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		}
 	}
 	
-	private static LayoutElement buildFieldGrid(List<EntityField> fields, String name) {
-		Assert.notNull(fields, "fields");
-		Assert.notNull(name, C.NAME);
-		
-		final LayoutElement elemGrid = new LayoutElement(LayoutElement.GRID);
-		final LayoutElement elemRows = elemGrid.addChild(new LayoutElement(LayoutElement.ROWS));
-		final LayoutElement elemColumns = createColumns(2);
-		elemColumns.getChildAt(0).setAttribute(A_HFLEX, V_MIN);
-		elemGrid.setClass(LayoutElementClass.NO_BORDER).addChild(elemColumns);
-		for (EntityField entityField : fields) {
-			if (entityField.getType().isBinary()) {
-				continue;
-			}
-			final LayoutElement elemRow = elemRows.addChild(new LayoutElement(LayoutElement.ROW));
-			// label column
-			LayoutElement elemCell = elemRow.addChild(createCell());
-			elemCell.setAlign(V_RIGHT)
-					.setValign(V_TOP)
-					.addChild(createLabel(entityField.getName()));
-			// field column
-			elemCell = elemRow.addChild(createCell());
-			elemCell.addChild(createFormField(entityField));
-		}
-		return createGroupbox(name, elemGrid);
-	}
-	
-	private static void buildRelationForm(EntityRelation relation, LayoutElement elemArea) {
+	static void buildRelationForm(EntityRelation relation, LayoutElement elemArea) {
 		Assert.notNull(relation, C.RELATION);
 		Assert.notNull(elemArea, "elemArea");
 		
-		final LayoutElement elemLayout = elemArea.addChild(new LayoutElement(LayoutElement.BORDERLAYOUT));
+		final LayoutElement elemLayout = elemArea.addChild(LayoutUtils.createBorderLayout());
 		elemLayout.setAttribute(A_ID, PRE_RELATION + relation.getUid());
 		final LayoutElement elemCenter = elemLayout.addChild(createBorderLayoutArea(BorderLayoutArea.CENTER));
 		final LayoutElement elemListbox = elemCenter.addChild(createListBox());
@@ -1012,11 +897,11 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		header.setAttribute(A_SORT, "sort(" + relation.getRelatedEntity().getName() + ')');
 	}
 	
-	private static void buildSubForm(SubForm subForm, LayoutElement elemArea) {
+	static void buildSubForm(SubForm subForm, LayoutElement elemArea) {
 		Assert.notNull(subForm, C.SUBFORM);
 		Assert.notNull(elemArea, "elemArea");
 		
-		final LayoutElement elemLayout = elemArea.addChild(new LayoutElement(LayoutElement.BORDERLAYOUT));
+		final LayoutElement elemLayout = elemArea.addChild(LayoutUtils.createBorderLayout());
 		elemLayout.setAttribute(A_ID, PRE_SUBFORM + subForm.getNestedEntity().getUid());
 		final LayoutElement elemCenter = elemLayout.addChild(createBorderLayoutArea(BorderLayoutArea.CENTER));
 		final LayoutElement elemListbox = elemCenter.addChild(createListBox());

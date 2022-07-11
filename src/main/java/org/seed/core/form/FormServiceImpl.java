@@ -1001,6 +1001,9 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	private void cleanupForm(Form form) {
+		if (!form.isAutoLayout()) {
+			((FormMetadata) form).setAutolayoutType(null);
+		}
 		if (form.hasFields()) {
 			cleanupFields(form);
 		}

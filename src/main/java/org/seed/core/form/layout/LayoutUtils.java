@@ -31,7 +31,7 @@ import org.seed.core.util.Assert;
 
 public abstract class LayoutUtils {
 	
-	private static final Map<FieldType, String> mapElements  = new EnumMap<>(FieldType.class);
+	private static final Map<FieldType, String> mapElements = new EnumMap<>(FieldType.class);
 	
 	private static final Map<BorderLayoutArea, String> mapBorderLayoutArea = new EnumMap<>(BorderLayoutArea.class);
 	
@@ -126,10 +126,26 @@ public abstract class LayoutUtils {
 		return new LayoutElement(LayoutElement.BANDPOPUP);
 	}
 	
+	public static LayoutElement createBorderLayout() {
+		return new LayoutElement(LayoutElement.BORDERLAYOUT);
+	}
+	
+	public static LayoutElement createRows() {
+		return new LayoutElement(LayoutElement.ROWS);
+	}
+	
+	public static LayoutElement createTabs() {
+		return new LayoutElement(LayoutElement.TABS);
+	}
+	
+	public static LayoutElement createTabpanels() {
+		return new LayoutElement(LayoutElement.TABPANELS);
+	}
+	
 	public static LayoutElement createBorderLayout(BorderLayoutProperties layoutProperties) {
 		Assert.notNull(layoutProperties, "layoutProperties");
 		
-		final LayoutElement elemLayout = new LayoutElement(LayoutElement.BORDERLAYOUT);
+		final LayoutElement elemLayout = createBorderLayout();
 		if (layoutProperties.getNorth().isVisible()) {
 			elemLayout.addChild(createBorderLayoutArea(BorderLayoutArea.NORTH));
 		}
@@ -290,9 +306,9 @@ public abstract class LayoutUtils {
 		elemTabbox.setAttribute(A_HFLEX, V_1);
 		elemTabbox.setAttribute(A_VFLEX, V_1);
 		elemTabbox.setClass(LayoutElementClass.TABBOX);
-		final LayoutElement elemTabs = elemTabbox.addChild(new LayoutElement(LayoutElement.TABS));
+		final LayoutElement elemTabs = elemTabbox.addChild(createTabs());
 		elemTabs.addChild(createTab(title));
-		final LayoutElement elemPanels = elemTabbox.addChild(new LayoutElement(LayoutElement.TABPANELS));
+		final LayoutElement elemPanels = elemTabbox.addChild(createTabpanels());
 		elemPanels.addChild(createTabpanel());
 		return elemTabbox;
 	}

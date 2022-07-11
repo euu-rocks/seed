@@ -26,6 +26,7 @@ import org.seed.core.data.SystemObject;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityService;
 import org.seed.core.entity.filter.Filter;
+import org.seed.core.form.AutolayoutType;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormAction;
 import org.seed.core.form.FormField;
@@ -173,6 +174,14 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 
 	public boolean existFilters() {
 		return existFilters;
+	}
+	
+	public AutolayoutType[] getAutoLayoutTypes() {
+		return AutolayoutType.values();
+	}
+	
+	public AutolayoutType getDefaultAutolayoutType() {
+		return AutolayoutType.defaultType();
 	}
 
 	public String getActionLabel(FormAction action) {
