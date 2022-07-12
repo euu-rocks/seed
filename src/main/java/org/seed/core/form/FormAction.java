@@ -75,7 +75,7 @@ public class FormAction extends AbstractFormAction {
 	
 	@Override
 	public boolean isEqual(Object other) {
-		if (other == null || !FormAction.class.isAssignableFrom(other.getClass())) {
+		if (!isInstance(other)) {
 			return false;
 		}
 		if (other == this) {

@@ -74,7 +74,7 @@ public class UserGroupAuthorisation extends AbstractTransferableObject {
 	
 	@Override
 	public boolean isEqual(Object other) {
-		if (other == null || !UserGroupAuthorisation.class.isAssignableFrom(other.getClass())) {
+		if (!isInstance(other)) {
 			return false;
 		}
 		if (other == this) {

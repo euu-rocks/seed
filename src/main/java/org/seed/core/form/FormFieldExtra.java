@@ -179,7 +179,7 @@ public class FormFieldExtra extends AbstractTransferableObject {
 	
 	@Override
 	public boolean isEqual(Object other) {
-		if (other == null || !FormFieldExtra.class.isAssignableFrom(other.getClass())) {
+		if (!isInstance(other)) {
 			return false;
 		}
 		if (other == this) {

@@ -179,7 +179,7 @@ public class FilterMetadata extends AbstractApplicationEntity implements Filter 
 
 	@Override
 	public boolean isEqual(Object other) {
-		if (other == null || !Filter.class.isAssignableFrom(other.getClass())) {
+		if (!isInstance(other)) {
 			return false;
 		}
 		if (other == this) {

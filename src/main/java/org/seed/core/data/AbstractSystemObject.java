@@ -173,8 +173,8 @@ public abstract class AbstractSystemObject implements SystemObject {
 		// do nothing by default
 	}
 	
-	protected final boolean isAssignableFrom(Object otherObject) {
-		return otherObject != null && getClass().isAssignableFrom(otherObject.getClass());
+	protected final boolean isInstance(Object otherObject) {
+		return getClass().isInstance(otherObject);
 	}
 	
 	protected static <T extends SystemObject> T getObjectById(List<T> list, Long id) {

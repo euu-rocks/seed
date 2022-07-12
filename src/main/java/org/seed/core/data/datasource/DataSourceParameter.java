@@ -116,7 +116,7 @@ public class DataSourceParameter extends AbstractSystemEntity
 
 	@Override
 	public boolean isEqual(Object other) {
-		if (other == null || !DataSourceParameter.class.isAssignableFrom(other.getClass())) {
+		if (!isInstance(other)) {
 			return false;
 		}
 		if (other == this) {

@@ -57,7 +57,7 @@ public class TransformerPermission extends AbstractPermissionObject
 	
 	@Override
 	public boolean isEqual(Object other) {
-		if (other == null || !TransformerPermission.class.isAssignableFrom(other.getClass())) {
+		if (!isInstance(other)) {
 			return false;
 		}
 		if (other == this) {

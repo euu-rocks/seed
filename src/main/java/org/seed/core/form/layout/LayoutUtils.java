@@ -89,7 +89,7 @@ public abstract class LayoutUtils {
 	
 	public static LayoutElement createGrid(int numColumns, int numRows, String title) {
 		final LayoutElement elemGrid = new LayoutElement(LayoutElement.GRID);
-		final LayoutElement elemRows = elemGrid.addChild(new LayoutElement(LayoutElement.ROWS));
+		final LayoutElement elemRows = elemGrid.addChild(createRows());
 		elemGrid.setClass(LayoutElementClass.NO_BORDER);
 		elemGrid.addChild(createColumns(numColumns));
 		for (int i = 0; i < numRows; i++) {

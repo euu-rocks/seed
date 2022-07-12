@@ -131,7 +131,7 @@ public class UserGroupMetadata extends AbstractApplicationEntity implements User
 	
 	@Override
 	public boolean isEqual(Object other) {
-		if (other == null || !UserGroup.class.isAssignableFrom(other.getClass())) {
+		if (!isInstance(other)) {
 			return false;
 		}
 		if (other == this) {

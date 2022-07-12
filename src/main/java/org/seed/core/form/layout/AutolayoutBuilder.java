@@ -213,20 +213,6 @@ class AutolayoutBuilder extends LayoutUtils {
 		return mainGrid;
 	}
 	
-	public static LayoutElement createGrid(int numColumns, int numRows, String title) {
-		final LayoutElement elemGrid = new LayoutElement(LayoutElement.GRID);
-		final LayoutElement elemRows = elemGrid.addChild(createRows());
-		elemGrid.setClass(LayoutElementClass.NO_BORDER);
-		elemGrid.addChild(createColumns(numColumns));
-		for (int i = 0; i < numRows; i++) {
-			elemRows.addChild(createRow(numColumns));
-		}
-		if (title != null) {
-			return createGroupbox(title, elemGrid);
-		}
-		return elemGrid;
-	}
-	
 	private static LayoutElement buildFieldGrid(List<EntityField> fields, String name) {
 		Assert.notNull(fields, "fields");
 		Assert.notNull(name, C.NAME);

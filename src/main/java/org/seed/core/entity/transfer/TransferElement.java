@@ -100,7 +100,7 @@ public class TransferElement extends AbstractOrderedTransferableObject {
 
 	@Override
 	public boolean isEqual(Object other) {
-		if (other == null || !TransferElement.class.isAssignableFrom(other.getClass())) {
+		if (!isInstance(other)) {
 			return false;
 		}
 		if (other == this) {

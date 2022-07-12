@@ -81,7 +81,7 @@ public class DBObjectMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public boolean isEqual(Object other) {
-		if (other == null || !DBObject.class.isAssignableFrom(other.getClass())) {
+		if (!isInstance(other)) {
 			return false;
 		}
 		if (other == this) {

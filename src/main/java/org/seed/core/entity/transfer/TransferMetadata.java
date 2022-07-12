@@ -211,7 +211,7 @@ public class TransferMetadata extends AbstractApplicationEntity implements Trans
 	
 	@Override
 	public boolean isEqual(Object other) {
-		if (other == null || !Transfer.class.isAssignableFrom(other.getClass())) {
+		if (!isInstance(other)) {
 			return false;
 		}
 		if (other == this) {

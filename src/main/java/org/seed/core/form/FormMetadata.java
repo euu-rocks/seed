@@ -831,7 +831,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public boolean isEqual(Object other) {
-		if (other == null || !isAssignableFrom(other)) {
+		if (!isInstance(other)) {
 			return false;
 		}
 		if (other == this) {

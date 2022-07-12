@@ -128,13 +128,13 @@ class ValueObjectProvider implements EntityObjectProvider {
 	}
 	
 	@Override
-	public <T extends EntityObject> DBCursor<T> createCursor(Class<T> objectClass, int chunkSize) {
-		return createCursor(objectClass, null, chunkSize);
+	public <T extends EntityObject> DBCursor<T> getCursor(Class<T> objectClass, int chunkSize) {
+		return getCursor(objectClass, null, chunkSize);
 	}
 	
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <T extends EntityObject> DBCursor<T> createCursor(Class<T> objectClass, @Nullable EntityFilter filter, int chunkSize) {
+	public <T extends EntityObject> DBCursor<T> getCursor(Class<T> objectClass, @Nullable EntityFilter filter, int chunkSize) {
 		Assert.notNull(objectClass, C.OBJECTCLASS);
 		Assert.greaterThanZero(chunkSize, "chunk size");
 		

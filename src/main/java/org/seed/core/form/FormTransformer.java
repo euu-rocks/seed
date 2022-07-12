@@ -118,7 +118,7 @@ public class FormTransformer extends AbstractOrderedTransferableObject {
 	
 	@Override
 	public boolean isEqual(Object other) {
-		if (other == null || !FormTransformer.class.isAssignableFrom(other.getClass())) {
+		if (!isInstance(other)) {
 			return false;
 		}
 		if (other == this) {

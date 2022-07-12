@@ -31,15 +31,15 @@ public interface EntityObjectProvider {
 	
 	CriteriaBuilder getCriteriaBuilder();
 	
-	<T extends EntityObject> DBCursor<T> createCursor(Class<T> objectClass, int chunkSize);
-	
-	<T extends EntityObject> DBCursor<T> createCursor(Class<T> objectClass, @Nullable EntityFilter filter, int chunkSize);
-	
 	<T extends EntityObject> T createObject(Class<T> objectClass);
 	
 	<T extends EntityObject> long count(Class<T> objectClass);
 	
 	<T extends EntityObject> T getObject(Class<T> objectClass, Long id);
+	
+	<T extends EntityObject> DBCursor<T> getCursor(Class<T> objectClass, int chunkSize);
+	
+	<T extends EntityObject> DBCursor<T> getCursor(Class<T> objectClass, @Nullable EntityFilter filter, int chunkSize);
 	
 	<T extends EntityObject> String getIdentifier(T entityObject);
 	

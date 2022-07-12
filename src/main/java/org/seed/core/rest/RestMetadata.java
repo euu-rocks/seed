@@ -159,7 +159,7 @@ public class RestMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public boolean isEqual(Object other) {
-		if (other == null || !Rest.class.isAssignableFrom(other.getClass())) {
+		if (!isInstance(other)) {
 			return false;
 		}
 		if (other == this) {

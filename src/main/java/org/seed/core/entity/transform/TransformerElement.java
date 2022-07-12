@@ -111,7 +111,7 @@ public class TransformerElement extends AbstractTransferableObject {
 	
 	@Override
 	public boolean isEqual(Object other) {
-		if (other == null || !TransformerElement.class.isAssignableFrom(other.getClass())) {
+		if (!isInstance(other)) {
 			return false;
 		}
 		if (other == this) {

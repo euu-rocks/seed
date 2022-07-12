@@ -48,7 +48,7 @@ public class SubFormAction extends AbstractFormAction {
 	
 	@Override
 	public boolean isEqual(Object other) {
-		if (other == null || !SubFormAction.class.isAssignableFrom(other.getClass())) {
+		if (!isInstance(other)) {
 			return false;
 		}
 		if (other == this) {

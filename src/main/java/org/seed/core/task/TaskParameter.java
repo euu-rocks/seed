@@ -73,7 +73,7 @@ public class TaskParameter extends AbstractTransferableObject {
 	
 	@Override
 	public boolean isEqual(Object other) {
-		if (other == null || !TaskParameter.class.isAssignableFrom(other.getClass())) {
+		if (!isInstance(other)) {
 			return false;
 		}
 		if (other == this) {

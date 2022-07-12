@@ -359,7 +359,7 @@ public class EntityField extends AbstractOrderedTransferableObject {
 	
 	@Override
 	public boolean isEqual(Object other) {
-		if (other == null || !EntityField.class.isAssignableFrom(other.getClass())) {
+		if (!isInstance(other)) {
 			return false;
 		}
 		if (other == this) {

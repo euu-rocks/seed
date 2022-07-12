@@ -272,7 +272,7 @@ public class FilterCriterion extends AbstractTransferableObject {
 	
 	@Override
 	public boolean isEqual(Object other) {
-		if (other == null || !FilterCriterion.class.isAssignableFrom(other.getClass())) {
+		if (!isInstance(other)) {
 			return false;
 		}
 		if (other == this) {

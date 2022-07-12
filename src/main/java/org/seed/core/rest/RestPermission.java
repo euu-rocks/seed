@@ -56,7 +56,7 @@ public class RestPermission extends AbstractPermissionObject
 	
 	@Override
 	public boolean isEqual(Object other) {
-		if (other == null || !RestPermission.class.isAssignableFrom(other.getClass())) {
+		if (!isInstance(other)) {
 			return false;
 		}
 		if (other == this) {

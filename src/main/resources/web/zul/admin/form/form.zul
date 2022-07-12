@@ -77,7 +77,7 @@
 								<combobox model="@load(vm.autoLayoutTypes)"
 										  selectedItem="@bind(vm.object.autolayoutType)"
 										  value="@load(vm.getEnumLabel(vm.object.autolayoutType))"
-										  onSelect="@command('flagDirty')"
+										  onSelect="@command('newAutoLayout')"
 										  visible="@load(vm.object.autoLayout)"
 										  placeholder="@init(vm.getEnumLabel(vm.defaultAutolayoutType))"
 										  hflex="1">

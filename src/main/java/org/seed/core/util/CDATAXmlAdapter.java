@@ -19,18 +19,20 @@ package org.seed.core.util;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-public class CDATAXmlAdapter extends XmlAdapter<String, String> {
+public final class CDATAXmlAdapter extends XmlAdapter<String, String> {
 	
 	private static final String CDATA_BEGIN = "<![CDATA[";
 	private static final String CDATA_END 	= "]]>";
 	
 	@Override
-	public String marshal(String value) throws Exception {
-		return value != null ? CDATA_BEGIN + value + CDATA_END : null;
+	public String marshal(String value) {
+		return value != null 
+				? CDATA_BEGIN + value + CDATA_END 
+				: null;
 	}
 
 	@Override
-	public String unmarshal(String value) throws Exception {
+	public String unmarshal(String value) {
 		Assert.state(value == null || 
 					(value.startsWith(CDATA_BEGIN) && value.endsWith(CDATA_END)), "expected CDATA");
 		

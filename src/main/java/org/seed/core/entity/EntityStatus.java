@@ -118,7 +118,7 @@ public class EntityStatus extends AbstractSystemEntity
 	
 	@Override
 	public boolean isEqual(Object other) {
-		if (other == null || !EntityStatus.class.isAssignableFrom(other.getClass())) {
+		if (!isInstance(other)) {
 			return false;
 		}
 		if (other == this) {

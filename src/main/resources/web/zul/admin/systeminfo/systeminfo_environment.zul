@@ -36,22 +36,6 @@
 			</row>
            	<row>
 				<cell style="padding: 4px 10px" align="right">
-					<label value="${labels.systeminfo.environment.jvm}:"/>
-				</cell>
-				<cell style="padding: 4px 4px">
-					<label value="@load(vm.jvmInfo)"/>
-				</cell>
-			</row>
-			<row>
-				<cell style="padding: 4px 10px" align="right">
-					<label value="${labels.systeminfo.environment.jvmversion}:"/>
-				</cell>
-				<cell style="padding: 4px 4px">
-					<label value="@load(vm.jvmVersionInfo)"/>
-				</cell>
-			</row>
-			<row>
-				<cell style="padding: 4px 10px" align="right">
 					<label value="${labels.systeminfo.environment.memory}:"/>
 				</cell>
 				<cell style="padding: 4px 4px">
@@ -67,6 +51,22 @@
 				<cell style="padding: 4px 4px">
 					<label value="@load(vm.filesystemTotalInfo)"/> / 
 					<label value="@load(vm.filesystemUsedInfo)"/>
+				</cell>
+			</row>
+			<row>
+				<cell style="padding: 4px 10px" align="right">
+					<label value="${labels.systeminfo.environment.jvm}:"/>
+				</cell>
+				<cell style="padding: 4px 4px">
+					<label value="@load(vm.jvmInfo)"/>
+				</cell>
+			</row>
+			<row>
+				<cell style="padding: 4px 10px" align="right">
+					<label value="${labels.systeminfo.environment.jvmversion}:"/>
+				</cell>
+				<cell style="padding: 4px 4px">
+					<label value="@load(vm.jvmVersionInfo)"/>
 				</cell>
 			</row>
 		</rows>

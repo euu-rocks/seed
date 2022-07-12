@@ -88,7 +88,7 @@ public class TransformerStatus extends AbstractTransferableObject {
 		if (other == this) {
 			return true;
 		}
-		if (!isAssignableFrom(other)) {
+		if (!isInstance(other)) {
 			return false;
 		}
 		final TransformerStatus otherStatus = (TransformerStatus) other;

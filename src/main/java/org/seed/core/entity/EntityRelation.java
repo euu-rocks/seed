@@ -121,7 +121,7 @@ public class EntityRelation extends AbstractOrderedTransferableObject {
 	
 	@Override
 	public boolean isEqual(Object other) {
-		if (other == null || !EntityRelation.class.isAssignableFrom(other.getClass())) {
+		if (!isInstance(other)) {
 			return false;
 		}
 		if (other == this) {
