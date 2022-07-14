@@ -45,6 +45,10 @@ public interface EntityObjectProvider {
 	
 	<T extends EntityObject> List<T> findAll(Class<T> objectClass);
 	
+	<T extends EntityObject> List<T> findByIds(Class<T> objectClass, Long ...ids);
+	
+	<T extends EntityObject> List<T> findByIds(Class<T> objectClass, List<Long> idList);
+	
 	<T extends EntityObject> List<T> find(EntityFilter filter);
 	
 	<T extends EntityObject> List<T> find(CriteriaQuery<T> query);

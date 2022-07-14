@@ -470,6 +470,16 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
+	public List<ValueObject> findByIds(Session session, Class<?> entityClass, Long ...ids) {
+		return repository.findByIds(session, entityClass, ids);
+	}
+	
+	@Override
+	public List<ValueObject> findByIds(Session session, Class<?> entityClass, List<Long> idList) {
+		return repository.findByIds(session, entityClass, idList);
+	}
+	
+	@Override
 	public void reloadObject(ValueObject object) {
 		Assert.notNull(object, C.OBJECT);
 		

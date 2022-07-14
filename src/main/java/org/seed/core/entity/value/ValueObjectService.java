@@ -134,6 +134,10 @@ public interface ValueObjectService extends EntityUsage {
 	
 	ValueObject findUnique(Entity entity, EntityField entityField, Object value, Session session);
 	
+	List<ValueObject> findByIds(Session session, Class<?> entityClass, Long ...ids);
+	
+	List<ValueObject> findByIds(Session session, Class<?> entityClass, List<Long> idList);
+	
 	void reloadObject(ValueObject object);
 	
 	void deleteObject(ValueObject object) throws ValidationException;

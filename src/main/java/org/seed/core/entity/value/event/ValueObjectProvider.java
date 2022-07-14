@@ -120,11 +120,24 @@ class ValueObjectProvider implements EntityObjectProvider {
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public <T extends EntityObject> List<T> findAll(Class<T> objectClass) {
 		Assert.notNull(objectClass, C.OBJECTCLASS);
 		
-		return (List<T>) valueObjectService.getAllObjects(functionContext.getSession(), objectClass);
+		return MiscUtils.castList(valueObjectService.getAllObjects(functionContext.getSession(), objectClass));
+	}
+	
+	@Override
+	public <T extends EntityObject> List<T> findByIds(Class<T> objectClass, Long ...ids) {
+		Assert.notNull(objectClass, C.OBJECTCLASS);
+		
+		return MiscUtils.castList(valueObjectService.findByIds(functionContext.getSession(), objectClass, ids));
+	}
+	
+	@Override
+	public <T extends EntityObject> List<T> findByIds(Class<T> objectClass, List<Long> idList) {
+		Assert.notNull(objectClass, C.OBJECTCLASS);
+		
+		return MiscUtils.castList(valueObjectService.findByIds(functionContext.getSession(), objectClass, idList));
 	}
 	
 	@Override

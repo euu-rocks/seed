@@ -246,6 +246,22 @@ public class ValueObjectRepository {
 					  .getResultList();
 	}
 	
+	List<ValueObject> findByIds(Session session, Class<?> entityClass, Long ...ids) {
+		Assert.notNull(session, C.SESSION);
+		Assert.notNull(entityClass, C.ENTITYCLASS);
+		Assert.notNull(ids, "ids");
+		
+		return MiscUtils.castList(session.byMultipleIds(entityClass).multiLoad(ids));
+	}
+	
+	List<ValueObject> findByIds(Session session, Class<?> entityClass, List<Long> idList) {
+		Assert.notNull(session, C.SESSION);
+		Assert.notNull(entityClass, C.ENTITYCLASS);
+		Assert.notNull(idList, "id list");
+		
+		return MiscUtils.castList(session.byMultipleIds(entityClass).multiLoad(idList));
+	}
+	
 	boolean exist(Entity entity, @Nullable Filter filter) {
 		try (Session session = getSession()) {
 			return exist(session, entity, filter);
