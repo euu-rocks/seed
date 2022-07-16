@@ -637,7 +637,7 @@ public class ValueObjectServiceImpl
 	
 	@Override
 	public void transform(Transformer transformer, ValueObject sourceObject, ValueObject targetObject) {
-		objectTransformer.transform(transformer, targetObject, targetObject);
+		objectTransformer.transform(transformer, sourceObject, targetObject);
 	}
 	
 	@Override

@@ -23,6 +23,7 @@ import org.hibernate.Session;
 
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.core.api.CallbackEventType;
 import org.seed.core.api.TransformationFunction;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.codegen.GeneratedCode;
@@ -58,17 +59,19 @@ public class ValueObjectTransformer {
 	
 	public void transform(Transformer transformer, ValueObject sourceObject, ValueObject targetObject) {
 		Assert.notNull(transformer, C.TRANSFORMER);
-		Assert.notNull(sourceObject, "sourceObject");
-		Assert.notNull(targetObject, "targetObject");
+		Assert.notNull(sourceObject, "source object");
+		Assert.notNull(targetObject, "target object");
 		Assert.state(sourceObject.getEntityId().equals(transformer.getSourceEntity().getId()), "illegal source object");
 		Assert.state(targetObject.getEntityId().equals(transformer.getTargetEntity().getId()), "illegal target object");
 		
 		callFunctions(transformer, sourceObject, targetObject, true);
 		transformElements(transformerService.getMainObjectElements(transformer), sourceObject, targetObject);
 		for (NestedTransformer nestedTransformer : transformerService.getNestedTransformers(transformer)) {
-			for (ValueObject sourceNested : objectAccess.getNestedObjects(sourceObject, nestedTransformer.getSourceNested())) {
-				final ValueObject targetNested = objectAccess.addNestedInstance(targetObject, nestedTransformer.getTargetNested());
-				transformElements(nestedTransformer.getElements(), sourceNested, targetNested);
+			if (objectAccess.hasNestedObjects(sourceObject, nestedTransformer.getSourceNested())) {
+				for (ValueObject sourceNested : objectAccess.getNestedObjects(sourceObject, nestedTransformer.getSourceNested())) {
+					final ValueObject targetNested = objectAccess.addNestedInstance(targetObject, nestedTransformer.getTargetNested());
+					transformElements(nestedTransformer.getElements(), sourceNested, targetNested);
+				}
 			}
 		}
 		callFunctions(transformer, sourceObject, targetObject, false);
@@ -76,8 +79,8 @@ public class ValueObjectTransformer {
 	
 	public void transform(Transformer transformer, ValueObject targetObject, EntityField sourceObjectField) {
 		Assert.notNull(transformer, C.TRANSFORMER);
-		Assert.notNull(targetObject, "targetObject");
-		Assert.notNull(sourceObjectField, "sourceObjectField");
+		Assert.notNull(targetObject, "target object");
+		Assert.notNull(sourceObjectField, "source object field");
 		Assert.state(targetObject.getEntityId().equals(transformer.getTargetEntity().getId()), "illegal target object");
 
 		final ValueObject sourceObject = (ValueObject) objectAccess.getValue(targetObject, sourceObjectField);
@@ -111,6 +114,7 @@ public class ValueObjectTransformer {
 		if (transformer.hasFunctions()) {
 			try (Session session = sessionProvider.getSession()) {
 				final ValueObjectFunctionContext functionContext = new ValueObjectFunctionContext(session, transformer.getModule());
+				functionContext.setEventType(beforeTransformation ? CallbackEventType.BEFORETRANSFORMATION : CallbackEventType.AFTERTRANSFORMATION);
 				for (TransformerFunction function : transformer.getFunctions()) {
 					if ((beforeTransformation && function.isActiveBeforeTransformation()) || 
 						(!beforeTransformation && function.isActiveAfterTransformation())) {

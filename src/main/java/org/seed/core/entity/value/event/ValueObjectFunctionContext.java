@@ -81,7 +81,7 @@ public class ValueObjectFunctionContext extends AbstractFunctionContext
 		return eventType;
 	}
 
-	void setEventType(CallbackEventType eventType) {
+	public void setEventType(CallbackEventType eventType) {
 		this.eventType = eventType;
 	}
 
