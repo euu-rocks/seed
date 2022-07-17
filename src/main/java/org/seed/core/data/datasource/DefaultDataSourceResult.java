@@ -20,7 +20,6 @@ package org.seed.core.data.datasource;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.seed.core.util.Assert;
@@ -32,7 +31,7 @@ class DefaultDataSourceResult implements DataSourceResult {
 	private final List<ColumnMetadata> columns;
 	
 	DefaultDataSourceResult(List<Object[]> resultList, ResultSetMetaData metaData) throws SQLException {
-		Assert.notNull(resultList, "resultList");
+		Assert.notNull(resultList, "result list");
 		
 		if (metaData != null) {
 			final List<ColumnMetadata> columnList = new ArrayList<>(metaData.getColumnCount());
@@ -45,7 +44,16 @@ class DefaultDataSourceResult implements DataSourceResult {
 		else {
 			this.columns = null;
 		}
-		this.resultList = Collections.unmodifiableList(resultList);
+		this.resultList = new ArrayList<>(resultList.size());
+		// ensure that each list entry is an array
+		for (Object object : resultList) {
+			if (object.getClass().isArray()) {
+				this.resultList.add((Object[]) object);
+			}
+			else {
+				this.resultList.add(new Object[] {object});
+			}
+		}
 	}
 	
 	@Override

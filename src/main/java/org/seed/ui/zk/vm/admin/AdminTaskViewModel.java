@@ -208,7 +208,7 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 		if (jobStatusChanged) {
 			switch (getViewMode()) {
 				case LIST:
-					notifyChange(OBJECT_LIST);
+					refreshList();
 					break;
 					
 				case DETAIL:

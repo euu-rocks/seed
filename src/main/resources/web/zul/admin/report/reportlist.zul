@@ -29,6 +29,9 @@
 			<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
 						   label="${labels.admin.report.create}" 
 						   onClick="@command('newReport')"/>
+			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+						   label="${labels.button.refresh}" 
+						   onClick="@command('refreshReport')"/>
 			<toolbarbutton iconSclass="z-icon-wrench alpha-icon-lg" 
 						   label="${labels.admin.report.edit}" 
 						   onClick="@command('editReport')"

@@ -55,7 +55,7 @@ public interface EntityObjectProvider {
 	
 	<T extends EntityObject> EntityFilter getFilter(Class<T> objectClass, String filterName);
 	
-	<T extends EntityObject,U extends EntityObject> EntityTransformer getTransformer(Class<T> sourceClass, Class<U> targetClass, String transformerName);
+	<T extends EntityObject, U extends EntityObject> EntityTransformer getTransformer(Class<T> sourceClass, Class<U> targetClass, String transformerName);
 	
 	<T extends EntityObject> void save(T entityObject) throws ValidationException;
 	
@@ -67,10 +67,12 @@ public interface EntityObjectProvider {
 	
 	<T extends EntityObject> Status getStatus(T entityObject, Integer statusNumber);
 	
+	<T extends EntityObject> void changeStatus(T entityObject, Integer statusNumber) throws ValidationException;
+	
 	<T extends EntityObject> void changeStatus(T entityObject, Status targetStatus) throws ValidationException;
 	
-	<T extends EntityObject,U extends EntityObject> U transform(EntityTransformer transformer, T sourceObject);
+	<T extends EntityObject, U extends EntityObject> U transform(EntityTransformer transformer, T sourceObject);
 	
-	<T extends EntityObject,U extends EntityObject> void transform(EntityTransformer transformer, T sourceObject, U targetObject);
+	<T extends EntityObject, U extends EntityObject> void transform(EntityTransformer transformer, T sourceObject, U targetObject);
 	
 }

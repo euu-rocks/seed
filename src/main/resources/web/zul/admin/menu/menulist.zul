@@ -29,6 +29,9 @@
 			<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
 						   label="${labels.admin.menu.create}" 
 						   onClick="@command('newMenu')"/>
+			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+						   label="${labels.button.refresh}" 
+						   onClick="@command('refreshMenu')"/>
 			<toolbarbutton iconSclass="z-icon-wrench alpha-icon-lg" 
 						   label="${labels.admin.menu.edit}" 
 						   onClick="@command('editMenu')"

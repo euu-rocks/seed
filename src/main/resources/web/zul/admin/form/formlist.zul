@@ -29,6 +29,9 @@
 			<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
 						   label="${labels.admin.form.create}" 
 						   onClick="@command('newForm')"/>
+			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+						   label="${labels.button.refresh}" 
+						   onClick="@command('refreshForm')"/>
 			<toolbarbutton iconSclass="z-icon-wrench alpha-icon-lg" 
 						   label="${labels.admin.form.edit}" 
 						   onClick="@command('editForm')"

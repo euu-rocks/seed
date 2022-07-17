@@ -87,8 +87,9 @@ public class ValueObjectTransformer {
 		callFunctions(transformer, sourceObject, targetObject, true);
 		if (transformer.hasElements()) {
 			for (TransformerElement element : transformer.getElements()) {
-				final Object value = sourceObject == null ? null : 
-					objectAccess.getValue(sourceObject, element.getSourceField());
+				final Object value = sourceObject != null 
+										? objectAccess.getValue(sourceObject, element.getSourceField())
+										: null;
 				objectAccess.setValue(targetObject, element.getTargetField(), value);
 			}
 		}
@@ -113,8 +114,11 @@ public class ValueObjectTransformer {
 							   boolean beforeTransformation) {
 		if (transformer.hasFunctions()) {
 			try (Session session = sessionProvider.getSession()) {
-				final ValueObjectFunctionContext functionContext = new ValueObjectFunctionContext(session, transformer.getModule());
-				functionContext.setEventType(beforeTransformation ? CallbackEventType.BEFORETRANSFORMATION : CallbackEventType.AFTERTRANSFORMATION);
+				final ValueObjectFunctionContext functionContext = 
+						new ValueObjectFunctionContext(session, transformer.getModule());
+				functionContext.setEventType(beforeTransformation 
+												? CallbackEventType.BEFORETRANSFORMATION 
+												: CallbackEventType.AFTERTRANSFORMATION);
 				for (TransformerFunction function : transformer.getFunctions()) {
 					if ((beforeTransformation && function.isActiveBeforeTransformation()) || 
 						(!beforeTransformation && function.isActiveAfterTransformation())) {
@@ -130,9 +134,8 @@ public class ValueObjectTransformer {
 							  ValueObject sourceObject, ValueObject targetObject,
 							  ValueObjectFunctionContext functionContext) {
 		final Class<GeneratedCode> functionClass = codeManager.getGeneratedClass(function);
-		if (functionClass == null) {
-			throw new IllegalStateException("function class not available: " + function.getGeneratedPackage() + '.' + function.getGeneratedClass());
-		}
+		Assert.stateAvailable(functionClass, "function class " + function.getGeneratedClass());
+		
 		try {
 			final TransformationFunction<ValueObject, ValueObject> transformationFunction = 
 					(TransformationFunction<ValueObject, ValueObject>) BeanUtils.instantiate(functionClass);

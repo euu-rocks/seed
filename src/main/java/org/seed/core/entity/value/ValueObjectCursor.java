@@ -36,7 +36,7 @@ public abstract class ValueObjectCursor<T extends ValueObject> implements DBCurs
 		
 		this.queryCursor = queryCursor;
 		int numChunks = getTotalCount() / getChunkSize();
-		if (numChunks * getChunkSize() < getTotalCount()) {
+		if (getTotalCount() % getChunkSize() > 0) {
 			numChunks++;
 		}
 		chunkCount = numChunks;

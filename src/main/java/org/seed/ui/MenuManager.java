@@ -63,16 +63,16 @@ public class MenuManager {
 		
 		// jobs
 		if (user.isAuthorised(Authorisation.RUN_JOBS) && tasksExist) {
-			menuList.add(new TreeNode(getLabel("label.runjobs"), 
+			menuList.add(createNode("label.runjobs", 
 									"/task/tasklist.zul", 
-									"z-icon-cogs z-icon-fw alpha-icon-lg"));
+									"z-icon-cogs"));
 		}
 		
 		// reports
 		if (user.isAuthorised(Authorisation.PRINT_REPORTS) && reportsExist) {
-			menuList.add(new TreeNode(getLabel("label.reports"), 
+			menuList.add(createNode("label.reports", 
 									"/report/reportlist.zul", 
-									"z-icon-book z-icon-fw alpha-icon-lg"));
+									"z-icon-book"));
 		}
 		
 		// user menus
@@ -81,9 +81,9 @@ public class MenuManager {
 		// full-text search
 		if (fullTextSearchAvailable &&
 			user.isAuthorised(Authorisation.SEARCH_FULLTEXT)) {
-			menuList.add(new TreeNode(getLabel("label.fulltextsearch"), 
+			menuList.add(createNode("label.fulltextsearch", 
 									URL_FULLTEXTSEARCH, 
-									"z-icon-search z-icon-fw alpha-icon-lg"));
+									"z-icon-search"));
 		}
 		
 		// account
@@ -111,62 +111,62 @@ public class MenuManager {
 			createEntityMenu(nodeAdmin);
 		}
 		if (user.isAuthorised(Authorisation.ADMIN_FORM)) {
-			nodeAdmin.addChild(new TreeNode(getLabel("label.forms"), 
-										"/admin/form/formlist.zul", 
-										"z-icon-list-alt z-icon-fw alpha-icon-lg"));
+			nodeAdmin.addChild(createNode("label.forms", 
+										  "/admin/form/formlist.zul", 
+										  "z-icon-list-alt"));
 		}
 		if (user.isAuthorised(Authorisation.ADMIN_MENU)) {
-			nodeAdmin.addChild(new TreeNode(getLabel("label.menus"), 
-										"/admin/menu/menulist.zul", 
-										"z-icon-navicon z-icon-fw alpha-icon-lg"));
+			nodeAdmin.addChild(createNode("label.menus", 
+										  "/admin/menu/menulist.zul", 
+										  "z-icon-navicon"));
 		}
 		if (user.isAuthorised(Authorisation.ADMIN_JOB)) {
-			nodeAdmin.addChild(new TreeNode(getLabel("label.jobs"), 
-										"/admin/task/tasklist.zul", 
-										"z-icon-cog z-icon-fw alpha-icon-lg"));
+			nodeAdmin.addChild(createNode("label.jobs", 
+										  "/admin/task/tasklist.zul", 
+										  "z-icon-cog"));
 		}
 		if (user.isAuthorised(Authorisation.ADMIN_DBOBJECT)) {
-			nodeAdmin.addChild(new TreeNode(getLabel("label.dbobjects"), 
-										"/admin/dbobject/dbobjectlist.zul", 
-										"z-icon-database z-icon-fw alpha-icon-lg"));
+			nodeAdmin.addChild(createNode("label.dbobjects", 
+										  "/admin/dbobject/dbobjectlist.zul", 
+										  "z-icon-database"));
 		}
 		if (user.isAuthorised(Authorisation.ADMIN_DATASOURCE)) {
-			nodeAdmin.addChild(new TreeNode(getLabel("label.datasources"), 
-										"/admin/datasource/datasourcelist.zul", 
-										"z-icon-share-alt z-icon-fw alpha-icon-lg"));
+			nodeAdmin.addChild(createNode("label.datasources", 
+										  "/admin/datasource/datasourcelist.zul", 
+										  "z-icon-share-alt"));
 		}
 		if (user.isAuthorised(Authorisation.ADMIN_REPORT)) {
-			nodeAdmin.addChild(new TreeNode(getLabel("label.reports"), 
-										"/admin/report/reportlist.zul", 
-										"z-icon-book z-icon-fw alpha-icon-lg"));
+			nodeAdmin.addChild(createNode("label.reports", 
+										  "/admin/report/reportlist.zul", 
+										  "z-icon-book"));
 		}
 		if (user.isAuthorised(Authorisation.ADMIN_SOURCECODE)) {
 			createCustomCodeMenu(nodeAdmin);
 		}
 		if (user.isAuthorised(Authorisation.ADMIN_REST)) {
-			nodeAdmin.addChild(new TreeNode(getLabel("label.restservice"), 
-										"/admin/rest/restlist.zul", 
-										"z-icon-server z-icon-fw alpha-icon-lg"));
+			nodeAdmin.addChild(createNode("label.restservice", 
+										  "/admin/rest/restlist.zul", 
+										  "z-icon-server"));
 		}
 		if (user.isAuthorised(Authorisation.ADMIN_MODULE)) {
-			nodeAdmin.addChild(new TreeNode(getLabel("label.modules"), 
-										"/admin/module/modulelist.zul", 
-										"z-icon-cube z-icon-fw alpha-icon-lg"));
+			nodeAdmin.addChild(createNode("label.modules", 
+										  "/admin/module/modulelist.zul", 
+										  "z-icon-cube"));
 		}
 		if (user.isAuthorised(Authorisation.ADMIN_SETTINGS)) {
-			nodeAdmin.addChild(new TreeNode(getLabel("label.settings"), 
-										"/admin/setting/settings.zul", 
-										"z-icon-wrench z-icon-fw alpha-icon-lg"));
+			nodeAdmin.addChild(createNode("label.settings", 
+										  "/admin/setting/settings.zul", 
+										  "z-icon-wrench"));
 		}
 		if (user.isAuthorised(Authorisation.SYSTEMINFO)) {
-			nodeAdmin.addChild(new TreeNode(getLabel("user.authorisation.systeminfo"), 
-										"/admin/systeminfo/systeminfo.zul", 
-										"z-icon-info z-icon-fw alpha-icon-lg"));
+			nodeAdmin.addChild(createNode("user.authorisation.systeminfo", 
+										  "/admin/systeminfo/systeminfo.zul", 
+										  "z-icon-info"));
 		}
 		if (user.isAuthorised(Authorisation.SYSTEMTASK)) {
-			nodeAdmin.addChild(new TreeNode(getLabel("label.systemtasks"),
-										"/admin/systemtask/systemtasklist.zul", 
-										"z-icon-gavel z-icon-fw alpha-icon-lg"));
+			nodeAdmin.addChild(createNode("label.systemtasks",
+										  "/admin/systemtask/systemtasklist.zul", 
+										  "z-icon-gavel"));
 		}
 		if (user.isAuthorised(Authorisation.ADMIN_USER)) {
 			createUserMenu(nodeAdmin);
@@ -175,44 +175,49 @@ public class MenuManager {
 	}
 	
 	private void createEntityMenu(TreeNode nodeAdmin) {
-		final TreeNode nodeEntities = nodeAdmin.addChild(new TreeNode(getLabel("label.entities"), 
+		final TreeNode nodeEntities = nodeAdmin.addChild(createNode("label.entities", 
 										 "/admin/entity/entitylist.zul", 
-										 "z-icon-table z-icon-fw alpha-icon-lg"));
-		nodeEntities.addChild(new TreeNode(getLabel("label.filters"), 
+										 "z-icon-table"));
+		nodeEntities.addChild(createNode("label.filters", 
 										 "/admin/filter/filterlist.zul", 
-										 "z-icon-filter z-icon-fw alpha-icon-lg"));
-		nodeEntities.addChild(new TreeNode(getLabel("label.transfer"), 
+										 "z-icon-filter"));
+		nodeEntities.addChild(createNode("label.transfer", 
 										 "/admin/transfer/transferlist.zul", 
-										 "z-icon-exchange z-icon-fw alpha-icon-lg"));
-		nodeEntities.addChild(new TreeNode(getLabel("label.transformers"), 
+										 "z-icon-exchange"));
+		nodeEntities.addChild(createNode("label.transformers", 
 										 "/admin/transform/transformerlist.zul", 
-										 "z-icon-random z-icon-fw alpha-icon-lg"));
+										 "z-icon-random"));
 	}
 	
 	private void createCustomCodeMenu(TreeNode nodeAdmin) {
-		final TreeNode nodeCustomCode = nodeAdmin.addChild(new TreeNode(getLabel("label.customcode"), 
-										"/admin/customcode/customcodelist.zul", 
-										"z-icon-code z-icon-fw alpha-icon-lg"));
-		nodeCustomCode.addChild(new TreeNode(getLabel("label.customlibs"), 
-										"/admin/customcode/customliblist.zul", 
-										"z-icon-file-archive-o z-icon-fw alpha-icon-lg"));
+		final TreeNode nodeCustomCode = nodeAdmin.addChild(createNode("label.customcode", 
+										 "/admin/customcode/customcodelist.zul", 
+										 "z-icon-code"));
+		nodeCustomCode.addChild(createNode("label.customlibs", 
+										   "/admin/customcode/customliblist.zul", 
+										   "z-icon-file-archive-o"));
 	}
 	
 	private void createUserMenu(TreeNode nodeAdmin) {
-		final TreeNode nodeUsers = nodeAdmin.addChild(new TreeNode(getLabel("label.users"), 
-										"/admin/user/userlist.zul", 
-										"z-icon-user z-icon-fw alpha-icon-lg"));
-		nodeUsers.addChild(new TreeNode(getLabel("label.usergroups"), 
-										"/admin/user/usergrouplist.zul", 
-										"z-icon-users z-icon-fw alpha-icon-lg"));
+		final TreeNode nodeUsers = nodeAdmin.addChild(createNode("label.users", 
+										 "/admin/user/userlist.zul", 
+										 "z-icon-user"));
+		nodeUsers.addChild(createNode("label.usergroups", 
+									  "/admin/user/usergrouplist.zul", 
+									  "z-icon-users"));
 	}
 	
 	private TreeNode createAccountMenu(User user) {
 		final TreeNode nodeAccount = new TreeNode(user.getName(), null, 
-				 								  "z-icon-user z-icon-fw alpha-icon-lg");
-		nodeAccount.addChild(new TreeNode(getLabel("label.logout"), REDIRECT_LOGOUT, 
-										  		   "z-icon-sign-out z-icon-fw alpha-icon-lg"));
+				 								  "z-icon-user");
+		nodeAccount.addChild(createNode("label.logout", 
+										REDIRECT_LOGOUT, 
+										"z-icon-sign-out"));
 		return nodeAccount;
+	}
+	
+	private TreeNode createNode(String labelKey, String viewName, String icon) {
+		return new TreeNode(getLabel(labelKey), viewName, icon != null ? icon.concat(" z-icon-fw alpha-icon-lg") : null);
 	}
 	
 	private String getLabel(String key, String ...params) {

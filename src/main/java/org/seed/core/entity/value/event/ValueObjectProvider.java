@@ -193,6 +193,11 @@ class ValueObjectProvider implements EntityObjectProvider {
 	}
 	
 	@Override
+	public void changeStatus(EntityObject entityObject, Integer statusNumber) throws ValidationException {
+		changeStatus(entityObject, getStatus(entityObject, statusNumber));
+	}
+	
+	@Override
 	public void changeStatus(EntityObject entityObject, Status targetStatus) throws ValidationException {
 		Assert.notNull(entityObject, C.ENTITYOBJECT);
 		Assert.notNull(targetStatus, "target status");

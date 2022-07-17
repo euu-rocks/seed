@@ -849,10 +849,11 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Command
-	@NotifyChange(LISTMANAGER_LIST)
+	@NotifyChange({LISTMANAGER_LIST, "transitionFunction"})
 	public void selectStatusTransition() {
 		removeListManager(TRANSITIONFUNCTIONS);
 		removeListManager(TRANSITIONPERMISSIONS);
+		transitionFunction = null;
 	}
 	
 	@Command
