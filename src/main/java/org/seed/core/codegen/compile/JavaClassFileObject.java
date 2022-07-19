@@ -18,7 +18,6 @@
 package org.seed.core.codegen.compile;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
@@ -27,11 +26,13 @@ import javax.tools.SimpleJavaFileObject;
 
 import org.seed.core.util.Assert;
 
+import org.springframework.util.FastByteArrayOutputStream;
+
 class JavaClassFileObject extends SimpleJavaFileObject {
 	
 	private final String qualifiedName;
 	
-	private ByteArrayOutputStream byteCodeOutputStream;
+	private FastByteArrayOutputStream byteCodeOutputStream;
 	
 	private byte[] byteCode;
 
@@ -42,7 +43,7 @@ class JavaClassFileObject extends SimpleJavaFileObject {
 	
 	JavaClassFileObject(String qualifiedName, byte[] byteCode) {
 		this(qualifiedName);
-		Assert.notNull(byteCode, "byteCode");
+		Assert.notNull(byteCode, "byte code");
 		
 		this.byteCode = byteCode;
 	}
@@ -58,7 +59,7 @@ class JavaClassFileObject extends SimpleJavaFileObject {
 	
 	@Override
 	public OutputStream openOutputStream() {
-		byteCodeOutputStream = new ByteArrayOutputStream();
+		byteCodeOutputStream = new FastByteArrayOutputStream();
 		return byteCodeOutputStream;
 	}
 	

@@ -18,7 +18,6 @@
 package org.seed.core.util;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -32,6 +31,7 @@ import java.util.zip.ZipInputStream;
 import org.seed.InternalException;
 
 import org.springframework.core.io.Resource;
+import org.springframework.util.FastByteArrayOutputStream;
 
 public abstract class StreamUtils {
 	
@@ -82,7 +82,7 @@ public abstract class StreamUtils {
 	}
 	
 	public static byte[] compress(byte[] bytes) throws IOException {
-		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		final FastByteArrayOutputStream out = new FastByteArrayOutputStream();
 		if (bytes != null) {
 			try (DeflaterOutputStream deflaterStream = new DeflaterOutputStream(out)) {
 		        deflaterStream.write(bytes);    
@@ -92,7 +92,7 @@ public abstract class StreamUtils {
 	}
 	
 	public static byte[] decompress(byte[] bytes) throws IOException {
-	    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    final FastByteArrayOutputStream out = new FastByteArrayOutputStream();
 	    if (bytes != null) {
 		    try (InflaterOutputStream inflaterStream = new InflaterOutputStream(out)) {
 		        inflaterStream.write(bytes);    

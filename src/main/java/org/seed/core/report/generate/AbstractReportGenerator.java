@@ -17,7 +17,6 @@
  */
 package org.seed.core.report.generate;
 
-import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.Types;
@@ -36,6 +35,8 @@ import org.seed.core.report.ReportDataSource;
 import org.seed.core.report.ReportGenerator;
 import org.seed.core.util.Assert;
 
+import org.springframework.util.FastByteArrayOutputStream;
+
 abstract class AbstractReportGenerator implements ReportGenerator {
 	
 	private final Map<Long, DataSourceResult> resultMap = new HashMap<>();
@@ -44,7 +45,7 @@ abstract class AbstractReportGenerator implements ReportGenerator {
 	
 	private final Report report;
 	
-	private ByteArrayOutputStream outputStream;
+	private FastByteArrayOutputStream outputStream;
 	
 	protected AbstractReportGenerator(Report report) {
 		Assert.notNull(report, C.REPORT);
@@ -98,7 +99,7 @@ abstract class AbstractReportGenerator implements ReportGenerator {
 	}
 	
 	protected OutputStream getOutputStream() {
-		outputStream = new ByteArrayOutputStream();
+		outputStream = new FastByteArrayOutputStream();
 		return outputStream;
 	}
 	

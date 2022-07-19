@@ -17,7 +17,6 @@
  */
 package org.seed.core.entity.doc;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -30,6 +29,7 @@ import org.seed.core.util.StreamUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FastByteArrayOutputStream;
 
 import com.itextpdf.svg.converter.SvgConverter;
 
@@ -57,7 +57,7 @@ public class DocumentationServiceImpl implements DocumentationService {
 	public String createSVG(String plantUML) {
 		Assert.notNull(plantUML, "plantUML");
 		
-		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+		try (FastByteArrayOutputStream baos = new FastByteArrayOutputStream()) {
 			new SourceStringReader(plantUML)
 				.outputImage(baos, new FileFormatOption(FileFormat.SVG));
 			return MiscUtils.toString(baos.toByteArray());
@@ -71,7 +71,7 @@ public class DocumentationServiceImpl implements DocumentationService {
 	public byte[] createPDF(String svg) {
 		Assert.notNull(svg, "svg");
 		
-		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+		try (FastByteArrayOutputStream baos = new FastByteArrayOutputStream()) {
 			SvgConverter.createPdf(StreamUtils.getStringAsStream(svg), baos);
 			return baos.toByteArray();
 		} 

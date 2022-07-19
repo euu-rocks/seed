@@ -17,7 +17,6 @@
  */
 package org.seed.core.form.printout;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +29,7 @@ import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.apache.xmlbeans.XmlException;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTRow;
+
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.LabelProvider;
@@ -39,6 +39,7 @@ import org.seed.core.entity.value.ValueObject;
 import org.seed.core.form.FormPrintout;
 import org.seed.core.util.Assert;
 
+import org.springframework.util.FastByteArrayOutputStream;
 import org.springframework.util.ObjectUtils;
 
 class DOCXPrintoutProcessor extends AbstractPrintoutProcessor {
@@ -111,7 +112,7 @@ class DOCXPrintoutProcessor extends AbstractPrintoutProcessor {
 					table.addRow(row, removeRowIdx++);
 				}
 			}
-			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			final FastByteArrayOutputStream baos = new FastByteArrayOutputStream();
 			document.write(baos);
 			return baos.toByteArray();
 		} 

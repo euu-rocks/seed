@@ -23,7 +23,6 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -32,6 +31,7 @@ import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.util.Assert;
 
+import org.springframework.util.FastByteArrayOutputStream;
 import org.zkoss.image.AImage;
 
 abstract class ImageUtils {
@@ -79,7 +79,7 @@ abstract class ImageUtils {
 	}
 	
 	private static byte[] getBytes(BufferedImage image) {
-		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+		try (FastByteArrayOutputStream baos = new FastByteArrayOutputStream()) {
 			ImageIO.write(image, FORMAT_PNG, baos);
 			return baos.toByteArray(); 
 		} 

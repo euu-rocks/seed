@@ -18,7 +18,6 @@
 package org.seed.core.application.module;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -65,6 +64,7 @@ import static org.seed.core.codegen.CodeUtils.isJarFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.stereotype.Component;
+import org.springframework.util.FastByteArrayOutputStream;
 
 /**
  * In case of "NPE while unmarshalling" 
@@ -197,7 +197,7 @@ public class ModuleTransfer {
 	byte[] exportModule(Module module) throws IOException {
 		Assert.notNull(module, C.MODULE);
 		
-		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		final FastByteArrayOutputStream baos = new FastByteArrayOutputStream();
 	    try (ZipOutputStream zos = new ZipOutputStream(baos)) {
 		    // write module
 		    writeZipEntry(zos, MODULE_XML_FILENAME, getModuleContent(module));
@@ -364,7 +364,7 @@ public class ModuleTransfer {
 	}
 	
 	private byte[] getModuleContent(Module module) {
-		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		final FastByteArrayOutputStream baos = new FastByteArrayOutputStream();
 		((ModuleMetadata) module).setSchemaVersion(SchemaVersion.currentVersion());
 		marshaller.marshal(module, new StreamResult(baos));
 		return baos.toByteArray();

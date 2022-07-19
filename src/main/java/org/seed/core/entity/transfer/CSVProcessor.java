@@ -17,7 +17,6 @@
  */
 package org.seed.core.entity.transfer;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -32,6 +31,8 @@ import org.seed.core.data.ValidationException;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.entity.value.ValueObjectService;
 import org.seed.core.util.Assert;
+
+import org.springframework.util.FastByteArrayOutputStream;
 
 import com.opencsv.ICSVWriter;
 import com.opencsv.bean.ColumnPositionMappingStrategy;
@@ -52,7 +53,7 @@ class CSVProcessor extends AbstractTransferProcessor {
 	
 	@Override
 	public byte[] doExport() {
-		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		final FastByteArrayOutputStream out = new FastByteArrayOutputStream();
 		try (PrintWriter writer = new PrintWriter(out, false, getCharset())) {
 			final StatefulBeanToCsvBuilder<ValueObject> builder = 
 				new StatefulBeanToCsvBuilder<ValueObject>(writer)

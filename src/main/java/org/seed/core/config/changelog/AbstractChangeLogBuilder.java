@@ -17,7 +17,6 @@
  */
 package org.seed.core.config.changelog;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -31,6 +30,8 @@ import org.seed.core.data.SystemEntity;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 import org.seed.core.util.UID;
+
+import org.springframework.util.FastByteArrayOutputStream;
 
 import liquibase.change.Change;
 import liquibase.change.core.AddForeignKeyConstraintChange;
@@ -156,7 +157,7 @@ public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 	
 	private static ChangeLog createChangeLog(ChangeSet changeSet) {
 		final ChangeLog changeLog = new ChangeLog();
-		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		final FastByteArrayOutputStream baos = new FastByteArrayOutputStream();
 		try {
 			new JsonChangeLogSerializer().write(Collections.singletonList(changeSet), baos);
 			changeLog.setChangeSet(MiscUtils.toString(baos.toByteArray()));
