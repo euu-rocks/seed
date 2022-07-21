@@ -34,6 +34,7 @@ import org.seed.core.application.module.Module;
 import org.seed.core.application.module.ModuleMetadata;
 import org.seed.core.data.AbstractSystemEntity;
 import org.seed.core.user.User;
+import org.seed.core.user.UserGroup;
 import org.seed.core.util.Assert;
 import org.seed.core.util.ReferenceJsonSerializer;
 import org.seed.core.util.UID;
@@ -81,8 +82,8 @@ public abstract class AbstractApplicationEntity extends AbstractSystemEntity
 	public final boolean checkPermissions(User user, @Nullable Enum<?> access) {
 		Assert.notNull(user, C.USER);
 		Assert.state(this instanceof ApprovableObject, "object is not approvable");
-		
 		final ApprovableObject<?> approvable = (ApprovableObject<?>) this;
+		
 		// as long as there are no permissions, 
 		// every access is permitted
 		if (!approvable.hasPermissions()) {
@@ -98,11 +99,23 @@ public abstract class AbstractApplicationEntity extends AbstractSystemEntity
 		return false;
 	}
 	
+	@Override
+	public final boolean containsPermission(UserGroup group) {
+		Assert.notNull(group, C.USERGROUP);
+		Assert.state(this instanceof ApprovableObject, "object is not approvable");
+		final ApprovableObject<?> approvable = (ApprovableObject<?>) this;
+		
+		return approvable.hasPermissions() && 
+			   approvable.getPermissions().stream()
+			   			 .anyMatch(perm -> group.equals(perm.getUserGroup()));
+	}
+	
 	public static <T extends TransferableObject> T getObjectByUid(Collection<T> list, String uid) {
 		Assert.notNull(uid, C.UID);
 		
 		if (list != null) {
-			final Optional<T> optional = list.stream().filter(object -> uid.equals(object.getUid()))
+			final Optional<T> optional = list.stream()
+											 .filter(object -> uid.equals(object.getUid()))
 											 .findFirst();
 			if (optional.isPresent()) {
 				return optional.get();

@@ -20,6 +20,7 @@ package org.seed.core.rest;
 import org.hibernate.Session;
 
 import org.seed.core.api.RestFunction.MethodType;
+import org.seed.core.api.ClientProvider;
 import org.seed.core.api.RestFunctionContext;
 import org.seed.core.application.module.Module;
 import org.seed.core.entity.value.event.ValueObjectFunctionContext;
@@ -39,6 +40,11 @@ class DefaultRestFunctionContext extends ValueObjectFunctionContext
 		this.methodType = methodType;
 		this.body = body;
 		this.parameters = parameters;
+	}
+	
+	@Override
+	public ClientProvider getClientProvider() {
+		throw new UnsupportedOperationException("client not available in rest context");
 	}
 	
 	@Override

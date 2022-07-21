@@ -25,6 +25,7 @@ import java.util.Optional;
 import org.hibernate.Session;
 import org.quartz.JobExecutionContext;
 
+import org.seed.core.api.ClientProvider;
 import org.seed.core.api.JobContext;
 import org.seed.core.config.LogLevel;
 import org.seed.core.entity.value.event.ValueObjectFunctionContext;
@@ -52,6 +53,11 @@ class DefaultJobContext extends ValueObjectFunctionContext
 			  ((Task) context.get(RUN_TASK)).getModule());
 		parameters = (List<TaskParameter>) context.get(RUN_PARAMS);
 		context.put(RUN_LOGS, logs);
+	}
+	
+	@Override
+	public ClientProvider getClientProvider() {
+		throw new UnsupportedOperationException("client not available in job context");
 	}
 	
 	@Override

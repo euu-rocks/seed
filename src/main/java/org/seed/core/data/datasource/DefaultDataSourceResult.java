@@ -33,6 +33,7 @@ class DefaultDataSourceResult implements DataSourceResult {
 	DefaultDataSourceResult(List<Object[]> resultList, ResultSetMetaData metaData) throws SQLException {
 		Assert.notNull(resultList, "result list");
 		
+		// determine columns
 		if (metaData != null) {
 			final List<ColumnMetadata> columnList = new ArrayList<>(metaData.getColumnCount());
 			for (int i = 1; i <= metaData.getColumnCount(); i++) {
@@ -44,14 +45,15 @@ class DefaultDataSourceResult implements DataSourceResult {
 		else {
 			this.columns = null;
 		}
-		this.resultList = new ArrayList<>(resultList.size());
+		
 		// ensure that each list entry is an array
+		this.resultList = new ArrayList<>(resultList.size());
 		for (Object object : resultList) {
 			if (object.getClass().isArray()) {
 				this.resultList.add((Object[]) object);
 			}
 			else {
-				this.resultList.add(new Object[] {object});
+				this.resultList.add(new Object[] { object });
 			}
 		}
 	}

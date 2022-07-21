@@ -163,12 +163,11 @@ class ValueObjectProvider implements EntityObjectProvider {
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public <T extends EntityObject> List<T> find(EntityFilter entityFilter) {
 		Assert.notNull(entityFilter, "entity filter");
 		
 		final Filter filter = (Filter) entityFilter;
-		return (List<T>) valueObjectService.find(functionContext.getSession(), filter.getEntity(), filter);
+		return MiscUtils.castList(valueObjectService.find(functionContext.getSession(), filter.getEntity(), filter));
 	}
 	
 	@Override

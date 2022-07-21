@@ -195,16 +195,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		
 		final List<TaskPermission> result = new ArrayList<>();
 		for (UserGroup group : userGroupService.findNonSystemGroups()) {
-			boolean found = false;
-			if (task.hasPermissions()) {
-				for (TaskPermission permission : task.getPermissions()) {
-					if (permission.getUserGroup().equals(group)) {
-						found = true;
-						break;
-					}
-				}
-			}
-			if (!found) {
+			if (!task.containsPermission(group)) {
 				final TaskPermission permission = new TaskPermission();
 				permission.setTask(task);
 				permission.setUserGroup(group);

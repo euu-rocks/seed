@@ -148,16 +148,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		
 		final List<TransformerPermission> result = new ArrayList<>();
 		for (UserGroup group : userGroupService.findNonSystemGroups()) {
-			boolean found = false;
-			if (transformer.hasPermissions()) {
-				for (TransformerPermission permission : transformer.getPermissions()) {
-					if (permission.getUserGroup().equals(group)) {
-						found = true;
-						break;
-					}
-				}
-			}
-			if (!found) {
+			if (!transformer.containsPermission(group)) {
 				final TransformerPermission permission = new TransformerPermission();
 				permission.setTransformer(transformer);
 				permission.setUserGroup(group);

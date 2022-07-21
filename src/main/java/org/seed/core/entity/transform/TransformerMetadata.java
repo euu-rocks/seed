@@ -193,8 +193,7 @@ public class TransformerMetadata extends AbstractApplicationEntity
 		
 		if (hasStatus()) {
 			return getStatus().stream()
-					.filter(ts ->  status.equals(ts.getStatus()))
-					.findFirst().isPresent();
+					.anyMatch(stat -> status.equals(stat.getStatus()));
 		}
 		return false;
 	}

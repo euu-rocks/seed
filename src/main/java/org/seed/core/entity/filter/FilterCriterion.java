@@ -265,7 +265,7 @@ public class FilterCriterion extends AbstractTransferableObject {
 	public String getLike() {
 		if (stringValue != null) {
 			final String value = stringValue.replace('*', '%');
-			return value.contains("%") ? value : value + '%';
+			return value.contains("%") ? value : '%' + value + '%';
 		}
 		return null;
 	}

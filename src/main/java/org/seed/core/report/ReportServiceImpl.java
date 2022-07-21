@@ -38,7 +38,6 @@ import org.seed.core.data.Options;
 import org.seed.core.data.ValidationException;
 import org.seed.core.data.datasource.IDataSource;
 import org.seed.core.data.datasource.DataSourceDependent;
-import org.seed.core.data.datasource.DataSourceParameter;
 import org.seed.core.data.datasource.DataSourceResult;
 import org.seed.core.data.datasource.DataSourceService;
 import org.seed.core.user.User;
@@ -81,9 +80,8 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 	public List<Report> getReports(User user) {
 		Assert.notNull(user, C.USER);
 		
-		return getObjects().stream()
-							   .filter(r -> r.checkPermissions(user))
-							   .collect(Collectors.toList());
+		return getObjects().stream().filter(report -> report.checkPermissions(user))
+						   .collect(Collectors.toList());
 	}
 	
 	@Override
@@ -109,12 +107,10 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 				final Map<String,Object> parameterMap = new HashMap<>();
 				final IDataSource dataSource = reportDataSource.getDataSource();
 				if (dataSource.hasParameters()) {
-					for (DataSourceParameter parameter : dataSource.getParameters()) {
-						parameterMap.put(parameter.getName(), parameter.getValue());
-					}
+					dataSource.getParameters()
+							  .forEach(param -> parameterMap.put(param.getName(),param.getValue()));
 				}
-				final DataSourceResult result = dataSourceService.query(dataSource, 
-																		parameterMap);
+				final DataSourceResult result = dataSourceService.query(dataSource, parameterMap);
 				generator.addDataSourceResult(reportDataSource, result);
 			}
 		}
@@ -127,16 +123,7 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 		
 		final List<ReportPermission> result = new ArrayList<>();
 		for (UserGroup group : userGroupService.findNonSystemGroups()) {
-			boolean found = false;
-			if (report.hasPermissions()) {
-				for (ReportPermission permission : report.getPermissions()) {
-					if (permission.getUserGroup().equals(group)) {
-						found = true;
-						break;
-					}
-				}
-			}
-			if (!found) {
+			if (!report.containsPermission(group)) {
 				final ReportPermission permission = new ReportPermission();
 				permission.setReport(report);
 				permission.setUserGroup(group);

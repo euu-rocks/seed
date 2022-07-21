@@ -377,16 +377,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		
 		final List<EntityPermission> result = new ArrayList<>();
 		for (UserGroup group : userGroupService.findNonSystemGroups()) {
-			boolean found = false;
-			if (entity.hasPermissions()) {
-				for (EntityPermission permission : entity.getPermissions()) {
-					if (permission.getUserGroup().equals(group)) {
-						found = true;
-						break;
-					}
-				}
-			}
-			if (!found) {
+			if (!entity.containsPermission(group)) {
 				final EntityPermission permission = new EntityPermission();
 				permission.setEntity(entity);
 				permission.setUserGroup(group);
@@ -403,17 +394,8 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		
 		final List<EntityStatusTransitionPermission> result = new ArrayList<>();
 		for (UserGroup group : userGroupService.findNonSystemGroups()) {
-			boolean found = false;
-			if (transition.hasPermissions()) {
-				for (EntityStatusTransitionPermission permission : transition.getPermissions()) {
-					if (permission.getUserGroup().equals(group)) {
-						found = true;
-						break;
-					}
-				}
-			}
-			if (!found) {
-				final EntityStatusTransitionPermission permission = new EntityStatusTransitionPermission();
+			if (!transition.containsPermission(group)) {
+ 				final EntityStatusTransitionPermission permission = new EntityStatusTransitionPermission();
 				permission.setStatusTransition(transition);
 				permission.setUserGroup(group);
 				result.add(permission);

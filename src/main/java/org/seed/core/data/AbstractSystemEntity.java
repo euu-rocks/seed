@@ -18,6 +18,7 @@
 package org.seed.core.data;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
@@ -81,11 +82,11 @@ public abstract class AbstractSystemEntity extends AbstractSystemObject
 		Assert.notNull(name, C.NAME);
 		
 		if (list != null) {
-			for (T object : list) {
-				if ((ignoreCase && name.equalsIgnoreCase(object.getName())) || 
-					name.equals(object.getName())) {
-					return object;
-				}
+			final Optional<T> optional = list.stream()
+				.filter(obj -> (ignoreCase && name.equalsIgnoreCase(obj.getName())) || name.equals(obj.getName()))
+				.findFirst();
+			if (optional.isPresent()) {
+				return optional.get();
 			}
 		}
 		return null;

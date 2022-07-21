@@ -187,16 +187,7 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 		
 		final List<RestPermission> result = new ArrayList<>();
 		for (UserGroup group : userGroupService.findNonSystemGroups()) {
-			boolean found = false;
-			if (rest.hasPermissions()) {
-				for (RestPermission permission : rest.getPermissions()) {
-					if (permission.getUserGroup().equals(group)) {
-						found = true;
-						break;
-					}
-				}
-			}
-			if (!found) {
+			if (!rest.containsPermission(group)) {
 				final RestPermission permission = new RestPermission();
 				permission.setRest(rest);
 				permission.setUserGroup(group);

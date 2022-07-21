@@ -42,6 +42,7 @@ import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.application.AbstractTransferableObject;
 import org.seed.core.data.Order;
 import org.seed.core.user.User;
+import org.seed.core.user.UserGroup;
 import org.seed.core.util.Assert;
 import org.seed.core.util.ReferenceJsonSerializer;
 
@@ -178,14 +179,16 @@ public class EntityStatusTransition extends AbstractTransferableObject {
 	public boolean containsEntityFunction(EntityFunction function) {
 		Assert.notNull(function, C.FUNCTION);
 		
-		if (hasFunctions()) {
-			for (EntityStatusTransitionFunction transitionFunction : getFunctions()) {
-				if (transitionFunction.getFunction().equals(function)) {
-					return true;
-				}
-			}
-		}
-		return false;
+		return hasFunctions() &&
+			   getFunctions().stream().anyMatch(func -> function.equals(func.getFunction()));
+		
+	}
+	
+	public boolean containsPermission(UserGroup group) {
+		Assert.notNull(group, C.USERGROUP);
+		
+		return hasPermissions() && 
+			   getPermissions().stream().anyMatch(perm -> group.equals(perm.getUserGroup()));
 	}
 	
 	public void removeFunction(EntityStatusTransitionFunction function) {

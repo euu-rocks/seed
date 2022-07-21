@@ -188,16 +188,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		
 		final List<FilterPermission> result = new ArrayList<>();
 		for (UserGroup group : userGroupService.findNonSystemGroups()) {
-			boolean found = false;
-			if (filter.hasPermissions()) {
-				for (FilterPermission permission : filter.getPermissions()) {
-					if (permission.getUserGroup().equals(group)) {
-						found = true;
-						break;
-					}
-				}
-			}
-			if (!found) {
+			if (!filter.containsPermission(group)) {
 				final FilterPermission permission = new FilterPermission();
 				permission.setFilter(filter);
 				permission.setUserGroup(group);

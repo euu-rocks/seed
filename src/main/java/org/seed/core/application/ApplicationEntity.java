@@ -20,6 +20,7 @@ package org.seed.core.application;
 import org.seed.core.application.module.Module;
 import org.seed.core.data.SystemEntity;
 import org.seed.core.user.User;
+import org.seed.core.user.UserGroup;
 
 /** 
  * An ApplicationEntity represents a SystemEntity, 
@@ -36,5 +37,7 @@ public interface ApplicationEntity extends SystemEntity, TransferableObject {
 	boolean checkPermissions(User user);
 	
 	boolean checkPermissions(User user, Enum<?> access);
+	
+	boolean containsPermission(UserGroup group);
 	
 }
