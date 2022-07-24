@@ -370,6 +370,14 @@ public class EntityMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
+	public boolean hasAllFieldGroups() {
+		if (genericEntity != null && genericEntity.hasAllFieldGroups()) {
+			return true;
+		}
+		return hasFieldGroups();
+	}
+	
+	@Override
 	@XmlElement(name="fieldgroup")
 	@XmlElementWrapper(name="fieldgroups")
 	public List<EntityFieldGroup> getFieldGroups() {
@@ -886,6 +894,14 @@ public class EntityMetadata extends AbstractApplicationEntity
 	@Override
 	public boolean hasFunctions() {
 		return !ObjectUtils.isEmpty(getFunctions());
+	}
+	
+	@Override
+	public boolean hasAllFunctions() {
+		if (genericEntity != null && genericEntity.hasAllFunctions()) {
+			return true;
+		}
+		return hasFunctions();
 	}
 	
 	@Override

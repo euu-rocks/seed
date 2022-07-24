@@ -43,6 +43,8 @@ public interface Entity
 	
 	boolean hasFieldGroups();
 	
+	boolean hasAllFieldGroups(); // includes generic field groups
+	
 	boolean hasNesteds();
 	
 	boolean hasRelations();
@@ -52,6 +54,8 @@ public interface Entity
 	boolean hasStatus();
 	
 	boolean hasFunctions(); 
+	
+	boolean hasAllFunctions(); // includes generic functions
 	
 	boolean containsField(EntityField field);
 	
