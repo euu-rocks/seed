@@ -162,6 +162,10 @@ public class UserMetadata extends AbstractSystemEntity implements User {
 		return (Set<UserGroup>) groups;
 	}
 	
+	public void setUserGroups(Set<UserGroupMetadata> userGroups) {
+		this.userGroups = userGroups;
+	}
+
 	@Override
 	public boolean isAuthorised(Authorisation authorisation) {
 		Assert.notNull(authorisation, "authorisation");

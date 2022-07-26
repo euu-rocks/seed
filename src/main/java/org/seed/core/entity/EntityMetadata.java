@@ -837,22 +837,20 @@ public class EntityMetadata extends AbstractApplicationEntity
 		getStatusList().remove(status);
 		// remove transitions containing status
 		if (hasStatusTransitions()) {
-			getStatusTransitions().removeIf(t -> t.getSourceStatus().equals(status) ||
-												 t.getTargetStatus().equals(status));
+			getStatusTransitions().removeIf(transition -> transition.getSourceStatus().equals(status) ||
+														  transition.getTargetStatus().equals(status));
 		}
 	}
 	
 	@Override
 	public boolean isUnique(EntityStatusTransition statusTransition) {
 		Assert.notNull(statusTransition, C.STATUSTRANSITION);
-		for (EntityStatusTransition tran : getStatusTransitions()) {
-			if (statusTransition != tran && 
-				ObjectUtils.nullSafeEquals(statusTransition.getSourceStatus(), tran.getSourceStatus()) &&
-				ObjectUtils.nullSafeEquals(statusTransition.getTargetStatus(), tran.getTargetStatus())) {
-				return false;
-			}
-		}
-		return true;
+		
+		return !hasStatusTransitions() ||
+			   !getStatusTransitions().stream()
+			   	.anyMatch(transition -> statusTransition != transition && 
+			   		ObjectUtils.nullSafeEquals(statusTransition.getSourceStatus(), transition.getSourceStatus()) &&
+			   		ObjectUtils.nullSafeEquals(statusTransition.getTargetStatus(), transition.getTargetStatus()));
 	}
 	
 	@Override

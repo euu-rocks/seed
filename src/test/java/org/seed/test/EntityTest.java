@@ -19,8 +19,12 @@ package org.seed.test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.junit.jupiter.api.Test;
 
+import org.seed.core.data.FieldAccess;
 import org.seed.core.data.FieldType;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
@@ -33,6 +37,10 @@ import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.EntityStatusTransition;
 import org.seed.core.entity.NestedEntity;
+import org.seed.core.user.User;
+import org.seed.core.user.UserGroup;
+import org.seed.core.user.UserGroupMetadata;
+import org.seed.core.user.UserMetadata;
 
 public class EntityTest {
 	
@@ -183,6 +191,37 @@ public class EntityTest {
 	}
 	
 	@Test
+	public void testCheckFieldAccess() {
+		final Entity entity = new EntityMetadata();
+		final EntityField field = new EntityField();
+		final EntityFieldConstraint constraint = new EntityFieldConstraint();
+		final EntityStatus status = new EntityStatus();
+		final User user = new UserMetadata();
+		final UserGroup userGroup = new UserGroupMetadata();
+		final Set<UserGroupMetadata> groups = new HashSet<>();
+		groups.add((UserGroupMetadata) userGroup);
+		((UserMetadata) user).setUserGroups(groups); 
+		constraint.setField(field);
+		constraint.setAccess(FieldAccess.READ);
+		constraint.setStatus(status);
+		
+		// no constraint -> always permitted
+		assertTrue(entity.checkFieldAccess(field, user, status, FieldAccess.WRITE));
+		
+		entity.addFieldConstraint(constraint);
+		
+		// check status constraints (no user group)
+		assertTrue(entity.checkFieldAccess(field, user, status, FieldAccess.READ));
+		assertFalse(entity.checkFieldAccess(field, user, status, FieldAccess.WRITE));
+		
+		constraint.setUserGroup(userGroup);
+		
+		// check user group constraints
+		assertTrue(entity.checkFieldAccess(field, user, status, FieldAccess.READ));
+		assertFalse(entity.checkFieldAccess(field, user, status, FieldAccess.WRITE));
+	}
+	
+	@Test
 	public void testContainsField() {
 		final Entity entity = new EntityMetadata();
 		final EntityField field = new EntityField();
@@ -237,13 +276,90 @@ public class EntityTest {
 	public void testFindFieldByUid() {
 		final Entity entity = new EntityMetadata();
 		final EntityField field = new EntityField();
-		field.setUid("test");
+		field.setUid("other");
+		entity.addField(field);
 		
 		assertNull(entity.findFieldByUid("test"));
 		
-		entity.addField(field);
+		field.setUid("test");
 		
 		assertSame(entity.findFieldByUid("test"), field);
+	}
+	
+	@Test
+	public void testGetNestedByUid() {
+		final Entity entity = new EntityMetadata();
+		final NestedEntity nested = new NestedEntity();
+		nested.setUid("other");
+		entity.addNested(nested);
+		
+		assertNull(entity.getNestedByUid("test"));
+		
+		nested.setUid("test");
+		
+		assertSame(entity.getNestedByUid("test"), nested);
+	}
+	
+	@Test
+	public void testGetPermissionByUid() {
+		final Entity entity = new EntityMetadata();
+		final EntityPermission permission = new EntityPermission();
+		permission.setUid("other");
+		entity.addPermission(permission);
+		
+		assertNull(entity.getPermissionByUid("test"));
+		
+		permission.setUid("test");
+		
+		assertSame(entity.getPermissionByUid("test"), permission);
+	}
+	
+	@Test
+	public void testGetRelationByUid() {
+		final Entity entity = new EntityMetadata();
+		final EntityRelation relation = new EntityRelation();
+		relation.setUid("other");
+		entity.addRelation(relation);
+		
+		assertNull(entity.getRelationByUid("test"));
+		
+		relation.setUid("test");
+		
+		assertSame(entity.getRelationByUid("test"), relation);
+	}
+	
+	@Test
+	public void testGetReferenceFields() {
+		final Entity entity = new EntityMetadata();
+		final Entity referenceEntity = new EntityMetadata();
+		final EntityField textField = new EntityField();
+		final EntityField referenceField = new EntityField();
+		textField.setType(FieldType.TEXT);
+		referenceField.setType(FieldType.REFERENCE);
+		referenceField.setReferenceEntity(referenceEntity);
+		entity.addField(textField);
+		
+		assertSame(entity.getReferenceFields(referenceEntity).size(), 0);
+		
+		entity.addField(referenceField);
+		
+		assertSame(entity.getReferenceFields(referenceEntity).size(), 1);
+		assertSame(entity.getReferenceFields(referenceEntity).get(0), referenceField);
+	}
+	
+	@Test
+	public void testGenericEntity() {
+		final Entity genericEntity = new EntityMetadata();
+		final Entity entity = new EntityMetadata();
+		((EntityMetadata) genericEntity).setGeneric(true);
+		
+		assertTrue(genericEntity.isGeneric());
+		assertFalse(entity.isGeneric());
+		assertNull(entity.getGenericEntity());
+		
+		((EntityMetadata) entity).setGenericEntity(genericEntity);
+		
+		assertSame(entity.getGenericEntity(), genericEntity);
 	}
 	
 	@Test
@@ -263,6 +379,70 @@ public class EntityTest {
 	}
 	
 	@Test
+	public void testGetMemberFunctions() {
+		final Entity entity = new EntityMetadata();
+		final EntityFunction function = new EntityFunction();
+		entity.addFunction(function);
+		
+		final EntityFunction callbackFunction = new EntityFunction();
+		callbackFunction.setCallback(true);
+		entity.addFunction(callbackFunction);
+		
+		assertTrue(entity.hasFunctions());
+		assertSame(entity.getFunctions().size(), 2);
+		assertSame(entity.getMemberFunctions().size(), 1);
+		assertSame(entity.getMemberFunctions().get(0), function);
+	}
+	
+	@Test
+	public void testGetNestedByEntityField() {
+		final Entity entity = new EntityMetadata();
+		final Entity nestedEntity = new EntityMetadata();
+		final EntityField nestedEntityField = new EntityField();
+		final NestedEntity nested = new NestedEntity();
+		nested.setNestedEntity(nestedEntity);
+		entity.addNested(nested);
+		
+		assertNull(entity.getNestedByEntityField(nestedEntityField));
+		
+		nestedEntity.addField(nestedEntityField);
+		
+		assertSame(entity.getNestedByEntityField(nestedEntityField), nested);
+	}
+	
+	@Test
+	public void testGetNestedByEntityId() {
+		final Entity entity = new EntityMetadata();
+		final Entity nestedEntity = new EntityMetadata();
+		final NestedEntity nested = new NestedEntity();
+		((EntityMetadata) nestedEntity).setId(987L);
+		nested.setNestedEntity(nestedEntity);
+		entity.addNested(nested);
+		
+		assertNull(entity.getNestedByEntityId(123L));
+		
+		((EntityMetadata) nestedEntity).setId(123L);
+		
+		assertSame(entity.getNestedByEntityId(123L), nested);
+	}
+	
+	@Test
+	public void testGetNestedByInternalName() {
+		final Entity entity = new EntityMetadata();
+		final Entity nestedEntity = new EntityMetadata();
+		final NestedEntity nested = new NestedEntity();
+		nestedEntity.setName("other");
+		nested.setNestedEntity(nestedEntity);
+		entity.addNested(nested);
+		
+		assertNull(entity.getNestedByInternalName("taest"));
+		
+		nestedEntity.setName("TÄST");
+		
+		assertEquals(entity.getNestedByInternalName("taest"), nested);
+	}
+	
+	@Test
 	public void testGetEffectiveTableName() {
 		final Entity entity = new EntityMetadata();
 		entity.setName("TÄST");
@@ -278,11 +458,12 @@ public class EntityTest {
 	public void testGetFieldById() {
 		final Entity entity = new EntityMetadata();
 		final EntityField field = new EntityField();
-		field.setId(123L);
+		field.setId(987L);
+		entity.addField(field);
 		
 		assertNull(entity.getFieldById(123L));
 		
-		entity.addField(field);
+		field.setId(123L);
 		
 		assertSame(entity.getFieldById(123L), field);
 	}
@@ -291,13 +472,106 @@ public class EntityTest {
 	public void testGetFieldByUId() {
 		final Entity entity = new EntityMetadata();
 		final EntityField field = new EntityField();
-		field.setUid("test");
+		field.setUid("other");
+		entity.addField(field);
 		
 		assertNull(entity.getFieldByUid("test"));
 		
-		entity.addField(field);
+		field.setUid("test");
 		
 		assertSame(entity.getFieldByUid("test"), field);
+	}
+	
+	@Test
+	public void testGetFieldGroupById() {
+		final Entity entity = new EntityMetadata();
+		final EntityFieldGroup fieldGroup = new EntityFieldGroup();
+		fieldGroup.setId(987L);
+		entity.addFieldGroup(fieldGroup);
+		
+		assertNull(entity.getFieldGroupById(123L));
+		
+		fieldGroup.setId(123L);
+		
+		assertSame(entity.getFieldGroupById(123L), fieldGroup);
+	}
+	
+	@Test
+	public void testGetFieldGroupByUid() {
+		final Entity entity = new EntityMetadata();
+		final EntityFieldGroup fieldGroup = new EntityFieldGroup();
+		fieldGroup.setUid("other");
+		entity.addFieldGroup(fieldGroup);
+		
+		assertNull(entity.getFieldGroupByUid("test"));
+		
+		fieldGroup.setUid("test");
+		
+		assertSame(entity.getFieldGroupByUid("test"), fieldGroup);
+	}
+	
+	@Test
+	public void testGetFunctionById() {
+		final Entity entity = new EntityMetadata();
+		final EntityFunction function = new EntityFunction();
+		function.setId(987L);
+		entity.addFunction(function);
+		
+		assertNull(entity.getFunctionById(123L));
+		
+		function.setId(123L);
+		
+		assertSame(entity.getFunctionById(123L), function);
+	}
+	
+	@Test
+	public void testGetFunctionByUid() {
+		final Entity entity = new EntityMetadata();
+		final EntityFunction function = new EntityFunction();
+		function.setUid("other");
+		entity.addFunction(function);
+		
+		assertNull(entity.getFunctionByUid("test"));
+		
+		function.setUid("test");
+		
+		assertSame(entity.getFunctionByUid("test"), function);
+	}
+	
+	@Test
+	public void testGetFieldConstraintByUid() {
+		final Entity entity = new EntityMetadata();
+		final EntityFieldConstraint constraint = new EntityFieldConstraint();
+		constraint.setUid("other");
+		entity.addFieldConstraint(constraint);
+		
+		assertNull(entity.getFieldConstraintByUid("test"));
+		
+		constraint.setUid("test");
+		
+		assertSame(entity.getFieldConstraintByUid("test"), constraint);
+	}
+	
+	@Test
+	public void testGetInitialStatus() {
+		final Entity entity = new EntityMetadata();
+		final EntityStatus status = new EntityStatus();
+		
+		IllegalStateException isex = assertThrows(IllegalStateException.class, () -> {
+			entity.getInitialStatus();
+		});
+		assertSame(isex.getMessage(), "entity has no status");
+		
+		entity.addStatus(status);
+		
+		isex = assertThrows(IllegalStateException.class, () -> {
+			entity.getInitialStatus();
+		});
+		assertSame(isex.getMessage(), "initial status not found");
+		
+		status.setInitial(true);
+		
+		assertSame(entity.getInitialStatus(), status);
 	}
 	
 	@Test
@@ -330,11 +604,12 @@ public class EntityTest {
 	public void testGetStatusByUid() {
 		final Entity entity = new EntityMetadata();
 		final EntityStatus status = new EntityStatus();
-		status.setUid("test");
+		status.setUid("other");
+		entity.addStatus(status);
 		
 		assertNull(entity.getStatusByUid("test"));
 		
-		entity.addStatus(status);
+		status.setUid("test");
 		
 		assertSame(entity.getStatusByUid("test"), status);
 	}
@@ -360,11 +635,12 @@ public class EntityTest {
 	public void testGetStatusTransitionByUid() {
 		final Entity entity = new EntityMetadata();
 		final EntityStatusTransition transition = new EntityStatusTransition();
-		transition.setUid("test");
+		transition.setUid("other");
+		entity.addStatusTransition(transition);
 		
 		assertNull(entity.getStatusTransitionByUid("test"));
 		
-		entity.addStatusTransition(transition);
+		transition.setUid("test");
 		
 		assertSame(entity.getStatusTransitionByUid("test"), transition);
 	}
@@ -383,6 +659,67 @@ public class EntityTest {
 		
 		assertEquals(entity.getUserActionFunctions().size(), 1);
 		assertSame(entity.getUserActionFunctions().get(0), function2);
+	}
+	
+	@Test
+	public void testHasFullTextSearchFields() {
+		final Entity entity = new EntityMetadata();
+		final EntityField field = new EntityField();
+		final EntityField fullTextSearchField = new EntityField();
+		fullTextSearchField.setFullTextSearch(true);
+		entity.addField(field);
+		
+		assertFalse(entity.hasFullTextSearchFields());
+		
+		entity.addField(fullTextSearchField);
+		
+		assertTrue(entity.hasFullTextSearchFields());
+	}
+	
+	@Test
+	public void testIsNestedEntity() {
+		final Entity entity = new EntityMetadata();
+		final Entity nestedEntity = new EntityMetadata();
+		final NestedEntity nested = new NestedEntity();
+		nested.setNestedEntity(nestedEntity);
+		
+		assertFalse(entity.isNestedEntity(nestedEntity));
+		
+		entity.addNested(nested);
+		
+		assertTrue(entity.isNestedEntity(nestedEntity));
+	}
+	
+	@Test
+	public void testIsRelatedEntity() {
+		final Entity entity = new EntityMetadata();
+		final Entity relatedEntity = new EntityMetadata();
+		final EntityRelation relation = new EntityRelation();
+		relation.setRelatedEntity(relatedEntity);
+		
+		assertFalse(entity.isRelatedEntity(relatedEntity));
+		
+		entity.addRelation(relation);
+		
+		assertTrue(entity.isRelatedEntity(relatedEntity));
+	}
+	
+	@Test
+	public void testIsUniqueTransition() {
+		final Entity entity = new EntityMetadata();
+		final EntityStatus sourceStatus = new EntityStatus();
+		final EntityStatus targetStatus = new EntityStatus();
+		final EntityStatusTransition transition1 = new EntityStatusTransition();
+		final EntityStatusTransition transition2 = new EntityStatusTransition();
+		transition1.setSourceStatus(sourceStatus);
+		transition1.setTargetStatus(targetStatus);
+		transition2.setSourceStatus(sourceStatus);
+		transition2.setTargetStatus(targetStatus);
+		assertTrue(entity.isUnique(transition1));
+		
+		entity.addStatusTransition(transition1);
+		
+		assertFalse(entity.isUnique(transition2));
 	}
 	
 	@Test
