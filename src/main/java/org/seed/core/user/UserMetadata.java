@@ -17,6 +17,7 @@
  */
 package org.seed.core.user;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -33,6 +34,7 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import org.seed.C;
 import org.seed.core.data.AbstractSystemEntity;
 import org.seed.core.util.Assert;
@@ -144,15 +146,10 @@ public class UserMetadata extends AbstractSystemEntity implements User {
 	
 	@Override
 	public boolean belongsToOneOf(Collection<? extends UserGroup> userGroups) {
-		if (!ObjectUtils.isEmpty(userGroups)) {
-			for (UserGroup group : userGroups) {
-				if (belongsTo(group)) {
-					return true;
-				}
-			}
-			return false;
-		}
-		return true;
+		Assert.notNull(userGroups, "user groups");
+		
+		return hasUserGroups() && 
+			   userGroups.stream().anyMatch(group -> belongsTo(group));
 	}
 	
 	@Override
@@ -170,25 +167,14 @@ public class UserMetadata extends AbstractSystemEntity implements User {
 	public boolean isAuthorised(Authorisation authorisation) {
 		Assert.notNull(authorisation, "authorisation");
 		
-		if (isEnabled && hasUserGroups()) {
-			for (UserGroup userGroup : getUserGroups()) {
-				if (userGroup.isAuthorised(authorisation)) {
-					return true;
-				}
-			}
-		}
-		return false;
+		return isEnabled && hasUserGroups() &&
+			   getUserGroups().stream().anyMatch(group -> group.isAuthorised(authorisation));
 	}
 	
 	@Override
 	public boolean hasAdminAuthorisations() {
-		for (Authorisation authorisation : Authorisation.values()) {
-			if (authorisation.name().startsWith("ADMIN") && 
-				isAuthorised(authorisation)) {
-					return true;
-			}
-		}
-		return false;
+		return Arrays.stream(Authorisation.values())
+					 .anyMatch(auth -> auth.name().startsWith("ADMIN") && isAuthorised(auth));
 	}
 	
 	void createLists() {

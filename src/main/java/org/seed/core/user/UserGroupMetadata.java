@@ -97,14 +97,9 @@ public class UserGroupMetadata extends AbstractApplicationEntity implements User
 	public boolean isAuthorised(Authorisation authorisation) {
 		Assert.notNull(authorisation, "authorisation");
 		
-		if (hasAuthorisations()) {
-			for (UserGroupAuthorisation auth : getAuthorisations()) {
-				if (auth.getAuthorisation() == authorisation) {
-					return true;
-				}
-			}
-		}
-		return false;
+		return hasAuthorisations() &&
+			   getAuthorisations().stream()
+			   	.anyMatch(auth -> auth.getAuthorisation() == authorisation);
 	}
 	
 	@Override
@@ -127,6 +122,10 @@ public class UserGroupMetadata extends AbstractApplicationEntity implements User
 	public Set<User> getUsers() {
 		final Set<?> usrs = users;
 		return (Set<User>) usrs;
+	}
+	
+	public void setUsers(Set<UserMetadata> users) {
+		this.users = users;
 	}
 	
 	@Override

@@ -173,6 +173,7 @@ public class EntityStatusTransition extends AbstractTransferableObject {
 		if (functions == null) {
 			functions = new ArrayList<>();
 		}
+		function.setStatusTransition(this);
 		functions.add(function);
 	}
 	
