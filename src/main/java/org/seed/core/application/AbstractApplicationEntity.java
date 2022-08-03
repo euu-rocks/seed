@@ -89,14 +89,10 @@ public abstract class AbstractApplicationEntity extends AbstractSystemEntity
 		if (!approvable.hasPermissions()) {
 			return true;
 		}
-		for (Permission<?> permission : approvable.getPermissions()) {
-			if (user.belongsTo(permission.getUserGroup()) && 
-				(access == null || // access doesn't exist or granted
-				 permission.getAccess().ordinal() >= access.ordinal())) {
-					return true;
-			}
-		}
-		return false;
+		return approvable.getPermissions().stream()
+				.anyMatch(permission -> user.belongsTo(permission.getUserGroup()) && 
+						  (access == null || // access doesn't exist or granted
+						   permission.getAccess().ordinal() >= access.ordinal()));
 	}
 	
 	@Override

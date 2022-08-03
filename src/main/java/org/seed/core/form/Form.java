@@ -127,6 +127,8 @@ public interface Form extends ApplicationEntity {
 	
 	void removePrintout(FormPrintout printout);
 	
+	boolean hasRelationForms();
+	
 	List<SubForm> getSubForms();
 	
 	boolean hasSubForms();

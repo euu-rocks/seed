@@ -19,6 +19,7 @@ package org.seed.core.form;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -145,6 +146,7 @@ public class SubForm extends AbstractTransferableObject {
 		if (fields == null) {
 			fields = new ArrayList<>();
 		}
+		field.setSubForm(this);
 		fields.add(field);
 	}
 	
@@ -168,29 +170,29 @@ public class SubForm extends AbstractTransferableObject {
 		if (actions == null) {
 			actions = new ArrayList<>();
 		}
+		action.setSubForm(this);
 		actions.add(action);
 	}
 	
 	public SubFormField getFieldByUid(String fieldUid) {
-		Assert.notNull(fieldUid, "fieldUid");
+		Assert.notNull(fieldUid, "field uid");
 		
 		return AbstractApplicationEntity.getObjectByUid(getFields(), fieldUid);
 	}
 	
 	public SubFormAction getActionByUid(String actionUid) {
-		Assert.notNull(actionUid, "actionUid");
+		Assert.notNull(actionUid, "action uid");
 		
 		return AbstractApplicationEntity.getObjectByUid(getActions(), actionUid);
 	}
 	
 	public SubFormField getFieldByEntityFieldUid(String entityFieldUid) {
-		Assert.notNull(entityFieldUid, "entityFieldUid");
+		Assert.notNull(entityFieldUid, "entity field uid");
 		
 		if (hasFields()) {
-			for (SubFormField field : getFields()) {
-				if (entityFieldUid.equals(field.getEntityField().getUid())) {
-					return field;
-				}
+			final Optional<SubFormField> optional = getFields().stream().filter(field -> entityFieldUid.equals(field.getEntityField().getUid())).findFirst();
+			if (optional.isPresent()) {
+				return optional.get();
 			}
 		}
 		return null;
@@ -199,66 +201,36 @@ public class SubForm extends AbstractTransferableObject {
 	public boolean containsForm(Form form) {
 		Assert.notNull(form, C.FORM);
 		
-		if (hasFields()) {
-			for (SubFormField subFormField : getFields()) {
-				if (form.equals(subFormField.getDetailForm())) {
-					return true;
-				}
-			}
-		}
-		return false;
+		return hasFields() &&
+			   getFields().stream().anyMatch(field -> form.equals(field.getDetailForm()));
 	}
 	
 	public boolean containsEntityField(EntityField entityField) {
 		Assert.notNull(entityField, C.ENTITYFIELD);
 		
-		if (hasFields()) {
-			for (SubFormField subFormField : getFields()) {
-				if (entityField.equals(subFormField.getEntityField())) {
-					return true;
-				}
-			}
-		}
-		return false;
+		return hasFields() &&
+			   getFields().stream().anyMatch(field -> entityField.equals(field.getEntityField()));           
 	}
 	
 	public boolean containsEntityFunction(EntityFunction entityFunction) {
-		Assert.notNull(entityFunction, "entityFunction");
+		Assert.notNull(entityFunction, "entity function");
 		
-		if (hasActions()) {
-			for (SubFormAction action : getActions()) {
-				if (entityFunction.equals(action.getEntityFunction())) {
-					return true;
-				}
-			}
-		}
-		return false;
+		return hasActions() &&
+			   getActions().stream().anyMatch(action -> entityFunction.equals(action.getEntityFunction()));
 	}
 	
 	public boolean containsTransformer(Transformer transformer) {
 		Assert.notNull(transformer, C.TRANSFORMER);
 		
-		if (hasFields()) {
-			for (SubFormField field : getFields()) {
-				if (transformer.equals(field.getTransformer())) {
-					return true;
-				}
-			}
-		}
-		return false;
+		return hasFields() &&
+			   getFields().stream().anyMatch(field -> transformer.equals(field.getTransformer()));
 	}
 	
 	public boolean containsFilter(Filter filter) {
 		Assert.notNull(filter, C.FILTER);
 		
-		if (hasFields()) {
-			for (SubFormField field : getFields()) {
-				if (filter.equals(field.getFilter())) {
-					return true;
-				}
-			}
-		}
-		return false;
+		return hasFields() &&
+			   getFields().stream().anyMatch(field -> filter.equals(field.getFilter()));
 	}
 	
 	public SubFormAction getActionByType(FormActionType actionType) {
@@ -270,12 +242,11 @@ public class SubForm extends AbstractTransferableObject {
 	
 	public SubFormAction getActionByType(List<SubFormAction> actions, FormActionType actionType) {
 		Assert.notNull(actions, "actions");
-		Assert.notNull(actionType, "actionType");
+		Assert.notNull(actionType, "action type");
 		
-		for (SubFormAction action : actions) {
-			if (action.getType() == actionType) {
-				return action;
-			}
+		final Optional<SubFormAction> optional = actions.stream().filter(action -> action.getType() == actionType).findFirst();
+		if (optional.isPresent()) {
+			return optional.get();
 		}
 		return null;
 	}
