@@ -115,6 +115,8 @@ public interface Module extends SystemEntity, TransferableObject {
 	
 	void addTransferContent(Entity entity, byte[] content);
 	
+	boolean hasTransferContent();
+	
 	byte[] getTransferContent(Entity entity);
 	
 }

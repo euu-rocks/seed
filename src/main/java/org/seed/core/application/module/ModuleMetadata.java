@@ -475,6 +475,11 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
+	public boolean hasTransferContent() {
+		return !ObjectUtils.isEmpty(mapTransferContent);
+	}
+	
+	@Override
 	public byte[] getTransferContent(Entity entity) {
 		Assert.notNull(entity, C.ENTITY);
 		
