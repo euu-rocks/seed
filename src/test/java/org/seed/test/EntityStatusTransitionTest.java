@@ -134,6 +134,63 @@ public class EntityStatusTransitionTest {
 	}
 	
 	@Test
+	public void testIsEqual() {
+		final EntityStatusTransition transition1 = new EntityStatusTransition();
+		final EntityStatusTransition transition2 = new EntityStatusTransition();
+		assertTrue(transition1.isEqual(transition2));
+		
+		transition1.setDescription("desc");
+		transition1.setSourceStatusUid("source");
+		transition1.setTargetStatusUid("traget");
+		assertFalse(transition1.isEqual(transition2));
+		
+		transition2.setDescription("desc");
+		transition2.setSourceStatusUid("source");
+		transition2.setTargetStatusUid("traget");
+		assertTrue(transition1.isEqual(transition2));
+	}
+	
+	@Test
+	public void testIsEqualFunctions() {
+		final EntityStatusTransition transition1 = new EntityStatusTransition();
+		final EntityStatusTransition transition2 = new EntityStatusTransition();
+		final EntityStatusTransitionFunction function1 = new EntityStatusTransitionFunction();
+		final EntityStatusTransitionFunction function2 = new EntityStatusTransitionFunction();
+		assertTrue(transition1.isEqual(transition2));
+		
+		function1.setUid("function");
+		function2.setUid("function");
+		transition1.addFunction(function1);
+		assertFalse(transition1.isEqual(transition2));
+		
+		transition2.addFunction(function2);
+		assertTrue(transition1.isEqual(transition2));
+		
+		function2.setUid("other");
+		assertFalse(transition1.isEqual(transition2));
+	}
+	
+	@Test
+	public void testIsEqualPermissions() {
+		final EntityStatusTransition transition1 = new EntityStatusTransition();
+		final EntityStatusTransition transition2 = new EntityStatusTransition();
+		final EntityStatusTransitionPermission permission1 = new EntityStatusTransitionPermission();
+		final EntityStatusTransitionPermission permission2 = new EntityStatusTransitionPermission();
+		final List<EntityStatusTransitionPermission> permissions1 = new ArrayList<>();
+		final List<EntityStatusTransitionPermission> permissions2 = new ArrayList<>();
+		permission1.setUid("permission");
+		permission2.setUid("permission");
+		permissions1.add(permission1);
+		permissions2.add(permission2);
+		transition1.setPermissions(permissions1);
+		transition2.setPermissions(permissions2);
+		assertTrue(transition1.isEqual(transition2));
+		
+		permission2.setUid("other");
+		assertFalse(transition1.isEqual(transition2));
+	}
+	
+	@Test
 	public void testRemoveFunction() {
 		final EntityStatusTransition transition = new EntityStatusTransition();
 		final EntityStatusTransitionFunction function = new EntityStatusTransitionFunction();

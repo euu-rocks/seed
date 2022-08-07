@@ -334,20 +334,19 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public EntityField findDefaultIdentifierField() {
-		// search in all unique fields first
 		if (hasAllFields()) {
-			for (EntityField field : subList(getAllFields(), EntityField::isUnique)) {
-				if (field.getType().isText() || field.getType().isAutonum()) {
-					return field;
-				}
+			// search in all unique fields first
+			Optional<EntityField> optional = getAllFields().stream()
+					.filter(field -> field.isUnique() && 
+							(field.getType().isText() || field.getType().isAutonum())).findFirst();
+			if (optional.isPresent()) {
+				return optional.get();
 			}
-		}
-		// fallback: search current fields
-		if (hasFields()) {
-			for (EntityField field : getFields()) {
-				if (field.getType().isText() || field.getType().isAutonum()) {
-					return field;
-				}
+			// fallback: search current fields
+			optional = getAllFields().stream()
+					.filter(field -> field.getType().isText() || field.getType().isAutonum()).findFirst();
+			if (optional.isPresent()) {
+				return optional.get();
 			}
 		}
 		return null;
@@ -515,21 +514,8 @@ public class EntityMetadata extends AbstractApplicationEntity
 	// includes nested fields
 	@Override
 	public boolean hasFullTextSearchFields() {
-		if (hasAllFields()) {
-			for (EntityField field : getAllFields()) {
-				if (field.isFullTextSearch()) {
-					return true;
-				}
-			}
-		}
-		if (hasNesteds()) {
-			for (NestedEntity nested : getNesteds()) {
-				if (nested.getNestedEntity().hasFullTextSearchFields()) {
-					return true;
-				}
-			}
-		}
-		return false;
+		return ((hasAllFields() && getAllFields().stream().anyMatch(EntityField::isFullTextSearch)) ||
+				(hasNesteds() && getNesteds().stream().anyMatch(nested -> nested.getNestedEntity().hasFullTextSearchFields())));
 	}
 	
 	@Override
@@ -1005,166 +991,67 @@ public class EntityMetadata extends AbstractApplicationEntity
 			   isEqualConstraints(otherEntity);
 	}
 	
-	private boolean isEqualFields(Entity otherEntity) {
-		if (hasFields()) {
-			for (EntityField field : getFields()) {
-				if (!field.isEqual(otherEntity.getFieldByUid(field.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherEntity.hasFields()) {
-			for (EntityField otherField : otherEntity.getFields()) {
-				if (getFieldByUid(otherField.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+	private final boolean isEqualFields(Entity otherEntity) {
+		return !((hasFields() && getFields().stream()
+					.anyMatch(field -> !field.isEqual(otherEntity.getFieldByUid(field.getUid())))) ||
+				 (otherEntity.hasFields() && otherEntity.getFields().stream()
+					.anyMatch(field -> getFieldByUid(field.getUid()) == null)));
 	}
 	
-	private boolean isEqualFieldGroups(Entity otherEntity) {
-		if (hasFieldGroups()) {
-			for (EntityFieldGroup group : getFieldGroups()) {
-				if (!group.isEqual(otherEntity.getFieldGroupByUid(group.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherEntity.hasFieldGroups()) {
-			for (EntityFieldGroup otherGroup : otherEntity.getFieldGroups()) {
-				if (getFieldGroupByUid(otherGroup.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+	private final boolean isEqualFieldGroups(Entity otherEntity) {
+		return !((hasFieldGroups() && getFieldGroups().stream()
+					.anyMatch(group -> !group.isEqual(otherEntity.getFieldGroupByUid(group.getUid())))) ||
+				 (otherEntity.hasFieldGroups() && otherEntity.getFieldGroups().stream()
+					.anyMatch(group -> getFieldGroupByUid(group.getUid()) == null)));
 	}
 	
-	private boolean isEqualFunctions(Entity otherEntity) {
-		if (hasFunctions()) {
-			for (EntityFunction function : getFunctions()) {
-				if (!function.isEqual(otherEntity.getFunctionByUid(function.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherEntity.hasFunctions()) {
-			for (EntityFunction otherFunction : otherEntity.getFunctions()) {
-				if (getFunctionByUid(otherFunction.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+	private final boolean isEqualFunctions(Entity otherEntity) {
+		return !((hasFunctions() && getFunctions().stream()
+					.anyMatch(function -> !function.isEqual(otherEntity.getFunctionByUid(function.getUid())))) ||
+				 (otherEntity.hasFunctions() && otherEntity.getFunctions().stream()
+					.anyMatch(function -> getFunctionByUid(function.getUid()) == null)));
 	}
 	
-	private boolean isEqualStatus(Entity otherEntity) {
-		if (hasStatus()) {
-			for (EntityStatus status : getStatusList()) {
-				if (!status.isEqual(otherEntity.getStatusByUid(status.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherEntity.hasStatus()) {
-			for (EntityStatus otherStatus : otherEntity.getStatusList()) {
-				if (getStatusByUid(otherStatus.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+	private final boolean isEqualStatus(Entity otherEntity) {
+		return !((hasStatus() && getStatusList().stream()
+					.anyMatch(status -> !status.isEqual(otherEntity.getStatusByUid(status.getUid())))) ||
+				 (otherEntity.hasStatus() && otherEntity.getStatusList().stream()
+					.anyMatch(status -> getStatusByUid(status.getUid()) == null)));
 	}
 	
-	private boolean isEqualStatusTransitions(Entity otherEntity) {
-		if (hasStatusTransitions()) {
-			for (EntityStatusTransition transition : getStatusTransitions()) {
-				if (!transition.isEqual(otherEntity.getStatusTransitionByUid(transition.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherEntity.hasStatusTransitions()) {
-			for (EntityStatusTransition otherTransition : otherEntity.getStatusTransitions()) {
-				if (getStatusTransitionByUid(otherTransition.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+	private final boolean isEqualStatusTransitions(Entity otherEntity) {
+		return !((hasStatusTransitions() && getStatusTransitions().stream()
+					.anyMatch(transition -> !transition.isEqual(otherEntity.getStatusTransitionByUid(transition.getUid())))) ||
+				 (otherEntity.hasStatusTransitions() && otherEntity.getStatusTransitions().stream()
+					.anyMatch(transition -> getStatusTransitionByUid(transition.getUid()) == null)));
 	}
 	
-	private boolean isEqualPermissions(Entity otherEntity) {
-		if (hasPermissions()) {
-			for (EntityPermission permission : getPermissions()) {
-				if (!permission.isEqual(otherEntity.getPermissionByUid(permission.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherEntity.hasPermissions()) {
-			for (EntityPermission otherPermission : otherEntity.getPermissions()) {
-				if (getPermissionByUid(otherPermission.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+	private final boolean isEqualPermissions(Entity otherEntity) {
+		return !((hasPermissions() && getPermissions().stream()
+					.anyMatch(perm -> !perm.isEqual(otherEntity.getPermissionByUid(perm.getUid())))) ||
+				 (otherEntity.hasPermissions() && otherEntity.getPermissions().stream()
+					.anyMatch(perm -> getPermissionByUid(perm.getUid()) == null)));
 	}
 	
-	private boolean isEqualConstraints(Entity otherEntity) {
-		if (hasFieldConstraints()) {
-			for (EntityFieldConstraint constraint : getFieldConstraints()) {
-				if (!constraint.isEqual(otherEntity.getFieldConstraintByUid(constraint.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherEntity.hasFieldConstraints()) {
-			for (EntityFieldConstraint otherConstraint : otherEntity.getFieldConstraints()) {
-				if (getFieldConstraintByUid(otherConstraint.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+	private final boolean isEqualConstraints(Entity otherEntity) {
+		return !((hasFieldConstraints() && getFieldConstraints().stream()
+					.anyMatch(constraint -> !constraint.isEqual(otherEntity.getFieldConstraintByUid(constraint.getUid())))) ||
+				 (otherEntity.hasFieldConstraints() && otherEntity.getFieldConstraints().stream()
+					.anyMatch(constraint -> getFieldConstraintByUid(constraint.getUid()) == null)));
 	}
 	
-	private boolean isEqualNesteds(Entity otherEntity) {
-		if (hasNesteds()) {
-			for (NestedEntity nested : getNesteds()) {
-				if (!nested.isEqual(otherEntity.getNestedByUid(nested.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherEntity.hasNesteds()) {
-			for (NestedEntity otherNested : otherEntity.getNesteds()) {
-				if (getNestedByUid(otherNested.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+	private final boolean isEqualNesteds(Entity otherEntity) {
+		return !((hasNesteds() && getNesteds().stream()
+					.anyMatch(nested -> !nested.isEqual(otherEntity.getNestedByUid(nested.getUid())))) ||
+				 (otherEntity.hasNesteds() && otherEntity.getNesteds().stream()
+					.anyMatch(nested -> getNestedByUid(nested.getUid()) == null)));
 	}
 	
-	private boolean isEqualRelations(Entity otherEntity) {
-		if (hasRelations()) {
-			for (EntityRelation relation : getRelations()) {
-				if (!relation.isEqual(otherEntity.getRelationByUid(relation.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherEntity.hasRelations()) {
-			for (EntityRelation otherRelation : otherEntity.getRelations()) {
-				if (getRelationByUid(otherRelation.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+	private final boolean isEqualRelations(Entity otherEntity) {
+		return !((hasRelations() && getRelations().stream()
+					.anyMatch(relation -> !relation.isEqual(otherEntity.getRelationByUid(relation.getUid())))) ||
+				 (otherEntity.hasRelations() && otherEntity.getRelations().stream()
+					.anyMatch(relation -> getRelationByUid(relation.getUid()) == null)));
 	}
 	
 	void createLists() {
@@ -1261,7 +1148,6 @@ public class EntityMetadata extends AbstractApplicationEntity
 				if (constraint == null) {
 					return true;
 				}
-	
 				if (checkAccess(constraint, fieldAccess)) {
 					return true;
 				}
@@ -1324,7 +1210,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	@JsonIgnore
 	public EntityField getUidField() {
 		if (uidField == null) {
-			Assert.state(isTransferable(), "entity is not transferable");
+			Assert.state(isTransferable, "entity is not transferable");
 			uidField = new EntityField();
 			uidField.setEntity(this);
 			uidField.setName(SystemField.UID.property);
@@ -1341,7 +1227,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 				? getFieldConstraints().stream()
 					.filter(constraint -> field.equals(constraint.getField()) ||
 							(constraint.getFieldGroup() != null && 
-							constraint.getFieldGroup().equals(field.getFieldGroup())))
+							 constraint.getFieldGroup().equals(field.getFieldGroup())))
 					.collect(Collectors.toList())
 				: Collections.emptyList();
 	}
@@ -1359,10 +1245,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 		final Optional<EntityFieldConstraint> optional = getFieldConstraints(field).stream()
 				.filter(constraint -> userGroup.equals(constraint.getUserGroup()) &&
 									  ObjectUtils.nullSafeEquals(status, constraint.getStatus())).findFirst();
-		if (optional.isPresent()) {
-			return optional.get();
-		}
-		return null;
+		return optional.isPresent() ? optional.get() : null;
 	}
 
 	private static boolean checkAccess(EntityFieldConstraint constraint, FieldAccess ...fieldAccess) {

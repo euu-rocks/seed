@@ -287,6 +287,27 @@ public class EntityTest {
 	}
 	
 	@Test
+	public void testFindDefaultIdentifierField() {
+		final Entity entity = new EntityMetadata();
+		final EntityField field1 = new EntityField();
+		final EntityField field2 = new EntityField();
+		entity.addField(field1);
+		entity.addField(field2);
+		field1.setType(FieldType.DATE);
+		field2.setType(FieldType.BOOLEAN);
+		assertNull(entity.findDefaultIdentifierField());
+		
+		field1.setType(FieldType.TEXT);
+		assertSame(entity.findDefaultIdentifierField(), field1);
+		
+		field2.setType(FieldType.AUTONUM);
+		assertSame(entity.findDefaultIdentifierField(), field1);
+		
+		field2.setUnique(true);
+		assertSame(entity.findDefaultIdentifierField(), field2);
+	}
+	
+	@Test
 	public void testGetNestedByUid() {
 		final Entity entity = new EntityMetadata();
 		final NestedEntity nested = new NestedEntity();
@@ -664,15 +685,23 @@ public class EntityTest {
 	@Test
 	public void testHasFullTextSearchFields() {
 		final Entity entity = new EntityMetadata();
+		final Entity nestedEntity = new EntityMetadata();
+		final NestedEntity nested = new NestedEntity();
 		final EntityField field = new EntityField();
 		final EntityField fullTextSearchField = new EntityField();
+		entity.addNested(nested);
+		nested.setNestedEntity(nestedEntity);
 		fullTextSearchField.setFullTextSearch(true);
 		entity.addField(field);
-		
 		assertFalse(entity.hasFullTextSearchFields());
 		
 		entity.addField(fullTextSearchField);
+		assertTrue(entity.hasFullTextSearchFields());
 		
+		entity.removeField(fullTextSearchField);
+		assertFalse(entity.hasFullTextSearchFields());
+		
+		nestedEntity.addField(fullTextSearchField);
 		assertTrue(entity.hasFullTextSearchFields());
 	}
 	
@@ -720,6 +749,194 @@ public class EntityTest {
 		entity.addStatusTransition(transition1);
 		
 		assertFalse(entity.isUnique(transition2));
+	}
+	
+	@Test
+	public void testIsEqual() {
+		final Entity entity1 = new EntityMetadata();
+		final Entity entity2 = new EntityMetadata();
+		assertTrue(entity1.isEqual(entity2));
+		
+		// entity
+		entity1.setName("test");
+		((EntityMetadata) entity1).setTableName("tableName");
+		((EntityMetadata) entity1).setIdentifierPattern("identifier");
+		((EntityMetadata) entity1).setGenericEntityUid("genericUid");
+		((EntityMetadata) entity1).setGeneric(true);
+		((EntityMetadata) entity1).setTransferable(true);
+		((EntityMetadata) entity1).setAudited(true);
+		assertFalse(entity1.isEqual(entity2));
+		
+		entity2.setName("test");
+		((EntityMetadata) entity2).setTableName("tableName");
+		((EntityMetadata) entity2).setIdentifierPattern("identifier");
+		((EntityMetadata) entity2).setGenericEntityUid("genericUid");
+		((EntityMetadata) entity2).setGeneric(true);
+		((EntityMetadata) entity2).setTransferable(true);
+		((EntityMetadata) entity2).setAudited(true);
+		assertTrue(entity1.isEqual(entity2));
+	}
+	
+	@Test
+	public void testIsEqualFields() {
+		final Entity entity1 = new EntityMetadata();
+		final Entity entity2 = new EntityMetadata();
+		final EntityField field1 = new EntityField();
+		final EntityField field2 = new EntityField();
+		field1.setUid("test");
+		field2.setUid("test");
+		entity1.addField(field1);
+		assertFalse(entity1.isEqual(entity2));
+		
+		entity2.addField(field2);
+		assertTrue(entity1.isEqual(entity2));
+		
+		field2.setUid("other");
+		assertFalse(entity1.isEqual(entity2));
+	}
+	
+	@Test
+	public void testIsEqualFieldGroups() {
+		final Entity entity1 = new EntityMetadata();
+		final Entity entity2 = new EntityMetadata();
+		final EntityFieldGroup fieldGroup1 = new EntityFieldGroup();
+		final EntityFieldGroup fieldGroup2 = new EntityFieldGroup();
+		fieldGroup1.setUid("test");
+		fieldGroup2.setUid("test");
+		entity1.addFieldGroup(fieldGroup1);
+		assertFalse(entity1.isEqual(entity2));
+		
+		entity2.addFieldGroup(fieldGroup2);
+		assertTrue(entity1.isEqual(entity2));
+		
+		fieldGroup2.setUid("other");
+		assertFalse(entity1.isEqual(entity2));
+	}
+	
+	@Test
+	public void testIsEqualFunctions() {
+		final Entity entity1 = new EntityMetadata();
+		final Entity entity2 = new EntityMetadata();
+		final EntityFunction function1 = new EntityFunction();
+		final EntityFunction function2 = new EntityFunction();
+		function1.setUid("test");
+		function2.setUid("test");
+		entity1.addFunction(function1);
+		assertFalse(entity1.isEqual(entity2));
+		
+		entity2.addFunction(function2);
+		assertTrue(entity1.isEqual(entity2));
+		
+		function2.setUid("other");
+		assertFalse(entity1.isEqual(entity2));
+	}
+	
+	@Test
+	public void testIsEqualStatus() {
+		final Entity entity1 = new EntityMetadata();
+		final Entity entity2 = new EntityMetadata();
+		final EntityStatus status1 = new EntityStatus();
+		final EntityStatus status2 = new EntityStatus();
+		status1.setUid("test");
+		status2.setUid("test");
+		entity1.addStatus(status1);
+		assertFalse(entity1.isEqual(entity2));
+		
+		entity2.addStatus(status2);
+		assertTrue(entity1.isEqual(entity2));
+		
+		status2.setUid("other");
+		assertFalse(entity1.isEqual(entity2));
+	}
+	
+	@Test
+	public void testIsEqualStatusTransitions() {
+		final Entity entity1 = new EntityMetadata();
+		final Entity entity2 = new EntityMetadata();
+		final EntityStatusTransition transition1 = new EntityStatusTransition();
+		final EntityStatusTransition transition2 = new EntityStatusTransition();
+		transition1.setUid("test");
+		transition2.setUid("test");
+		entity1.addStatusTransition(transition1);
+		assertFalse(entity1.isEqual(entity2));
+		
+		entity2.addStatusTransition(transition2);
+		assertTrue(entity1.isEqual(entity2));
+		
+		transition2.setUid("other");
+		assertFalse(entity1.isEqual(entity2));
+	}
+	
+	@Test
+	public void testIsEqualNesteds() {
+		final Entity entity1 = new EntityMetadata();
+		final Entity entity2 = new EntityMetadata();
+		final NestedEntity nested1 = new NestedEntity();
+		final NestedEntity nested2 = new NestedEntity();
+		nested1.setUid("test");
+		nested2.setUid("test");
+		entity1.addNested(nested1);
+		assertFalse(entity1.isEqual(entity2));
+		
+		entity2.addNested(nested2);
+		assertTrue(entity1.isEqual(entity2));
+		
+		nested2.setUid("other");
+		assertFalse(entity1.isEqual(entity2));
+	}
+	
+	@Test
+	public void testIsEqualRelations() {
+		final Entity entity1 = new EntityMetadata();
+		final Entity entity2 = new EntityMetadata();
+		final EntityRelation relation1 = new EntityRelation();
+		final EntityRelation relation2 = new EntityRelation();
+		relation1.setUid("test");
+		relation2.setUid("test");
+		entity1.addRelation(relation1);
+		assertFalse(entity1.isEqual(entity2));
+		
+		entity2.addRelation(relation2);
+		assertTrue(entity1.isEqual(entity2));
+		
+		relation2.setUid("other");
+		assertFalse(entity1.isEqual(entity2));
+	}
+	
+	@Test
+	public void testIsEqualPermissions() {
+		final Entity entity1 = new EntityMetadata();
+		final Entity entity2 = new EntityMetadata();
+		final EntityPermission permission1 = new EntityPermission();
+		final EntityPermission permission2 = new EntityPermission();
+		permission1.setUid("test");
+		permission2.setUid("test");
+		entity1.addPermission(permission1);
+		assertFalse(entity1.isEqual(entity2));
+		
+		entity2.addPermission(permission2);
+		assertTrue(entity1.isEqual(entity2));
+		
+		permission2.setUid("other");
+		assertFalse(entity1.isEqual(entity2));
+	}
+	
+	@Test
+	public void testIsEqualConstraints() {
+		final Entity entity1 = new EntityMetadata();
+		final Entity entity2 = new EntityMetadata();
+		final EntityFieldConstraint constraint1 = new EntityFieldConstraint();
+		final EntityFieldConstraint constraint2 = new EntityFieldConstraint();
+		constraint1.setUid("test");
+		constraint2.setUid("test");
+		entity1.addFieldConstraint(constraint1);
+		assertFalse(entity1.isEqual(entity2));
+		
+		entity2.addFieldConstraint(constraint2);
+		assertTrue(entity1.isEqual(entity2));
+		
+		constraint2.setUid("other");
+		assertFalse(entity1.isEqual(entity2));
 	}
 	
 	@Test

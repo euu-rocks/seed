@@ -17,7 +17,6 @@
  */
 package org.seed.core.entity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.FetchType;
@@ -148,15 +147,9 @@ public class NestedEntity extends AbstractOrderedTransferableObject {
 	}
 	
 	public List<EntityField> getFields(boolean excludeParentRef) {
-		final List<EntityField> fields = new ArrayList<>();
-		if (nestedEntityMeta.hasAllFields()) {
-			for (EntityField field : nestedEntityMeta.getAllFields()) {
-				if ((!excludeParentRef) || (!field.equals(referenceField))) {
-					fields.add(field);
-				}
-			}
-		}
-		return fields;
+		return excludeParentRef
+				? subList(nestedEntityMeta.getAllFields(), field -> !field.equals(referenceField))
+				: nestedEntityMeta.getAllFields();
 	}
 	
 	@Override

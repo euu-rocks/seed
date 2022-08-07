@@ -264,39 +264,17 @@ public class EntityStatusTransition extends AbstractTransferableObject {
 	}
 	
 	private boolean isEqualFunctions(EntityStatusTransition otherTransition) {
-		if (hasFunctions()) {
-			for (EntityStatusTransitionFunction function : getFunctions()) {
-				if (!function.isEqual(otherTransition.getFunctionByUid(function.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherTransition.hasFunctions()) {
-			for (EntityStatusTransitionFunction otherFunction : otherTransition.getFunctions()) {
-				if (getFunctionByUid(otherFunction.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+		return !((hasFunctions() && getFunctions().stream()
+					.anyMatch(function -> !function.isEqual(otherTransition.getFunctionByUid(function.getUid())))) || 
+				 (otherTransition.hasFunctions() && otherTransition.getFunctions().stream()
+					.anyMatch(otherFunction -> getFunctionByUid(otherFunction.getUid()) == null)));
 	}
 	
 	private boolean isEqualPermissions(EntityStatusTransition otherTransition) {
-		if (hasPermissions()) {
-			for (EntityStatusTransitionPermission permission : getPermissions()) {
-				if (!permission.isEqual(otherTransition.getPermissionByUid(permission.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherTransition.hasPermissions()) {
-			for (EntityStatusTransitionPermission permission : otherTransition.getPermissions()) {
-				if (getPermissionByUid(permission.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+		return !((hasPermissions() && getPermissions().stream()
+					.anyMatch(permission -> !permission.isEqual(otherTransition.getPermissionByUid(permission.getUid())))) || 
+				 (otherTransition.hasPermissions() && otherTransition.getPermissions().stream()
+					.anyMatch(otherPermission -> getPermissionByUid(otherPermission.getUid()) == null)));
 	}
 	
 	@Override

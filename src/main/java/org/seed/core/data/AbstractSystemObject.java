@@ -181,8 +181,8 @@ public abstract class AbstractSystemObject implements SystemObject {
 		Assert.notNull(id, C.ID);
 		
 		if (list != null) {
-			final Optional<T> optional = list.stream().filter(object -> id.equals(object.getId()))
-											 .findFirst();
+			final Optional<T> optional = list.stream()
+					.filter(object -> id.equals(object.getId())).findFirst();
 			if (optional.isPresent()) {
 				return optional.get();
 			}
@@ -191,9 +191,7 @@ public abstract class AbstractSystemObject implements SystemObject {
 	}
 	
 	protected static <T extends SystemObject> List<T> subList(List<T> list, Predicate<T> predicate) {
-		Assert.notNull(predicate, "predicate");
-		
-		return list != null 
+		return list != null
 				? list.stream().filter(predicate).collect(Collectors.toList()) 
 				: Collections.emptyList();
 	}
