@@ -74,7 +74,7 @@ class StatusDiagramBuilder extends AbstractPlantUMLBuilder {
 	}
 	
 	private static void buildStatusName(StringBuilder buf, EntityStatus status) {
-		buf.append(status.getStatusNumber()).append('_').append(status.getName());
+		buf.append(status.getStatusNumber()).append('_').append(status.getName().replace(' ', '_'));
 	}
 
 }
