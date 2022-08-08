@@ -36,6 +36,7 @@ import org.hibernate.query.Query;
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.data.AbstractSystemEntity;
+import org.seed.core.data.AbstractSystemObject;
 import org.seed.core.data.QueryCursor;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.FileObject;
@@ -573,7 +574,7 @@ public class ValueObjectServiceImpl
 			catch (Exception ex) {
 				if (isInsert) {
 					// reset id because its assigned even if insert fails
-					((AbstractSystemEntity) object).resetId();
+					((AbstractSystemObject) object).resetId();
 				}
 				if (tx != null) {
 					tx.rollback();

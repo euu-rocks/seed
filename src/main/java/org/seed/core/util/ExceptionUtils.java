@@ -62,14 +62,18 @@ public abstract class ExceptionUtils {
 	}
 	
 	public static Tupel<String,String> getUniqueConstraintDetails(Exception ex) {
-		final String msg = ((ConstraintViolationException) ex.getCause())
+		String msg = ((ConstraintViolationException) ex.getCause())
 							.getSQLException().getMessage();
 		String column = "?", value = "?";
-		final Matcher matcher = Pattern.compile("\\((.*?)\\)").matcher(msg);
-		if (matcher.find()) {
-			column = matcher.group(1);
+		final int idx = msg.indexOf("Detail:");
+		if (idx > 0) {
+			msg = msg.substring(idx);
+			final Matcher matcher = Pattern.compile("\\((.*?)\\)").matcher(msg);
 			if (matcher.find()) {
-				value = matcher.group(1);
+				column = matcher.group(1);
+				if (matcher.find()) {
+					value = matcher.group(1);
+				}
 			}
 		}
 		return new Tupel<>(column, value);
