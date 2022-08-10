@@ -42,6 +42,7 @@ import org.seed.core.codegen.CodeManagerImpl;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.config.Limits;
 import org.seed.core.config.SchemaManager;
+import org.seed.core.config.SchemaVersion;
 import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.config.changelog.ChangeLog;
 import org.seed.core.config.changelog.ReferenceChangeLog;
@@ -57,12 +58,14 @@ import org.seed.core.user.UserGroupService;
 import org.seed.core.util.Assert;
 import org.seed.core.util.BeanUtils;
 import org.seed.core.util.MiscUtils;
+import org.seed.core.util.NameUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 @Service
 public class EntityServiceImpl extends AbstractApplicationEntityService<Entity> 
@@ -824,6 +827,42 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		}
 		
 		super.deleteObject(entity, session);
+	}
+	
+	@Override
+	public void handleSchemaUpdate(TransferContext context, SchemaVersion schemaVersion) {
+		Assert.notNull(context, C.CONTEXT);
+		Assert.notNull(schemaVersion, "schema version");
+		
+		if (ObjectUtils.isEmpty(context.getModule().getEntities())) {
+			return;
+		}
+		if (schemaVersion == SchemaVersion.V_0_9_33) {
+			// mask table and column names that equals SQL keywords
+			for (Entity entity : context.getModule().getEntities()) {
+				if (entity.getTableName() != null) {
+					if (NameUtils.isSqlKeyword(entity.getTableName())) {
+						((EntityMetadata) entity).setTableName(entity.getTableName() + '_');
+					}
+				}
+				else if (NameUtils.isSqlKeyword(entity.getInternalName())) {
+					((EntityMetadata) entity).setTableName(entity.getInternalName() + '_');
+				}
+				if (!entity.hasFields()) {
+					continue;
+				}
+				for (EntityField field : entity.getFields()) {
+					if (field.getColumnName() != null) {
+						if (NameUtils.isSqlKeyword(field.getColumnName())) {
+							field.setColumnName(field.getColumnName() + '_');
+						}
+					}
+					else if (NameUtils.isSqlKeyword(field.getInternalName())) {
+						field.setColumnName(field.getInternalName() + '_');
+					}
+				}
+			}
+		}
 	}
 	
 	@Override

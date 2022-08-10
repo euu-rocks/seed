@@ -60,6 +60,8 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		
 		// name
 		validateName(entity, errors);
+		// table name
+		validateTableName(entity, errors);
 		
 		// parent dependencies
 		if (entity.isNew()) {
@@ -300,6 +302,9 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 			if (field.getColumnName() != null) {
 				validateColumnName(entity, field, errors);
 			}
+			else if (field.getInternalName() != null) {
+				validateDerivedColumnName(entity, field, errors);
+			}
 			if (field.isCalculated()) {
 				validateCalculatedField(entity, field, errors);
 			}
@@ -342,26 +347,29 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 	}
 	
 	private void validateName(Entity entity, final ValidationErrors errors) {
-		// name
 		if (isEmpty(entity.getName())) {
 			errors.addEmptyName();
 		}
 		else if (!isNameLengthAllowed(entity.getName())) {
 			errors.addOverlongName(getMaxNameLength());
 		}
-		else if ((entity.getTableName() == null && entity.getInternalName().toLowerCase().startsWith("sys_")) || 
-				 !isNameAllowed(entity.getInternalName())) {
-			errors.addIllegalName(entity.getName());
-		}
-		
-		// table name
+	}
+	
+	private void validateTableName(Entity entity, final ValidationErrors errors) {
 		if (entity.getTableName() != null) {
-			if (entity.getTableName().toLowerCase().startsWith("sys_")) {
+			if (!entity.getTableName().equals(NameUtils.getInternalName(entity.getTableName())) ||
+				entity.getTableName().toLowerCase().startsWith("sys_") ||
+				NameUtils.isSqlKeyword(entity.getTableName().toLowerCase())) {
 				errors.addIllegalField("label.tablename", entity.getTableName());
 			}
 			else if (!isNameLengthAllowed(entity.getTableName())) {
 				errors.addOverlongField("label.tablename", getMaxNameLength());
 			}
+		}
+		else if (entity.getInternalName() != null &&
+				 (entity.getInternalName().toLowerCase().startsWith("sys_") || 
+				  NameUtils.isSqlKeyword(entity.getInternalName().toLowerCase()))) {
+			errors.addError("val.illegal.tablename", entity.getName(), entity.getInternalName().toLowerCase());
 		}
 	}
 	
@@ -405,8 +413,15 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		else if (!isUnique(field.getColumnName(), "columnName", entity.getAllFields())) {
 			errors.addError("val.ambiguous.columnname", field.getColumnName());
 		}
-		else if (NameUtils.isIllegalFieldName(field.getColumnName())) {
+		else if (!field.getColumnName().equals(NameUtils.getInternalName(field.getColumnName())) ||
+				 NameUtils.isIllegalColumnName(field.getColumnName())) {
 			errors.addIllegalField("label.columnname", field.getColumnName());
+		}
+	}
+	
+	private void validateDerivedColumnName(Entity entity, EntityField field, final ValidationErrors errors) {
+		if (NameUtils.isIllegalColumnName(field.getInternalName())) {
+			errors.addError("val.illegal.columnname", field.getName(), field.getInternalName());
 		}
 	}
 	

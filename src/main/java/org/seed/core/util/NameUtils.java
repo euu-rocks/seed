@@ -34,6 +34,17 @@ public abstract class NameUtils {
         "void", "volatile", "while" 
     };
 	
+	private static final String[] SQL_KEYWORDS = {
+		
+		"add", "all", "alter", "and", "any", "as", "asc", "backup", "between", 
+		"case", "check", "column", "constraint", "create", "database", 
+		"default", "delete", "desc", "distinct", "drop", "exec", "exists", 
+		"foreign", "from", "full", "group", "having", "in", "index", "inner ", 
+		"is", "join", "like", "limit", "not", "null", "or", "order", "procedure", 
+		"replace", "rownum", "select", "set", "table", "top", "truncate", 
+		"union", "unique", "update", "values", "view", "where"
+	};
+	
 	private static final String[] ILLEGAL_FIELDNAMES = {
 
 		"createdby", "createdon", "entityid", "entitystatus", "id", "lastmodified", 
@@ -51,8 +62,17 @@ public abstract class NameUtils {
 		return name != null && find(KEYWORDS, name);
 	}
 	
+	public static boolean isSqlKeyword(String name) {
+		return name != null && find(SQL_KEYWORDS, name);
+	}
+	
 	public static boolean isIllegalFieldName(String name) {
 		return isKeyword(name) || 
+				(name != null && find(ILLEGAL_FIELDNAMES, name));
+	}
+	
+	public static boolean isIllegalColumnName(String name) {
+		return isSqlKeyword(name) ||
 				(name != null && find(ILLEGAL_FIELDNAMES, name));
 	}
 	
