@@ -34,6 +34,7 @@ import org.seed.ui.TreeNode;
 import org.seed.ui.zk.TreeModel;
 import org.seed.ui.zk.UIUtils;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.ContextParam;
@@ -42,6 +43,7 @@ import org.zkoss.bind.annotation.GlobalCommand;
 import org.zkoss.bind.annotation.Init;
 import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.Page;
 import org.zkoss.zk.ui.event.DropEvent;
 import org.zkoss.zk.ui.event.OpenEvent;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
@@ -68,12 +70,20 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	
 	private Tab popupTab;
 	
+	private Page page;
+	
+	@AfterCompose
+	public void afterCompose(@ContextParam(ContextType.PAGE) Page page) {
+	    this.page = page;
+	}
+	
 	public String getApplicationName() {
-		final String appName = getSettingOrNull(Setting.APPLICATION_NAME);
-		if (appName != null) {
-			return appName;
+		String appName = getSettingOrNull(Setting.APPLICATION_NAME);
+		if (appName == null) {
+			appName = DEFAULT_APPLICATION_NAME;
 		}
-		return C.SEED;
+		page.setTitle(appName);
+		return appName;
 	}
 	
 	public boolean isMenuMode(String mode) {

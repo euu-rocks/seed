@@ -58,6 +58,8 @@ import org.zkoss.zul.Filedownload;
 
 public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	
+	protected static final String DEFAULT_APPLICATION_NAME = "Seed";
+	
 	private static final String INCLUDE_PATH = "/inc/";  //NOSONAR
 	
 	@WireVariable(value="applicationSettingServiceImpl")
@@ -81,6 +83,10 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	
 	public final int getLimit(String limitName) {
 		return limits.getLimit(limitName);
+	}
+	
+	public final String getDefaultApplicationName() {
+		return DEFAULT_APPLICATION_NAME;
 	}
 	
 	protected final String getSetting(Setting setting) {
