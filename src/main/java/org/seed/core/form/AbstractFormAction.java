@@ -25,8 +25,10 @@ import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.seed.Seed;
 import org.seed.core.application.AbstractOrderedTransferableObject;
 import org.seed.core.entity.EntityFunction;
+import org.seed.core.util.NameUtils;
 
 @MappedSuperclass
 public abstract class AbstractFormAction extends AbstractOrderedTransferableObject {
@@ -76,6 +78,11 @@ public abstract class AbstractFormAction extends AbstractOrderedTransferableObje
 
 	public void setType(FormActionType type) {
 		this.type = type;
+	}
+	
+	public String getTestClass() {
+		return NameUtils.getInternalName(Seed.getLabel("button." + type.name().toLowerCase()))
+				.replace('_','-').toLowerCase() + "-button";
 	}
 	
 	public boolean isCustom() {

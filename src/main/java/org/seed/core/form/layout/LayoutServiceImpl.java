@@ -57,6 +57,7 @@ import org.seed.core.form.layout.visit.FindElementVisitor;
 import org.seed.core.form.layout.visit.SearchDecoratingVisitor;
 import org.seed.core.form.layout.visit.UndecoratingVisitor;
 import org.seed.core.util.Assert;
+import org.seed.core.util.NameUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -847,18 +848,22 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	}
 	
 	private static LayoutElement buildListFormField(FormField field) {
+		final String testClass = new StringBuilder()
+				.append(field.getForm().getEntity().getInternalName()).append('-')
+				.append(NameUtils.getInternalName(field.getName().trim()))
+				.append("-content").toString().replace('_','-').toLowerCase();
 		// system field
 		if (field.isSystem()) {
 			if (field.getSystemField() == SystemField.ENTITYSTATUS) {
-				return createListCell(load(listPropertyName(field) + ".numberAndName"), null, field.getStyle());
+				return createListCell(load(listPropertyName(field) + ".numberAndName"), null, field.getStyle(), testClass);
 			}
 			else {
-				return createListCell(load(listPropertyName(field)), null, field.getStyle());
+				return createListCell(load(listPropertyName(field)), null, field.getStyle(), testClass);
 			}
 		}
 		// reference field
 		else if (field.getEntityField().getType().isReference()) {
-			return createListCell(load("vm.getIdentifier(" + listPropertyName(field) + ')'), null, field.getStyle());
+			return createListCell(load("vm.getIdentifier(" + listPropertyName(field) + ')'), null, field.getStyle(), testClass);
 		}
 		// binary field
 		else if (field.getEntityField().getType().isBinary()) {
@@ -876,7 +881,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 			final String converter = field.getEntityField().getType().isDateTime()
 										? "vm.dateTimeConverter" 
 										: "vm.valueConverter";
-			return createListCell(load(listPropertyName(field)) + ' ' + converter(converter), icon, field.getStyle());
+			return createListCell(load(listPropertyName(field)) + ' ' + converter(converter), icon, field.getStyle(), testClass);
 		}
 	}
 	

@@ -26,6 +26,7 @@
 			<template name="default" var="action">
 				<toolbarbutton label="@init(vm.getActionLabel(action))"
 							   enable="@init(vm.isActionEnabled(action))"
+							   sclass="@init(action.testClass)"
 						   	   onClick="@command('callAction',action=action,elem=self)"
 						   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
 						   	   disabled="@load(vm.isActionDisabled(action))"/>
@@ -33,6 +34,7 @@
 			<template name="dirty" var="action">
 				<toolbarbutton label="@init(vm.getActionLabel(action))"
 							   enable="@init(vm.isActionEnabled(action))"
+							   sclass="@init(action.testClass)"
 						   	   onClick="@command('callAction',action=action,elem=self)"
 						   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
 						   	   disabled="@load(!vm.isDirty() or vm.isActionDisabled(action))"/>
@@ -40,6 +42,7 @@
 			<template name="notnew" var="action">
 				<toolbarbutton label="@init(vm.getActionLabel(action))"
 							   enable="@init(vm.isActionEnabled(action))"
+							   sclass="@init(action.testClass)"
 						   	   onClick="@command('callAction',action=action,elem=self)"
 						   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
 						   	   disabled="@load(vm.isActionDisabled(action))"
@@ -48,6 +51,7 @@
 			<template name="print" var="action">
 				<toolbarbutton label="@init(vm.getActionLabel(action))"
 							   enable="@init(vm.isActionEnabled(action))"
+							   sclass="@init(action.testClass)"
 						   	   onClick="@command('callAction',action=action,elem=self)"
 						   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
 						   	   disabled="@load(vm.isActionDisabled(action))"
@@ -59,6 +63,7 @@
 						  onSelect="@command('changeStatus',action=action,elem=self)"
 						  value="@load(vm.status.numberAndName)"
 						  disabled="@load(vm.isDirty() or vm.isActionDisabled(action))"
+						  sclass="status-toolbarcombo"
 						  style="padding-left:10px"
 						  nullable="false" readonly="true">
 					<template name="model" var="status">
@@ -73,6 +78,7 @@
 						  onSelect="@command('callAction',action=action,elem=self)"
 						  value="@load(vm.transformer.name)"
 						  disabled="@load(vm.isDirty() or vm.isActionDisabled(action))"
+						  sclass="transformer-toolbarcombo"
 						  style="padding-left:10px"
 						  placeholder="${labels.label.transformobject}"
 						  nullable="false" readonly="true">

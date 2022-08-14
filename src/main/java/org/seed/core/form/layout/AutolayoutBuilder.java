@@ -17,6 +17,8 @@
  */
 package org.seed.core.form.layout;
 
+import static org.seed.core.form.layout.LayoutElementAttributes.*;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -32,6 +34,7 @@ import org.seed.core.form.AutolayoutType;
 import org.seed.core.form.Form;
 import org.seed.core.form.SubForm;
 import org.seed.core.util.Assert;
+import org.seed.core.util.NameUtils;
 
 class AutolayoutBuilder extends LayoutUtils {
 	
@@ -112,9 +115,9 @@ class AutolayoutBuilder extends LayoutUtils {
 		elemLayout.addChild(createBorderLayoutArea(BorderLayoutArea.NORTH)).addChild(elemMainGrid);
 		// tabs
 		final LayoutElement elemTabbox = new LayoutElement(LayoutElement.TABBOX);
-		elemTabbox.setAttribute(LayoutElementAttributes.A_HFLEX, LayoutElementAttributes.V_1);
-		elemTabbox.setAttribute(LayoutElementAttributes.A_VFLEX, LayoutElementAttributes.V_1);
-		elemTabbox.setClass(LayoutElementClass.TABBOX);
+		elemTabbox.setAttribute(A_HFLEX, V_1)
+				  .setAttribute(A_VFLEX, V_1)
+				  .setClass(LayoutElementClass.TABBOX);
 		elemLayout.addChild(createBorderLayoutArea(BorderLayoutArea.CENTER)).addChild(elemTabbox);
 		final LayoutElement elemTabs = elemTabbox.addChild(createTabs());
 		final LayoutElement elemPanels = elemTabbox.addChild(createTabpanels());
@@ -141,14 +144,14 @@ class AutolayoutBuilder extends LayoutUtils {
 		// fields without group
 		if (!fieldsWithoutGroup.isEmpty()) {
 			grid.getGridCell(0, row++)
-				.setValign(LayoutElementAttributes.V_TOP)
+				.setValign(V_TOP)
 				.addChild(buildFieldGrid(fieldsWithoutGroup, entity.getName()));
 		}
 		// field groups
 		if (!fieldGroups.isEmpty()) {
 			for (EntityFieldGroup fieldGroup : fieldGroups) {
 				grid.getGridCell(0, row++)
-					.setValign(LayoutElementAttributes.V_TOP)
+					.setValign(V_TOP)
 					.addChild(buildFieldGrid(entity.getAllFieldsByGroup(fieldGroup), 
 											 fieldGroup.getName()));
 			}
@@ -164,14 +167,14 @@ class AutolayoutBuilder extends LayoutUtils {
 		// fields without group
 		if (!fieldsWithoutGroup.isEmpty()) {
 			grid.getGridCell(col++, 0)
-				.setValign(LayoutElementAttributes.V_TOP)
+				.setValign(V_TOP)
 				.addChild(buildFieldGrid(fieldsWithoutGroup, entity.getName()));
 		}
 		// field groups
 		if (!fieldGroups.isEmpty()) {
 			for (EntityFieldGroup fieldGroup : fieldGroups) {
 				grid.getGridCell(col, row)
-					.setValign(LayoutElementAttributes.V_TOP)
+					.setValign(V_TOP)
 					.addChild(buildFieldGrid(entity.getAllFieldsByGroup(fieldGroup), 
 											 fieldGroup.getName()));
 				if (++col == columns) {
@@ -193,18 +196,18 @@ class AutolayoutBuilder extends LayoutUtils {
 		for (int col = 0; col < columns; col++) {
 			final LayoutElement colGrid = createGrid(1, numColumnGroups, null);
 			mainGrid.getGridCell(col, 0)
-					.setValign(LayoutElementAttributes.V_TOP)
+					.setValign(V_TOP)
 					.addChild(colGrid);
 			int row = 0;
 			if (col == 0 && !fieldsWithoutGroup.isEmpty()) {
 				colGrid.getGridCell(0, row++)
-					   .setValign(LayoutElementAttributes.V_TOP)
+					   .setValign(V_TOP)
 					   .addChild(buildFieldGrid(fieldsWithoutGroup, entity.getName()));
 			}
 			while (idx < fieldGroups.size() && row < numColumnGroups) {
 				final EntityFieldGroup fieldGroup = fieldGroups.get(idx);
 				colGrid.getGridCell(0, row++)
-					   .setValign(LayoutElementAttributes.V_TOP)
+					   .setValign(V_TOP)
 					   .addChild(buildFieldGrid(entity.getAllFieldsByGroup(fieldGroup), 
 							   					fieldGroup.getName()));
 				idx++;
@@ -220,21 +223,25 @@ class AutolayoutBuilder extends LayoutUtils {
 		final LayoutElement elemGrid = new LayoutElement(LayoutElement.GRID);
 		final LayoutElement elemRows = elemGrid.addChild(createRows());
 		final LayoutElement elemColumns = createColumns(2);
-		elemColumns.getChildAt(0).setAttribute(LayoutElementAttributes.A_HFLEX, LayoutElementAttributes.V_MIN);
+		elemColumns.getChildAt(0).setAttribute(A_HFLEX, V_MIN);
 		elemGrid.setClass(LayoutElementClass.NO_BORDER).addChild(elemColumns);
 		for (EntityField entityField : fields) {
 			if (entityField.getType().isBinary()) {
 				continue;
 			}
 			final LayoutElement elemRow = elemRows.addChild(new LayoutElement(LayoutElement.ROW));
+			final String testClass = NameUtils.getInternalName(entityField.getName().trim())
+												.replace('_', '-').toLowerCase();
 			// label column
 			LayoutElement elemCell = elemRow.addChild(createCell());
-			elemCell.setAlign(LayoutElementAttributes.V_RIGHT)
-					.setValign(LayoutElementAttributes.V_TOP)
-					.addChild(LayoutUtils.createLabel(entityField.getName()));
+			elemCell.setAlign(V_RIGHT)
+					.setValign(V_TOP)
+					.setAttribute(A_SCLASS, testClass + "-labelcell")
+					.addChild(createLabel(entityField.getName()));
 			// field column
 			elemCell = elemRow.addChild(createCell());
-			elemCell.addChild(createFormField(entityField));
+			elemCell.setAttribute(A_SCLASS, testClass + "-fieldcell")
+					.addChild(createFormField(entityField));
 		}
 		return createGroupbox(name, elemGrid);
 	}

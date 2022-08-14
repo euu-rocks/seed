@@ -21,6 +21,7 @@ import org.seed.C;
 import org.seed.core.data.QueryCursor;
 import org.seed.core.entity.value.FullTextResult;
 import org.seed.core.util.Assert;
+import org.seed.core.util.NameUtils;
 
 import org.zkoss.util.resource.Labels;
 
@@ -68,6 +69,10 @@ public class Tab {
 
 	public void setName(String name) {
 		this.name = tabName + ": " + (name != null ? name : Labels.getLabel("label.new"));
+	}
+	
+	public String getTestClass() {
+		return NameUtils.getInternalName(tabName).toLowerCase().replace('_', '-') + "-tab";
 	}
 	
 	public void resetName() {

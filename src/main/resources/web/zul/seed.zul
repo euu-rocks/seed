@@ -52,7 +52,8 @@
 			 				  onOpen="@command('openMenu',node=node)">
 			 			<treerow>
 			 				<treecell label="@load(node.label)"
-			 						  iconSclass="@init(node.iconClass)"/>
+			 						  iconSclass="@init(node.iconClass)"
+			 						  sclass="@init(node.testClass)"/>
 			 			</treerow>
 			 		</treeitem>
 				</template>
@@ -65,6 +66,7 @@
 						<tab label="@load(tab.name)" context="popupTab" closable="true"
 							 draggable="true" droppable="true"
 							 iconSclass="@init(tab.iconClass)"
+							 sclass="@init(tab.testClass)"
 							 selected="@load(tab.equals(vm.selectedTab))"
 							 onSelect="@command('selectTab',tab=tab)"
 							 onClose="@command('closeTab',tab=tab)"

@@ -227,10 +227,10 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 		elemListbox.addChild(createListHead(true));
 		elemListbox.addChild(createTemplate("empty", entityField.getReferenceEntity().getInternalName()))
 		   		   .addChild(createListItem(null))		   
-		   		   .addChild(createListCell('[' + Seed.getLabel(LABEL_EMPTY) + ']', null, null));
+		   		   .addChild(createListCell('[' + Seed.getLabel(LABEL_EMPTY) + ']', null, null, null));
 		elemListbox.addChild(createTemplate(A_MODEL, entityField.getReferenceEntity().getInternalName()))
 				   .addChild(createListItem(null))		   
-				   .addChild(createListCell(load(identifier(entityField.getReferenceEntity().getInternalName())) , null, null));
+				   .addChild(createListCell(load(identifier(entityField.getReferenceEntity().getInternalName())) , null, null, null));
 		
 		final FormFieldExtra fieldExtra = getFieldExtra(entityField);
 		if (fieldExtra != null && fieldExtra.getDetailForm() != null) {
@@ -463,10 +463,10 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 		elemList.addChild(createListHead(true));
 		elemList.addChild(createTemplate("empty", nestedEntityField.getReferenceEntity().getInternalName()))
 			.addChild(createListItem(null))		   
-			.addChild(createListCell('[' + Seed.getLabel(LABEL_EMPTY) + ']', null, null));
+			.addChild(createListCell('[' + Seed.getLabel(LABEL_EMPTY) + ']', null, null, null));
 		elemList.addChild(createTemplate(A_MODEL, nestedEntityField.getReferenceEntity().getInternalName()))
 			.addChild(createListItem(null))		   
-			.addChild(createListCell(load(identifier(nestedEntityField.getReferenceEntity().getInternalName())), null, null));
+			.addChild(createListCell(load(identifier(nestedEntityField.getReferenceEntity().getInternalName())), null, null, null));
 		if (subFormField.getDetailForm() != null) {
 			addRootChild(createReferencePopup(elemField.getContext(), nestedEntityField.getUid()));
 		}

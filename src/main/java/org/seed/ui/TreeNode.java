@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 
 import org.seed.C;
 import org.seed.core.util.Assert;
+import org.seed.core.util.NameUtils;
 
 public final class TreeNode {
 	
@@ -36,6 +37,8 @@ public final class TreeNode {
 	public final String iconClass;
 	
 	public final Long formId;
+	
+	private TreeNode parent;
 	
 	private boolean top;
 	
@@ -87,6 +90,19 @@ public final class TreeNode {
 	public void setLink(boolean link) {
 		this.link = link;
 	}
+	
+	public String getTestClass() {
+		StringBuilder buf = new StringBuilder();
+		TreeNode parentNode = parent;
+		while (parentNode != null && 
+			   !"root".equals(parentNode.label)) {
+			buf.insert(0, '-');
+			buf.insert(0, NameUtils.getInternalName(parentNode.label));
+			parentNode = parentNode.parent;
+		}
+		buf.append(NameUtils.getInternalName(label)).append("-navi");
+		return buf.toString().replace('_','-').toLowerCase();
+	}
 
 	public List<TreeNode> getChildren() {
 		return children;
@@ -118,6 +134,7 @@ public final class TreeNode {
 		if (children == null) {
 			children = new ArrayList<>();
 		}
+		child.parent = this;
 		children.add(child);
 		return child;
 	}

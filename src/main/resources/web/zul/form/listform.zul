@@ -30,12 +30,14 @@
 					<toolbarbutton label="@init(vm.getActionLabel(action))"
 								   enable="@init(vm.isActionEnabled(action))"
 							   	   onClick="@command('callAction',action=action,elem=self)"
+							   	   sclass="@init(action.testClass)"
 							   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"/>
 				</template>
 				<template name="select" var="action">
 					<toolbarbutton label="@init(vm.getActionLabel(action))"
 								   enable="@init(vm.isActionEnabled(action))"
 							   	   onClick="@command('callAction',action=action,elem=self)"
+							   	   sclass="@init(action.testClass)"
 							   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
 							   	   visible="@load(!empty vm.object)"/>
 				</template>
@@ -43,6 +45,7 @@
 					<toolbarbutton label="@init(vm.getActionLabel(action))"
 								   enable="@init(vm.isActionEnabled(action))"
 							   	   onClick="@command('callAction',action=action,elem=self)"
+							   	   sclass="@init(action.testClass)"
 							   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
 							   	   visible="@load(vm.resultList)"/>
 				</template>
@@ -50,6 +53,7 @@
 					<toolbarbutton label="@init(vm.getActionLabel(action))"
 								   enable="@init(vm.isActionEnabled(action))"
 							   	   onClick="@command('callAction',action=action,elem=self)"
+							   	   sclass="@init(action.testClass)"
 							   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
 							   	   visible="@load(vm.form.hasPrintouts() and !empty vm.object)"/>
 				</template>
@@ -59,6 +63,7 @@
 							  selectedItem="@bind(vm.status)"
 							  onSelect="@command('changeStatus',action=action,elem=self)"
 							  value="@load(vm.status.numberAndName)"
+							  sclass="status-toolbarcombo"
 							  style="padding-left:10px"
 							  nullable="false" readonly="true">
 						<template name="model" var="status">
@@ -72,6 +77,7 @@
 							  selectedItem="@bind(vm.transformer)"
 							  onSelect="@command('callAction',action=action,elem=self)"
 							  value="@load(vm.transformer.name)"
+							  sclass="transformer-toolbarcombo"
 							  style="padding-left:10px"
 							  placeholder="${labels.label.transformobject}"
 							  nullable="false" readonly="true">
@@ -90,6 +96,7 @@
 						  value="@load(vm.currentFilter.name)"
 						  onSelect="@command('selectFilter')"
 						  placeholder="${labels.label.filter}"
+						  sclass="filter-toolbarcombo"
 						  style="margin-top:2px">
 					<template name="empty">
                     	<comboitem/>
@@ -108,10 +115,12 @@
 					<textbox value="@bind(vm.fullTextSearchTerm) @converter(vm.stringConverter)"
 							 onOK="@command('searchFullText')"
 							 placeholder="${labels.label.fulltextsearch}"
+							 sclass="fulltextsearch-inputfield"
 							 cols="24" style="margin-top:2px"/>
 					<toolbarbutton onClick="@command('searchFullText')"
 								   disabled="@load(empty vm.fullTextSearchTerm)"
 								   tooltiptext="${labels.label.fulltextsearch}"
+								   sclass="fulltextsearch-button"
 								   iconSclass="z-icon-search"/>
 				</hbox>
 			</toolbar>
@@ -122,8 +131,11 @@
 	</center>
 	<south border="0">
 		<div>
-			<div class="alpha-status-footer" visible="@load(vm.cursorTotalCount gt 0)">
+			<div class="alpha-status-footer" visible="@load(vm.cursorTotalCount gt 1)">
 				<label value="@load(vm.cursorTotalCount)"/> <label value="${labels.label.entries}"/>
+			</div>
+			<div class="alpha-status-footer" visible="@load(vm.cursorTotalCount eq 1)">
+				<label value="@load(vm.cursorTotalCount)"/> <label value="${labels.label.entry}"/>
 			</div>
 			<div class="alpha-status-footer" visible="@load(vm.cursorTotalCount eq 0)">
 				<label value="${labels.label.noentries}"/>

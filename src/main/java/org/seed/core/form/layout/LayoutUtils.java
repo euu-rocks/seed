@@ -28,6 +28,7 @@ import org.seed.Seed;
 import org.seed.core.data.FieldType;
 import org.seed.core.entity.EntityField;
 import org.seed.core.util.Assert;
+import org.seed.core.util.NameUtils;
 
 public abstract class LayoutUtils {
 	
@@ -90,8 +91,8 @@ public abstract class LayoutUtils {
 	public static LayoutElement createGrid(int numColumns, int numRows, String title) {
 		final LayoutElement elemGrid = new LayoutElement(LayoutElement.GRID);
 		final LayoutElement elemRows = elemGrid.addChild(createRows());
-		elemGrid.setClass(LayoutElementClass.NO_BORDER);
-		elemGrid.addChild(createColumns(numColumns));
+		elemGrid.setClass(LayoutElementClass.NO_BORDER)
+				.addChild(createColumns(numColumns));
 		for (int i = 0; i < numRows; i++) {
 			elemRows.addChild(createRow(numColumns));
 		}
@@ -116,9 +117,9 @@ public abstract class LayoutUtils {
 		Assert.notNull(field, C.FIELD);
 		
 		final LayoutElement elemBandbox = new LayoutElement(LayoutElement.BANDBOX);
-		elemBandbox.setAttribute(A_ID, field.getUid());
-		elemBandbox.setAttribute(A_HFLEX, V_1);
-		elemBandbox.setOrRemoveAttribute(A_MANDATORY, field.isMandatory());
+		elemBandbox.setAttribute(A_ID, field.getUid())
+				   .setAttribute(A_HFLEX, V_1)
+				   .setOrRemoveAttribute(A_MANDATORY, field.isMandatory());
 		return elemBandbox;
 	}
 	
@@ -196,9 +197,10 @@ public abstract class LayoutUtils {
 		Assert.notNull(text, C.TEXT);
 		
 		final LayoutElement elemLabel = new LayoutElement(LayoutElement.LABEL);
+		elemLabel.setAttribute(A_SCLASS, NameUtils.getInternalName(text.trim()).replace('_', '-').toLowerCase() + "-label");
 		if (text.contains("\n")) {
-			elemLabel.setAttribute(A_PRE, V_TRUE);
-			elemLabel.addChild(createLabelAttribute(text));
+			elemLabel.setAttribute(A_PRE, V_TRUE)
+					 .addChild(createLabelAttribute(text));
 		}
 		else {
 			elemLabel.setAttribute(A_VALUE, text);
@@ -210,8 +212,8 @@ public abstract class LayoutUtils {
 		Assert.notNull(text, C.TEXT);
 		
 		final LayoutElement elemAttr = new LayoutElement(LayoutElement.ATTRIBUTE);
-		elemAttr.setAttribute(A_NAME, C.VALUE);
-		elemAttr.setText(text);
+		elemAttr.setAttribute(A_NAME, C.VALUE)
+				.setText(text);
 		return elemAttr;
 	}
 	
@@ -219,8 +221,8 @@ public abstract class LayoutUtils {
 		Assert.notNull(field, C.FIELD);
 		
 		final LayoutElement elemField = createElement(field.getType());
-		elemField.setAttribute(A_ID, field.getUid());
-		
+		elemField.setAttribute(A_ID, field.getUid())
+				 .setAttribute(A_SCLASS, NameUtils.getInternalName(field.getName().trim()).replace('_', '-').toLowerCase() + "-field");
 		if (field.getType().isDateTime()) {
 			elemField.setAttribute("format", "long+medium");
 		}
@@ -292,24 +294,22 @@ public abstract class LayoutUtils {
 		Assert.notNull(label, C.LABEL);
 		Assert.notNull(command, C.COMMAND);
 		
-		final LayoutElement elemMenuItem = new LayoutElement(LayoutElement.MENUITEM);
-		elemMenuItem.setLabel(Seed.getLabel(label));
+		final LayoutElement elemMenuItem = new LayoutElement(LayoutElement.MENUITEM)
+												.setLabel(Seed.getLabel(label))
+												.setOnClick(command(command));
 		if (icon != null) {
 			elemMenuItem.setIcon(icon);
 		}
-		elemMenuItem.setOnClick(command(command));
 		return elemMenuItem;
 	}
 	
 	public static LayoutElement createTabbox(String title) {
 		final LayoutElement elemTabbox = new LayoutElement(LayoutElement.TABBOX);
-		elemTabbox.setAttribute(A_HFLEX, V_1);
-		elemTabbox.setAttribute(A_VFLEX, V_1);
-		elemTabbox.setClass(LayoutElementClass.TABBOX);
-		final LayoutElement elemTabs = elemTabbox.addChild(createTabs());
-		elemTabs.addChild(createTab(title));
-		final LayoutElement elemPanels = elemTabbox.addChild(createTabpanels());
-		elemPanels.addChild(createTabpanel());
+		elemTabbox.setAttribute(A_HFLEX, V_1)
+				  .setAttribute(A_VFLEX, V_1)
+				  .setClass(LayoutElementClass.TABBOX);
+		elemTabbox.addChild(createTabs()).addChild(createTab(title));
+		elemTabbox.addChild(createTabpanels()).addChild(createTabpanel());
 		return elemTabbox;
 	}
 	
@@ -317,7 +317,8 @@ public abstract class LayoutUtils {
 		Assert.notNull(title, "title");
 		
 		final LayoutElement elemTab = new LayoutElement(LayoutElement.TAB);
-		elemTab.setLabel(title);
+		elemTab.setLabel(title)
+			   .setAttribute(A_SCLASS, NameUtils.getInternalName(title).replace('_', '-').toLowerCase() + "-tab");
 		return elemTab;
 	}
 	
@@ -342,8 +343,8 @@ public abstract class LayoutUtils {
 		Assert.notNull(command, C.COMMAND);
 		
 		final LayoutElement elemButton = new LayoutElement(LayoutElement.TOOLBARBUTTON);
-		elemButton.setLabel(label);
-		elemButton.setOnClick(command(command));
+		elemButton.setLabel(label)
+				  .setOnClick(command(command));
 		if (icon != null) {
 			elemButton.setAttribute(A_ICONSCLASS, icon);
 		}
@@ -352,11 +353,11 @@ public abstract class LayoutUtils {
 	
 	public static LayoutElement createListFormList() {
 		final LayoutElement elemListbox = createListBox();
-		elemListbox.setAttribute(A_MODEL, load("vm.listModel"));
-		elemListbox.setAttribute(A_SELECTEDITEM, bind("vm.object"));
-		elemListbox.setAttribute(A_ONSELECT, command("'selectObject'"));
-		elemListbox.setAttribute(A_VFLEX, V_TRUE);
-		elemListbox.setAttribute(A_STYLE, "margin:5px");
+		elemListbox.setAttribute(A_MODEL, load("vm.listModel"))
+				   .setAttribute(A_SELECTEDITEM, bind("vm.object"))
+				   .setAttribute(A_ONSELECT, command("'selectObject'"))
+				   .setAttribute(A_VFLEX, V_TRUE)
+				   .setAttribute(A_STYLE, "margin:5px");
 		return elemListbox;
 	}
 	
@@ -390,14 +391,16 @@ public abstract class LayoutUtils {
 		return elemListitem;
 	}
 	
-	public static LayoutElement createListCell(String property, String icon, String style) {
+	public static LayoutElement createListCell(String property, String icon, String style, String testClass) {
 		Assert.notNull(property, C.PROPERTY);
 		
 		final LayoutElement elemListcell = new LayoutElement(LayoutElement.LISTCELL);
+		elemListcell.setAttribute(A_SCLASS, testClass);
 		if (icon != null) {
 			elemListcell.setAttribute(A_ICONSCLASS, icon);
 		}
 		final LayoutElement elemLabel = elemListcell.addChild(createLabel(property));
+		elemLabel.removeAttribute(A_SCLASS);
 		if (style != null) {
 			elemLabel.setAttribute(A_STYLE, style);
 		}
@@ -417,9 +420,9 @@ public abstract class LayoutUtils {
 		Assert.notNull(name, C.NAME);
 		Assert.notNull(variable, A_VAR);
 		
-		final LayoutElement elemTemplate = new LayoutElement(LayoutElement.TEMPLATE);
-		elemTemplate.setAttribute(A_NAME, name);
-		elemTemplate.setAttribute(A_VAR, variable);
+		final LayoutElement elemTemplate = new LayoutElement(LayoutElement.TEMPLATE)
+												.setAttribute(A_NAME, name)
+												.setAttribute(A_VAR, variable);
 		return elemTemplate;
 	}
 	

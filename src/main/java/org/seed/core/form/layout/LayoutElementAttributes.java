@@ -59,6 +59,7 @@ public class LayoutElementAttributes {
 	public static final String A_PRE           = "pre";
 	public static final String A_READONLY      = "readonly";
 	public static final String A_ROWS          = "rows";
+	public static final String A_SCLASS        = "sclass";
 	public static final String A_SELECTEDITEM  = "selectedItem";
 	public static final String A_SIZABLE       = "sizable";
 	public static final String A_SIZE          = "size";
