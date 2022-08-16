@@ -42,6 +42,8 @@
 		<opencsv.version>5.6</opencsv.version>
 		<plantuml.version>1.2022.5</plantuml.version>
 		<mycila-license-version>3.0</mycila-license-version>
+		<sonar.organization>euu-rocks</sonar.organization>
+		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 	</properties>
 	
 	<parent>
