@@ -330,39 +330,17 @@ public class TaskMetadata extends AbstractApplicationEntity
 	}
 	
 	private boolean isEqualParameters(Task otherTask) {
-		if (hasParameters()) {
-			for (TaskParameter parameter : getParameters()) {
-				if (!parameter.isEqual(otherTask.getParameterByUid(parameter.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherTask.hasParameters()) {
-			for (TaskParameter otherParameter : otherTask.getParameters()) {
-				if (getParameterByUid(otherParameter.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+		return !((hasParameters() && getParameters().stream()
+					.anyMatch(parameter -> !parameter.isEqual(otherTask.getParameterByUid(parameter.getUid())))) || 
+				(otherTask.hasParameters() && otherTask.getParameters().stream()
+					.anyMatch(parameter -> getParameterByUid(parameter.getUid()) == null)));
 	}
 	
 	private boolean isEqualPermissions(Task otherTask) {
-		if (hasPermissions()) {
-			for (TaskPermission permission : getPermissions()) {
-				if (!permission.isEqual(otherTask.getPermissionByUid(permission.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherTask.hasPermissions()) {
-			for (TaskPermission otherPermission : otherTask.getPermissions()) {
-				if (getPermissionByUid(otherPermission.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+		return !((hasPermissions() && getPermissions().stream()
+					.anyMatch(permission -> !permission.isEqual(otherTask.getPermissionByUid(permission.getUid())))) || 
+				(otherTask.hasPermissions() && otherTask.getPermissions().stream()
+					.anyMatch(permission -> getPermissionByUid(permission.getUid()) == null)));
 	}
 	
 	@Override

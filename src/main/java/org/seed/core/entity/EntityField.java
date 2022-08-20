@@ -139,7 +139,7 @@ public class EntityField extends AbstractOrderedTransferableObject {
 	public String getEffectiveColumnName() {
 		return columnName != null 
 				? columnName.toLowerCase()
-				: getInternalName().toLowerCase();
+				: getInternalName();
 	}
 
 	@XmlAttribute

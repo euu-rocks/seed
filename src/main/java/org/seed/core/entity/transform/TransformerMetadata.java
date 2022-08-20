@@ -304,75 +304,31 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	}
 	
 	private boolean isEqualElements(Transformer otherTransformer) {
-		if (hasElements()) {
-			for (TransformerElement element : getElements()) {
-				if (!element.isEqual(otherTransformer.getElementByUid(element.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherTransformer.hasElements()) {
-			for (TransformerElement otherElement : otherTransformer.getElements()) {
-				if (getElementByUid(otherElement.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+		return !((hasElements() && getElements().stream()
+					.anyMatch(elem -> !elem.isEqual(otherTransformer.getElementByUid(elem.getUid())))) || 
+				(otherTransformer.hasElements() && otherTransformer.getElements().stream()
+					.anyMatch(elem -> getElementByUid(elem.getUid()) == null)));
 	}
 	
 	private boolean isEqualFunctions(Transformer otherTransformer) {
-		if (hasFunctions()) {
-			for (TransformerFunction function : getFunctions()) {
-				if (!function.isEqual(otherTransformer.getFunctionByUid(function.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherTransformer.hasFunctions()) {
-			for (TransformerFunction otherFunction : otherTransformer.getFunctions()) {
-				if (getFunctionByUid(otherFunction.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+		return !((hasFunctions() && getFunctions().stream()
+					.anyMatch(function -> !function.isEqual(otherTransformer.getFunctionByUid(function.getUid())))) || 
+				(otherTransformer.hasFunctions() && otherTransformer.getFunctions().stream()
+					.anyMatch(function -> getFunctionByUid(function.getUid()) == null)));
 	}
 	
 	private boolean isEqualPermissions(Transformer otherTransformer) {
-		if (hasPermissions()) {
-			for (TransformerPermission permission : getPermissions()) {
-				if (otherTransformer.getPermissionByUid(permission.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		if (otherTransformer.hasPermissions()) {
-			for (TransformerPermission otherPermission : otherTransformer.getPermissions()) {
-				if (getPermissionByUid(otherPermission.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+		return !((hasPermissions() && getPermissions().stream()
+					.anyMatch(perm -> !perm.isEqual(otherTransformer.getPermissionByUid(perm.getUid())))) || 
+				(otherTransformer.hasPermissions() && otherTransformer.getPermissions().stream()
+					.anyMatch(perm -> getPermissionByUid(perm.getUid()) == null)));
 	}
 	
 	private boolean isEqualStatus(Transformer otherTransformer) {
-		if (hasStatus()) {
-			for (TransformerStatus status : getStatus()) {
-				if (otherTransformer.getStatusByUid(status.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		if (otherTransformer.hasStatus()) {
-			for (TransformerStatus otherStatus : otherTransformer.getStatus()) {
-				if (getStatusByUid(otherStatus.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+		return !((hasStatus() && getStatus().stream()
+					.anyMatch(status -> !status.isEqual(otherTransformer.getStatusByUid(status.getUid())))) || 
+				(otherTransformer.hasStatus() && otherTransformer.getStatus().stream()
+					.anyMatch(status -> getStatusByUid(status.getUid()) == null)));
 	}
 	
 	@Override

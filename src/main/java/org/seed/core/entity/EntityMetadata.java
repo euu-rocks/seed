@@ -284,8 +284,8 @@ public class EntityMetadata extends AbstractApplicationEntity
 	@JsonIgnore
 	public List<EntityField> getAllFields() {
 		final List<EntityField> result = new ArrayList<>();
-		if (genericEntity != null) {
-			result.addAll(genericEntity.getAllFields());
+		if (genericEntity != null && genericEntity.hasFields()) {
+			result.addAll(genericEntity.getFields());
 		}
 		if (hasFields()) {
 			result.addAll(getFields());
@@ -834,8 +834,8 @@ public class EntityMetadata extends AbstractApplicationEntity
 		Assert.notNull(statusTransition, C.STATUSTRANSITION);
 		
 		return !hasStatusTransitions() ||
-			   !getStatusTransitions().stream()
-			   	.anyMatch(transition -> statusTransition != transition && 
+			   getStatusTransitions().stream()
+			   	.noneMatch(transition -> statusTransition != transition && 
 			   		ObjectUtils.nullSafeEquals(statusTransition.getSourceStatus(), transition.getSourceStatus()) &&
 			   		ObjectUtils.nullSafeEquals(statusTransition.getTargetStatus(), transition.getTargetStatus()));
 	}
@@ -1145,10 +1145,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 					continue;
 				}
 				final EntityFieldConstraint constraint = getGroupConstraint(field, group, status);
-				if (constraint == null) {
-					return true;
-				}
-				if (checkAccess(constraint, fieldAccess)) {
+				if (constraint == null || checkAccess(constraint, fieldAccess)) {
 					return true;
 				}
 			}

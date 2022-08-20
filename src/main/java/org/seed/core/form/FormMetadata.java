@@ -809,111 +809,45 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	}
 	
 	private boolean isEqualFields(Form otherForm) {
-		if (hasFields()) {
-			for (FormField field : getFields()) {
-				if (!field.isEqual(otherForm.getFieldByUid(field.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherForm.hasFields()) {
-			for (FormField otherField : otherForm.getFields()) {
-				if (getFieldByUid(otherField.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+		return !((hasFields() && getFields().stream()
+					.anyMatch(field -> !field.isEqual(otherForm.getFieldByUid(field.getUid())))) || 
+				(otherForm.hasFields() && otherForm.getFields().stream()
+					.anyMatch(field -> getFieldByUid(field.getUid()) == null)));
 	}
 	
 	private boolean isEqualFieldExtras(Form otherForm) {
-		if (hasFieldExtras()) {
-			for (FormFieldExtra extra : getFieldExtras()) {
-				if (!extra.isEqual(otherForm.getFieldExtraByUid(extra.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherForm.hasFieldExtras()) {
-			for (FormFieldExtra otherExtra : otherForm.getFieldExtras()) {
-				if (getFieldExtraByUid(otherExtra.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+		return !((hasFieldExtras() && getFieldExtras().stream()
+					.anyMatch(extra -> !extra.isEqual(otherForm.getFieldExtraByUid(extra.getUid())))) || 
+				(otherForm.hasFieldExtras() && otherForm.getFieldExtras().stream()
+					.anyMatch(extra -> getFieldExtraByUid(extra.getUid()) == null)));
 	}
 	
 	private boolean isEqualActions(Form otherForm) {
-		if (hasActions()) {
-			for (FormAction action : getActions()) {
-				if (!action.isEqual(otherForm.getActionByUid(action.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherForm.hasActions()) {
-			for (FormAction otherAction : otherForm.getActions()) {
-				if (getActionByUid(otherAction.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+		return !((hasActions() && getActions().stream()
+					.anyMatch(action -> !action.isEqual(otherForm.getActionByUid(action.getUid())))) || 
+				(otherForm.hasActions() && otherForm.getActions().stream()
+					.anyMatch(action -> getActionByUid(action.getUid()) == null)));
 	}
 	
 	private boolean isEqualTransformers(Form otherForm) {
-		if (hasTransformers()) {
-			for (FormTransformer transformer : getTransformers()) {
-				if (!transformer.isEqual(otherForm.getTransformerByUid(transformer.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherForm.hasTransformers()) {
-			for (FormTransformer otherTransformer : otherForm.getTransformers()) {
-				if (getTransformerByUid(otherTransformer.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+		return !((hasTransformers() && getTransformers().stream()
+					.anyMatch(transformer -> !transformer.isEqual(otherForm.getTransformerByUid(transformer.getUid())))) || 
+				(otherForm.hasTransformers() && otherForm.getTransformers().stream()
+					.anyMatch(transformer -> getTransformerByUid(transformer.getUid()) == null)));
 	}
 	
 	private boolean isEqualPrintouts(Form otherForm) {
-		if (hasPrintouts()) {
-			for (FormPrintout printout : getPrintouts()) {
-				if (!printout.isEqual(otherForm.getPrintoutByUid(printout.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherForm.hasPrintouts()) {
-			for (FormPrintout otherPrintout : otherForm.getPrintouts()) {
-				if (getPrintoutByUid(otherPrintout.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+		return !((hasPrintouts() && getPrintouts().stream()
+					.anyMatch(printout -> !printout.isEqual(otherForm.getPrintoutByUid(printout.getUid())))) || 
+				(otherForm.hasPrintouts() && otherForm.getPrintouts().stream()
+					.anyMatch(printout -> getPrintoutByUid(printout.getUid()) == null)));
 	}
 	
 	private boolean isEqualSubForms(Form otherForm) {
-		if (hasSubForms()) {
-			for (SubForm subForm : getSubForms()) {
-				if (!subForm.isEqual(otherForm.getSubFormByUid(subForm.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherForm.hasSubForms()) {
-			for (SubForm otherSubForm : otherForm.getSubForms()) {
-				if (getSubFormByUid(otherSubForm.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+		return !((hasSubForms() && getSubForms().stream()
+					.anyMatch(subForm -> !subForm.isEqual(otherForm.getSubFormByUid(subForm.getUid())))) || 
+				(otherForm.hasSubForms() && otherForm.getSubForms().stream()
+					.anyMatch(subForm -> getSubFormByUid(subForm.getUid()) == null)));
 	}
 	
 	public void clearSubForms() {

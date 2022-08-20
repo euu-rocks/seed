@@ -270,39 +270,17 @@ public class SubForm extends AbstractTransferableObject {
 	}
 	
 	private boolean isEqualFields(SubForm otherSubForm) {
-		if (hasFields()) {
-			for (SubFormField field : getFields()) {
-				if (!field.isEqual(otherSubForm.getFieldByUid(field.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherSubForm.hasFields()) {
-			for (SubFormField otherField : otherSubForm.getFields()) {
-				if (getFieldByUid(otherField.getUid()) == null) {
-					return false;
-				}
-			}
- 		}
-		return true;
+		return !((hasFields() && getFields().stream()
+					.anyMatch(field -> !field.isEqual(otherSubForm.getFieldByUid(field.getUid())))) || 
+				(otherSubForm.hasFields() && otherSubForm.getFields().stream()
+					.anyMatch(field -> getFieldByUid(field.getUid()) == null)));
 	}
 	
 	private boolean isEqualActions(SubForm otherSubForm) {
-		if (hasActions()) {
-			for (SubFormAction action : getActions()) {
-				if (!action.isEqual(otherSubForm.getActionByUid(action.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherSubForm.hasActions()) {
-			for (SubFormAction otherAction : otherSubForm.getActions()) {
-				if (getActionByUid(otherAction.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+		return !((hasActions() && getActions().stream()
+					.anyMatch(action -> !action.isEqual(otherSubForm.getActionByUid(action.getUid())))) || 
+				(otherSubForm.hasActions() && otherSubForm.getActions().stream()
+					.anyMatch(action -> getActionByUid(action.getUid()) == null)));
 	}
 	
 	@Override

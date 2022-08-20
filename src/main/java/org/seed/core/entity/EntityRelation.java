@@ -40,7 +40,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class EntityRelation extends AbstractOrderedTransferableObject {
 	
-	public static final String SUFFIX_ID = "_id";
+	private static final String SUFFIX_ID = "_id";
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "entity_id")

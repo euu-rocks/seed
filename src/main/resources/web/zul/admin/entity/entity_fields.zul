@@ -88,8 +88,9 @@
             <label value="${labels.label.columnname}:"/>   		 
             <textbox hflex="1"
             		 value="@bind(vm.field.columnName) @converter(vm.stringConverter)"
-            		 placeholder="@load(vm.field.internalName.toLowerCase())"
-            		 onChange="@command('flagDirty')"/>
+            		 placeholder="@load(vm.field.internalName)"
+            		 onChange="@command('flagDirty')"
+            		 instant="true"/>
             <vlayout visible="@load(!empty vm.object.allFieldGroups)">
 	            <label value="${labels.label.fieldgroup}:"/>
 	            <combobox model="@load(vm.object.allFieldGroups) @template(empty each.name ? 'empty' : 'group')"

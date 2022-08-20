@@ -82,7 +82,9 @@ public class MainViewModel extends AbstractApplicationViewModel {
 		if (appName == null) {
 			appName = DEFAULT_APPLICATION_NAME;
 		}
-		page.setTitle(appName);
+		if (page != null) {
+			page.setTitle(appName);
+		}
 		return appName;
 	}
 	
@@ -179,7 +181,7 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	@Command
 	@NotifyChange({"tabs", "selectedTab"})
 	public void closeOtherTabs() {
-		tabs.removeIf(t -> !t.equals(popupTab));
+		tabs.removeIf(tab -> !tab.equals(popupTab));
 		selectedTab = popupTab;
 	}
 	

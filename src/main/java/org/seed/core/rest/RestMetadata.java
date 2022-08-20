@@ -176,39 +176,17 @@ public class RestMetadata extends AbstractApplicationEntity
 	}
 	
 	private boolean isEqualFunctions(Rest otherRest) {
-		if (hasFunctions()) {
-			for (RestFunction function : getFunctions()) {
-				if (!function.isEqual(otherRest.getFunctionByUid(function.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherRest.hasFunctions()) {
-			for (RestFunction otherFunction : otherRest.getFunctions()) {
-				if (getFunctionByUid(otherFunction.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+		return !((hasFunctions() && getFunctions().stream()
+					.anyMatch(function -> !function.isEqual(otherRest.getFunctionByUid(function.getUid())))) || 
+				(otherRest.hasFunctions() && otherRest.getFunctions().stream()
+					.anyMatch(function -> getFunctionByUid(function.getUid()) == null)));
 	}
 	
 	private boolean isEqualPermissions(Rest otherRest) {
-		if (hasPermissions()) {
-			for (RestPermission permission : getPermissions()) {
-				if (!permission.isEqual(otherRest.getPermissionByUid(permission.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherRest.hasPermissions()) {
-			for (RestPermission otherPermission : otherRest.getPermissions()) {
-				if (getPermissionByUid(otherPermission.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+		return !((hasPermissions() && getPermissions().stream()
+					.anyMatch(permission -> !permission.isEqual(otherRest.getPermissionByUid(permission.getUid())))) || 
+				(otherRest.hasPermissions() && otherRest.getPermissions().stream()
+					.anyMatch(permission -> getPermissionByUid(permission.getUid()) == null)));
 	}
 	
 	@Override

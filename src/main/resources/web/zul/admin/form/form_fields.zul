@@ -107,4 +107,9 @@
 	        </vlayout>
 		</vlayout>
 	</east>
+	<south border="0">
+		<div align="center">
+			<label value="${labels.info.dragndropinfo}"/>
+		</div>
+	</south>
 </borderlayout>

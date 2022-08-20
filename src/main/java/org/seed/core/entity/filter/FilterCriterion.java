@@ -280,11 +280,11 @@ public class FilterCriterion extends AbstractTransferableObject {
 		}
 		final FilterCriterion otherCriterion = (FilterCriterion) other;
 		return new EqualsBuilder()
-			.append(entityFieldUid, otherCriterion.getEntityFieldUid())
-			.append(systemField, otherCriterion.systemField)
-			.append(operator, otherCriterion.operator)
-			.append(getValue(), otherCriterion.getValue())
-			.isEquals();
+					.append(entityFieldUid, otherCriterion.getEntityFieldUid())
+					.append(systemField, otherCriterion.systemField)
+					.append(operator, otherCriterion.operator)
+					.append(getValue(), otherCriterion.getValue())
+					.isEquals();
 	}
 	
 	@XmlTransient

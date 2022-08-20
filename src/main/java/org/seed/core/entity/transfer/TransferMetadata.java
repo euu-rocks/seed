@@ -18,7 +18,10 @@
 package org.seed.core.entity.transfer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
@@ -199,14 +202,8 @@ public class TransferMetadata extends AbstractApplicationEntity implements Trans
 	
 	@Override
 	public boolean containsField(EntityField entityField) {
-		if (hasElements()) {
-			for (TransferElement element : getElements()) {
-				if (entityField.equals(element.getEntityField())) {
-					return true;
-				}
-			}
-		}
-		return false;
+		return hasElements() &&
+			   getElements().stream().anyMatch(elem -> entityField.equals(elem.getEntityField()));
 	}
 	
 	@Override
@@ -234,30 +231,16 @@ public class TransferMetadata extends AbstractApplicationEntity implements Trans
 	}
 	
 	private boolean isEqualElements(Transfer otherTransfer) {
-		if (hasElements()) {
-			for (TransferElement element : getElements()) {
-				if (!element.isEqual(otherTransfer.getElementByUid(element.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherTransfer.hasElements()) {
-			for (TransferElement otherElement : otherTransfer.getElements()) {
-				if (getElementByUid(otherElement.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+		return !((hasElements() && getElements().stream().anyMatch(elem -> !elem.isEqual(otherTransfer.getElementByUid(elem.getUid())))) ||
+				 (otherTransfer.hasElements() && otherTransfer.getElements().stream().anyMatch(elem -> getElementByUid(elem.getUid()) == null)));
 	}
 	
 	@Override
 	public EntityField getIdentifierField() {
 		if (hasElements()) {
-			for (TransferElement element : getElements()) {
-				if (element.isIdentifier()) {
-					return element.getEntityField();
-				}
+			final Optional<TransferElement> optional = getElements().stream().filter(TransferElement::isIdentifier).findFirst();
+			if (optional.isPresent()) {
+				return optional.get().getEntityField();
 			}
 		}
 		return null;
@@ -265,13 +248,11 @@ public class TransferMetadata extends AbstractApplicationEntity implements Trans
 	
 	@Override
 	public List<EntityField> getElementFields() {
-		final List<EntityField> result = new ArrayList<>();
-		if (hasElements()) {
-			for (TransferElement element : getElements()) {
-				result.add(element.getEntityField());
-			}
-		}
-		return result;
+		return hasElements() 
+				? getElements().stream().filter(elem -> elem.getEntityField() != null)
+										.map(TransferElement::getEntityField)
+										.collect(Collectors.toList())
+				: Collections.emptyList();
 	}
 	
 	@Override

@@ -154,39 +154,17 @@ public class ReportMetadata extends AbstractApplicationEntity
 	}
 	
 	private boolean isEqualDataSources(Report otherReport) {
-		if (hasDataSources()) {
-			for (ReportDataSource dataSource : getDataSources()) {
-				if (!dataSource.isEqual(otherReport.getDataSourceByUid(dataSource.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherReport.hasDataSources()) {
-			for (ReportDataSource otherDataSource : otherReport.getDataSources()) {
-				if (getDataSourceByUid(otherDataSource.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+		return !((hasDataSources() && getDataSources().stream()
+					.anyMatch(dataSource -> !dataSource.isEqual(otherReport.getDataSourceByUid(dataSource.getUid())))) || 
+				(otherReport.hasDataSources() && otherReport.getDataSources()
+					.stream().anyMatch(dataSource -> getDataSourceByUid(dataSource.getUid()) == null)));
 	}
 	
 	private boolean isEqualPermissions(Report otherReport) {
-		if (hasPermissions()) {
-			for (ReportPermission permission : getPermissions()) {
-				if (!permission.isEqual(otherReport.getPermissionByUid(permission.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherReport.hasPermissions()) {
-			for (ReportPermission otherPermission : otherReport.getPermissions()) {
-				if (getPermissionByUid(otherPermission.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+		return !((hasPermissions() && getPermissions().stream()
+					.anyMatch(permission -> !permission.isEqual(otherReport.getPermissionByUid(permission.getUid())))) || 
+				(otherReport.hasPermissions() && otherReport.getPermissions().stream()
+					.anyMatch(permission -> getPermissionByUid(permission.getUid()) == null)));
 	}
 	
 	@Override

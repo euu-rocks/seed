@@ -207,32 +207,13 @@ public class FilterMetadata extends AbstractApplicationEntity implements Filter 
 				}
 			}
 		}
-		if (otherFilter.hasCriteria()) {
-			for (FilterCriterion otherCriterion : otherFilter.getCriteria()) {
-				if (getCriterionByUid(otherCriterion.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+		return  !(otherFilter.hasCriteria() && 
+				  otherFilter.getCriteria().stream().anyMatch(criterion -> getCriterionByUid(criterion.getUid()) == null)); 
 	}
 	
 	private boolean isEqualPermissions(Filter otherFilter) {
-		if (hasPermissions()) {
-			for (FilterPermission criterion : getPermissions()) {
-				if (!criterion.isEqual(otherFilter.getPermissionByUid(criterion.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherFilter.hasPermissions()) {
-			for (FilterPermission otherPermission : otherFilter.getPermissions()) {
-				if (getPermissionByUid(otherPermission.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+		return !((hasPermissions() && getPermissions().stream().anyMatch(perm -> !perm.isEqual(otherFilter.getPermissionByUid(perm.getUid())))) ||
+				(otherFilter.hasPermissions() && otherFilter.getPermissions().stream().anyMatch(perm -> getPermissionByUid(perm.getUid()) == null)));
 	}
 	
 	@Override

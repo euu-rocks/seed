@@ -165,21 +165,8 @@ public class DataSourceMetadata extends AbstractApplicationEntity
 	}
 	
 	private boolean isEqualParameters(IDataSource otherDataSource) {
-		if (hasParameters()) {
-			for (DataSourceParameter parameter : getParameters()) {
-				if (!parameter.isEqual(otherDataSource.getParameterByUid(parameter.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherDataSource.hasParameters()) {
-			for (DataSourceParameter otherParameter : otherDataSource.getParameters()) {
-				if (getParameterByUid(otherParameter.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+		return !((hasParameters() && getParameters().stream().anyMatch(param -> !param.isEqual(otherDataSource.getParameterByUid(param.getUid())))) ||
+			    (otherDataSource.hasParameters() && otherDataSource.getParameters().stream().anyMatch(param -> getParameterByUid(param.getUid()) == null)));
 	}
 	
 	@Override
