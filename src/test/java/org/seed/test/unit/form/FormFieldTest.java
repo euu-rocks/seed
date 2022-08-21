@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 import org.seed.core.data.SystemField;
 import org.seed.core.form.FormField;
 
-public class FormFieldTest {
+class FormFieldTest {
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final FormField field1 = new FormField();
 		final FormField field2 = new FormField();
 		assertTrue(field1.isEqual(field2));

@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import org.seed.core.form.FormTransformer;
 
-public class FormTransformerTest {
+class FormTransformerTest {
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final FormTransformer transformer1 = new FormTransformer();
 		final FormTransformer transformer2 = new FormTransformer();
 		assertTrue(transformer1.isEqual(transformer2));

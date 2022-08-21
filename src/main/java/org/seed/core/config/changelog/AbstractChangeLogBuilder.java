@@ -156,9 +156,8 @@ public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 	}
 	
 	private static ChangeLog createChangeLog(ChangeSet changeSet) {
-		final ChangeLog changeLog = new ChangeLog();
-		final FastByteArrayOutputStream baos = new FastByteArrayOutputStream();
-		try {
+		try (FastByteArrayOutputStream baos = new FastByteArrayOutputStream()) {
+			final ChangeLog changeLog = new ChangeLog();
 			new JsonChangeLogSerializer().write(Collections.singletonList(changeSet), baos);
 			changeLog.setChangeSet(MiscUtils.toString(baos.toByteArray()));
 			return changeLog;

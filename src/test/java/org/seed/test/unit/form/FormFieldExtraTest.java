@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import org.seed.core.form.FormFieldExtra;
 
-public class FormFieldExtraTest {
+class FormFieldExtraTest {
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final FormFieldExtra extra1 = new FormFieldExtra();
 		final FormFieldExtra extra2 = new FormFieldExtra();
 		assertTrue(extra1.isEqual(extra2));

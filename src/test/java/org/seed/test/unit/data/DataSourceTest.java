@@ -26,10 +26,10 @@ import org.seed.core.data.datasource.DataSourceParameter;
 import org.seed.core.data.datasource.DataSourceType;
 import org.seed.core.data.datasource.IDataSource;
 
-public class DataSourceTest {
+class DataSourceTest {
 	
 	@Test
-	public void testAddParameter() {
+	void testAddParameter() {
 		final IDataSource dataSource = new DataSourceMetadata();
 		final DataSourceParameter parameter = new DataSourceParameter();
 		assertFalse(dataSource.hasParameters());
@@ -44,7 +44,7 @@ public class DataSourceTest {
 	}
 	
 	@Test
-	public void testGetParameterByName() {
+	void testGetParameterByName() {
 		final IDataSource dataSource = new DataSourceMetadata();
 		final DataSourceParameter parameter = new DataSourceParameter();
 		dataSource.addParameter(parameter);
@@ -58,7 +58,7 @@ public class DataSourceTest {
 	}
 	
 	@Test
-	public void testGetParameterByUid() {
+	void testGetParameterByUid() {
 		final IDataSource dataSource = new DataSourceMetadata();
 		final DataSourceParameter parameter = new DataSourceParameter();
 		dataSource.addParameter(parameter);
@@ -72,7 +72,7 @@ public class DataSourceTest {
 	}
 	
 	@Test
-	public void testGetContentParameterSet() {
+	void testGetContentParameterSet() {
 		final IDataSource dataSource = new DataSourceMetadata();
 		((DataSourceMetadata) dataSource).setContent("no param");
 		
@@ -85,7 +85,7 @@ public class DataSourceTest {
 	}
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final IDataSource dataSource1 = new DataSourceMetadata();
 		final IDataSource dataSource2 = new DataSourceMetadata();
 		assertTrue(dataSource1.isEqual(dataSource2));
@@ -102,7 +102,7 @@ public class DataSourceTest {
 	}
 	
 	@Test
-	public void testIsEqualParameters() {
+	void testIsEqualParameters() {
 		final IDataSource dataSource1 = new DataSourceMetadata();
 		final IDataSource dataSource2 = new DataSourceMetadata();
 		final DataSourceParameter parameter1 = new DataSourceParameter();
@@ -120,7 +120,7 @@ public class DataSourceTest {
 	}
 	
 	@Test
-	public void testRemoveParameter() {
+	void testRemoveParameter() {
 		final IDataSource dataSource = new DataSourceMetadata();
 		final DataSourceParameter parameter = new DataSourceParameter();
 		dataSource.addParameter(parameter);

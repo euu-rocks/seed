@@ -304,7 +304,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 			analyzeModule(module, elem);
 		}
 		else {
-			showValidationErrors(elem, "admin.transfer.importfail", 
+			showValidationErrors(elem, ERROR_IMPORT_FAIL, 
 							     Collections.singleton(new ValidationError("admin.module.illegalformat")));
 		}
 	}
@@ -320,7 +320,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 			analyzeModule(module, elem);
 		}
 		else {
-			showValidationErrors(elem, "admin.transfer.importfail", 
+			showValidationErrors(elem, ERROR_IMPORT_FAIL, 
 								 Collections.singleton(new ValidationError("admin.module.notfound")));
 		}
 	}
@@ -334,7 +334,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 			showError(elem, "admin.transfer.illegalformat");
 		}
 		catch (ValidationException vex) {
-			showValidationErrors(elem, "admin.transfer.importfail", vex.getErrors());
+			showValidationErrors(elem, ERROR_IMPORT_FAIL, vex.getErrors());
 		}
 		catch (Exception ex) {
 			showError(elem, ex);
@@ -566,5 +566,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 			}
 		}
 	}
+	
+	private static final String ERROR_IMPORT_FAIL = "admin.transfer.importfail";
 
 }

@@ -32,10 +32,10 @@ import org.seed.core.entity.transfer.TransferElement;
 import org.seed.core.entity.transfer.TransferFormat;
 import org.seed.core.entity.transfer.TransferMetadata;
 
-public class TransferTest {
+class TransferTest {
 	
 	@Test
-	public void testContainsField() {
+	void testContainsField() {
 		final Transfer transfer = new TransferMetadata();
 		final TransferElement element = new TransferElement();
 		final List<TransferElement> elements = new ArrayList<>();
@@ -51,7 +51,7 @@ public class TransferTest {
 	}
 	
 	@Test
-	public void testGetElementByUid() {
+	void testGetElementByUid() {
 		final Transfer transfer = new TransferMetadata();
 		final TransferElement element = new TransferElement();
 		final List<TransferElement> elements = new ArrayList<>();
@@ -67,7 +67,7 @@ public class TransferTest {
 	}
 	
 	@Test
-	public void testGetElementFields() {
+	void testGetElementFields() {
 		final Transfer transfer = new TransferMetadata();
 		final EntityField entityField = new EntityField();
 		final TransferElement element1 = new TransferElement();
@@ -83,7 +83,7 @@ public class TransferTest {
 	}
 	
 	@Test
-	public void testGetIdentifierField() {
+	void testGetIdentifierField() {
 		final Transfer transfer = new TransferMetadata();
 		final EntityField entityField = new EntityField();
 		final TransferElement element1 = new TransferElement();
@@ -100,7 +100,7 @@ public class TransferTest {
 	}
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final Transfer transfer1 = new TransferMetadata();
 		final Transfer transfer2 = new TransferMetadata();
 		assertTrue(transfer1.isEqual(transfer2));
@@ -127,7 +127,7 @@ public class TransferTest {
 	}
 	
 	@Test
-	public void testIsEqualElements() {
+	void testIsEqualElements() {
 		final Transfer transfer1 = new TransferMetadata();
 		final Transfer transfer2 = new TransferMetadata();
 		final TransferElement element1 = new TransferElement();

@@ -25,10 +25,10 @@ import org.seed.core.data.dbobject.DBObject;
 import org.seed.core.data.dbobject.DBObjectMetadata;
 import org.seed.core.data.dbobject.DBObjectType;
 
-public class DBObjectTest {
+class DBObjectTest {
 	
 	@Test
-	public void testContains() {
+	void testContains() {
 		final DBObject dbObject = new DBObjectMetadata();
 		assertFalse(dbObject.contains("test"));
 		
@@ -38,7 +38,7 @@ public class DBObjectTest {
 	}
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final DBObject dbObject1 = new DBObjectMetadata();
 		final DBObject dbObject2 = new DBObjectMetadata();
 		assertTrue(dbObject1.isEqual(dbObject2));

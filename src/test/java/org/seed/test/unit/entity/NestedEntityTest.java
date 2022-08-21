@@ -27,10 +27,10 @@ import org.seed.core.entity.EntityFunction;
 import org.seed.core.entity.EntityMetadata;
 import org.seed.core.entity.NestedEntity;
 
-public class NestedEntityTest {
+class NestedEntityTest {
 	
 	@Test
-	public void testGetFieldByUid() {
+	void testGetFieldByUid() {
 		final Entity nestedEntity = new EntityMetadata();
 		final NestedEntity nested = new NestedEntity();
 		final EntityField field = new EntityField();
@@ -44,7 +44,7 @@ public class NestedEntityTest {
 	}
 	
 	@Test
-	public void testGetFunctionByUid() {
+	void testGetFunctionByUid() {
 		final Entity nestedEntity = new EntityMetadata();
 		final NestedEntity nested = new NestedEntity();
 		final EntityFunction function = new EntityFunction();
@@ -58,7 +58,7 @@ public class NestedEntityTest {
 	}
 	
 	@Test
-	public void testGetFieldsExcludeParentRef() {
+	void testGetFieldsExcludeParentRef() {
 		final Entity nestedEntity = new EntityMetadata();
 		final NestedEntity nested = new NestedEntity();
 		final EntityField field = new EntityField();
@@ -73,7 +73,7 @@ public class NestedEntityTest {
 	}
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final NestedEntity nested1 = new NestedEntity();
 		final NestedEntity nested2 = new NestedEntity();
 		assertTrue(nested1.isEqual(nested2));

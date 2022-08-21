@@ -23,10 +23,10 @@ import org.seed.core.task.TaskParameter;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TaskParameterTest {
+class TaskParameterTest {
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final TaskParameter parameter1 = new TaskParameter();
 		final TaskParameter parameter2 = new TaskParameter();
 		assertTrue(parameter1.isEqual(parameter2));

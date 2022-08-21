@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 import org.seed.core.entity.EntityField;
 import org.seed.core.form.SubFormField;
 
-public class SubFormFieldTest {
+class SubFormFieldTest {
 
 	@Test
-	public void testGetName() {
+	void testGetName() {
 		final SubFormField field = new SubFormField();
 		final EntityField entityField = new EntityField();
 		field.setEntityField(entityField);
@@ -38,7 +38,7 @@ public class SubFormFieldTest {
 	}
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final SubFormField field1 = new SubFormField();
 		final SubFormField field2 = new SubFormField();
 		assertTrue(field1.isEqual(field2));

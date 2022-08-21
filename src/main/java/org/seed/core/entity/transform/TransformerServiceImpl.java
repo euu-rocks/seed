@@ -411,7 +411,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		}
 		if (transformer.hasStatus()) {
 			transformer.getStatus().forEach(status -> 
-				initTransformerStatus(status, transformer, currentVersionTransformer, session));
+				initTransformerStatus(status, transformer, currentVersionTransformer));
 		}
 		if (transformer.hasPermissions()) {
 			transformer.getPermissions().forEach(permission -> 
@@ -460,7 +460,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	}
 	
 	private void initTransformerStatus(TransformerStatus status, Transformer transformer,
-									   Transformer currentVersionTransformer, Session session) {
+									   Transformer currentVersionTransformer) {
 		status.setTransformer(transformer);
 		status.setStatus(transformer.getSourceEntity().getStatusByUid(status.getStatusUid()));
 		final TransformerStatus currentVersionStatus =

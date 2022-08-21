@@ -420,10 +420,9 @@ public abstract class LayoutUtils {
 		Assert.notNull(name, C.NAME);
 		Assert.notNull(variable, A_VAR);
 		
-		final LayoutElement elemTemplate = new LayoutElement(LayoutElement.TEMPLATE)
-												.setAttribute(A_NAME, name)
-												.setAttribute(A_VAR, variable);
-		return elemTemplate;
+		return new LayoutElement(LayoutElement.TEMPLATE)
+					.setAttribute(A_NAME, name)
+					.setAttribute(A_VAR, variable);
 	}
 	
 	private static LayoutElement createElement(FieldType type) {

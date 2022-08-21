@@ -29,10 +29,10 @@ import org.seed.core.rest.RestFunction;
 import org.seed.core.rest.RestMetadata;
 import org.seed.core.rest.RestPermission;
 
-public class RestTest {
+class RestTest {
 	
 	@Test
-	public void testAddFunction() {
+	void testAddFunction() {
 		final Rest rest = new RestMetadata();
 		final RestFunction function = new RestFunction();
 		assertFalse(rest.hasFunctions());
@@ -46,7 +46,7 @@ public class RestTest {
 	}
 	
 	@Test
-	public void testGetFunctionByMapping() {
+	void testGetFunctionByMapping() {
 		final Rest rest = new RestMetadata();
 		final RestFunction function = new RestFunction();
 		function.setName("other");
@@ -66,7 +66,7 @@ public class RestTest {
 	}
 	
 	@Test
-	public void testGetFunctionByUid() {
+	void testGetFunctionByUid() {
 		final Rest rest = new RestMetadata();
 		final RestFunction function = new RestFunction();
 		function.setUid("other");
@@ -80,7 +80,7 @@ public class RestTest {
 	}
 	
 	@Test
-	public void testGetPermissionByUid() {
+	void testGetPermissionByUid() {
 		final Rest rest = new RestMetadata();
 		final RestPermission permission = new RestPermission();
 		final List<RestPermission> permissions = new ArrayList<>();
@@ -96,7 +96,7 @@ public class RestTest {
 	}
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final Rest rest1 = new RestMetadata();
 		final Rest rest2 = new RestMetadata();
 		assertTrue(rest1.isEqual(rest2));
@@ -109,7 +109,7 @@ public class RestTest {
 	}
 	
 	@Test
-	public void testIsEqualFunctions() {
+	void testIsEqualFunctions() {
 		final Rest rest1 = new RestMetadata();
 		final Rest rest2 = new RestMetadata();
 		final RestFunction function1 = new RestFunction();
@@ -127,7 +127,7 @@ public class RestTest {
 	}
 	
 	@Test
-	public void testIsEqualPermissions() {
+	void testIsEqualPermissions() {
 		final Rest rest1 = new RestMetadata();
 		final Rest rest2 = new RestMetadata();
 		final RestPermission permission1 = new RestPermission();
@@ -149,7 +149,7 @@ public class RestTest {
 	}
 	
 	@Test
-	public void testRemoveFunction() {
+	void testRemoveFunction() {
 		final Rest rest = new RestMetadata();
 		final RestFunction function = new RestFunction();
 		rest.addFunction(function);

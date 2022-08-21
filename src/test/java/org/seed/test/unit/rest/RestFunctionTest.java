@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 import org.seed.core.api.RestFunction.MethodType;
 import org.seed.core.rest.RestFunction;
 
-public class RestFunctionTest {
+class RestFunctionTest {
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final RestFunction function1 = new RestFunction();
 		final RestFunction function2 = new RestFunction();
 		assertTrue(function1.isEqual(function2));

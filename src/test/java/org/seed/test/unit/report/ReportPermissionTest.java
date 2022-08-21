@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import org.seed.core.report.ReportPermission;
 
-public class ReportPermissionTest {
+class ReportPermissionTest {
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final ReportPermission permission1 = new ReportPermission();
 		final ReportPermission permission2 = new ReportPermission();
 		assertTrue(permission1.isEqual(permission2));

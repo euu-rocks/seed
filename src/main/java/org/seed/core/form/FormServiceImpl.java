@@ -672,23 +672,31 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		Assert.notNull(session, C.SESSION);
 		
 		for (Form form : formRepository.find(session, queryParam(C.ENTITY, entity))) {
-			// delete sub form if nested no longer exist
 			if (form.hasSubForms()) {
-				for (SubForm subForm : new ArrayList<>(form.getSubForms())) {
-					if (!entity.containsNested(subForm.getNestedEntity())) {
-						form.removeSubForm(subForm);
-						session.delete(subForm);
-					}
-				}
+				notifyBeforeChangeSubForms(form, entity, session);
 			}
-			// delete field extra if entity field no longer exist
 			if (form.hasFieldExtras()) {
-				for (FormFieldExtra fieldExtra : new ArrayList<>(form.getFieldExtras())) {
-					if (!entity.containsField(fieldExtra.getEntityField())) {
-						form.removeFieldExtra(fieldExtra);
-						session.delete(fieldExtra);
-					}
-				}
+				notifyBeforeChangeFieldExtras(form, entity, session);
+			}
+		}
+	}
+	
+	private void notifyBeforeChangeSubForms(Form form, Entity entity, Session session) {
+		// delete sub form if nested no longer exist
+		for (SubForm subForm : new ArrayList<>(form.getSubForms())) {
+			if (!entity.containsNested(subForm.getNestedEntity())) {
+				form.removeSubForm(subForm);
+				session.delete(subForm);
+			}
+		}
+	}
+	
+	private void notifyBeforeChangeFieldExtras(Form form, Entity entity, Session session) {
+		// delete field extra if entity field no longer exist
+		for (FormFieldExtra fieldExtra : new ArrayList<>(form.getFieldExtras())) {
+			if (!entity.containsField(fieldExtra.getEntityField())) {
+				form.removeFieldExtra(fieldExtra);
+				session.delete(fieldExtra);
 			}
 		}
 	}

@@ -63,8 +63,9 @@ public abstract class ExceptionUtils {
 	
 	public static Tupel<String,String> getUniqueConstraintDetails(Exception ex) {
 		final String message = ((ConstraintViolationException) ex.getCause())
-							.getSQLException().getMessage();
-		String column = "?", value = "?";
+								.getSQLException().getMessage();
+		String column = "?";
+		String value = "?";
 		final int idxDetail = message.indexOf("Detail:");
 		if (idxDetail > 0) {
 			final String detailMessage = message.substring(idxDetail);

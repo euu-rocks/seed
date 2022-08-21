@@ -32,10 +32,10 @@ import org.seed.core.entity.transform.TransformerMetadata;
 import org.seed.core.entity.transform.TransformerPermission;
 import org.seed.core.entity.transform.TransformerStatus;
 
-public class TransformerTest {
+class TransformerTest {
 	
 	@Test
-	public void testAddElement() {
+	void testAddElement() {
 		final Transformer transformer = new TransformerMetadata();
 		final TransformerElement element = new TransformerElement();
 		assertFalse(transformer.hasElements());
@@ -49,7 +49,7 @@ public class TransformerTest {
 	}
 	
 	@Test
-	public void testAddFunction() {
+	void testAddFunction() {
 		final Transformer transformer = new TransformerMetadata();
 		final TransformerFunction function = new TransformerFunction();
 		assertFalse(transformer.hasFunctions());
@@ -63,7 +63,7 @@ public class TransformerTest {
 	}
 	
 	@Test
-	public void testContainsElement() {
+	void testContainsElement() {
 		final Transformer transformer = new TransformerMetadata();
 		final TransformerElement element = new TransformerElement();
 		assertFalse(transformer.containsElement(element));
@@ -74,7 +74,7 @@ public class TransformerTest {
 	}
 	
 	@Test
-	public void testContainsStatus() {
+	void testContainsStatus() {
 		final Transformer transformer = new TransformerMetadata();
 		final TransformerStatus status = new TransformerStatus();
 		final EntityStatus entityStatus = new EntityStatus();
@@ -89,7 +89,7 @@ public class TransformerTest {
 	}
 	
 	@Test
-	public void testGetElementByUid() {
+	void testGetElementByUid() {
 		final Transformer transformer = new TransformerMetadata();
 		final TransformerElement element = new TransformerElement();
 		element.setUid("other");
@@ -103,7 +103,7 @@ public class TransformerTest {
 	}
 	
 	@Test
-	public void testGetFunctionByUid() {
+	void testGetFunctionByUid() {
 		final Transformer transformer = new TransformerMetadata();
 		final TransformerFunction function = new TransformerFunction();
 		function.setUid("other");
@@ -117,7 +117,7 @@ public class TransformerTest {
 	}
 	
 	@Test
-	public void testGetPermissionByUid( ) {
+	void testGetPermissionByUid( ) {
 		final Transformer transformer = new TransformerMetadata();
 		final TransformerPermission permission = new TransformerPermission();
 		final List<TransformerPermission> permissions = new ArrayList<>();
@@ -133,7 +133,7 @@ public class TransformerTest {
 	}
 	
 	@Test
-	public void testGetStatusByUid() {
+	void testGetStatusByUid() {
 		final Transformer transformer = new TransformerMetadata();
 		final TransformerStatus status = new TransformerStatus();
 		final List<TransformerStatus> statusList = new ArrayList<>();
@@ -149,7 +149,7 @@ public class TransformerTest {
 	}
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final Transformer transformer1 = new TransformerMetadata();
 		final Transformer transformer2 = new TransformerMetadata();
 		assertTrue(transformer1.isEqual(transformer2));
@@ -164,7 +164,7 @@ public class TransformerTest {
 	}
 	
 	@Test
-	public void testIsEqualElements() {
+	void testIsEqualElements() {
 		final Transformer transformer1 = new TransformerMetadata();
 		final Transformer transformer2 = new TransformerMetadata();
 		final TransformerElement element1 = new TransformerElement();
@@ -182,7 +182,7 @@ public class TransformerTest {
 	}
 	
 	@Test
-	public void testIsEqualFunctions() {
+	void testIsEqualFunctions() {
 		final Transformer transformer1 = new TransformerMetadata();
 		final Transformer transformer2 = new TransformerMetadata();
 		final TransformerFunction function1 = new TransformerFunction();
@@ -200,7 +200,7 @@ public class TransformerTest {
 	}
 	
 	@Test
-	public void testIsEqualPermissions() {
+	void testIsEqualPermissions() {
 		final Transformer transformer1 = new TransformerMetadata();
 		final Transformer transformer2 = new TransformerMetadata();
 		final TransformerPermission permission1 = new TransformerPermission();
@@ -222,7 +222,7 @@ public class TransformerTest {
 	}
 	
 	@Test
-	public void testIsEqualStatus() {
+	void testIsEqualStatus() {
 		final Transformer transformer1 = new TransformerMetadata();
 		final Transformer transformer2 = new TransformerMetadata();
 		final TransformerStatus status1 = new TransformerStatus();
@@ -244,7 +244,7 @@ public class TransformerTest {
 	}
 	
 	@Test
-	public void testRemoveElement() {
+	void testRemoveElement() {
 		final Transformer transformer = new TransformerMetadata();
 		final TransformerElement element = new TransformerElement();
 		transformer.addElement(element);
@@ -257,7 +257,7 @@ public class TransformerTest {
 	}
 	
 	@Test
-	public void testRemoveFunction() {
+	void testRemoveFunction() {
 		final Transformer transformer = new TransformerMetadata();
 		final TransformerFunction function = new TransformerFunction();
 		transformer.addFunction(function);

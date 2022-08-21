@@ -82,23 +82,25 @@ public abstract class StreamUtils {
 	}
 	
 	public static byte[] compress(byte[] bytes) throws IOException {
-		final FastByteArrayOutputStream out = new FastByteArrayOutputStream();
 		if (bytes != null) {
-			try (DeflaterOutputStream deflaterStream = new DeflaterOutputStream(out)) {
-		        deflaterStream.write(bytes);    
-		    }
+			try (FastByteArrayOutputStream out = new FastByteArrayOutputStream();
+				 DeflaterOutputStream deflaterStream = new DeflaterOutputStream(out)) {
+				deflaterStream.write(bytes); 
+				return out.toByteArray();
+			}
 		}
-	    return out.toByteArray();
+		return bytes;
 	}
 	
 	public static byte[] decompress(byte[] bytes) throws IOException {
-	    final FastByteArrayOutputStream out = new FastByteArrayOutputStream();
-	    if (bytes != null) {
-		    try (InflaterOutputStream inflaterStream = new InflaterOutputStream(out)) {
-		        inflaterStream.write(bytes);    
-		    }
-	    }
-	    return out.toByteArray();
+		if (bytes != null) {
+			try (FastByteArrayOutputStream out = new FastByteArrayOutputStream();
+				 InflaterOutputStream inflaterStream = new InflaterOutputStream(out)) {
+			    inflaterStream.write(bytes);    
+				return out.toByteArray();
+			}
+		}
+		return bytes;
 	}
 	
 	private static String getStreamAsText(InputStream stream) throws IOException {

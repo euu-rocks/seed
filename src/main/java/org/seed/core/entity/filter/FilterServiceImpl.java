@@ -205,20 +205,20 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 			for (Filter filter : analysis.getModule().getFilters()) {
 				if (currentVersionModule == null) {
 					analysis.addChangeNew(filter);
+					continue;
 				}
-				else {
-					// entity needs to be set to determine field types
-					if (filter.getEntityUid() != null) {
-						((FilterMetadata) filter).setEntity(analysis.getModule().getEntityByUid(filter.getEntityUid()));
-					}
-					final Filter currentVersionFilter = 
-						currentVersionModule.getFilterByUid(filter.getUid());
-					if (currentVersionFilter == null) {
-						analysis.addChangeNew(filter);
-					}
-					else if (!filter.isEqual(currentVersionFilter)) {
-						analysis.addChangeModify(filter);
-					}
+				
+				// entity needs to be set to determine field types
+				if (filter.getEntityUid() != null) {
+					((FilterMetadata) filter).setEntity(analysis.getModule().getEntityByUid(filter.getEntityUid()));
+				}
+				final Filter currentVersionFilter = 
+					currentVersionModule.getFilterByUid(filter.getUid());
+				if (currentVersionFilter == null) {
+					analysis.addChangeNew(filter);
+				}
+				else if (!filter.isEqual(currentVersionFilter)) {
+					analysis.addChangeModify(filter);
 				}
 			}
 		}

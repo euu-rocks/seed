@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import org.seed.core.entity.EntityStatus;
 
-public class EntityStatusTest {
+class EntityStatusTest {
 	
 	@Test
-	public void testGetNumberAndName() {
+	void testGetNumberAndName() {
 		final EntityStatus status = new EntityStatus();
 		assertEquals("", status.getNumberAndName());
 		
@@ -38,7 +38,7 @@ public class EntityStatusTest {
 	}
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final EntityStatus status1 = new EntityStatus();
 		final EntityStatus status2 = new EntityStatus();
 		assertTrue(status1.isEqual(status2));

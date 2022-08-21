@@ -59,10 +59,10 @@ import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupMetadata;
 import org.seed.core.user.UserMetadata;
 
-public class FormTest {
+class FormTest {
 	
 	@Test
-	public void testAddAction() {
+	void testAddAction() {
 		final Form form = new FormMetadata();
 		final FormAction action = new FormAction();
 		assertFalse(form.hasActions());
@@ -77,7 +77,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testAddField() {
+	void testAddField() {
 		final Form form = new FormMetadata();
 		final FormField field = new FormField();
 		assertFalse(form.hasFields());
@@ -92,7 +92,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testAddFieldExtra() {
+	void testAddFieldExtra() {
 		final Form form = new FormMetadata();
 		final FormFieldExtra fieldExtra = new FormFieldExtra();
 		assertFalse(form.hasFieldExtras());
@@ -107,7 +107,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testAddPrintout() {
+	void testAddPrintout() {
 		final Form form = new FormMetadata();
 		final FormPrintout printout = new FormPrintout();
 		assertFalse(form.hasPrintouts());
@@ -122,7 +122,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testAddSubForm() {
+	void testAddSubForm() {
 		final Form form = new FormMetadata();
 		final SubForm subForm = new SubForm();
 		assertFalse(form.hasSubForms());
@@ -137,7 +137,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testAddTransformer() {
+	void testAddTransformer() {
 		final Form form = new FormMetadata();
 		final FormTransformer transformer = new FormTransformer();
 		assertFalse(form.hasTransformers());
@@ -152,7 +152,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testContainsEntityField() {
+	void testContainsEntityField() {
 		final Form form = new FormMetadata();
 		final FormField field = new FormField();
 		final EntityField entityField = new EntityField();
@@ -165,7 +165,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testContainsEntityFunction() {
+	void testContainsEntityFunction() {
 		final Form form = new FormMetadata();
 		final FormAction action = new FormAction();
 		final EntityFunction function = new EntityFunction();
@@ -178,7 +178,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testContainsFilter() {
+	void testContainsFilter() {
 		final Form form = new FormMetadata();
 		final FormFieldExtra fieldExtra = new FormFieldExtra();
 		final Filter filter = new FilterMetadata();
@@ -191,7 +191,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testContainsSystemField() {
+	void testContainsSystemField() {
 		final Form form = new FormMetadata();
 		final FormField field = new FormField();
 		final SystemField systemField = SystemField.CREATEDON;
@@ -204,7 +204,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testContainsTransformer() {
+	void testContainsTransformer() {
 		final Form form = new FormMetadata();
 		final FormTransformer formTransformer = new FormTransformer();
 		final FormFieldExtra extra = new FormFieldExtra();
@@ -224,7 +224,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testContainsForm() {
+	void testContainsForm() {
 		final Form form = new FormMetadata();
 		final Form otherForm = new FormMetadata();
 		final FormAction action = new FormAction();
@@ -251,7 +251,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testGetActionByType() {
+	void testGetActionByType() {
 		final Form form = new FormMetadata();
 		final FormAction action = new FormAction();
 		final FormActionType actionType = FormActionType.CUSTOM;
@@ -265,7 +265,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testGetActionByUid() {
+	void testGetActionByUid() {
 		final Form form = new FormMetadata();
 		final FormAction action = new FormAction();
 		form.addAction(action);
@@ -279,7 +279,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testGetActions() {
+	void testGetActions() {
 		final Form form = new FormMetadata();
 		final FormAction actionList = new FormAction();
 		final FormAction actionDetail = new FormAction();
@@ -298,7 +298,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testGetFieldById() {
+	void testGetFieldById() {
 		final Form form = new FormMetadata();
 		final FormField field = new FormField();
 		form.addField(field);
@@ -312,7 +312,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testGetFieldByUid() {
+	void testGetFieldByUid() {
 		final Form form = new FormMetadata();
 		final FormField field = new FormField();
 		form.addField(field);
@@ -326,7 +326,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testGetFieldExtra() {
+	void testGetFieldExtra() {
 		final Form form = new FormMetadata();
 		final FormFieldExtra extra = new FormFieldExtra();
 		final EntityField entityField = new EntityField();
@@ -340,7 +340,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testGetFieldExtraByUid() {
+	void testGetFieldExtraByUid() {
 		final Form form = new FormMetadata();
 		final FormFieldExtra extra = new FormFieldExtra();
 		form.addFieldExtra(extra);
@@ -354,7 +354,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testGetPrintoutByUid() {
+	void testGetPrintoutByUid() {
 		final Form form = new FormMetadata();
 		final FormPrintout printout = new FormPrintout();
 		form.addPrintout(printout);
@@ -368,7 +368,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testGetRelationFormByUid() {
+	void testGetRelationFormByUid() {
 		final Form form = new FormMetadata();
 		final Entity entity = new EntityMetadata();
 		final EntityRelation relation = new EntityRelation();
@@ -388,7 +388,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testGetSelectedFields() {
+	void testGetSelectedFields() {
 		final Form form = new FormMetadata();
 		final FormField field = new FormField();
 		final FormField selectedField = new FormField();
@@ -406,7 +406,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testGetSubFormByEntityId() {
+	void testGetSubFormByEntityId() {
 		final Form form = new FormMetadata();
 		final SubForm subForm = new SubForm();
 		final NestedEntity nested = new NestedEntity();
@@ -424,7 +424,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testGetSubFormByNestedEntityId() {
+	void testGetSubFormByNestedEntityId() {
 		final Form form = new FormMetadata();
 		final SubForm subForm = new SubForm();
 		final NestedEntity nested = new NestedEntity();
@@ -442,7 +442,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testGetSubFormByNestedEntityUid() {
+	void testGetSubFormByNestedEntityUid() {
 		final Form form = new FormMetadata();
 		final SubForm subForm = new SubForm();
 		final NestedEntity nested = new NestedEntity();
@@ -460,7 +460,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testGetSubFormByUid() {
+	void testGetSubFormByUid() {
 		final Form form = new FormMetadata();
 		final SubForm subForm = new SubForm();
 		form.addSubForm(subForm);
@@ -474,7 +474,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testGetSubFormField() {
+	void testGetSubFormField() {
 		final Form form = new FormMetadata();
 		final SubForm subForm = new SubForm();
 		final SubFormField subFormField = new SubFormField();
@@ -490,7 +490,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testGetTransformerByUid() {
+	void testGetTransformerByUid() {
 		final Form form = new FormMetadata();
 		final FormTransformer transformer = new FormTransformer();
 		form.addTransformer(transformer);
@@ -504,7 +504,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testIsActionEnabled() {
+	void testIsActionEnabled() {
 		final Form form = new FormMetadata();
 		final FormAction action = new FormAction();
 		final Entity entity = new EntityMetadata();
@@ -541,7 +541,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testIsActionEnabledSubForm() {
+	void testIsActionEnabledSubForm() {
 		final Form form = new FormMetadata();
 		final SubForm subForm = new SubForm();
 		final SubFormAction action = new SubFormAction();
@@ -575,7 +575,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final Form form1 = new FormMetadata();
 		final Form form2 = new FormMetadata();
 		final FormLayout layout = new FormLayout();
@@ -597,7 +597,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testIsEqualFields() {
+	void testIsEqualFields() {
 		final Form form1 = new FormMetadata();
 		final Form form2 = new FormMetadata();
 		final FormField field1 = new FormField();
@@ -615,7 +615,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testIsEqualFieldExtras() {
+	void testIsEqualFieldExtras() {
 		final Form form1 = new FormMetadata();
 		final Form form2 = new FormMetadata();
 		final FormFieldExtra extra1 = new FormFieldExtra();
@@ -633,7 +633,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testIsEqualActions() {
+	void testIsEqualActions() {
 		final Form form1 = new FormMetadata();
 		final Form form2 = new FormMetadata();
 		final FormAction action1 = new FormAction();
@@ -651,7 +651,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testIsEqualTransformers() {
+	void testIsEqualTransformers() {
 		final Form form1 = new FormMetadata();
 		final Form form2 = new FormMetadata();
 		final FormTransformer transformer1 = new FormTransformer();
@@ -669,7 +669,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testIsEqualPrintouts() {
+	void testIsEqualPrintouts() {
 		final Form form1 = new FormMetadata();
 		final Form form2 = new FormMetadata();
 		final FormPrintout printout1 = new FormPrintout();
@@ -687,7 +687,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testIsEqualSubForms() {
+	void testIsEqualSubForms() {
 		final Form form1 = new FormMetadata();
 		final Form form2 = new FormMetadata();
 		final SubForm subForm1 = new SubForm();
@@ -705,7 +705,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testIsFieldMandatory() {
+	void testIsFieldMandatory() {
 		final Form form = new FormMetadata();
 		final EntityField field = new EntityField();
 		field.setType(FieldType.TEXT);
@@ -719,7 +719,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testIsFieldReadonly() {
+	void testIsFieldReadonly() {
 		final Form form = new FormMetadata();
 		final FormFieldExtra fieldExtra = new FormFieldExtra();
 		final SubForm subForm = new SubForm();
@@ -778,7 +778,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testIsFieldVisible() {
+	void testIsFieldVisible() {
 		final Form form = new FormMetadata();
 		final Entity entity = new EntityMetadata();
 		final EntityField field = new EntityField();
@@ -807,7 +807,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testIsRelationFormVisible() {
+	void testIsRelationFormVisible() {
 		final Form form = new FormMetadata();
 		final Entity entity = new EntityMetadata();
 		final Entity relatedEntity = new EntityMetadata();
@@ -835,7 +835,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testIsSubFormVisible() {
+	void testIsSubFormVisible() {
 		final Form form = new FormMetadata();
 		final SubForm subForm = new SubForm();
 		final Entity nestedEntity = new EntityMetadata();
@@ -863,7 +863,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testRemoveAction() {
+	void testRemoveAction() {
 		final Form form = new FormMetadata();
 		final FormAction action = new FormAction();
 		form.addAction(action);
@@ -876,7 +876,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testRemoveField() {
+	void testRemoveField() {
 		final Form form = new FormMetadata();
 		final FormField field = new FormField();
 		form.addField(field);
@@ -889,7 +889,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testRemoveFieldExtra() {
+	void testRemoveFieldExtra() {
 		final Form form = new FormMetadata();
 		final FormFieldExtra fieldExtra = new FormFieldExtra();
 		form.addFieldExtra(fieldExtra);
@@ -902,7 +902,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testRemovePrintout() {
+	void testRemovePrintout() {
 		final Form form = new FormMetadata();
 		final FormPrintout printout = new FormPrintout();
 		form.addPrintout(printout);
@@ -915,7 +915,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testRemoveRelationForm() {
+	void testRemoveRelationForm() {
 		final Form form = new FormMetadata();
 		final Entity entity = new EntityMetadata();
 		final EntityRelation relation = new EntityRelation();
@@ -931,7 +931,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testRemoveSubForm() {
+	void testRemoveSubForm() {
 		final Form form = new FormMetadata();
 		final SubForm subForm = new SubForm();
 		form.addSubForm(subForm);
@@ -944,7 +944,7 @@ public class FormTest {
 	}
 	
 	@Test
-	public void testRemoveTransformer() {
+	void testRemoveTransformer() {
 		final Form form = new FormMetadata();
 		final FormTransformer transformer = new FormTransformer();
 		form.addTransformer(transformer);

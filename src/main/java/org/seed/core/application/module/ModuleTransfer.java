@@ -197,8 +197,8 @@ public class ModuleTransfer {
 	byte[] exportModule(Module module) throws IOException {
 		Assert.notNull(module, C.MODULE);
 		
-		final FastByteArrayOutputStream baos = new FastByteArrayOutputStream();
-	    try (ZipOutputStream zos = new ZipOutputStream(baos)) {
+		try (FastByteArrayOutputStream baos = new FastByteArrayOutputStream();
+	    	 ZipOutputStream zos = new ZipOutputStream(baos)) {
 		    // write module
 		    writeZipEntry(zos, MODULE_XML_FILENAME, getModuleContent(module));
 		    // write custom libs
@@ -210,8 +210,8 @@ public class ModuleTransfer {
 		    	writeZipEntry(zos, entity.getInternalName() + TransferFormat.CSV.fileExtension, 
 		    				  transferService.doExport(entity));
 		    }
+		    return baos.toByteArray();
 	    }
-	    return baos.toByteArray();
 	}
 	
 	void exportModuleToDir(Module module) throws IOException {
@@ -364,10 +364,11 @@ public class ModuleTransfer {
 	}
 	
 	private byte[] getModuleContent(Module module) {
-		final FastByteArrayOutputStream baos = new FastByteArrayOutputStream();
-		((ModuleMetadata) module).setSchemaVersion(SchemaVersion.currentVersion());
-		marshaller.marshal(module, new StreamResult(baos));
-		return baos.toByteArray();
+		try (FastByteArrayOutputStream baos = new FastByteArrayOutputStream()) {
+			((ModuleMetadata) module).setSchemaVersion(SchemaVersion.currentVersion());
+			marshaller.marshal(module, new StreamResult(baos));
+			return baos.toByteArray();
+		}
 	}
 	
 	private static boolean isTransferFile(String fileName) {

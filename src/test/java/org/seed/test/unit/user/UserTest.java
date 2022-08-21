@@ -33,10 +33,10 @@ import org.seed.core.user.UserGroupAuthorisation;
 import org.seed.core.user.UserGroupMetadata;
 import org.seed.core.user.UserMetadata;
 
-public class UserTest {
+class UserTest {
 	
 	@Test
-	public void testBelongsTo() {
+	void testBelongsTo() {
 		final User user = new UserMetadata();
 		final UserGroupMetadata group = new UserGroupMetadata();
 		final Set<UserGroupMetadata> groups = new HashSet<>();
@@ -50,7 +50,7 @@ public class UserTest {
 	}
 	
 	@Test
-	public void testbelongsToOneOf() {
+	void testbelongsToOneOf() {
 		final User user = new UserMetadata();
 		final UserGroupMetadata group = new UserGroupMetadata();
 		final Set<UserGroupMetadata> groups = new HashSet<>();
@@ -62,7 +62,7 @@ public class UserTest {
 	}
 	
 	@Test
-	public void testHasAdminAuthorisations() {
+	void testHasAdminAuthorisations() {
 		final User user = new UserMetadata();
 		final UserGroupAuthorisation groupAuthorisation = new UserGroupAuthorisation();
 		final UserGroupMetadata group = new UserGroupMetadata();
@@ -88,7 +88,7 @@ public class UserTest {
 	}
 	
 	@Test
-	public void testIsAuthorised() {
+	void testIsAuthorised() {
 		final User user = new UserMetadata();
 		final UserGroupAuthorisation groupAuthorisation = new UserGroupAuthorisation();
 		final UserGroupMetadata group = new UserGroupMetadata();

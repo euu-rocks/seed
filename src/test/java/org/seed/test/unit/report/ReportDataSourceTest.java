@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import org.seed.core.report.ReportDataSource;
 
-public class ReportDataSourceTest {
+class ReportDataSourceTest {
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final ReportDataSource dataSource1 = new ReportDataSource();
 		final ReportDataSource dataSource2 = new ReportDataSource();
 		assertTrue(dataSource1.isEqual(dataSource2));

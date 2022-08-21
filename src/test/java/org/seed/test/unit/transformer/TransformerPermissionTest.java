@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import org.seed.core.entity.transform.TransformerPermission;
 
-public class TransformerPermissionTest {
+class TransformerPermissionTest {
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final TransformerPermission permission1 = new TransformerPermission();
 		final TransformerPermission permission2 = new TransformerPermission();
 		assertTrue(permission1.isEqual(permission2));

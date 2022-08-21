@@ -303,7 +303,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 				validateColumnName(entity, field, errors);
 			}
 			else if (field.getInternalName() != null) {
-				validateDerivedColumnName(entity, field, errors);
+				validateDerivedColumnName(field, errors);
 			}
 			if (field.isCalculated()) {
 				validateCalculatedField(entity, field, errors);
@@ -419,7 +419,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		}
 	}
 	
-	private void validateDerivedColumnName(Entity entity, EntityField field, final ValidationErrors errors) {
+	private void validateDerivedColumnName(EntityField field, final ValidationErrors errors) {
 		if (NameUtils.isIllegalColumnName(field.getInternalName())) {
 			errors.addError("val.illegal.columnname", field.getName(), field.getInternalName());
 		}

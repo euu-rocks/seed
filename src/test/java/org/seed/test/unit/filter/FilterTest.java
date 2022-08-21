@@ -29,10 +29,10 @@ import org.seed.core.entity.filter.FilterCriterion;
 import org.seed.core.entity.filter.FilterMetadata;
 import org.seed.core.entity.filter.FilterPermission;
 
-public class FilterTest {
+class FilterTest {
 	
 	@Test
-	public void testAddCriterion() {
+	void testAddCriterion() {
 		final Filter filter = new FilterMetadata();
 		final FilterCriterion criterion = new FilterCriterion();
 		assertFalse(filter.hasCriteria());
@@ -47,7 +47,7 @@ public class FilterTest {
 	}
 	
 	@Test
-	public void testGetCriterionByUid() {
+	void testGetCriterionByUid() {
 		final Filter filter = new FilterMetadata();
 		final FilterCriterion criterion = new FilterCriterion();
 		criterion.setUid("other");
@@ -61,7 +61,7 @@ public class FilterTest {
 	}
 	
 	@Test
-	public void testGetPermissionByUid() {
+	void testGetPermissionByUid() {
 		final Filter filter = new FilterMetadata();
 		final FilterPermission permission = new FilterPermission();
 		final List<FilterPermission> permissions = new ArrayList<>();
@@ -77,7 +77,7 @@ public class FilterTest {
 	}
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final Filter filter1 = new FilterMetadata();
 		final Filter filter2 = new FilterMetadata();
 		assertTrue(filter1.isEqual(filter2));
@@ -90,7 +90,7 @@ public class FilterTest {
 	}
 	
 	@Test
-	public void testIsEqualCriteria() {
+	void testIsEqualCriteria() {
 		final Filter filter1 = new FilterMetadata();
 		final Filter filter2 = new FilterMetadata();
 		final FilterCriterion criterion1 = new FilterCriterion();
@@ -108,7 +108,7 @@ public class FilterTest {
 	}
 	
 	@Test
-	public void testIsEqualPermissions() {
+	void testIsEqualPermissions() {
 		final Filter filter1 = new FilterMetadata();
 		final Filter filter2 = new FilterMetadata();
 		final FilterPermission permission1 = new FilterPermission();
@@ -130,7 +130,7 @@ public class FilterTest {
 	}
 	
 	@Test
-	public void testRemoveCriterion() {
+	void testRemoveCriterion() {
 		final Filter filter = new FilterMetadata();
 		final FilterCriterion criterion = new FilterCriterion();
 		filter.addCriterion(criterion);

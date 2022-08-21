@@ -53,8 +53,8 @@ class CSVProcessor extends AbstractTransferProcessor {
 	
 	@Override
 	public byte[] doExport() {
-		final FastByteArrayOutputStream out = new FastByteArrayOutputStream();
-		try (PrintWriter writer = new PrintWriter(out, false, getCharset())) {
+		try (FastByteArrayOutputStream out = new FastByteArrayOutputStream();
+			 PrintWriter writer = new PrintWriter(out, false, getCharset())) {
 			final StatefulBeanToCsvBuilder<ValueObject> builder = 
 				new StatefulBeanToCsvBuilder<ValueObject>(writer)
 					.withMappingStrategy(createMappingStrategy())
@@ -79,11 +79,11 @@ class CSVProcessor extends AbstractTransferProcessor {
 			while (hasNextObject()) {
 				beanToCsv.write(getNextObject());
 			}
+			return out.toByteArray();
 		} 
 		catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
 			throw new InternalException(e);
 		}
-		return out.toByteArray();
 	}
 	
 	@Override

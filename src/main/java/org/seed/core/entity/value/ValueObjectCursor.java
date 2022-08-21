@@ -31,7 +31,7 @@ public abstract class ValueObjectCursor<T extends ValueObject> implements DBCurs
 	
 	private int chunkIndex = 0;
 	
-	public ValueObjectCursor(QueryCursor<T> queryCursor) {
+	protected ValueObjectCursor(QueryCursor<T> queryCursor) {
 		Assert.notNull(queryCursor, "query cursor");
 		
 		this.queryCursor = queryCursor;

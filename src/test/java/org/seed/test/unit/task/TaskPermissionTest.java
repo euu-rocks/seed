@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import org.seed.core.task.TaskPermission;
 
-public class TaskPermissionTest {
+class TaskPermissionTest {
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final TaskPermission permission1 = new TaskPermission();
 		final TaskPermission permission2 = new TaskPermission();
 		assertTrue(permission1.isEqual(permission2));

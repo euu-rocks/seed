@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 import org.seed.core.data.FieldAccess;
 import org.seed.core.entity.EntityFieldConstraint;
 
-public class EntityFieldConstraintTest {
+class EntityFieldConstraintTest {
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final EntityFieldConstraint constraint1 = new EntityFieldConstraint();
 		final EntityFieldConstraint constraint2 = new EntityFieldConstraint();
 		assertTrue(constraint1.isEqual(constraint2));

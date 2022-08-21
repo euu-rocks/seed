@@ -32,10 +32,10 @@ import org.seed.core.task.TaskParameter;
 import org.seed.core.task.TaskPermission;
 import org.seed.core.task.TaskRun;
 
-public class TaskTest {
+class TaskTest {
 	
 	@Test
-	public void testAddNotification() {
+	void testAddNotification() {
 		final Task task = new TaskMetadata();
 		final TaskNotification notification = new TaskNotification();
 		assertFalse(task.hasNotifications());
@@ -50,7 +50,7 @@ public class TaskTest {
 	}
 	
 	@Test
-	public void testAddParameter() {
+	void testAddParameter() {
 		final Task task = new TaskMetadata();
 		final TaskParameter parameter = new TaskParameter();
 		assertFalse(task.hasParameters());
@@ -65,7 +65,7 @@ public class TaskTest {
 	}
 	
 	@Test
-	public void testAddRun() {
+	void testAddRun() {
 		final Task task = new TaskMetadata();
 		final TaskRun run = new TaskRun();
 		assertNull(task.getRuns());
@@ -78,7 +78,7 @@ public class TaskTest {
 	}
 	
 	@Test
-	public void testGetParameterByUid() {
+	void testGetParameterByUid() {
 		final Task task = new TaskMetadata();
 		final TaskParameter parameter = new TaskParameter();
 		parameter.setUid("other");
@@ -92,7 +92,7 @@ public class TaskTest {
 	}
 	
 	@Test
-	public void testGetPermissionByUid() {
+	void testGetPermissionByUid() {
 		final Task task = new TaskMetadata();
 		final TaskPermission permission = new TaskPermission();
 		final List<TaskPermission> permissions = new ArrayList<>();
@@ -108,7 +108,7 @@ public class TaskTest {
 	}
 	
 	@Test
-	public void testGetRunById() {
+	void testGetRunById() {
 		final Task task = new TaskMetadata();
 		final TaskRun run = new TaskRun();
 		run.setId(987L);
@@ -122,7 +122,7 @@ public class TaskTest {
 	}
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final Task task1 = new TaskMetadata();
 		final Task task2 = new TaskMetadata();
 		final Date dateStart = new Date();
@@ -148,7 +148,7 @@ public class TaskTest {
 	}
 	
 	@Test
-	public void testIsEqualParameters() {
+	void testIsEqualParameters() {
 		final Task task1 = new TaskMetadata();
 		final Task task2 = new TaskMetadata();
 		final TaskParameter parameter1 = new TaskParameter();
@@ -166,7 +166,7 @@ public class TaskTest {
 	}
 	
 	@Test
-	public void testIsEqualPermissions() {
+	void testIsEqualPermissions() {
 		final Task task1 = new TaskMetadata();
 		final Task task2 = new TaskMetadata();
 		final TaskPermission permission1 = new TaskPermission();
@@ -188,7 +188,7 @@ public class TaskTest {
 	}
 	
 	@Test
-	public void testRemoveNotification() {
+	void testRemoveNotification() {
 		final Task task = new TaskMetadata();
 		final TaskNotification notification = new TaskNotification();
 		task.addNotification(notification);
@@ -201,7 +201,7 @@ public class TaskTest {
 	}
 	
 	@Test
-	public void testRemoveParameter() {
+	void testRemoveParameter() {
 		final Task task = new TaskMetadata();
 		final TaskParameter parameter = new TaskParameter();
 		task.addParameter(parameter);

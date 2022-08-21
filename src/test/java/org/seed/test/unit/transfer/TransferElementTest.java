@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.transfer.TransferElement;
 
-public class TransferElementTest {
+class TransferElementTest {
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final TransferElement element1 = new TransferElement();
 		final TransferElement element2 = new TransferElement();
 		final EntityField field = new EntityField();

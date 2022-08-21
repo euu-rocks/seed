@@ -22,10 +22,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.seed.core.rest.RestPermission;
 
-public class RestPermissionTest {
+class RestPermissionTest {
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final RestPermission permission1 = new RestPermission();
 		final RestPermission permission2 = new RestPermission();
 		assertTrue(permission1.isEqual(permission2));

@@ -839,29 +839,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		}
 		if (schemaVersion == SchemaVersion.V_0_9_33) {
 			// mask table and column names that equals SQL keywords
-			for (Entity entity : context.getModule().getEntities()) {
-				if (entity.getTableName() != null) {
-					if (NameUtils.isSqlKeyword(entity.getTableName())) {
-						((EntityMetadata) entity).setTableName(entity.getTableName() + '_');
-					}
-				}
-				else if (NameUtils.isSqlKeyword(entity.getInternalName())) {
-					((EntityMetadata) entity).setTableName(entity.getInternalName() + '_');
-				}
-				if (!entity.hasFields()) {
-					continue;
-				}
-				for (EntityField field : entity.getFields()) {
-					if (field.getColumnName() != null) {
-						if (NameUtils.isSqlKeyword(field.getColumnName())) {
-							field.setColumnName(field.getColumnName() + '_');
-						}
-					}
-					else if (NameUtils.isSqlKeyword(field.getInternalName())) {
-						field.setColumnName(field.getInternalName() + '_');
-					}
-				}
-			}
+			new SchemaUpdateHandler0_9_33().process(context.getModule());
 		}
 	}
 	
@@ -1336,5 +1314,41 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 			return changeLog.getChangeSet().contains("createTable") ? 1 : 2;
 		}
 	};
+	
+	// mask table and column names that equals SQL keywords
+	private class SchemaUpdateHandler0_9_33 {
+		
+		void process(Module module) {
+			module.getEntities().forEach(this::process);
+		}
+		
+		private void process(Entity entity) {
+			if (entity.getTableName() != null) {
+				if (NameUtils.isSqlKeyword(entity.getTableName())) {
+					((EntityMetadata) entity).setTableName(entity.getTableName() + '_');
+				}
+			}
+			else if (NameUtils.isSqlKeyword(entity.getInternalName())) {
+				((EntityMetadata) entity).setTableName(entity.getInternalName() + '_');
+			}
+			if (entity.hasFields()) {
+				processFields(entity);
+			}
+		}
+		
+		private void processFields(Entity entity) {
+			for (EntityField field : entity.getFields()) {
+				if (field.getColumnName() != null) {
+					if (NameUtils.isSqlKeyword(field.getColumnName())) {
+						field.setColumnName(field.getColumnName() + '_');
+					}
+				}
+				else if (NameUtils.isSqlKeyword(field.getInternalName())) {
+					field.setColumnName(field.getInternalName() + '_');
+				}
+			}
+		}
+		
+	}
 
 }

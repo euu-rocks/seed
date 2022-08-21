@@ -775,53 +775,54 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		
 		column.setName(field.getEffectiveColumnName());
 		column.setType(getDBFieldType(field));
-		if (isAuditTable) {
-			return column;
-		}
 		
 		// constraints
-		if (field.isMandatory() || field.isUnique() || field.getType().isBoolean()) {
-			final ConstraintsConfig constraints = new ConstraintsConfig();
-			if (field.isMandatory() || field.getType().isBoolean()) {
-				constraints.setNullable(Boolean.FALSE);
-				if (currentVersionObject != null && existValueObjects) {
-					switch (field.getType()) {
-						case TEXT:
-						case TEXTLONG:
-							column.setDefaultValue(field.getDefaultString());
-							break;
-						case DATE:
-						case DATETIME:
-							column.setDefaultValueDate(field.getDefaultDate());
-							break;
-						case REFERENCE:
-							column.setDefaultValueNumeric(field.getDefaultObject().getId());
-							break;
-						case INTEGER:
-						case LONG:
-						case DECIMAL:
-						case DOUBLE:
-							column.setDefaultValueNumeric(field.getDefaultNumber());
-							break;
-						case BOOLEAN:
-							column.setDefaultValueBoolean(false);
-							break;
-						case AUTONUM:
-						case BINARY:
-						case FILE:
-							break;
-						default:
-							throw new UnsupportedOperationException(field.getType().name());
-					}
-				}
-			}
-			if (field.isUnique()) {
-				constraints.setUnique(Boolean.TRUE);
-				constraints.setUniqueConstraintName(getUniqueConstraintName(entity, field));
-			}
-			column.setConstraints(constraints);
+		if (!isAuditTable && (field.isMandatory() || field.isUnique() || field.getType().isBoolean())) {
+			initColumnConstraints(column, entity, field);
 		}
 		return column;
+	}
+	
+	private void initColumnConstraints(ColumnConfig column, Entity entity,EntityField field) {
+		final ConstraintsConfig constraints = new ConstraintsConfig();
+		if (field.isMandatory() || field.getType().isBoolean()) {
+			constraints.setNullable(Boolean.FALSE);
+			if (currentVersionObject != null && existValueObjects) {
+				switch (field.getType()) {
+					case TEXT:
+					case TEXTLONG:
+						column.setDefaultValue(field.getDefaultString());
+						break;
+					case DATE:
+					case DATETIME:
+						column.setDefaultValueDate(field.getDefaultDate());
+						break;
+					case REFERENCE:
+						column.setDefaultValueNumeric(field.getDefaultObject().getId());
+						break;
+					case INTEGER:
+					case LONG:
+					case DECIMAL:
+					case DOUBLE:
+						column.setDefaultValueNumeric(field.getDefaultNumber());
+						break;
+					case BOOLEAN:
+						column.setDefaultValueBoolean(false);
+						break;
+					case AUTONUM:
+					case BINARY:
+					case FILE:
+						break;
+					default:
+						throw new UnsupportedOperationException(field.getType().name());
+				}
+			}
+		}
+		if (field.isUnique()) {
+			constraints.setUnique(Boolean.TRUE);
+			constraints.setUniqueConstraintName(getUniqueConstraintName(entity, field));
+		}
+		column.setConstraints(constraints);
 	}
 	
 	private void addCreateIndexChangeSet(Entity entity, EntityField field) {

@@ -22,10 +22,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.seed.core.entity.transform.TransformerFunction;
 
-public class TransformerFunctionTest {
+class TransformerFunctionTest {
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final TransformerFunction function1 = new TransformerFunction();
 		final TransformerFunction function2 = new TransformerFunction();
 		assertTrue(function1.isEqual(function2));

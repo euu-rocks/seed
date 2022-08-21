@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 import org.seed.core.entity.EntityAccess;
 import org.seed.core.entity.EntityPermission;
 
-public class EntityPermissionTest {
+class EntityPermissionTest {
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final EntityPermission permission1 = new EntityPermission();
 		final EntityPermission permission2 = new EntityPermission();
 		assertTrue(permission1.isEqual(permission2));

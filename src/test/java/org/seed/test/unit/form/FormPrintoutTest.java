@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import org.seed.core.form.FormPrintout;
 
-public class FormPrintoutTest {
+class FormPrintoutTest {
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final FormPrintout printout1 = new FormPrintout();
 		final FormPrintout printout2 = new FormPrintout();
 		final byte[] content = new byte[0];

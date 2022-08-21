@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 import org.seed.core.form.FormActionType;
 import org.seed.core.form.SubFormAction;
 
-public class SubFormActionTest {
+class SubFormActionTest {
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final SubFormAction action1 = new SubFormAction();
 		final SubFormAction action2 = new SubFormAction();
 		assertTrue(action1.isEqual(action2));

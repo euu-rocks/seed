@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import org.seed.core.entity.filter.FilterPermission;
 
-public class FilterPermissionTest {
+class FilterPermissionTest {
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final FilterPermission permission1 = new FilterPermission();
 		final FilterPermission permission2 = new FilterPermission();
 		assertTrue(permission1.isEqual(permission2));

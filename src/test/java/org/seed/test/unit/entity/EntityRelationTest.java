@@ -25,10 +25,10 @@ import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityMetadata;
 import org.seed.core.entity.EntityRelation;
 
-public class EntityRelationTest {
+class EntityRelationTest {
 	
 	@Test
-	public void testCreateDescendantRelation() {
+	void testCreateDescendantRelation() {
 		final EntityRelation relation = new EntityRelation();
 		final Entity relatedEntity = new EntityMetadata();
 		final Entity descendantEntity = new EntityMetadata();
@@ -41,7 +41,7 @@ public class EntityRelationTest {
 	}
 	
 	@Test
-	public void testCreateInverseRelation() {
+	void testCreateInverseRelation() {
 		final EntityRelation relation = new EntityRelation();
 		final Entity relatedEntity = new EntityMetadata();
 		final Entity entity = new EntityMetadata();
@@ -54,7 +54,7 @@ public class EntityRelationTest {
 	}
 	
 	@Test
-	public void testGetInverseJoinColumnName() {
+	void testGetInverseJoinColumnName() {
 		final EntityRelation relation = new EntityRelation();
 		final Entity relatedEntity = new EntityMetadata();
 		relation.setRelatedEntity(relatedEntity);
@@ -67,7 +67,7 @@ public class EntityRelationTest {
 	}
 	
 	@Test
-	public void testGetJoinColumnName() {
+	void testGetJoinColumnName() {
 		final EntityRelation relation = new EntityRelation();
 		final Entity entity = new EntityMetadata();
 		relation.setEntity(entity);
@@ -80,7 +80,7 @@ public class EntityRelationTest {
 	}
 	
 	@Test
-	public void testGetJoinTableName() {
+	void testGetJoinTableName() {
 		final EntityRelation relation = new EntityRelation();
 		final Entity entity = new EntityMetadata();
 		final Entity relatedEntity = new EntityMetadata();
@@ -97,7 +97,7 @@ public class EntityRelationTest {
 	}
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final EntityRelation relation1 = new EntityRelation();
 		final EntityRelation relation2 = new EntityRelation();
 		assertTrue(relation1.isEqual(relation2));
@@ -112,7 +112,7 @@ public class EntityRelationTest {
 	}
 	
 	@Test
-	public void testIsRelated() {
+	void testIsRelated() {
 		final EntityRelation relation = new EntityRelation();
 		final Entity entity = new EntityMetadata();
 		final Entity relatedEntity = new EntityMetadata();

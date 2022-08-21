@@ -184,20 +184,21 @@ public class ValueObjectValidator implements ApplicationContextAware {
 	private void validateNestedObjects(NestedEntity nested, List<ValueObject> nestedObjects, 
 									   ValidationErrors errors) {
 		for (ValueObject nestedObject : nestedObjects) {
-			for (EntityField field : nested.getFields(true)) {
-				if (field.getType().isAutonum()) {
-					continue;
-				}
-				final Object value = objectAccess.getValue(nestedObject, field);
-				if (field.isMandatory() && isEmpty(value)) {
-					errors.addError("val.empty.subfield", field.getName(), nested.getName());
-				}
-				else if (field.getType().isText()) {
-					final String stringValue = (String) value;
-					if (stringValue != null && stringValue.length() > getMaxFieldLength(field)) {
-						errors.addOverlongObjectField(field.getName(), nested.getName(), getMaxFieldLength(field));
-					}
-				}
+			nested.getFields(true).stream().filter(field -> !field.getType().isAutonum())
+				  .forEach(field -> validateNestedObjectField(nestedObject, nested, field, errors));
+		}
+	}
+	
+	private void validateNestedObjectField(ValueObject nestedObject, NestedEntity nested, EntityField field, 
+										   ValidationErrors errors) {
+		final Object value = objectAccess.getValue(nestedObject, field);
+		if (field.isMandatory() && isEmpty(value)) {
+			errors.addError("val.empty.subfield", field.getName(), nested.getName());
+		}
+		else if (field.getType().isText()) {
+			final String stringValue = (String) value;
+			if (stringValue != null && stringValue.length() > getMaxFieldLength(field)) {
+				errors.addOverlongObjectField(field.getName(), nested.getName(), getMaxFieldLength(field));
 			}
 		}
 	}

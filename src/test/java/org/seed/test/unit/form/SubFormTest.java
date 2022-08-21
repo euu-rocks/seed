@@ -34,10 +34,10 @@ import org.seed.core.form.SubForm;
 import org.seed.core.form.SubFormAction;
 import org.seed.core.form.SubFormField;
 
-public class SubFormTest {
+class SubFormTest {
 	
 	@Test
-	public void testAddAction() {
+	void testAddAction() {
 		final SubForm subForm = new SubForm();
 		final SubFormAction action = new SubFormAction();
 		assertFalse(subForm.hasActions());
@@ -50,7 +50,7 @@ public class SubFormTest {
 	}
 	
 	@Test
-	public void testAddField() {
+	void testAddField() {
 		final SubForm subForm = new SubForm();
 		final SubFormField field = new SubFormField();
 		assertFalse(subForm.hasFields());
@@ -63,7 +63,7 @@ public class SubFormTest {
 	}
 	
 	@Test
-	public void testContainsEntityField() {
+	void testContainsEntityField() {
 		final SubForm subForm = new SubForm();
 		final SubFormField field = new SubFormField();
 		final EntityField entityField = new EntityField();
@@ -76,7 +76,7 @@ public class SubFormTest {
 	}
 	
 	@Test
-	public void testContainsEntityFunction() {
+	void testContainsEntityFunction() {
 		final SubForm subForm = new SubForm();
 		final SubFormAction action = new SubFormAction();
 		final EntityFunction function = new EntityFunction();
@@ -89,7 +89,7 @@ public class SubFormTest {
 	}
 	
 	@Test
-	public void testContainsFilter() {
+	void testContainsFilter() {
 		final SubForm subForm = new SubForm();
 		final SubFormField field = new SubFormField();
 		final Filter filter = new FilterMetadata();
@@ -102,7 +102,7 @@ public class SubFormTest {
 	}
 	
 	@Test
-	public void testContainsForm() {
+	void testContainsForm() {
 		final Form form = new FormMetadata();
 		final SubForm subForm = new SubForm();
 		final SubFormField field = new SubFormField();
@@ -115,7 +115,7 @@ public class SubFormTest {
 	}
 	
 	@Test
-	public void testContainsTransformer() {
+	void testContainsTransformer() {
 		final SubForm subForm = new SubForm();
 		final SubFormField field = new SubFormField();
 		final Transformer transformer = new TransformerMetadata();
@@ -128,7 +128,7 @@ public class SubFormTest {
 	}
 	
 	@Test
-	public void testGetActionByType() {
+	void testGetActionByType() {
 		final SubForm subForm = new SubForm();
 		final SubFormAction action = new SubFormAction();
 		subForm.addAction(action);
@@ -139,7 +139,7 @@ public class SubFormTest {
 	}
 	
 	@Test
-	public void testGetActionByUid() {
+	void testGetActionByUid() {
 		final SubForm subForm = new SubForm();
 		final SubFormAction action = new SubFormAction();
 		subForm.addAction(action);
@@ -152,7 +152,7 @@ public class SubFormTest {
 	}
 	
 	@Test
-	public void testGetFieldByEntityFieldUid() {
+	void testGetFieldByEntityFieldUid() {
 		final SubForm subForm = new SubForm();
 		final SubFormField field = new SubFormField();
 		final EntityField entityField = new EntityField();
@@ -167,7 +167,7 @@ public class SubFormTest {
 	}
 	
 	@Test
-	public void testGetFieldByUid() {
+	void testGetFieldByUid() {
 		final SubForm subForm = new SubForm();
 		final SubFormField field = new SubFormField();
 		subForm.addField(field);
@@ -180,7 +180,7 @@ public class SubFormTest {
 	}
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final SubForm subForm1 = new SubForm();
 		final SubForm subForm2 = new SubForm();
 		assertTrue(subForm1.isEqual(subForm2));
@@ -196,7 +196,7 @@ public class SubFormTest {
 	}
 	
 	@Test
-	public void testIsEqualFields() {
+	void testIsEqualFields() {
 		final SubForm subForm1 = new SubForm();
 		final SubForm subForm2 = new SubForm();
 		final SubFormField field1 = new SubFormField();
@@ -214,7 +214,7 @@ public class SubFormTest {
 	}
 	
 	@Test
-	public void testIsEqualActions() {
+	void testIsEqualActions() {
 		final SubForm subForm1 = new SubForm();
 		final SubForm subForm2 = new SubForm();
 		final SubFormAction action1 = new SubFormAction();

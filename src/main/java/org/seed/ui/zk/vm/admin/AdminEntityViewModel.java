@@ -226,7 +226,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 											? nested.getFields(true) 
 											: getObject().getAllFields();
 		return fields.stream()
-					 .filter(field -> !field.getType().isAutonum())
+					 .filter(entityField -> !entityField.getType().isAutonum())
 					 .collect(Collectors.toList());
 	}
 	

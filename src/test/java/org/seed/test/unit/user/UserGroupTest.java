@@ -28,10 +28,10 @@ import org.seed.core.user.Authorisation;
 import org.seed.core.user.UserGroupAuthorisation;
 import org.seed.core.user.UserGroupMetadata;
 
-public class UserGroupTest {
+class UserGroupTest {
 	
 	@Test
-	public void testGetAuthorisationByUid() {
+	void testGetAuthorisationByUid() {
 		final UserGroupMetadata group = new UserGroupMetadata();
 		final UserGroupAuthorisation groupAuthorisation = new UserGroupAuthorisation();
 		final List<UserGroupAuthorisation> authorisations = new ArrayList<>();
@@ -47,7 +47,7 @@ public class UserGroupTest {
 	}
 	
 	@Test
-	public void testIsAuthorised() {
+	void testIsAuthorised() {
 		final UserGroupMetadata group = new UserGroupMetadata();
 		final UserGroupAuthorisation groupAuthorisation = new UserGroupAuthorisation();
 		final List<UserGroupAuthorisation> authorisations = new ArrayList<>();

@@ -25,10 +25,10 @@ import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityFunction;
 import org.seed.core.entity.EntityMetadata;
 
-public class EntityFunctionTest {
+class EntityFunctionTest {
 	
 	@Test
-	public void testGetGeneratedPackage() {
+	void testGetGeneratedPackage() {
 		final Entity entity = new EntityMetadata();
 		final EntityFunction function = new EntityFunction();
 		function.setEntity(entity);
@@ -38,7 +38,7 @@ public class EntityFunctionTest {
 	}
 	
 	@Test
-	public void testGetGeneratedClass() {
+	void testGetGeneratedClass() {
 		final EntityFunction function = new EntityFunction();
 		function.setName("tästSomething");
 		
@@ -46,7 +46,7 @@ public class EntityFunctionTest {
 	}
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final EntityFunction function1 = new EntityFunction();
 		final EntityFunction function2 = new EntityFunction();
 		assertTrue(function1.isEqual(function2));

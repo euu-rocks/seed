@@ -43,10 +43,10 @@ import org.seed.core.rest.RestMetadata;
 import org.seed.core.task.TaskMetadata;
 import org.seed.core.user.UserGroupMetadata;
 
-public class ModuleTest {
+class ModuleTest {
 	
 	@Test
-	public void testAddParameter() {
+	void testAddParameter() {
 		final Module module = new ModuleMetadata();
 		final ModuleParameter param = new ModuleParameter();
 		assertFalse(module.hasParameters());
@@ -59,7 +59,7 @@ public class ModuleTest {
 	}
 	
 	@Test
-	public void testAddTransferContent() {
+	void testAddTransferContent() {
 		final Module module = new ModuleMetadata();
 		final Entity entity = new EntityMetadata();
 		((EntityMetadata) entity).setUid("test");
@@ -71,7 +71,7 @@ public class ModuleTest {
 	}
 	
 	@Test
-	public void testGetTransferContent() {
+	void testGetTransferContent() {
 		final Module module = new ModuleMetadata();
 		final Entity entity = new EntityMetadata();
 		final byte[] content = "text".getBytes();
@@ -84,7 +84,7 @@ public class ModuleTest {
 	}
 	
 	@Test
-	public void testGetCustomCodeByUid() {
+	void testGetCustomCodeByUid() {
 		final Module module = new ModuleMetadata();
 		final CustomCodeMetadata customCode = new CustomCodeMetadata();
 		final List<CustomCodeMetadata> customCodes = new ArrayList<>();
@@ -99,7 +99,7 @@ public class ModuleTest {
 	}
 	
 	@Test
-	public void testGetCustomLibByUid() {
+	void testGetCustomLibByUid() {
 		final Module module = new ModuleMetadata();
 		final CustomLibMetadata customLib = new CustomLibMetadata();
 		final List<CustomLibMetadata> customLibs = new ArrayList<>();
@@ -114,7 +114,7 @@ public class ModuleTest {
 	}
 	
 	@Test
-	public void testGetDataSourceByUid() {
+	void testGetDataSourceByUid() {
 		final Module module = new ModuleMetadata();
 		final DataSourceMetadata dataSource = new DataSourceMetadata();
 		final List<DataSourceMetadata> dataSources = new ArrayList<>();
@@ -129,7 +129,7 @@ public class ModuleTest {
 	}
 	
 	@Test
-	public void testGetDBObjectByUid() {
+	void testGetDBObjectByUid() {
 		final Module module = new ModuleMetadata();
 		final DBObjectMetadata dbObject = new DBObjectMetadata();
 		final List<DBObjectMetadata> dbObjects = new ArrayList<>();
@@ -144,7 +144,7 @@ public class ModuleTest {
 	}
 	
 	@Test
-	public void testGetEntityByUid() {
+	void testGetEntityByUid() {
 		final Module module = new ModuleMetadata();
 		final EntityMetadata entity = new EntityMetadata();
 		final List<EntityMetadata> entities = new ArrayList<>();
@@ -159,7 +159,7 @@ public class ModuleTest {
 	}
 	
 	@Test
-	public void testGetFilterByUid() {
+	void testGetFilterByUid() {
 		final Module module = new ModuleMetadata();
 		final FilterMetadata filter = new FilterMetadata();
 		final List<FilterMetadata> filters = new ArrayList<>();
@@ -174,7 +174,7 @@ public class ModuleTest {
 	}
 	
 	@Test
-	public void testGetFormByUid() {
+	void testGetFormByUid() {
 		final Module module = new ModuleMetadata();
 		final FormMetadata form = new FormMetadata();
 		final List<FormMetadata> forms = new ArrayList<>();
@@ -189,7 +189,7 @@ public class ModuleTest {
 	}
 	
 	@Test
-	public void testGetMenuByUid() {
+	void testGetMenuByUid() {
 		final Module module = new ModuleMetadata();
 		final MenuMetadata menu = new MenuMetadata();
 		final List<MenuMetadata> menus = new ArrayList<>();
@@ -204,7 +204,7 @@ public class ModuleTest {
 	}
 	
 	@Test
-	public void testGetParameterByUid() {
+	void testGetParameterByUid() {
 		final Module module = new ModuleMetadata();
 		final ModuleParameter param = new ModuleParameter();
 		module.addParameter(param);
@@ -217,7 +217,7 @@ public class ModuleTest {
 	}
 	
 	@Test
-	public void testGetReportByUid() {
+	void testGetReportByUid() {
 		final Module module = new ModuleMetadata();
 		final ReportMetadata report = new ReportMetadata();
 		final List<ReportMetadata> reports = new ArrayList<>();
@@ -232,7 +232,7 @@ public class ModuleTest {
 	}
 	
 	@Test
-	public void testGetRestByUid() {
+	void testGetRestByUid() {
 		final Module module = new ModuleMetadata();
 		final RestMetadata rest = new RestMetadata();
 		final List<RestMetadata> rests = new ArrayList<>();
@@ -247,7 +247,7 @@ public class ModuleTest {
 	}
 	
 	@Test
-	public void testGetTaskByUid() {
+	void testGetTaskByUid() {
 		final Module module = new ModuleMetadata();
 		final TaskMetadata task = new TaskMetadata();
 		final List<TaskMetadata> tasks = new ArrayList<>();
@@ -262,7 +262,7 @@ public class ModuleTest {
 	}
 	
 	@Test
-	public void testGetTransferByUid() {
+	void testGetTransferByUid() {
 		final Module module = new ModuleMetadata();
 		final TransferMetadata transfer = new TransferMetadata();
 		final List<TransferMetadata> transfers = new ArrayList<>();
@@ -277,7 +277,7 @@ public class ModuleTest {
 	}
 	
 	@Test
-	public void testGetTransformerByUid() {
+	void testGetTransformerByUid() {
 		final Module module = new ModuleMetadata();
 		final TransformerMetadata transformer = new TransformerMetadata();
 		final List<TransformerMetadata> transformers = new ArrayList<>();
@@ -292,7 +292,7 @@ public class ModuleTest {
 	}
 	
 	@Test
-	public void testGetUserGroupByUid() {
+	void testGetUserGroupByUid() {
 		final Module module = new ModuleMetadata();
 		final UserGroupMetadata group = new UserGroupMetadata();
 		final List<UserGroupMetadata> groups = new ArrayList<>();
@@ -307,7 +307,7 @@ public class ModuleTest {
 	}
 	
 	@Test
-	public void testRemoveParameter() {
+	void testRemoveParameter() {
 		final Module module = new ModuleMetadata();
 		final ModuleParameter param = new ModuleParameter();
 		module.addParameter(param);

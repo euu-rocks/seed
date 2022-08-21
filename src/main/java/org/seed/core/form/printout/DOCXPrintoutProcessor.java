@@ -81,7 +81,8 @@ class DOCXPrintoutProcessor extends AbstractPrintoutProcessor {
 		Assert.notNull(printout, C.PRINTOUT);
 		Assert.notNull(valueObject, "valueObject");
 		
-		try (XWPFDocument document = new XWPFDocument(getInputStream(printout))) {
+		try (FastByteArrayOutputStream baos = new FastByteArrayOutputStream();
+			 XWPFDocument document = new XWPFDocument(getInputStream(printout))) {
 			for (XWPFParagraph paragraph : document.getParagraphs()) {
 				processParagraph(paragraph, valueObject, null, null);
 			}
@@ -112,7 +113,6 @@ class DOCXPrintoutProcessor extends AbstractPrintoutProcessor {
 					table.addRow(row, removeRowIdx++);
 				}
 			}
-			final FastByteArrayOutputStream baos = new FastByteArrayOutputStream();
 			document.write(baos);
 			return baos.toByteArray();
 		} 

@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import org.seed.core.entity.transform.TransformerStatus;
 
-public class TransformerStatusTest {
+class TransformerStatusTest {
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final TransformerStatus status1 = new TransformerStatus();
 		final TransformerStatus status2 = new TransformerStatus();
 		assertTrue(status1.isEqual(status2));

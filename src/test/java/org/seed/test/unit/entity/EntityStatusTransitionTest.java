@@ -34,10 +34,10 @@ import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupMetadata;
 import org.seed.core.user.UserMetadata;
 
-public class EntityStatusTransitionTest {
+class EntityStatusTransitionTest {
 	
 	@Test
-	public void testAddFunction() {
+	void testAddFunction() {
 		final EntityStatusTransition transition = new EntityStatusTransition();
 		final EntityStatusTransitionFunction function = new EntityStatusTransitionFunction();
 		assertFalse(transition.hasFunctions());
@@ -51,7 +51,7 @@ public class EntityStatusTransitionTest {
 	}
 	
 	@Test
-	public void testContainsEntityFunction() {
+	void testContainsEntityFunction() {
 		final EntityStatusTransition transition = new EntityStatusTransition();
 		final EntityFunction entityFunction = new EntityFunction();
 		final EntityStatusTransitionFunction function = new EntityStatusTransitionFunction();
@@ -65,7 +65,7 @@ public class EntityStatusTransitionTest {
 	}
 	
 	@Test
-	public void testGetFunctionByUid() {
+	void testGetFunctionByUid() {
 		final EntityStatusTransition transition = new EntityStatusTransition();
 		final EntityStatusTransitionFunction function = new EntityStatusTransitionFunction();
 		function.setUid("other");
@@ -79,7 +79,7 @@ public class EntityStatusTransitionTest {
 	}
 	
 	@Test
-	public void testContainsPermission() {
+	void testContainsPermission() {
 		final EntityStatusTransition transition = new EntityStatusTransition();
 		final EntityStatusTransitionPermission permission = new EntityStatusTransitionPermission();
 		final List<EntityStatusTransitionPermission> permissions = new ArrayList<>();
@@ -95,7 +95,7 @@ public class EntityStatusTransitionTest {
 	}
 	
 	@Test
-	public void testGetPermissionByUid( ) {
+	void testGetPermissionByUid( ) {
 		final EntityStatusTransition transition = new EntityStatusTransition();
 		final EntityStatusTransitionPermission permission = new EntityStatusTransitionPermission();
 		final List<EntityStatusTransitionPermission> permissions = new ArrayList<>();
@@ -111,7 +111,7 @@ public class EntityStatusTransitionTest {
 	}
 	
 	@Test
-	public void testIsAuthorized() {
+	void testIsAuthorized() {
 		final EntityStatusTransition transition = new EntityStatusTransition();
 		final EntityStatusTransitionPermission permission = new EntityStatusTransitionPermission();
 		final UserMetadata user = new UserMetadata();
@@ -134,7 +134,7 @@ public class EntityStatusTransitionTest {
 	}
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final EntityStatusTransition transition1 = new EntityStatusTransition();
 		final EntityStatusTransition transition2 = new EntityStatusTransition();
 		assertTrue(transition1.isEqual(transition2));
@@ -151,7 +151,7 @@ public class EntityStatusTransitionTest {
 	}
 	
 	@Test
-	public void testIsEqualFunctions() {
+	void testIsEqualFunctions() {
 		final EntityStatusTransition transition1 = new EntityStatusTransition();
 		final EntityStatusTransition transition2 = new EntityStatusTransition();
 		final EntityStatusTransitionFunction function1 = new EntityStatusTransitionFunction();
@@ -171,7 +171,7 @@ public class EntityStatusTransitionTest {
 	}
 	
 	@Test
-	public void testIsEqualPermissions() {
+	void testIsEqualPermissions() {
 		final EntityStatusTransition transition1 = new EntityStatusTransition();
 		final EntityStatusTransition transition2 = new EntityStatusTransition();
 		final EntityStatusTransitionPermission permission1 = new EntityStatusTransitionPermission();
@@ -191,7 +191,7 @@ public class EntityStatusTransitionTest {
 	}
 	
 	@Test
-	public void testRemoveFunction() {
+	void testRemoveFunction() {
 		final EntityStatusTransition transition = new EntityStatusTransition();
 		final EntityStatusTransitionFunction function = new EntityStatusTransitionFunction();
 		transition.addFunction(function);

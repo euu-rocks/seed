@@ -33,10 +33,10 @@ import org.seed.core.report.ReportDataSource;
 import org.seed.core.report.ReportMetadata;
 import org.seed.core.report.ReportPermission;
 
-public class ReportTest {
+class ReportTest {
 	
 	@Test
-	public void testAddDataSource() {
+	void testAddDataSource() {
 		final Report report = new ReportMetadata();
 		final ReportDataSource dataSource = new ReportDataSource();
 		assertFalse(report.hasDataSources());
@@ -50,7 +50,7 @@ public class ReportTest {
 	}
 	
 	@Test
-	public void testGetDataSourceByUid() {
+	void testGetDataSourceByUid() {
 		final Report report = new ReportMetadata();
 		final ReportDataSource dataSource = new ReportDataSource();
 		report.addDataSource(dataSource);
@@ -64,7 +64,7 @@ public class ReportTest {
 	}
 	
 	@Test
-	public void testGetPermissionByUid() {
+	void testGetPermissionByUid() {
 		final Report report = new ReportMetadata();
 		final ReportPermission permission = new ReportPermission();
 		final List<ReportPermission> permissions = new ArrayList<>();
@@ -80,7 +80,7 @@ public class ReportTest {
 	}
 	
 	@Test
-	public void testGetDataSourceParameterMap() {
+	void testGetDataSourceParameterMap() {
 		final Report report = new ReportMetadata();
 		final ReportDataSource reportDataSource = new ReportDataSource();
 		final List<ReportDataSource> dataSources = new ArrayList<>();
@@ -109,7 +109,7 @@ public class ReportTest {
 	}
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final Report report1 = new ReportMetadata();
 		final Report report2 = new ReportMetadata();
 		assertTrue(report1.isEqual(report2));
@@ -125,7 +125,7 @@ public class ReportTest {
 	}
 	
 	@Test
-	public void testIsEqualDataSources() {
+	void testIsEqualDataSources() {
 		final Report report1 = new ReportMetadata();
 		final Report report2 = new ReportMetadata();
 		final ReportDataSource reportDataSource1 = new ReportDataSource();
@@ -143,7 +143,7 @@ public class ReportTest {
 	}
 	
 	@Test
-	public void testIsEqualPermissions() {
+	void testIsEqualPermissions() {
 		final Report report1 = new ReportMetadata();
 		final Report report2 = new ReportMetadata();
 		final ReportPermission permission1 = new ReportPermission();
@@ -165,7 +165,7 @@ public class ReportTest {
 	}
 	
 	@Test
-	public void testRemoveDataSource() {
+	void testRemoveDataSource() {
 		final Report report = new ReportMetadata();
 		final ReportDataSource dataSource = new ReportDataSource();
 		report.addDataSource(dataSource);

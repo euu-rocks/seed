@@ -148,8 +148,7 @@ public class UserMetadata extends AbstractSystemEntity implements User {
 	public boolean belongsToOneOf(Collection<? extends UserGroup> userGroups) {
 		Assert.notNull(userGroups, "user groups");
 		
-		return hasUserGroups() && 
-			   userGroups.stream().anyMatch(group -> belongsTo(group));
+		return hasUserGroups() && userGroups.stream().anyMatch(this::belongsTo);
 	}
 	
 	@Override

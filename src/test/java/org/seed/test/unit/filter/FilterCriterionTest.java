@@ -27,10 +27,10 @@ import org.seed.core.entity.EntityField;
 import org.seed.core.entity.filter.CriterionOperator;
 import org.seed.core.entity.filter.FilterCriterion;
 
-public class FilterCriterionTest {
+class FilterCriterionTest {
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final FilterCriterion criterion1 = new FilterCriterion();
 		final FilterCriterion criterion2 = new FilterCriterion();
 		final EntityField entityField1 = new EntityField();
@@ -55,7 +55,7 @@ public class FilterCriterionTest {
 	}
 	
 	@Test
-	public void testNeedsValue() {
+	void testNeedsValue() {
 		final FilterCriterion criterion = new FilterCriterion();
 		assertFalse(criterion.needsValue());
 		
@@ -67,7 +67,7 @@ public class FilterCriterionTest {
 	}
 	
 	@Test
-	public void testHasValue() {
+	void testHasValue() {
 		final FilterCriterion criterion = new FilterCriterion();
 		final EntityField entityField = new EntityField();
 		entityField.setType(FieldType.TEXT);
@@ -79,7 +79,7 @@ public class FilterCriterionTest {
 	}
 	
 	@Test
-	public void testGetLike() {
+	void testGetLike() {
 		final FilterCriterion criterion = new FilterCriterion();
 		final EntityField entityField = new EntityField();
 		entityField.setType(FieldType.TEXT);

@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 import org.seed.core.data.FieldType;
 import org.seed.core.entity.EntityField;
 
-public class EntityFieldTest {
+class EntityFieldTest {
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final EntityField field1 = new EntityField();
 		final EntityField field2 = new EntityField();
 		assertTrue(field1.isEqual(field2));

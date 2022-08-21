@@ -26,10 +26,10 @@ import org.seed.core.data.datasource.DataSourceParameterType;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityMetadata;
 
-public class DataSourceParameterTest {
+class DataSourceParameterTest {
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final DataSourceParameter parameter1 = new DataSourceParameter();
 		final DataSourceParameter parameter2 = new DataSourceParameter();
 		final Entity referenceEntity = new EntityMetadata();

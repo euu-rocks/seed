@@ -42,10 +42,10 @@ import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupMetadata;
 import org.seed.core.user.UserMetadata;
 
-public class EntityTest {
+class EntityTest {
 	
 	@Test
-	public void testAddField() {
+	void testAddField() {
 		final Entity entity = new EntityMetadata();
 		final EntityField field = new EntityField();
 		assertFalse(entity.hasFields());
@@ -64,7 +64,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testAddFieldConstraint() {
+	void testAddFieldConstraint() {
 		final Entity entity = new EntityMetadata();
 		final EntityFieldConstraint constraint = new EntityFieldConstraint();
 		assertFalse(entity.hasFieldConstraints());
@@ -78,7 +78,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testAddFieldGroup() {
+	void testAddFieldGroup() {
 		final Entity entity = new EntityMetadata();
 		final EntityFieldGroup fieldGroup = new EntityFieldGroup();
 		assertFalse(entity.hasFieldGroups());
@@ -97,7 +97,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testAddFunction() {
+	void testAddFunction() {
 		final Entity entity = new EntityMetadata();
 		final EntityFunction function = new EntityFunction();
 		assertFalse(entity.hasFunctions());
@@ -116,7 +116,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testAddNested() {
+	void testAddNested() {
 		final Entity entity = new EntityMetadata();
 		final NestedEntity nested = new NestedEntity();
 		assertFalse(entity.hasNesteds());
@@ -130,7 +130,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testAddPermission() {
+	void testAddPermission() {
 		final Entity entity = new EntityMetadata();
 		final EntityPermission permission = new EntityPermission();
 		assertFalse(entity.hasPermissions());
@@ -144,7 +144,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testAddRelation() {
+	void testAddRelation() {
 		final Entity entity = new EntityMetadata();
 		final EntityRelation relation = new EntityRelation();
 		assertFalse(entity.hasRelations());
@@ -163,7 +163,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testAddStatus() {
+	void testAddStatus() {
 		final Entity entity = new EntityMetadata();
 		final EntityStatus status = new EntityStatus();
 		assertFalse(entity.hasStatus());
@@ -177,7 +177,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testAddStatusTransition() {
+	void testAddStatusTransition() {
 		final Entity entity = new EntityMetadata();
 		final EntityStatusTransition transition = new EntityStatusTransition();
 		assertFalse(entity.hasStatusTransitions());
@@ -191,7 +191,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testCheckFieldAccess() {
+	void testCheckFieldAccess() {
 		final Entity entity = new EntityMetadata();
 		final EntityField field = new EntityField();
 		final EntityFieldConstraint constraint = new EntityFieldConstraint();
@@ -222,7 +222,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testContainsField() {
+	void testContainsField() {
 		final Entity entity = new EntityMetadata();
 		final EntityField field = new EntityField();
 		
@@ -236,7 +236,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testContainsFieldGroup() {
+	void testContainsFieldGroup() {
 		final Entity entity = new EntityMetadata();
 		final EntityFieldGroup fieldGroup = new EntityFieldGroup();
 		
@@ -248,7 +248,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testContainsNested() {
+	void testContainsNested() {
 		final Entity entity = new EntityMetadata();
 		final NestedEntity nested = new NestedEntity();
 		
@@ -260,7 +260,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testFindAutonumField() {
+	void testFindAutonumField() {
 		final Entity entity = new EntityMetadata();
 		final EntityField field = new EntityField();
 		field.setType(FieldType.AUTONUM);
@@ -273,7 +273,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testFindFieldByUid() {
+	void testFindFieldByUid() {
 		final Entity entity = new EntityMetadata();
 		final EntityField field = new EntityField();
 		field.setUid("other");
@@ -287,7 +287,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testFindDefaultIdentifierField() {
+	void testFindDefaultIdentifierField() {
 		final Entity entity = new EntityMetadata();
 		final EntityField field1 = new EntityField();
 		final EntityField field2 = new EntityField();
@@ -308,7 +308,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testGetNestedByUid() {
+	void testGetNestedByUid() {
 		final Entity entity = new EntityMetadata();
 		final NestedEntity nested = new NestedEntity();
 		nested.setUid("other");
@@ -322,7 +322,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testGetPermissionByUid() {
+	void testGetPermissionByUid() {
 		final Entity entity = new EntityMetadata();
 		final EntityPermission permission = new EntityPermission();
 		permission.setUid("other");
@@ -336,7 +336,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testGetRelationByUid() {
+	void testGetRelationByUid() {
 		final Entity entity = new EntityMetadata();
 		final EntityRelation relation = new EntityRelation();
 		relation.setUid("other");
@@ -350,7 +350,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testGetReferenceFields() {
+	void testGetReferenceFields() {
 		final Entity entity = new EntityMetadata();
 		final Entity referenceEntity = new EntityMetadata();
 		final EntityField textField = new EntityField();
@@ -369,7 +369,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testGenericEntity() {
+	void testGenericEntity() {
 		final Entity genericEntity = new EntityMetadata();
 		final Entity entity = new EntityMetadata();
 		((EntityMetadata) genericEntity).setGeneric(true);
@@ -384,7 +384,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testGetCallbackFunctions() {
+	void testGetCallbackFunctions() {
 		final Entity entity = new EntityMetadata();
 		final EntityFunction function = new EntityFunction();
 		entity.addFunction(function);
@@ -400,7 +400,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testGetMemberFunctions() {
+	void testGetMemberFunctions() {
 		final Entity entity = new EntityMetadata();
 		final EntityFunction function = new EntityFunction();
 		entity.addFunction(function);
@@ -416,7 +416,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testGetNestedByEntityField() {
+	void testGetNestedByEntityField() {
 		final Entity entity = new EntityMetadata();
 		final Entity nestedEntity = new EntityMetadata();
 		final EntityField nestedEntityField = new EntityField();
@@ -432,7 +432,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testGetNestedByEntityId() {
+	void testGetNestedByEntityId() {
 		final Entity entity = new EntityMetadata();
 		final Entity nestedEntity = new EntityMetadata();
 		final NestedEntity nested = new NestedEntity();
@@ -448,7 +448,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testGetNestedByInternalName() {
+	void testGetNestedByInternalName() {
 		final Entity entity = new EntityMetadata();
 		final Entity nestedEntity = new EntityMetadata();
 		final NestedEntity nested = new NestedEntity();
@@ -464,7 +464,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testGetEffectiveTableName() {
+	void testGetEffectiveTableName() {
 		final Entity entity = new EntityMetadata();
 		entity.setName("TÄST");
 		
@@ -476,7 +476,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testGetFieldById() {
+	void testGetFieldById() {
 		final Entity entity = new EntityMetadata();
 		final EntityField field = new EntityField();
 		field.setId(987L);
@@ -490,7 +490,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testGetFieldByUId() {
+	void testGetFieldByUId() {
 		final Entity entity = new EntityMetadata();
 		final EntityField field = new EntityField();
 		field.setUid("other");
@@ -504,7 +504,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testGetFieldGroupById() {
+	void testGetFieldGroupById() {
 		final Entity entity = new EntityMetadata();
 		final EntityFieldGroup fieldGroup = new EntityFieldGroup();
 		fieldGroup.setId(987L);
@@ -518,7 +518,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testGetFieldGroupByUid() {
+	void testGetFieldGroupByUid() {
 		final Entity entity = new EntityMetadata();
 		final EntityFieldGroup fieldGroup = new EntityFieldGroup();
 		fieldGroup.setUid("other");
@@ -532,7 +532,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testGetFunctionById() {
+	void testGetFunctionById() {
 		final Entity entity = new EntityMetadata();
 		final EntityFunction function = new EntityFunction();
 		function.setId(987L);
@@ -546,7 +546,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testGetFunctionByUid() {
+	void testGetFunctionByUid() {
 		final Entity entity = new EntityMetadata();
 		final EntityFunction function = new EntityFunction();
 		function.setUid("other");
@@ -560,7 +560,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testGetFieldConstraintByUid() {
+	void testGetFieldConstraintByUid() {
 		final Entity entity = new EntityMetadata();
 		final EntityFieldConstraint constraint = new EntityFieldConstraint();
 		constraint.setUid("other");
@@ -574,7 +574,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testGetInitialStatus() {
+	void testGetInitialStatus() {
 		final Entity entity = new EntityMetadata();
 		final EntityStatus status = new EntityStatus();
 		
@@ -596,7 +596,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testGetStatusById() {
+	void testGetStatusById() {
 		final Entity entity = new EntityMetadata();
 		final EntityStatus status = new EntityStatus();
 		status.setId(123L);
@@ -609,7 +609,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testGetStatusByNumber() {
+	void testGetStatusByNumber() {
 		final Entity entity = new EntityMetadata();
 		final EntityStatus status = new EntityStatus();
 		status.setStatusNumber(42);
@@ -622,7 +622,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testGetStatusByUid() {
+	void testGetStatusByUid() {
 		final Entity entity = new EntityMetadata();
 		final EntityStatus status = new EntityStatus();
 		status.setUid("other");
@@ -636,7 +636,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testGetStatusTransition() {
+	void testGetStatusTransition() {
 		final Entity entity = new EntityMetadata();
 		final EntityStatus sourceStatus = new EntityStatus();
 		final EntityStatus targetStatus = new EntityStatus();
@@ -653,7 +653,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testGetStatusTransitionByUid() {
+	void testGetStatusTransitionByUid() {
 		final Entity entity = new EntityMetadata();
 		final EntityStatusTransition transition = new EntityStatusTransition();
 		transition.setUid("other");
@@ -667,7 +667,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testGetUserActionFunctions() {
+	void testGetUserActionFunctions() {
 		final Entity entity = new EntityMetadata();
 		final EntityFunction function1 = new EntityFunction();
 		final EntityFunction function2 = new EntityFunction();
@@ -683,7 +683,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testHasFullTextSearchFields() {
+	void testHasFullTextSearchFields() {
 		final Entity entity = new EntityMetadata();
 		final Entity nestedEntity = new EntityMetadata();
 		final NestedEntity nested = new NestedEntity();
@@ -706,7 +706,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testIsNestedEntity() {
+	void testIsNestedEntity() {
 		final Entity entity = new EntityMetadata();
 		final Entity nestedEntity = new EntityMetadata();
 		final NestedEntity nested = new NestedEntity();
@@ -720,7 +720,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testIsRelatedEntity() {
+	void testIsRelatedEntity() {
 		final Entity entity = new EntityMetadata();
 		final Entity relatedEntity = new EntityMetadata();
 		final EntityRelation relation = new EntityRelation();
@@ -734,7 +734,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testIsUniqueTransition() {
+	void testIsUniqueTransition() {
 		final Entity entity = new EntityMetadata();
 		final EntityStatus sourceStatus = new EntityStatus();
 		final EntityStatus targetStatus = new EntityStatus();
@@ -752,7 +752,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testIsEqual() {
+	void testIsEqual() {
 		final Entity entity1 = new EntityMetadata();
 		final Entity entity2 = new EntityMetadata();
 		assertTrue(entity1.isEqual(entity2));
@@ -778,7 +778,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testIsEqualFields() {
+	void testIsEqualFields() {
 		final Entity entity1 = new EntityMetadata();
 		final Entity entity2 = new EntityMetadata();
 		final EntityField field1 = new EntityField();
@@ -796,7 +796,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testIsEqualFieldGroups() {
+	void testIsEqualFieldGroups() {
 		final Entity entity1 = new EntityMetadata();
 		final Entity entity2 = new EntityMetadata();
 		final EntityFieldGroup fieldGroup1 = new EntityFieldGroup();
@@ -814,7 +814,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testIsEqualFunctions() {
+	void testIsEqualFunctions() {
 		final Entity entity1 = new EntityMetadata();
 		final Entity entity2 = new EntityMetadata();
 		final EntityFunction function1 = new EntityFunction();
@@ -832,7 +832,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testIsEqualStatus() {
+	void testIsEqualStatus() {
 		final Entity entity1 = new EntityMetadata();
 		final Entity entity2 = new EntityMetadata();
 		final EntityStatus status1 = new EntityStatus();
@@ -850,7 +850,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testIsEqualStatusTransitions() {
+	void testIsEqualStatusTransitions() {
 		final Entity entity1 = new EntityMetadata();
 		final Entity entity2 = new EntityMetadata();
 		final EntityStatusTransition transition1 = new EntityStatusTransition();
@@ -868,7 +868,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testIsEqualNesteds() {
+	void testIsEqualNesteds() {
 		final Entity entity1 = new EntityMetadata();
 		final Entity entity2 = new EntityMetadata();
 		final NestedEntity nested1 = new NestedEntity();
@@ -886,7 +886,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testIsEqualRelations() {
+	void testIsEqualRelations() {
 		final Entity entity1 = new EntityMetadata();
 		final Entity entity2 = new EntityMetadata();
 		final EntityRelation relation1 = new EntityRelation();
@@ -904,7 +904,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testIsEqualPermissions() {
+	void testIsEqualPermissions() {
 		final Entity entity1 = new EntityMetadata();
 		final Entity entity2 = new EntityMetadata();
 		final EntityPermission permission1 = new EntityPermission();
@@ -922,7 +922,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testIsEqualConstraints() {
+	void testIsEqualConstraints() {
 		final Entity entity1 = new EntityMetadata();
 		final Entity entity2 = new EntityMetadata();
 		final EntityFieldConstraint constraint1 = new EntityFieldConstraint();
@@ -940,7 +940,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testRemoveField() {
+	void testRemoveField() {
 		final Entity entity = new EntityMetadata();
 		final EntityField field = new EntityField();
 		entity.addField(field);
@@ -956,7 +956,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testRemoveFieldConstraint() {
+	void testRemoveFieldConstraint() {
 		final Entity entity = new EntityMetadata();
 		final EntityFieldConstraint constraint = new EntityFieldConstraint();
 		entity.addFieldConstraint(constraint);
@@ -969,7 +969,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testRemoveFieldGroup() {
+	void testRemoveFieldGroup() {
 		final Entity entity = new EntityMetadata();
 		final EntityFieldGroup fieldGroup = new EntityFieldGroup();
 		entity.addFieldGroup(fieldGroup);
@@ -985,7 +985,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testRemoveFunction() {
+	void testRemoveFunction() {
 		final Entity entity = new EntityMetadata();
 		final EntityFunction function = new EntityFunction();
 		entity.addFunction(function);
@@ -1001,7 +1001,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testRemoveNested() {
+	void testRemoveNested() {
 		final Entity entity = new EntityMetadata();
 		final NestedEntity nested = new NestedEntity();
 		entity.addNested(nested);
@@ -1014,7 +1014,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testRemovePermission() {
+	void testRemovePermission() {
 		final Entity entity = new EntityMetadata();
 		final EntityPermission permission = new EntityPermission();
 		entity.addPermission(permission);
@@ -1027,7 +1027,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testRemoveRelation() {
+	void testRemoveRelation() {
 		final Entity entity = new EntityMetadata();
 		final EntityRelation relation = new EntityRelation();
 		entity.addRelation(relation);
@@ -1043,7 +1043,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testRemoveStatus() {
+	void testRemoveStatus() {
 		final Entity entity = new EntityMetadata();
 		final EntityStatus status = new EntityStatus();
 		entity.addStatus(status);
@@ -1056,7 +1056,7 @@ public class EntityTest {
 	}
 	
 	@Test
-	public void testRemoveStatustransition() {
+	void testRemoveStatustransition() {
 		final Entity entity = new EntityMetadata();
 		final EntityStatusTransition transition = new EntityStatusTransition();
 		entity.addStatusTransition(transition);
