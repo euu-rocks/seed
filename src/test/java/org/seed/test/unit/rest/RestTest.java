@@ -39,10 +39,10 @@ class RestTest {
 		
 		rest.addFunction(function);
 		
-		assertSame(function.getRest(), rest);
+		assertSame(rest, function.getRest());
 		assertTrue(rest.hasFunctions());
-		assertSame(rest.getFunctions().size(), 1);
-		assertSame(rest.getFunctions().get(0), function);
+		assertSame(1, rest.getFunctions().size());
+		assertSame(function, rest.getFunctions().get(0));
 	}
 	
 	@Test
@@ -57,12 +57,12 @@ class RestTest {
 		
 		function.setMapping("/test");
 		
-		assertSame(rest.getFunctionByMapping("test"), function);
+		assertSame(function, rest.getFunctionByMapping("test"));
 		
 		function.setMapping(null);
 		function.setName("test");
 		
-		assertSame(rest.getFunctionByMapping("test"), function);
+		assertSame(function, rest.getFunctionByMapping("test"));
 	}
 	
 	@Test
@@ -76,7 +76,7 @@ class RestTest {
 		
 		function.setUid("test");
 		
-		assertSame(rest.getFunctionByUid("test"), function);
+		assertSame(function, rest.getFunctionByUid("test"));
 	}
 	
 	@Test
@@ -92,7 +92,7 @@ class RestTest {
 		
 		permission.setUid("test");
 		
-		assertSame(rest.getPermissionByUid("test"), permission);
+		assertSame(permission, rest.getPermissionByUid("test"));
 	}
 	
 	@Test
@@ -153,12 +153,12 @@ class RestTest {
 		final Rest rest = new RestMetadata();
 		final RestFunction function = new RestFunction();
 		rest.addFunction(function);
-		assertSame(rest.getFunctions().size(), 1);
+		assertSame(1, rest.getFunctions().size());
 		
 		rest.removeFunction(function);
 		
 		assertFalse(rest.hasFunctions());
-		assertSame(rest.getFunctions().size(), 0);
+		assertSame(0, rest.getFunctions().size());
 	}
 	
 }

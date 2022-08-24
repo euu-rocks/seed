@@ -40,7 +40,7 @@ class NestedEntityTest {
 		assertNull(nested.getFieldByUid("test"));
 		
 		field.setUid("test");
-		assertSame(nested.getFieldByUid("test"), field);
+		assertSame(field, nested.getFieldByUid("test"));
 	}
 	
 	@Test
@@ -54,7 +54,7 @@ class NestedEntityTest {
 		assertNull(nested.getFunctionByUid("test"));
 		
 		function.setUid("test");
-		assertSame(nested.getFunctionByUid("test"), function);
+		assertSame(function, nested.getFunctionByUid("test"));
 	}
 	
 	@Test
@@ -67,9 +67,9 @@ class NestedEntityTest {
 		nested.setReferenceField(referenceField);
 		nestedEntity.addField(field);
 		nestedEntity.addField(referenceField);
-		assertSame(nested.getFields(false).size(), 2);
+		assertSame(2, nested.getFields(false).size());
 		
-		assertSame(nested.getFields(true).size(), 1);
+		assertSame(1, nested.getFields(true).size());
 	}
 	
 	@Test

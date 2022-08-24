@@ -34,7 +34,7 @@ class EntityFunctionTest {
 		function.setEntity(entity);
 		entity.setName("TÄST");
 		
-		assertEquals(function.getGeneratedPackage(), "org.seed.generated.entity.taest");
+		assertEquals("org.seed.generated.entity.taest", function.getGeneratedPackage());
 	}
 	
 	@Test
@@ -42,7 +42,7 @@ class EntityFunctionTest {
 		final EntityFunction function = new EntityFunction();
 		function.setName("tästSomething");
 		
-		assertEquals(function.getGeneratedClass(), "TaestSomething");
+		assertEquals("TaestSomething", function.getGeneratedClass());
 	}
 	
 	@Test

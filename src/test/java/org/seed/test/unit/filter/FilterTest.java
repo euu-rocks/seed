@@ -39,11 +39,11 @@ class FilterTest {
 		
 		filter.addCriterion(criterion);
 		
-		assertSame(criterion.getFilter(), filter);
+		assertSame(filter, criterion.getFilter());
 		
 		assertTrue(filter.hasCriteria());
-		assertSame(filter.getCriteria().size(), 1);
-		assertSame(filter.getCriteria().get(0), criterion);
+		assertSame(1, filter.getCriteria().size());
+		assertSame(criterion, filter.getCriteria().get(0));
 	}
 	
 	@Test
@@ -57,7 +57,7 @@ class FilterTest {
 		
 		criterion.setUid("test");
 		
-		assertSame(filter.getCriterionByUid("test"), criterion);
+		assertSame(criterion, filter.getCriterionByUid("test"));
 	}
 	
 	@Test
@@ -73,7 +73,7 @@ class FilterTest {
 		
 		permission.setUid("test");
 		
-		assertSame(filter.getPermissionByUid("test"), permission);
+		assertSame(permission, filter.getPermissionByUid("test"));
 	}
 	
 	@Test
@@ -135,12 +135,12 @@ class FilterTest {
 		final FilterCriterion criterion = new FilterCriterion();
 		filter.addCriterion(criterion);
 		assertTrue(filter.hasCriteria());
-		assertSame(filter.getCriteria().size(), 1);
+		assertSame(1, filter.getCriteria().size());
 		
 		filter.removeCriterion(criterion);
 		
 		assertFalse(filter.hasCriteria());
-		assertSame(filter.getCriteria().size(), 0);
+		assertSame(0, filter.getCriteria().size());
 	}
 	
 }

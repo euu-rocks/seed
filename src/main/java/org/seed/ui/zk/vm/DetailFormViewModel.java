@@ -94,7 +94,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	}
 	
 	public boolean isActionDisabled(SubFormAction action) {
-		return revision != null;
+		return action == null || revision != null;
 	}
 	
 	public boolean isFieldVisible(String fieldUid) {

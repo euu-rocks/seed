@@ -27,7 +27,6 @@ public class OverflowToolbar extends Toolbar  {
 		/*
 		 * disabled due to a bug in ZK (overflow popup ignores button visibility)
 		 * 
-		 * setOverflowPopup(true);
 		 */  
 		setClass("alpha-toolbar");
 	}

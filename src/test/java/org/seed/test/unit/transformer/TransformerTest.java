@@ -42,10 +42,10 @@ class TransformerTest {
 		
 		transformer.addElement(element);
 		
-		assertSame(element.getTransformer(), transformer);
+		assertSame(transformer, element.getTransformer());
 		assertTrue(transformer.hasElements());
-		assertEquals(transformer.getElements().size(), 1);
-		assertEquals(transformer.getElements().get(0), element);
+		assertEquals(1, transformer.getElements().size());
+		assertEquals(element, transformer.getElements().get(0));
 	}
 	
 	@Test
@@ -56,10 +56,10 @@ class TransformerTest {
 		
 		transformer.addFunction(function);
 		
-		assertSame(function.getTransformer(), transformer);
+		assertSame(transformer, function.getTransformer());
 		assertTrue(transformer.hasFunctions());
-		assertEquals(transformer.getFunctions().size(), 1);
-		assertEquals(transformer.getFunctions().get(0), function);
+		assertEquals(1, transformer.getFunctions().size());
+		assertEquals(function, transformer.getFunctions().get(0));
 	}
 	
 	@Test
@@ -99,7 +99,7 @@ class TransformerTest {
 		
 		element.setUid("test");
 		
-		assertSame(transformer.getElementByUid("test"), element);
+		assertSame(element, transformer.getElementByUid("test"));
 	}
 	
 	@Test
@@ -113,7 +113,7 @@ class TransformerTest {
 		
 		function.setUid("test");
 		
-		assertSame(transformer.getFunctionByUid("test"), function);
+		assertSame(function, transformer.getFunctionByUid("test"));
 	}
 	
 	@Test
@@ -129,7 +129,7 @@ class TransformerTest {
 		
 		permission.setUid("test");
 		
-		assertSame(transformer.getPermissionByUid("test"), permission);
+		assertSame(permission, transformer.getPermissionByUid("test"));
 	}
 	
 	@Test
@@ -145,7 +145,7 @@ class TransformerTest {
 		
 		status.setUid("test");
 		
-		assertSame(transformer.getStatusByUid("test"), status);
+		assertSame(status, transformer.getStatusByUid("test"));
 	}
 	
 	@Test
@@ -248,12 +248,12 @@ class TransformerTest {
 		final Transformer transformer = new TransformerMetadata();
 		final TransformerElement element = new TransformerElement();
 		transformer.addElement(element);
-		assertEquals(transformer.getElements().size(), 1);
+		assertEquals(1, transformer.getElements().size());
 		
 		transformer.removeElement(element);
 		
 		assertFalse(transformer.hasElements());
-		assertEquals(transformer.getElements().size(), 0);
+		assertEquals(0, transformer.getElements().size());
 	}
 	
 	@Test
@@ -261,12 +261,12 @@ class TransformerTest {
 		final Transformer transformer = new TransformerMetadata();
 		final TransformerFunction function = new TransformerFunction();
 		transformer.addFunction(function);
-		assertEquals(transformer.getFunctions().size(), 1);
+		assertEquals(1, transformer.getFunctions().size());
 		
 		transformer.removeFunction(function);
 		
 		assertFalse(transformer.hasFunctions());
-		assertEquals(transformer.getFunctions().size(), 0);
+		assertEquals(0, transformer.getFunctions().size());
 	}
 	
 }

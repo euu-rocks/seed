@@ -69,11 +69,11 @@ class FormTest {
 		
 		form.addAction(action);
 		
-		assertSame(action.getForm(), form);
+		assertSame(form, action.getForm());
 		
 		assertTrue(form.hasActions());
-		assertSame(form.getActions().size(), 1);
-		assertSame(form.getActions().get(0), action);
+		assertSame(1, form.getActions().size());
+		assertSame(action, form.getActions().get(0));
 	}
 	
 	@Test
@@ -84,11 +84,11 @@ class FormTest {
 		
 		form.addField(field);
 		
-		assertSame(field.getForm(), form);
+		assertSame(form, field.getForm());
 		
 		assertTrue(form.hasFields());
-		assertSame(form.getFields().size(), 1);
-		assertSame(form.getFields().get(0), field);
+		assertSame(1, form.getFields().size());
+		assertSame(field, form.getFields().get(0));
 	}
 	
 	@Test
@@ -99,11 +99,11 @@ class FormTest {
 		
 		form.addFieldExtra(fieldExtra);
 		
-		assertSame(fieldExtra.getForm(), form);
+		assertSame(form, fieldExtra.getForm());
 		
 		assertTrue(form.hasFieldExtras());
-		assertSame(form.getFieldExtras().size(), 1);
-		assertSame(form.getFieldExtras().get(0), fieldExtra);
+		assertSame(1, form.getFieldExtras().size());
+		assertSame(fieldExtra, form.getFieldExtras().get(0));
 	}
 	
 	@Test
@@ -114,11 +114,11 @@ class FormTest {
 		
 		form.addPrintout(printout);
 		
-		assertSame(printout.getForm(), form);
+		assertSame(form, printout.getForm());
 		
 		assertTrue(form.hasPrintouts());
-		assertSame(form.getPrintouts().size(), 1);
-		assertSame(form.getPrintouts().get(0), printout);
+		assertSame(1, form.getPrintouts().size());
+		assertSame(printout, form.getPrintouts().get(0));
 	}
 	
 	@Test
@@ -129,11 +129,11 @@ class FormTest {
 		
 		form.addSubForm(subForm);
 		
-		assertSame(subForm.getForm(), form);
+		assertSame(form, subForm.getForm());
 		
 		assertTrue(form.hasSubForms());
-		assertSame(form.getSubForms().size(), 1);
-		assertSame(form.getSubForms().get(0), subForm);
+		assertSame(1, form.getSubForms().size());
+		assertSame(subForm, form.getSubForms().get(0));
 	}
 	
 	@Test
@@ -144,11 +144,11 @@ class FormTest {
 		
 		form.addTransformer(transformer);
 		
-		assertSame(transformer.getForm(), form);
+		assertSame(form, transformer.getForm());
 		
 		assertTrue(form.hasTransformers());
-		assertSame(form.getTransformers().size(), 1);
-		assertSame(form.getTransformers().get(0), transformer);
+		assertSame(1, form.getTransformers().size());
+		assertSame(transformer, form.getTransformers().get(0));
 	}
 	
 	@Test
@@ -261,7 +261,7 @@ class FormTest {
 		
 		action.setType(actionType);
 		
-		assertSame(form.getActionByType(actionType), action);
+		assertSame(action, form.getActionByType(actionType));
 	}
 	
 	@Test
@@ -275,7 +275,7 @@ class FormTest {
 		
 		action.setUid("test");
 		
-		assertSame(form.getActionByUid("test"), action);
+		assertSame(action, form.getActionByUid("test"));
 	}
 	
 	@Test
@@ -290,11 +290,11 @@ class FormTest {
 		
 		form.addAction(actionList);
 		form.addAction(actionDetail);
-		assertSame(form.getActions(true).size(), 1);
-		assertSame(form.getActions(true).get(0), actionList);
+		assertSame(1, form.getActions(true).size());
+		assertSame(actionList, form.getActions(true).get(0));
 		
-		assertSame(form.getActions(false).size(), 1);
-		assertSame(form.getActions(false).get(0), actionDetail);
+		assertSame(1, form.getActions(false).size());
+		assertSame(actionDetail, form.getActions(false).get(0));
 	}
 	
 	@Test
@@ -308,7 +308,7 @@ class FormTest {
 		
 		field.setId(123L);
 		
-		assertSame(form.getFieldById(123L), field);
+		assertSame(field, form.getFieldById(123L));
 	}
 	
 	@Test
@@ -322,7 +322,7 @@ class FormTest {
 		
 		field.setUid("test");
 		
-		assertSame(form.getFieldByUid("test"), field);
+		assertSame(field, form.getFieldByUid("test"));
 	}
 	
 	@Test
@@ -336,7 +336,7 @@ class FormTest {
 		
 		extra.setEntityField(entityField);
 		
-		assertSame(form.getFieldExtra(entityField), extra);
+		assertSame(extra, form.getFieldExtra(entityField));
 	}
 	
 	@Test
@@ -350,7 +350,7 @@ class FormTest {
 		
 		extra.setUid("test");
 		
-		assertSame(form.getFieldExtraByUid("test"), extra);
+		assertSame(extra, form.getFieldExtraByUid("test"));
 	}
 	
 	@Test
@@ -364,7 +364,7 @@ class FormTest {
 		
 		printout.setUid("test");
 		
-		assertSame(form.getPrintoutByUid("test"), printout);
+		assertSame(printout, form.getPrintoutByUid("test"));
 	}
 	
 	@Test
@@ -384,7 +384,7 @@ class FormTest {
 		
 		final RelationForm relForm = form.getRelationFormByUid("test");
 		assertNotNull(relForm);
-		assertSame(relForm.getRelation(), relation);
+		assertSame(relation, relForm.getRelation());
 	}
 	
 	@Test
@@ -397,12 +397,12 @@ class FormTest {
 		form.addField(selectedField);
 		
 		assertNotNull(form.getSelectedFields(false));
-		assertSame(form.getSelectedFields(false).size(), 1);
-		assertSame(form.getSelectedFields(false).get(0), field);
+		assertSame(1, form.getSelectedFields(false).size());
+		assertSame(field, form.getSelectedFields(false).get(0));
 		
 		assertNotNull(form.getSelectedFields(true));
-		assertSame(form.getSelectedFields(true).size(), 1);
-		assertSame(form.getSelectedFields(true).get(0), selectedField);
+		assertSame(1, form.getSelectedFields(true).size());
+		assertSame(selectedField, form.getSelectedFields(true).get(0));
 	}
 	
 	@Test
@@ -420,7 +420,7 @@ class FormTest {
 		
 		((EntityMetadata) nestedEntity).setId(123L);
 		
-		assertSame(form.getSubFormByEntityId(123L), subForm);
+		assertSame(subForm, form.getSubFormByEntityId(123L));
 	}
 	
 	@Test
@@ -438,7 +438,7 @@ class FormTest {
 		
 		nested.setId(123L);
 		
-		assertSame(form.getSubFormByNestedEntityId(123L), subForm);
+		assertSame(subForm, form.getSubFormByNestedEntityId(123L));
 	}
 	
 	@Test
@@ -456,7 +456,7 @@ class FormTest {
 		
 		nested.setUid("test");
 		
-		assertSame(form.getSubFormByNestedEntityUid("test"), subForm);
+		assertSame(subForm, form.getSubFormByNestedEntityUid("test"));
 	}
 	
 	@Test
@@ -470,7 +470,7 @@ class FormTest {
 		
 		subForm.setUid("test");
 		
-		assertSame(form.getSubFormByUid("test"), subForm);
+		assertSame(subForm, form.getSubFormByUid("test"));
 	}
 	
 	@Test
@@ -486,7 +486,7 @@ class FormTest {
 		
 		subFormField.setEntityField(entityField);
 		
-		assertSame(form.getSubFormField(entityField), subFormField);
+		assertSame(subFormField, form.getSubFormField(entityField));
 	}
 	
 	@Test
@@ -500,7 +500,7 @@ class FormTest {
 		
 		transformer.setUid("test");
 		
-		assertSame(form.getTransformerByUid("test"), transformer);
+		assertSame(transformer, form.getTransformerByUid("test"));
 	}
 	
 	@Test
@@ -867,12 +867,12 @@ class FormTest {
 		final Form form = new FormMetadata();
 		final FormAction action = new FormAction();
 		form.addAction(action);
-		assertSame(form.getActions().size(), 1);
+		assertSame(1, form.getActions().size());
 		
 		form.removeAction(action);
 		
 		assertFalse(form.hasActions());
-		assertSame(form.getActions().size(), 0);
+		assertSame(0, form.getActions().size());
 	}
 	
 	@Test
@@ -880,12 +880,12 @@ class FormTest {
 		final Form form = new FormMetadata();
 		final FormField field = new FormField();
 		form.addField(field);
-		assertSame(form.getFields().size(), 1);
+		assertSame(1, form.getFields().size());
 		
 		form.removeField(field);
 		
 		assertFalse(form.hasFields());
-		assertSame(form.getFields().size(), 0);
+		assertSame(0, form.getFields().size());
 	}
 	
 	@Test
@@ -893,12 +893,12 @@ class FormTest {
 		final Form form = new FormMetadata();
 		final FormFieldExtra fieldExtra = new FormFieldExtra();
 		form.addFieldExtra(fieldExtra);
-		assertSame(form.getFieldExtras().size(), 1);
+		assertSame(1, form.getFieldExtras().size());
 		
 		form.removeFieldExtra(fieldExtra);
 		
 		assertFalse(form.hasFieldExtras());
-		assertSame(form.getFieldExtras().size(), 0);
+		assertSame(0, form.getFieldExtras().size());
 	}
 	
 	@Test
@@ -906,12 +906,12 @@ class FormTest {
 		final Form form = new FormMetadata();
 		final FormPrintout printout = new FormPrintout();
 		form.addPrintout(printout);
-		assertSame(form.getPrintouts().size(), 1);
+		assertSame(1, form.getPrintouts().size());
 		
 		form.removePrintout(printout);
 		
 		assertFalse(form.hasPrintouts());
-		assertSame(form.getPrintouts().size(), 0);
+		assertSame(0, form.getPrintouts().size());
 	}
 	
 	@Test
@@ -935,12 +935,12 @@ class FormTest {
 		final Form form = new FormMetadata();
 		final SubForm subForm = new SubForm();
 		form.addSubForm(subForm);
-		assertSame(form.getSubForms().size(), 1);
+		assertSame(1, form.getSubForms().size());
 		
 		form.removeSubForm(subForm);
 		
 		assertFalse(form.hasSubForms());
-		assertSame(form.getSubForms().size(), 0);
+		assertSame(0, form.getSubForms().size());
 	}
 	
 	@Test
@@ -948,11 +948,11 @@ class FormTest {
 		final Form form = new FormMetadata();
 		final FormTransformer transformer = new FormTransformer();
 		form.addTransformer(transformer);
-		assertSame(form.getTransformers().size(), 1);
+		assertSame(1, form.getTransformers().size());
 		
 		form.removeTransformer(transformer);
 		
 		assertFalse(form.hasTransformers());
-		assertSame(form.getTransformers().size(), 0);
+		assertSame(0, form.getTransformers().size());
 	}
 }

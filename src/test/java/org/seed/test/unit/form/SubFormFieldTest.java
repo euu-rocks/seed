@@ -31,10 +31,10 @@ class SubFormFieldTest {
 		final EntityField entityField = new EntityField();
 		field.setEntityField(entityField);
 		entityField.setName("field");
-		assertEquals(field.getName(), "field");
+		assertEquals("field", field.getName());
 		
 		field.setLabel("label");
-		assertEquals(field.getName(), "label");
+		assertEquals("label", field.getName());
 	}
 	
 	@Test

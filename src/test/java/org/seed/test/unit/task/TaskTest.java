@@ -42,11 +42,11 @@ class TaskTest {
 		
 		task.addNotification(notification);
 		
-		assertSame(notification.getTask(), task);
+		assertSame(task, notification.getTask());
 		
 		assertTrue(task.hasNotifications());
-		assertSame(task.getNotifications().size(), 1);
-		assertSame(task.getNotifications().get(0), notification);
+		assertSame(1, task.getNotifications().size());
+		assertSame(notification, task.getNotifications().get(0));
 	}
 	
 	@Test
@@ -57,11 +57,11 @@ class TaskTest {
 		
 		task.addParameter(parameter);
 		
-		assertSame(parameter.getTask(), task);
+		assertSame(task, parameter.getTask());
 		
 		assertTrue(task.hasParameters());
-		assertSame(task.getParameters().size(), 1);
-		assertSame(task.getParameters().get(0), parameter);
+		assertSame(1, task.getParameters().size());
+		assertSame(parameter, task.getParameters().get(0));
 	}
 	
 	@Test
@@ -73,8 +73,8 @@ class TaskTest {
 		task.addRun(run);
 		
 		assertSame(run.getTask(), task);
-		assertSame(task.getRuns().size(), 1);
-		assertSame(task.getRuns().get(0), run);
+		assertSame(1, task.getRuns().size());
+		assertSame(run, task.getRuns().get(0));
 	}
 	
 	@Test
@@ -88,7 +88,7 @@ class TaskTest {
 		
 		parameter.setUid("test");
 		
-		assertSame(task.getParameterByUid("test"), parameter);
+		assertSame(parameter, task.getParameterByUid("test"));
 	}
 	
 	@Test
@@ -104,7 +104,7 @@ class TaskTest {
 		
 		permission.setUid("test");
 		
-		assertSame(task.getPermissionByUid("test"), permission);
+		assertSame(permission, task.getPermissionByUid("test"));
 	}
 	
 	@Test
@@ -118,7 +118,7 @@ class TaskTest {
 		
 		run.setId(123L);
 		
-		assertSame(task.getRunById(123L), run);
+		assertSame(run, task.getRunById(123L));
 	}
 	
 	@Test
@@ -192,12 +192,12 @@ class TaskTest {
 		final Task task = new TaskMetadata();
 		final TaskNotification notification = new TaskNotification();
 		task.addNotification(notification);
-		assertSame(task.getNotifications().size(), 1);
+		assertSame(1, task.getNotifications().size());
 		
 		task.removeNotification(notification);
 		
 		assertFalse(task.hasNotifications());
-		assertSame(task.getNotifications().size(), 0);
+		assertSame(0, task.getNotifications().size());
 	}
 	
 	@Test
@@ -210,7 +210,7 @@ class TaskTest {
 		task.removeParameter(parameter);
 		
 		assertFalse(task.hasParameters());
-		assertSame(task.getParameters().size(), 0);
+		assertSame(0, task.getParameters().size());
 	}
 	
 }

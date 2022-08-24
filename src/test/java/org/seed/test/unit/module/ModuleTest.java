@@ -54,8 +54,8 @@ class ModuleTest {
 		module.addParameter(param);
 		
 		assertTrue(module.hasParameters());
-		assertSame(module.getParameters().size(), 1);
-		assertSame(module.getParameters().get(0), param);
+		assertSame(1, module.getParameters().size());
+		assertSame(param, module.getParameters().get(0));
 	}
 	
 	@Test
@@ -80,7 +80,7 @@ class ModuleTest {
 		
 		module.addTransferContent(entity, content);
 		
-		assertSame(module.getTransferContent(entity), content);
+		assertSame(content, module.getTransferContent(entity));
 	}
 	
 	@Test
@@ -95,7 +95,7 @@ class ModuleTest {
 		
 		customCode.setUid("test");
 		
-		assertSame(module.getCustomCodeByUid("test"), customCode);
+		assertSame(customCode, module.getCustomCodeByUid("test"));
 	}
 	
 	@Test
@@ -110,7 +110,7 @@ class ModuleTest {
 		
 		customLib.setUid("test");
 		
-		assertSame(module.getCustomLibByUid("test"), customLib);
+		assertSame(customLib, module.getCustomLibByUid("test"));
 	}
 	
 	@Test
@@ -125,7 +125,7 @@ class ModuleTest {
 		
 		dataSource.setUid("test");
 		
-		assertSame(module.getDataSourceByUid("test"), dataSource);
+		assertSame(dataSource, module.getDataSourceByUid("test"));
 	}
 	
 	@Test
@@ -140,7 +140,7 @@ class ModuleTest {
 		
 		dbObject.setUid("test");
 		
-		assertSame(module.getDBObjectByUid("test"), dbObject);
+		assertSame(dbObject, module.getDBObjectByUid("test"));
 	}
 	
 	@Test
@@ -155,7 +155,7 @@ class ModuleTest {
 		
 		entity.setUid("test");
 		
-		assertSame(module.getEntityByUid("test"), entity);
+		assertSame(entity, module.getEntityByUid("test"));
 	}
 	
 	@Test
@@ -170,7 +170,7 @@ class ModuleTest {
 		
 		filter.setUid("test");
 		
-		assertSame(module.getFilterByUid("test"), filter);
+		assertSame(filter, module.getFilterByUid("test"));
 	}
 	
 	@Test
@@ -185,7 +185,7 @@ class ModuleTest {
 		
 		form.setUid("test");
 		
-		assertSame(module.getFormByUid("test"), form);
+		assertSame(form, module.getFormByUid("test"));
 	}
 	
 	@Test
@@ -200,7 +200,7 @@ class ModuleTest {
 		
 		menu.setUid("test");
 		
-		assertSame(module.getMenuByUid("test"), menu);
+		assertSame(menu, module.getMenuByUid("test"));
 	}
 	
 	@Test
@@ -213,7 +213,7 @@ class ModuleTest {
 		
 		param.setUid("test");
 		
-		assertSame(module.getParameterByUid("test"), param);
+		assertSame(param, module.getParameterByUid("test"));
 	}
 	
 	@Test
@@ -228,7 +228,7 @@ class ModuleTest {
 		
 		report.setUid("test");
 		
-		assertSame(module.getReportByUid("test"), report);
+		assertSame(report, module.getReportByUid("test"));
 	}
 	
 	@Test
@@ -243,7 +243,7 @@ class ModuleTest {
 		
 		rest.setUid("test");
 		
-		assertSame(module.getRestByUid("test"), rest);
+		assertSame(rest, module.getRestByUid("test"));
 	}
 	
 	@Test
@@ -258,7 +258,7 @@ class ModuleTest {
 		
 		task.setUid("test");
 		
-		assertSame(module.getTaskByUid("test"), task);
+		assertSame(task, module.getTaskByUid("test"));
 	}
 	
 	@Test
@@ -273,7 +273,7 @@ class ModuleTest {
 		
 		transfer.setUid("test");
 		
-		assertSame(module.getTransferByUid("test"), transfer);
+		assertSame(transfer, module.getTransferByUid("test"));
 	}
 	
 	@Test
@@ -288,7 +288,7 @@ class ModuleTest {
 		
 		transformer.setUid("test");
 		
-		assertSame(module.getTransformerByUid("test"), transformer);
+		assertSame(transformer, module.getTransformerByUid("test"));
 	}
 	
 	@Test
@@ -303,7 +303,7 @@ class ModuleTest {
 		
 		group.setUid("test");
 		
-		assertSame(module.getUserGroupByUid("test"), group);
+		assertSame(group, module.getUserGroupByUid("test"));
 	}
 	
 	@Test
@@ -311,12 +311,12 @@ class ModuleTest {
 		final Module module = new ModuleMetadata();
 		final ModuleParameter param = new ModuleParameter();
 		module.addParameter(param);
-		assertSame(module.getParameters().size(), 1);
+		assertSame(1, module.getParameters().size());
 		
 		module.removeParameter(param);
 		
 		assertFalse(module.hasParameters());
-		assertSame(module.getParameters().size(), 0);
+		assertSame(0, module.getParameters().size());
 	}
 
 }

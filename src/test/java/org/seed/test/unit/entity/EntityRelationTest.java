@@ -36,8 +36,8 @@ class EntityRelationTest {
 		
 		final EntityRelation descandantRelation = relation.createDescendantRelation(descendantEntity);
 		assertNotNull(descandantRelation);
-		assertSame(descandantRelation.getEntity(), descendantEntity);
-		assertSame(descandantRelation.getRelatedEntity(), relatedEntity);
+		assertSame(descendantEntity, descandantRelation.getEntity());
+		assertSame(relatedEntity, descandantRelation.getRelatedEntity());
 	}
 	
 	@Test
@@ -49,8 +49,8 @@ class EntityRelationTest {
 		
 		final EntityRelation inverseRelation = relation.createInverseRelation(relatedEntity);
 		assertNotNull(inverseRelation);
-		assertSame(inverseRelation.getEntity(), entity);
-		assertSame(inverseRelation.getRelatedEntity(), relatedEntity);
+		assertSame(entity, inverseRelation.getEntity());
+		assertSame(relatedEntity, inverseRelation.getRelatedEntity());
 	}
 	
 	@Test
@@ -60,10 +60,10 @@ class EntityRelationTest {
 		relation.setRelatedEntity(relatedEntity);
 		
 		relatedEntity.setName("TÄST");
-		assertEquals(relation.getInverseJoinColumnName(), "taest_id");
+		assertEquals("taest_id", relation.getInverseJoinColumnName());
 		
 		((EntityMetadata) relatedEntity).setTableName("TÄBLE");
-		assertEquals(relation.getInverseJoinColumnName(), "täble_id");
+		assertEquals("täble_id", relation.getInverseJoinColumnName());
 	}
 	
 	@Test
@@ -73,10 +73,10 @@ class EntityRelationTest {
 		relation.setEntity(entity);
 		
 		entity.setName("TÄST");
-		assertEquals(relation.getJoinColumnName(), "taest_id");
+		assertEquals("taest_id", relation.getJoinColumnName());
 		
 		((EntityMetadata) entity).setTableName("TÄBLE");
-		assertEquals(relation.getJoinColumnName(), "täble_id");
+		assertEquals("täble_id", relation.getJoinColumnName());
 	}
 	
 	@Test
@@ -89,11 +89,11 @@ class EntityRelationTest {
 		
 		entity.setName("TÄST");
 		relatedEntity.setName("RÄLTEST");
-		assertEquals(relation.getJoinTableName(), "taest_raeltest");
+		assertEquals("taest_raeltest", relation.getJoinTableName());
 		
 		((EntityMetadata) entity).setTableName("TÄBLE");
 		((EntityMetadata) relatedEntity).setTableName("RÄLTABLE");
-		assertEquals(relation.getJoinTableName(), "täble_rältable");
+		assertEquals("täble_rältable", relation.getJoinTableName());
 	}
 	
 	@Test

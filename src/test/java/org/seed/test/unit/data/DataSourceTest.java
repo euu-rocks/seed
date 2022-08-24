@@ -36,11 +36,11 @@ class DataSourceTest {
 		
 		dataSource.addParameter(parameter);
 		
-		assertEquals(parameter.getDataSource(), dataSource);
+		assertEquals(dataSource, parameter.getDataSource());
 		
 		assertTrue(dataSource.hasParameters());
-		assertSame(dataSource.getParameters().size(), 1);
-		assertSame(dataSource.getParameters().get(0), parameter);
+		assertSame(1, dataSource.getParameters().size());
+		assertSame(parameter, dataSource.getParameters().get(0));
 	}
 	
 	@Test
@@ -54,7 +54,7 @@ class DataSourceTest {
 		
 		parameter.setName("test");
 		
-		assertSame(dataSource.getParameterByName("test"), parameter);
+		assertSame(parameter, dataSource.getParameterByName("test"));
 	}
 	
 	@Test
@@ -68,7 +68,7 @@ class DataSourceTest {
 		
 		parameter.setUid("test");
 		
-		assertSame(dataSource.getParameterByUid("test"), parameter);
+		assertSame(parameter, dataSource.getParameterByUid("test"));
 	}
 	
 	@Test
@@ -81,7 +81,7 @@ class DataSourceTest {
 		((DataSourceMetadata) dataSource).setContent("{test}");
 		
 		assertFalse(dataSource.getContentParameterSet().isEmpty());
-		assertEquals(dataSource.getContentParameterSet().iterator().next(), "test");
+		assertEquals("test", dataSource.getContentParameterSet().iterator().next());
 	}
 	
 	@Test
@@ -124,12 +124,12 @@ class DataSourceTest {
 		final IDataSource dataSource = new DataSourceMetadata();
 		final DataSourceParameter parameter = new DataSourceParameter();
 		dataSource.addParameter(parameter);
-		assertSame(dataSource.getParameters().size(), 1);
+		assertSame(1, dataSource.getParameters().size());
 		
 		dataSource.removeParameter(parameter);
 		
 		assertFalse(dataSource.hasParameters());
-		assertSame(dataSource.getParameters().size(), 0);
+		assertSame(0, dataSource.getParameters().size());
 	}
 	
 }

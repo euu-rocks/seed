@@ -45,8 +45,8 @@ class SubFormTest {
 		subForm.addAction(action);
 		
 		assertTrue(subForm.hasActions());
-		assertSame(subForm.getActions().size(), 1);
-		assertSame(subForm.getActions().get(0), action);
+		assertSame(1, subForm.getActions().size());
+		assertSame(action, subForm.getActions().get(0));
 	}
 	
 	@Test
@@ -58,8 +58,8 @@ class SubFormTest {
 		subForm.addField(field);
 		
 		assertTrue(subForm.hasFields());
-		assertSame(subForm.getFields().size(), 1);
-		assertSame(subForm.getFields().get(0), field);
+		assertSame(1, subForm.getFields().size());
+		assertSame(field, subForm.getFields().get(0));
 	}
 	
 	@Test
@@ -135,7 +135,7 @@ class SubFormTest {
 		action.setType(FormActionType.CUSTOM);
 		
 		assertNull(subForm.getActionByType((FormActionType.BACKSEARCH)));
-		assertSame(subForm.getActionByType((FormActionType.CUSTOM)), action);
+		assertSame(action, subForm.getActionByType((FormActionType.CUSTOM)));
 	}
 	
 	@Test
@@ -148,7 +148,7 @@ class SubFormTest {
 		
 		action.setUid("test");
 		
-		assertSame(subForm.getActionByUid("test"), action);
+		assertSame(action, subForm.getActionByUid("test"));
 	}
 	
 	@Test
@@ -163,7 +163,7 @@ class SubFormTest {
 		
 		entityField.setUid("test");
 		
-		assertSame(subForm.getFieldByEntityFieldUid("test"), field);
+		assertSame(field, subForm.getFieldByEntityFieldUid("test"));
 	}
 	
 	@Test
@@ -176,7 +176,7 @@ class SubFormTest {
 		
 		field.setUid("test");
 		
-		assertSame(subForm.getFieldByUid("test"), field);
+		assertSame(field, subForm.getFieldByUid("test"));
 	}
 	
 	@Test

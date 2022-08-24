@@ -63,7 +63,7 @@ class TransferTest {
 		
 		element.setUid("test");
 		
-		assertSame(transfer.getElementByUid("test"), element);
+		assertSame(element, transfer.getElementByUid("test"));
 	}
 	
 	@Test
@@ -78,8 +78,8 @@ class TransferTest {
 		element1.setEntityField(entityField);
 		((TransferMetadata) transfer).setElements(elements);
 		
-		assertSame(transfer.getElementFields().size(), 1);
-		assertSame(transfer.getElementFields().get(0), entityField);
+		assertSame(1, transfer.getElementFields().size());
+		assertSame(entityField, transfer.getElementFields().get(0));
 	}
 	
 	@Test
@@ -96,7 +96,7 @@ class TransferTest {
 		
 		element2.setEntityField(entityField);
 		element2.setIdentifier(true);
-		assertSame(transfer.getIdentifierField(), entityField);
+		assertSame(entityField, transfer.getIdentifierField());
 	}
 	
 	@Test

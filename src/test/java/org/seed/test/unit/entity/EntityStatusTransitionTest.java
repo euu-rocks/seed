@@ -46,8 +46,8 @@ class EntityStatusTransitionTest {
 		
 		assertEquals(transition, function.getStatusTransition());
 		assertTrue(transition.hasFunctions());
-		assertSame(transition.getFunctions().size(), 1);
-		assertSame(transition.getFunctions().get(0), function);
+		assertSame(1, transition.getFunctions().size());
+		assertSame(function, transition.getFunctions().get(0));
 	}
 	
 	@Test
@@ -75,7 +75,7 @@ class EntityStatusTransitionTest {
 		
 		function.setUid("test");
 		
-		assertSame(transition.getFunctionByUid("test"), function);
+		assertSame(function, transition.getFunctionByUid("test"));
 	}
 	
 	@Test
@@ -107,7 +107,7 @@ class EntityStatusTransitionTest {
 		
 		permission.setUid("test");
 		
-		assertSame(transition.getPermissionByUid("test"), permission);
+		assertSame(permission, transition.getPermissionByUid("test"));
 	}
 	
 	@Test
@@ -195,12 +195,12 @@ class EntityStatusTransitionTest {
 		final EntityStatusTransition transition = new EntityStatusTransition();
 		final EntityStatusTransitionFunction function = new EntityStatusTransitionFunction();
 		transition.addFunction(function);
-		assertSame(transition.getFunctions().size(), 1);
+		assertSame(1, transition.getFunctions().size());
 		
 		transition.removeFunction(function);
 		
 		assertFalse(transition.hasFunctions());
-		assertSame(transition.getFunctions().size(), 0);
+		assertSame(0, transition.getFunctions().size());
 	}
 	
 }

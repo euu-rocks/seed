@@ -839,7 +839,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		}
 		if (schemaVersion == SchemaVersion.V_0_9_33) {
 			// mask table and column names that equals SQL keywords
-			new SchemaUpdateHandler0_9_33().process(context.getModule());
+			new SchemaUpdateHandler0933().process(context.getModule());
 		}
 	}
 	
@@ -1316,7 +1316,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	};
 	
 	// mask table and column names that equals SQL keywords
-	private class SchemaUpdateHandler0_9_33 {
+	private class SchemaUpdateHandler0933 {
 		
 		void process(Module module) {
 			module.getEntities().forEach(this::process);

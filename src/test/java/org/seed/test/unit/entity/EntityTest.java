@@ -55,12 +55,12 @@ class EntityTest {
 		assertEquals(entity, field.getEntity());
 		
 		assertTrue(entity.hasFields());
-		assertSame(entity.getFields().size(), 1);
-		assertSame(entity.getFields().get(0), field);
+		assertSame(1, entity.getFields().size());
+		assertSame(field, entity.getFields().get(0));
 		
 		assertTrue(entity.hasAllFields());
-		assertSame(entity.getAllFields().size(), 1);
-		assertSame(entity.getAllFields().get(0), field);
+		assertSame(1, entity.getAllFields().size());
+		assertSame(field, entity.getAllFields().get(0));
 	}
 	
 	@Test
@@ -73,8 +73,8 @@ class EntityTest {
 		
 		assertEquals(entity, constraint.getEntity());
 		assertTrue(entity.hasFieldConstraints());
-		assertSame(entity.getFieldConstraints().size(), 1);
-		assertSame(entity.getFieldConstraints().get(0), constraint);
+		assertSame(1, entity.getFieldConstraints().size());
+		assertSame(constraint, entity.getFieldConstraints().get(0));
 	}
 	
 	@Test
@@ -88,12 +88,12 @@ class EntityTest {
 		
 		assertEquals(entity, fieldGroup.getEntity());
 		assertTrue(entity.hasFieldGroups());
-		assertSame(entity.getFieldGroups().size(), 1);
-		assertSame(entity.getFieldGroups().get(0), fieldGroup);
+		assertSame(1, entity.getFieldGroups().size());
+		assertSame(fieldGroup, entity.getFieldGroups().get(0));
 		
 		assertTrue(entity.hasAllFieldGroups());
-		assertSame(entity.getAllFieldGroups().size(), 1);
-		assertSame(entity.getAllFieldGroups().get(0), fieldGroup);
+		assertSame(1, entity.getAllFieldGroups().size());
+		assertSame(fieldGroup, entity.getAllFieldGroups().get(0));
 	}
 	
 	@Test
@@ -107,12 +107,12 @@ class EntityTest {
 		
 		assertEquals(entity, function.getEntity());
 		assertTrue(entity.hasFunctions());
-		assertSame(entity.getFunctions().size(), 1);
-		assertSame(entity.getFunctions().get(0), function);
+		assertSame(1, entity.getFunctions().size());
+		assertSame(function, entity.getFunctions().get(0));
 		
 		assertTrue(entity.hasAllFunctions());
-		assertSame(entity.getAllFunctions().size(), 1);
-		assertSame(entity.getAllFunctions().get(0), function);
+		assertSame(1, entity.getAllFunctions().size());
+		assertSame(function, entity.getAllFunctions().get(0));
 	}
 	
 	@Test
@@ -125,8 +125,8 @@ class EntityTest {
 		
 		assertEquals(entity, nested.getParentEntity());
 		assertTrue(entity.hasNesteds());
-		assertSame(entity.getNesteds().size(), 1);
-		assertSame(entity.getNesteds().get(0), nested);
+		assertSame(1, entity.getNesteds().size());
+		assertSame(nested, entity.getNesteds().get(0));
 	}
 	
 	@Test
@@ -139,8 +139,8 @@ class EntityTest {
 		
 		assertEquals(entity, permission.getEntity());
 		assertTrue(entity.hasPermissions());
-		assertSame(entity.getPermissions().size(), 1);
-		assertSame(entity.getPermissions().get(0), permission);
+		assertSame(1, entity.getPermissions().size());
+		assertSame(permission, entity.getPermissions().get(0));
 	}
 	
 	@Test
@@ -154,12 +154,12 @@ class EntityTest {
 		
 		assertEquals(entity, relation.getEntity());
 		assertTrue(entity.hasRelations());
-		assertSame(entity.getRelations().size(), 1);
-		assertSame(entity.getRelations().get(0), relation);
+		assertSame(1, entity.getRelations().size());
+		assertSame(relation, entity.getRelations().get(0));
 		
 		assertTrue(entity.hasAllRelations());
-		assertSame(entity.getAllRelations().size(), 1);
-		assertSame(entity.getAllRelations().get(0), relation);
+		assertSame(1, entity.getAllRelations().size());
+		assertSame(relation, entity.getAllRelations().get(0));
 	}
 	
 	@Test
@@ -172,8 +172,8 @@ class EntityTest {
 		
 		assertEquals(entity, status.getEntity());
 		assertTrue(entity.hasStatus());
-		assertSame(entity.getStatusList().size(), 1);
-		assertSame(entity.getStatusList().get(0), status);
+		assertSame(1, entity.getStatusList().size());
+		assertSame(status, entity.getStatusList().get(0));
 	}
 	
 	@Test
@@ -186,8 +186,8 @@ class EntityTest {
 		
 		assertEquals(entity, transition.getEntity());
 		assertTrue(entity.hasStatusTransitions());
-		assertSame(entity.getStatusTransitions().size(), 1);
-		assertSame(entity.getStatusTransitions().get(0), transition);
+		assertSame(1, entity.getStatusTransitions().size());
+		assertSame(transition, entity.getStatusTransitions().get(0));
 	}
 	
 	@Test
@@ -269,7 +269,7 @@ class EntityTest {
 		
 		entity.addField(field);
 		
-		assertSame(entity.findAutonumField(), field);
+		assertSame(field, entity.findAutonumField());
 	}
 	
 	@Test
@@ -283,7 +283,7 @@ class EntityTest {
 		
 		field.setUid("test");
 		
-		assertSame(entity.findFieldByUid("test"), field);
+		assertSame(field, entity.findFieldByUid("test"));
 	}
 	
 	@Test
@@ -298,13 +298,13 @@ class EntityTest {
 		assertNull(entity.findDefaultIdentifierField());
 		
 		field1.setType(FieldType.TEXT);
-		assertSame(entity.findDefaultIdentifierField(), field1);
+		assertSame(field1, entity.findDefaultIdentifierField());
 		
 		field2.setType(FieldType.AUTONUM);
-		assertSame(entity.findDefaultIdentifierField(), field1);
+		assertSame(field1, entity.findDefaultIdentifierField());
 		
 		field2.setUnique(true);
-		assertSame(entity.findDefaultIdentifierField(), field2);
+		assertSame(field2, entity.findDefaultIdentifierField());
 	}
 	
 	@Test
@@ -318,7 +318,7 @@ class EntityTest {
 		
 		nested.setUid("test");
 		
-		assertSame(entity.getNestedByUid("test"), nested);
+		assertSame(nested, entity.getNestedByUid("test"));
 	}
 	
 	@Test
@@ -332,7 +332,7 @@ class EntityTest {
 		
 		permission.setUid("test");
 		
-		assertSame(entity.getPermissionByUid("test"), permission);
+		assertSame(permission, entity.getPermissionByUid("test"));
 	}
 	
 	@Test
@@ -346,7 +346,7 @@ class EntityTest {
 		
 		relation.setUid("test");
 		
-		assertSame(entity.getRelationByUid("test"), relation);
+		assertSame(relation, entity.getRelationByUid("test"));
 	}
 	
 	@Test
@@ -360,12 +360,12 @@ class EntityTest {
 		referenceField.setReferenceEntity(referenceEntity);
 		entity.addField(textField);
 		
-		assertSame(entity.getReferenceFields(referenceEntity).size(), 0);
+		assertSame(0, entity.getReferenceFields(referenceEntity).size());
 		
 		entity.addField(referenceField);
 		
-		assertSame(entity.getReferenceFields(referenceEntity).size(), 1);
-		assertSame(entity.getReferenceFields(referenceEntity).get(0), referenceField);
+		assertSame(1, entity.getReferenceFields(referenceEntity).size());
+		assertSame(referenceField, entity.getReferenceFields(referenceEntity).get(0));
 	}
 	
 	@Test
@@ -380,7 +380,7 @@ class EntityTest {
 		
 		((EntityMetadata) entity).setGenericEntity(genericEntity);
 		
-		assertSame(entity.getGenericEntity(), genericEntity);
+		assertSame(genericEntity, entity.getGenericEntity());
 	}
 	
 	@Test
@@ -394,9 +394,9 @@ class EntityTest {
 		entity.addFunction(callbackFunction);
 		
 		assertTrue(entity.hasFunctions());
-		assertSame(entity.getFunctions().size(), 2);
-		assertSame(entity.getCallbackFunctions().size(), 1);
-		assertSame(entity.getCallbackFunctions().get(0), callbackFunction);
+		assertSame(2, entity.getFunctions().size());
+		assertSame(1, entity.getCallbackFunctions().size());
+		assertSame(callbackFunction, entity.getCallbackFunctions().get(0));
 	}
 	
 	@Test
@@ -410,9 +410,9 @@ class EntityTest {
 		entity.addFunction(callbackFunction);
 		
 		assertTrue(entity.hasFunctions());
-		assertSame(entity.getFunctions().size(), 2);
-		assertSame(entity.getMemberFunctions().size(), 1);
-		assertSame(entity.getMemberFunctions().get(0), function);
+		assertSame(2, entity.getFunctions().size());
+		assertSame(1, entity.getMemberFunctions().size());
+		assertSame(function, entity.getMemberFunctions().get(0));
 	}
 	
 	@Test
@@ -428,7 +428,7 @@ class EntityTest {
 		
 		nestedEntity.addField(nestedEntityField);
 		
-		assertSame(entity.getNestedByEntityField(nestedEntityField), nested);
+		assertSame(nested, entity.getNestedByEntityField(nestedEntityField));
 	}
 	
 	@Test
@@ -444,7 +444,7 @@ class EntityTest {
 		
 		((EntityMetadata) nestedEntity).setId(123L);
 		
-		assertSame(entity.getNestedByEntityId(123L), nested);
+		assertSame(nested, entity.getNestedByEntityId(123L));
 	}
 	
 	@Test
@@ -460,7 +460,7 @@ class EntityTest {
 		
 		nestedEntity.setName("TÄST");
 		
-		assertEquals(entity.getNestedByInternalName("taest"), nested);
+		assertEquals(nested, entity.getNestedByInternalName("taest"));
 	}
 	
 	@Test
@@ -468,11 +468,11 @@ class EntityTest {
 		final Entity entity = new EntityMetadata();
 		entity.setName("TÄST");
 		
-		assertEquals(entity.getEffectiveTableName(), "taest");
+		assertEquals("taest", entity.getEffectiveTableName());
 		
 		((EntityMetadata) entity).setTableName("TESTTABLE");
 		
-		assertEquals(entity.getEffectiveTableName(), "testtable");
+		assertEquals("testtable", entity.getEffectiveTableName());
 	}
 	
 	@Test
@@ -486,7 +486,7 @@ class EntityTest {
 		
 		field.setId(123L);
 		
-		assertSame(entity.getFieldById(123L), field);
+		assertSame(field, entity.getFieldById(123L));
 	}
 	
 	@Test
@@ -500,7 +500,7 @@ class EntityTest {
 		
 		field.setUid("test");
 		
-		assertSame(entity.getFieldByUid("test"), field);
+		assertSame(field, entity.getFieldByUid("test"));
 	}
 	
 	@Test
@@ -514,7 +514,7 @@ class EntityTest {
 		
 		fieldGroup.setId(123L);
 		
-		assertSame(entity.getFieldGroupById(123L), fieldGroup);
+		assertSame(fieldGroup, entity.getFieldGroupById(123L));
 	}
 	
 	@Test
@@ -528,7 +528,7 @@ class EntityTest {
 		
 		fieldGroup.setUid("test");
 		
-		assertSame(entity.getFieldGroupByUid("test"), fieldGroup);
+		assertSame(fieldGroup, entity.getFieldGroupByUid("test"));
 	}
 	
 	@Test
@@ -542,7 +542,7 @@ class EntityTest {
 		
 		function.setId(123L);
 		
-		assertSame(entity.getFunctionById(123L), function);
+		assertSame(function, entity.getFunctionById(123L));
 	}
 	
 	@Test
@@ -556,7 +556,7 @@ class EntityTest {
 		
 		function.setUid("test");
 		
-		assertSame(entity.getFunctionByUid("test"), function);
+		assertSame(function, entity.getFunctionByUid("test"));
 	}
 	
 	@Test
@@ -570,7 +570,7 @@ class EntityTest {
 		
 		constraint.setUid("test");
 		
-		assertSame(entity.getFieldConstraintByUid("test"), constraint);
+		assertSame(constraint, entity.getFieldConstraintByUid("test"));
 	}
 	
 	@Test
@@ -581,18 +581,18 @@ class EntityTest {
 		IllegalStateException isex = assertThrows(IllegalStateException.class, () -> {
 			entity.getInitialStatus();
 		});
-		assertSame(isex.getMessage(), "entity has no status");
+		assertSame("entity has no status", isex.getMessage());
 		
 		entity.addStatus(status);
 		
 		isex = assertThrows(IllegalStateException.class, () -> {
 			entity.getInitialStatus();
 		});
-		assertSame(isex.getMessage(), "initial status not found");
+		assertSame("initial status not found", isex.getMessage());
 		
 		status.setInitial(true);
 		
-		assertSame(entity.getInitialStatus(), status);
+		assertSame(status, entity.getInitialStatus());
 	}
 	
 	@Test
@@ -605,7 +605,7 @@ class EntityTest {
 		
 		entity.addStatus(status);
 		
-		assertSame(entity.getStatusById(123L), status);
+		assertSame(status, entity.getStatusById(123L));
 	}
 	
 	@Test
@@ -618,7 +618,7 @@ class EntityTest {
 		
 		entity.addStatus(status);
 		
-		assertSame(entity.getStatusByNumber(42), status);
+		assertSame(status, entity.getStatusByNumber(42));
 	}
 	
 	@Test
@@ -632,7 +632,7 @@ class EntityTest {
 		
 		status.setUid("test");
 		
-		assertSame(entity.getStatusByUid("test"), status);
+		assertSame(status, entity.getStatusByUid("test"));
 	}
 	
 	@Test
@@ -649,7 +649,7 @@ class EntityTest {
 		entity.addStatusTransition(transition);
 		
 		assertNotNull(entity.getStatusTransition(sourceStatus, targetStatus));
-		assertSame(entity.getStatusTransition(sourceStatus, targetStatus), transition);
+		assertSame(transition, entity.getStatusTransition(sourceStatus, targetStatus));
 	}
 	
 	@Test
@@ -663,7 +663,7 @@ class EntityTest {
 		
 		transition.setUid("test");
 		
-		assertSame(entity.getStatusTransitionByUid("test"), transition);
+		assertSame(transition, entity.getStatusTransitionByUid("test"));
 	}
 	
 	@Test
@@ -674,12 +674,12 @@ class EntityTest {
 		function2.setActiveOnUserAction(true);
 		entity.addFunction(function1);
 		
-		assertEquals(entity.getUserActionFunctions().size(), 0);
+		assertEquals(0, entity.getUserActionFunctions().size());
 		
 		entity.addFunction(function2);
 		
-		assertEquals(entity.getUserActionFunctions().size(), 1);
-		assertSame(entity.getUserActionFunctions().get(0), function2);
+		assertEquals(1, entity.getUserActionFunctions().size());
+		assertSame(function2, entity.getUserActionFunctions().get(0));
 	}
 	
 	@Test
@@ -944,15 +944,15 @@ class EntityTest {
 		final Entity entity = new EntityMetadata();
 		final EntityField field = new EntityField();
 		entity.addField(field);
-		assertSame(entity.getFields().size(), 1);
-		assertSame(entity.getAllFields().size(), 1);
+		assertSame(1, entity.getFields().size());
+		assertSame(1, entity.getAllFields().size());
 		
 		entity.removeField(field);
 		
 		assertFalse(entity.hasFields());
 		assertFalse(entity.hasAllFields());
-		assertSame(entity.getFields().size(), 0);
-		assertSame(entity.getAllFields().size(), 0);
+		assertSame(0, entity.getFields().size());
+		assertSame(0, entity.getAllFields().size());
 	}
 	
 	@Test
@@ -960,12 +960,12 @@ class EntityTest {
 		final Entity entity = new EntityMetadata();
 		final EntityFieldConstraint constraint = new EntityFieldConstraint();
 		entity.addFieldConstraint(constraint);
-		assertSame(entity.getFieldConstraints().size(), 1);
+		assertSame(1, entity.getFieldConstraints().size());
 		
 		entity.removeFieldConstraint(constraint);
 		
 		assertFalse(entity.hasFieldConstraints());
-		assertSame(entity.getFieldConstraints().size(), 0);
+		assertSame(0, entity.getFieldConstraints().size());
 	}
 	
 	@Test
@@ -973,15 +973,15 @@ class EntityTest {
 		final Entity entity = new EntityMetadata();
 		final EntityFieldGroup fieldGroup = new EntityFieldGroup();
 		entity.addFieldGroup(fieldGroup);
-		assertSame(entity.getFieldGroups().size(), 1);
-		assertSame(entity.getAllFieldGroups().size(), 1);
+		assertSame(1, entity.getFieldGroups().size());
+		assertSame(1, entity.getAllFieldGroups().size());
 		
 		entity.removeFieldGroup(fieldGroup);
 		
 		assertFalse(entity.hasFieldGroups());
 		assertFalse(entity.hasAllFieldGroups());
-		assertSame(entity.getFieldGroups().size(), 0);
-		assertSame(entity.getAllFieldGroups().size(), 0);
+		assertSame(0, entity.getFieldGroups().size());
+		assertSame(0, entity.getAllFieldGroups().size());
 	}
 	
 	@Test
@@ -989,15 +989,15 @@ class EntityTest {
 		final Entity entity = new EntityMetadata();
 		final EntityFunction function = new EntityFunction();
 		entity.addFunction(function);
-		assertSame(entity.getFunctions().size(), 1);
-		assertSame(entity.getAllFunctions().size(), 1);
+		assertSame(1, entity.getFunctions().size());
+		assertSame(1, entity.getAllFunctions().size());
 		
 		entity.removeFunction(function);
 		
 		assertFalse(entity.hasFunctions());
 		assertFalse(entity.hasAllFunctions());
-		assertSame(entity.getFunctions().size(), 0);
-		assertSame(entity.getAllFunctions().size(), 0);
+		assertSame(0, entity.getFunctions().size());
+		assertSame(0, entity.getAllFunctions().size());
 	}
 	
 	@Test
@@ -1005,12 +1005,12 @@ class EntityTest {
 		final Entity entity = new EntityMetadata();
 		final NestedEntity nested = new NestedEntity();
 		entity.addNested(nested);
-		assertSame(entity.getNesteds().size(), 1);
+		assertSame(1, entity.getNesteds().size());
 		
 		entity.removeNested(nested);
 		
 		assertFalse(entity.hasNesteds());
-		assertSame(entity.getNesteds().size(), 0);
+		assertSame(0, entity.getNesteds().size());
 	}
 	
 	@Test
@@ -1018,12 +1018,12 @@ class EntityTest {
 		final Entity entity = new EntityMetadata();
 		final EntityPermission permission = new EntityPermission();
 		entity.addPermission(permission);
-		assertSame(entity.getPermissions().size(), 1);
+		assertSame(1, entity.getPermissions().size());
 		
 		entity.removePermission(permission);
 		
 		assertFalse(entity.hasPermissions());
-		assertSame(entity.getPermissions().size(), 0);
+		assertSame(0, entity.getPermissions().size());
 	}
 	
 	@Test
@@ -1031,15 +1031,15 @@ class EntityTest {
 		final Entity entity = new EntityMetadata();
 		final EntityRelation relation = new EntityRelation();
 		entity.addRelation(relation);
-		assertSame(entity.getRelations().size(), 1);
-		assertSame(entity.getAllRelations().size(), 1);
+		assertSame(1, entity.getRelations().size());
+		assertSame(1, entity.getAllRelations().size());
 		
 		entity.removeRelation(relation);
 		
 		assertFalse(entity.hasRelations());
 		assertFalse(entity.hasAllRelations());
-		assertSame(entity.getRelations().size(), 0);
-		assertSame(entity.getAllRelations().size(), 0);
+		assertSame(0, entity.getRelations().size());
+		assertSame(0, entity.getAllRelations().size());
 	}
 	
 	@Test
@@ -1047,12 +1047,12 @@ class EntityTest {
 		final Entity entity = new EntityMetadata();
 		final EntityStatus status = new EntityStatus();
 		entity.addStatus(status);
-		assertSame(entity.getStatusList().size(), 1);
+		assertSame(1, entity.getStatusList().size());
 		
 		entity.removeStatus(status);
 		
 		assertFalse(entity.hasStatus());
-		assertSame(entity.getStatusList().size(), 0);
+		assertSame(0, entity.getStatusList().size());
 	}
 	
 	@Test
@@ -1060,12 +1060,12 @@ class EntityTest {
 		final Entity entity = new EntityMetadata();
 		final EntityStatusTransition transition = new EntityStatusTransition();
 		entity.addStatusTransition(transition);
-		assertSame(entity.getStatusTransitions().size(), 1);
+		assertSame(1, entity.getStatusTransitions().size());
 		
 		entity.removeStatusTransition(transition);
 		
 		assertFalse(entity.hasStatusTransitions());
-		assertSame(entity.getStatusTransitions().size(), 0);
+		assertSame(0, entity.getStatusTransitions().size());
 	}
 	
 }

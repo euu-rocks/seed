@@ -43,7 +43,7 @@ class UserGroupTest {
 		
 		groupAuthorisation.setUid("test");
 		
-		assertSame(group.getAuthorisationByUid("test"), groupAuthorisation);
+		assertSame(groupAuthorisation, group.getAuthorisationByUid("test"));
 	}
 	
 	@Test

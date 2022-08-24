@@ -43,10 +43,10 @@ class ReportTest {
 		
 		report.addDataSource(dataSource);
 		
-		assertSame(dataSource.getReport(), report);
+		assertSame(report, dataSource.getReport());
 		assertTrue(report.hasDataSources());
-		assertSame(report.getDataSources().size(), 1);
-		assertSame(report.getDataSources().get(0), dataSource);
+		assertSame(1, report.getDataSources().size());
+		assertSame(dataSource, report.getDataSources().get(0));
 	}
 	
 	@Test
@@ -60,7 +60,7 @@ class ReportTest {
 		
 		dataSource.setUid("test");
 		
-		assertSame(report.getDataSourceByUid("test"), dataSource);
+		assertSame(dataSource, report.getDataSourceByUid("test"));
 	}
 	
 	@Test
@@ -76,7 +76,7 @@ class ReportTest {
 		
 		permission.setUid("test");
 		
-		assertSame(report.getPermissionByUid("test"), permission);
+		assertSame(permission, report.getPermissionByUid("test"));
 	}
 	
 	@Test
@@ -97,15 +97,15 @@ class ReportTest {
 			report.getDataSourceParameterMap();
 		
 		assertFalse(map.isEmpty());
-		assertSame(map.size(), 1);
-		assertEquals(map.keySet().iterator().next(), "testdatasource");
+		assertSame(1, map.size());
+		assertEquals("testdatasource", map.keySet().iterator().next());
 		
 		final List<DataSourceParameter> params = map.values().iterator().next();
 		
-		assertSame(params.size(), 1);
-		assertSame(params.get(0), parameter);
-		assertEquals(params.get(0).getName(), "testparam");
-		assertEquals(params.get(0).getValue(), "testvalue");
+		assertSame(1, params.size());
+		assertSame(parameter, params.get(0));
+		assertEquals("testparam", params.get(0).getName());
+		assertEquals("testvalue", params.get(0).getValue());
 	}
 	
 	@Test
@@ -169,12 +169,12 @@ class ReportTest {
 		final Report report = new ReportMetadata();
 		final ReportDataSource dataSource = new ReportDataSource();
 		report.addDataSource(dataSource);
-		assertSame(report.getDataSources().size(), 1);
+		assertSame(1, report.getDataSources().size());
 		
 		report.removeDataSource(dataSource);
 		
 		assertFalse(report.hasDataSources());
-		assertSame(report.getDataSources().size(), 0);
+		assertSame(0, report.getDataSources().size());
 	}
 	
 }
