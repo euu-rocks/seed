@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import javax.annotation.PostConstruct;
@@ -55,6 +54,7 @@ import org.seed.core.entity.Entity;
 import org.seed.core.entity.transfer.TransferFormat;
 import org.seed.core.entity.transfer.TransferService;
 import org.seed.core.util.Assert;
+import org.seed.core.util.SafeZipInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,21 +132,21 @@ public class ModuleTransfer {
 		Map<String, byte[]> mapTransferContents = new HashMap<>();
 		Module module = null;
 		
-		try (ZipInputStream zis = new ZipInputStream(inputStream)) {
+		try (SafeZipInputStream zis = new SafeZipInputStream(inputStream)) {
 			ZipEntry entry;
 			while ((entry = zis.getNextEntry()) != null) {
 				// read module
 				if (MODULE_XML_FILENAME.equals(entry.getName())) {
 					module = (Module) marshaller.unmarshal(
-							new StreamSource(new ByteArrayInputStream(zis.readAllBytes())));
+							new StreamSource(new ByteArrayInputStream(zis.readSafe(entry))));
 				}
 				// read jar files
 				else if (isJarFile(entry.getName())) {
-					mapJars.put(entry.getName(), zis.readAllBytes());
+					mapJars.put(entry.getName(), zis.readSafe(entry));
 				}
 				// read transfer files
 				else if (isTransferFile(entry.getName())) {
-					mapTransferContents.put(entry.getName(), zis.readAllBytes());
+					mapTransferContents.put(entry.getName(), zis.readSafe(entry));
 				}
 				// ignore other entries
 			}

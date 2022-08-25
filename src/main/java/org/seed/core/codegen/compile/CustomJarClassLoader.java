@@ -20,13 +20,13 @@ package org.seed.core.codegen.compile;
 import java.io.IOException;
 import java.util.List;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import javax.tools.JavaFileObject.Kind;
 
 import org.seed.core.codegen.CodeUtils;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
+import org.seed.core.util.SafeZipInputStream;
 import org.seed.core.util.StreamUtils;
 
 class CustomJarClassLoader extends ClassLoader {
@@ -53,11 +53,11 @@ class CustomJarClassLoader extends ClassLoader {
 	}
 	
 	private static byte[] findCustomJarClass(CustomJar customJar, String resourceName) {
-		try (ZipInputStream zipStream = StreamUtils.getZipStream(customJar.getContent())) {
+		try (SafeZipInputStream zipStream = StreamUtils.getZipStream(customJar.getContent())) {
 			ZipEntry entry;
 			while ((entry = zipStream.getNextEntry()) != null) {
 				if (resourceName.equals(entry.getName())) {
-					return zipStream.readAllBytes();
+					return zipStream.readSafe(entry);
 				}
 			}
 			return MiscUtils.EMPTY_BYTE_ARRAY;

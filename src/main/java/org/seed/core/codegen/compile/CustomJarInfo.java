@@ -21,10 +21,10 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import org.seed.C;
 import org.seed.core.util.Assert;
+import org.seed.core.util.SafeZipInputStream;
 import org.seed.core.util.StreamUtils;
 
 final class CustomJarInfo {
@@ -52,7 +52,7 @@ final class CustomJarInfo {
 	
 	private static Set<String> extractPackageNames(CustomJar customJar) {
 		final Set<String> packageNames = new HashSet<>();
-		try (ZipInputStream zis = StreamUtils.getZipStream(customJar.getContent())) {
+		try (SafeZipInputStream zis = StreamUtils.getZipStream(customJar.getContent())) {
 			ZipEntry entry;
 			while ((entry = zis.getNextEntry()) != null) {
                 if (entry.isDirectory() && !entry.getName().startsWith("META-INF")) {

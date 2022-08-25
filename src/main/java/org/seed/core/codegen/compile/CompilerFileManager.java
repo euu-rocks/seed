@@ -31,7 +31,6 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import javax.tools.FileObject;
 import javax.tools.ForwardingJavaFileManager;
@@ -44,6 +43,7 @@ import javax.tools.StandardJavaFileManager;
 import org.seed.C;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.util.Assert;
+import org.seed.core.util.SafeZipInputStream;
 import org.seed.core.util.StreamUtils;
 
 import static org.seed.core.codegen.CodeUtils.*;
@@ -178,6 +178,7 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 		final JarURLConnection jarCon = (JarURLConnection) packageURL.openConnection();
 		final String packagePath = jarCon.getEntryName();
 		final Enumeration<JarEntry> entryEnum = jarCon.getJarFile().entries();
+		
 		while (entryEnum.hasMoreElements()) {
 			final String entryName = entryEnum.nextElement().getName();
 			if (isClassFile(entryName) &&
@@ -191,7 +192,8 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	
 	private void listCustomJar(List<JavaFileObject> result, String packageName, CustomJarInfo customJar) {
 		final String packagePath = getPackagePath(packageName);
-		try (ZipInputStream zis = StreamUtils.getZipStream(customJar.getContent())) {
+		
+		try (SafeZipInputStream zis = StreamUtils.getZipStream(customJar.getContent())) {
 			ZipEntry entry;
 			while ((entry = zis.getNextEntry()) != null) {
 				final String entryName = entry.getName();
@@ -199,7 +201,7 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 					entryName.startsWith(packagePath) && 
 					!isSubPackage(entryName, packagePath)) {
 						result.add(new JavaClassFileObject(getQualifiedName(entryName), 
-														   zis.readAllBytes()));
+														   zis.readSafe(entry)));
 				}
 			}
 		}
