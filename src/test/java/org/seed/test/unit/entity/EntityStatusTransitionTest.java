@@ -27,6 +27,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import org.seed.core.entity.EntityFunction;
+import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.EntityStatusTransition;
 import org.seed.core.entity.EntityStatusTransitionFunction;
 import org.seed.core.entity.EntityStatusTransitionPermission;
@@ -108,6 +109,30 @@ class EntityStatusTransitionTest {
 		permission.setUid("test");
 		
 		assertSame(permission, transition.getPermissionByUid("test"));
+	}
+	
+	@Test
+	void testGetSourceStatusUid() {
+		final EntityStatusTransition transition = new EntityStatusTransition();
+		final EntityStatus status = new EntityStatus();
+		transition.setSourceStatusUid("test");
+		assertEquals("test", transition.getSourceStatusUid());
+		
+		status.setUid("source");
+		transition.setSourceStatus(status);
+		assertEquals("source", transition.getSourceStatusUid());
+	}
+	
+	@Test
+	void testGetTargetStatusUid() {
+		final EntityStatusTransition transition = new EntityStatusTransition();
+		final EntityStatus status = new EntityStatus();
+		transition.setTargetStatusUid("test");
+		assertEquals("test", transition.getTargetStatusUid());
+		
+		status.setUid("target");
+		transition.setTargetStatus(status);
+		assertEquals("target", transition.getTargetStatusUid());
 	}
 	
 	@Test

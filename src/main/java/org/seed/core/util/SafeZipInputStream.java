@@ -47,12 +47,11 @@ public class SafeZipInputStream extends ZipInputStream {
 		buffer = new byte[BUFFER_SIZE];
 	}
 	
-	@Override
-	public ZipEntry getNextEntry() throws IOException {
+	public ZipEntry getNextEntrySafe() throws IOException {
 		if (++totalEntryArchive > THRESHOLD_ENTRIES) {
-			throw new IOException("possible ZipBombAttack: too much entries: " + totalEntryArchive);
+			throw new IOException("ZipBombAttack: too much entries: " + totalEntryArchive);
 	    }
-		return super.getNextEntry();
+		return getNextEntry();
 	}
 	
 	public byte[] readSafe(ZipEntry zipEntry) throws IOException {
@@ -65,15 +64,15 @@ public class SafeZipInputStream extends ZipInputStream {
 			    totalSizeArchive += numBytes;
 			    
 			    if (totalSizeEntry > THRESHOLD_ENTRY_SIZE) {
-			    	throw new IOException("possible ZipBombAttack: uncompressed entry is too large: " + totalSizeEntry);
+			    	throw new IOException("ZipBombAttack: uncompressed entry is too large: " + totalSizeEntry);
 			    }
 			    if (totalSizeArchive > THRESHOLD_TOTAL_SIZE) {
-			    	throw new IOException("possible ZipBombAttack: uncompressed data is too large: " + totalSizeArchive);
+			    	throw new IOException("ZipBombAttack: uncompressed data is too large: " + totalSizeArchive);
 			    }
 			    
 			    final double compressionRatio = totalSizeEntry / zipEntry.getCompressedSize();
 			    if (compressionRatio > THRESHOLD_RATIO) {
-			    	throw new IOException("possible ZipBombAttack: compression ratio is suspicious: " + compressionRatio);
+			    	throw new IOException("ZipBombAttack: compression ratio is suspicious: " + compressionRatio);
 			    }
 			}
 			return byteArrayOutputStream.toByteArray();

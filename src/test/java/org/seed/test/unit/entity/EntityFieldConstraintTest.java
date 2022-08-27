@@ -22,9 +22,62 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import org.seed.core.data.FieldAccess;
+import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityFieldConstraint;
+import org.seed.core.entity.EntityFieldGroup;
+import org.seed.core.entity.EntityStatus;
+import org.seed.core.user.UserGroup;
+import org.seed.core.user.UserGroupMetadata;
 
 class EntityFieldConstraintTest {
+	
+	@Test
+	void testGetFieldUid() {
+		final EntityFieldConstraint constraint = new EntityFieldConstraint();
+		final EntityField field = new EntityField();
+		constraint.setFieldUid("test");
+		assertEquals("test", constraint.getFieldUid());
+		
+		field.setUid("field");
+		constraint.setField(field);
+		assertEquals("field", constraint.getFieldUid());
+	}
+	
+	@Test
+	void testGetFieldGroupUid() {
+		final EntityFieldConstraint constraint = new EntityFieldConstraint();
+		final EntityFieldGroup group = new EntityFieldGroup();
+		constraint.setFieldGroupUid("test");
+		assertEquals("test", constraint.getFieldGroupUid());
+		
+		group.setUid("group");
+		constraint.setFieldGroup(group);
+		assertEquals("group", constraint.getFieldGroupUid());
+	}
+	
+	@Test
+	void testGetStatusUid() {
+		final EntityFieldConstraint constraint = new EntityFieldConstraint();
+		final EntityStatus status = new EntityStatus();
+		constraint.setStatusUid("test");
+		assertEquals("test", constraint.getStatusUid());
+		
+		status.setUid("status");
+		constraint.setStatus(status);
+		assertEquals("status", constraint.getStatusUid());
+	}
+	
+	@Test
+	void testGetUserGroupUid() {
+		final EntityFieldConstraint constraint = new EntityFieldConstraint();
+		final UserGroup userGroup = new UserGroupMetadata();
+		constraint.setUserGroupUid("test");
+		assertEquals("test", constraint.getUserGroupUid());
+		
+		userGroup.setUid("group");
+		constraint.setUserGroup(userGroup);
+		assertEquals("group", constraint.getUserGroupUid());
+	}
 	
 	@Test
 	void testIsEqual() {

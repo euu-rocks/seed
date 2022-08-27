@@ -67,6 +67,15 @@ class EntityRelationTest {
 	}
 	
 	@Test
+	void testGetInternalName() {
+		final EntityRelation relation = new EntityRelation();
+		assertNull(relation.getInternalName());
+		
+		relation.setName("TÄST");
+		assertEquals("taest", relation.getInternalName());
+	}
+	
+	@Test
 	void testGetJoinColumnName() {
 		final EntityRelation relation = new EntityRelation();
 		final Entity entity = new EntityMetadata();
@@ -94,6 +103,18 @@ class EntityRelationTest {
 		((EntityMetadata) entity).setTableName("TÄBLE");
 		((EntityMetadata) relatedEntity).setTableName("RÄLTABLE");
 		assertEquals("täble_rältable", relation.getJoinTableName());
+	}
+	
+	@Test
+	void testGetRelatedEntityUid() {
+		final EntityRelation relation = new EntityRelation();
+		final Entity relatedEntity = new EntityMetadata();
+		relation.setRelatedEntityUid("test");
+		assertEquals("test", relation.getRelatedEntityUid());
+		
+		relatedEntity.setUid("related");
+		relation.setRelatedEntity(relatedEntity);
+		assertEquals("related", relation.getRelatedEntityUid());
 	}
 	
 	@Test

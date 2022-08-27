@@ -373,10 +373,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public boolean hasAllFieldGroups() {
-		if (genericEntity != null && genericEntity.hasAllFieldGroups()) {
-			return true;
-		}
-		return hasFieldGroups();
+		return (genericEntity != null && genericEntity.hasAllFieldGroups()) || hasFieldGroups();
 	}
 	
 	@Override
@@ -478,10 +475,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public boolean hasAllRelations() {
-		if (genericEntity != null && genericEntity.hasAllRelations()) {
-			return true;
-		}
-		return hasRelations();
+		return (genericEntity != null && genericEntity.hasAllRelations()) || hasRelations();
 	}
 	
 	// includes generic relations
@@ -505,10 +499,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public boolean hasAllFields() {
-		if (genericEntity != null && genericEntity.hasAllFields()) {
-			return true;
-		}
-		return hasFields();
+		return (genericEntity != null && genericEntity.hasAllFields()) || hasFields();
 	}
 	
 	// includes nested fields
@@ -883,10 +874,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public boolean hasAllFunctions() {
-		if (genericEntity != null && genericEntity.hasAllFunctions()) {
-			return true;
-		}
-		return hasFunctions();
+		return (genericEntity != null && genericEntity.hasAllFunctions()) || hasFunctions();
 	}
 	
 	@Override

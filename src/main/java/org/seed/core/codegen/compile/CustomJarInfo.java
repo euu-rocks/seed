@@ -54,7 +54,7 @@ final class CustomJarInfo {
 		final Set<String> packageNames = new HashSet<>();
 		try (SafeZipInputStream zis = StreamUtils.getZipStream(customJar.getContent())) {
 			ZipEntry entry;
-			while ((entry = zis.getNextEntry()) != null) {
+			while ((entry = zis.getNextEntrySafe()) != null) {
                 if (entry.isDirectory() && !entry.getName().startsWith("META-INF")) {
                 	packageNames.add(entry.getName()
                 						  .substring(0, entry.getName().length() - 1)

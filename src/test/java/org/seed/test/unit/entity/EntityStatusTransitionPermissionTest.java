@@ -21,16 +21,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-import org.seed.core.entity.EntityAccess;
-import org.seed.core.entity.EntityPermission;
+import org.seed.core.entity.EntityStatusTransitionPermission;
 import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupMetadata;
 
-class EntityPermissionTest {
+class EntityStatusTransitionPermissionTest {
 	
 	@Test
 	void testGetUserGroupUid() {
-		final EntityPermission permission = new EntityPermission();
+		final EntityStatusTransitionPermission permission = new EntityStatusTransitionPermission();
 		final UserGroup group = new UserGroupMetadata();
 		permission.setUserGroupUid("test");
 		assertEquals("test", permission.getUserGroupUid());
@@ -42,19 +41,15 @@ class EntityPermissionTest {
 	
 	@Test
 	void testIsEqual() {
-		final EntityPermission permission1 = new EntityPermission();
-		final EntityPermission permission2 = new EntityPermission();
+		final EntityStatusTransitionPermission permission1 = new EntityStatusTransitionPermission();
+		final EntityStatusTransitionPermission permission2 = new EntityStatusTransitionPermission();
 		assertTrue(permission1.isEqual(permission2));
 		
-		permission1.setUserGroupUid("userGroup");
-		permission1.setAccess(EntityAccess.READ);
+		permission1.setUserGroupUid("test");
 		assertFalse(permission1.isEqual(permission2));
 		
-		permission2.setUserGroupUid("userGroup");
-		permission2.setAccess(EntityAccess.READ);
+		permission2.setUserGroupUid("test");
 		assertTrue(permission1.isEqual(permission2));
-		
-		permission2.setUserGroupUid("other");
-		assertFalse(permission1.isEqual(permission2));
 	}
+	
 }

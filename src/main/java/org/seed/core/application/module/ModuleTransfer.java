@@ -134,7 +134,7 @@ public class ModuleTransfer {
 		
 		try (SafeZipInputStream zis = new SafeZipInputStream(inputStream)) {
 			ZipEntry entry;
-			while ((entry = zis.getNextEntry()) != null) {
+			while ((entry = zis.getNextEntrySafe()) != null) {
 				// read module
 				if (MODULE_XML_FILENAME.equals(entry.getName())) {
 					module = (Module) marshaller.unmarshal(

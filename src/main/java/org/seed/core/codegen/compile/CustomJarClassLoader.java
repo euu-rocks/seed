@@ -55,7 +55,7 @@ class CustomJarClassLoader extends ClassLoader {
 	private static byte[] findCustomJarClass(CustomJar customJar, String resourceName) {
 		try (SafeZipInputStream zipStream = StreamUtils.getZipStream(customJar.getContent())) {
 			ZipEntry entry;
-			while ((entry = zipStream.getNextEntry()) != null) {
+			while ((entry = zipStream.getNextEntrySafe()) != null) {
 				if (resourceName.equals(entry.getName())) {
 					return zipStream.readSafe(entry);
 				}

@@ -195,7 +195,7 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 		
 		try (SafeZipInputStream zis = StreamUtils.getZipStream(customJar.getContent())) {
 			ZipEntry entry;
-			while ((entry = zis.getNextEntry()) != null) {
+			while ((entry = zis.getNextEntrySafe()) != null) {
 				final String entryName = entry.getName();
 				if (isClassFile(entryName) &&
 					entryName.startsWith(packagePath) && 

@@ -19,12 +19,125 @@ package org.seed.test.unit.entity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Date;
+
 import org.junit.jupiter.api.Test;
 
+import org.seed.core.data.AbstractSystemObject;
 import org.seed.core.data.FieldType;
+import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
+import org.seed.core.entity.EntityFieldGroup;
+import org.seed.core.entity.EntityMetadata;
 
 class EntityFieldTest {
+	
+	@Test
+	void testGetInternalName() {
+		final EntityField field = new EntityField();
+		assertNull(field.getInternalName());
+		
+		field.setName("TÄST");
+		assertEquals("taest", field.getInternalName());
+	}
+	
+	@Test
+	void testGetEffectiveColumnName() {
+		final EntityField field = new EntityField();
+		assertNull(field.getEffectiveColumnName());
+		
+		field.setName("TÄST");
+		assertEquals("taest", field.getEffectiveColumnName());
+		
+		field.setColumnName("COL");
+		assertEquals("col", field.getEffectiveColumnName());
+	}
+	
+	@Test
+	void testGetFieldGroupUid() {
+		final EntityField field = new EntityField();
+		final EntityFieldGroup group = new EntityFieldGroup();
+		group.setUid("group");
+		assertNull(field.getFieldGroupUid());
+		
+		field.setFieldGroupUid("test");
+		assertEquals("test", field.getFieldGroupUid());
+		
+		field.setFieldGroup(group);
+		assertEquals("group", field.getFieldGroupUid());
+	}
+	
+	@Test
+	void testGetReferenceEntityUid() {
+		final EntityField field = new EntityField();
+		final Entity referenceEntity = new EntityMetadata();
+		referenceEntity.setUid("ref");
+		assertNull(field.getReferenceEntityUid());
+		
+		field.setReferenceEntityUid("test");
+		assertEquals("test", field.getReferenceEntityUid());
+		
+		field.setReferenceEntity(referenceEntity);
+		assertEquals("ref", field.getReferenceEntityUid());
+	}
+	
+	@Test
+	void testHasDefaultValue() {
+		final EntityField field = new EntityField();
+		assertFalse(field.hasDefaultValue());
+		
+		field.setType(FieldType.TEXT);
+		field.setDefaultString("test");
+		assertTrue(field.hasDefaultValue());
+		field.setDefaultString(null);
+		
+		field.setType(FieldType.DATE);
+		field.setDefaultDate(new Date());
+		assertTrue(field.hasDefaultValue());
+		field.setDefaultDate(null);
+		
+		field.setType(FieldType.INTEGER);
+		field.setDefaultNumber(123);
+		assertTrue(field.hasDefaultValue());
+		field.setDefaultNumber(null);
+		
+		field.setType(FieldType.REFERENCE);
+		field.setDefaultObject(new AbstractSystemObject() {});
+		assertTrue(field.hasDefaultValue());
+	}
+	
+	@Test
+	void testIsTextField() {
+		final EntityField field = new EntityField();
+		assertFalse(field.isTextField());
+		
+		field.setType(FieldType.TEXT);
+		assertTrue(field.isTextField());
+		
+		field.setType(FieldType.INTEGER);
+		assertFalse(field.isTextField());
+		
+		field.setType(FieldType.TEXTLONG);
+		assertTrue(field.isTextField());
+	}
+	
+	@Test
+	void testIsJsonSerializable() {
+		final EntityField field = new EntityField();
+		assertFalse(field.isJsonSerializable());
+		
+		field.setType(FieldType.TEXT);
+		assertTrue(field.isJsonSerializable());
+		
+		field.setType(FieldType.BINARY);
+		assertFalse(field.isJsonSerializable());
+		
+		field.setType(FieldType.DATE);
+		assertTrue(field.isJsonSerializable());
+		
+		field.setType(FieldType.FILE);
+		assertFalse(field.isJsonSerializable());
+	}
 	
 	@Test
 	void testIsEqual() {

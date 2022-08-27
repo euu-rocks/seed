@@ -73,6 +73,39 @@ class NestedEntityTest {
 	}
 	
 	@Test
+	void testGetInternalName() {
+		final NestedEntity nested = new NestedEntity();
+		assertNull(nested.getInternalName());
+		
+		nested.setName("TÄST");
+		assertEquals("taest", nested.getInternalName());
+	}
+	
+	@Test
+	void testGetNestedEntityUid() {
+		final Entity nestedEntity = new EntityMetadata();
+		final NestedEntity nested = new NestedEntity();
+		nested.setNestedEntityUid("test");
+		assertEquals("test", nested.getNestedEntityUid());
+		
+		nestedEntity.setUid("nested");
+		nested.setNestedEntity(nestedEntity);
+		assertEquals("nested", nested.getNestedEntityUid());
+	}
+	
+	@Test
+	void testGetReferenceFieldUid() {
+		final NestedEntity nested = new NestedEntity();
+		final EntityField referenceField = new EntityField();
+		nested.setReferenceFieldUid("test");
+		assertEquals("test", nested.getReferenceFieldUid());
+		
+		referenceField.setUid("ref");
+		nested.setReferenceField(referenceField);
+		assertEquals("ref", nested.getReferenceFieldUid());
+	}
+	
+	@Test
 	void testIsEqual() {
 		final NestedEntity nested1 = new NestedEntity();
 		final NestedEntity nested2 = new NestedEntity();

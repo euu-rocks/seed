@@ -320,14 +320,12 @@ public class EntityField extends AbstractOrderedTransferableObject {
 	
 	@JsonIgnore
 	public boolean isTextField() {
-		return type != null && 
-			   (type.isText() || type.isTextLong());
+		return type != null && (type.isText() || type.isTextLong());
 	}
 	
 	@JsonIgnore
 	public boolean isJsonSerializable() {
-		return type != null && 
-				!(type.isBinary() || type.isFile());
+		return type != null && !(type.isBinary() || type.isFile());
 	}
 	
 	@JsonIgnore

@@ -384,6 +384,60 @@ class EntityTest {
 	}
 	
 	@Test
+	void testGetAllFields() {
+		final Entity entity = new EntityMetadata();
+		final Entity genericEntity = new EntityMetadata();
+		final EntityField entityField = new EntityField();
+		final EntityField genericField = new EntityField();
+		assertTrue(entity.getAllFields().isEmpty());
+		
+		entity.addField(entityField);
+		assertSame(1, entity.getAllFields().size());
+		assertSame(entityField, entity.getAllFields().get(0));
+		
+		genericEntity.addField(genericField);
+		((EntityMetadata) entity).setGenericEntity(genericEntity);
+		assertSame(2, entity.getAllFields().size());
+		assertSame(genericField, entity.getAllFields().get(0));
+	}
+	
+	@Test
+	void testGetAllFieldsByGroup() {
+		final Entity entity = new EntityMetadata();
+		final EntityField field1 = new EntityField();
+		final EntityField field2 = new EntityField();
+		final EntityFieldGroup group1 = new EntityFieldGroup();
+		final EntityFieldGroup group2 = new EntityFieldGroup();
+		entity.addField(field1);
+		entity.addField(field2);
+		assertTrue(entity.getAllFieldsByGroup(group1).isEmpty());
+		
+		field1.setFieldGroup(group1);
+		field2.setFieldGroup(group2);
+		assertSame(1, entity.getAllFieldsByGroup(group1).size());
+		assertSame(1, entity.getAllFieldsByGroup(group2).size());
+		assertSame(field1, entity.getAllFieldsByGroup(group1).get(0));
+		assertSame(field2, entity.getAllFieldsByGroup(group2).get(0));
+	}
+	
+	@Test
+	void testGetAllFieldsByType() {
+		final Entity entity = new EntityMetadata();
+		final EntityField field1 = new EntityField();
+		final EntityField field2 = new EntityField();
+		entity.addField(field1);
+		entity.addField(field2);
+		assertTrue(entity.getAllFieldsByType(FieldType.TEXT).isEmpty());
+		
+		field1.setType(FieldType.TEXT);
+		field2.setType(FieldType.DATE);
+		assertSame(1, entity.getAllFieldsByType(FieldType.TEXT).size());
+		assertSame(1, entity.getAllFieldsByType(FieldType.DATE).size());
+		assertSame(field1, entity.getAllFieldsByType(FieldType.TEXT).get(0));
+		assertSame(field2, entity.getAllFieldsByType(FieldType.DATE).get(0));
+	}
+	
+	@Test
 	void testGetCallbackFunctions() {
 		final Entity entity = new EntityMetadata();
 		final EntityFunction function = new EntityFunction();
@@ -397,6 +451,27 @@ class EntityTest {
 		assertSame(2, entity.getFunctions().size());
 		assertSame(1, entity.getCallbackFunctions().size());
 		assertSame(callbackFunction, entity.getCallbackFunctions().get(0));
+	}
+	
+	@Test
+	void testGetDefaultIdentifierPattern() {
+		final Entity entity = new EntityMetadata();
+		final EntityField field1 = new EntityField();
+		final EntityField field2 = new EntityField();
+		field1.setName("field1");
+		field2.setName("field2");
+		field1.setType(FieldType.INTEGER);
+		field2.setType(FieldType.BOOLEAN);
+		entity.addField(field1);
+		entity.addField(field2);
+		assertNull(entity.getDefaultIdentifierPattern());
+		
+		field1.setType(FieldType.TEXT);
+		assertEquals("{field1}", entity.getDefaultIdentifierPattern());
+		
+		field2.setType(FieldType.AUTONUM);
+		field2.setUnique(true);
+		assertEquals("{field2}", entity.getDefaultIdentifierPattern());
 	}
 	
 	@Test
@@ -532,6 +607,24 @@ class EntityTest {
 	}
 	
 	@Test
+	void testGetFullTextSearchFields() {
+		final Entity entity = new EntityMetadata();
+		final EntityField field1 = new EntityField();
+		final EntityField field2 = new EntityField();
+		entity.addField(field1);
+		entity.addField(field2);
+		assertTrue(entity.getFullTextSearchFields().isEmpty());
+		
+		field1.setFullTextSearch(true);
+		assertSame(1, entity.getFullTextSearchFields().size());
+		assertSame(field1, entity.getFullTextSearchFields().get(0));
+		
+		field2.setFullTextSearch(true);
+		assertSame(2, entity.getFullTextSearchFields().size());
+		assertSame(field2, entity.getFullTextSearchFields().get(1));
+	}
+	
+	@Test
 	void testGetFunctionById() {
 		final Entity entity = new EntityMetadata();
 		final EntityFunction function = new EntityFunction();
@@ -557,6 +650,28 @@ class EntityTest {
 		function.setUid("test");
 		
 		assertSame(function, entity.getFunctionByUid("test"));
+	}
+	
+	@Test
+	void testGetGeneratedClass() {
+		final Entity entity = new EntityMetadata();
+		entity.setName("tästThing");
+		
+		assertEquals("TaestThing", entity.getGeneratedClass());
+	}
+	
+	@Test
+	void testGetGenericEntityUid() {
+		final Entity entity = new EntityMetadata();
+		final Entity genericEntity = new EntityMetadata();
+		genericEntity.setUid("generic");
+		assertNull(entity.getGenericEntityUid());
+		
+		((EntityMetadata) entity).setGenericEntityUid("test");
+		assertEquals("test", entity.getGenericEntityUid());
+		
+		((EntityMetadata) entity).setGenericEntity(genericEntity);
+		assertEquals("generic", entity.getGenericEntityUid());
 	}
 	
 	@Test
@@ -680,6 +795,87 @@ class EntityTest {
 		
 		assertEquals(1, entity.getUserActionFunctions().size());
 		assertSame(function2, entity.getUserActionFunctions().get(0));
+	}
+	
+	@Test
+	void testGetUidField() {
+		final Entity entity = new EntityMetadata();
+		IllegalStateException isex = assertThrows(IllegalStateException.class, () -> {
+			entity.getUidField();
+		});
+		assertSame("entity is not transferable", isex.getMessage());
+		
+		((EntityMetadata) entity).setTransferable(true);
+		assertNotNull(entity.getUidField());
+		assertEquals("uid", entity.getUidField().getName());
+	}
+	
+	@Test
+	void testHasAllFieldGroups() {
+		final Entity entity = new EntityMetadata();
+		final Entity genericEntity = new EntityMetadata();
+		final EntityFieldGroup group = new EntityFieldGroup();
+		((EntityMetadata) entity).setGenericEntity(genericEntity);
+		assertFalse(entity.hasAllFieldGroups());
+		
+		entity.addFieldGroup(group);
+		assertTrue(entity.hasAllFieldGroups());
+		entity.removeFieldGroup(group);
+		assertFalse(entity.hasAllFieldGroups());
+		
+		genericEntity.addFieldGroup(group);
+		assertTrue(entity.hasAllFieldGroups());
+	}
+	
+	@Test
+	void testHasAllFields() {
+		final Entity entity = new EntityMetadata();
+		final Entity genericEntity = new EntityMetadata();
+		final EntityField field = new EntityField();
+		((EntityMetadata) entity).setGenericEntity(genericEntity);
+		assertFalse(entity.hasAllFields());
+		
+		entity.addField(field);
+		assertTrue(entity.hasAllFields());
+		entity.removeField(field);
+		assertFalse(entity.hasAllFields());
+		
+		genericEntity.addField(field);
+		assertTrue(entity.hasAllFields());
+	}
+	
+	@Test
+	void testHasAllFunctions() {
+		final Entity entity = new EntityMetadata();
+		final Entity genericEntity = new EntityMetadata();
+		final EntityFunction function = new EntityFunction();
+		((EntityMetadata) entity).setGenericEntity(genericEntity);
+		assertFalse(entity.hasAllFunctions());
+		
+		entity.addFunction(function);
+		assertTrue(entity.hasAllFunctions());
+		entity.removeFunction(function);
+		assertFalse(entity.hasAllFunctions());
+		
+		genericEntity.addFunction(function);
+		assertTrue(entity.hasAllFunctions());
+	}
+	
+	@Test
+	void testHasAllRelations() {
+		final Entity entity = new EntityMetadata();
+		final Entity genericEntity = new EntityMetadata();
+		final EntityRelation relation = new EntityRelation();
+		((EntityMetadata) entity).setGenericEntity(genericEntity);
+		assertFalse(entity.hasAllRelations());
+		
+		entity.addRelation(relation);
+		assertTrue(entity.hasAllRelations());
+		entity.removeRelation(relation);
+		assertFalse(entity.hasAllRelations());
+		
+		genericEntity.addRelation(relation);
+		assertTrue(entity.hasAllRelations());
 	}
 	
 	@Test
