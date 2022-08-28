@@ -20,6 +20,7 @@ package org.seed.core.entity.transfer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.ArrayList;
@@ -53,8 +54,14 @@ class CSVProcessor extends AbstractTransferProcessor {
 	
 	@Override
 	public byte[] doExport() {
-		try (FastByteArrayOutputStream out = new FastByteArrayOutputStream();
-			 PrintWriter writer = new PrintWriter(out, false, getCharset())) {
+		try (FastByteArrayOutputStream out = new FastByteArrayOutputStream()) {
+			doExport(out);
+			return out.toByteArray();
+		}
+	}
+	
+	private void doExport(OutputStream out) {
+		try (PrintWriter writer = new PrintWriter(out, false, getCharset())) {
 			final StatefulBeanToCsvBuilder<ValueObject> builder = 
 				new StatefulBeanToCsvBuilder<ValueObject>(writer)
 					.withMappingStrategy(createMappingStrategy())
@@ -79,7 +86,6 @@ class CSVProcessor extends AbstractTransferProcessor {
 			while (hasNextObject()) {
 				beanToCsv.write(getNextObject());
 			}
-			return out.toByteArray();
 		} 
 		catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
 			throw new InternalException(e);

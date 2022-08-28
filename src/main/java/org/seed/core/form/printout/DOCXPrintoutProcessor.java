@@ -18,6 +18,7 @@
 package org.seed.core.form.printout;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,10 +80,16 @@ class DOCXPrintoutProcessor extends AbstractPrintoutProcessor {
 	@Override
 	public byte[] process(FormPrintout printout, ValueObject valueObject) {
 		Assert.notNull(printout, C.PRINTOUT);
-		Assert.notNull(valueObject, "valueObject");
+		Assert.notNull(valueObject, "value object");
 		
-		try (FastByteArrayOutputStream baos = new FastByteArrayOutputStream();
-			 XWPFDocument document = new XWPFDocument(getInputStream(printout))) {
+		try (FastByteArrayOutputStream baos = new FastByteArrayOutputStream()) {
+			process(printout, valueObject, baos);
+			return baos.toByteArray();
+		} 
+	}
+	
+	private void process(FormPrintout printout, ValueObject valueObject, OutputStream out) {
+		try (XWPFDocument document = new XWPFDocument(getInputStream(printout))) {
 			for (XWPFParagraph paragraph : document.getParagraphs()) {
 				processParagraph(paragraph, valueObject, null, null);
 			}
@@ -113,9 +120,8 @@ class DOCXPrintoutProcessor extends AbstractPrintoutProcessor {
 					table.addRow(row, removeRowIdx++);
 				}
 			}
-			document.write(baos);
-			return baos.toByteArray();
-		} 
+			document.write(out);
+		}
 		catch (IOException | XmlException ex) {
 			throw new InternalException(ex);
 		}

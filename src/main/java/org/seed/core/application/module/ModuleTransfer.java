@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -197,8 +198,14 @@ public class ModuleTransfer {
 	byte[] exportModule(Module module) throws IOException {
 		Assert.notNull(module, C.MODULE);
 		
-		try (FastByteArrayOutputStream baos = new FastByteArrayOutputStream();
-	    	 ZipOutputStream zos = new ZipOutputStream(baos)) {
+		try (FastByteArrayOutputStream baos = new FastByteArrayOutputStream()) {
+			exportModule(module, baos);
+			return baos.toByteArray();
+		}
+	}
+	
+	private void exportModule(Module module, OutputStream out) throws IOException {
+		try (ZipOutputStream zos = new ZipOutputStream(out)) {
 		    // write module
 		    writeZipEntry(zos, MODULE_XML_FILENAME, getModuleContent(module));
 		    // write custom libs
@@ -210,7 +217,6 @@ public class ModuleTransfer {
 		    	writeZipEntry(zos, entity.getInternalName() + TransferFormat.CSV.fileExtension, 
 		    				  transferService.doExport(entity));
 		    }
-		    return baos.toByteArray();
 	    }
 	}
 	
