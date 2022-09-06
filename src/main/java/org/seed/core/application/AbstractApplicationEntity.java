@@ -17,9 +17,11 @@
  */
 package org.seed.core.application;
 
+import static org.seed.core.util.CollectionUtils.anyMatch;
+import static org.seed.core.util.CollectionUtils.firstMatch;
+
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import javax.annotation.Nullable;
 import javax.persistence.FetchType;
@@ -89,8 +91,8 @@ public abstract class AbstractApplicationEntity extends AbstractSystemEntity
 		if (!approvable.hasPermissions()) {
 			return true;
 		}
-		return approvable.getPermissions().stream()
-				.anyMatch(permission -> user.belongsTo(permission.getUserGroup()) && 
+		return anyMatch(approvable.getPermissions(), permission -> 
+						  user.belongsTo(permission.getUserGroup()) && 
 						  (access == null || // access doesn't exist or granted
 						   permission.getAccess().ordinal() >= access.ordinal()));
 	}
@@ -101,23 +103,13 @@ public abstract class AbstractApplicationEntity extends AbstractSystemEntity
 		Assert.state(this instanceof ApprovableObject, "object is not approvable");
 		final ApprovableObject<?> approvable = (ApprovableObject<?>) this;
 		
-		return approvable.hasPermissions() && 
-			   approvable.getPermissions().stream()
-			   			 .anyMatch(perm -> group.equals(perm.getUserGroup()));
+		return anyMatch(approvable.getPermissions(), perm -> group.equals(perm.getUserGroup()));
 	}
 	
 	public static <T extends TransferableObject> T getObjectByUid(Collection<T> list, String uid) {
 		Assert.notNull(uid, C.UID);
 		
-		if (list != null) {
-			final Optional<T> optional = list.stream()
-											 .filter(object -> uid.equals(object.getUid()))
-											 .findFirst();
-			if (optional.isPresent()) {
-				return optional.get();
-			}
-		}
-		return null;
+		return firstMatch(list, object -> uid.equals(object.getUid()));
 	}
 	
 	protected void initUid() {

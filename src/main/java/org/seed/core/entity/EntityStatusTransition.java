@@ -17,6 +17,8 @@
  */
 package org.seed.core.entity;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,8 +47,6 @@ import org.seed.core.user.User;
 import org.seed.core.user.UserGroup;
 import org.seed.core.util.Assert;
 import org.seed.core.util.ReferenceJsonSerializer;
-
-import org.springframework.util.ObjectUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -150,7 +150,7 @@ public class EntityStatusTransition extends AbstractTransferableObject {
 	}
 	
 	public boolean hasFunctions() {
-		return !ObjectUtils.isEmpty(getFunctions());
+		return notEmpty(getFunctions());
 	}
 	
 	@XmlElement(name="function")
@@ -180,16 +180,13 @@ public class EntityStatusTransition extends AbstractTransferableObject {
 	public boolean containsEntityFunction(EntityFunction function) {
 		Assert.notNull(function, C.FUNCTION);
 		
-		return hasFunctions() &&
-			   getFunctions().stream().anyMatch(func -> function.equals(func.getFunction()));
-		
+		return anyMatch(functions, func -> function.equals(func.getFunction()));
 	}
 	
 	public boolean containsPermission(UserGroup group) {
 		Assert.notNull(group, C.USERGROUP);
 		
-		return hasPermissions() && 
-			   getPermissions().stream().anyMatch(perm -> group.equals(perm.getUserGroup()));
+		return anyMatch(permissions, perm -> group.equals(perm.getUserGroup()));
 	}
 	
 	public void removeFunction(EntityStatusTransitionFunction function) {
@@ -199,7 +196,7 @@ public class EntityStatusTransition extends AbstractTransferableObject {
 	}
 	
 	public boolean hasPermissions() {
-		return !ObjectUtils.isEmpty(getPermissions());
+		return notEmpty(getPermissions());
 	}
 	
 	public EntityStatusTransitionPermission getPermissionByUid(String uid) {
@@ -219,15 +216,10 @@ public class EntityStatusTransition extends AbstractTransferableObject {
 	public boolean isAuthorized(User user) {
 		Assert.notNull(user, C.USER);
 		
-		if (hasPermissions()) {
-			for (EntityStatusTransitionPermission permission : getPermissions()) {
-				if (user.belongsTo(permission.getUserGroup())) {
-					return true;
-				}
-			}
-			return false;
+		if (!hasPermissions()) {
+			return true;
 		}
-		return true;
+		return anyMatch(permissions, permission -> user.belongsTo(permission.getUserGroup()));
 	}
 	
 	@JsonIgnore
@@ -264,17 +256,13 @@ public class EntityStatusTransition extends AbstractTransferableObject {
 	}
 	
 	private boolean isEqualFunctions(EntityStatusTransition otherTransition) {
-		return !((hasFunctions() && getFunctions().stream()
-					.anyMatch(function -> !function.isEqual(otherTransition.getFunctionByUid(function.getUid())))) || 
-				 (otherTransition.hasFunctions() && otherTransition.getFunctions().stream()
-					.anyMatch(otherFunction -> getFunctionByUid(otherFunction.getUid()) == null)));
+		return !(anyMatch(functions, function -> !function.isEqual(otherTransition.getFunctionByUid(function.getUid()))) || 
+				 anyMatch(otherTransition.getFunctions(), otherFunction -> getFunctionByUid(otherFunction.getUid()) == null));
 	}
 	
 	private boolean isEqualPermissions(EntityStatusTransition otherTransition) {
-		return !((hasPermissions() && getPermissions().stream()
-					.anyMatch(permission -> !permission.isEqual(otherTransition.getPermissionByUid(permission.getUid())))) || 
-				 (otherTransition.hasPermissions() && otherTransition.getPermissions().stream()
-					.anyMatch(otherPermission -> getPermissionByUid(otherPermission.getUid()) == null)));
+		return !(anyMatch(permissions, permission -> !permission.isEqual(otherTransition.getPermissionByUid(permission.getUid()))) || 
+				 anyMatch(otherTransition.getPermissions(), otherPermission -> getPermissionByUid(otherPermission.getUid()) == null));
 	}
 	
 	@Override

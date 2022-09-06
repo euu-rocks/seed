@@ -17,6 +17,8 @@
  */
 package org.seed.core.task;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -37,13 +39,13 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.codegen.CodeManagerImpl;
 import org.seed.core.util.Assert;
 import org.seed.core.util.CDATAXmlAdapter;
 
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -179,7 +181,7 @@ public class TaskMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public boolean hasParameters() {
-		return !ObjectUtils.isEmpty(getParameters());
+		return notEmpty(getParameters());
 	}
 	
 	@Override
@@ -218,7 +220,7 @@ public class TaskMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public boolean hasPermissions() {
-		return !ObjectUtils.isEmpty(getPermissions());
+		return notEmpty(getPermissions());
 	}
 	
 	@Override
@@ -239,7 +241,7 @@ public class TaskMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public boolean hasNotifications() {
-		return !ObjectUtils.isEmpty(getNotifications());
+		return notEmpty(getNotifications());
 	}
 	
 	@Override
@@ -300,7 +302,7 @@ public class TaskMetadata extends AbstractApplicationEntity
 
 	@Override
 	public TaskResult getLastResult() {
-		return !ObjectUtils.isEmpty(getRuns()) 
+		return notEmpty(getRuns()) 
 				? getRuns().get(getRuns().size() - 1).getResult() 
 				: null;
 	}
@@ -330,17 +332,13 @@ public class TaskMetadata extends AbstractApplicationEntity
 	}
 	
 	private boolean isEqualParameters(Task otherTask) {
-		return !((hasParameters() && getParameters().stream()
-					.anyMatch(parameter -> !parameter.isEqual(otherTask.getParameterByUid(parameter.getUid())))) || 
-				(otherTask.hasParameters() && otherTask.getParameters().stream()
-					.anyMatch(parameter -> getParameterByUid(parameter.getUid()) == null)));
+		return !(anyMatch(parameters, parameter -> !parameter.isEqual(otherTask.getParameterByUid(parameter.getUid()))) || 
+				 anyMatch(otherTask.getParameters(), parameter -> getParameterByUid(parameter.getUid()) == null));
 	}
 	
 	private boolean isEqualPermissions(Task otherTask) {
-		return !((hasPermissions() && getPermissions().stream()
-					.anyMatch(permission -> !permission.isEqual(otherTask.getPermissionByUid(permission.getUid())))) || 
-				(otherTask.hasPermissions() && otherTask.getPermissions().stream()
-					.anyMatch(permission -> getPermissionByUid(permission.getUid()) == null)));
+		return !(anyMatch(permissions, permission -> !permission.isEqual(otherTask.getPermissionByUid(permission.getUid()))) || 
+				 anyMatch(otherTask.getPermissions(), permission -> getPermissionByUid(permission.getUid()) == null));
 	}
 	
 	@Override

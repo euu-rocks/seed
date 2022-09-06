@@ -17,6 +17,8 @@
  */
 package org.seed.core.entity.transform;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,8 +47,6 @@ import org.seed.core.entity.EntityMetadata;
 import org.seed.core.entity.EntityStatus;
 import org.seed.core.util.Assert;
 import org.seed.core.util.ReferenceJsonSerializer;
-
-import org.springframework.util.ObjectUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -146,7 +146,7 @@ public class TransformerMetadata extends AbstractApplicationEntity
 
 	@Override
 	public boolean hasElements() {
-		return !ObjectUtils.isEmpty(getElements());
+		return notEmpty(getElements());
 	}
 
 	@Override
@@ -191,11 +191,7 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	public boolean containsStatus(EntityStatus status) {
 		Assert.notNull(status, C.STATUS);
 		
-		if (hasStatus()) {
-			return getStatus().stream()
-					.anyMatch(stat -> status.equals(stat.getStatus()));
-		}
-		return false;
+		return anyMatch(getStatus(), stat -> status.equals(stat.getStatus()));
 	}
 	
 	@Override
@@ -218,7 +214,7 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public boolean hasFunctions() {
-		return !ObjectUtils.isEmpty(getFunctions());
+		return notEmpty(getFunctions());
 	}
 	
 	@Override
@@ -252,7 +248,7 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public boolean hasPermissions() {
-		return !ObjectUtils.isEmpty(getPermissions());
+		return notEmpty(getPermissions());
 	}
 	
 	@Override
@@ -268,7 +264,7 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public boolean hasStatus() {
-		return !ObjectUtils.isEmpty(getStatus());
+		return notEmpty(getStatus());
 	}
 	
 	@Override
@@ -304,31 +300,23 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	}
 	
 	private boolean isEqualElements(Transformer otherTransformer) {
-		return !((hasElements() && getElements().stream()
-					.anyMatch(elem -> !elem.isEqual(otherTransformer.getElementByUid(elem.getUid())))) || 
-				(otherTransformer.hasElements() && otherTransformer.getElements().stream()
-					.anyMatch(elem -> getElementByUid(elem.getUid()) == null)));
+		return !(anyMatch(elements, elem -> !elem.isEqual(otherTransformer.getElementByUid(elem.getUid()))) || 
+				 anyMatch(otherTransformer.getElements(), elem -> getElementByUid(elem.getUid()) == null));
 	}
 	
 	private boolean isEqualFunctions(Transformer otherTransformer) {
-		return !((hasFunctions() && getFunctions().stream()
-					.anyMatch(function -> !function.isEqual(otherTransformer.getFunctionByUid(function.getUid())))) || 
-				(otherTransformer.hasFunctions() && otherTransformer.getFunctions().stream()
-					.anyMatch(function -> getFunctionByUid(function.getUid()) == null)));
+		return !(anyMatch(functions, function -> !function.isEqual(otherTransformer.getFunctionByUid(function.getUid()))) || 
+				 anyMatch(otherTransformer.getFunctions(), function -> getFunctionByUid(function.getUid()) == null));
 	}
 	
 	private boolean isEqualPermissions(Transformer otherTransformer) {
-		return !((hasPermissions() && getPermissions().stream()
-					.anyMatch(perm -> !perm.isEqual(otherTransformer.getPermissionByUid(perm.getUid())))) || 
-				(otherTransformer.hasPermissions() && otherTransformer.getPermissions().stream()
-					.anyMatch(perm -> getPermissionByUid(perm.getUid()) == null)));
+		return !(anyMatch(permissions, perm -> !perm.isEqual(otherTransformer.getPermissionByUid(perm.getUid()))) || 
+				 anyMatch(otherTransformer.getPermissions(), perm -> getPermissionByUid(perm.getUid()) == null));
 	}
 	
 	private boolean isEqualStatus(Transformer otherTransformer) {
-		return !((hasStatus() && getStatus().stream()
-					.anyMatch(status -> !status.isEqual(otherTransformer.getStatusByUid(status.getUid())))) || 
-				(otherTransformer.hasStatus() && otherTransformer.getStatus().stream()
-					.anyMatch(status -> getStatusByUid(status.getUid()) == null)));
+		return !(anyMatch(statusList, status -> !status.isEqual(otherTransformer.getStatusByUid(status.getUid()))) || 
+				 anyMatch(otherTransformer.getStatus(), status -> getStatusByUid(status.getUid()) == null));
 	}
 	
 	@Override

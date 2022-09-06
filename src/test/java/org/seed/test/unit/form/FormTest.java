@@ -298,6 +298,20 @@ class FormTest {
 	}
 	
 	@Test
+	void testGetEntityUid() {
+		final Form form = new FormMetadata();
+		final Entity entity = new EntityMetadata();
+		assertNull(form.getEntityUid());
+		
+		((FormMetadata) form).setEntityUid("test");
+		assertEquals("test", form.getEntityUid());
+		
+		entity.setUid("entity");
+		((FormMetadata) form).setEntity(entity);
+		assertEquals("entity", form.getEntityUid());
+	}
+ 	
+	@Test
 	void testGetFieldById() {
 		final Form form = new FormMetadata();
 		final FormField field = new FormField();
@@ -351,6 +365,20 @@ class FormTest {
 		extra.setUid("test");
 		
 		assertSame(extra, form.getFieldExtraByUid("test"));
+	}
+	
+	@Test
+	void testGetFilterUid() {
+		final Form form = new FormMetadata();
+		final Filter filter = new FilterMetadata();
+		assertNull(form.getFilterUid());
+		
+		((FormMetadata) form).setFilterUid("test");
+		assertEquals("test", form.getFilterUid());
+		
+		filter.setUid("filter");
+		((FormMetadata) form).setFilter(filter);
+		assertEquals("filter", form.getFilterUid());
 	}
 	
 	@Test

@@ -17,8 +17,10 @@
  */
 package org.seed.core.report;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -39,8 +41,6 @@ import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.data.Order;
 import org.seed.core.data.datasource.DataSourceParameter;
 import org.seed.core.util.Assert;
-
-import org.springframework.util.ObjectUtils;
 
 @Entity
 @Table(name = "sys_report")
@@ -63,7 +63,7 @@ public class ReportMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public boolean hasDataSources() {
-		return !ObjectUtils.isEmpty(getDataSources());
+		return notEmpty(getDataSources());
 	}
 	
 	@Override
@@ -102,7 +102,7 @@ public class ReportMetadata extends AbstractApplicationEntity
 
 	@Override
 	public boolean hasPermissions() {
-		return !ObjectUtils.isEmpty(getPermissions());
+		return notEmpty(getPermissions());
 	}
 	
 	@Override
@@ -123,16 +123,12 @@ public class ReportMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public Map<String, List<DataSourceParameter>> getDataSourceParameterMap() {
-		final Map<String, List<DataSourceParameter>> paramMap = new LinkedHashMap<>();
-		if (hasDataSources()) {
-			for (ReportDataSource dataSource : getDataSources()) {
-				if (dataSource.getDataSource().hasParameters()) {
-					paramMap.put(dataSource.getName(), 
-								 dataSource.getDataSource().getParameters());
-				}
- 			}
-		}
-		return paramMap;
+		return hasDataSources()
+				? getDataSources().stream()
+					.filter(dataSource -> dataSource.getDataSource().hasParameters())
+					.collect(linkedMapCollector(ReportDataSource::getName, 
+												dataSource -> dataSource.getDataSource().getParameters()))
+				: Collections.emptyMap();
 	}
 	
 	@Override
@@ -154,17 +150,13 @@ public class ReportMetadata extends AbstractApplicationEntity
 	}
 	
 	private boolean isEqualDataSources(Report otherReport) {
-		return !((hasDataSources() && getDataSources().stream()
-					.anyMatch(dataSource -> !dataSource.isEqual(otherReport.getDataSourceByUid(dataSource.getUid())))) || 
-				(otherReport.hasDataSources() && otherReport.getDataSources()
-					.stream().anyMatch(dataSource -> getDataSourceByUid(dataSource.getUid()) == null)));
+		return !(anyMatch(dataSources, dataSource -> !dataSource.isEqual(otherReport.getDataSourceByUid(dataSource.getUid()))) || 
+				 anyMatch(otherReport.getDataSources(), dataSource -> getDataSourceByUid(dataSource.getUid()) == null));
 	}
 	
 	private boolean isEqualPermissions(Report otherReport) {
-		return !((hasPermissions() && getPermissions().stream()
-					.anyMatch(permission -> !permission.isEqual(otherReport.getPermissionByUid(permission.getUid())))) || 
-				(otherReport.hasPermissions() && otherReport.getPermissions().stream()
-					.anyMatch(permission -> getPermissionByUid(permission.getUid()) == null)));
+		return !(anyMatch(permissions, permission -> !permission.isEqual(otherReport.getPermissionByUid(permission.getUid()))) || 
+				 anyMatch(otherReport.getPermissions(), permission -> getPermissionByUid(permission.getUid()) == null));
 	}
 	
 	@Override

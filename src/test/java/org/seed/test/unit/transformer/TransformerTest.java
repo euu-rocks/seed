@@ -23,7 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-
+import org.seed.core.entity.Entity;
+import org.seed.core.entity.EntityMetadata;
 import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.transform.Transformer;
 import org.seed.core.entity.transform.TransformerElement;
@@ -146,6 +147,34 @@ class TransformerTest {
 		status.setUid("test");
 		
 		assertSame(status, transformer.getStatusByUid("test"));
+	}
+	
+	@Test
+	void testGetSourceEntityUid() {
+		final Transformer transformer = new TransformerMetadata();
+		final Entity sourceEntity = new EntityMetadata();
+		assertNull(transformer.getSourceEntityUid());
+		
+		((TransformerMetadata) transformer).setSourceEntityUid("test");
+		assertEquals("test", transformer.getSourceEntityUid());
+		
+		sourceEntity.setUid("source");
+		((TransformerMetadata) transformer).setSourceEntity(sourceEntity);
+		assertEquals("source", transformer.getSourceEntityUid());
+	}
+	
+	@Test
+	void testGetTargetEntityUid() {
+		final Transformer transformer = new TransformerMetadata();
+		final Entity targetEntity = new EntityMetadata();
+		assertNull(transformer.getTargetEntityUid());
+		
+		((TransformerMetadata) transformer).setTargetEntityUid("test");
+		assertEquals("test", transformer.getTargetEntityUid());
+		
+		targetEntity.setUid("target");
+		((TransformerMetadata) transformer).setTargetEntity(targetEntity);
+		assertEquals("target", transformer.getTargetEntityUid());
 	}
 	
 	@Test

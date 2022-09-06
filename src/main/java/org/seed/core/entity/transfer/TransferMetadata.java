@@ -17,11 +17,10 @@
  */
 package org.seed.core.entity.transfer;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
@@ -45,8 +44,6 @@ import org.seed.core.data.Order;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityMetadata;
-
-import org.springframework.util.ObjectUtils;
 
 @javax.persistence.Entity
 @Table(name = "sys_entity_transfer")
@@ -96,7 +93,7 @@ public class TransferMetadata extends AbstractApplicationEntity implements Trans
 	
 	@Override
 	public boolean hasElements() {
-		return !ObjectUtils.isEmpty(getElements());
+		return notEmpty(getElements());
 	}
 	
 	@Override
@@ -202,8 +199,7 @@ public class TransferMetadata extends AbstractApplicationEntity implements Trans
 	
 	@Override
 	public boolean containsField(EntityField entityField) {
-		return hasElements() &&
-			   getElements().stream().anyMatch(elem -> entityField.equals(elem.getEntityField()));
+		return anyMatch(getElements(), elem -> entityField.equals(elem.getEntityField()));
 	}
 	
 	@Override
@@ -231,28 +227,20 @@ public class TransferMetadata extends AbstractApplicationEntity implements Trans
 	}
 	
 	private boolean isEqualElements(Transfer otherTransfer) {
-		return !((hasElements() && getElements().stream().anyMatch(elem -> !elem.isEqual(otherTransfer.getElementByUid(elem.getUid())))) ||
-				 (otherTransfer.hasElements() && otherTransfer.getElements().stream().anyMatch(elem -> getElementByUid(elem.getUid()) == null)));
+		return !(anyMatch(elements, elem -> !elem.isEqual(otherTransfer.getElementByUid(elem.getUid()))) ||
+				 anyMatch(otherTransfer.getElements(), elem -> getElementByUid(elem.getUid()) == null));
 	}
 	
 	@Override
 	public EntityField getIdentifierField() {
-		if (hasElements()) {
-			final Optional<TransferElement> optional = getElements().stream().filter(TransferElement::isIdentifier).findFirst();
-			if (optional.isPresent()) {
-				return optional.get().getEntityField();
-			}
-		}
-		return null;
+		final TransferElement element = firstMatch(getElements(), TransferElement::isIdentifier);
+		return element != null ? element.getEntityField() : null;
 	}
 	
 	@Override
 	public List<EntityField> getElementFields() {
-		return hasElements() 
-				? getElements().stream().filter(elem -> elem.getEntityField() != null)
-										.map(TransferElement::getEntityField)
-										.collect(Collectors.toList())
-				: Collections.emptyList();
+		return filterConvert(getElements(), elem -> elem.getEntityField() != null, 
+												TransferElement::getEntityField);
 	}
 	
 	@Override

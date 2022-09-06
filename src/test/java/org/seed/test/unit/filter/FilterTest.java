@@ -24,6 +24,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import org.seed.core.entity.Entity;
+import org.seed.core.entity.EntityMetadata;
 import org.seed.core.entity.filter.Filter;
 import org.seed.core.entity.filter.FilterCriterion;
 import org.seed.core.entity.filter.FilterMetadata;
@@ -58,6 +60,20 @@ class FilterTest {
 		criterion.setUid("test");
 		
 		assertSame(criterion, filter.getCriterionByUid("test"));
+	}
+	
+	@Test
+	void testGetEntityUid() {
+		final Filter filter = new FilterMetadata();
+		final Entity entity = new EntityMetadata();
+		assertNull(filter.getEntityUid());
+		
+		((FilterMetadata) filter).setEntityUid("test");
+		assertEquals("test", filter.getEntityUid());
+		
+		entity.setUid("entity");
+		((FilterMetadata) filter).setEntity(entity);
+		assertEquals("entity", filter.getEntityUid());
 	}
 	
 	@Test

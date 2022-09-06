@@ -17,12 +17,10 @@
  */
 package org.seed.core.data;
 
-import java.util.Collections;
+import static org.seed.core.util.CollectionUtils.firstMatch;
+
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -128,7 +126,7 @@ public abstract class AbstractSystemObject implements SystemObject {
 	@Override
 	@JsonIgnore
 	public final boolean isNew() {
-		return getId() == null;
+		return getId() == null; // don't touch
 	}
 	
 	@Override
@@ -138,11 +136,11 @@ public abstract class AbstractSystemObject implements SystemObject {
 	
 	@Override
 	public final int hashCode() {
-		return isNew() ? super.hashCode() : getId().hashCode();
+		return isNew() ? super.hashCode() : getId().hashCode(); // don't touch
 	}
 	
 	@Override
-	public final boolean equals(Object obj) {
+	public final boolean equals(Object obj) { // don't touch
 		return obj == this ||
 				(!isNew() && obj instanceof SystemObject && 
 				 getId().equals(((SystemObject) obj).getId()));
@@ -180,20 +178,7 @@ public abstract class AbstractSystemObject implements SystemObject {
 	protected static <T extends SystemObject> T getObjectById(List<T> list, Long id) {
 		Assert.notNull(id, C.ID);
 		
-		if (list != null) {
-			final Optional<T> optional = list.stream()
-					.filter(object -> id.equals(object.getId())).findFirst();
-			if (optional.isPresent()) {
-				return optional.get();
-			}
-		}
-		return null;
-	}
-	
-	protected static <T extends SystemObject> List<T> subList(List<T> list, Predicate<T> predicate) {
-		return list != null
-				? list.stream().filter(predicate).collect(Collectors.toList()) 
-				: Collections.emptyList();
+		return firstMatch(list, object -> id.equals(object.getId()));
 	}
 	
 	protected static <T extends SystemObject> void removeNewObjects(List<T> list) {

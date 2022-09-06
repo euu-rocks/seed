@@ -17,6 +17,8 @@
  */
 package org.seed.core.entity;
 
+import static org.seed.core.util.CollectionUtils.subList;
+
 import java.util.List;
 
 import javax.persistence.FetchType;

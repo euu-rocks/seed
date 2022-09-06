@@ -17,6 +17,8 @@
  */
 package org.seed.core.data.datasource;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -36,12 +38,11 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.util.Assert;
 import org.seed.core.util.CDATAXmlAdapter;
-
-import org.springframework.util.ObjectUtils;
 
 @Entity
 @Table(name = "sys_datasource")
@@ -91,7 +92,7 @@ public class DataSourceMetadata extends AbstractApplicationEntity
 
 	@Override
 	public boolean hasParameters() {
-		return !ObjectUtils.isEmpty(getParameters());
+		return notEmpty(getParameters());
 	}
 	
 	@Override
@@ -165,8 +166,8 @@ public class DataSourceMetadata extends AbstractApplicationEntity
 	}
 	
 	private boolean isEqualParameters(IDataSource otherDataSource) {
-		return !((hasParameters() && getParameters().stream().anyMatch(param -> !param.isEqual(otherDataSource.getParameterByUid(param.getUid())))) ||
-			    (otherDataSource.hasParameters() && otherDataSource.getParameters().stream().anyMatch(param -> getParameterByUid(param.getUid()) == null)));
+		return !(anyMatch(parameters, param -> !param.isEqual(otherDataSource.getParameterByUid(param.getUid()))) ||
+			     anyMatch(otherDataSource.getParameters(), param -> getParameterByUid(param.getUid()) == null));
 	}
 	
 	@Override

@@ -696,14 +696,14 @@ class EntityTest {
 		IllegalStateException isex = assertThrows(IllegalStateException.class, () -> {
 			entity.getInitialStatus();
 		});
-		assertSame("entity has no status", isex.getMessage());
+		assertEquals("entity has no status", isex.getMessage());
 		
 		entity.addStatus(status);
 		
 		isex = assertThrows(IllegalStateException.class, () -> {
 			entity.getInitialStatus();
 		});
-		assertSame("initial status not found", isex.getMessage());
+		assertEquals("initial status not available", isex.getMessage());
 		
 		status.setInitial(true);
 		

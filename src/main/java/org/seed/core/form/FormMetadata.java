@@ -17,11 +17,12 @@
  */
 package org.seed.core.form;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
@@ -57,8 +58,6 @@ import org.seed.core.entity.filter.FilterMetadata;
 import org.seed.core.entity.transform.Transformer;
 import org.seed.core.user.User;
 import org.seed.core.util.Assert;
-
-import org.springframework.util.ObjectUtils;
 
 @javax.persistence.Entity
 @Table(name = "sys_form")
@@ -219,16 +218,8 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public List<FormAction> getActions(boolean isList) {
-		final List<FormAction> result = new ArrayList<>();
-		if (hasActions()) {
-			for (FormAction action : getActions()) {
-				if ((isList && action.getType().isVisibleAtList) ||
-				   (!isList && action.getType().isVisibleAtDetail)) {
-					result.add(action);
-				}
-			}
-		}
-		return result;
+		return subList(getActions(), action -> (isList && action.getType().isVisibleAtList) ||
+				   							   (!isList && action.getType().isVisibleAtDetail));
 	}
 	
 	public void setActions(List<FormAction> actions) {
@@ -290,12 +281,12 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 
 	@Override
 	public boolean hasFields() {
-		return !ObjectUtils.isEmpty(getFields());
+		return notEmpty(getFields());
 	}
 	
 	@Override
 	public boolean hasFieldExtras() {
-		return !ObjectUtils.isEmpty(getFieldExtras());
+		return notEmpty(getFieldExtras());
 	}
 	
 	@Override
@@ -313,13 +304,11 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	public void removeField(FormField field) {
 		Assert.notNull(field, C.FIELD);
 		
-		if (hasFields()) {
-			getFields().remove(field);
-		}
+		getFields().remove(field);
 	}
 	
 	public boolean hasSubForms() {
-		return !ObjectUtils.isEmpty(getSubForms());
+		return notEmpty(getSubForms());
 	}
 	
 	@Override
@@ -335,16 +324,14 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public boolean hasRelationForms() {
-		return !ObjectUtils.isEmpty(mapRelations);
+		return mapRelations != null && !mapRelations.isEmpty();
 	}
 	
 	@Override
 	public void removeSubForm(SubForm subForm) {
 		Assert.notNull(subForm, C.SUBFORM);
 		
-		if (hasSubForms()) {
-			subForms.remove(subForm);
-		}
+		subForms.remove(subForm);
 	}
 	
 	@Override
@@ -358,7 +345,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public boolean hasPrintouts() {
-		return !ObjectUtils.isEmpty(getPrintouts());
+		return notEmpty(getPrintouts());
 	}
 	
 	@Override
@@ -376,14 +363,12 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	public void removePrintout(FormPrintout printout) {
 		Assert.notNull(printout, C.PRINTOUT);
 		
-		if (hasPrintouts()) {
-			getPrintouts().remove(printout);
-		}
+		getPrintouts().remove(printout);
 	}
 	
 	@Override
 	public boolean hasActions() {
-		return !ObjectUtils.isEmpty(getActions());
+		return notEmpty(getActions());
 	}
 	
 	@Override
@@ -401,14 +386,12 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	public void removeAction(FormAction action) {
 		Assert.notNull(action, C.ACTION);
 		
-		if (hasActions()) {
-			getActions().remove(action);
-		}
+		getActions().remove(action);
 	}
 	
 	@Override
 	public boolean hasTransformers() {
-		return !ObjectUtils.isEmpty(getTransformers());
+		return notEmpty(getTransformers());
 	}
 	
 	@Override
@@ -426,9 +409,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	public void removeTransformer(FormTransformer transformer) {
 		Assert.notNull(transformer, C.TRANSFORMER);
 		
-		if (hasTransformers()) {
-			getTransformers().remove(transformer);
-		}
+		getTransformers().remove(transformer);
 	}
 	
 	@Override
@@ -451,24 +432,21 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	public boolean containsEntityField(EntityField entityField) {
 		Assert.notNull(entityField, C.ENTITYFIELD);
 		
-		return hasFields() && 
-			   getFields().stream().anyMatch(field -> entityField.equals(field.getEntityField()));
+		return anyMatch(fields, field -> entityField.equals(field.getEntityField()));
 	}
 	
 	@Override
 	public boolean containsSystemField(SystemField systemField) {
 		Assert.notNull(systemField, "system field");
 		
-		return hasFields() &&
-			   getFields().stream().anyMatch(field -> systemField == field.getSystemField());
+		return anyMatch(fields, field -> systemField == field.getSystemField());
 	}
 	
 	@Override
 	public boolean containsEntityFunction(EntityFunction entityFunction) {
 		Assert.notNull(entityFunction, "entity function");
 		
-		return hasActions() &&
-			   getActions().stream().anyMatch(action -> entityFunction.equals(action.getEntityFunction()));
+		return anyMatch(actions, action -> entityFunction.equals(action.getEntityFunction()));
 	}
 	
 	@Override
@@ -476,37 +454,31 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 		Assert.notNull(filter, C.FILTER);
 		
 		return filter.equals(this.filter) || 
-			   (hasFieldExtras() && getFieldExtras().stream().anyMatch(extra -> filter.equals(extra.getFilter())));
+			   anyMatch(fieldExtras, extra -> filter.equals(extra.getFilter()));
 	}
 	
 	@Override
 	public boolean containsTransformer(Transformer transformer) {
 		Assert.notNull(transformer, C.TRANSFORMER);
 		
-		return (hasTransformers() && getTransformers().stream().anyMatch(trans -> transformer.equals(trans.getTransformer()))) ||
-			   (hasFieldExtras() && getFieldExtras().stream().anyMatch(extra -> transformer.equals(extra.getTransformer())));
+		return anyMatch(transformers, trans -> transformer.equals(trans.getTransformer())) ||
+			   anyMatch(fieldExtras, extra -> transformer.equals(extra.getTransformer()));
 	}
 	
 	@Override
 	public boolean containsForm(Form form) {
 		Assert.notNull(form, C.FORM);
 		
-		return (hasFieldExtras() && getFieldExtras().stream().anyMatch(extra -> form.equals(extra.getDetailForm()))) ||
-			   (hasActions() && getActions().stream().anyMatch(action -> form.equals(action.getTargetForm()))) ||
-			   (hasTransformers() && getTransformers().stream().anyMatch(trans -> form.equals(trans.getTargetForm())));
+		return anyMatch(fieldExtras, extra -> form.equals(extra.getDetailForm())) ||
+			   anyMatch(actions, action -> form.equals(action.getTargetForm())) ||
+			   anyMatch(transformers, trans -> form.equals(trans.getTargetForm()));
 	}
 	
 	@Override
 	public FormAction getActionByType(FormActionType actionType) {
 		Assert.notNull(actionType, "action type");
 		
-		if (hasActions()) {
-			final Optional<FormAction> optional = getActions().stream().filter(action -> action.getType() == actionType).findFirst();
-			if (optional.isPresent()) {
-				return optional.get();
-			}
-		}
-		return null;
+		return firstMatch(getActions(), action -> action.getType() == actionType);
 	}
 	
 	@Override
@@ -567,42 +539,21 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	public SubForm getSubFormByEntityId(Long entityId) {
 		Assert.notNull(entityId, "entity id");
 		
-		if (hasSubForms()) {
-			final Optional<SubForm> optional = getSubForms().stream()
-					.filter(sub -> entityId.equals(sub.getNestedEntity().getNestedEntity().getId())).findFirst();
-			if (optional.isPresent() ) {
-				return optional.get();
-			}
-		}
-		return null;
+		return firstMatch(getSubForms(), sub -> entityId.equals(sub.getNestedEntity().getNestedEntity().getId()));
 	}
 	
 	@Override
 	public SubForm getSubFormByNestedEntityId(Long nestedEntityId) {
 		Assert.notNull(nestedEntityId, "nested entity id");
 		
-		if (hasSubForms()) {
-			final Optional<SubForm> optional = getSubForms().stream()
-					.filter(sub -> nestedEntityId.equals(sub.getNestedEntity().getId())).findFirst();
-			if (optional.isPresent() ) {
-				return optional.get();
-			}
-		}
-		return null;
+		return firstMatch(getSubForms(), sub -> nestedEntityId.equals(sub.getNestedEntity().getId()));
 	}
 	
 	@Override
 	public SubForm getSubFormByNestedEntityUid(String nestedEntityUid) {
 		Assert.notNull(nestedEntityUid, "nested entity uid");
 		
-		if (hasSubForms()) {
-			final Optional<SubForm> optional = getSubForms().stream()
-					.filter(sub -> nestedEntityUid.equals(sub.getNestedEntity().getUid())).findFirst();
-			if (optional.isPresent() ) {
-				return optional.get();
-			}
-		}
-		return null;
+		return firstMatch(getSubForms(), sub -> nestedEntityUid.equals(sub.getNestedEntity().getUid()));
 	}
 	
 	@Override
@@ -611,12 +562,9 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 		
 		if (hasSubForms()) {
 			for (SubForm subForm : getSubForms()) {
-				if (subForm.hasFields()) {
-					final Optional<SubFormField> optional = subForm.getFields().stream()
-							.filter(subField -> entityField.equals(subField.getEntityField())).findFirst();
-					if (optional.isPresent() ) {
-						return optional.get();
-					}
+				final SubFormField subField = subForm.getFieldByEntityField(entityField);
+				if (subField != null) {
+					return subField;
 				}
 			}
 		}
@@ -627,14 +575,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	public FormFieldExtra getFieldExtra(EntityField entityField) {
 		Assert.notNull(entityField, C.ENTITYFIELD);
 		
-		if (hasFieldExtras()) {
-			final Optional<FormFieldExtra> optional = getFieldExtras().stream()
-					.filter(extra -> entityField.equals(extra.getEntityField())).findFirst();
-			if (optional.isPresent()) {
-				return optional.get();
-			}
-		}
-		return null;
+		return firstMatch(getFieldExtras(), extra -> entityField.equals(extra.getEntityField()));
 	}
 	
 	@Override
@@ -757,9 +698,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	public void removeFieldExtra(FormFieldExtra fieldExtra) {
 		Assert.notNull(fieldExtra, "fieldExtra");
 		
-		if (hasFieldExtras()) {
-			getFieldExtras().remove(fieldExtra);
-		}
+		getFieldExtras().remove(fieldExtra);
 	}
 	
 	public void setLayoutContent(String content) {
@@ -809,45 +748,33 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	}
 	
 	private boolean isEqualFields(Form otherForm) {
-		return !((hasFields() && getFields().stream()
-					.anyMatch(field -> !field.isEqual(otherForm.getFieldByUid(field.getUid())))) || 
-				(otherForm.hasFields() && otherForm.getFields().stream()
-					.anyMatch(field -> getFieldByUid(field.getUid()) == null)));
+		return !(anyMatch(fields, field -> !field.isEqual(otherForm.getFieldByUid(field.getUid()))) || 
+				 anyMatch(otherForm.getFields(), field -> getFieldByUid(field.getUid()) == null));
 	}
 	
 	private boolean isEqualFieldExtras(Form otherForm) {
-		return !((hasFieldExtras() && getFieldExtras().stream()
-					.anyMatch(extra -> !extra.isEqual(otherForm.getFieldExtraByUid(extra.getUid())))) || 
-				(otherForm.hasFieldExtras() && otherForm.getFieldExtras().stream()
-					.anyMatch(extra -> getFieldExtraByUid(extra.getUid()) == null)));
+		return !(anyMatch(fieldExtras, extra -> !extra.isEqual(otherForm.getFieldExtraByUid(extra.getUid()))) || 
+				 anyMatch(otherForm.getFieldExtras(), extra -> getFieldExtraByUid(extra.getUid()) == null));
 	}
 	
 	private boolean isEqualActions(Form otherForm) {
-		return !((hasActions() && getActions().stream()
-					.anyMatch(action -> !action.isEqual(otherForm.getActionByUid(action.getUid())))) || 
-				(otherForm.hasActions() && otherForm.getActions().stream()
-					.anyMatch(action -> getActionByUid(action.getUid()) == null)));
+		return !(anyMatch(actions, action -> !action.isEqual(otherForm.getActionByUid(action.getUid()))) || 
+				 anyMatch(otherForm.getActions(), action -> getActionByUid(action.getUid()) == null));
 	}
 	
 	private boolean isEqualTransformers(Form otherForm) {
-		return !((hasTransformers() && getTransformers().stream()
-					.anyMatch(transformer -> !transformer.isEqual(otherForm.getTransformerByUid(transformer.getUid())))) || 
-				(otherForm.hasTransformers() && otherForm.getTransformers().stream()
-					.anyMatch(transformer -> getTransformerByUid(transformer.getUid()) == null)));
+		return !(anyMatch(transformers, transformer -> !transformer.isEqual(otherForm.getTransformerByUid(transformer.getUid()))) || 
+				 anyMatch(otherForm.getTransformers(), transformer -> getTransformerByUid(transformer.getUid()) == null));
 	}
 	
 	private boolean isEqualPrintouts(Form otherForm) {
-		return !((hasPrintouts() && getPrintouts().stream()
-					.anyMatch(printout -> !printout.isEqual(otherForm.getPrintoutByUid(printout.getUid())))) || 
-				(otherForm.hasPrintouts() && otherForm.getPrintouts().stream()
-					.anyMatch(printout -> getPrintoutByUid(printout.getUid()) == null)));
+		return !(anyMatch(printouts, printout -> !printout.isEqual(otherForm.getPrintoutByUid(printout.getUid()))) || 
+				 anyMatch(otherForm.getPrintouts(), printout -> getPrintoutByUid(printout.getUid()) == null));
 	}
 	
 	private boolean isEqualSubForms(Form otherForm) {
-		return !((hasSubForms() && getSubForms().stream()
-					.anyMatch(subForm -> !subForm.isEqual(otherForm.getSubFormByUid(subForm.getUid())))) || 
-				(otherForm.hasSubForms() && otherForm.getSubForms().stream()
-					.anyMatch(subForm -> getSubFormByUid(subForm.getUid()) == null)));
+		return !(anyMatch(subForms, subForm -> !subForm.isEqual(otherForm.getSubFormByUid(subForm.getUid()))) || 
+				 anyMatch(otherForm.getSubForms(), subForm -> getSubFormByUid(subForm.getUid()) == null));
 	}
 	
 	public void clearSubForms() {

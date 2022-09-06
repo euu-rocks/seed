@@ -30,6 +30,20 @@ import org.seed.core.entity.filter.FilterCriterion;
 class FilterCriterionTest {
 	
 	@Test
+	void testGetEntityFieldUid() {
+		final FilterCriterion criterion = new FilterCriterion();
+		final EntityField field = new EntityField();
+		assertNull(criterion.getEntityFieldUid());
+		
+		criterion.setEntityFieldUid("test");
+		assertEquals("test", criterion.getEntityFieldUid());
+		
+		field.setUid("field");
+		criterion.setEntityField(field);
+		assertEquals("field", criterion.getEntityFieldUid());
+	}
+	
+	@Test
 	void testIsEqual() {
 		final FilterCriterion criterion1 = new FilterCriterion();
 		final FilterCriterion criterion2 = new FilterCriterion();

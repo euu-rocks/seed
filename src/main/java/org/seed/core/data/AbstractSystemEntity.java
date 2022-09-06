@@ -17,8 +17,9 @@
  */
 package org.seed.core.data;
 
+import static org.seed.core.util.CollectionUtils.firstMatch;
+
 import java.util.List;
-import java.util.Optional;
 
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
@@ -54,7 +55,7 @@ public abstract class AbstractSystemEntity extends AbstractSystemObject
 	@Override
 	@JsonIgnore
 	public final String getInternalName() {
-		return NameUtils.getInternalName(getName());
+		return NameUtils.getInternalName(getName());  // don't touch
 	}
 	
 	@Override
@@ -81,15 +82,8 @@ public abstract class AbstractSystemEntity extends AbstractSystemObject
 	protected static <T extends SystemEntity> T getObjectByName(List<T> list, String name, boolean ignoreCase) {
 		Assert.notNull(name, C.NAME);
 		
-		if (list != null) {
-			final Optional<T> optional = list.stream()
-				.filter(obj -> (ignoreCase && name.equalsIgnoreCase(obj.getName())) || name.equals(obj.getName()))
-				.findFirst();
-			if (optional.isPresent()) {
-				return optional.get();
-			}
-		}
-		return null;
+		return firstMatch(list, obj -> (ignoreCase && name.equalsIgnoreCase(obj.getName())) || 
+									   name.equals(obj.getName()));
 	}
 	
 }

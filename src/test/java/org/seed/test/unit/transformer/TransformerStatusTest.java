@@ -20,10 +20,24 @@ package org.seed.test.unit.transformer;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
-
+import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.transform.TransformerStatus;
 
 class TransformerStatusTest {
+	
+	@Test
+	void testGetStatusUid() {
+		final TransformerStatus status = new TransformerStatus();
+		final EntityStatus entityStatus = new EntityStatus();
+		assertNull(status.getStatusUid());
+		
+		status.setStatusUid("test");
+		assertEquals("test", status.getStatusUid());
+		
+		entityStatus.setUid("status");
+		status.setStatus(entityStatus);
+		assertEquals("status", status.getStatusUid());
+	}
 	
 	@Test
 	void testIsEqual() {

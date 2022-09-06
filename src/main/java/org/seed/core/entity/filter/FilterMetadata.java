@@ -17,6 +17,8 @@
  */
 package org.seed.core.entity.filter;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,8 +43,6 @@ import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityMetadata;
 import org.seed.core.util.Assert;
 import org.seed.core.util.ReferenceJsonSerializer;
-
-import org.springframework.util.ObjectUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -130,7 +130,7 @@ public class FilterMetadata extends AbstractApplicationEntity implements Filter 
 	
 	@Override
 	public boolean hasCriteria() {
-		return !ObjectUtils.isEmpty(getCriteria());
+		return notEmpty(getCriteria());
 	}
 	
 	@Override
@@ -169,7 +169,7 @@ public class FilterMetadata extends AbstractApplicationEntity implements Filter 
 	
 	@Override
 	public boolean hasPermissions() {
-		return !ObjectUtils.isEmpty(getPermissions());
+		return notEmpty(getPermissions());
 	}
 	
 	@Override
@@ -207,13 +207,12 @@ public class FilterMetadata extends AbstractApplicationEntity implements Filter 
 				}
 			}
 		}
-		return  !(otherFilter.hasCriteria() && 
-				  otherFilter.getCriteria().stream().anyMatch(criterion -> getCriterionByUid(criterion.getUid()) == null)); 
+		return noneMatch(otherFilter.getCriteria(), criterion -> getCriterionByUid(criterion.getUid()) == null);
 	}
 	
 	private boolean isEqualPermissions(Filter otherFilter) {
-		return !((hasPermissions() && getPermissions().stream().anyMatch(perm -> !perm.isEqual(otherFilter.getPermissionByUid(perm.getUid())))) ||
-				(otherFilter.hasPermissions() && otherFilter.getPermissions().stream().anyMatch(perm -> getPermissionByUid(perm.getUid()) == null)));
+		return !(anyMatch(permissions, perm -> !perm.isEqual(otherFilter.getPermissionByUid(perm.getUid()))) ||
+				 anyMatch(otherFilter.getPermissions(), perm -> getPermissionByUid(perm.getUid()) == null));
 	}
 	
 	@Override

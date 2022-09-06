@@ -20,6 +20,7 @@ package org.seed.test.unit.report;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -95,6 +96,7 @@ class ReportTest {
 		((ReportMetadata) report).setDataSources(dataSources);
 		final Map<String, List<DataSourceParameter>> map =
 			report.getDataSourceParameterMap();
+		assertTrue(map instanceof LinkedHashMap);
 		
 		assertFalse(map.isEmpty());
 		assertSame(1, map.size());

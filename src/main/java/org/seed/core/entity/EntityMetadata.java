@@ -17,13 +17,11 @@
  */
 package org.seed.core.entity;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
@@ -298,14 +296,14 @@ public class EntityMetadata extends AbstractApplicationEntity
 	public List<EntityField> getAllFieldsByGroup(EntityFieldGroup fieldGroup) {
 		Assert.notNull(fieldGroup, C.FIELDGROUP);
 		
-		return subList(getAllFields(), f -> fieldGroup.equals(f.getFieldGroup()));
+		return subList(getAllFields(), fld -> fieldGroup.equals(fld.getFieldGroup()));
 	}
 	
 	@Override
 	public List<EntityField> getAllFieldsByType(FieldType fieldType) {
 		Assert.notNull(fieldType, C.FIELDTYPE);
 		
-		return subList(getAllFields(), f -> f.getType() == fieldType);
+		return subList(getAllFields(), fld -> fld.getType() == fieldType);
 	}
 	
 	// get fields that reference to given entity
@@ -313,8 +311,8 @@ public class EntityMetadata extends AbstractApplicationEntity
 	public List<EntityField> getReferenceFields(Entity entity) {
 		Assert.notNull(entity, C.NESTED);
 		
-		return subList(getAllFields(), f -> f.getType().isReference() && 
-											f.getReferenceEntity().equals(entity));
+		return subList(getAllFields(), fld -> fld.getType().isReference() && 
+											  fld.getReferenceEntity().equals(entity));
 	}
 	
 	@Override
@@ -334,22 +332,14 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public EntityField findDefaultIdentifierField() {
-		if (hasAllFields()) {
-			// search in all unique fields first
-			Optional<EntityField> optional = getAllFields().stream()
-					.filter(field -> field.isUnique() && 
-							(field.getType().isText() || field.getType().isAutonum())).findFirst();
-			if (optional.isPresent()) {
-				return optional.get();
-			}
-			// fallback: search current fields
-			optional = getAllFields().stream()
-					.filter(field -> field.getType().isText() || field.getType().isAutonum()).findFirst();
-			if (optional.isPresent()) {
-				return optional.get();
-			}
+		// search in all unique fields first
+		final EntityField identifierField = firstMatch(getAllFields(), 
+				field -> field.isUnique() && (field.getType().isText() || field.getType().isAutonum()));
+		if (identifierField != null) {
+			return identifierField;
 		}
-		return null;
+		// fallback: search current fields
+		return firstMatch(getAllFields(), field -> field.getType().isText() || field.getType().isAutonum());
 	}
 	
 	// includes generic fieldgroups
@@ -368,7 +358,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public boolean hasFieldGroups() {
-		return !ObjectUtils.isEmpty(getFieldGroups());
+		return notEmpty(getFieldGroups());
 	}
 	
 	@Override
@@ -389,7 +379,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 
 	@Override
 	public boolean hasFieldConstraints() {
-		return !ObjectUtils.isEmpty(getFieldConstraints());
+		return notEmpty(getFieldConstraints());
 	}
 
 	@Override
@@ -416,7 +406,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 
 	@Override
 	public boolean hasStatusTransitions() {
-		return !ObjectUtils.isEmpty(getStatusTransitions());
+		return notEmpty(getStatusTransitions());
 	}
 	
 	@Override
@@ -470,7 +460,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public boolean hasRelations() {
-		return !ObjectUtils.isEmpty(getRelations());
+		return notEmpty(getRelations());
 	}
 	
 	@Override
@@ -494,7 +484,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public boolean hasFields() {
-		return !ObjectUtils.isEmpty(getFields());
+		return notEmpty(getFields());
 	}
 	
 	@Override
@@ -505,8 +495,8 @@ public class EntityMetadata extends AbstractApplicationEntity
 	// includes nested fields
 	@Override
 	public boolean hasFullTextSearchFields() {
-		return ((hasAllFields() && getAllFields().stream().anyMatch(EntityField::isFullTextSearch)) ||
-				(hasNesteds() && getNesteds().stream().anyMatch(nested -> nested.getNestedEntity().hasFullTextSearchFields())));
+		return anyMatch(getAllFields(), EntityField::isFullTextSearch) ||
+			   anyMatch(nesteds, nested -> nested.getNestedEntity().hasFullTextSearchFields());
 	}
 	
 	@Override
@@ -630,12 +620,8 @@ public class EntityMetadata extends AbstractApplicationEntity
 		if (genericEntity != null) {
 			result = genericEntity.getNestedByInternalName(name);
 		}
-		if (result == null && hasNesteds()) {
-			final Optional<NestedEntity> optional = getNesteds().stream()
-					.filter(nested -> name.equalsIgnoreCase(nested.getNestedEntity().getInternalName())).findFirst();
-			if (optional.isPresent()) {
-				result = optional.get();
-			}
+		if (result == null) {
+			result = firstMatch(nesteds, nested -> name.equalsIgnoreCase(nested.getNestedEntity().getInternalName()));
 		}
 		return result;
 	}
@@ -648,12 +634,8 @@ public class EntityMetadata extends AbstractApplicationEntity
 		if (genericEntity != null) {
 			result = genericEntity.getNestedByEntityId(id);
 		}
-		if (result == null && hasNesteds()) {
-			final Optional<NestedEntity> optional = getNesteds().stream()
-					.filter(nested -> id.equals(nested.getNestedEntity().getId())).findFirst();
-			if (optional.isPresent()) {
-				result = optional.get();
-			}
+		if (result == null) {
+			result = firstMatch(nesteds, nested -> id.equals(nested.getNestedEntity().getId()));
 		}
 		return result;
 	}
@@ -662,49 +644,36 @@ public class EntityMetadata extends AbstractApplicationEntity
 	public NestedEntity getNestedByEntityField(EntityField field) {
 		Assert.notNull(field, C.FIELD);
 		
-		NestedEntity result = null;
-		if (hasNesteds()) {
-			final Optional<NestedEntity> optional = getNesteds().stream()
-					.filter(nested -> nested.getNestedEntity().containsField(field))
-					.findFirst();
-			if (optional.isPresent()) {
-				result = optional.get();
-			}
-		}
-		return result;
+		return firstMatch(nesteds, nested -> nested.getNestedEntity().containsField(field));
 	}
 	
 	@Override
 	public boolean hasNesteds() {
-		return !ObjectUtils.isEmpty(getNesteds());
+		return notEmpty(getNesteds());
 	}
 	
 	@Override
 	public boolean isNestedEntity(Entity entity) {
 		Assert.notNull(entity, C.ENTITY);
 		
-		return hasNesteds() && 
-			   getNesteds().stream()
-			   			   .anyMatch(nested -> nested.getNestedEntity().equals(entity));
+		return anyMatch(nesteds, nested -> nested.getNestedEntity().equals(entity));
 	}
 	
 	@Override
 	public boolean isRelatedEntity(Entity entity) {
 		Assert.notNull(entity, C.ENTITY);
 		
-		return hasAllRelations() &&
-				getAllRelations().stream()
-								 .anyMatch(relation -> relation.isRelated(entity));
+		return anyMatch(getAllRelations(), relation -> relation.isRelated(entity));
 	}
 	
 	@Override
 	public boolean hasStatus() {
-		return !ObjectUtils.isEmpty(getStatusList());
+		return notEmpty(getStatusList());
 	}
 	
 	@Override
 	public boolean hasPermissions() {
-		return !ObjectUtils.isEmpty(getPermissions());
+		return notEmpty(getPermissions());
 	}
 	
 	@Override
@@ -869,7 +838,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public boolean hasFunctions() {
-		return !ObjectUtils.isEmpty(getFunctions());
+		return notEmpty(getFunctions());
 	}
 	
 	@Override
@@ -980,66 +949,48 @@ public class EntityMetadata extends AbstractApplicationEntity
 	}
 	
 	private final boolean isEqualFields(Entity otherEntity) {
-		return !((hasFields() && getFields().stream()
-					.anyMatch(field -> !field.isEqual(otherEntity.getFieldByUid(field.getUid())))) ||
-				 (otherEntity.hasFields() && otherEntity.getFields().stream()
-					.anyMatch(field -> getFieldByUid(field.getUid()) == null)));
+		return !(anyMatch(fields, field -> !field.isEqual(otherEntity.getFieldByUid(field.getUid()))) ||
+			     anyMatch(otherEntity.getFields(), field -> getFieldByUid(field.getUid()) == null));
 	}
 	
 	private final boolean isEqualFieldGroups(Entity otherEntity) {
-		return !((hasFieldGroups() && getFieldGroups().stream()
-					.anyMatch(group -> !group.isEqual(otherEntity.getFieldGroupByUid(group.getUid())))) ||
-				 (otherEntity.hasFieldGroups() && otherEntity.getFieldGroups().stream()
-					.anyMatch(group -> getFieldGroupByUid(group.getUid()) == null)));
+		return !(anyMatch(fieldGroups, group -> !group.isEqual(otherEntity.getFieldGroupByUid(group.getUid()))) ||
+				 anyMatch(otherEntity.getFieldGroups(), group -> getFieldGroupByUid(group.getUid()) == null));
 	}
 	
 	private final boolean isEqualFunctions(Entity otherEntity) {
-		return !((hasFunctions() && getFunctions().stream()
-					.anyMatch(function -> !function.isEqual(otherEntity.getFunctionByUid(function.getUid())))) ||
-				 (otherEntity.hasFunctions() && otherEntity.getFunctions().stream()
-					.anyMatch(function -> getFunctionByUid(function.getUid()) == null)));
+		return !(anyMatch(functions, function -> !function.isEqual(otherEntity.getFunctionByUid(function.getUid()))) ||
+				 anyMatch(otherEntity.getFunctions(), function -> getFunctionByUid(function.getUid()) == null));
 	}
 	
 	private final boolean isEqualStatus(Entity otherEntity) {
-		return !((hasStatus() && getStatusList().stream()
-					.anyMatch(status -> !status.isEqual(otherEntity.getStatusByUid(status.getUid())))) ||
-				 (otherEntity.hasStatus() && otherEntity.getStatusList().stream()
-					.anyMatch(status -> getStatusByUid(status.getUid()) == null)));
+		return !(anyMatch(statusList, status -> !status.isEqual(otherEntity.getStatusByUid(status.getUid()))) ||
+				 anyMatch(otherEntity.getStatusList(), status -> getStatusByUid(status.getUid()) == null));
 	}
 	
 	private final boolean isEqualStatusTransitions(Entity otherEntity) {
-		return !((hasStatusTransitions() && getStatusTransitions().stream()
-					.anyMatch(transition -> !transition.isEqual(otherEntity.getStatusTransitionByUid(transition.getUid())))) ||
-				 (otherEntity.hasStatusTransitions() && otherEntity.getStatusTransitions().stream()
-					.anyMatch(transition -> getStatusTransitionByUid(transition.getUid()) == null)));
+		return !(anyMatch(statusTransitions, transition -> !transition.isEqual(otherEntity.getStatusTransitionByUid(transition.getUid()))) ||
+				 anyMatch(otherEntity.getStatusTransitions(), transition -> getStatusTransitionByUid(transition.getUid()) == null));
 	}
 	
 	private final boolean isEqualPermissions(Entity otherEntity) {
-		return !((hasPermissions() && getPermissions().stream()
-					.anyMatch(perm -> !perm.isEqual(otherEntity.getPermissionByUid(perm.getUid())))) ||
-				 (otherEntity.hasPermissions() && otherEntity.getPermissions().stream()
-					.anyMatch(perm -> getPermissionByUid(perm.getUid()) == null)));
+		return !(anyMatch(permissions, perm -> !perm.isEqual(otherEntity.getPermissionByUid(perm.getUid()))) ||
+				 anyMatch(otherEntity.getPermissions(), perm -> getPermissionByUid(perm.getUid()) == null));
 	}
 	
 	private final boolean isEqualConstraints(Entity otherEntity) {
-		return !((hasFieldConstraints() && getFieldConstraints().stream()
-					.anyMatch(constraint -> !constraint.isEqual(otherEntity.getFieldConstraintByUid(constraint.getUid())))) ||
-				 (otherEntity.hasFieldConstraints() && otherEntity.getFieldConstraints().stream()
-					.anyMatch(constraint -> getFieldConstraintByUid(constraint.getUid()) == null)));
+		return !(anyMatch(fieldConstraints, constraint -> !constraint.isEqual(otherEntity.getFieldConstraintByUid(constraint.getUid()))) ||
+				 anyMatch(otherEntity.getFieldConstraints(), constraint -> getFieldConstraintByUid(constraint.getUid()) == null));
 	}
 	
 	private final boolean isEqualNesteds(Entity otherEntity) {
-		return !((hasNesteds() && getNesteds().stream()
-					.anyMatch(nested -> !nested.isEqual(otherEntity.getNestedByUid(nested.getUid())))) ||
-				 (otherEntity.hasNesteds() && otherEntity.getNesteds().stream()
-					.anyMatch(nested -> getNestedByUid(nested.getUid()) == null)));
+		return !(anyMatch(nesteds, nested -> !nested.isEqual(otherEntity.getNestedByUid(nested.getUid()))) ||
+				 anyMatch(otherEntity.getNesteds(), nested -> getNestedByUid(nested.getUid()) == null));
 	}
 	
 	private final boolean isEqualRelations(Entity otherEntity) {
-		return !((hasRelations() && getRelations().stream()
-					.anyMatch(relation -> !relation.isEqual(otherEntity.getRelationByUid(relation.getUid())))) ||
-				 (otherEntity.hasRelations() && otherEntity.getRelations().stream()
-					.anyMatch(relation -> getRelationByUid(relation.getUid()) == null)));
+		return !(anyMatch(relations, relation -> !relation.isEqual(otherEntity.getRelationByUid(relation.getUid()))) ||
+				 anyMatch(otherEntity.getRelations(), relation -> getRelationByUid(relation.getUid()) == null));
 	}
 	
 	void createLists() {
@@ -1146,26 +1097,16 @@ public class EntityMetadata extends AbstractApplicationEntity
 	public EntityStatus getInitialStatus() {
 		Assert.state(hasStatus(), "entity has no status");
 		
-		final Optional<EntityStatus> optional = getStatusList().stream()
-				.filter(EntityStatus::isInitial).findFirst();
-		if (optional.isPresent()) {
-			return optional.get();
-		}
-		throw new IllegalStateException("initial status not found");
+		final EntityStatus status = firstMatch(statusList, EntityStatus::isInitial);
+		Assert.stateAvailable(status, "initial status");
+		return status;
 	}
 	
 	@Override
 	public EntityStatus getStatusByNumber(Integer statusNumber) {
 		Assert.notNull(statusNumber, "statusNumber");
 		
-		if (hasStatus()) {
-			final Optional<EntityStatus> optional = getStatusList().stream()
-					.filter(status -> statusNumber.equals(status.getStatusNumber())).findFirst();
-			if (optional.isPresent()) {
-				return optional.get();
-			}
-		}
-		return null;
+		return firstMatch(statusList, status -> statusNumber.equals(status.getStatusNumber()));
 	}
 	
 	@Override
@@ -1175,15 +1116,11 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public EntityStatusTransition getStatusTransition(EntityStatus sourceStatus, EntityStatus targetStatus) {
-		if (hasStatusTransitions()) {
-			final Optional<EntityStatusTransition> optional = getStatusTransitions().stream()
-					.filter(transition -> transition.getSourceStatus().equals(sourceStatus) &&
-							transition.getTargetStatus().equals(targetStatus)).findFirst();			
-			if (optional.isPresent()) {
-				return optional.get();
-			}
-		}
-		return null;
+		Assert.notNull(sourceStatus, "source status");
+		Assert.notNull(targetStatus, "target status");
+		
+		return firstMatch(statusTransitions, transition -> transition.getSourceStatus().equals(sourceStatus) &&
+														   transition.getTargetStatus().equals(targetStatus));
 	}
 	
 	@Override
@@ -1208,33 +1145,29 @@ public class EntityMetadata extends AbstractApplicationEntity
 	private List<EntityFieldConstraint> getFieldConstraints(EntityField field) {
 		Assert.notNull(field, C.FIELD);
 		
-		return hasFieldConstraints() 
-				? getFieldConstraints().stream()
-					.filter(constraint -> field.equals(constraint.getField()) ||
-							(constraint.getFieldGroup() != null && 
-							 constraint.getFieldGroup().equals(field.getFieldGroup())))
-					.collect(Collectors.toList())
-				: Collections.emptyList();
+		return subList(fieldConstraints, 
+					   constraint -> field.equals(constraint.getField()) ||
+									 (constraint.getFieldGroup() != null && 
+									  constraint.getFieldGroup().equals(field.getFieldGroup())));
 	}
 	
 	private boolean hasGroupConstraints(EntityField field) {
 		Assert.notNull(field, C.FIELD);
 		
-		return getFieldConstraints(field).stream().anyMatch(constraint -> constraint.getUserGroup() != null);
+		return anyMatch(getFieldConstraints(field), constraint -> constraint.getUserGroup() != null);
 	}
 	
 	private EntityFieldConstraint getGroupConstraint(EntityField field, UserGroup userGroup, EntityStatus status) {
 		Assert.notNull(field, C.FIELD);
 		Assert.notNull(userGroup, C.USERGROUP);
 		
-		final Optional<EntityFieldConstraint> optional = getFieldConstraints(field).stream()
-				.filter(constraint -> userGroup.equals(constraint.getUserGroup()) &&
-									  ObjectUtils.nullSafeEquals(status, constraint.getStatus())).findFirst();
-		return optional.isPresent() ? optional.get() : null;
+		return firstMatch(getFieldConstraints(field), 
+						  constraint -> userGroup.equals(constraint.getUserGroup()) &&
+				  						ObjectUtils.nullSafeEquals(status, constraint.getStatus()));
 	}
 
 	private static boolean checkAccess(EntityFieldConstraint constraint, FieldAccess ...fieldAccess) {
-		return Arrays.stream(fieldAccess).anyMatch(access -> constraint.getAccess() == access);
+		return anyMatch(fieldAccess, access -> constraint.getAccess() == access);
 	}
 	
 }

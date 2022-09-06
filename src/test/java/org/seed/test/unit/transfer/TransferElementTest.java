@@ -27,6 +27,20 @@ import org.seed.core.entity.transfer.TransferElement;
 class TransferElementTest {
 	
 	@Test
+	void testGetFieldUid() {
+		final TransferElement element = new TransferElement();
+		final EntityField field = new EntityField();
+		assertNull(element.getFieldUid());
+		
+		element.setFieldUid("test");
+		assertEquals("test", element.getFieldUid());
+		
+		field.setUid("field");
+		element.setEntityField(field);
+		assertEquals("field", element.getFieldUid());
+	}
+	
+	@Test
 	void testIsEqual() {
 		final TransferElement element1 = new TransferElement();
 		final TransferElement element2 = new TransferElement();

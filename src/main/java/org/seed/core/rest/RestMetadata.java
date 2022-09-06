@@ -17,6 +17,8 @@
  */
 package org.seed.core.rest;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,8 +39,6 @@ import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.util.Assert;
 import org.seed.core.util.NameUtils;
-
-import org.springframework.util.ObjectUtils;
 
 @Entity
 @Table(name = "sys_rest")
@@ -78,7 +78,7 @@ public class RestMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public boolean hasFunctions() {
-		return !ObjectUtils.isEmpty(getFunctions());
+		return notEmpty(getFunctions());
 	}
 	
 	@Override
@@ -94,7 +94,7 @@ public class RestMetadata extends AbstractApplicationEntity
 
 	@Override
 	public boolean hasPermissions() {
-		return !ObjectUtils.isEmpty(getPermissions());
+		return notEmpty(getPermissions());
 	}
 
 	@Override
@@ -176,17 +176,13 @@ public class RestMetadata extends AbstractApplicationEntity
 	}
 	
 	private boolean isEqualFunctions(Rest otherRest) {
-		return !((hasFunctions() && getFunctions().stream()
-					.anyMatch(function -> !function.isEqual(otherRest.getFunctionByUid(function.getUid())))) || 
-				(otherRest.hasFunctions() && otherRest.getFunctions().stream()
-					.anyMatch(function -> getFunctionByUid(function.getUid()) == null)));
+		return !(anyMatch(functions, function -> !function.isEqual(otherRest.getFunctionByUid(function.getUid()))) || 
+				 anyMatch(otherRest.getFunctions(), function -> getFunctionByUid(function.getUid()) == null));
 	}
 	
 	private boolean isEqualPermissions(Rest otherRest) {
-		return !((hasPermissions() && getPermissions().stream()
-					.anyMatch(permission -> !permission.isEqual(otherRest.getPermissionByUid(permission.getUid())))) || 
-				(otherRest.hasPermissions() && otherRest.getPermissions().stream()
-					.anyMatch(permission -> getPermissionByUid(permission.getUid()) == null)));
+		return !(anyMatch(permissions, permission -> !permission.isEqual(otherRest.getPermissionByUid(permission.getUid()))) || 
+				 anyMatch(otherRest.getPermissions(), permission -> getPermissionByUid(permission.getUid()) == null));
 	}
 	
 	@Override

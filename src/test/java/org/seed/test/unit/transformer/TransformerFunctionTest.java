@@ -20,9 +20,30 @@ package org.seed.test.unit.transformer;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
+import org.seed.core.entity.EntityFunction;
+import org.seed.core.entity.transform.Transformer;
 import org.seed.core.entity.transform.TransformerFunction;
+import org.seed.core.entity.transform.TransformerMetadata;
 
 class TransformerFunctionTest {
+	
+	@Test
+	void testGetGeneratedPackage() {
+		final Transformer transformer = new TransformerMetadata();
+		final TransformerFunction function = new TransformerFunction();
+		transformer.addFunction(function);
+		transformer.setName("TÄST");
+		
+		assertEquals("org.seed.generated.transform.taest", function.getGeneratedPackage());
+	}
+	
+	@Test
+	void testGetGeneratedClass() {
+		final EntityFunction function = new EntityFunction();
+		function.setName("tästSomething");
+		
+		assertEquals("TaestSomething", function.getGeneratedClass());
+	}
 	
 	@Test
 	void testIsEqual() {

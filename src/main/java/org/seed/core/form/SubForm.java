@@ -17,9 +17,10 @@
  */
 package org.seed.core.form;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -50,8 +51,6 @@ import org.seed.core.entity.filter.Filter;
 import org.seed.core.entity.transform.Transformer;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.util.Assert;
-
-import org.springframework.util.ObjectUtils;
 
 @Entity
 @Table(name = "sys_subform")
@@ -127,7 +126,7 @@ public class SubForm extends AbstractTransferableObject {
 	}
 	
 	public boolean hasFields() {
-		return !ObjectUtils.isEmpty(getFields());
+		return notEmpty(getFields());
 	}
 	
 	@XmlElement(name="subformfield")
@@ -151,7 +150,7 @@ public class SubForm extends AbstractTransferableObject {
 	}
 	
 	public boolean hasActions() {
-		return !ObjectUtils.isEmpty(getActions());
+		return notEmpty(getActions());
 	}
 	
 	@XmlElement(name="subformaction")
@@ -186,51 +185,46 @@ public class SubForm extends AbstractTransferableObject {
 		return AbstractApplicationEntity.getObjectByUid(getActions(), actionUid);
 	}
 	
+	public SubFormField getFieldByEntityField(EntityField entityField) {
+		Assert.notNull(entityField, "entityField");
+		
+		return firstMatch(getFields(), field -> entityField.equals(field.getEntityField()));
+	}
+	
 	public SubFormField getFieldByEntityFieldUid(String entityFieldUid) {
 		Assert.notNull(entityFieldUid, "entity field uid");
 		
-		if (hasFields()) {
-			final Optional<SubFormField> optional = getFields().stream().filter(field -> entityFieldUid.equals(field.getEntityField().getUid())).findFirst();
-			if (optional.isPresent()) {
-				return optional.get();
-			}
-		}
-		return null;
+		return firstMatch(getFields(), field -> entityFieldUid.equals(field.getEntityField().getUid()));
 	}
 	
 	public boolean containsForm(Form form) {
 		Assert.notNull(form, C.FORM);
 		
-		return hasFields() &&
-			   getFields().stream().anyMatch(field -> form.equals(field.getDetailForm()));
+		return anyMatch(getFields(), field -> form.equals(field.getDetailForm()));
 	}
 	
 	public boolean containsEntityField(EntityField entityField) {
 		Assert.notNull(entityField, C.ENTITYFIELD);
 		
-		return hasFields() &&
-			   getFields().stream().anyMatch(field -> entityField.equals(field.getEntityField()));           
+		return anyMatch(getFields(), field -> entityField.equals(field.getEntityField()));           
 	}
 	
 	public boolean containsEntityFunction(EntityFunction entityFunction) {
 		Assert.notNull(entityFunction, "entity function");
 		
-		return hasActions() &&
-			   getActions().stream().anyMatch(action -> entityFunction.equals(action.getEntityFunction()));
+		return anyMatch(getActions(), action -> entityFunction.equals(action.getEntityFunction()));
 	}
 	
 	public boolean containsTransformer(Transformer transformer) {
 		Assert.notNull(transformer, C.TRANSFORMER);
 		
-		return hasFields() &&
-			   getFields().stream().anyMatch(field -> transformer.equals(field.getTransformer()));
+		return anyMatch(getFields(), field -> transformer.equals(field.getTransformer()));
 	}
 	
 	public boolean containsFilter(Filter filter) {
 		Assert.notNull(filter, C.FILTER);
 		
-		return hasFields() &&
-			   getFields().stream().anyMatch(field -> filter.equals(field.getFilter()));
+		return anyMatch(getFields(), field -> filter.equals(field.getFilter()));
 	}
 	
 	public SubFormAction getActionByType(FormActionType actionType) {
@@ -244,11 +238,7 @@ public class SubForm extends AbstractTransferableObject {
 		Assert.notNull(actions, "actions");
 		Assert.notNull(actionType, "action type");
 		
-		final Optional<SubFormAction> optional = actions.stream().filter(action -> action.getType() == actionType).findFirst();
-		if (optional.isPresent()) {
-			return optional.get();
-		}
-		return null;
+		return firstMatch(actions, action -> action.getType() == actionType);
 	}
 	
 	@Override
@@ -270,17 +260,13 @@ public class SubForm extends AbstractTransferableObject {
 	}
 	
 	private boolean isEqualFields(SubForm otherSubForm) {
-		return !((hasFields() && getFields().stream()
-					.anyMatch(field -> !field.isEqual(otherSubForm.getFieldByUid(field.getUid())))) || 
-				(otherSubForm.hasFields() && otherSubForm.getFields().stream()
-					.anyMatch(field -> getFieldByUid(field.getUid()) == null)));
+		return !(anyMatch(fields, field -> !field.isEqual(otherSubForm.getFieldByUid(field.getUid()))) || 
+				 anyMatch(otherSubForm.getFields(), field -> getFieldByUid(field.getUid()) == null));
 	}
 	
 	private boolean isEqualActions(SubForm otherSubForm) {
-		return !((hasActions() && getActions().stream()
-					.anyMatch(action -> !action.isEqual(otherSubForm.getActionByUid(action.getUid())))) || 
-				(otherSubForm.hasActions() && otherSubForm.getActions().stream()
-					.anyMatch(action -> getActionByUid(action.getUid()) == null)));
+		return !(anyMatch(actions, action -> !action.isEqual(otherSubForm.getActionByUid(action.getUid()))) || 
+				 anyMatch(otherSubForm.getActions(), action -> getActionByUid(action.getUid()) == null));
 	}
 	
 	@Override

@@ -17,11 +17,13 @@
  */
 package org.seed.core.application.module;
 
+import static org.seed.core.application.AbstractApplicationEntity.getObjectByUid;
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
@@ -72,10 +74,6 @@ import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupMetadata;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
-
-import org.springframework.util.ObjectUtils;
-
-import static org.seed.core.application.AbstractApplicationEntity.getObjectByUid;
 
 @javax.persistence.Entity
 @Table(name = "sys_module")
@@ -410,7 +408,7 @@ public class ModuleMetadata extends AbstractSystemEntity
 	
 	@Override
 	public boolean hasParameters() {
-		return !ObjectUtils.isEmpty(getParameters());
+		return notEmpty(getParameters());
 	}
 	
 	@Override
@@ -459,8 +457,7 @@ public class ModuleMetadata extends AbstractSystemEntity
 	
 	@Override
 	public List<Entity> getTransferableEntities() {
-		return getEntityMetadata().stream().filter(Entity::isTransferable)
-								           .collect(Collectors.toList());
+		return MiscUtils.castList(subList(getEntityMetadata(), Entity::isTransferable));
 	}
 	
 	@Override
@@ -476,7 +473,7 @@ public class ModuleMetadata extends AbstractSystemEntity
 	
 	@Override
 	public boolean hasTransferContent() {
-		return !ObjectUtils.isEmpty(mapTransferContent);
+		return notEmpty(mapTransferContent);
 	}
 	
 	@Override

@@ -17,12 +17,12 @@
  */
 package org.seed.core.codegen;
 
+import static org.seed.core.util.CollectionUtils.notEmpty;
+
 import java.util.Collections;
 import java.util.Map;
 
 import org.seed.core.util.Assert;
-
-import org.springframework.util.ObjectUtils;
 
 public final class AnnotationMetadata {
 	
@@ -58,7 +58,7 @@ public final class AnnotationMetadata {
 	}
 
 	boolean hasParameters() {
-		return !ObjectUtils.isEmpty(parameterMap);
+		return notEmpty(parameterMap);
 	}
 
 }

@@ -20,11 +20,26 @@ package org.seed.test.unit.form;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
-
+import org.seed.core.form.Form;
 import org.seed.core.form.FormAction;
 import org.seed.core.form.FormActionType;
+import org.seed.core.form.FormMetadata;
 
 class FormActionTest {
+	
+	@Test
+	void testGetTargetFormUid() {
+		final FormAction action = new FormAction();
+		final Form targetForm = new FormMetadata();
+		assertNull(action.getTargetFormUid());
+		
+		action.setTargetFormUid("test");
+		assertEquals("test", action.getTargetFormUid());
+		
+		targetForm.setUid("target");
+		action.setTargetForm(targetForm);
+		assertEquals("target", action.getTargetFormUid());
+	}
 	
 	@Test
 	void testIsEqual() {
