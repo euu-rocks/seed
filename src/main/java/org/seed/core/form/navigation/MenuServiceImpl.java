@@ -17,9 +17,10 @@
  */
 package org.seed.core.form.navigation;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.hibernate.Session;
 
@@ -102,14 +103,9 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 	public List<Menu> getMenus(User user) {
 		Assert.notNull(user, C.USER);
 		
-		final List<Menu> result = new ArrayList<>();
-		for (Menu menu : getTopLevelMenus()) {
-			if (menu.getForm() == null || 
-				menu.getForm().getEntity().checkPermissions(user, EntityAccess.READ)) {
-				result.add(menu);
-			}
-		}
-		return result;
+		return subList(getTopLevelMenus(), menu -> 
+						menu.getForm() == null || 
+						menu.getForm().getEntity().checkPermissions(user, EntityAccess.READ));
 	}
 	
 	@Override
@@ -311,9 +307,7 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 	}
 	
 	private List<Menu> filterDefaultMenu(List<Menu> menus) {
-		return menus.stream()
-					.filter(menu -> !menu.getName().equals(getDefaultMenuName()))
-					.collect(Collectors.toList());
+		return subList(menus, menu -> !menu.getName().equals(getDefaultMenuName()));
 	}
 	
 	private boolean removeSubMenus(Module module, Menu menu) {

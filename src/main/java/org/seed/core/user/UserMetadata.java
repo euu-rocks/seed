@@ -17,7 +17,8 @@
  */
 package org.seed.core.user;
 
-import java.util.Arrays;
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -38,8 +39,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.seed.C;
 import org.seed.core.data.AbstractSystemEntity;
 import org.seed.core.util.Assert;
-
-import org.springframework.util.ObjectUtils;
 
 @Entity
 @Table(name = "sys_user")
@@ -134,7 +133,7 @@ public class UserMetadata extends AbstractSystemEntity implements User {
 
 	@Override
 	public boolean hasUserGroups() {
-		return !ObjectUtils.isEmpty(getUserGroups());
+		return notEmpty(getUserGroups());
 	}
 	
 	@Override
@@ -145,10 +144,10 @@ public class UserMetadata extends AbstractSystemEntity implements User {
 	}
 	
 	@Override
-	public boolean belongsToOneOf(Collection<? extends UserGroup> userGroups) {
-		Assert.notNull(userGroups, "user groups");
+	public boolean belongsToOneOf(Collection<? extends UserGroup> groups) {
+		Assert.notNull(groups, "user groups");
 		
-		return hasUserGroups() && userGroups.stream().anyMatch(this::belongsTo);
+		return anyMatch(groups, this::belongsTo);
 	}
 	
 	@Override
@@ -166,14 +165,12 @@ public class UserMetadata extends AbstractSystemEntity implements User {
 	public boolean isAuthorised(Authorisation authorisation) {
 		Assert.notNull(authorisation, "authorisation");
 		
-		return isEnabled && hasUserGroups() &&
-			   getUserGroups().stream().anyMatch(group -> group.isAuthorised(authorisation));
+		return isEnabled && anyMatch(userGroups, group -> group.isAuthorised(authorisation));
 	}
 	
 	@Override
 	public boolean hasAdminAuthorisations() {
-		return Arrays.stream(Authorisation.values())
-					 .anyMatch(auth -> auth.name().startsWith("ADMIN") && isAuthorised(auth));
+		return anyMatch(Authorisation.values(), auth -> auth.name().startsWith("ADMIN") && isAuthorised(auth));
 	}
 	
 	void createLists() {

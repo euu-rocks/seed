@@ -23,61 +23,86 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.annotation.Nullable;
 
 public abstract class CollectionUtils {
 	
 	private CollectionUtils() {}
 	
-	public static <T> boolean anyMatch(T[] array, Predicate<T> predicate) {
+	public static <T> boolean anyMatch(@Nullable T[] array, Predicate<T> predicate) {
 		return array != null && Arrays.stream(array).anyMatch(predicate);
 	}
 	
-	public static <T> boolean anyMatch(Collection<T> collection, Predicate<T> predicate) {
+	public static <T> boolean anyMatch(@Nullable Collection<T> collection, Predicate<T> predicate) {
 		return collection != null && collection.stream().anyMatch(predicate);
 	}
 	
-	public static <T,R> List<R> filterConvert(Collection<T> collection, 
-											  Predicate<T> predicate, 
-											  Function<T,R> function) {
+	public static <T> boolean containsObject(@Nullable Collection<T> collection, T object) {
+		return collection != null && collection.contains(object);
+	}
+	
+	public static <T,R> List<R> filterAndConvert(@Nullable Collection<T> collection, 
+												 Predicate<T> predicate, 
+												 Function<T,R> function) {
 		return collection != null
-				? collection.stream().filter(predicate)
-									 .map(function)
-									 .collect(Collectors.toList())
+				? filterAndConvert(collection.stream(), predicate, function)
 				: Collections.emptyList();
 	}
 	
-	public static <T> T firstMatch(Collection<T> collection, Predicate<T> predicate) {
+	public static <T,R> List<R> filterAndConvert(@Nullable T[] array, 
+			 									 Predicate<T> predicate, 
+			 									 Function<T,R> function) {
+		return array != null
+				? filterAndConvert(Arrays.stream(array), predicate, function)
+				: Collections.emptyList();
+	}
+	
+	public static <T> void filterAndForEach(@Nullable Collection<T> collection, 
+			  								Predicate<T> predicate,
+			  								Consumer<T> action) {
+		if (collection != null) {
+			collection.stream().filter(predicate).forEach(action);
+		}
+	}
+	
+	public static <T> T firstMatch(@Nullable Collection<T> collection, Predicate<T> predicate) {
 		return collection != null 
 				? collection.stream().filter(predicate).findFirst().orElse(null) 
 				: null;
 	}
 	
-	public static <T> boolean noneMatch(Collection<T> collection, Predicate<T> predicate) {
-		return collection == null || collection.stream().noneMatch(predicate);
-	}
-	
-	public static boolean notEmpty(Collection<?> collection) {
-		return collection != null && !collection.isEmpty();
-	}
-	
-	public static boolean notEmpty(Map<?,?> map) {
-		return map != null && !map.isEmpty();
-	}
-	
-	public static <T,K,V> Collector<T,?, Map<K,V>> linkedMapCollector(
-			Function<? super T,? extends K> keyFunction,
-	        Function<? super T,? extends V> valueFunction) {
+	public static <T,K,V> Collector<T,?, Map<K,V>> linkedMapCollector(Function<? super T,? extends K> keyFunction,
+																	  Function<? super T,? extends V> valueFunction) {
         return Collectors.toMap(keyFunction, valueFunction, (u, v) -> u, LinkedHashMap::new);
     }
 	
-	public static <T> List<T> subList(Collection<T> collection, Predicate<T> predicate) {
+	public static <T> boolean noneMatch(@Nullable Collection<T> collection, Predicate<T> predicate) {
+		return collection == null || collection.stream().noneMatch(predicate);
+	}
+	
+	public static boolean notEmpty(@Nullable Collection<?> collection) {
+		return collection != null && !collection.isEmpty();
+	}
+	
+	public static boolean notEmpty(@Nullable Map<?,?> map) {
+		return map != null && !map.isEmpty();
+	}
+	
+	public static <T> List<T> subList(@Nullable Collection<T> collection, Predicate<T> predicate) {
 		return collection != null
 				? collection.stream().filter(predicate).collect(Collectors.toList())
 				: Collections.emptyList();
+	}
+	
+	private static <T,R> List<R> filterAndConvert(Stream<T> stream, Predicate<T> predicate, Function<T,R> function) {
+		return stream.filter(predicate).map(function).collect(Collectors.toList());
 	}
 	
 }

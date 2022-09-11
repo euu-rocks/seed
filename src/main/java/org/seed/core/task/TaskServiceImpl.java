@@ -17,10 +17,10 @@
  */
 package org.seed.core.task;
 
-import java.util.ArrayList;
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -88,12 +88,8 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	public <T extends AbstractSystemJob> Class<T> getSystemJobClass(SystemTask systemTask) {
 		Assert.notNull(systemTask, "system task");
 		
-		for (Class<? extends AbstractSystemJob> jobClass : BeanUtils.getImplementingClasses(AbstractSystemJob.class)) {
-			if (systemTask == BeanUtils.instantiate(jobClass).getSytemTask()) {
-				return (Class<T>) jobClass;
-			}
-		}
-		return null;
+		return (Class<T>) firstMatch(BeanUtils.getImplementingClasses(AbstractSystemJob.class), 
+									 jobClass -> systemTask == BeanUtils.instantiate(jobClass).getSytemTask());
 	}
 	
 	@Override
@@ -101,21 +97,14 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		Assert.notNull(job, "job");
 		
 		final String jobName = job.getClass().getSimpleName();
-		for (Task task : getObjects()) {
-			if (jobName.equalsIgnoreCase(task.getInternalName())) {
-				return task;
-			}
-		}
-		return null;
+		return firstMatch(getObjects(), task -> jobName.equalsIgnoreCase(task.getInternalName()));
 	}
 	
 	@Override
 	public List<Task> getTasks(User user) {
 		Assert.notNull(user, C.USER);
 		
-		return getObjects().stream()
-							   .filter(t -> t.checkPermissions(user))
-							   .collect(Collectors.toList());
+		return subList(getObjects(), task -> task.checkPermissions(user));
 	}
 	
 	@Override
@@ -175,34 +164,18 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	public List<Task> findUsage(UserGroup userGroup) {
 		Assert.notNull(userGroup, C.USERGROUP);
 		
-		final List<Task> result = new ArrayList<>();
-		for (Task task : getObjects()) {
-			if (task.hasPermissions()) {
-				for (TaskPermission permission : task.getPermissions()) {
-					if (userGroup.equals(permission.getUserGroup())) {
-						result.add(task);
-						break;
-					}
-				}
-			}
-		}
-		return result;
+		return subList(getObjects(), 
+					   task -> anyMatch(task.getPermissions(), 
+							   			perm -> userGroup.equals(perm.getUserGroup())));
 	}
 	
 	@Override
 	public List<TaskPermission> getAvailablePermissions(Task task) {
 		Assert.notNull(task, C.TASK);
 		
-		final List<TaskPermission> result = new ArrayList<>();
-		for (UserGroup group : userGroupService.findNonSystemGroups()) {
-			if (!task.containsPermission(group)) {
-				final TaskPermission permission = new TaskPermission();
-				permission.setTask(task);
-				permission.setUserGroup(group);
-				result.add(permission);
-			}
-		}
-		return result;
+		return filterAndConvert(userGroupService.findNonSystemGroups(), 
+								group -> !task.containsPermission(group), 
+								group -> createPermission(task, group));
 	}
 	
 	@Override
@@ -417,5 +390,12 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		}
 		return buf.toString();
 	}
-
+	
+	private static TaskPermission createPermission(Task task, UserGroup group) {
+		final TaskPermission permission = new TaskPermission();
+		permission.setTask(task);
+		permission.setUserGroup(group);
+		return permission;
+	}
+	
 }

@@ -184,7 +184,7 @@ public class TransformerMetadata extends AbstractApplicationEntity
 	public boolean containsElement(TransformerElement element) {
 		Assert.notNull(element, C.ELEMENT);
 		
-		return hasElements() && getElements().contains(element);
+		return containsObject(getElements(), element);
 	}
 	
 	@Override

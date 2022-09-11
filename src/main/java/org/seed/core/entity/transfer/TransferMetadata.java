@@ -239,7 +239,7 @@ public class TransferMetadata extends AbstractApplicationEntity implements Trans
 	
 	@Override
 	public List<EntityField> getElementFields() {
-		return filterConvert(getElements(), elem -> elem.getEntityField() != null, 
+		return filterAndConvert(getElements(), elem -> elem.getEntityField() != null, 
 												TransferElement::getEntityField);
 	}
 	

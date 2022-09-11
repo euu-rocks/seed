@@ -17,7 +17,8 @@
  */
 package org.seed.core.user;
 
-import java.util.ArrayList;
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.Date;
 import java.util.List;
 
@@ -113,40 +114,18 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 	public List<UserGroup> getAvailableUserGroups(User user) {
 		Assert.notNull(user, C.USER);
 		
-		final List<UserGroup> result = new ArrayList<>();
-		for (UserGroup group : userGroupService.getObjects()) {
-			boolean found = false;
-			if (user.hasUserGroups()) {
-				for (UserGroup existingGroup : user.getUserGroups()) {
-					if (existingGroup.equals(group)) {
-						found = true;
-						break;
-					}
-				}
-			}
-			if (!found) {
-				result.add(group);
-			}
-		}
-		return result;
+		return subList(userGroupService.getObjects(), 
+					   group -> noneMatch(user.getUserGroups(), 
+							    		  userGroup -> group.equals(userGroup)));
 	}
 	
 	@Override
 	public List<User> findUsage(UserGroup userGroup) {
 		Assert.notNull(userGroup, C.USERGROUP);
 		
-		final List<User> result = new ArrayList<>();
-		for (User user : getObjects()) {
-			if (user.hasUserGroups()) {
-				for (UserGroup group : user.getUserGroups()) {
-					if (userGroup.equals(group)) {
-						result.add(user);
-						break;
-					}
-				}
-			}
-		}
-		return result;
+		return subList(getObjects(), 
+					   user -> anyMatch(user.getUserGroups(), 
+							   			group -> userGroup.equals(group)));
 	}
 	
 	@Override

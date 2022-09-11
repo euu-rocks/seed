@@ -17,15 +17,16 @@
  */
 package org.seed.core.report;
 
-import java.util.ArrayList;
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
 import org.hibernate.Session;
+
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.application.AbstractApplicationEntityService;
@@ -80,8 +81,7 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 	public List<Report> getReports(User user) {
 		Assert.notNull(user, C.USER);
 		
-		return getObjects().stream().filter(report -> report.checkPermissions(user))
-						   .collect(Collectors.toList());
+		return subList(getObjects(), report -> report.checkPermissions(user));
 	}
 	
 	@Override
@@ -121,16 +121,9 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 	public List<ReportPermission> getAvailablePermissions(Report report) {
 		Assert.notNull(report, C.REPORT);
 		
-		final List<ReportPermission> result = new ArrayList<>();
-		for (UserGroup group : userGroupService.findNonSystemGroups()) {
-			if (!report.containsPermission(group)) {
-				final ReportPermission permission = new ReportPermission();
-				permission.setReport(report);
-				permission.setUserGroup(group);
-				result.add(permission);
-			}
-		}
-		return result;
+		return filterAndConvert(userGroupService.findNonSystemGroups(), 
+								group -> !report.containsPermission(group), 
+								group -> createPermission(report, group));
 	}
 	
 	@Override
@@ -267,18 +260,9 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 	public List<Report> findUsage(UserGroup userGroup) {
 		Assert.notNull(userGroup, C.USERGROUP);
 		
-		final List<Report> result = new ArrayList<>();
-		for (Report report : getObjects()) {
-			if (report.hasPermissions()) {
-				for (ReportPermission permission : report.getPermissions()) {
-					if (userGroup.equals(permission.getUserGroup())) {
-						result.add(report);
-						break;
-					}
-				}
-			}
-		}
-		return result;
+		return subList(getObjects(), 
+					   report -> anyMatch(report.getPermissions(), 
+										  perm -> userGroup.equals(perm.getUserGroup())));
 	}
 
 	@Override
@@ -289,6 +273,13 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 	@Override
 	protected ReportValidator getValidator() {
 		return validator;
+	}
+	
+	private static ReportPermission createPermission(Report report, UserGroup group) {
+		final ReportPermission permission = new ReportPermission();
+		permission.setReport(report);
+		permission.setUserGroup(group);
+		return permission;
 	}
 
 }

@@ -17,6 +17,8 @@
  */
 package org.seed.core.form.navigation;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,13 +36,12 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
+
 import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormMetadata;
 import org.seed.core.util.Assert;
-
-import org.springframework.util.ObjectUtils;
 
 @javax.persistence.Entity
 @Table(name = "sys_menu")
@@ -112,7 +113,7 @@ public class MenuMetadata extends AbstractApplicationEntity implements Menu {
 
 	@Override
 	public boolean hasSubMenus() {
-		return !ObjectUtils.isEmpty(getChildren());
+		return notEmpty(getChildren());
 	}
 	
 	@Override
@@ -180,21 +181,8 @@ public class MenuMetadata extends AbstractApplicationEntity implements Menu {
 	}
 	
 	private boolean isEqualSubMenus(Menu otherMenu) {
-		if (hasSubMenus()) {
-			for (Menu subMenu : getSubMenus()) {
-				if (!subMenu.isEqual(otherMenu.getChildByUid(subMenu.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherMenu.hasSubMenus()) {
-			for (Menu otherSubMenu : otherMenu.getSubMenus()) {
-				if (getChildByUid(otherSubMenu.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+		return !(anyMatch(getSubMenus(), subMenu -> !subMenu.isEqual(otherMenu.getChildByUid(subMenu.getUid()))) ||
+				 anyMatch(otherMenu.getSubMenus(), subMenu -> getChildByUid(subMenu.getUid()) == null));
 	}
 	
 	@Override

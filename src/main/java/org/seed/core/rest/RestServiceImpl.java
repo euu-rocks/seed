@@ -17,7 +17,8 @@
  */
 package org.seed.core.rest;
 
-import java.util.ArrayList;
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -129,18 +130,8 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 	public List<Rest> findUsage(UserGroup userGroup) {
 		Assert.notNull(userGroup, C.USERGROUP);
 		
-		final List<Rest> result = new ArrayList<>();
-		for (Rest rest : getObjects()) {
-			if (rest.hasPermissions()) {
-				for (RestPermission permission : rest.getPermissions()) {
-					if (userGroup.equals(permission.getUserGroup())) {
-						result.add(rest);
-						break;
-					}
-				}
-			}
-		}
-		return result;
+		return subList(getObjects(), rest -> anyMatch(rest.getPermissions(), 
+													  perm -> userGroup.equals(perm.getUserGroup())));
 	}
 	
 	@Override
@@ -185,18 +176,11 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 	public List<RestPermission> getAvailablePermissions(Rest rest) {
 		Assert.notNull(rest, C.REST);
 		
-		final List<RestPermission> result = new ArrayList<>();
-		for (UserGroup group : userGroupService.findNonSystemGroups()) {
-			if (!rest.containsPermission(group)) {
-				final RestPermission permission = new RestPermission();
-				permission.setRest(rest);
-				permission.setUserGroup(group);
-				result.add(permission);
-			}
-		}
-		return result;
+		return filterAndConvert(userGroupService.findNonSystemGroups(), 
+								group -> !rest.containsPermission(group), 
+								group -> createPermission(rest, group));
 	}
-
+	
 	@Override
 	public void importObjects(TransferContext context, Session session) {
 		Assert.notNull(context, C.CONTEXT);
@@ -281,14 +265,10 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 	
 	private void initRest(Rest rest, Rest currentVersionRest, Session session) {
 		if (rest.hasFunctions()) {
-			for (RestFunction function : rest.getFunctions()) {
-				initRestFunction(function, rest, currentVersionRest);
-			}
+			rest.getFunctions().forEach(function -> initRestFunction(function, rest, currentVersionRest));
 		}
 		if (rest.hasPermissions()) {
-			for (RestPermission permission : rest.getPermissions()) {
-				initRestPermission(permission, rest, currentVersionRest, session);
-			}
+			rest.getPermissions().forEach(perm -> initRestPermission(perm, rest, currentVersionRest, session));
 		}
 	}
 	
@@ -313,6 +293,13 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 		if (currentVersionPermission != null) {
 			currentVersionPermission.copySystemFieldsTo(permission);
 		}
+	}
+	
+	private static RestPermission createPermission(Rest rest, UserGroup group) {
+		final RestPermission permission = new RestPermission();
+		permission.setRest(rest);
+		permission.setUserGroup(group);
+		return permission;
 	}
 
 }

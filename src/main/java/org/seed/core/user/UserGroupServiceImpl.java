@@ -17,7 +17,8 @@
  */
 package org.seed.core.user;
 
-import java.util.ArrayList;
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -90,38 +91,17 @@ public class UserGroupServiceImpl extends AbstractApplicationEntityService<UserG
 	public List<UserGroupAuthorisation> getAvailableAuthorisations(UserGroup userGroup) {
 		Assert.notNull(userGroup, C.USERGROUP);
 		
-		final List<UserGroupAuthorisation> result = new ArrayList<>();
-		for (Authorisation authorisation : Authorisation.values()) {
-			if (!userGroup.isAuthorised(authorisation)) {
-				final UserGroupAuthorisation groupAuthorisation = new UserGroupAuthorisation();
-				groupAuthorisation.setUserGroup(userGroup);
-				groupAuthorisation.setAuthorisation(authorisation);
-				result.add(groupAuthorisation);
-			}
-		}
-		return result;
+		return filterAndConvert(Authorisation.values(), 
+								auth -> !userGroup.isAuthorised(auth), 
+								auth -> createAuthorization(userGroup, auth));
 	}
 	
 	@Override
 	public List<User> getAvailableUsers(UserGroup userGroup) {
 		Assert.notNull(userGroup, C.USERGROUP);
 		
-		final List<User> result = new ArrayList<>();
-		for (User user : userRepository.find()) {
-			boolean found = false;
-			if (userGroup.hasUsers()) {
-				for (User existingUser : userGroup.getUsers()) {
-					if (existingUser.equals(user)) {
-						found = true;
-						break;
-					}
-				}
-			}
-			if (!found) {
-				result.add(user);
-			}
-		}
-		return result;
+		return subList(userRepository.find(), 
+					   user -> noneMatch(userGroup.getUsers(), usr -> user.equals(usr)));
 	}
 	
 	@Override
@@ -277,6 +257,13 @@ public class UserGroupServiceImpl extends AbstractApplicationEntityService<UserG
 				handleException(tx, ex);
 			}
 		}
+	}
+	
+	private static UserGroupAuthorisation createAuthorization(UserGroup userGroup, Authorisation authorisation) {
+		final UserGroupAuthorisation groupAuthorisation = new UserGroupAuthorisation();
+		groupAuthorisation.setUserGroup(userGroup);
+		groupAuthorisation.setAuthorisation(authorisation);
+		return groupAuthorisation;
 	}
 
 }

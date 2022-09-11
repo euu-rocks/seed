@@ -17,6 +17,8 @@
  */
 package org.seed.core.entity.transform;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -146,49 +148,28 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	public List<TransformerPermission> getAvailablePermissions(Transformer transformer) {
 		Assert.notNull(transformer, C.TRANSFORMER);
 		
-		final List<TransformerPermission> result = new ArrayList<>();
-		for (UserGroup group : userGroupService.findNonSystemGroups()) {
-			if (!transformer.containsPermission(group)) {
-				final TransformerPermission permission = new TransformerPermission();
-				permission.setTransformer(transformer);
-				permission.setUserGroup(group);
-				result.add(permission);
-			}
-		}
-		return result;
+		return filterAndConvert(userGroupService.findNonSystemGroups(), 
+								group -> !transformer.containsPermission(group), 
+								group -> createPermission(transformer, group));
 	}
+	
+	
 	
 	@Override
 	public List<TransformerStatus> getAvailableStatus(Transformer transformer) {
 		Assert.notNull(transformer, C.TRANSFORMER);
 		
-		final List<TransformerStatus> result = new ArrayList<>();
-		if (transformer.getSourceEntity().hasStatus()) {
-			for (EntityStatus status : transformer.getSourceEntity().getStatusList()) {
-				if (!transformer.containsStatus(status)) {
-					final TransformerStatus transformerStatus = new TransformerStatus();
-					transformerStatus.setTransformer(transformer);
-					transformerStatus.setStatus(status);
-					result.add(transformerStatus);
-				}
-			}
-		}
-		return result;
+		return filterAndConvert(transformer.getSourceEntity().getStatusList(), 
+								status -> !transformer.containsStatus(status), 
+								status -> createStatus(transformer, status));
 	}
 	
 	@Override
 	public List<TransformerElement> getMainObjectElements(Transformer transformer) {
 		Assert.notNull(transformer, C.TRANSFORMER);
 		
-		final List<TransformerElement> result = new ArrayList<>();
-		if (transformer.hasElements()) {
-			for (TransformerElement element : transformer.getElements()) {
-				if (transformer.getSourceEntity().containsField(element.getSourceField())) {
-					result.add(element);
-				}
-			}
-		}
-		return result;
+		return subList(transformer.getElements(), 
+					   elem -> transformer.getSourceEntity().containsField(elem.getSourceField()));
 	}
 	
 	@Override
@@ -277,37 +258,19 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	public List<Transformer> findUsage(EntityField entityField) {
 		Assert.notNull(entityField, C.ENTITYFIELD);
 		
-		final List<Transformer> result = new ArrayList<>();
-		for (Transformer transformer : getObjects()) {
-			if (transformer.hasElements()) {
-				for (TransformerElement element : transformer.getElements()) {
-					if (entityField.equals(element.getSourceField()) ||
-						entityField.equals(element.getTargetField())) {
-						result.add(transformer);
-						break;
-					}
-				}
-			}
-		}
-		return result;
+		return subList(getObjects(), 
+					   trans -> anyMatch(trans.getElements(), 
+									     elem -> entityField.equals(elem.getSourceField()) ||
+											     entityField.equals(elem.getTargetField())));
 	}
 	
 	@Override
 	public List<Transformer> findUsage(UserGroup userGroup) {
 		Assert.notNull(userGroup, C.USERGROUP);
 		
-		final List<Transformer> result = new ArrayList<>();
-		for (Transformer transformer : getObjects()) {
-			if (transformer.hasPermissions()) {
-				for (TransformerPermission permission : transformer.getPermissions()) {
-					if (userGroup.equals(permission.getUserGroup())) {
-						result.add(transformer);
-						break;
-					}
-				}
-			}
-		}
-		return result;
+		return subList(getObjects(),
+					   trans -> anyMatch(trans.getPermissions(), 
+							   			 perm -> userGroup.equals(perm.getUserGroup())));
 	}
 	
 	@Override
@@ -535,15 +498,8 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	}
 	
 	private static boolean containsElement(List<TransformerElement> elements, EntityField sourceField, EntityField targetField) {
-		if (elements != null) {
-			for (TransformerElement element : elements) {
-				if (element.getSourceField() != null && element.getSourceField().equals(sourceField) &&
-					element.getTargetField() != null && element.getTargetField().equals(targetField)) {
-					return true;
-				}
-			}
-		}
-		return false;
+		return anyMatch(elements, elem -> elem.getSourceField() != null && elem.getSourceField().equals(sourceField) &&
+										  elem.getTargetField() != null && elem.getTargetField().equals(targetField));
 	}
 	
 	private static TransformerElement createElement(EntityField sourceField, EntityField targetField) {
@@ -551,6 +507,20 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		element.setSourceField(sourceField);
 		element.setTargetField(targetField);
 		return element;
+	}
+	
+	private static TransformerPermission createPermission(Transformer transformer, UserGroup group) {
+		final TransformerPermission permission = new TransformerPermission();
+		permission.setTransformer(transformer);
+		permission.setUserGroup(group);
+		return permission; 
+	}
+	
+	private static TransformerStatus createStatus(Transformer transformer, EntityStatus status) {
+		final TransformerStatus transformerStatus = new TransformerStatus();
+		transformerStatus.setTransformer(transformer);
+		transformerStatus.setStatus(status);
+		return transformerStatus;
 	}
 
 }

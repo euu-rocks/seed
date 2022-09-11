@@ -17,12 +17,12 @@
  */
 package org.seed.core.entity;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -65,7 +65,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 
 @Service
 public class EntityServiceImpl extends AbstractApplicationEntityService<Entity> 
@@ -245,49 +244,30 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	public List<Entity> findUsage(Entity entity) {
 		Assert.notNull(entity, C.ENTITY);
 		
-		final List<Entity> result = new ArrayList<>();
-		for (Entity otherEntity : getObjects()) {
-			if (entity.equals(otherEntity)) {
-				continue;
-			}
-			if (entity.equals(otherEntity.getGenericEntity()) ||
-				!otherEntity.getReferenceFields(entity).isEmpty() ||
-				otherEntity.isNestedEntity(entity) || 
-				otherEntity.isRelatedEntity(entity)) {
-				result.add(otherEntity);
-			}
-		}
-		return result;
+		return subList(getObjects(), obj -> !entity.equals(obj) && 
+											(entity.equals(obj.getGenericEntity()) ||
+											!obj.getReferenceFields(entity).isEmpty() ||
+											obj.isNestedEntity(entity) || 
+											obj.isRelatedEntity(entity)));
 	}
 	
 	@Override
 	public List<Entity> findUsage(EntityFieldGroup fieldGroup) {
 		Assert.notNull(fieldGroup, C.FIELDGROUP);
 		
-		final List<Entity> result = new ArrayList<>();
-		for (Entity entity : getObjects()) {
-			if (entity.equals(fieldGroup.getEntity())) {
-				continue;
-			}
-			if (entity.containsFieldGroup(fieldGroup)) {
-				result.add(entity);
-			}
-		}
-		return result;
+		final Entity entity = fieldGroup.getEntity();
+		return (anyMatch(entity.getFields(), field -> fieldGroup.equals(field.getFieldGroup())) ||
+				anyMatch(entity.getFieldConstraints(), constr -> fieldGroup.equals(constr.getFieldGroup())))
+				? Collections.singletonList(entity)
+				: Collections.emptyList();
 	}
 	
 	@Override
 	public List<Entity> findUsage(UserGroup userGroup) {
 		Assert.notNull(userGroup, C.USERNAME);
 		
-		final List<Entity> result = new ArrayList<>();
-		for (Entity entity : getObjects()) {
-			if ((entity.hasPermissions() && checkPermissions(entity, userGroup)) ||
-				(entity.hasStatusTransitions() && checkStatusTransitions(entity, userGroup))) {
-				result.add(entity);
-			}
-		}
-		return result;
+		return subList(getObjects(), entity -> entity.containsPermission(userGroup) ||
+					   anyMatch(entity.getStatusTransitions(), tran -> tran.containsPermission(userGroup)));
 	}
 	
 	@Override
@@ -296,19 +276,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		if (!entityField.getType().isReference()) {
 			return Collections.emptyList();
 		}
-		
-		final List<Entity> result = new ArrayList<>();
-		for (Entity entity : getObjects()) {
-			if (entity.hasNesteds()) {
-				final Optional<NestedEntity> optional = entity.getNesteds().stream()
-						.filter(nested -> nested.getReferenceField().equals(entityField))
-						.findFirst();
-				if (optional.isPresent()) {
-					result.add(entity);
-				}
-			}
-		}
-		return result;
+		return subList(getObjects(), entity -> anyMatch(entity.getNesteds(), nested -> nested.getReferenceField().equals(entityField)));
 	}
 	
 	@Override
@@ -361,71 +329,44 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	public List<Entity> getAvailableNestedEntities(Entity entity) {
 		Assert.notNull(entity, C.ENTITY);
 		
-		final List<Entity> result = new ArrayList<>();
 		try (Session session = entityRepository.getSession()) {
-			for (Entity nested : entityRepository.find(session)) {
-				if (!nested.equals(entity) &&
-					!nested.isGeneric() &&
-					!nested.getReferenceFields(entity).isEmpty()) {
-					result.add(nested);
-				}
-			}
+			return subList(entityRepository.find(session), 
+					nested -> !nested.equals(entity) &&
+							  !nested.isGeneric() &&
+							  !nested.getReferenceFields(entity).isEmpty());
 		}
-		return result;
 	}
 	
 	@Override
 	public List<EntityPermission> getAvailablePermissions(Entity entity) {
 		Assert.notNull(entity, C.ENTITY);
 		
-		final List<EntityPermission> result = new ArrayList<>();
-		for (UserGroup group : userGroupService.findNonSystemGroups()) {
-			if (!entity.containsPermission(group)) {
-				final EntityPermission permission = new EntityPermission();
-				permission.setEntity(entity);
-				permission.setUserGroup(group);
-				permission.setAccess(EntityAccess.DELETE);
-				result.add(permission);
-			}
-		}
-		return result;
+		return filterAndConvert(userGroupService.findNonSystemGroups(), 
+								group -> !entity.containsPermission(group), 
+								group -> createPermission(entity, group));
 	}
 	
 	@Override
 	public List<EntityStatusTransitionPermission> getAvailableStatusTransitionPermissions(EntityStatusTransition transition) {
 		Assert.notNull(transition, C.TRANSITION);
 		
-		final List<EntityStatusTransitionPermission> result = new ArrayList<>();
-		for (UserGroup group : userGroupService.findNonSystemGroups()) {
-			if (!transition.containsPermission(group)) {
- 				final EntityStatusTransitionPermission permission = new EntityStatusTransitionPermission();
-				permission.setStatusTransition(transition);
-				permission.setUserGroup(group);
-				result.add(permission);
-			}
-		}
-		return result;
+		return filterAndConvert(userGroupService.findNonSystemGroups(), 
+								group -> !transition.containsPermission(group), 
+								group -> createTransitionPermission(transition, group));
 	}
 	
 	@Override
 	public List<EntityStatus> getAvailableStatusList(Entity entity, EntityStatus currentStatus, User user) {
 		Assert.notNull(entity, C.ENTITY);
 		Assert.state(entity.hasStatus(), "entity has no status");
-		Assert.notNull(currentStatus, "currentStatus");
+		Assert.notNull(currentStatus, "current status");
 		Assert.notNull(user, C.USER);
 		
-		final List<EntityStatus> result = new ArrayList<>();
-		if (entity.hasStatus()) {
-			result.add(currentStatus);
-			if (entity.hasStatusTransitions()) {
-				for (EntityStatusTransition transition : entity.getStatusTransitions()) {
-					if (transition.getSourceStatus().equals(currentStatus) &&
-						transition.isAuthorized(user)) {
-						result.add(transition.getTargetStatus());
-					}
-				}
-			}
-		}
+		final List<EntityStatus> result =
+				filterAndConvert(entity.getStatusTransitions(), 
+								 trans -> trans.getSourceStatus().equals(currentStatus) && trans.isAuthorized(user), 
+								 EntityStatusTransition::getTargetStatus);
+		result.add(0, currentStatus);
 		return result;
 	}
 	
@@ -434,21 +375,9 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(transition, C.TRANSITION);
 		
-		final List<EntityStatusTransitionFunction> result = new ArrayList<>();
-		if (entity.hasFunctions()) {
-			for (EntityFunction function : entity.getCallbackFunctions()) {
-				if (!function.isActiveOnStatusTransition()) {
-					continue;
-				}
-				if (!transition.containsEntityFunction(function)) {
-					final EntityStatusTransitionFunction transitionFunction = new EntityStatusTransitionFunction();
-					transitionFunction.setStatusTransition(transition);
-					transitionFunction.setFunction(function);
-					result.add(transitionFunction);
-				}
-			}
-		}
-		return result;
+		return filterAndConvert(entity.getCallbackFunctions(), 
+								function -> function.isActiveOnStatusTransition(), 
+								function -> createTransitionFunction(transition, function));
 	}
 	
 	@Override
@@ -472,13 +401,9 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		if (!fieldGroup.isNew()) {
 			entityValidator.validateRemoveFieldGroup(fieldGroup);
 		}
-		if (entity.hasFields()) {
-			for (EntityField field : entity.getFields()) {
-				if (fieldGroup.equals(field.getFieldGroup())) {
-					field.setFieldGroup(null);
-				}
-			}
-		}
+		filterAndForEach(entity.getFields(), 
+						 field -> fieldGroup.equals(field.getFieldGroup()), 
+						 field -> field.setFieldGroup(null));
 		entity.removeFieldGroup(fieldGroup);
 	}
 	
@@ -562,13 +487,9 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	@Override
 	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
-		if (currentVersionModule.getEntities() != null) {
-			for (Entity currentVersionEntity : currentVersionModule.getEntities()) {
-				if (analysis.getModule().getEntityByUid(currentVersionEntity.getUid()) == null) {
-					analysis.addChangeDelete(currentVersionEntity);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getEntities(), 
+						 entity -> analysis.getModule().getEntityByUid(entity.getUid()) == null, 
+						 entity -> analysis.addChangeDelete(entity));
 	}
 	
 	@Override
@@ -671,9 +592,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		if (!referenceChangeLog.isEmpty()) {
 			changeLogs.add(referenceChangeLog.build());
 		}
-		for (ChangeLog changeLog : changeLogs) {
-			session.saveOrUpdate(changeLog);
-		}
+		changeLogs.forEach(changeLog -> session.saveOrUpdate(changeLog));
 	}
 	
 	@Override
@@ -761,9 +680,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	private void beforeSaveObject(Entity entity, Session session, boolean isInsert) {
 		if (!isInsert && !entity.isGeneric()) {
-			for (EntityChangeAware changeAware : getChangeAwareObjects()) {
-				changeAware.notifyBeforeChange(entity, session);
-			}
+			getChangeAwareObjects().forEach(aware -> aware.notifyBeforeChange(entity, session));
 		}
 	}
 	
@@ -777,10 +694,8 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 					changeAware.notifyChange(parentEntity, session);
 				}
 			}
-			else if (entity.isGeneric()) {
-				for (Entity descendant : descendants) {
-					changeAware.notifyChange(descendant, session);
-				}
+			else if (descendants != null) {
+				descendants.forEach(desc -> changeAware.notifyChange(desc, session));
 			}
 			else {
 				changeAware.notifyChange(entity, session);
@@ -822,9 +737,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(session, C.SESSION);
 		
-		for (EntityChangeAware changeAware : getChangeAwareObjects()) {
-			changeAware.notifyDelete(entity, session);
-		}
+		getChangeAwareObjects().forEach(aware -> aware.notifyDelete(entity, session));
 		
 		super.deleteObject(entity, session);
 	}
@@ -834,12 +747,11 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(context, C.CONTEXT);
 		Assert.notNull(schemaVersion, "schema version");
 		
-		if (ObjectUtils.isEmpty(context.getModule().getEntities())) {
-			return;
-		}
-		if (schemaVersion == SchemaVersion.V_0_9_33) {
-			// mask table and column names that equals SQL keywords
-			new SchemaUpdateHandler0933().process(context.getModule());
+		if (notEmpty(context.getModule().getEntities())) {
+			if (schemaVersion == SchemaVersion.V_0_9_33) {
+				// mask table and column names that equals SQL keywords
+				new SchemaUpdateHandler0933().process(context.getModule());
+			}
 		}
 	}
 	
@@ -857,15 +769,14 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		final String entityName = sourceCode.getPackageName().substring(CodeManagerImpl.GENERATED_ENTITY_PACKAGE.length() + 1);
 		for (Entity entity : getObjects()) {
 			if (entity.getName().equalsIgnoreCase(entityName)) {
-				for (EntityFunction function : entity.getFunctions()) {
-					if (function.isCallback() && 
-						function.getName().equalsIgnoreCase(sourceCode.getClassName()) &&
-						!function.getContent().equals(sourceCode.getContent())) {
-						
-						function.setContent(sourceCode.getContent());
-						session.saveOrUpdate(function);
-						return true;
-					}
+				final EntityFunction function = firstMatch(entity.getFunctions(), 
+						func -> func.isCallback() && 
+						func.getName().equalsIgnoreCase(sourceCode.getClassName()) &&
+						!func.getContent().equals(sourceCode.getContent()));
+				if (function != null) {
+					function.setContent(sourceCode.getContent());
+					session.saveOrUpdate(function);
+					return true;
 				}
 				break;
 			}
@@ -973,19 +884,14 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	private void initConstraintFields(Entity entity) {
-		if (entity.hasFieldConstraints()) {
-			for (EntityFieldConstraint constraint : entity.getFieldConstraints()) {
-				if (constraint.getField() == null && constraint.getFieldGroup() == null) {
-					constraint.setField(entity.findFieldByUid(constraint.getFieldUid()));
-				}
-			}
-		}
+		filterAndForEach(entity.getFieldConstraints(), 
+						 constraint -> constraint.getField() == null && constraint.getFieldGroup() == null, 
+						 constraint -> constraint.setField(entity.findFieldByUid(constraint.getFieldUid())));
 	}
 	
 	private void initRelationEntities(Session session, Entity entity) {
 		if (entity.hasRelations()) {
-			entity.getRelations().forEach(rel -> 
-				rel.setRelatedEntity(findByUid(session, rel.getRelatedEntityUid())));
+			entity.getRelations().forEach(rel -> rel.setRelatedEntity(findByUid(session, rel.getRelatedEntityUid())));
 		}
 	}
 	
@@ -1154,7 +1060,6 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 			
 			// permissions
 			initStatusTransitionPermission(transition, currentVersionTransition, session);
-			
 		}
 	}
 	
@@ -1194,49 +1099,16 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		}
 	}
 	
-	private boolean checkPermissions(Entity entity, UserGroup userGroup) {
-		if (entity.hasPermissions()) {
-			for (EntityPermission permission : entity.getPermissions()) {
-				if (userGroup.equals(permission.getUserGroup())) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
-	private boolean checkStatusTransitions(Entity entity, UserGroup userGroup) {
-		if (entity.hasStatusTransitions()) {
-			for (EntityStatusTransition transition : entity.getStatusTransitions()) {
-				if (transition.hasPermissions()) {
-					for (EntityStatusTransitionPermission permission : transition.getPermissions()) {
-						if (userGroup.equals(permission.getUserGroup())) {
-							return true;
-						}
-					}
-				}
-			}
-		}
-		return false;
-	}
-	
 	// clean up inconsistencies
 	private void cleanup(Entity entity) {
 		// fields
 		if (entity.hasFields()) {
-			for (EntityField field : entity.getFields()) {
-				cleanupField(field);
-			}
+			entity.getFields().forEach(field -> cleanupField(field));
 		}
-		// functions
-		if (entity.hasFunctions()) {
-			for (EntityFunction function : entity.getCallbackFunctions()) {
-				// function without content is inactive
-				if (function.getContent() == null) {
-					function.setActive(false);
-				}
-			}
-		}
+		// function without content is inactive
+		filterAndForEach(entity.getCallbackFunctions(), 
+						 function -> function.getContent() == null,
+						 function -> function.setActive(false));
 	}
 	
 	private void cleanupField(EntityField field) {
@@ -1292,9 +1164,8 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	private List<Entity> findInverseRelatedEntities(Entity entity) {
-		return getObjects().stream()
-						   .filter(otherEntity -> otherEntity.isRelatedEntity(entity))
-						   .collect(Collectors.toList());
+		
+		return subList(getObjects(), otherEntity -> otherEntity.isRelatedEntity(entity));
 	}
 	
 	private List<EntityChangeAware> getChangeAwareObjects() {
@@ -1302,6 +1173,28 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 			changeAwareObjects = BeanUtils.getBeans(applicationContext, EntityChangeAware.class);
 		}
 		return changeAwareObjects;
+	}
+	
+	private static EntityPermission createPermission(Entity entity, UserGroup group) {
+		final EntityPermission permission = new EntityPermission();
+		permission.setEntity(entity);
+		permission.setUserGroup(group);
+		permission.setAccess(EntityAccess.DELETE);
+		return permission;
+	}
+	
+	private static EntityStatusTransitionFunction createTransitionFunction(EntityStatusTransition transition, EntityFunction function) {
+		final EntityStatusTransitionFunction transitionFunction = new EntityStatusTransitionFunction();
+		transitionFunction.setStatusTransition(transition);
+		transitionFunction.setFunction(function);
+		return transitionFunction;
+	}
+	
+	private static EntityStatusTransitionPermission createTransitionPermission(EntityStatusTransition transition, UserGroup group) {
+		final EntityStatusTransitionPermission permission = new EntityStatusTransitionPermission();
+		permission.setStatusTransition(transition);
+		permission.setUserGroup(group);
+		return permission;
 	}
 	
 	private static final Comparator<ChangeLog> changeLogComparator = new Comparator<>() {

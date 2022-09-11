@@ -503,28 +503,28 @@ public class EntityMetadata extends AbstractApplicationEntity
 	public boolean containsField(EntityField field) {
 		Assert.notNull(field, C.FIELD);
 		
-		return hasFields() && getFields().contains(field);
+		return containsObject(getFields(), field);
 	}
 	
 	@Override
 	public boolean containsAllField(EntityField field) {
 		Assert.notNull(field, C.FIELD);
 		
-		return hasAllFields() && getAllFields().contains(field);
+		return containsObject(getAllFields(), field);
 	}
 	
 	@Override
 	public boolean containsFieldGroup(EntityFieldGroup fieldGroup) {
 		Assert.notNull(fieldGroup, C.FIELDGROUP);
 		
-		return hasFieldGroups() && getFieldGroups().contains(fieldGroup);
+		return containsObject(getFieldGroups(), fieldGroup);
 	}
 	
 	@Override
 	public boolean containsNested(NestedEntity nested) {
 		Assert.notNull(nested, C.NESTED);
 		
-		return hasNesteds() && getNesteds().contains(nested);
+		return containsObject(getNesteds(), nested);
 	}
 	
 	@Override

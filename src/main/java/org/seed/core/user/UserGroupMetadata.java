@@ -17,6 +17,8 @@
  */
 package org.seed.core.user;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -39,8 +41,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.util.Assert;
-
-import org.springframework.util.ObjectUtils;
 
 @Entity
 @Table(name = "sys_usergroup")
@@ -97,14 +97,12 @@ public class UserGroupMetadata extends AbstractApplicationEntity implements User
 	public boolean isAuthorised(Authorisation authorisation) {
 		Assert.notNull(authorisation, "authorisation");
 		
-		return hasAuthorisations() &&
-			   getAuthorisations().stream()
-			   	.anyMatch(auth -> auth.getAuthorisation() == authorisation);
+		return anyMatch(authorisations, auth -> auth.getAuthorisation() == authorisation);
 	}
 	
 	@Override
 	public boolean hasAuthorisations() {
-		return !ObjectUtils.isEmpty(getAuthorisations());
+		return notEmpty(getAuthorisations());
 	}
 	
 	@Override
@@ -114,7 +112,7 @@ public class UserGroupMetadata extends AbstractApplicationEntity implements User
 
 	@Override
 	public boolean hasUsers() {
-		return !ObjectUtils.isEmpty(getUsers());
+		return notEmpty(getUsers());
 	}
 	
 	@Override
@@ -139,7 +137,7 @@ public class UserGroupMetadata extends AbstractApplicationEntity implements User
 		final UserGroup otherGroup = (UserGroup) other;
 		if (!new EqualsBuilder()
 				.append(getName(), otherGroup.getName())
-				.append(isSystemGroup, isSystemGroup)
+				.append(isSystemGroup, otherGroup.isSystemGroup())
 				.isEquals()) {
 			return false;
 		}
@@ -147,21 +145,8 @@ public class UserGroupMetadata extends AbstractApplicationEntity implements User
 	}
 	
 	private boolean isEqualAuthorisations(UserGroup otherGroup) {
-		if (hasAuthorisations()) {
-			for (UserGroupAuthorisation auth : getAuthorisations()) {
-				if (!auth.isEqual(otherGroup.getAuthorisationByUid(auth.getUid()))) {
-					return false;
-				}
-			}
-		}
-		if (otherGroup.hasAuthorisations()) {
-			for (UserGroupAuthorisation otherAuth : otherGroup.getAuthorisations()) {
-				if (getAuthorisationByUid(otherAuth.getUid()) == null) {
-					return false;
-				}
-			}
-		}
-		return true;
+		return !(anyMatch(authorisations, auth -> !auth.isEqual(otherGroup.getAuthorisationByUid(auth.getUid()))) ||
+				 anyMatch(otherGroup.getAuthorisations(), auth -> getAuthorisationByUid(auth.getUid()) == null));
 	}
 	
 	@Override

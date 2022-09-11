@@ -17,10 +17,11 @@
  */
 package org.seed.core.entity.filter;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -120,9 +121,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(user, C.USER);
 		
-		return findFilters(entity).stream()
-							   	  .filter(filter -> filter.checkPermissions(user))
-							   	  .collect(Collectors.toList());
+		return subList(findFilters(entity), filter -> filter.checkPermissions(user));
 	}
 	
 	@Override
@@ -186,16 +185,9 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	public List<FilterPermission> getAvailablePermissions(Filter filter) {
 		Assert.notNull(filter, C.FILTER);
 		
-		final List<FilterPermission> result = new ArrayList<>();
-		for (UserGroup group : userGroupService.findNonSystemGroups()) {
-			if (!filter.containsPermission(group)) {
-				final FilterPermission permission = new FilterPermission();
-				permission.setFilter(filter);
-				permission.setUserGroup(group);
-				result.add(permission);
-			}
-		}
-		return result;
+		return filterAndConvert(userGroupService.findNonSystemGroups(), 
+								group -> !filter.containsPermission(group),
+								group -> createPermission(filter, group));
 	}
 	
 	@Override
@@ -329,36 +321,18 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		if (entityField.getEntity().isGeneric()) {
 			return Collections.emptyList();
 		}
-		final List<Filter> result = new ArrayList<>();
-		for (Filter filter : findFilters(entityField.getEntity())) {
-			if (filter.hasCriteria()) {
-				for (FilterCriterion criterion : filter.getCriteria()) {
-					if (entityField.equals(criterion.getEntityField())) {
-						result.add(filter);
-						break;
-					}
-				}
-			}
-		}
-		return result;
+		return subList(findFilters(entityField.getEntity()), 
+					   filter -> anyMatch(filter.getCriteria(), 
+						criterion -> entityField.equals(criterion.getEntityField())));
 	}
 	
 	@Override
 	public List<Filter> findUsage(UserGroup userGroup) {
 		Assert.notNull(userGroup, C.USERGROUP);
 		
-		final List<Filter> result = new ArrayList<>();
-		for (Filter filter : getObjects()) {
-			if (filter.hasPermissions()) {
-				for (FilterPermission permission : filter.getPermissions()) {
-					if (userGroup.equals(permission.getUserGroup())) {
-						result.add(filter);
-						break;
-					}
-				}
-			}
-		}
-		return result;
+		return subList(getObjects(), 
+					   filter -> anyMatch(filter.getPermissions(), 
+					    perm -> userGroup.equals(perm.getUserGroup())));
 	}
 	
 	@Override
@@ -369,9 +343,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 			final String objectUid = ((TransferableObject) object).getUid();
 			Assert.stateAvailable(objectUid, "object uid");
 			
-			return getObjects().stream()
-							   .filter(filter -> containsReferenceUid(filter, objectUid))
-							   .collect(Collectors.toList());
+			return subList(getObjects(), filter -> containsReferenceUid(filter, objectUid));
 		}
 		return Collections.emptyList();
 	}
@@ -381,9 +353,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		Assert.notNull(entityStatus, "entity status");
 		Assert.state(entityStatus.getUid() != null, "status is new");
 		
-		return getObjects().stream()
-						   .filter(filter -> containsReferenceUid(filter, entityStatus.getUid()))
-						   .collect(Collectors.toList());
+		return subList(getObjects(), filter -> containsReferenceUid(filter, entityStatus.getUid()));
 	}
 	
 	@Override
@@ -493,14 +463,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	}
 	
 	private static boolean containsReferenceUid(Filter filter, String uid) {
-		if (filter.hasCriteria()) {
-			for (FilterCriterion criterion : filter.getCriteria()) {
-				if (uid.equals(criterion.getReferenceUid())) {
-					return true;
-				}
-			}
-		}
-		return false;
+		return anyMatch(filter.getCriteria(), criterion -> uid.equals(criterion.getReferenceUid()));
 	}
 	
 	private static void createEntityElements(Entity entity, List<FilterElement> elements) {
@@ -532,6 +495,13 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 			element.setSystemField(systemField);
 		}
 		return element;
+	}
+	
+	private static FilterPermission createPermission(Filter filter, UserGroup group) {
+		final FilterPermission permission = new FilterPermission();
+		permission.setFilter(filter);
+		permission.setUserGroup(group);
+		return permission;
 	}
 
 }

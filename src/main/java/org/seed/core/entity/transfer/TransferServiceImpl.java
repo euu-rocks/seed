@@ -17,6 +17,8 @@
  */
 package org.seed.core.entity.transfer;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -223,18 +225,9 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	public List<Transfer> findUsage(EntityField entityField) {
 		Assert.notNull(entityField, C.ENTITYFIELD);
 		
-		final List<Transfer> result = new ArrayList<>();
-		for (Transfer transfer : findTransfers(entityField.getEntity())) {
-			if (transfer.hasElements()) {
-				for (TransferElement element : transfer.getElements()) {
-					if (entityField.equals(element.getEntityField())) {
-						result.add(transfer);
-						break;
-					}
-				}
-			}
-		}
-		return result;
+		return subList(findTransfers(entityField.getEntity()), 
+					   trans -> anyMatch(trans.getElements(), 
+						elem -> entityField.equals(elem.getEntityField())));
 	}
 	
 	@Override
