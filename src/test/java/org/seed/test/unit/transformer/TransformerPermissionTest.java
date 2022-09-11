@@ -22,8 +22,23 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import org.seed.core.entity.transform.TransformerPermission;
+import org.seed.core.user.UserGroupMetadata;
 
 class TransformerPermissionTest {
+	
+	@Test
+	void testGetUserGroupUid() {
+		final TransformerPermission permission = new TransformerPermission();
+		final UserGroupMetadata group = new UserGroupMetadata();
+		assertNull(permission.getUserGroupUid());
+		
+		permission.setUserGroupUid("test");
+		assertEquals("test", permission.getUserGroupUid());
+		
+		permission.setUserGroup(group);
+		group.setUid("group");
+		assertEquals("group", permission.getUserGroupUid());
+	}
 	
 	@Test
 	void testIsEqual() {

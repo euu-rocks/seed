@@ -20,7 +20,11 @@ package org.seed.test.unit.form;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
+
 import org.seed.core.entity.EntityField;
+import org.seed.core.entity.filter.FilterMetadata;
+import org.seed.core.entity.transform.TransformerMetadata;
+import org.seed.core.form.FormMetadata;
 import org.seed.core.form.SubFormField;
 
 class SubFormFieldTest {
@@ -35,6 +39,48 @@ class SubFormFieldTest {
 		
 		field.setLabel("label");
 		assertEquals("label", field.getName());
+	}
+	
+	@Test
+	void testGetDetailFormUid() {
+		final SubFormField field = new SubFormField();
+		final FormMetadata detailForm = new FormMetadata();
+		assertNull(field.getDetailFormUid());
+		
+		field.setDetailFormUid("test");
+		assertEquals("test", field.getDetailFormUid());
+		
+		field.setDetailForm(detailForm);
+		detailForm.setUid("detail");
+		assertEquals("detail", field.getDetailFormUid());
+	}
+	
+	@Test
+	void testGetFilterUid() {
+		final SubFormField field = new SubFormField();
+		final FilterMetadata filter = new FilterMetadata();
+		assertNull(field.getFilterUid());
+		
+		field.setFilterUid("test");
+		assertEquals("test", field.getFilterUid());
+		
+		field.setFilter(filter);
+		filter.setUid("filter");
+		assertEquals("filter", field.getFilterUid());
+	}
+	
+	@Test
+	void testGetTransformerUid() {
+		final SubFormField field = new SubFormField();
+		final TransformerMetadata transformer = new TransformerMetadata();
+		assertNull(field.getTransformerUid());
+		
+		field.setTransformerUid("test");
+		assertEquals("test", field.getTransformerUid());
+		
+		field.setTransformer(transformer);
+		transformer.setUid("transform");
+		assertEquals("transform", field.getTransformerUid());
 	}
 	
 	@Test

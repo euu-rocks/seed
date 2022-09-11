@@ -22,8 +22,23 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import org.seed.core.report.ReportPermission;
+import org.seed.core.user.UserGroupMetadata;
 
 class ReportPermissionTest {
+	
+	@Test
+	void testGetUserGroupUid() {
+		final ReportPermission permission = new ReportPermission();
+		final UserGroupMetadata group = new UserGroupMetadata();
+		assertNull(permission.getUserGroupUid());
+		
+		permission.setUserGroupUid("test");
+		assertEquals("test", permission.getUserGroupUid());
+		
+		permission.setUserGroup(group);
+		group.setUid("group");
+		assertEquals("group", permission.getUserGroupUid());
+	}
 	
 	@Test
 	void testIsEqual() {

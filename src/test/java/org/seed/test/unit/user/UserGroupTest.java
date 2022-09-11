@@ -61,4 +61,41 @@ class UserGroupTest {
 		
 		assertTrue(group.isAuthorised(auth));
 	}
+	
+	@Test
+	void testIsEqual() {
+		final UserGroupMetadata group1 = new UserGroupMetadata();
+		final UserGroupMetadata group2 = new UserGroupMetadata();
+		assertTrue(group1.isEqual(group2));
+		
+		group1.setName("test");
+		group1.setSystemGroup(true);
+		assertFalse(group1.isEqual(group2));
+		
+		group2.setName("test");
+		group2.setSystemGroup(true);
+		assertTrue(group1.isEqual(group2));
+	}
+	
+	@Test
+	void testIsEqualAuthorisations() {
+		final UserGroupMetadata group1 = new UserGroupMetadata();
+		final UserGroupMetadata group2 = new UserGroupMetadata();
+		final UserGroupAuthorisation groupAuthorisation1 = new UserGroupAuthorisation();
+		final UserGroupAuthorisation groupAuthorisation2 = new UserGroupAuthorisation();
+		final List<UserGroupAuthorisation> authorisations1 = new ArrayList<>();
+		final List<UserGroupAuthorisation> authorisations2 = new ArrayList<>();
+		authorisations1.add(groupAuthorisation1);
+		authorisations2.add(groupAuthorisation2);
+		group1.setAuthorisations(authorisations1);
+		groupAuthorisation1.setUid("test");
+		groupAuthorisation2.setUid("test");
+		assertFalse(group1.isEqual(group2));
+		
+		group2.setAuthorisations(authorisations2);
+		assertTrue(group1.isEqual(group2));
+		
+		groupAuthorisation2.setUid("other");
+		assertFalse(group1.isEqual(group2));
+	}
 }

@@ -20,12 +20,28 @@ package org.seed.test.unit.form;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
+
+import org.seed.core.entity.EntityFunction;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormAction;
 import org.seed.core.form.FormActionType;
 import org.seed.core.form.FormMetadata;
 
 class FormActionTest {
+	
+	@Test
+	void testGetEntityFunctionUid() {
+		final FormAction action = new FormAction();
+		final EntityFunction function = new EntityFunction();
+		assertNull(action.getEntityFunctionUid());
+		
+		action.setEntityFunctionUid("test");
+		assertEquals("test", action.getEntityFunctionUid());
+		
+		action.setEntityFunction(function);
+		function.setUid("function");
+		assertEquals("function", action.getEntityFunctionUid());
+	}
 	
 	@Test
 	void testGetTargetFormUid() {

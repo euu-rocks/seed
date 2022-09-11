@@ -50,7 +50,7 @@ class UserTest {
 	}
 	
 	@Test
-	void testbelongsToOneOf() {
+	void testBelongsToOneOf() {
 		final User user = new UserMetadata();
 		final UserGroupMetadata group = new UserGroupMetadata();
 		final Set<UserGroupMetadata> groups = new HashSet<>();

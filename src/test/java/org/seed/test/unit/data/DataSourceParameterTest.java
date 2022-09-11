@@ -29,6 +29,20 @@ import org.seed.core.entity.EntityMetadata;
 class DataSourceParameterTest {
 	
 	@Test
+	void testGetReferenceEntityUid() {
+		final DataSourceParameter parameter = new DataSourceParameter();
+		final Entity referenceEntity = new EntityMetadata();
+		referenceEntity.setUid("ref");
+		assertNull(parameter.getReferenceEntityUid());
+		
+		parameter.setReferenceEntityUid("test");
+		assertEquals("test", parameter.getReferenceEntityUid());
+		
+		parameter.setReferenceEntity(referenceEntity);
+		assertEquals("ref", parameter.getReferenceEntityUid());
+	}
+	
+	@Test
 	void testIsEqual() {
 		final DataSourceParameter parameter1 = new DataSourceParameter();
 		final DataSourceParameter parameter2 = new DataSourceParameter();

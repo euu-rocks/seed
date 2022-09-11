@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityFunction;
+import org.seed.core.entity.NestedEntity;
 import org.seed.core.entity.filter.Filter;
 import org.seed.core.entity.filter.FilterMetadata;
 import org.seed.core.entity.transform.Transformer;
@@ -177,6 +178,20 @@ class SubFormTest {
 		field.setUid("test");
 		
 		assertSame(field, subForm.getFieldByUid("test"));
+	}
+	
+	@Test
+	void testGetNestedEntityUid() {
+		final SubForm subForm = new SubForm();
+		final NestedEntity nested = new NestedEntity();
+		assertNull(subForm.getNestedEntityUid());
+		
+		subForm.setNestedEntityUid("test");
+		assertEquals("test", subForm.getNestedEntityUid());
+		
+		subForm.setNestedEntity(nested);
+		nested.setUid("nested");
+		assertEquals("nested", subForm.getNestedEntityUid());
 	}
 	
 	@Test

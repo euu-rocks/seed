@@ -20,9 +20,25 @@ package org.seed.test.unit.rest;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
+
 import org.seed.core.rest.RestPermission;
+import org.seed.core.user.UserGroupMetadata;
 
 class RestPermissionTest {
+	
+	@Test
+	void testGetUserGroupUid() {
+		final RestPermission permission = new RestPermission();
+		final UserGroupMetadata group = new UserGroupMetadata();
+		assertNull(permission.getUserGroupUid());
+		
+		permission.setUserGroupUid("test");
+		assertEquals("test", permission.getUserGroupUid());
+		
+		permission.setUserGroup(group);
+		group.setUid("group");
+		assertEquals("group", permission.getUserGroupUid());
+	}
 	
 	@Test
 	void testIsEqual() {

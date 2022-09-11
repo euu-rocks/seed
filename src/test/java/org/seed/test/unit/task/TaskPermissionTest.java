@@ -22,8 +22,23 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import org.seed.core.task.TaskPermission;
+import org.seed.core.user.UserGroupMetadata;
 
 class TaskPermissionTest {
+	
+	@Test
+	void testGetUserGroupUid() {
+		final TaskPermission permission = new TaskPermission();
+		final UserGroupMetadata group = new UserGroupMetadata();
+		assertNull(permission.getUserGroupUid());
+		
+		permission.setUserGroupUid("test");
+		assertEquals("test", permission.getUserGroupUid());
+		
+		permission.setUserGroup(group);
+		group.setUid("group");
+		assertEquals("group", permission.getUserGroupUid());
+	}
 	
 	@Test
 	void testIsEqual() {

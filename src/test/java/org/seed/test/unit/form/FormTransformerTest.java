@@ -21,9 +21,54 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
+import org.seed.core.entity.transform.Transformer;
+import org.seed.core.entity.transform.TransformerMetadata;
+import org.seed.core.form.FormMetadata;
 import org.seed.core.form.FormTransformer;
 
 class FormTransformerTest {
+	
+	@Test
+	void testGetName() {
+		final FormTransformer formTransformer = new FormTransformer();
+		final Transformer transformer = new TransformerMetadata();
+		formTransformer.setTransformer(transformer);
+		assertNull(formTransformer.getName());
+		
+		transformer.setName("test");
+		assertEquals("test", formTransformer.getName());
+		
+		formTransformer.setLabel("label");
+		assertEquals("label", formTransformer.getName());
+	}
+	
+	@Test
+	void testGetTransformerUid() {
+		final FormTransformer formTransformer = new FormTransformer();
+		final Transformer transformer = new TransformerMetadata();
+		assertNull(formTransformer.getTransformerUid());
+		
+		formTransformer.setTransformerUid("test");
+		assertEquals("test", formTransformer.getTransformerUid());
+		
+		formTransformer.setTransformer(transformer);
+		transformer.setUid("transform");
+		assertEquals("transform", formTransformer.getTransformerUid());
+	}
+	
+	@Test
+	void testGetTargetFormUid() {
+		final FormTransformer transformer = new FormTransformer();
+		final FormMetadata targetForm = new FormMetadata();
+		assertNull(transformer.getTargetFormUid());
+		
+		transformer.setTargetFormUid("test");
+		assertEquals("test", transformer.getTargetFormUid());	
+		
+		transformer.setTargetForm(targetForm);
+		targetForm.setUid("target");
+		assertEquals("target", transformer.getTargetFormUid());	
+	}
 	
 	@Test
 	void testIsEqual() {
