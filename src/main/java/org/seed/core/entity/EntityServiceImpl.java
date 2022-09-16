@@ -747,11 +747,10 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(context, C.CONTEXT);
 		Assert.notNull(schemaVersion, "schema version");
 		
-		if (notEmpty(context.getModule().getEntities())) {
-			if (schemaVersion == SchemaVersion.V_0_9_33) {
+		if (notEmpty(context.getModule().getEntities()) && 
+			schemaVersion == SchemaVersion.V_0_9_33) {
 				// mask table and column names that equals SQL keywords
 				new SchemaUpdateHandler0933().process(context.getModule());
-			}
 		}
 	}
 	
