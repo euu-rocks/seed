@@ -19,7 +19,6 @@ package org.seed.core.codegen.compile;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.tools.DiagnosticCollector;
@@ -33,6 +32,7 @@ import org.seed.core.codegen.Compiler;
 import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.util.Assert;
+import org.seed.core.util.CollectionUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,8 +78,7 @@ public class InMemoryCompiler implements Compiler {
 		Assert.notNull(typeClass, C.TYPECLASS);
 		Assert.stateAvailable(mapClasses, "class map");
 		
-		return mapClasses.values().stream().filter(typeClass::isAssignableFrom)
-						 				   .collect(Collectors.toList());
+		return CollectionUtils.subList(mapClasses.values(), typeClass::isAssignableFrom);
 	}
 	
 	@Override

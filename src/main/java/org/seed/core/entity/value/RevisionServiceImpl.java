@@ -17,8 +17,9 @@
  */
 package org.seed.core.entity.value;
 
+import static org.seed.core.util.CollectionUtils.convertedList;
+
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Session;
@@ -58,9 +59,8 @@ public class RevisionServiceImpl implements RevisionService {
 		checkAudited(entity);
 		
 		try (Session session = sessionProvider.getSession()) {
-			return getRevisionNumbers(session, codeManager.getGeneratedClass(entity), id).stream()
-				.map(num -> getRevision(session, num.intValue()))
-				.collect(Collectors.toList());
+			return convertedList(getRevisionNumbers(session, codeManager.getGeneratedClass(entity), id), 
+								 number -> getRevision(session, number.intValue()));
 		}
 	}
 	

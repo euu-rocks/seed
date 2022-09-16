@@ -19,11 +19,11 @@ package org.seed.core.application;
 
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import org.seed.C;
 import org.seed.core.user.Authorisation;
 import org.seed.core.user.UserService;
+import org.seed.core.util.CollectionUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -40,8 +40,7 @@ public abstract class AbstractRestController<T extends ApplicationEntity> {
 	}
 	
 	protected List<T> getAll(Predicate<T> filter) {
-		return getService().getObjects().stream()
-					.filter(filter).collect(Collectors.toList());
+		return CollectionUtils.subList(getAll(), filter);
 	}
 	
 	protected T get(@PathVariable(C.ID) Long id) {

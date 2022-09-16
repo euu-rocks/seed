@@ -17,10 +17,11 @@
  */
 package org.seed.ui;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import org.seed.C;
 import org.seed.core.data.SystemObject;
@@ -73,7 +74,7 @@ public class ListFilterGroup implements ListFilterListener {
 	public <T extends SystemObject> List<T> filter(List<T> list) {
 		Assert.notNull(list, C.LIST);
 		
-		return list.stream().filter(this::acceptObject).collect(Collectors.toList());
+		return subList(list, this::acceptObject);
 	}
 	
 	private <T extends SystemObject> boolean acceptObject(T object) {

@@ -39,7 +39,7 @@ public abstract class ObjectAccess {
 		return callMethod(object, PRE_GET.concat(StringUtils.capitalize(propertyName)));
 	}
 	
-	protected static void callSetter(Object object, String propertyName, Object ...parameters) {
+	public static void callSetter(Object object, String propertyName, Object ...parameters) {
 		callMethod(object, PRE_SET.concat(StringUtils.capitalize(propertyName)), parameters);
 	}
 	

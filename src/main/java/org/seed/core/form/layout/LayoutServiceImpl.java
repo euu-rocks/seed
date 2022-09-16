@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -57,6 +56,7 @@ import org.seed.core.form.layout.visit.FindElementVisitor;
 import org.seed.core.form.layout.visit.SearchDecoratingVisitor;
 import org.seed.core.form.layout.visit.UndecoratingVisitor;
 import org.seed.core.util.Assert;
+import org.seed.core.util.CollectionUtils;
 import org.seed.core.util.NameUtils;
 
 import org.slf4j.Logger;
@@ -249,9 +249,8 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	
 	@Override
 	public List<EntityField> getAvailableRichTextFields(Form form, LayoutElement layoutRoot) {
-		return getAvailableEntityFields(form, layoutRoot).stream()
-				.filter(field -> field.getType().isTextLong())
-				.collect(Collectors.toList());
+		return CollectionUtils.subList(getAvailableEntityFields(form, layoutRoot), 
+									   field -> field.getType().isTextLong());
 	}
 	
 	@Override

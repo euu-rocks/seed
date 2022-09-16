@@ -17,6 +17,8 @@
  */
 package org.seed.core.entity.value;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -24,7 +26,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 import javax.persistence.criteria.CriteriaQuery;
@@ -292,9 +293,9 @@ public class ValueObjectServiceImpl
 		
 		final List<ValueObject> listObjects = loadFullTextObjects(cursor);
 		final Map<Long, String> mapTexts = fullTextSearch.getTextMap(listObjects, cursor.getQueryText());
-		return listObjects.stream()
-						  .map(obj -> new FullTextResult(obj, getIdentifier(obj), mapTexts.get(obj.getId())))
-						  .collect(Collectors.toList());
+		
+		return convertedList(listObjects, 
+				obj -> new FullTextResult(obj, getIdentifier(obj), mapTexts.get(obj.getId())));
 	}
 	
 	@Override
@@ -787,9 +788,8 @@ public class ValueObjectServiceImpl
 										  List<Map<String, Object>> listNestedMaps) {
 		boolean isModified = false;
 		// get existing nested value objects as map
-		final Map<Long, ValueObject> nestedObjectMap = 
-				objectAccess.getNestedObjects(object, nested).stream()
-							.collect(Collectors.toMap(ValueObject::getId, obj -> obj));
+		final Map<Long, ValueObject> nestedObjectMap = convertedMap(objectAccess.getNestedObjects(object, nested), 
+																	ValueObject::getId, obj -> obj);
 		// iterate over nested maps
 		final Set<Long> nestedIds = new HashSet<>();
 		for (Map<String, Object> nestedValueMap : listNestedMaps) {

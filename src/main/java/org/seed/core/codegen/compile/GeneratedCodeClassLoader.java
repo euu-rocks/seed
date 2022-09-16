@@ -17,9 +17,10 @@
  */
 package org.seed.core.codegen.compile;
 
+import static org.seed.core.util.CollectionUtils.convertedMap;
+
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.util.Assert;
@@ -32,9 +33,9 @@ class GeneratedCodeClassLoader extends ClassLoader {
 		super(parent);
 		Assert.notNull(classFileObjects, "classFileObjects");
 		
-		mapClasses = classFileObjects.stream()
-						.collect(Collectors.toMap(JavaClassFileObject::getQualifiedName,
-												  this::defineClass));		
+		mapClasses = convertedMap(classFileObjects, 
+								  JavaClassFileObject::getQualifiedName, 
+								  this::defineClass);
 	}
 	
 	Map<String, Class<GeneratedCode>> getClassMap() {

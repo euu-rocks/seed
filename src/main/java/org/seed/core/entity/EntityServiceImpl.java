@@ -376,7 +376,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(transition, C.TRANSITION);
 		
 		return filterAndConvert(entity.getCallbackFunctions(), 
-								function -> function.isActiveOnStatusTransition(), 
+								EntityFunction::isActiveOnStatusTransition, 
 								function -> createTransitionFunction(transition, function));
 	}
 	
@@ -489,7 +489,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
 		filterAndForEach(currentVersionModule.getEntities(), 
 						 entity -> analysis.getModule().getEntityByUid(entity.getUid()) == null, 
-						 entity -> analysis.addChangeDelete(entity));
+						 analysis::addChangeDelete);
 	}
 	
 	@Override
@@ -592,7 +592,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		if (!referenceChangeLog.isEmpty()) {
 			changeLogs.add(referenceChangeLog.build());
 		}
-		changeLogs.forEach(changeLog -> session.saveOrUpdate(changeLog));
+		changeLogs.forEach(session::saveOrUpdate);
 	}
 	
 	@Override
@@ -1103,7 +1103,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	private void cleanup(Entity entity) {
 		// fields
 		if (entity.hasFields()) {
-			entity.getFields().forEach(field -> cleanupField(field));
+			entity.getFields().forEach(this::cleanupField);
 		}
 		// function without content is inactive
 		filterAndForEach(entity.getCallbackFunctions(), 

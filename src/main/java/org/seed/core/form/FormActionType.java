@@ -17,9 +17,9 @@
  */
 package org.seed.core.form;
 
-import java.util.Arrays;
+import static org.seed.core.util.CollectionUtils.subList;
+
 import java.util.List;
-import java.util.stream.Collectors;
 
 public enum FormActionType {
 					 // first (if default is true)
@@ -91,13 +91,11 @@ public enum FormActionType {
 	}
 	
 	static List<FormActionType> defaultActionTypes(boolean isList, boolean comesFirst) {
-		return Arrays.stream(values())
-					 .filter(type -> (type.isDefault && 
-									  ((comesFirst && type.comesFirst()) ||
-									  (!comesFirst && !type.comesFirst())) &&
+		return subList(values(), type -> (type.isDefault && 
+										  ((comesFirst && type.comesFirst()) ||
+										  (!comesFirst && !type.comesFirst())) &&
 										  ((isList && type.isVisibleAtList) ||
-										  (!isList && type.isVisibleAtDetail))))
-					 .collect(Collectors.toList());
+										  (!isList && type.isVisibleAtDetail))));
 	}
 	
 	private enum Template {

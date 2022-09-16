@@ -17,6 +17,8 @@
  */
 package org.seed.core.codegen.compile;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.JarURLConnection;
@@ -29,7 +31,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.jar.JarEntry;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 
 import javax.tools.FileObject;
@@ -52,7 +53,7 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	
 	private final Map<String, JavaClassFileObject> classFileObjectMap = new HashMap<>();
 	
-	private List<CustomJarInfo> customJars;
+	private List<CustomJarInfo> customJarInfos;
 	
 	CompilerFileManager(StandardJavaFileManager standardFileManager) {
 		super(standardFileManager);
@@ -60,7 +61,7 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	
 	List<JavaClassFileObject> getClassFileObjects() {
 		synchronized (classFileObjectMap) {
-			return classFileObjectMap.values().stream().collect(Collectors.toList());
+			return valueList(classFileObjectMap);
 		}
 	}
 	
@@ -75,17 +76,13 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	List<JavaSourceFileObject> createSourceFileObjects(List<SourceCode> sourceCodes) {
 		Assert.notNull(sourceCodes, "sourceCodes");
 		
-		return sourceCodes.stream()
-						  .map(JavaSourceFileObject::new)
-						  .collect(Collectors.toList());
+		return convertedList(sourceCodes, JavaSourceFileObject::new);
 	}
 	
 	void setCustomJars(List<CustomJar> customJars) {
-		this.customJars = customJars != null 
-							? customJars.stream()
-										.map(CustomJarInfo::new)
-										.collect(Collectors.toList())
-							: null;
+		customJarInfos = customJars != null 
+			? convertedList(customJars, CustomJarInfo::new) 
+			: null;
 	}
 	
 	@Override
@@ -127,15 +124,11 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	}
 	
 	private Iterable<JavaFileObject> listGeneratedClasses(String packageName) {
-		final List<JavaFileObject> result = new ArrayList<>();
 		synchronized (classFileObjectMap) {
-			for (Entry<String, JavaClassFileObject> entry : classFileObjectMap.entrySet()) {
-				if (packageName.equals(extractPackageName(entry.getKey()))) {
-					result.add(entry.getValue());
-				}
-			}
+			return filterAndConvert(classFileObjectMap.entrySet(), 
+									entry -> packageName.equals(extractPackageName(entry.getKey())), 
+									Entry::getValue);
 		}
-		return result;
 	}
 	
 	private Iterable<JavaFileObject> listDependencies(String packageName) throws IOException {
@@ -155,30 +148,23 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 		}
 		
 		// list custom libraries
-		if (customJars != null) {
-			for (CustomJarInfo jar : customJars) {
-				if (jar.containsPackage(packageName)) {
-					listCustomJar(result, packageName, jar);
-				}
-			}
-		}
+		filterAndForEach(customJarInfos, 
+						 jarInfo -> jarInfo.containsPackage(packageName), 
+						 jarInfo -> listCustomJar(result, packageName, jarInfo));
 		return result;
 	}
 	
 	private void listDirectory(List<JavaFileObject> result, String packageName, File directory) {
-		for (File file : directory.listFiles()) {
-			if (file.isFile() && isClassFile(file.getName())) {
-				final String qualifiedName = getQualifiedName(packageName, removeClassExtension(file.getName()));
-				result.add(new DependencyFileObject(qualifiedName, file.toURI()));
-			}
-		}
+		filterAndForEach(directory.listFiles(), 
+						 file -> file.isFile() && isClassFile(file.getName()),
+						 file -> result.add(new DependencyFileObject(
+								 getQualifiedName(packageName, removeClassExtension(file.getName())), file.toURI())));
 	}
 	
 	private void listJar(List<JavaFileObject> result, URL packageURL) throws IOException {
 		final JarURLConnection jarCon = (JarURLConnection) packageURL.openConnection();
 		final String packagePath = jarCon.getEntryName();
 		final Enumeration<JarEntry> entryEnum = jarCon.getJarFile().entries();
-		
 		while (entryEnum.hasMoreElements()) {
 			final String entryName = entryEnum.nextElement().getName();
 			if (isClassFile(entryName) &&
@@ -192,7 +178,6 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	
 	private void listCustomJar(List<JavaFileObject> result, String packageName, CustomJarInfo customJar) {
 		final String packagePath = getPackagePath(packageName);
-		
 		try (SafeZipInputStream zis = StreamUtils.getZipStream(customJar.getContent())) {
 			ZipEntry entry;
 			while ((entry = zis.getNextEntrySafe()) != null) {
@@ -200,8 +185,7 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 				if (isClassFile(entryName) &&
 					entryName.startsWith(packagePath) && 
 					!isSubPackage(entryName, packagePath)) {
-						result.add(new JavaClassFileObject(getQualifiedName(entryName), 
-														   zis.readSafe(entry)));
+						result.add(new JavaClassFileObject(getQualifiedName(entryName), zis.readSafe(entry)));
 				}
 			}
 		}

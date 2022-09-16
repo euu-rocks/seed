@@ -115,8 +115,7 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 		Assert.notNull(user, C.USER);
 		
 		return subList(userGroupService.getObjects(), 
-					   group -> noneMatch(user.getUserGroups(), 
-							    		  userGroup -> group.equals(userGroup)));
+					   group -> noneMatch(user.getUserGroups(), group::equals));
 	}
 	
 	@Override
@@ -124,8 +123,7 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 		Assert.notNull(userGroup, C.USERGROUP);
 		
 		return subList(getObjects(), 
-					   user -> anyMatch(user.getUserGroups(), 
-							   			group -> userGroup.equals(group)));
+					   user -> anyMatch(user.getUserGroups(), userGroup::equals));
 	}
 	
 	@Override

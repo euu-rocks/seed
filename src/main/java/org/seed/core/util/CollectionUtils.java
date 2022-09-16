@@ -34,6 +34,8 @@ import javax.annotation.Nullable;
 
 public abstract class CollectionUtils {
 	
+	private static final String ERROR_DUPLICATE_KEY = "Duplicate map key: ";
+	
 	private CollectionUtils() {}
 	
 	public static <T> boolean anyMatch(@Nullable T[] array, Predicate<T> predicate) {
@@ -45,7 +47,21 @@ public abstract class CollectionUtils {
 	}
 	
 	public static <T> boolean containsObject(@Nullable Collection<T> collection, T object) {
-		return collection != null && collection.contains(object);
+		return collection != null && object != null && collection.contains(object);
+	}
+	
+	public static <T,R> List<R> convertedList(@Nullable Collection<T> collection, Function<T,R> function) {
+		return collection != null
+				? collection.stream().map(function).collect(Collectors.toList())
+				: Collections.emptyList();
+	}
+	
+	public static <T,K,V> Map<K,V> convertedMap(@Nullable Collection<T> collection,
+												Function<? super T,? extends K> keyFunction,
+												Function<? super T,? extends V> valueFunction) {
+		return collection != null
+				? collection.stream().collect(Collectors.toMap(keyFunction, valueFunction))
+				: Collections.emptyMap();
 	}
 	
 	public static <T,R> List<R> filterAndConvert(@Nullable Collection<T> collection, 
@@ -64,11 +80,25 @@ public abstract class CollectionUtils {
 				: Collections.emptyList();
 	}
 	
+	public static <T> long filterAndCount(@Nullable Collection<T> collection, Predicate<T> predicate) {
+		return collection != null
+				? collection.stream().filter(predicate).count()
+				: 0;
+	}
+	
 	public static <T> void filterAndForEach(@Nullable Collection<T> collection, 
 			  								Predicate<T> predicate,
 			  								Consumer<T> action) {
 		if (collection != null) {
-			collection.stream().filter(predicate).forEach(action);
+			filterAndForEach(collection.stream(), predicate, action);
+		}
+	}
+	
+	public static <T> void filterAndForEach(@Nullable T[] array, 
+											Predicate<T> predicate,
+											Consumer<T> action) {
+		if (array != null) {
+			filterAndForEach(Arrays.stream(array), predicate, action);
 		}
 	}
 	
@@ -80,7 +110,9 @@ public abstract class CollectionUtils {
 	
 	public static <T,K,V> Collector<T,?, Map<K,V>> linkedMapCollector(Function<? super T,? extends K> keyFunction,
 																	  Function<? super T,? extends V> valueFunction) {
-        return Collectors.toMap(keyFunction, valueFunction, (u, v) -> u, LinkedHashMap::new);
+        return Collectors.toMap(keyFunction, valueFunction, 
+        						(u, v) -> { throw new IllegalStateException(ERROR_DUPLICATE_KEY + u); }, 
+        						LinkedHashMap::new);
     }
 	
 	public static <T> boolean noneMatch(@Nullable Collection<T> collection, Predicate<T> predicate) {
@@ -95,14 +127,34 @@ public abstract class CollectionUtils {
 		return map != null && !map.isEmpty();
 	}
 	
+	public static <T> List<T> subList(@Nullable T[] array, Predicate<T> predicate) {
+		return array != null
+				? subList(Arrays.stream(array), predicate)
+				: Collections.emptyList();
+	}
+	
 	public static <T> List<T> subList(@Nullable Collection<T> collection, Predicate<T> predicate) {
 		return collection != null
-				? collection.stream().filter(predicate).collect(Collectors.toList())
+				? subList(collection.stream(), predicate)
+				: Collections.emptyList();
+	}
+	
+	public static <T> List<T> valueList(@Nullable Map<?,T> map) {
+		return map != null
+				? map.values().stream().collect(Collectors.toList())
 				: Collections.emptyList();
 	}
 	
 	private static <T,R> List<R> filterAndConvert(Stream<T> stream, Predicate<T> predicate, Function<T,R> function) {
 		return stream.filter(predicate).map(function).collect(Collectors.toList());
+	}
+	
+	private static <T> void filterAndForEach(Stream<T> stream, Predicate<T> predicate, Consumer<T> action) {
+		stream.filter(predicate).forEach(action);
+	}
+	
+	private static <T> List<T> subList(Stream<T> stream, Predicate<T> predicate) {
+		return stream.filter(predicate).collect(Collectors.toList());
 	}
 	
 }

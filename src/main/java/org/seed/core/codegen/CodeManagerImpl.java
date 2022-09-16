@@ -17,11 +17,13 @@
  */
 package org.seed.core.codegen;
 
+import static org.seed.core.codegen.CodeUtils.*;
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.seed.core.codegen.compile.CompilerException;
 import org.seed.core.config.SystemLog;
@@ -31,8 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import static org.seed.core.codegen.CodeUtils.*;
 
 @Component
 public class CodeManagerImpl implements CodeManager {
@@ -116,10 +116,18 @@ public class CodeManagerImpl implements CodeManager {
 		}
 	}
 	
+	private void compile(SourceCode sourceCode) {
+		compile(Collections.singletonList(sourceCode));
+	}
+	
+	private void compile(List<SourceCode> sourceCodeList) {
+		compiler.compile(sourceCodeList);
+		lastCompilerRun = new Date();
+	}
+	
 	private boolean compileAllClasses(List<SourceCode> sourceCodeList) {
 		try {
-			compiler.compile(sourceCodeList);
-			lastCompilerRun = new Date();
+			compile(sourceCodeList);
 			return true;
 		}
 		catch (CompilerException cex) {
@@ -131,9 +139,7 @@ public class CodeManagerImpl implements CodeManager {
 	
 	private void compileEntityClasses(List<SourceCode> sourceCodeList) {
 		try {
-			compiler.compile(sourceCodeList.stream().filter(this::isEntitySource)
-										   .collect(Collectors.toList()));
-			lastCompilerRun = new Date();
+			compile(subList(sourceCodeList, this::isEntitySource));
 		}
 		catch (CompilerException cex) {
 			log.warn("Error while compiling entity classes {}", cex.getMessage());
@@ -142,11 +148,9 @@ public class CodeManagerImpl implements CodeManager {
 	}
 	
 	private void compileTransformClasses(List<SourceCode> sourceCodeList) {
-		for (SourceCode source : sourceCodeList.stream().filter(this::isTransformSource)
-											   .collect(Collectors.toList())) {
+		for (SourceCode source : subList(sourceCodeList, this::isTransformSource)) {
 			try {
-				compiler.compile(Collections.singletonList(source));
-				lastCompilerRun = new Date();
+				compile(source);
 			}
 			catch (CompilerException cex) {
 				log.warn("Error while compiling entity transformation class {}", cex.getMessage());
@@ -156,11 +160,9 @@ public class CodeManagerImpl implements CodeManager {
 	}
 	
 	private void compileRestClasses(List<SourceCode> sourceCodeList) {
-		for (SourceCode source : sourceCodeList.stream().filter(this::isRestSource)
-											   .collect(Collectors.toList())) {
+		for (SourceCode source : subList(sourceCodeList, this::isRestSource)) {
 			try {
-				compiler.compile(Collections.singletonList(source));
-				lastCompilerRun = new Date();
+				compile(source);
 			}
 			catch (CompilerException cex) {
 				log.warn("Error while compiling rest class {}", cex.getMessage());
@@ -170,11 +172,9 @@ public class CodeManagerImpl implements CodeManager {
 	}
 	
 	private void compileTaskClasses(List<SourceCode> sourceCodeList) {
-		for (SourceCode source : sourceCodeList.stream().filter(this::isTaskSource)
-											   .collect(Collectors.toList())) {
+		for (SourceCode source : subList(sourceCodeList, this::isTaskSource)) {
 			try {
-				compiler.compile(Collections.singletonList(source));
-				lastCompilerRun = new Date();
+				compile(source);
 			}
 			catch (CompilerException cex) {
 				log.warn("Error while compiling task class {}", cex.getMessage());
@@ -185,9 +185,7 @@ public class CodeManagerImpl implements CodeManager {
 	
 	private void compileCustomClasses(List<SourceCode> sourceCodeList) {
 		try {
-			compiler.compile(sourceCodeList.stream().filter(this::isCustomSource)
-										   .collect(Collectors.toList()));
-			lastCompilerRun = new Date();
+			compile(subList(sourceCodeList, this::isCustomSource));
 		}
 		catch (CompilerException cex) {
 			log.warn("Error while compiling custom classes {}", cex.getMessage());
@@ -231,16 +229,13 @@ public class CodeManagerImpl implements CodeManager {
 		return builderList;
 	}
 	
-	private List<SourceCode> buildSources(List<SourceCodeBuilder> builderList) {
-		final List<SourceCode> sourceCodeList = new ArrayList<>(builderList.size());
-		for (SourceCodeBuilder codeBuilder : builderList) {
-			final SourceCode sourceCode = codeBuilder.build();
-			if (log.isDebugEnabled()) {
-				log.debug("generated source: {}", sourceCode.getQualifiedName() + System.lineSeparator() + sourceCode.getContent());
-			}
-			sourceCodeList.add(sourceCode);
+	private static List<SourceCode> buildSources(List<SourceCodeBuilder> builderList) {
+		final List<SourceCode> sourceCodeList = convertedList(builderList, SourceCodeBuilder::build);
+		if (log.isDebugEnabled()) {
+			sourceCodeList.forEach(sourceCode -> 
+				log.debug("generated source: {}", System.lineSeparator() + sourceCode.getContent()));
 		}
 		return sourceCodeList;
 	}
-
+	
 }

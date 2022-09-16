@@ -20,7 +20,6 @@ package org.seed.core.util;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.seed.C;
 import org.seed.InternalException;
@@ -51,8 +50,7 @@ public abstract class BeanUtils {
 		Assert.notNull(applicationContext, C.CONTEXT);
 		Assert.notNull(type, C.TYPE);
 		
-		return applicationContext.getBeansOfType(type).values().stream()
-								 .collect(Collectors.toList());
+		return CollectionUtils.valueList(applicationContext.getBeansOfType(type));
 	}
 	
 	public static <T> List<Class<? extends T>> getImplementingClasses(Class<T> typeClass) {

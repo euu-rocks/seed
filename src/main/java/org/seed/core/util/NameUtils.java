@@ -135,6 +135,13 @@ public abstract class NameUtils {
 	}
 	
 	public static String[] splitAndTrim(String str, String separator) {
+		if (str == null) {
+			return MiscUtils.toArray();
+		}
+		else if (separator == null) {
+			return MiscUtils.toArray(str);
+		}
+		
 		final String[] parts = str.split(separator);
 		for (int i = 0; i < parts.length; i++) {
 			parts[i] = parts[i].trim();

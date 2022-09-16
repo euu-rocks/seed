@@ -17,10 +17,11 @@
  */
 package org.seed.ui.zk.vm.admin;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.seed.C;
 import org.seed.core.application.ContentObject;
@@ -225,9 +226,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 		final List<EntityField> fields = nested != null 
 											? nested.getFields(true) 
 											: getObject().getAllFields();
-		return fields.stream()
-					 .filter(entityField -> !entityField.getType().isAutonum())
-					 .collect(Collectors.toList());
+		return subList(fields, entityField -> !entityField.getType().isAutonum());
 	}
 	
 	public boolean isAlreadyMandatory(EntityField field) {
@@ -408,9 +407,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	public List<Entity> getParentEntities() {
-		return entityService.findNonGenericEntities().stream()
-							.filter(e -> !e.isTransferable())
-							.collect(Collectors.toList());
+		return subList(entityService.findNonGenericEntities(), entity -> !entity.isTransferable());
 	}
 	
 	public List<Entity> getRelationEntities() {

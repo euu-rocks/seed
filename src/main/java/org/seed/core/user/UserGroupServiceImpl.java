@@ -101,7 +101,7 @@ public class UserGroupServiceImpl extends AbstractApplicationEntityService<UserG
 		Assert.notNull(userGroup, C.USERGROUP);
 		
 		return subList(userRepository.find(), 
-					   user -> noneMatch(userGroup.getUsers(), usr -> user.equals(usr)));
+					   user -> noneMatch(userGroup.getUsers(), user::equals));
 	}
 	
 	@Override

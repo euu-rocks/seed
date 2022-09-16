@@ -17,11 +17,12 @@
  */
 package org.seed.ui.zk.vm;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.seed.C;
 import org.seed.core.data.QueryCursor;
@@ -360,9 +361,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	private List<FormField> getVisibleSortedFields() {
 		final ViewSettings viewSettings = ViewUtils.getSettings();
 		viewSettings.sortFields(getForm().getFields());
-		return getForm().getFields().stream()
-						.filter(viewSettings::isFormFieldVisible)
-						.collect(Collectors.toList());
+		return subList(getForm().getFields(), viewSettings::isFormFieldVisible);
 	}
 	
  }

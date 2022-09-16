@@ -17,9 +17,10 @@
  */
 package org.seed.core.application.module;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.seed.C;
 import org.seed.core.customcode.CustomCode;
@@ -74,7 +75,7 @@ public class ImportAnalysis {
 	}
 	
 	public boolean hasChanges() {
-		return !changes.isEmpty();
+		return notEmpty(changes);
 	}
 	
 	public int getNumChanges() {
@@ -158,15 +159,11 @@ public class ImportAnalysis {
 	}
 	
 	private long countChanges(ChangeType type) {
-		return changes.stream()
-				      .filter(change -> change.type == type)
-				      .count();
+		return filterAndCount(changes, change -> change.type == type);
 	}
 	
 	private List<Change> getChanges(Class<? extends SystemEntity> entityClass) {
-		return changes.stream()
-					  .filter(change -> entityClass.isAssignableFrom(change.getEntity().getClass()))
-					  .collect(Collectors.toList());
+		return subList(changes, change -> entityClass.isAssignableFrom(change.getEntity().getClass()));
 	}
 	
 	public enum ChangeType {

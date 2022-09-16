@@ -17,10 +17,11 @@
  */
 package org.seed.core.entity.value;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -129,9 +130,8 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 		query.addField(FIELD_ENTITY_ID);
 		log.debug("Querying solr: {}", query);
 		try {
-			return solrClient.query(query).getResults().stream()
-						   	 .map(FullTextSearch::createResultEntry)
-						     .collect(Collectors.toList());
+			return convertedList(solrClient.query(query).getResults(), 
+								 FullTextSearch::createResultEntry);
 		}
 		catch (Exception e) {
 			throw new InternalException(e);
@@ -142,17 +142,14 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 		Assert.notNull(objectList, "objectList");
 		Assert.notNull(fullTextQuery, "fullTextQuery");
 		// collect object ids
-		final List<String> listIds = objectList.stream()
-											   .map(o -> o.getId().toString())
-											   .collect(Collectors.toList());
+		final List<String> listIds = convertedList(objectList, obj -> obj.getId().toString());
 		// remove all non letter or digit chars
 		final String fullTextKey = MiscUtils.filterString(fullTextQuery, Character::isLetterOrDigit);
 		final SolrClient solrClient = provider.getSolrClient();
 		try {
-			return solrClient.getById(listIds).stream()
-							 .collect(Collectors.toMap(doc -> Long.valueOf((String) doc.getFirstValue(SystemField.ID.property)),
-													   doc -> decorateResultText((String) doc.getFirstValue(FIELD_TEXT), 
-															   					 fullTextKey)));
+			return convertedMap(solrClient.getById(listIds), 
+								doc -> Long.valueOf((String) doc.getFirstValue(SystemField.ID.property)), 
+								doc -> decorateResultText((String) doc.getFirstValue(FIELD_TEXT), fullTextKey));
 		} 
 		catch (Exception e) {
 			throw new InternalException(e);
