@@ -214,16 +214,16 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	}
 	
 	@Command
-	public void addRelation(@BindingParam("relationId") String relationUid) {
-		final EntityRelation relation = getForm().getEntity().getRelationByUid(relationUid);
-		showDialog("/form/selectrelation.zul", new SelectRelationParameter(this, relation));
-	}
-	
-	@Command
 	@NotifyChange("getRelationForm")
 	public void removeRelation(@BindingParam("relationId") String relationUid) {
 		final EntityRelation relation = getForm().getEntity().getRelationByUid(relationUid);
 		removeRelationObject(relation);
+	}
+	
+	@Command
+	public void addRelation(@BindingParam("relationId") String relationUid) {
+		final EntityRelation relation = getForm().getEntity().getRelationByUid(relationUid);
+		showDialog("/form/selectrelation.zul", new SelectRelationParameter(this, relation));
 	}
 	
 	@Command

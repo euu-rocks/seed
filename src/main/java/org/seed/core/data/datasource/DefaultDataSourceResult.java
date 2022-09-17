@@ -17,6 +17,8 @@
  */
 package org.seed.core.data.datasource;
 
+import static org.seed.core.util.CollectionUtils.convertedList;
+
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -30,8 +32,8 @@ class DefaultDataSourceResult implements DataSourceResult {
 	
 	private final List<ColumnMetadata> columns;
 	
-	DefaultDataSourceResult(List<Object[]> resultList, ResultSetMetaData metaData) throws SQLException {
-		Assert.notNull(resultList, "result list");
+	DefaultDataSourceResult(List<Object> result, ResultSetMetaData metaData) throws SQLException {
+		Assert.notNull(result, "result list");
 		
 		// determine columns
 		if (metaData != null) {
@@ -47,15 +49,9 @@ class DefaultDataSourceResult implements DataSourceResult {
 		}
 		
 		// ensure that each list entry is an array
-		this.resultList = new ArrayList<>(resultList.size());
-		for (Object object : resultList) {
-			if (object.getClass().isArray()) {
-				this.resultList.add((Object[]) object);
-			}
-			else {
-				this.resultList.add(new Object[] { object });
-			}
-		}
+		resultList = convertedList(result, object -> object.getClass().isArray() 
+														? (Object[]) object 
+														: new Object[] { object });
 	}
 	
 	@Override

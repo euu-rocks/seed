@@ -96,7 +96,7 @@ public class DataSourceRepository extends AbstractSystemEntityRepository<IDataSo
 	}
 	
 	@SuppressWarnings("unchecked")
-	private List<Object[]> query(IDataSource dataSource, Map<String, Object> parameters, Session session, boolean testQuery) {
+	private List<Object> query(IDataSource dataSource, Map<String, Object> parameters, Session session, boolean testQuery) {
 		Assert.notNull(dataSource, C.DATASOURCE);
 		Assert.notNull(parameters, "parameters");
 		Assert.notNull(session, C.SESSION);
