@@ -299,6 +299,12 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	}
 	
 	@Override
+	@SuppressWarnings("unchecked")
+	public Class<? extends ApplicationEntityService<ApplicationEntity>>[] getImportDependencies() {
+		return new Class[] { EntityService.class };
+	}
+	
+	@Override
 	protected void analyzeNextVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
 		if (analysis.getModule().getTransformers() != null) {
 			for (Transformer transformer : analysis.getModule().getTransformers()) {
@@ -328,12 +334,6 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 				}
 			}
 		}
-	}
-	
-	@Override
-	@SuppressWarnings("unchecked")
-	public Class<? extends ApplicationEntityService<ApplicationEntity>>[] getImportDependencies() {
-		return new Class[] { EntityService.class };
 	}
 	
 	@Override

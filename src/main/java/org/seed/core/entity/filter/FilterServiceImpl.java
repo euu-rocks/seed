@@ -229,12 +229,6 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
-	public Class<? extends ApplicationEntityService<ApplicationEntity>>[] getImportDependencies() {
-		return new Class[] { EntityService.class };
-	}
-	
-	@Override
 	public void importObjects(TransferContext context, Session session) {
 		Assert.notNull(context, C.CONTEXT);
 		Assert.notNull(session, C.SESSION);
@@ -257,6 +251,12 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		catch (ValidationException vex) {
 			throw new InternalException(vex);
 		}
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public Class<? extends ApplicationEntityService<ApplicationEntity>>[] getImportDependencies() {
+		return new Class[] { EntityService.class };
 	}
 	
 	@Override

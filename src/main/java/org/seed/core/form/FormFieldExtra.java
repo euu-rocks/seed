@@ -55,12 +55,12 @@ public class FormFieldExtra extends AbstractTransferableObject {
 	private TransformerMetadata transformer;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "filter_id")
-	private FilterMetadata filter;
-	
-	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "detail_form_id")
 	private FormMetadata detailForm;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "filter_id")
+	private FilterMetadata filter;
 	
 	private boolean isReadonly;
 	
@@ -106,21 +106,21 @@ public class FormFieldExtra extends AbstractTransferableObject {
 	}
 	
 	@XmlTransient
-	public Filter getFilter() {
-		return filter;
-	}
-
-	public void setFilter(Filter filter) {
-		this.filter = (FilterMetadata) filter;
-	}
-	
-	@XmlTransient
 	public Form getDetailForm() {
 		return detailForm;
 	}
 
 	public void setDetailForm(Form detailForm) {
 		this.detailForm = (FormMetadata) detailForm;
+	}
+	
+	@XmlTransient
+	public Filter getFilter() {
+		return filter;
+	}
+
+	public void setFilter(Filter filter) {
+		this.filter = (FilterMetadata) filter;
 	}
 	
 	@XmlAttribute
@@ -160,21 +160,21 @@ public class FormFieldExtra extends AbstractTransferableObject {
 	}
 	
 	@XmlAttribute
-	public String getFilterUid() {
-		return filter != null ? filter.getUid() : filterUid;
-	}
-
-	public void setFilterUid(String filterUid) {
-		this.filterUid = filterUid;
-	}
-	
-	@XmlAttribute
 	public String getDetailFormUid() {
 		return detailForm != null ? detailForm.getUid() : detailFormUid;
 	}
 
 	public void setDetailFormUid(String detailFormUid) {
 		this.detailFormUid = detailFormUid;
+	}
+	
+	@XmlAttribute
+	public String getFilterUid() {
+		return filter != null ? filter.getUid() : filterUid;
+	}
+
+	public void setFilterUid(String filterUid) {
+		this.filterUid = filterUid;
 	}
 	
 	@Override

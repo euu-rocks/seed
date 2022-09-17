@@ -948,51 +948,6 @@ public class EntityMetadata extends AbstractApplicationEntity
 			   isEqualConstraints(otherEntity);
 	}
 	
-	private final boolean isEqualFields(Entity otherEntity) {
-		return !(anyMatch(fields, field -> !field.isEqual(otherEntity.getFieldByUid(field.getUid()))) ||
-			     anyMatch(otherEntity.getFields(), field -> getFieldByUid(field.getUid()) == null));
-	}
-	
-	private final boolean isEqualFieldGroups(Entity otherEntity) {
-		return !(anyMatch(fieldGroups, group -> !group.isEqual(otherEntity.getFieldGroupByUid(group.getUid()))) ||
-				 anyMatch(otherEntity.getFieldGroups(), group -> getFieldGroupByUid(group.getUid()) == null));
-	}
-	
-	private final boolean isEqualFunctions(Entity otherEntity) {
-		return !(anyMatch(functions, function -> !function.isEqual(otherEntity.getFunctionByUid(function.getUid()))) ||
-				 anyMatch(otherEntity.getFunctions(), function -> getFunctionByUid(function.getUid()) == null));
-	}
-	
-	private final boolean isEqualStatus(Entity otherEntity) {
-		return !(anyMatch(statusList, status -> !status.isEqual(otherEntity.getStatusByUid(status.getUid()))) ||
-				 anyMatch(otherEntity.getStatusList(), status -> getStatusByUid(status.getUid()) == null));
-	}
-	
-	private final boolean isEqualStatusTransitions(Entity otherEntity) {
-		return !(anyMatch(statusTransitions, transition -> !transition.isEqual(otherEntity.getStatusTransitionByUid(transition.getUid()))) ||
-				 anyMatch(otherEntity.getStatusTransitions(), transition -> getStatusTransitionByUid(transition.getUid()) == null));
-	}
-	
-	private final boolean isEqualPermissions(Entity otherEntity) {
-		return !(anyMatch(permissions, perm -> !perm.isEqual(otherEntity.getPermissionByUid(perm.getUid()))) ||
-				 anyMatch(otherEntity.getPermissions(), perm -> getPermissionByUid(perm.getUid()) == null));
-	}
-	
-	private final boolean isEqualConstraints(Entity otherEntity) {
-		return !(anyMatch(fieldConstraints, constraint -> !constraint.isEqual(otherEntity.getFieldConstraintByUid(constraint.getUid()))) ||
-				 anyMatch(otherEntity.getFieldConstraints(), constraint -> getFieldConstraintByUid(constraint.getUid()) == null));
-	}
-	
-	private final boolean isEqualNesteds(Entity otherEntity) {
-		return !(anyMatch(nesteds, nested -> !nested.isEqual(otherEntity.getNestedByUid(nested.getUid()))) ||
-				 anyMatch(otherEntity.getNesteds(), nested -> getNestedByUid(nested.getUid()) == null));
-	}
-	
-	private final boolean isEqualRelations(Entity otherEntity) {
-		return !(anyMatch(relations, relation -> !relation.isEqual(otherEntity.getRelationByUid(relation.getUid()))) ||
-				 anyMatch(otherEntity.getRelations(), relation -> getRelationByUid(relation.getUid()) == null));
-	}
-	
 	void createLists() {
 		permissions = new ArrayList<>();
 	}
@@ -1076,22 +1031,6 @@ public class EntityMetadata extends AbstractApplicationEntity
 		return true;
 	}
 	
-	private boolean checkUserGroupConstraints(EntityField field, User user, EntityStatus status, 
-			  FieldAccess ...fieldAccess) {
-		if (user.hasUserGroups()) {
-			for (UserGroup group : user.getUserGroups()) {
-				if (group.isSystemGroup()) {
-					continue;
-				}
-				final EntityFieldConstraint constraint = getGroupConstraint(field, group, status);
-				if (constraint == null || checkAccess(constraint, fieldAccess)) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
 	@JsonIgnore
 	@Override
 	public EntityStatus getInitialStatus() {
@@ -1143,8 +1082,6 @@ public class EntityMetadata extends AbstractApplicationEntity
 	}
 	
 	private List<EntityFieldConstraint> getFieldConstraints(EntityField field) {
-		Assert.notNull(field, C.FIELD);
-		
 		return subList(fieldConstraints, 
 					   constraint -> field.equals(constraint.getField()) ||
 									 (constraint.getFieldGroup() != null && 
@@ -1152,20 +1089,76 @@ public class EntityMetadata extends AbstractApplicationEntity
 	}
 	
 	private boolean hasGroupConstraints(EntityField field) {
-		Assert.notNull(field, C.FIELD);
-		
 		return anyMatch(getFieldConstraints(field), constraint -> constraint.getUserGroup() != null);
 	}
 	
 	private EntityFieldConstraint getGroupConstraint(EntityField field, UserGroup userGroup, EntityStatus status) {
-		Assert.notNull(field, C.FIELD);
-		Assert.notNull(userGroup, C.USERGROUP);
-		
 		return firstMatch(getFieldConstraints(field), 
 						  constraint -> userGroup.equals(constraint.getUserGroup()) &&
 				  						ObjectUtils.nullSafeEquals(status, constraint.getStatus()));
 	}
 
+	private boolean checkUserGroupConstraints(EntityField field, User user, EntityStatus status, 
+			  FieldAccess ...fieldAccess) {
+		if (user.hasUserGroups()) {
+			for (UserGroup group : user.getUserGroups()) {
+				if (group.isSystemGroup()) {
+					continue;
+				}
+				final EntityFieldConstraint constraint = getGroupConstraint(field, group, status);
+				if (constraint == null || checkAccess(constraint, fieldAccess)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	private final boolean isEqualFields(Entity otherEntity) {
+		return !(anyMatch(fields, field -> !field.isEqual(otherEntity.getFieldByUid(field.getUid()))) ||
+			     anyMatch(otherEntity.getFields(), field -> getFieldByUid(field.getUid()) == null));
+	}
+	
+	private final boolean isEqualFieldGroups(Entity otherEntity) {
+		return !(anyMatch(fieldGroups, group -> !group.isEqual(otherEntity.getFieldGroupByUid(group.getUid()))) ||
+				 anyMatch(otherEntity.getFieldGroups(), group -> getFieldGroupByUid(group.getUid()) == null));
+	}
+	
+	private final boolean isEqualFunctions(Entity otherEntity) {
+		return !(anyMatch(functions, function -> !function.isEqual(otherEntity.getFunctionByUid(function.getUid()))) ||
+				 anyMatch(otherEntity.getFunctions(), function -> getFunctionByUid(function.getUid()) == null));
+	}
+	
+	private final boolean isEqualStatus(Entity otherEntity) {
+		return !(anyMatch(statusList, status -> !status.isEqual(otherEntity.getStatusByUid(status.getUid()))) ||
+				 anyMatch(otherEntity.getStatusList(), status -> getStatusByUid(status.getUid()) == null));
+	}
+	
+	private final boolean isEqualStatusTransitions(Entity otherEntity) {
+		return !(anyMatch(statusTransitions, transition -> !transition.isEqual(otherEntity.getStatusTransitionByUid(transition.getUid()))) ||
+				 anyMatch(otherEntity.getStatusTransitions(), transition -> getStatusTransitionByUid(transition.getUid()) == null));
+	}
+	
+	private final boolean isEqualPermissions(Entity otherEntity) {
+		return !(anyMatch(permissions, perm -> !perm.isEqual(otherEntity.getPermissionByUid(perm.getUid()))) ||
+				 anyMatch(otherEntity.getPermissions(), perm -> getPermissionByUid(perm.getUid()) == null));
+	}
+	
+	private final boolean isEqualConstraints(Entity otherEntity) {
+		return !(anyMatch(fieldConstraints, constraint -> !constraint.isEqual(otherEntity.getFieldConstraintByUid(constraint.getUid()))) ||
+				 anyMatch(otherEntity.getFieldConstraints(), constraint -> getFieldConstraintByUid(constraint.getUid()) == null));
+	}
+	
+	private final boolean isEqualNesteds(Entity otherEntity) {
+		return !(anyMatch(nesteds, nested -> !nested.isEqual(otherEntity.getNestedByUid(nested.getUid()))) ||
+				 anyMatch(otherEntity.getNesteds(), nested -> getNestedByUid(nested.getUid()) == null));
+	}
+	
+	private final boolean isEqualRelations(Entity otherEntity) {
+		return !(anyMatch(relations, relation -> !relation.isEqual(otherEntity.getRelationByUid(relation.getUid()))) ||
+				 anyMatch(otherEntity.getRelations(), relation -> getRelationByUid(relation.getUid()) == null));
+	}
+	
 	private static boolean checkAccess(EntityFieldConstraint constraint, FieldAccess ...fieldAccess) {
 		return anyMatch(fieldAccess, access -> constraint.getAccess() == access);
 	}

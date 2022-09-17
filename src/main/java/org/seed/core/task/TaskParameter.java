@@ -22,27 +22,24 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import org.seed.core.application.AbstractTransferableObject;
+import org.seed.core.application.AbstractParameterObject;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "sys_task_param")
-public class TaskParameter extends AbstractTransferableObject {
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+public class TaskParameter extends AbstractParameterObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_id")
 	@JsonIgnore
 	private TaskMetadata task;
-	
-	private String name;
-	
-	private String value;
 	
 	@XmlTransient
 	public Task getTask() {
@@ -51,39 +48,6 @@ public class TaskParameter extends AbstractTransferableObject {
 	
 	public void setTask(Task task) {
 		this.task = (TaskMetadata) task;
-	}
-	
-	@XmlAttribute
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-	
-	@XmlAttribute
-	public String getValue() {
-		return value;
-	}
-
-	public void setValue(String value) {
-		this.value = value;
-	}
-	
-	@Override
-	public boolean isEqual(Object other) {
-		if (!isInstance(other)) {
-			return false;
-		}
-		if (other == this) {
-			return true;
-		}
-		final TaskParameter otherParameter = (TaskParameter) other;
-		return new EqualsBuilder()
-			.append(name, otherParameter.name)
-			.append(value, otherParameter.value)
-			.isEquals();
 	}
 	
 }

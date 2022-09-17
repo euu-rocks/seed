@@ -79,6 +79,18 @@ public class EntityFunction extends AbstractContentObject
 		this.entity = (EntityMetadata) entity;
 	}
 	
+	@Override
+	@JsonIgnore
+	public String getGeneratedPackage() {
+		return getEntity().getGeneratedPackage() + '.' + getEntity().getInternalName().toLowerCase();
+	}
+	
+	@Override
+	@JsonIgnore
+	public String getGeneratedClass() {
+		return StringUtils.capitalize(getInternalName());
+	}
+	
 	@XmlAttribute
 	public boolean isCallback() {
 		return isCallback;
@@ -185,18 +197,6 @@ public class EntityFunction extends AbstractContentObject
 
 	public void setActiveOnUserAction(boolean isActiveOnUserAction) {
 		this.isActiveOnUserAction = isActiveOnUserAction;
-	}
-	
-	@Override
-	@JsonIgnore
-	public String getGeneratedPackage() {
-		return getEntity().getGeneratedPackage() + '.' + getEntity().getInternalName().toLowerCase();
-	}
-	
-	@Override
-	@JsonIgnore
-	public String getGeneratedClass() {
-		return StringUtils.capitalize(getInternalName());
 	}
 	
 	@Override

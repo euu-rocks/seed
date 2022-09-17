@@ -150,17 +150,17 @@ public class AdminDataSourceViewModel extends AbstractAdminViewModel<IDataSource
 	
 	@Command
 	@NotifyChange(C.PARAMETER)
-	public void newParameter() {
-		parameter = dataSourceService.createParameter(getObject());
+	public void removeParameter() {
+		getObject().removeParameter(parameter);
+		parameter = null;
 		notifyObjectChange(PARAMETERS);
 		flagDirty();
 	}
 	
 	@Command
 	@NotifyChange(C.PARAMETER)
-	public void removeParameter() {
-		getObject().removeParameter(parameter);
-		parameter = null;
+	public void newParameter() {
+		parameter = dataSourceService.createParameter(getObject());
 		notifyObjectChange(PARAMETERS);
 		flagDirty();
 	}

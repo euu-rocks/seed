@@ -243,6 +243,11 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	}
 	
 	@Command
+	public void back() {
+		cmdBack();
+	}
+	
+	@Command
 	@NotifyChange(C.PARAMETER)
 	public void removeParameter() {
 		getObject().removeParameter(parameter);
@@ -251,11 +256,6 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 		flagDirty();
 	}
  	
-	@Command
-	public void back() {
-		cmdBack();
-	}
-	
 	@Command
 	public void newModule() {
 		cmdNewObject();

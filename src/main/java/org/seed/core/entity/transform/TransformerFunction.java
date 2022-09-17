@@ -61,6 +61,19 @@ public class TransformerFunction extends AbstractContentObject
 		this.transformer = (TransformerMetadata) transformer;
 	}
 	
+	@Override
+	@JsonIgnore
+	public String getGeneratedPackage() {
+		return CodeManagerImpl.GENERATED_TRANSFORM_PACKAGE + '.' + 
+				getTransformer().getInternalName().toLowerCase();
+	}
+	
+	@Override
+	@JsonIgnore
+	public String getGeneratedClass() {
+		return StringUtils.capitalize(getInternalName());
+	}
+	
 	@XmlAttribute
 	public boolean isActiveBeforeTransformation() {
 		return isActiveBeforeTransformation;
@@ -77,19 +90,6 @@ public class TransformerFunction extends AbstractContentObject
 
 	public void setActiveAfterTransformation(boolean isActiveAfterTransformation) {
 		this.isActiveAfterTransformation = isActiveAfterTransformation;
-	}
-	
-	@Override
-	@JsonIgnore
-	public String getGeneratedPackage() {
-		return CodeManagerImpl.GENERATED_TRANSFORM_PACKAGE + '.' + 
-				getTransformer().getInternalName().toLowerCase();
-	}
-	
-	@Override
-	@JsonIgnore
-	public String getGeneratedClass() {
-		return StringUtils.capitalize(getInternalName());
 	}
 	
 	@Override

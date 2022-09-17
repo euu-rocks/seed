@@ -91,21 +91,6 @@ public class SearchFormViewModel extends AbstractFormViewModel {
 		return getForm().isFieldVisible(field, null, getUser());
 	}
 	
-	public ListModel<ValueObject> getReferenceListModel(String referenceFieldUid) {
-		Assert.notNull(referenceFieldUid, REFERENCE_FIELD_UID);
-		
-		final MultiKey key = MultiKey.valueOf(0L, referenceFieldUid);
-		if (listModelMap.containsKey(key)) {
-			return listModelMap.get(key);
-		}
-		final EntityField referenceField = getForm().getEntity().getFieldByUid(referenceFieldUid);
-		checkReferenceField(referenceField, referenceFieldUid);
-		
-		final ListModel<ValueObject> model = createReferenceListModel(referenceField, null);
-		listModelMap.put(key, model);
-		return model;
-	}
-	
 	public ListModel<ValueObject> getNestedReferenceListModel(String nestedEntityUid, String referenceFieldUid) {
 		Assert.notNull(nestedEntityUid, "nestedEntityUid");
 		Assert.notNull(referenceFieldUid, REFERENCE_FIELD_UID);
@@ -116,6 +101,21 @@ public class SearchFormViewModel extends AbstractFormViewModel {
 		}
 		final SubForm subForm = getSubForm(nestedEntityUid);
 		final EntityField referenceField = subForm.getNestedEntity().getNestedEntity().getFieldByUid(referenceFieldUid);
+		checkReferenceField(referenceField, referenceFieldUid);
+		
+		final ListModel<ValueObject> model = createReferenceListModel(referenceField, null);
+		listModelMap.put(key, model);
+		return model;
+	}
+	
+	public ListModel<ValueObject> getReferenceListModel(String referenceFieldUid) {
+		Assert.notNull(referenceFieldUid, REFERENCE_FIELD_UID);
+		
+		final MultiKey key = MultiKey.valueOf(0L, referenceFieldUid);
+		if (listModelMap.containsKey(key)) {
+			return listModelMap.get(key);
+		}
+		final EntityField referenceField = getForm().getEntity().getFieldByUid(referenceFieldUid);
 		checkReferenceField(referenceField, referenceFieldUid);
 		
 		final ListModel<ValueObject> model = createReferenceListModel(referenceField, null);

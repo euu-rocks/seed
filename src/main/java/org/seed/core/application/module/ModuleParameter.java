@@ -22,29 +22,21 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import org.seed.core.application.TransferableObject;
-import org.seed.core.data.AbstractSystemEntity;
+import org.seed.core.application.AbstractParameterObject;
 
 @Entity
 @Table(name = "sys_module_param")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class ModuleParameter extends AbstractSystemEntity
-	implements TransferableObject {
+public class ModuleParameter extends AbstractParameterObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "module_id")
 	private ModuleMetadata module;
-	
-	private String uid;
-	
-	private String value;
 	
 	@XmlTransient
 	public Module getModule() {
@@ -53,41 +45,6 @@ public class ModuleParameter extends AbstractSystemEntity
 
 	public void setModule(Module module) {
 		this.module = (ModuleMetadata) module;
-	}
-	
-	@Override
-	@XmlAttribute
-	public String getUid() {
-		return uid;
-	}
-	
-	@Override
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
-	
-	@XmlAttribute
-	public String getValue() {
-		return value;
-	}
-
-	public void setValue(String value) {
-		this.value = value;
-	}
-	
-	@Override
-	public boolean isEqual(Object other) {
-		if (!isInstance(other)) {
-			return false;
-		}
-		if (other == this) {
-			return true;
-		}
-		final ModuleParameter otherParameter = (ModuleParameter) other;
-		return new EqualsBuilder()
-				.append(getName(), otherParameter.getName())
-				.append(getValue(), otherParameter.getValue())
-				.isEquals();
 	}
 	
 }

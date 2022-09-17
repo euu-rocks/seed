@@ -75,6 +75,14 @@ public class FormPrintout extends AbstractOrderedTransferableObject {
 		this.fileName = fileName;
 	}
 	
+	public byte[] getContent() {
+		return content;
+	}
+
+	public void setContent(byte[] content) {
+		this.content = content;
+	}
+	
 	@XmlAttribute
 	public String getContentType() {
 		return contentType;
@@ -84,14 +92,6 @@ public class FormPrintout extends AbstractOrderedTransferableObject {
 		this.contentType = contentType;
 	}
 
-	public byte[] getContent() {
-		return content;
-	}
-
-	public void setContent(byte[] content) {
-		this.content = content;
-	}
-	
 	@Override
 	public boolean isEqual(Object other) {
 		if (!isInstance(other)) {
