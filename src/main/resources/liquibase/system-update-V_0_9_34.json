@@ -1,0 +1,14 @@
+    {
+        "changeSet": {
+            "id": "system update 0.9.34",
+            "author": "seed",
+            "changes": [
+               {
+                  "dropNotNullConstraint":  {
+                    "columnName": "target_form_id",
+                    "tableName": "sys_form_transformer"
+                  }
+               }
+            ]
+        }
+    }

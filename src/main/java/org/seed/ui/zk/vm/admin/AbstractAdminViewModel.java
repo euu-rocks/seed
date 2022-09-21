@@ -175,7 +175,9 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	}
 	
 	protected void initObject(T object) {
-		object.removeNewObjects();
+		if (!object.isNew()) {
+			object.removeNewObjects();
+		}
 	}
 	
 	protected ViewMode getViewMode() {
@@ -184,7 +186,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	
 	@SuppressWarnings("unchecked")
 	protected <E extends SystemEntity> AbstractAdminViewModel<E> getParentVM() {
-		Assert.stateAvailable(dialogParameter, "DialogParameter");
+		Assert.stateAvailable(dialogParameter, "dialog parameter");
 		
 		return (AbstractAdminViewModel<E>) dialogParameter.parentViewModel;
 	}

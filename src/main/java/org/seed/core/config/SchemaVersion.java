@@ -22,7 +22,7 @@ package org.seed.core.config;
  * and a new file named system-update-<Version>.json 
  * must be created in the folder resources/liquibase
  * that contains a changeset 
- * (e.g. V_1_01 -> system-update-V_1_01.json)
+ * (e.g. V_1_0_1 -> system-update-V_1_0_1.json)
  */
 public enum SchemaVersion {
 	
@@ -35,7 +35,8 @@ public enum SchemaVersion {
 	V_0_9_29,
 	V_0_9_31,
 	V_0_9_32,
-	V_0_9_33; // add new versions below
+	V_0_9_33,
+	V_0_9_34; // add new versions below
 	
 	public static SchemaVersion currentVersion() {
 		return lastVersion();
