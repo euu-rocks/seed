@@ -151,13 +151,9 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 	
 	@Override
 	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
-		if (currentVersionModule.getReports() != null) {
-			for (Report currentVersionReport : currentVersionModule.getReports()) {
-				if (analysis.getModule().getReportByUid(currentVersionReport.getUid()) == null) {
-					analysis.addChangeDelete(currentVersionReport);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getReports(), 
+						 report -> analysis.getModule().getReportByUid(report.getUid()) == null, 
+						 analysis::addChangeDelete);
 	}
 	
 	@Override
@@ -228,13 +224,9 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
-		if (currentVersionModule.getReports() != null) {
-			for (Report currentVersionReport : currentVersionModule.getReports()) {
-				if (module.getReportByUid(currentVersionReport.getUid()) == null) {
-					session.delete(currentVersionReport);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getReports(), 
+						 report -> module.getReportByUid(report.getUid()) == null, 
+						 session::delete);
 	}
 	
 	@Override

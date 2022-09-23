@@ -290,13 +290,9 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	
 	@Override
 	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
-		if (currentVersionModule.getTransfers() != null) {
-			for (Transfer currentVersionTransfer : currentVersionModule.getTransfers()) {
-				if (analysis.getModule().getTransferByUid(currentVersionTransfer.getUid()) == null) {
-					analysis.addChangeDelete(currentVersionTransfer);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getTransfers(), 
+						 trans -> analysis.getModule().getTransferByUid(trans.getUid()) == null,
+						 analysis::addChangeDelete);
 	}
 	
 	@Override
@@ -357,13 +353,9 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
-		if (currentVersionModule.getTransfers() != null) {
-			for (Transfer currentVersionTransfer : currentVersionModule.getTransfers()) {
-				if (module.getTransferByUid(currentVersionTransfer.getUid()) == null) {
-					session.delete(currentVersionTransfer);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getTransfers(), 
+						 trans -> module.getTransferByUid(trans.getUid()) == null, 
+						 session::delete);
 	}
 	
 	@SuppressWarnings("unchecked")

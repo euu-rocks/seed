@@ -327,13 +327,9 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	
 	@Override
 	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
-		if (currentVersionModule.getTransformers() != null) {
-			for (Transformer currentVersionTransformer : currentVersionModule.getTransformers()) {
-				if (analysis.getModule().getTransformerByUid(currentVersionTransformer.getUid()) == null) {
-					analysis.addChangeDelete(currentVersionTransformer);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getTransformers(), 
+						trans -> analysis.getModule().getTransformerByUid(trans.getUid()) == null, 
+						analysis::addChangeDelete);
 	}
 	
 	@Override
@@ -441,11 +437,9 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
-		for (Transformer currentVersionTransformer : currentVersionModule.getTransformers()) {
-			if (module.getTransformerByUid(currentVersionTransformer.getUid()) == null) {
-				session.delete(currentVersionTransformer);
-			}
-		}
+		filterAndForEach(currentVersionModule.getTransformers(), 
+						 trans -> module.getTransformerByUid(trans.getUid()) == null, 
+						 session::delete);
 	}
 	
 	@Override

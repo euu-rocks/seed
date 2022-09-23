@@ -23,7 +23,6 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.List;
 import java.util.SortedSet;
 
 import javax.annotation.PostConstruct;
@@ -105,11 +104,8 @@ public class SchemaManager {
 	}
 	
 	synchronized SchemaConfiguration loadSchemaConfiguration(Session session) {
-		final List<SchemaConfiguration> list = 
-				session.createQuery("select c from SchemaConfiguration c", SchemaConfiguration.class)
-					   .getResultList();
-		Assert.state(list.size() <= 1, "ambiguous configuration");
-		return list.isEmpty() ? null : list.get(0);
+		return session.createQuery("from SchemaConfiguration", SchemaConfiguration.class)
+					  .uniqueResult();
 	}
 	
 	synchronized void updateSchemaConfiguration(SchemaVersion baseVersion, Session session) {

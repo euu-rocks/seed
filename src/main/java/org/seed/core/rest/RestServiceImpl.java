@@ -116,12 +116,8 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 		
 		Rest rest = repository.findUnique(queryParam("mapping", '/' + mapping));
 		if (rest == null) {
-			for (Rest tmpRest : repository.find()) {
-				if (mapping.equalsIgnoreCase(tmpRest.getInternalName())) {
-					rest = tmpRest;
-					break;
-				}
-			}
+			rest = firstMatch(repository.find(), 
+							  res -> mapping.equalsIgnoreCase(res.getInternalName()));
 		}
 		return rest;
 	}
@@ -204,13 +200,9 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
-		if (currentVersionModule.getRests() != null) {
-			for (Rest currentVersionRest : currentVersionModule.getRests()) {
-				if (module.getReportByUid(currentVersionRest.getUid()) == null) {
-					session.delete(currentVersionRest);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getRests(), 
+						 rest -> module.getRestByUid(rest.getUid()) == null, 
+						 session::delete);
 	}
 	
 	@Override
@@ -224,13 +216,9 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 
 	@Override
 	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
-		if (currentVersionModule.getRests() != null) {
-			for (Rest currentVersionRest : currentVersionModule.getRests()) {
-				if (analysis.getModule().getRestByUid(currentVersionRest.getUid()) == null) {
-					analysis.addChangeDelete(currentVersionRest);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getRests(), 
+						 rest -> analysis.getModule().getRestByUid(rest.getUid()) == null, 
+						 analysis::addChangeDelete);
 	}
 
 	@Override

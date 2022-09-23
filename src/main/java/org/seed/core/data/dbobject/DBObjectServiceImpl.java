@@ -17,6 +17,8 @@
  */
 package org.seed.core.data.dbobject;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,13 +85,9 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 	
 	@Override
 	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
-		if (currentVersionModule!= null && currentVersionModule.getDBObjects() != null) {
-			for (DBObject currentVersionObject : currentVersionModule.getDBObjects()) {
-				if (analysis.getModule().getDBObjectByUid(currentVersionObject.getUid()) == null) {
-					analysis.addChangeDelete(currentVersionObject);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getDBObjects(), 
+						 dbObject -> analysis.getModule().getDBObjectByUid(dbObject.getUid()) == null, 
+						 analysis::addChangeDelete);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -157,13 +155,9 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
-		if (currentVersionModule.getDBObjects() != null) {
-			for (DBObject currentVersionObject : currentVersionModule.getDBObjects()) {
-				if (module.getDBObjectByUid(currentVersionObject.getUid()) == null) {
-					session.delete(currentVersionObject);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getDBObjects(), 
+						 dbObject -> module.getDBObjectByUid(dbObject.getUid()) == null,
+						 session::delete);
 	}
 	
 	@Override

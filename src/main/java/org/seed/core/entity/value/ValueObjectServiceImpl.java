@@ -123,17 +123,10 @@ public class ValueObjectServiceImpl
 	
 	@Override
 	public boolean existObjects(Entity entity) {
-		if (entity.isGeneric()) {
-			for (Entity descendant : entityService.findDescendants(entity)) {
-				if (repository.exist(descendant, null)) {
-					return true;
-				}
-			}
-			return false;
-		}
-		else {
-			return repository.exist(entity, null);
-		}
+		return entity.isGeneric()
+				? anyMatch(entityService.findDescendants(entity), 
+						   descendant -> repository.exist(descendant, null))
+				: repository.exist(entity, null);
 	}
 	
 	@Override
@@ -147,11 +140,10 @@ public class ValueObjectServiceImpl
 						   List<EntityField> entityFields) {
 		Assert.notNull(sourceObject, "sourceObject");
 		Assert.notNull(targetObject, "targetObject");
-		Assert.state(!ObjectUtils.isEmpty(entityFields), "entityFields are empty");
+		Assert.notNull(entityFields, "entity fields");
 		
-		for (EntityField entityField : entityFields) {
-			setValue(targetObject, entityField, getValue(sourceObject, entityField));
-		}
+		entityFields.forEach(field -> setValue(targetObject, field, 
+											   getValue(sourceObject, field)));
 	}
 	
 	@Override
@@ -293,7 +285,6 @@ public class ValueObjectServiceImpl
 		
 		final List<ValueObject> listObjects = loadFullTextObjects(cursor);
 		final Map<Long, String> mapTexts = fullTextSearch.getTextMap(listObjects, cursor.getQueryText());
-		
 		return convertedList(listObjects, 
 				obj -> new FullTextResult(obj, getIdentifier(obj), mapTexts.get(obj.getId())));
 	}
@@ -308,9 +299,8 @@ public class ValueObjectServiceImpl
 		if (entity.hasNesteds()) {
 			for (NestedEntity nested : entity.getNesteds()) {
 				if (nested.getNestedEntity().hasAllFields() && hasNestedObjects(object, nested)) {
-					for (ValueObject nestedObject : getNestedObjects(object, nested)) {
-						collectFileObjects(nestedObject, nested.getNestedEntity(), fileObjects);
-					}
+					getNestedObjects(object, nested)
+						.forEach(obj -> collectFileObjects(obj, nested.getNestedEntity(), fileObjects));
 				}
 			}
 		}
@@ -519,10 +509,7 @@ public class ValueObjectServiceImpl
 		
 		validator.validateDelete(object);
 		repository.delete(object, session, functionContext);
-		
-		for (ValueObjectChangeAware changeAware : changeAwareObjects) {
-			changeAware.notifyDelete(object, sessionToUse);
-		}
+		changeAwareObjects.forEach(changeAware -> changeAware.notifyDelete(object, sessionToUse));
 	}
 	
 	@Override
@@ -602,13 +589,11 @@ public class ValueObjectServiceImpl
 		validator.validateSave(object);
 		repository.save(object, session, functionContext);
 		
-		for (ValueObjectChangeAware changeAware : changeAwareObjects) {
-			if (isInsert) {
-				changeAware.notifyCreate(object, sessionToUse);
-			}
-			else {
-				changeAware.notifyChange(object, sessionToUse);
-			}
+		if (isInsert) {
+			changeAwareObjects.forEach(changeAware -> changeAware.notifyCreate(object, sessionToUse));
+		}
+		else {
+			changeAwareObjects.forEach(changeAware -> changeAware.notifyChange(object, sessionToUse));
 		}
 	}
 	
@@ -703,10 +688,8 @@ public class ValueObjectServiceImpl
 	public List<Entity> findUsage(ValueObject object) {
 		final List<Entity> result = new ArrayList<>();
 		final Entity entity = repository.getEntity(object);
-		for (Entity otherEntity : entityService.getObjects()) {
-			if (otherEntity.isGeneric() || entity.equals(otherEntity)) {
-				continue;
-			}
+		for (Entity otherEntity : subList(entityService.findNonGenericEntities(), 
+										  other -> !entity.equals(other))) {
 			for (EntityField otherRefField : otherEntity.getReferenceFields(entity)) {
 				final Filter filter = filterService.createFieldFilter(otherEntity, otherRefField, object);
 				if (repository.exist(otherEntity, filter)) {
@@ -812,11 +795,9 @@ public class ValueObjectServiceImpl
 		}
 		// remove nested objects 
 		if (nestedObjectMap != null) {
-			for (Map.Entry<Long, ValueObject> entry : nestedObjectMap.entrySet()) {
-				if (!nestedIds.contains(entry.getKey())) {
-					objectAccess.removeNestedObject(object, nested, entry.getValue());
-				}
-			}
+			filterAndForEach(nestedObjectMap.entrySet(), 
+							 entry -> !nestedIds.contains(entry.getKey()), 
+							 entry -> objectAccess.removeNestedObject(object, nested, entry.getValue()));
 		}
 		return isModified;
 	}
@@ -835,19 +816,12 @@ public class ValueObjectServiceImpl
 	}
 	
 	private void setFileObjects(ValueObject object, boolean createObject) {
-		Assert.notNull(object, C.OBJECT);
-		
 		final Entity entity = repository.getEntity(object);
 		setFileFields(object, entity, createObject);
-		if (entity.hasNesteds()) {
-			for (NestedEntity nested : entity.getNesteds()) {
-				if (nested.getNestedEntity().hasAllFields() && hasNestedObjects(object, nested)) {
-					for (ValueObject nestedObject : getNestedObjects(object, nested)) {
-						setFileFields(nestedObject, nested.getNestedEntity(), createObject);
-					}
-				}
-			}
-		}
+		filterAndForEach(entity.getNesteds(), 
+						 nested -> nested.getNestedEntity().hasAllFields() && hasNestedObjects(object, nested), 
+						 nested -> getNestedObjects(object, nested)
+						 			.forEach(obj -> setFileFields(obj, nested.getNestedEntity(), createObject)));
 	}
 	
 	private void setFileFields(ValueObject object, Entity entity, boolean createObject) {

@@ -201,13 +201,9 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	
 	@Override
 	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
-		if (currentVersionModule.getTasks() != null) {
-			for (Task currentVersionTask : currentVersionModule.getTasks()) {
-				if (analysis.getModule().getTaskByUid(currentVersionTask.getUid()) == null) {
-					analysis.addChangeDelete(currentVersionTask);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getTasks(), 
+						 task -> analysis.getModule().getTaskByUid(task.getUid()) == null, 
+						 analysis::addChangeDelete);
 	}
 	
 	@Override
@@ -281,13 +277,9 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
-		if (currentVersionModule.getTasks() != null) {
-			for (Task currentVersionTask : currentVersionModule.getTasks()) {
-				if (module.getTaskByUid(currentVersionTask.getUid()) == null) {
-					session.delete(currentVersionTask);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getTasks(), 
+						 task -> module.getTaskByUid(task.getUid()) == null, 
+						 session::delete);
 	}
 	
 	@Override

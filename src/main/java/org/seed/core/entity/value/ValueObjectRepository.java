@@ -17,17 +17,18 @@
  */
 package org.seed.core.entity.value;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
-import javax.persistence.NonUniqueResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
@@ -144,23 +145,14 @@ public class ValueObjectRepository {
 	boolean notifyChange(ValueObject object) {
 		Assert.notNull(object, C.OBJECT);
 		
-		final Entity entity = getEntity(object);
-		boolean existModifyFunction = false;
-		if (entity.hasFunctions()) {
-			for (EntityFunction function : entity.getFunctions()) {
-				if (function.isActiveOnModify()) {
-					existModifyFunction = true;
-					break;
-				}
-			}
-		}
-		if (existModifyFunction) {
+		if (anyMatch(getEntity(object).getFunctions(), EntityFunction::isActiveOnModify)) {
 			try (Session session = getSession()) {
 				Transaction tx = null;
 				try {
 					tx = session.beginTransaction();
 					fireEvent(CallbackEventType.MODIFY, object, session);
 					tx.commit();
+					return true;
 				}
 				catch (Exception ex) {
 					if (tx != null) {
@@ -170,7 +162,7 @@ public class ValueObjectRepository {
 				}
 			}
 		}
-		return existModifyFunction;
+		return false;
 	}
 	
 	long count(Entity entity) {
@@ -299,14 +291,10 @@ public class ValueObjectRepository {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(query, "query");
 		
-		final List<ValueObject> list = session.createQuery(query)
-											  .setCacheable(true)
-											  .setMaxResults(2)
-											  .getResultList();
-		if (list.size() > 1) {
-			throw new NonUniqueResultException();
-		}
-		return list.isEmpty() ? null : list.get(0);
+		return session.createQuery(query)
+					  .setCacheable(true)
+					  .setMaxResults(2)
+					  .uniqueResult();
 	}
 	
 	void reload(ValueObject object) {
@@ -551,23 +539,21 @@ public class ValueObjectRepository {
 	private static Set<NestedEntity> getNestedEntities(Filter filter) {
 		Assert.notNull(filter, C.FILTER);
 		
-		final Set<NestedEntity> nesteds = new HashSet<>();
 		if (filter.hasCriteria()) {
-			for (FilterCriterion criterion : filter.getCriteria()) {
-				if (criterion.getEntityField() != null && 
-					!criterion.getEntityField().getEntity().equals(filter.getEntity())) {
-					nesteds.add(filter.getEntity().getNestedByEntityId(criterion.getEntityField().getEntity().getId()));
-				}
-			}
+			return filter.getCriteria().stream()
+						 .filter(criterion -> criterion.getEntityField() != null && 
+								 !criterion.getEntityField().getEntity().equals(filter.getEntity()))
+						 .map(criterion -> filter.getEntity().getNestedByEntityId(criterion.getEntityField().getEntity().getId()))
+						 .collect(Collectors.toSet());
 		}
-		return nesteds;
+		return Collections.emptySet();
 	}
 	
 	private static <T> void applySorting(CriteriaBuilder builder, CriteriaQuery<T> query, Root<ValueObject> root, Sort ...sorts) {
 		if (sorts.length == 1) {
 			query.orderBy(createOrder(builder, root, sorts[0]));
 		}
-		else {
+		else if (sorts.length > 1) {
 			int idx = 0;
 			final Order[] orders = new Order[sorts.length];
 			for (Sort sort : sorts) {
@@ -839,21 +825,19 @@ public class ValueObjectRepository {
 			for (NestedEntity nested : entity.getNesteds()) {
 				final EntityField nestedAutonumField = nested.getNestedEntity().findAutonumField();
 				if (nestedAutonumField != null && objectAccess.hasNestedObjects(object, nested)) {
-					objectAccess.getNestedObjects(object, nested)
-								.stream().filter(ValueObject::isNew)
-								.forEach(obj -> objectAccess.setValue(obj, nestedAutonumField, 
-													autonumService.getNextValue(nestedAutonumField, session)));
+					filterAndForEach(objectAccess.getNestedObjects(object, nested), 
+									 ValueObject::isNew, 
+									 obj -> objectAccess.setValue(obj, nestedAutonumField, 
+												autonumService.getNextValue(nestedAutonumField, session)));
 				}
 			}
 		}
 	}
 	
 	private static Map<Long, Join<Object, Object>> buildJoinMap(Filter filter, Root<ValueObject> root) {
-		final Map<Long, Join<Object, Object>> joinMap = new HashMap<>();
-		for (NestedEntity nested : getNestedEntities(filter)) {
-			joinMap.put(nested.getNestedEntity().getId(), root.join(nested.getInternalName()));
-		}
-		return joinMap;
+		return convertedMap(getNestedEntities(filter), 
+							nested -> nested.getNestedEntity().getId(), 
+							nested -> root.join(nested.getInternalName()));
 	}
 
 	private static Predicate[] buildCriteria(Filter filter, CriteriaBuilder builder, Root<ValueObject> root, 

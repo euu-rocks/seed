@@ -19,9 +19,9 @@ package org.seed.core.form.layout;
 
 import static org.seed.core.form.layout.LayoutElementAttributes.*;
 import static org.seed.core.form.layout.LayoutUtils.*;
+import static org.seed.core.util.CollectionUtils.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +56,6 @@ import org.seed.core.form.layout.visit.FindElementVisitor;
 import org.seed.core.form.layout.visit.SearchDecoratingVisitor;
 import org.seed.core.form.layout.visit.UndecoratingVisitor;
 import org.seed.core.util.Assert;
-import org.seed.core.util.CollectionUtils;
 import org.seed.core.util.NameUtils;
 
 import org.slf4j.Logger;
@@ -236,21 +235,16 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(form, C.FORM);
 		Assert.notNull(layoutRoot, C.LAYOUTROOT);
 		
-		final List<EntityField> fields = new ArrayList<>();
 		final CollectIdVisitor visitor = new CollectIdVisitor();
 		layoutRoot.accept(visitor);
-		for (EntityField entityField : form.getEntity().getAllFields()) {
-			if (!visitor.containsId(entityField.getUid())) {
-				fields.add(entityField);
-			}
-		}
-		return fields;
+		return subList(form.getEntity().getAllFields(), 
+					   field -> !visitor.containsId(field.getUid()));
 	}
 	
 	@Override
 	public List<EntityField> getAvailableRichTextFields(Form form, LayoutElement layoutRoot) {
-		return CollectionUtils.subList(getAvailableEntityFields(form, layoutRoot), 
-									   field -> field.getType().isTextLong());
+		return subList(getAvailableEntityFields(form, layoutRoot), 
+					   field -> field.getType().isTextLong());
 	}
 	
 	@Override
@@ -258,15 +252,8 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(form, C.FORM);
 		Assert.notNull(layoutRoot, C.LAYOUTROOT);
 		
-		final List<NestedEntity> nesteds = new ArrayList<>();
-		if (form.getEntity().hasNesteds()) {
-			for (NestedEntity nested : form.getEntity().getNesteds()) {
-				if (form.getSubFormByNestedEntityId(nested.getId()) == null) {
-					nesteds.add(nested);
-				}
-			}
-		}
-		return nesteds;
+		return subList(form.getEntity().getNesteds(), 
+					   nested -> form.getSubFormByNestedEntityId(nested.getId()) == null);
 	}
 	
 	@Override
@@ -274,17 +261,10 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(form, C.FORM);
 		Assert.notNull(layoutRoot, C.LAYOUTROOT);
 		
-		final List<EntityRelation> relations = new ArrayList<>();
 		final CollectIdVisitor visitor = new CollectIdVisitor();
 		layoutRoot.accept(visitor);
-		if (form.getEntity().hasAllRelations()) {
-			for (EntityRelation relation : form.getEntity().getAllRelations()) {
-				if (!visitor.containsId(LayoutElementAttributes.PRE_RELATION + relation.getUid())) {
-					relations.add(relation);
-				}
-			}
-		}
-		return relations;
+		return subList(form.getEntity().getAllRelations(), 
+					   relation -> !visitor.containsId(LayoutElementAttributes.PRE_RELATION + relation.getUid()));
 	}
 	
 	@Override
@@ -933,9 +913,9 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	}
 	
 	private static String listPropertyName(FormField field) {
-		return "obj." + (field.isSystem() 
-							? field.getSystemField().property 
-							: field.getEntityField().getInternalName());
+		return "obj.".concat(field.isSystem() 
+								? field.getSystemField().property 
+								: field.getEntityField().getInternalName());
 	}
 	
 }

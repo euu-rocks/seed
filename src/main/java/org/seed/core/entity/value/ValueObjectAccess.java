@@ -17,6 +17,8 @@
  */
 package org.seed.core.entity.value;
 
+import static org.seed.core.util.CollectionUtils.notEmpty;
+
 import java.util.List;
 import java.util.Set;
 
@@ -32,7 +34,6 @@ import org.seed.core.util.ObjectAccess;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 @Component
@@ -73,7 +74,7 @@ public class ValueObjectAccess extends ObjectAccess {
 	}
 	
 	public boolean hasNestedObjects(ValueObject object, NestedEntity nested) {
-		return !ObjectUtils.isEmpty(getNestedObjects(object, nested));
+		return notEmpty(getNestedObjects(object, nested));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -104,7 +105,7 @@ public class ValueObjectAccess extends ObjectAccess {
 	}
 	
 	public boolean hasRelatedObjects(ValueObject object, EntityRelation relation) {
-		return !ObjectUtils.isEmpty(getRelatedObjects(object, relation));
+		return notEmpty(getRelatedObjects(object, relation));
 	}
 	
 	@SuppressWarnings("unchecked")

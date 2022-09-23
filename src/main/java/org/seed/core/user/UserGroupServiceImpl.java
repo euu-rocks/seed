@@ -146,13 +146,9 @@ public class UserGroupServiceImpl extends AbstractApplicationEntityService<UserG
 	
 	@Override
 	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
-		if (currentVersionModule.getUserGroups() != null) {
-			for (UserGroup currentVersionGroup : currentVersionModule.getUserGroups()) {
-				if (analysis.getModule().getUserGroupByUid(currentVersionGroup.getUid()) == null) {
-					analysis.addChangeDelete(currentVersionGroup);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getUserGroups(), 
+						 group -> analysis.getModule().getUserGroupByUid(group.getUid()) == null, 
+						 analysis::addChangeDelete);
 	}
 	
 	@SuppressWarnings("unchecked")

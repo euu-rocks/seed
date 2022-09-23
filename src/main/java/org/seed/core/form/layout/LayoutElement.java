@@ -17,6 +17,8 @@
  */
 package org.seed.core.form.layout;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -227,7 +229,7 @@ public final class LayoutElement {
 	}
 	
 	public boolean hasAttributes() {
-		return !ObjectUtils.isEmpty(attributes);
+		return notEmpty(attributes);
 	}
 	
 	public boolean hasAttribute(String name) {
@@ -268,7 +270,7 @@ public final class LayoutElement {
 	}
 	
 	public boolean hasChildren() {
-		return !ObjectUtils.isEmpty(children);
+		return notEmpty(children);
 	}
 	
 	public boolean existChild(String elementName) {
@@ -285,12 +287,7 @@ public final class LayoutElement {
 		Assert.notNull(elementName, "elementName");
 		checkChildren();
 		
-		for (LayoutElement child : children) {
-			if (child.is(elementName)) {
-				return child;
-			}
-		}
-		return null;
+		return firstMatch(children, child -> child.is(elementName));
 	}
 	
 	public LayoutElement getChildAt(int index) {
@@ -351,14 +348,10 @@ public final class LayoutElement {
 	public void removeChildren(String name) {
 		Assert.notNull(name, C.NAME);
 		
-		if (children != null) {
-			for (LayoutElement child : children) {
-				if (child.is(name)) {
-					children.remove(child);
-					child.removeParent();
-				}
-			}
-		}
+		filterAndForEach(children, child -> child.is(name), child -> {
+			children.remove(child);
+			child.removeParent();
+		});
 	}
 	
 	public void removeFromParent() {
@@ -404,9 +397,7 @@ public final class LayoutElement {
 		
 		visitor.visit(this);
 		if (hasChildren()) {
-			for (LayoutElement child : getChildren()) {
-				child.accept(visitor);
-			}
+			getChildren().forEach(child -> child.accept(visitor));
 		}
 	}
 	

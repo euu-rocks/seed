@@ -219,13 +219,9 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	@Override
 	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, 
 												Module currentVersionModule) {
-		if (currentVersionModule.getFilters() != null) {
-			for (Filter currentVersionFilter : currentVersionModule.getFilters()) {
-				if (analysis.getModule().getFilterByUid(currentVersionFilter.getUid()) == null) {
-					analysis.addChangeDelete(currentVersionFilter);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getFilters(), 
+						 filter -> analysis.getModule().getFilterByUid(filter.getUid()) == null, 
+						 analysis::addChangeDelete);
 	}
 	
 	@Override
@@ -265,13 +261,9 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
-		if (currentVersionModule.getFilters() != null) {
-			for (Filter currentVersionFilter : currentVersionModule.getFilters()) {
-				if (module.getFilterByUid(currentVersionFilter.getUid()) == null) {
-					session.delete(currentVersionFilter);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getFilters(), 
+						 filter -> module.getFilterByUid(filter.getUid()) == null, 
+						 session::delete);
 	}
 	
 	@Override

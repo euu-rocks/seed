@@ -127,12 +127,9 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		// list form fields
 		formMeta.setFields(createFormFields(form));
 		// actions
-		for (FormActionType actionType : FormActionType.values()) {
-			if (!actionType.isDefault && 
-				actionType.isDefaultSelected) {
-				form.addAction(createAction(form, actionType));
-			}
-		}
+		filterAndForEach(FormActionType.values(), 
+						 actionType -> !actionType.isDefault && actionType.isDefaultSelected, 
+						 actionType -> form.addAction(createAction(form, actionType)));
 	}
 	
 	@Override
@@ -151,16 +148,14 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		final SubForm subForm = new SubForm();
 		subForm.setNestedEntity(nested);
 		form.addSubForm(subForm);
-		for (EntityField entityField : nested.getFields(true)) {
-			subForm.addField(createSubFormField(subForm, entityField));
-		}
-		for (FormActionType actionType : FormActionType.values()) {
-			if (!actionType.isDefault &&
-				actionType.isDefaultSelected && 
-				actionType.isVisibleAtSubform) {
-					subForm.addAction(createAction(subForm, actionType));
-			}
-		}
+		// sub form fields
+		nested.getFields(true).forEach(entityField -> 
+				subForm.addField(createSubFormField(subForm, entityField)));
+		// actions
+		filterAndForEach(FormActionType.values(), 
+						 actionType -> !actionType.isDefault && actionType.isDefaultSelected && 
+						 			   actionType.isVisibleAtSubform, 
+						 actionType -> subForm.addAction(createAction(subForm, actionType)));
 		return subForm;
 	}
 	
@@ -213,23 +208,15 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		Assert.notNull(entityField, C.ENTITYFIELD);
 		
 		final List<Form> result = new ArrayList<>();
-		for (Form form : getObjects()) {
-			if (form.isAutoLayout()) {
-				continue;
-			}
+		for (Form form : subList(getObjects(), form -> !form.isAutoLayout())) {
 			if (form.containsEntityField(entityField) || 
 				(form.getLayout() != null && 
 				getLayoutService().containsField(form.getLayout(), entityField))) {
 				result.add(form);
 			}
 			// check subforms
-			else if (form.hasSubForms()) {
-				for (SubForm subForm : form.getSubForms()) {
-					if (subForm.containsEntityField(entityField)) {
-						result.add(form);
-						break; // skip other subforms
-					}
-				}
+			else if (anyMatch(form.getSubForms(), subForm -> subForm.containsEntityField(entityField))) {
+				result.add(form);
 			}
 		}
 		return result;
@@ -333,25 +320,9 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	public List<FormTransformer> getAvailableTransformers(Form form) {
 		Assert.notNull(form, C.FORM);
 		
-		final List<FormTransformer> result = new ArrayList<>();
-		for (Transformer transformer : transformerService.findTransformers(form.getEntity())) {
-			boolean found = false;
-			if (form.hasTransformers()) {
-				for (FormTransformer formTransformer : form.getTransformers()) {
-					if (transformer.equals(formTransformer.getTransformer())) {
-						found = true;
-						break;
-					}
-				}
-			}
-			if (!found) {
-				final FormTransformer formTransformer = new FormTransformer();
-				formTransformer.setForm(form);
-				formTransformer.setTransformer(transformer);
-				result.add(formTransformer);
-			}
-		}
-		return result;
+		return filterAndConvert(transformerService.findTransformers(form.getEntity()), 
+								trans -> noneMatch(form.getTransformers(), formTrans -> trans.equals(formTrans.getTransformer())), 
+								trans -> createTransformer(form, trans));
 	}
 	
 	@Override
@@ -397,13 +368,9 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	
 	@Override
 	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
-		if (currentVersionModule.getForms() != null) {
-			for (Form currentVersionForm : currentVersionModule.getForms()) {
-				if (analysis.getModule().getFormByUid(currentVersionForm.getUid()) == null) {
-					analysis.addChangeDelete(currentVersionForm);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getForms(), 
+						 form -> analysis.getModule().getFormByUid(form.getUid()) == null, 
+						 analysis::addChangeDelete);
 	}
 	
 	@Override
@@ -451,13 +418,9 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
-		if (currentVersionModule.getForms() != null) {
-			for (Form currentVersionForm : currentVersionModule.getForms()) {
-				if (module.getFormByUid(currentVersionForm.getUid()) == null) {
-					session.delete(currentVersionForm);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getForms(), 
+						 form -> module.getFormByUid(form.getUid()) == null, 
+						 session::delete);
 	}
 	
 	@Override
@@ -743,41 +706,29 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	private void initReferenceFieldExtras(Form form, Session session) {
-		for (FormFieldExtra fieldExtra : form.getFieldExtras()) {
-			if (fieldExtra.getDetailFormUid() != null) {
-				fieldExtra.setDetailForm(findByUid(session, fieldExtra.getDetailFormUid()));
-			}
-		}
+		filterAndForEach(form.getFieldExtras(), 
+						 extra -> extra.getDetailFormUid() != null, 
+						 extra -> extra.setDetailForm(findByUid(session, extra.getDetailFormUid())));
 	}
 	
 	private void initReferenceActions(Form form, Session session) {
-		for (FormAction action : form.getActions()) {
-			if (action.getTargetFormUid() != null) {
-				action.setTargetForm(findByUid(session, action.getTargetFormUid()));
-			}
-		}
+		filterAndForEach(form.getActions(), 
+						 action -> action.getTargetFormUid() != null, 
+						 action -> action.setTargetForm(findByUid(session, action.getTargetFormUid())));
 	}
 	
 	private void initReferenceTransformers(Form form, Session session) {
-		for (FormTransformer transformer : form.getTransformers()) {
-			if (transformer.getTargetFormUid() != null) {
-				transformer.setTargetForm(findByUid(session, transformer.getTargetFormUid()));
-			}
-		}
+		filterAndForEach(form.getTransformers(), 
+						 trans -> trans.getTargetFormUid() != null, 
+						 trans -> trans.setTargetForm(findByUid(session, trans.getTargetFormUid())));
 	}
 	
 	private void initSubFormReferences(Form form, Session session) {
-		if (form.hasSubForms()) {
-			for (SubForm subForm : form.getSubForms()) {
-				if (subForm.hasFields()) {
-					for (SubFormField subFormField : subForm.getFields()) {
-						if (subFormField.getDetailFormUid() != null) {
-							subFormField.setDetailForm(findByUid(session, subFormField.getDetailFormUid()));
-						}
-					}
-				}
-			}
-		}
+		filterAndForEach(form.getSubForms(), 
+						 sub -> sub.hasFields(), 
+						 sub -> filterAndForEach(sub.getFields(), 
+								 				 field -> field.getDetailFormUid() != null, 
+								 				 field -> field.setDetailForm(findByUid(session, field.getDetailFormUid()))));
 	}
 	
 	private void initFields(Form form, Form currentVersionForm) {
@@ -972,16 +923,11 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	private void cleanupSubForms(Form form) {
-		for (SubForm subForm : form.getSubForms()) {
-			if (subForm.hasActions()) {
-				for (SubFormAction action : subForm.getActions()) {
-					if (action.getEntityFunction() != null &&
-						!action.isCustom()) {
-						action.setEntityFunction(null);
-					}
-				}
-			}
-		}
+		filterAndForEach(form.getSubForms(), 
+						 SubForm::hasActions, 
+						 sub -> filterAndForEach(sub.getActions(), 
+								 				 action -> action.getEntityFunction() != null && !action.isCustom(), 
+								 				 action -> action.setEntityFunction(null)));
 	}
 	
 	private static List<FormField> createFormFields(Form form) {
@@ -1044,6 +990,13 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		formField.setForm(form);
 		formField.setSystemField(systemField);
 		return formField;
+	}
+	
+	private static FormTransformer createTransformer(Form form, Transformer transformer) {
+		final FormTransformer formTransformer = new FormTransformer();
+		formTransformer.setForm(form);
+		formTransformer.setTransformer(transformer);
+		return formTransformer;
 	}
 	
 	private static SubFormField createSubFormField(SubForm subForm, EntityField entityField) {

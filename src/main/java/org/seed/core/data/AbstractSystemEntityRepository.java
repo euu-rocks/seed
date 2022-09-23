@@ -19,7 +19,6 @@ package org.seed.core.data;
 
 import java.util.List;
 
-import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -132,16 +131,9 @@ public abstract class AbstractSystemEntityRepository<T extends SystemEntity>
 	public T findUnique(Session session, QueryParameter ...params) {
 		Assert.notNull(session, C.SESSION);
 		
-		final List<T> list = createQuery(session, params)
-								.setMaxResults(2)
-								.getResultList();
-		if (list != null) {
-			if (list.size() > 1) {
-				throw new NonUniqueResultException();
-			}
-			return list.isEmpty() ? null : list.get(0);
-		}
-		return null;
+		return (T) ((org.hibernate.query.Query<T>) createQuery(session, params))
+													.setMaxResults(2)
+													.uniqueResult();
 	}
 	
 	@Override

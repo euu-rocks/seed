@@ -206,13 +206,9 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 	
 	@Override
 	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
-		if (currentVersionModule.getMenus() != null) {
-			for (Menu currentVersionMenu : currentVersionModule.getMenus()) {
-				if (analysis.getModule().getMenuByUid(currentVersionMenu.getUid()) == null) {
-					analysis.addChangeDelete(currentVersionMenu);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getMenus(), 
+						 menu -> analysis.getModule().getMenuByUid(menu.getUid()) == null, 
+						 analysis::addChangeDelete);
 	}
 	
 	@Override

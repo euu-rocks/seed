@@ -17,7 +17,8 @@
  */
 package org.seed.core.data.datasource;
 
-import java.util.ArrayList;
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -88,18 +89,9 @@ public class DataSourceServiceImpl extends AbstractApplicationEntityService<IDat
 	public List<IDataSource> findUsage(Entity entity) {
 		Assert.notNull(entity, C.ENTITY);
 		
-		final List<IDataSource> result = new ArrayList<>();
-		for (IDataSource dataSource : repository.find()) {
-			if (dataSource.hasParameters()) {
-				for (DataSourceParameter parameter : dataSource.getParameters()) {
-					if (entity.equals(parameter.getReferenceEntity())) {
-						result.add(dataSource);
-						break;
-					}
-				}
-			}
-		}
-		return result;
+		return subList(repository.find(), 
+					   dataSource -> anyMatch(dataSource.getParameters(), 
+							   				  param -> entity.equals(param.getReferenceEntity())));
 	}
 
 	@Override
@@ -167,13 +159,9 @@ public class DataSourceServiceImpl extends AbstractApplicationEntityService<IDat
 	
 	@Override
 	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
-		if (currentVersionModule.getDataSources() != null) {
-			for (IDataSource currentVersionDataSource : currentVersionModule.getDataSources()) {
-				if (analysis.getModule().getDataSourceByUid(currentVersionDataSource.getUid()) == null) {
-					analysis.addChangeDelete(currentVersionDataSource);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getDataSources(), 
+						 dataSource -> analysis.getModule().getDataSourceByUid(dataSource.getUid()) == null, 
+						 analysis::addChangeDelete);
 	}
 	
 	@Override
@@ -244,13 +232,9 @@ public class DataSourceServiceImpl extends AbstractApplicationEntityService<IDat
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
-		if (currentVersionModule.getDataSources() != null) {
-			for (IDataSource currentVersionDataSource : currentVersionModule.getDataSources()) {
-				if (module.getDataSourceByUid(currentVersionDataSource.getUid()) == null) {
-					session.delete(currentVersionDataSource);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getDataSources(), 
+						 dataSource -> module.getDataSourceByUid(dataSource.getUid()) == null, 
+						 session::delete);
 	}
 	
 	@Override
@@ -279,14 +263,9 @@ public class DataSourceServiceImpl extends AbstractApplicationEntityService<IDat
 	}
 	
 	private void cleanup(IDataSource dataSource) {
-		if (dataSource.hasParameters()) {
-			for (DataSourceParameter parameter : dataSource.getParameters()) {
-				// only reference parameters can have reference entity
-				if (!parameter.getType().isReference()) {
-					parameter.setReferenceEntity(null);
-				}
-			}
-		}
+		filterAndForEach(dataSource.getParameters(), 
+						 param -> !param.getType().isReference(), 
+						 param -> param.setReferenceEntity(null));
 	}
-
+	
 }
