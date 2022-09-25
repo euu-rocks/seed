@@ -17,6 +17,8 @@
  */
 package org.seed.core.entity.codegen;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -53,7 +55,6 @@ import org.seed.core.codegen.TypeClass;
 import org.seed.core.data.SystemField;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
-import org.seed.core.entity.EntityFunction;
 import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.NestedEntity;
@@ -156,9 +157,8 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 		
 		// member functions
 		if (entity.hasFunctions()) {
-			for (EntityFunction function : entity.getMemberFunctions()) {
-				addFunction(function.getContent(), newAnnotation(JsonIgnore.class));
-			}
+			entity.getMemberFunctions().forEach(function -> 
+					addFunction(function.getContent(), newAnnotation(JsonIgnore.class)));
 		}
 		
 		return super.build(true);
@@ -286,9 +286,8 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	}
 	
 	private void buildRelationGetterAndSetter() {
-		for (EntityRelation relation : entity.getAllRelations()) {
-			addGetterAndSetter(relation.getInternalName());
-		}
+		entity.getAllRelations().forEach(relation -> 
+				addGetterAndSetter(relation.getInternalName()));
 	}
 	
 	private void buildNesteds() {
@@ -330,11 +329,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	}
 	
 	private void buildNestedMethods() {
-		for (NestedEntity nested : entity.getNesteds()) {
-			if (nested.isReadonly()) {
-				continue;
-			}
-			
+		for (NestedEntity nested : subList(entity.getNesteds(), nested -> !nested.isReadonly())) {
 			addImport(ArrayList.class);
 			final String nestedName = nested.getInternalName();
 			final ParameterMetadata[] parameters = new ParameterMetadata[] { 

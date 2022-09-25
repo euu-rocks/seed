@@ -19,7 +19,6 @@ package org.seed.ui.zk.vm.admin;
 
 import static org.seed.core.util.CollectionUtils.*;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -90,7 +89,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	private static final String PERMISSIONS = "permissions";
 	private static final String AUDITED = "audited";
 	
-	private final List<Long> mandatoryFieldIds = new ArrayList<>();
+	private List<Long> mandatoryFieldIds;
 	
 	@Wire("#newEntityWin")
 	private Window window;
@@ -165,11 +164,9 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 		}
 		originalName = entity.getInternalName();
 		if (!entity.isNew() && entity.hasFields()) {
-			for (EntityField entityField : entity.getFields()) {
-				if (entityField.isMandatory()) {
-					mandatoryFieldIds.add(entityField.getId());
-				}
-			}
+			mandatoryFieldIds = filterAndConvert(entity.getFields(), 
+					 							 EntityField::isMandatory, 
+					 							 field -> field.getId());
 		}
 	}
 	
@@ -179,11 +176,10 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 		filterGenericName.setValueFunction(o -> o.getGenericEntity() != null 
 												? o.getGenericEntity().getName() 
 												: null);
-		for (Entity entity : getObjectList()) {
-			if (entity.getGenericEntity() != null) {
-				filterGenericName.addValue(entity.getGenericEntity().getName());
-			}
-		}
+		filterAndForEach(getObjectList(), 
+						 entity -> entity.getGenericEntity() != null, 
+						 entity -> filterGenericName.addValue(entity.getGenericEntity().getName()));
+
 		getFilter(FILTERGROUP_LIST, C.GENERIC).setBooleanFilter(true);
 		getFilter(FILTERGROUP_LIST, C.TRANSFERABLE).setBooleanFilter(true);
 		getFilter(FILTERGROUP_LIST, AUDITED).setBooleanFilter(true);
@@ -230,7 +226,8 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	public boolean isAlreadyMandatory(EntityField field) {
-		return field != null && mandatoryFieldIds.contains(field.getId());
+		return field != null && mandatoryFieldIds != null && 
+			   mandatoryFieldIds.contains(field.getId());
 	}
 	
 	public String getMaxFieldLength() {

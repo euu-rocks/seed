@@ -17,13 +17,14 @@
  */
 package org.seed.core.form.layout;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.seed.C;
 import org.seed.core.data.AbstractSystemObject;
 import org.seed.core.entity.EntityField;
-import org.seed.core.entity.NestedEntity;
 import org.seed.core.entity.filter.Filter;
 import org.seed.core.entity.transform.Transformer;
 import org.seed.core.form.Form;
@@ -37,7 +38,7 @@ public class SubFormProperties {
 	
 	public final SubForm subForm;
 	
-	private final List<SubFormColumn> columns = new ArrayList<>();
+	private final List<SubFormColumn> columns;
 	
 	private final List<SubFormAction> actions = new ArrayList<>();
 	
@@ -45,11 +46,7 @@ public class SubFormProperties {
 		Assert.notNull(subForm, C.SUBFORM);
 		
 		this.subForm = subForm;
-		if (subForm.hasFields()) {
-			for (SubFormField field : subForm.getFields()) {
-				columns.add(new SubFormColumn(field));
-			}
-		}
+		columns = convertedList(subForm.getFields(), SubFormColumn::new);
 		if (subForm.hasActions()) {
 			actions.addAll(subForm.getActions());
 		}
@@ -84,33 +81,17 @@ public class SubFormProperties {
 	}
 	
 	public List<SubFormColumn> getAvailableColumns() {
-		final List<SubFormColumn> result = new ArrayList<>();
-		final NestedEntity nested = subForm.getNestedEntity();
-		for (EntityField entityField : nested.getFields(true)) {
-			if (!existColumn(entityField)) {
-				
-				final SubFormField field = new SubFormField();
-				field.setSubForm(subForm);
-				field.setEntityField(entityField);
-				result.add(new SubFormColumn(field));
-			}
-		}
-		return result;
+		return filterAndConvert(subForm.getNestedEntity().getFields(true), 
+								field -> !existColumn(field), 
+								this::createSubFormColumn);
 	}
 	
 	public List<SubFormAction> getAvailableActions() {
-		final List<SubFormAction> result = new ArrayList<>();
-		for (FormActionType actionType : FormActionType.values()) {
-			if (actionType.isVisibleAtSubform && actionType != FormActionType.CUSTOM &&
-				subForm.getActionByType(actions, actionType) == null) {
-				
-				final SubFormAction action = new SubFormAction();
-				action.setSubForm(subForm);
-				action.setType(actionType);
-				result.add(action);
-			}
-		}
-		return result;
+		return filterAndConvert(FormActionType.values(), 
+								actionType -> actionType.isVisibleAtSubform && 
+											  actionType != FormActionType.CUSTOM &&
+											  subForm.getActionByType(actions, actionType) == null, 
+								this::createSubFormAction);
 	}
 	
 	public SubFormAction createCustomAction() {
@@ -121,13 +102,22 @@ public class SubFormProperties {
 		return action;
 	}
 	
+	private SubFormAction createSubFormAction(FormActionType actionType) {
+		final SubFormAction action = new SubFormAction();
+		action.setSubForm(subForm);
+		action.setType(actionType);
+		return action;
+	}
+
+	private SubFormColumn createSubFormColumn(EntityField entityField) {
+		final SubFormField field = new SubFormField();
+		field.setSubForm(subForm);
+		field.setEntityField(entityField);
+		return new SubFormColumn(field);
+	}
+	
 	private boolean existColumn(EntityField entityField) {
-		for (SubFormColumn column : columns) {
-			if (column.subFormField.getEntityField().equals(entityField)) {
-				return true;
-			}
-		}
-		return false;
+		return anyMatch(columns, column -> column.subFormField.getEntityField().equals(entityField));
 	}
 	
 	public static class SubFormColumn extends AbstractSystemObject {

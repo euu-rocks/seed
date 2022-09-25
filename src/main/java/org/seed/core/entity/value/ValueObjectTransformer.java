@@ -17,6 +17,8 @@
  */
 package org.seed.core.entity.value;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.List;
 
 import org.hibernate.Session;
@@ -119,12 +121,10 @@ public class ValueObjectTransformer {
 				functionContext.setEventType(beforeTransformation 
 												? CallbackEventType.BEFORETRANSFORMATION 
 												: CallbackEventType.AFTERTRANSFORMATION);
-				for (TransformerFunction function : transformer.getFunctions()) {
-					if ((beforeTransformation && function.isActiveBeforeTransformation()) || 
-						(!beforeTransformation && function.isActiveAfterTransformation())) {
-						callFunction(function, sourceObject, targetObject, functionContext);
-					}
-				}
+				filterAndForEach(transformer.getFunctions(), 
+								 function -> (beforeTransformation && function.isActiveBeforeTransformation()) || 
+								 			 (!beforeTransformation && function.isActiveAfterTransformation()), 
+								 function -> callFunction(function, sourceObject, targetObject, functionContext));
 			}
 		}
 	}

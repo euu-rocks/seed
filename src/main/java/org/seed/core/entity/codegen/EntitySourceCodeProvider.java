@@ -17,10 +17,12 @@
  */
 package org.seed.core.entity.codegen;
 
-import java.util.ArrayList;
+import static org.seed.core.util.CollectionUtils.convertedList;
+
 import java.util.List;
 
 import org.hibernate.Session;
+
 import org.seed.C;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.codegen.SourceCodeBuilder;
@@ -40,13 +42,9 @@ public class EntitySourceCodeProvider implements SourceCodeProvider {
 	
 	@Override
 	public List<SourceCodeBuilder> getSourceCodeBuilders() {
-		final List<SourceCodeBuilder> result = new ArrayList<>();
 		try (Session session = entityRepository.getSession()) {
-			for (Entity entity : entityRepository.find(session)) {
-				result.add(new EntitySourceCodeBuilder(entity));
-			}
+			return convertedList(entityRepository.find(session), EntitySourceCodeBuilder::new);
 		}
-		return result;
 	}
 	
 	public SourceCode getEntitySource(Entity entity) {

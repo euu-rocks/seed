@@ -17,7 +17,8 @@
  */
 package org.seed.core.customcode.codegen;
 
-import java.util.ArrayList;
+import static org.seed.core.util.CollectionUtils.convertedList;
+
 import java.util.List;
 
 import org.seed.core.codegen.SourceCode;
@@ -41,11 +42,7 @@ public class CustomCodeProvider implements SourceCodeProvider {
 	
 	@Override
 	public List<SourceCodeBuilder> getSourceCodeBuilders() {
-		final List<SourceCodeBuilder> result = new ArrayList<>();
-		for (CustomCode customCode : customCodeService.getObjects()) {
-			result.add(new CustomCodeBuilder(customCode));
-		}
-		return result;
+		return convertedList(customCodeService.getObjects(), CustomCodeBuilder::new);
 	}
 
 }

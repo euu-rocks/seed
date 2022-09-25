@@ -18,6 +18,7 @@
 package org.seed.core.form.layout;
 
 import static org.seed.core.form.layout.LayoutElementAttributes.*;
+import static org.seed.core.util.CollectionUtils.subList;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -225,10 +226,7 @@ class AutolayoutBuilder extends LayoutUtils {
 		final LayoutElement elemColumns = createColumns(2);
 		elemColumns.getChildAt(0).setAttribute(A_HFLEX, V_MIN);
 		elemGrid.setClass(LayoutElementClass.NO_BORDER).addChild(elemColumns);
-		for (EntityField entityField : fields) {
-			if (entityField.getType().isBinary()) {
-				continue;
-			}
+		for (EntityField entityField : subList(fields, field -> !field.getType().isBinary())) {
 			final LayoutElement elemRow = elemRows.addChild(new LayoutElement(LayoutElement.ROW));
 			final String testClass = NameUtils.getInternalName(entityField.getName().trim())
 												.replace('_', '-').toLowerCase();

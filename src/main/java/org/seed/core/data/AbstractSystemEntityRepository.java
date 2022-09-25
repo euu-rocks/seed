@@ -131,9 +131,9 @@ public abstract class AbstractSystemEntityRepository<T extends SystemEntity>
 	public T findUnique(Session session, QueryParameter ...params) {
 		Assert.notNull(session, C.SESSION);
 		
-		return (T) ((org.hibernate.query.Query<T>) createQuery(session, params))
-													.setMaxResults(2)
-													.uniqueResult();
+		return ((org.hibernate.query.Query<T>) createQuery(session, params))
+												.setMaxResults(2)
+												.uniqueResult();
 	}
 	
 	@Override

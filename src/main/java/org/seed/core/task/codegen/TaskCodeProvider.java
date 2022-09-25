@@ -17,7 +17,8 @@
  */
 package org.seed.core.task.codegen;
 
-import java.util.ArrayList;
+import static org.seed.core.util.CollectionUtils.convertedList;
+
 import java.util.List;
 
 import org.seed.core.codegen.SourceCode;
@@ -46,11 +47,7 @@ public class TaskCodeProvider implements SourceCodeProvider {
 	
 	@Override
 	public List<SourceCodeBuilder> getSourceCodeBuilders() {
-		final List<SourceCodeBuilder> result = new ArrayList<>();
-		for (Task task : taskRepository.find()) {
-			result.add(new TaskCodeBuilder(task));
-		}
-		return result;
+		return convertedList(taskRepository.find(), TaskCodeBuilder::new);
 	}
 	
 }

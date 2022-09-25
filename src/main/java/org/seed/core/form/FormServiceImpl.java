@@ -207,19 +207,10 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	public List<Form> findUsage(EntityField entityField) {
 		Assert.notNull(entityField, C.ENTITYFIELD);
 		
-		final List<Form> result = new ArrayList<>();
-		for (Form form : subList(getObjects(), form -> !form.isAutoLayout())) {
-			if (form.containsEntityField(entityField) || 
-				(form.getLayout() != null && 
-				getLayoutService().containsField(form.getLayout(), entityField))) {
-				result.add(form);
-			}
-			// check subforms
-			else if (anyMatch(form.getSubForms(), subForm -> subForm.containsEntityField(entityField))) {
-				result.add(form);
-			}
-		}
-		return result;
+		return subList(getObjects(), form -> !form.isAutoLayout() && 
+						(form.containsEntityField(entityField) || 
+						(form.getLayout() != null && getLayoutService().containsField(form.getLayout(), entityField)) ||
+						anyMatch(form.getSubForms(), subForm -> subForm.containsEntityField(entityField))));
 	}
 	
 	@Override
@@ -725,7 +716,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	
 	private void initSubFormReferences(Form form, Session session) {
 		filterAndForEach(form.getSubForms(), 
-						 sub -> sub.hasFields(), 
+						 SubForm::hasFields, 
 						 sub -> filterAndForEach(sub.getFields(), 
 								 				 field -> field.getDetailFormUid() != null, 
 								 				 field -> field.setDetailForm(findByUid(session, field.getDetailFormUid()))));

@@ -17,7 +17,8 @@
  */
 package org.seed.ui.zk.vm;
 
-import java.util.ArrayList;
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -142,14 +143,8 @@ public class SearchFormViewModel extends AbstractFormViewModel {
 	
 	@Override
 	public List<SubFormAction> getSubFormActions(String nestedEntityUid) {
-		final List<SubFormAction> actions = new ArrayList<>();
-		// filter custom actions
-		for (SubFormAction action : super.getSubFormActions(nestedEntityUid)) {
-			if (!action.isCustom()) {
-				actions.add(action);
-			}
-		}
-		return actions;
+		return subList(super.getSubFormActions(nestedEntityUid), 
+					   action -> !action.isCustom());
 	}
 	
 	@Command
