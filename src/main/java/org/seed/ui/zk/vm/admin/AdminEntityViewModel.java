@@ -166,7 +166,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 		if (!entity.isNew() && entity.hasFields()) {
 			mandatoryFieldIds = filterAndConvert(entity.getFields(), 
 					 							 EntityField::isMandatory, 
-					 							 field -> field.getId());
+					 							 EntityField::getId);
 		}
 	}
 	
