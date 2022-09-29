@@ -511,7 +511,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 	}
 	
 	private static String objectProperty(String propertyName) {
-		return "vm.object." + propertyName;
+		return "vm.object.".concat(propertyName);
 	}
 	
 	private static String identifier(String name) {
@@ -519,7 +519,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 	}
 	
 	private static String not(String expression) {
-		return '!' + expression;
+		return "!".concat(expression);
 	}
 	
 	private static String isReadonly(EntityField entityField) {

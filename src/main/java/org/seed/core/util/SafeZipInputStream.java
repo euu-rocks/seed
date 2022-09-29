@@ -26,17 +26,17 @@ import org.springframework.util.FastByteArrayOutputStream;
 
 public class SafeZipInputStream extends ZipInputStream {
 	
-	private static final int BUFFER_SIZE = 8 * 1024;			// 8 KB
-	
 	private static final int THRESHOLD_ENTRIES = 10000;
 	
 	private static final int THRESHOLD_ENTRY_SIZE = 100000000;  // 100 MB 
 	
 	private static final int THRESHOLD_TOTAL_SIZE = 1000000000; // 1 GB 
 	
+	private static final int BUFFER_SIZE = 8 * 1024;			// 8 KB
+	
 	private static final double THRESHOLD_RATIO = 10;
 	
-	private final byte[] buffer;
+	private final byte[] buffer = new byte[BUFFER_SIZE];
 	
 	private int totalSizeArchive = 0;
 	
@@ -44,7 +44,6 @@ public class SafeZipInputStream extends ZipInputStream {
 
 	public SafeZipInputStream(InputStream inputStream) {
 		super(inputStream);
-		buffer = new byte[BUFFER_SIZE];
 	}
 	
 	public ZipEntry getNextEntrySafe() throws IOException {
@@ -74,6 +73,7 @@ public class SafeZipInputStream extends ZipInputStream {
 			    if (compressionRatio > THRESHOLD_RATIO) {
 			    	throw new IOException("ZipBombAttack: compression ratio is suspicious: " + compressionRatio);
 			    }
+			    
 			}
 			return byteArrayOutputStream.toByteArray();
 		}

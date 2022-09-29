@@ -339,9 +339,7 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 	
 	protected void resetSubForms() {
 		if (getForm().hasSubForms()) {
-			for (SubForm subForm : getForm().getSubForms()) {
-				subForm.clearSelectedObject();
-			}
+			getForm().getSubForms().forEach(SubForm::clearSelectedObject);
 		}
 	}
 	

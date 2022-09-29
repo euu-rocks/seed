@@ -24,21 +24,11 @@ import org.springframework.util.ObjectUtils;
 
 @Entity
 @Table(name = "sys_file")
-public class FileObject extends AbstractSystemObject {
-	
-	private String name;
+public class FileObject extends AbstractSystemEntity {
 	
 	private String contentType;
 	
 	private byte[] content;
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
 
 	public String getContentType() {
 		return contentType;
@@ -62,7 +52,7 @@ public class FileObject extends AbstractSystemObject {
 	
 	public FileObject copy() {
 		final FileObject copy = new FileObject();
-		copy.name = name;
+		copy.setName(getName());
 		copy.contentType = contentType;
 		if (content != null) {
 			copy.content = new byte[content.length];

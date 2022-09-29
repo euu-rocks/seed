@@ -106,6 +106,10 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		return entityRepository;
 	}
 
+	public void setEntityRepository(EntityRepository entityRepository) {
+		this.entityRepository = entityRepository;
+	}
+
 	@Override
 	protected EntityValidator getValidator() {
 		return entityValidator;
@@ -376,7 +380,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(transition, C.TRANSITION);
 		
 		return filterAndConvert(entity.getCallbackFunctions(), 
-								EntityFunction::isActiveOnStatusTransition, 
+								function -> function.isActiveOnStatusTransition() && !transition.containsEntityFunction(function), 
 								function -> createTransitionFunction(transition, function));
 	}
 	

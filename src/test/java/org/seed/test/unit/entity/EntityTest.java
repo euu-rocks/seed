@@ -322,6 +322,16 @@ class EntityTest {
 	}
 	
 	@Test
+	void testGetParentEntity() {
+		final EntityMetadata entity = new EntityMetadata();
+		final Entity parent = new EntityMetadata();
+		assertNull(entity.getParentEntity());
+		
+		entity.setParentEntity(parent);
+		assertSame(parent, entity.getParentEntity());
+	}
+	
+	@Test
 	void testGetPermissionByUid() {
 		final Entity entity = new EntityMetadata();
 		final EntityPermission permission = new EntityPermission();
@@ -399,6 +409,60 @@ class EntityTest {
 		((EntityMetadata) entity).setGenericEntity(genericEntity);
 		assertSame(2, entity.getAllFields().size());
 		assertSame(genericField, entity.getAllFields().get(0));
+	}
+	
+	@Test
+	void testGetAllFieldGroups() {
+		final Entity entity = new EntityMetadata();
+		final Entity genericEntity = new EntityMetadata();
+		final EntityFieldGroup groupEntity = new EntityFieldGroup();
+		final EntityFieldGroup groupGeneric = new EntityFieldGroup();
+		assertTrue(entity.getAllFieldGroups().isEmpty());
+		
+		entity.addFieldGroup(groupEntity);
+		assertSame(1, entity.getAllFieldGroups().size());
+		assertSame(groupEntity, entity.getAllFieldGroups().get(0));
+		
+		genericEntity.addFieldGroup(groupGeneric);
+		((EntityMetadata) entity).setGenericEntity(genericEntity);
+		assertSame(2, entity.getAllFieldGroups().size());
+		assertSame(groupGeneric, entity.getAllFieldGroups().get(0));
+	}
+	
+	@Test
+	void testGetAllFunctions() {
+		final Entity entity = new EntityMetadata();
+		final Entity genericEntity = new EntityMetadata();
+		final EntityFunction functionEntity = new EntityFunction(); 
+		final EntityFunction functionGeneric = new EntityFunction();
+		assertTrue(entity.getAllFunctions().isEmpty());
+		
+		entity.addFunction(functionEntity);
+		assertSame(1, entity.getAllFunctions().size());
+		assertSame(functionEntity, entity.getAllFunctions().get(0));
+		
+		genericEntity.addFunction(functionGeneric);
+		((EntityMetadata) entity).setGenericEntity(genericEntity);
+		assertSame(2, entity.getAllFunctions().size());
+		assertSame(functionGeneric, entity.getAllFunctions().get(0));
+	}
+	
+	@Test
+	void testGetAllRelations() {
+		final Entity entity = new EntityMetadata();
+		final Entity genericEntity = new EntityMetadata();
+		final EntityRelation relationEntity = new EntityRelation();
+		final EntityRelation relationGeneric = new EntityRelation();
+		assertTrue(entity.getAllRelations().isEmpty());
+		
+		entity.addRelation(relationEntity);
+		assertSame(1, entity.getAllRelations().size());
+		assertSame(relationEntity, entity.getAllRelations().get(0));
+		
+		genericEntity.addRelation(relationGeneric);
+		((EntityMetadata) entity).setGenericEntity(genericEntity);
+		assertSame(2, entity.getAllRelations().size());
+		assertSame(relationGeneric, entity.getAllRelations().get(0));
 	}
 	
 	@Test
@@ -945,6 +1009,15 @@ class EntityTest {
 		entity.addStatusTransition(transition1);
 		
 		assertFalse(entity.isUnique(transition2));
+	}
+	
+	@Test
+	void testIsTransferable() {
+		final Entity entity = new EntityMetadata();
+		assertFalse(entity.isTransferable());
+		
+		((EntityMetadata) entity).setTransferable(true);
+		assertTrue(entity.isTransferable());
 	}
 	
 	@Test

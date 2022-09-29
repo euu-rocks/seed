@@ -19,8 +19,7 @@ package org.seed.core.util;
 
 import java.lang.reflect.Method;
 
-import org.seed.InternalException;
-
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 public abstract class ObjectAccess {
@@ -44,17 +43,12 @@ public abstract class ObjectAccess {
 	}
 	
 	protected static Object callMethod(Object object, String methodName, Object ...parameters) {
-		try {
-			for (Method method : object.getClass().getMethods()) {
-				if (method.getName().equals(methodName)) {
-					return method.invoke(object, parameters);
-				}
+		for (Method method : object.getClass().getMethods()) {
+			if (method.getName().equals(methodName)) {
+				return ReflectionUtils.invokeMethod(method, object, parameters);
 			}
-		} 
-		catch (Exception ex) {
-			throw new InternalException(ex);
 		}
-		throw new IllegalStateException("method not found: " + object.getClass().getName() + '.' + methodName);
+        throw new IllegalStateException("method not found: " + object.getClass().getName() + '.' + methodName);
 	}
 	
 }

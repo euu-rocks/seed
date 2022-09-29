@@ -104,7 +104,13 @@ public abstract class CollectionUtils {
 	
 	public static <T> T firstMatch(@Nullable Collection<T> collection, Predicate<T> predicate) {
 		return collection != null 
-				? collection.stream().filter(predicate).findFirst().orElse(null) 
+				? firstMatch(collection.stream(), predicate)
+				: null;
+	}
+	
+	public static <T> T firstMatch(@Nullable T[] array, Predicate<T> predicate) {
+		return array != null 
+				? firstMatch(Arrays.stream(array), predicate)
 				: null;
 	}
 	
@@ -151,6 +157,10 @@ public abstract class CollectionUtils {
 	
 	private static <T> void filterAndForEach(Stream<T> stream, Predicate<T> predicate, Consumer<T> action) {
 		stream.filter(predicate).forEach(action);
+	}
+	
+	private static <T> T firstMatch(Stream<T> stream, Predicate<T> predicate) {
+		return stream.filter(predicate).findFirst().orElse(null);
 	}
 	
 	private static <T> List<T> subList(Stream<T> stream, Predicate<T> predicate) {
