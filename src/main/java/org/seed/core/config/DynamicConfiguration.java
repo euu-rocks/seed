@@ -24,8 +24,8 @@ import javax.persistence.Entity;
 
 import org.seed.C;
 import org.seed.Seed;
-import org.seed.core.data.RevisionField;
 import org.seed.core.data.SystemObjectEventListener;
+import org.seed.core.data.revision.RevisionField;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.entity.value.ValueEntity;
 import org.seed.core.task.job.JobScheduler;

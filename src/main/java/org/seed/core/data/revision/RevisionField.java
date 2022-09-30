@@ -15,17 +15,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.entity.value;
+package org.seed.core.data.revision;
 
-import java.util.List;
+import org.seed.core.data.FieldType;
 
-import org.seed.core.data.revision.Revision;
-import org.seed.core.entity.Entity;
-
-public interface RevisionService {
-
-	List<Revision> getRevisions(Entity entity, Long valueId);
+public enum RevisionField {
 	
-	ValueObject getRevisionObject(Entity entity, Long id, Revision revision);
+	REV		(FieldType.INTEGER, "revision_id"),
+	REVTYPE	(FieldType.INTEGER, "revisiontype");
+	
+	public final FieldType type;
+	
+	public final String columName;
+	
+	private RevisionField(FieldType type, String columName) {
+		this.type = type;
+		this.columName = columName;
+	}
 	
 }

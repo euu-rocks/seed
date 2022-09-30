@@ -20,8 +20,7 @@ package org.seed.ui.zk.component;
 import static org.seed.ui.zk.component.ComponentUtils.*;
 
 import org.seed.Seed;
-import org.seed.core.data.Revision;
-
+import org.seed.core.data.revision.Revision;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Label;
 

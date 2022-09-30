@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.data;
+package org.seed.core.data.revision;
 
 import java.util.Date;
 
@@ -34,7 +34,7 @@ import org.hibernate.envers.RevisionTimestamp;
 
 @Entity
 @Table(name = "sys_revision")
-@org.hibernate.envers.RevisionEntity(Revision.RevisionListener.class)
+@org.hibernate.envers.RevisionEntity(RevisionListener.class)
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class RevisionEntity implements Revision {
 	

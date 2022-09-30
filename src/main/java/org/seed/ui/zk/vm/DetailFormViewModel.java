@@ -27,8 +27,8 @@ import javax.persistence.OptimisticLockException;
 
 import org.seed.C;
 import org.seed.core.data.FileObject;
-import org.seed.core.data.Revision;
 import org.seed.core.data.ValidationException;
+import org.seed.core.data.revision.Revision;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.NestedEntity;

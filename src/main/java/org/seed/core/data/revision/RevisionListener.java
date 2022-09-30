@@ -15,27 +15,15 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.data;
-
-import java.util.Date;
+package org.seed.core.data.revision;
 
 import org.seed.core.util.MiscUtils;
 
-public interface Revision {
-	
-	class RevisionListener implements org.hibernate.envers.RevisionListener {
+final class RevisionListener implements org.hibernate.envers.RevisionListener {
 
-		@Override
-		public void newRevision(Object revisionEntity) {
-			((RevisionEntity) revisionEntity).setAuthor(MiscUtils.geUserName());
-		}
-
+	@Override
+	public void newRevision(Object revisionEntity) {
+		((RevisionEntity) revisionEntity).setAuthor(MiscUtils.geUserName());
 	}
-	
-	int getId();
-	
-	Date getRevisionDate();
-	
-	String getAuthor();
-	
+
 }

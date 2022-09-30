@@ -20,6 +20,7 @@ package org.seed.core.entity.value;
 import static org.seed.core.util.CollectionUtils.convertedList;
 
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Session;
@@ -30,11 +31,12 @@ import org.seed.C;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.config.SessionProvider;
 import org.seed.core.data.FieldType;
-import org.seed.core.data.Revision;
-import org.seed.core.data.RevisionEntity;
 import org.seed.core.data.SystemField;
+import org.seed.core.data.revision.Revision;
+import org.seed.core.data.revision.RevisionEntity;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
+import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.util.Assert;
 
@@ -83,6 +85,9 @@ public class RevisionServiceImpl implements RevisionService {
 			if (entity.hasNesteds()) {
 				loadNesteds(entity, object);
 			}
+			if (entity.hasAllRelations()) {
+				loadRelations(entity, object);
+			}
 			return object;
 		}
 	}
@@ -124,6 +129,20 @@ public class RevisionServiceImpl implements RevisionService {
 				}
 				catch (ObjectNotFoundException onfex) {
 					nestedObjects.clear();
+				}
+			}
+		}
+	}
+	
+	private void loadRelations(Entity entity, ValueObject object) {
+		for (EntityRelation relation : entity.getAllRelations()) {
+			final Set<ValueObject> relatedObjects = valueObjectAccess.getRelatedObjects(object, relation);
+			if (relatedObjects != null) {
+				try {
+					relatedObjects.forEach(ValueObject::toString); // to really load related object
+				}
+				catch (ObjectNotFoundException onfex) {
+					relatedObjects.clear();
 				}
 			}
 		}

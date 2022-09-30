@@ -15,20 +15,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.data;
+package org.seed.core.data.revision;
 
-public enum RevisionField {
+import java.util.Date;
+
+public interface Revision {
 	
-	REV		(FieldType.INTEGER, "revision_id"),
-	REVTYPE	(FieldType.INTEGER, "revisiontype");
+	int getId();
 	
-	public final FieldType type;
+	Date getRevisionDate();
 	
-	public final String columName;
-	
-	private RevisionField(FieldType type, String columName) {
-		this.type = type;
-		this.columName = columName;
-	}
+	String getAuthor();
 	
 }
