@@ -24,7 +24,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class FilterRepository extends AbstractSystemEntityRepository<Filter> {
 	
-	protected FilterRepository() {
+	public FilterRepository() {
 		super(FilterMetadata.class);
 	}
 	

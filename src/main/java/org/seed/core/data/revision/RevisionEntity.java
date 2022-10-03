@@ -34,7 +34,7 @@ import org.hibernate.envers.RevisionTimestamp;
 
 @Entity
 @Table(name = "sys_revision")
-@org.hibernate.envers.RevisionEntity(RevisionListener.class)
+@org.hibernate.envers.RevisionEntity(RevisionHandler.class)
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class RevisionEntity implements Revision {
 	

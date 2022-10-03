@@ -84,6 +84,10 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		return filterRepository;
 	}
 
+	public void setRepository(FilterRepository filterRepository) {
+		this.filterRepository = filterRepository;
+	}
+
 	@Override
 	protected FilterValidator getValidator() {
 		return validator;

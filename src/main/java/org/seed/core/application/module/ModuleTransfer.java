@@ -17,6 +17,8 @@
  */
 package org.seed.core.application.module;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -95,19 +97,12 @@ public class ModuleTransfer {
 	@Autowired
 	private List<ApplicationEntityService<?>> applicationServices;
 	
-	private List<ApplicationEntityService<?>> sortedServices; // sorted by dependencies
-	
 	private File externalModuleDir;	// application.properties module.external.dir
 	
-	private final Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
+	private Jaxb2Marshaller marshaller;
 	
 	@PostConstruct
 	private void init() throws Exception {
-		marshaller.setPackagesToScan("org.seed.core");
-		marshaller.setMarshallerProperties(Collections.singletonMap(Marshaller.JAXB_FORMATTED_OUTPUT, true));
-		marshaller.afterPropertiesSet();
-		sortedServices = sortByDependencies(applicationServices);
-		
 		final String propExternalModuleDir = applicationProperties.getProperty(Seed.PROP_MODULE_EXT_ROOT_DIR);
 		if (propExternalModuleDir == null) {
 			return;
@@ -138,8 +133,8 @@ public class ModuleTransfer {
 			while ((entry = zis.getNextEntrySafe()) != null) {
 				// read module
 				if (MODULE_XML_FILENAME.equals(entry.getName())) {
-					module = (Module) marshaller.unmarshal(
-							new StreamSource(new ByteArrayInputStream(zis.readSafe(entry))));
+					module = (Module) getMarshaller().unmarshal(
+						new StreamSource(new ByteArrayInputStream(zis.readSafe(entry))));
 				}
 				// read jar files
 				else if (isJarFile(entry.getName())) {
@@ -176,7 +171,7 @@ public class ModuleTransfer {
 			try (InputStream fis = new FileInputStream(file)) {
 				// read module
 				if (MODULE_XML_FILENAME.equals(file.getName())) {
-					module = (Module) marshaller.unmarshal(new StreamSource(fis));
+					module = (Module) getMarshaller().unmarshal(new StreamSource(fis));
 				}
 				// read jar files
 				else if (isJarFile(file.getName())) {
@@ -264,7 +259,7 @@ public class ModuleTransfer {
 		}
 		
 		// module objects
-		sortedServices.forEach(service -> service.analyzeObjects(analysis, currentVersionModule));
+		sortByDependencies(applicationServices).forEach(service -> service.analyzeObjects(analysis, currentVersionModule));
 		return analysis;
 	}
 	
@@ -272,7 +267,7 @@ public class ModuleTransfer {
 		Assert.notNull(module, C.MODULE);
 		final Module currentVersionModule = getCurrentVersionModule(module);
 		final TransferContext context = new DefaultTransferContext(module);
-		
+		final List<ApplicationEntityService<?>> sortedServices = sortByDependencies(applicationServices);
 		try (Session session = sessionProvider.getSession()) {
 			Transaction tx = null;
 			try {
@@ -364,7 +359,7 @@ public class ModuleTransfer {
 	}
 	
 	private void deleteObjects(Session session, Module module, Module currentVersionModule) {
-		final List<ApplicationEntityService<?>> services = new ArrayList<>(sortedServices);
+		final List<ApplicationEntityService<?>> services = sortByDependencies(applicationServices);
 		Collections.reverse(services);
 		services.forEach(service -> service.deleteObjects(module, currentVersionModule, session));
 	}
@@ -372,9 +367,24 @@ public class ModuleTransfer {
 	private byte[] getModuleContent(Module module) {
 		try (FastByteArrayOutputStream baos = new FastByteArrayOutputStream()) {
 			((ModuleMetadata) module).setSchemaVersion(SchemaVersion.currentVersion());
-			marshaller.marshal(module, new StreamResult(baos));
+			getMarshaller().marshal(module, new StreamResult(baos));
 			return baos.toByteArray();
 		}
+	}
+	
+	private synchronized Jaxb2Marshaller getMarshaller() {
+		if (marshaller == null) {
+			try {
+				marshaller = new Jaxb2Marshaller();
+				marshaller.setPackagesToScan("org.seed.core");
+				marshaller.setMarshallerProperties(Collections.singletonMap(Marshaller.JAXB_FORMATTED_OUTPUT, true));
+				marshaller.afterPropertiesSet();
+			} 
+			catch (Exception ex) {
+				throw new InternalException(ex);
+			}
+		}
+		return marshaller;
 	}
 	
 	private static boolean isTransferFile(String fileName) {
@@ -419,33 +429,18 @@ public class ModuleTransfer {
 	private static List<ApplicationEntityService<?>> sortByDependencies(List<ApplicationEntityService<?>> applicationServices) {
 		final List<ApplicationEntityService<?>> result = new ArrayList<>(applicationServices.size());
 		while (result.size() < applicationServices.size()) {
-			for (ApplicationEntityService<?> applicationService : applicationServices) {
-				if (result.contains(applicationService)) {
-					continue;
-				}
-				if (dependenciesResolved(applicationService, result)) {
-					result.add(applicationService);
-				}
-			}
+			result.addAll(subList(applicationServices, 
+								  service -> !result.contains(service) &&
+											 dependenciesResolved(service, result)));
 		}
 		return result;
 	}
 	
-	private static boolean dependenciesResolved(ApplicationEntityService<?> applicationService,
-										  		List<ApplicationEntityService<?>> resolvedServices) {
-		if (applicationService.getImportDependencies() != null) {
-			for (Class<?> dependency : applicationService.getImportDependencies()) {
-				boolean dependencyResolved = false;
-				// check already resolved services
-				for (ApplicationEntityService<?> service : resolvedServices) {
-					if (dependency.isAssignableFrom(service.getClass())) {
-						dependencyResolved = true;
-						break;
-					}
-				}
-				if (!dependencyResolved) {
-					return false;
-				}
+	private static boolean dependenciesResolved(ApplicationEntityService<?> applicationService, List<ApplicationEntityService<?>> resolvedServices) {
+		for (Class<?> dependency : applicationService.getImportDependencies()) {
+			// check already resolved services
+			if (noneMatch(resolvedServices, service -> dependency.isAssignableFrom(service.getClass()))) {
+				return false;
 			}
 		}
 		return true;

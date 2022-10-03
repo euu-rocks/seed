@@ -109,7 +109,7 @@ public class DynamicConfiguration implements UpdatableConfiguration, Integrator 
 	}
 	
 	@EventListener(ApplicationReadyEvent.class)
-	public void initConfiguration() {
+	private void initConfiguration() {
 		if (updateSchemaConfiguration()) { // new system schema version detected
 			systemLog.logInfo("systemlog.info.schemaupdated", SchemaVersion.currentVersion().name());
 			updateConfiguration();

@@ -17,9 +17,11 @@
  */
 package org.seed.core.data.revision;
 
+import org.hibernate.envers.RevisionListener;
+
 import org.seed.core.util.MiscUtils;
 
-final class RevisionListener implements org.hibernate.envers.RevisionListener {
+class RevisionHandler implements RevisionListener {
 
 	@Override
 	public void newRevision(Object revisionEntity) {
