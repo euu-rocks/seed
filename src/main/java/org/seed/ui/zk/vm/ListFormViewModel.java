@@ -89,7 +89,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	public void init(@ExecutionArgParam(C.PARAM) FormParameter param) {
 		super.init(param);
 		
-		filterList = filterService.getFilters(getForm().getEntity(), getUser());
+		filterList = filterService.getFilters(getForm().getEntity(), getUser(), currentSession());
 		editAction = getForm().getActionByType(FormActionType.DETAIL);
 		currentFilter = getForm().getFilter();
 		getListModel();
@@ -153,7 +153,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 			
 			@Override
 			protected List<ValueObject> loadChunk(QueryCursor<ValueObject> cursor) {
-				return valueObjectService().loadChunk(cursor);
+				return valueObjectService().loadChunk(currentSession(), cursor);
 			}
 		};
 		return listModel;

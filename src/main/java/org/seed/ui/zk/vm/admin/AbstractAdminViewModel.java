@@ -151,7 +151,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		else if (object != null) {
 			this.viewMode = ViewMode.DETAIL;
 			if (object instanceof Long) {
-				this.object = getObjectService().getObject((Long) object);
+				this.object = getObjectService().getObject((Long) object, currentSession());
 			}
 			else {
 				this.object = (T) object;
@@ -262,25 +262,25 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	}
 	
 	protected List<T> loadObjectList() {
-		return getObjectService().getObjects();
+		return getObjectService().getObjects(currentSession());
 	}
 	
 	public final boolean existObjects() {
 		return objectList != null 
 				? !objectList.isEmpty() 
-				: getObjectService().existObjects();
+				: getObjectService().existObjects(currentSession());
 	}
 	
 	public final boolean existModules() {
-		return moduleService.existObjects();
+		return moduleService.existObjects(currentSession());
 	}
 	
 	public final List<Module> getModules() {
-		return moduleService.getObjects();
+		return moduleService.getObjects(currentSession());
 	}
 	
 	public final List<UserGroup> getUserGroups() {
-		return userGroupService.findNonSystemGroups();
+		return userGroupService.findNonSystemGroups(currentSession());
 	}
 	
 	public final boolean existUserGroups() {
@@ -527,7 +527,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		Assert.notNull(objectId, "objectId");
 		
 		if (viewMode == ViewMode.DETAIL && objectId.equals(object.getId())) {
-			final T reloadedObject = getObjectService().getObject(object.getId());
+			final T reloadedObject = getObjectService().getObject(object.getId(), currentSession());
 			if (reloadedObject != null) {
 				internalRefresh(reloadedObject);
 			}
@@ -536,7 +536,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	
 	protected void refreshObject() {
 		object.removeNewObjects();
-		getObjectService().reloadObject(object);
+		getObjectService().reloadObject(object, currentSession());
 		internalRefresh(object);
 	}
 	

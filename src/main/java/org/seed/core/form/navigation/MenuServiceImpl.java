@@ -79,31 +79,37 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 	}
 	
 	@Override
-	public List<Menu> getCustomTopLevelMenus() {
-		return filterDefaultMenu(getTopLevelMenus());
+	public List<Menu> getTopLevelMenus(Session session) {
+		return menuRepository.find(session, queryParam(C.PARENT, QueryParameter.IS_NULL));
 	}
 	
 	@Override
-	public List<Menu> findObjectsWithoutModule() {
-		return menuRepository.find(queryParam(C.PARENT, QueryParameter.IS_NULL),
-								   queryParam(C.MODULE, QueryParameter.IS_NULL));
+	public List<Menu> getCustomTopLevelMenus(Session session) {
+		return filterDefaultMenu(getTopLevelMenus(session));
 	}
 	
 	@Override
-	public boolean existCustomMenus() {
-		return !getCustomTopLevelMenus().isEmpty();
+	public List<Menu> findObjectsWithoutModule(Session session) {
+		return menuRepository.find(session, queryParam(C.PARENT, QueryParameter.IS_NULL),
+								   			queryParam(C.MODULE, QueryParameter.IS_NULL));
 	}
 	
 	@Override
-	public List<Menu> findCustomMenusWithoutModule() {
-		return filterDefaultMenu(findObjectsWithoutModule());
+	public boolean existCustomMenus(Session session) {
+		return !getCustomTopLevelMenus(session).isEmpty();
 	}
 	
 	@Override
-	public List<Menu> getMenus(User user) {
+	public List<Menu> findCustomMenusWithoutModule(Session session) {
+		return filterDefaultMenu(findObjectsWithoutModule(session));
+	}
+	
+	@Override
+	public List<Menu> getMenus(User user, Session session) {
 		Assert.notNull(user, C.USER);
+		Assert.notNull(session, C.SESSION);
 		
-		return subList(getTopLevelMenus(), menu -> 
+		return subList(getTopLevelMenus(session), menu -> 
 						menu.getForm() == null || 
 						menu.getForm().getEntity().checkPermissions(user, EntityAccess.READ));
 	}

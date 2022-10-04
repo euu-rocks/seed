@@ -171,7 +171,7 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 	}
 	
 	public List<Entity> getEntities() {
-		return entityService.findNonGenericEntities();
+		return entityService.findNonGenericEntities(currentSession());
 	}
 	
 	public String getElementName(FilterElement element) {
@@ -208,7 +208,7 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 			if (object instanceof EntityStatus) {
 				return ((EntityStatus) object).getNumberAndName();
 			}
-			return valueObjectService.getIdentifier((ValueObject) object);
+			return valueObjectService.getIdentifier((ValueObject) object, currentSession());
 		}
 		return null;
 	}
@@ -227,7 +227,7 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 			}
 			else if (element.getEntityField() != null && 
 					 element.getEntityField().getReferenceEntity() != null) {
-				result.addAll(valueObjectService.getAllObjects(element.getEntityField().getReferenceEntity()));
+				result.addAll(valueObjectService.getAllObjects(currentSession(), element.getEntityField().getReferenceEntity()));
 			}
 		}
 		return result;
@@ -271,7 +271,7 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 	protected List<SystemObject> getListManagerSource(String key, int listNum) {
 		if (PERMISSIONS.equals(key)) {
 			return MiscUtils.castList(listNum == LIST_AVAILABLE 
-					? filterService.getAvailablePermissions(getObject()) 
+					? filterService.getAvailablePermissions(getObject(), currentSession()) 
 					: getObject().getPermissions());
 		}
 		else {

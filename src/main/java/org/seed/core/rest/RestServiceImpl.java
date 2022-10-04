@@ -169,10 +169,11 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 	}
 	
 	@Override
-	public List<RestPermission> getAvailablePermissions(Rest rest) {
+	public List<RestPermission> getAvailablePermissions(Rest rest, Session session) {
 		Assert.notNull(rest, C.REST);
+		Assert.notNull(session, C.SESSION);
 		
-		return filterAndConvert(userGroupService.findNonSystemGroups(), 
+		return filterAndConvert(userGroupService.findNonSystemGroups(session), 
 								group -> !rest.containsPermission(group), 
 								group -> createPermission(rest, group));
 	}

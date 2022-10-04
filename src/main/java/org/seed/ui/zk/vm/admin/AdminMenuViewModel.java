@@ -69,7 +69,7 @@ public class AdminMenuViewModel extends AbstractAdminViewModel<Menu> {
 	
 	@Override
 	protected List<Menu> loadObjectList() {
-		return menuService.getTopLevelMenus();
+		return menuService.getTopLevelMenus(currentSession());
 	}
 	
 	public Menu getSubMenu() {

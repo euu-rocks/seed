@@ -53,8 +53,10 @@ public abstract class AbstractApplicationEntityService<T extends ApplicationEnti
 	}
 	
 	@Override
-	public List<T> findObjectsWithoutModule() {
-		return getRepository().find(queryParam(C.MODULE, QueryParameter.IS_NULL));
+	public List<T> findObjectsWithoutModule(Session session) {
+		Assert.notNull(session, C.SESSION);
+		
+		return getRepository().find(session, queryParam(C.MODULE, QueryParameter.IS_NULL));
 	}
 	
 	@Override

@@ -121,11 +121,11 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	}
 	
 	@Override
-	public List<Filter> getFilters(Entity entity, User user) {
+	public List<Filter> getFilters(Entity entity, User user, Session session) {
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(user, C.USER);
 		
-		return subList(findFilters(entity), filter -> filter.checkPermissions(user));
+		return subList(findFilters(entity, session), filter -> filter.checkPermissions(user));
 	}
 	
 	@Override
@@ -186,10 +186,19 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	}
 	
 	@Override
-	public List<FilterPermission> getAvailablePermissions(Filter filter) {
-		Assert.notNull(filter, C.FILTER);
+	public List<Filter> findFilters(Entity entity, Session session) {
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(session, C.SESSION);
 		
-		return filterAndConvert(userGroupService.findNonSystemGroups(), 
+		return filterRepository.find(session, queryParam(C.ENTITY, entity));
+	}
+	
+	@Override
+	public List<FilterPermission> getAvailablePermissions(Filter filter, Session session) {
+		Assert.notNull(filter, C.FILTER);
+		Assert.notNull(session, C.SESSION);
+		
+		return filterAndConvert(userGroupService.findNonSystemGroups(session), 
 								group -> !filter.containsPermission(group),
 								group -> createPermission(filter, group));
 	}

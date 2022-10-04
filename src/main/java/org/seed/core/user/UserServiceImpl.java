@@ -93,6 +93,14 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 				: null;
 	}
 	
+	@Override
+	public User getCurrentUser(Session session) {
+		final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		return authentication != null
+				? getUser(authentication, session)
+				: null;
+	}
+	
 	@Override // called after successful login
 	public void onApplicationEvent(AuthenticationSuccessEvent event) {
 		final String userName = event.getAuthentication().getName();
@@ -183,6 +191,10 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 	
 	private User getUser(Authentication authentication) {
 		return findByName(authentication.getName());
+	}
+	
+	private User getUser(Authentication authentication, Session session) {
+		return findByName(authentication.getName(), session);
 	}
 	
 	private void sendPasswordMail(User user, String pwd, boolean registration) {

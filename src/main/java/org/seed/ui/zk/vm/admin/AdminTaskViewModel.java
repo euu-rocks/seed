@@ -300,6 +300,7 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 		if (!cmdSaveObject(elem)) {
 			return;
 		}
+		resetCurrentSession();
 		refreshMenu();
 		
 		// configuration update takes place anyway
@@ -345,7 +346,7 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	protected List<SystemObject> getListManagerSource(String key, int listNum) {
 		if (PERMISSIONS.equals(key)) {
 			return MiscUtils.castList(listNum == LIST_AVAILABLE 
-					? taskService.getAvailablePermissions(getObject()) 
+					? taskService.getAvailablePermissions(getObject(), currentSession()) 
 					: getObject().getPermissions());
 		}
 		else {

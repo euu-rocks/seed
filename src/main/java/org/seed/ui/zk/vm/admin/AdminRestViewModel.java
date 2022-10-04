@@ -103,7 +103,7 @@ public class AdminRestViewModel extends AbstractAdminViewModel<Rest> {
 	protected List<SystemObject> getListManagerSource(String key, int listNum) {
 		if (PERMISSIONS.equals(key)) {
 			return MiscUtils.castList(listNum == LIST_AVAILABLE 
-					? restService.getAvailablePermissions(getObject()) 
+					? restService.getAvailablePermissions(getObject(), currentSession()) 
 					: getObject().getPermissions());
 		}
 		else {
@@ -204,6 +204,7 @@ public class AdminRestViewModel extends AbstractAdminViewModel<Rest> {
 	public void saveRest(@BindingParam(C.ELEM) Component elem) {
 		adjustLists(getObject().getPermissions(), getListManagerList(PERMISSIONS, LIST_SELECTED));
 		cmdSaveObject(elem);
+		resetCurrentSession();
 	}
 	
 }

@@ -101,10 +101,10 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	}
 	
 	@Override
-	public List<Task> getTasks(User user) {
+	public List<Task> getTasks(User user, Session session) {
 		Assert.notNull(user, C.USER);
 		
-		return subList(getObjects(), task -> task.checkPermissions(user));
+		return subList(getObjects(session), task -> task.checkPermissions(user));
 	}
 	
 	@Override
@@ -170,10 +170,10 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	}
 	
 	@Override
-	public List<TaskPermission> getAvailablePermissions(Task task) {
+	public List<TaskPermission> getAvailablePermissions(Task task, Session session) {
 		Assert.notNull(task, C.TASK);
 		
-		return filterAndConvert(userGroupService.findNonSystemGroups(), 
+		return filterAndConvert(userGroupService.findNonSystemGroups(session), 
 								group -> !task.containsPermission(group), 
 								group -> createPermission(task, group));
 	}

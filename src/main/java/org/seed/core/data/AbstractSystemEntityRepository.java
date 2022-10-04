@@ -70,12 +70,11 @@ public abstract class AbstractSystemEntityRepository<T extends SystemEntity>
 	}
 	
 	@Override
-	public void reload(T object) {
+	public void reload(T object, Session session) {
 		Assert.notNull(object, C.OBJECT);
+		Assert.notNull(session, C.SESSION);
 		
-		try (Session session = getSession()) {
-			session.refresh(object);
-		}
+		session.refresh(object);
 	}
 	
 	@Override

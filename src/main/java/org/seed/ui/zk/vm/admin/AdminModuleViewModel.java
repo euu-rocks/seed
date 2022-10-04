@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.C;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.module.ImportAnalysis;
@@ -218,20 +220,21 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	@Override
 	public void initObject(Module module) {
 		super.initObject(module);
-		existDBObjects = dbObjectService.existObjects();
-		existDataSources = dataSourceService.existObjects();
-		existEntities = entityService.existObjects();
-		existFilters = filterService.existObjects();
-		existTransformers = transformerService.existObjects();
-		existTransfers = transferService.existObjects();
-		existForms = formService.existObjects();
-		existMenus = menuService.existCustomMenus();
-		existTasks = taskService.existObjects();
-		existReports = reportService.existObjects();
-		existRests = restService.existObjects();
-		existCustomCodes = customCodeService.existObjects();
-		existCustomLibs = customLibService.existObjects();
-		existUserGroups = !userGroupService.findNonSystemGroups().isEmpty();
+		final Session session = currentSession();
+		existDBObjects = dbObjectService.existObjects(session);
+		existDataSources = dataSourceService.existObjects(session);
+		existEntities = entityService.existObjects(session);
+		existFilters = filterService.existObjects(session);
+		existTransformers = transformerService.existObjects(session);
+		existTransfers = transferService.existObjects(session);
+		existForms = formService.existObjects(session);
+		existMenus = menuService.existCustomMenus(session);
+		existTasks = taskService.existObjects(session);
+		existReports = reportService.existObjects(session);
+		existRests = restService.existObjects(session);
+		existCustomCodes = customCodeService.existObjects(session);
+		existCustomLibs = customLibService.existObjects(session);
+		existUserGroups = !userGroupService.findNonSystemGroups(session).isEmpty();
 	}
 	
 	@Command
@@ -451,85 +454,85 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	private List<SystemObject> getListManagerSourceDBObject(int listNum) {
 		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getDBObjects()
-				: dbObjectService.findObjectsWithoutModule());
+				: dbObjectService.findObjectsWithoutModule(currentSession()));
 	}
 	
 	private List<SystemObject> getListManagerSourceDataSource(int listNum) {
 		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getDataSources()
-				: dataSourceService.findObjectsWithoutModule());
+				: dataSourceService.findObjectsWithoutModule(currentSession()));
 	}
 	
 	private List<SystemObject> getListManagerSourceEntity(int listNum) {
 		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getEntities()
-				: entityService.findObjectsWithoutModule());
+				: entityService.findObjectsWithoutModule(currentSession()));
 	}
 	
 	private List<SystemObject> getListManagerSourceFilter(int listNum) {
 		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getFilters()
-				: filterService.findObjectsWithoutModule());
+				: filterService.findObjectsWithoutModule(currentSession()));
 	}
 	
 	private List<SystemObject> getListManagerSourceTransformer(int listNum) {
 		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getTransformers()
-				: transformerService.findObjectsWithoutModule());
+				: transformerService.findObjectsWithoutModule(currentSession()));
 	}
 	
 	private List<SystemObject> getListManagerSourceTransfer(int listNum) {
 		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getTransfers()
-				: transferService.findObjectsWithoutModule());
+				: transferService.findObjectsWithoutModule(currentSession()));
 	}
 	
 	private List<SystemObject> getListManagerSourceForm(int listNum) {
 		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getForms()
-				: formService.findObjectsWithoutModule());
+				: formService.findObjectsWithoutModule(currentSession()));
 	}
 	
 	private List<SystemObject> getListManagerSourceMenu(int listNum) {
 		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getMenus()
-				: menuService.findCustomMenusWithoutModule());
+				: menuService.findCustomMenusWithoutModule(currentSession()));
 	}
 	
 	private List<SystemObject> getListManagerSourceTask(int listNum) {
 		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getTasks()
-				: taskService.findObjectsWithoutModule());
+				: taskService.findObjectsWithoutModule(currentSession()));
 	}
 	
 	private List<SystemObject> getListManagerSourceReport(int listNum) {
 		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getReports()
-				: reportService.findObjectsWithoutModule());
+				: reportService.findObjectsWithoutModule(currentSession()));
 	}
 	
 	private List<SystemObject> getListManagerSourceRest(int listNum) {
 		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getRests()
-				: restService.findObjectsWithoutModule());
+				: restService.findObjectsWithoutModule(currentSession()));
 	}
 	
 	private List<SystemObject> getListManagerSourceCustomCode(int listNum) {
 		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getCustomCodes()
-				: customCodeService.findObjectsWithoutModule());
+				: customCodeService.findObjectsWithoutModule(currentSession()));
 	}
 	
 	private List<SystemObject> getListManagerSourceCustomLib(int listNum) {
 		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getCustomLibs()
-				: customLibService.findObjectsWithoutModule());
+				: customLibService.findObjectsWithoutModule(currentSession()));
 	}
 	
 	private List<SystemObject> getListManagerSourceUserGroup(int listNum) {
 		return MiscUtils.castList(listNum == LIST_SELECTED
 				? getObject().getUserGroups()
-				: userGroupService.findNonSystemGroupsWithoutModule());
+				: userGroupService.findNonSystemGroupsWithoutModule(currentSession()));
 	}
 	
 	private List<ApplicationEntity> getChangedObjects() {

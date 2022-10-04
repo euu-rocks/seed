@@ -19,6 +19,8 @@ package org.seed.core.rest;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.core.api.RestFunction.MethodType;
 import org.seed.core.application.ApplicationEntityService;
 
@@ -34,7 +36,7 @@ public interface RestService extends ApplicationEntityService<Rest> {
 	
 	void removeFunction(Rest rest, RestFunction function);
 	
-	List<RestPermission> getAvailablePermissions(Rest rest);
+	List<RestPermission> getAvailablePermissions(Rest rest, Session session);
 	
 	Object callFunction(RestFunction function, MethodType method, 
 						Object body, String[] parameters);

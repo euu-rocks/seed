@@ -178,7 +178,7 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 	
 	public String getIdentifier(ValueObject object) {
 		return object != null 
-				? valueObjectService.getIdentifier(object)
+				? valueObjectService.getIdentifier(object, currentSession())
 				: null;
 	}
 	
@@ -217,7 +217,7 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 		tab = formParameter.getTab();
 		Assert.stateAvailable(form, C.FORM);
 		Assert.stateAvailable(tab, C.TAB);
-		form = formService.getObject(form.getId());
+		form = formService.getObject(form.getId(), currentSession());
 	}
 	
 	protected void showListForm() {
@@ -282,8 +282,8 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 	
 	protected List<ValueObject> getReferenceValues(EntityField referenceField, Filter filter) {
 		final List<ValueObject> valueObjectList = filter != null 
-												? valueObjectService.find(referenceField.getReferenceEntity(), filter)
-												: valueObjectService.getAllObjects(referenceField.getReferenceEntity());
+												? valueObjectService.find(referenceField.getReferenceEntity(), filter, currentSession())
+												: valueObjectService.getAllObjects(currentSession(), referenceField.getReferenceEntity());
 		final FormFieldExtra fieldExtra = form.getFieldExtra(referenceField);
 		if (fieldExtra == null || !fieldExtra.isUnsortedValues()) {
 			valueObjectService.sortObjects(valueObjectList);

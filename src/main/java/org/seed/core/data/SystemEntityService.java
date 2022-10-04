@@ -21,6 +21,8 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import org.hibernate.Session;
+
 public interface SystemEntityService<T extends SystemEntity> {
 	
 	boolean isEntityType(Class<?> clas);
@@ -29,17 +31,21 @@ public interface SystemEntityService<T extends SystemEntity> {
 	
 	T getObject(Long id);
 	
+	T getObject(Long id, Session session);
+	
 	T findByName(String name);
 	
 	void initObject(T object) throws ValidationException;
 	
-	void reloadObject(T object);
+	void reloadObject(T object, Session session);
 	
-	boolean existObjects();
+	boolean existObjects(Session session);
 	
 	long countObjects();
 	
 	List<T> getObjects();
+	
+	List<T> getObjects(Session session);
 	
 	void saveObject(T object) throws ValidationException;
 	

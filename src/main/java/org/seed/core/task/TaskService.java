@@ -19,6 +19,8 @@ package org.seed.core.task;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.core.api.Job;
 import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.task.job.AbstractSystemJob;
@@ -36,13 +38,13 @@ public interface TaskService extends ApplicationEntityService<Task> {
 	
 	Task getTask(Job job);
 	
-	List<Task> getTasks(User user);
+	List<Task> getTasks(User user, Session session);
 	
 	SystemTaskRun getLastSystemTaskRun(SystemTask systemTask);
 	
 	List<SystemTaskRun> getSystemTaskRuns(SystemTask systemTask);
 	
-	List<TaskPermission> getAvailablePermissions(Task task);
+	List<TaskPermission> getAvailablePermissions(Task task, Session session);
 	
 	<T extends AbstractSystemJob> Class<T> getSystemJobClass(SystemTask systemTask);
 	

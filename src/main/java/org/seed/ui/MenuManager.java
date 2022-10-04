@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.Session;
 import org.seed.C;
 import org.seed.LabelProvider;
 import org.seed.core.form.navigation.Menu;
@@ -51,9 +52,11 @@ public class MenuManager {
 		return menuService.getDefaultMenuName();
 	}
 	
-	public List<TreeNode> getMenuList(User user, boolean reportsExist, boolean tasksExist, 
+	public List<TreeNode> getMenuList(User user, Session session,
+									  boolean reportsExist, boolean tasksExist, 
 									  boolean fullTextSearchAvailable) {
 		Assert.notNull(user, C.USER);
+		Assert.notNull(session, C.SESSION);
 		final List<TreeNode> menuList = new ArrayList<>();
 		
 		// admin
@@ -76,7 +79,7 @@ public class MenuManager {
 		}
 		
 		// user menus
-		menuList.addAll(getMenusForUser(user));
+		menuList.addAll(getMenusForUser(user, session));
 		
 		// full-text search
 		if (fullTextSearchAvailable &&
@@ -91,9 +94,9 @@ public class MenuManager {
 		return menuList;
 	}
 	
-	private List<TreeNode> getMenusForUser(User user) {
+	private List<TreeNode> getMenusForUser(User user, Session session) {
 		final List<TreeNode> menuList = new ArrayList<>();
-		for (Menu menu : menuService.getMenus(user)) {
+		for (Menu menu : menuService.getMenus(user, session)) {
 			final TreeNode menuRoot = createMenuTree(menu, menuList, user);
 			if (findNode(menuList, menuRoot.getLabel()) == null) {
 				menuRoot.setTop(true);

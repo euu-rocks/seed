@@ -38,7 +38,7 @@ public abstract class UIUtils {
 	
 	private static final String ZUL_PATH = "~./zul";
 	
-	private UIUtils() {}
+	protected UIUtils() {}
 	
 	public static byte[] getBytes(Media media) {
 		if (media != null) {
@@ -59,6 +59,19 @@ public abstract class UIUtils {
 		Assert.notNull(view, C.VIEW);
 		
 		return ZUL_PATH.concat(view);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static <T> T getRequestObject(String name) {
+		Assert.notNull(name, C.NAME);
+		
+		return (T) Executions.getCurrent().getAttribute(name);
+	}
+	
+	public static void setRequestAttribute(String name, Object value) {
+		Assert.notNull(name, C.NAME);
+		
+		Executions.getCurrent().setAttribute(name, value);
 	}
 	
 	public static boolean hasSessionObject(String name) {
@@ -87,7 +100,7 @@ public abstract class UIUtils {
 		Sessions.getCurrent().removeAttribute(name);
 	}
 	
-	public static int getSessionKeepAliveInterval() {
+	public static int getSessionKeepAliveIntervalMs() {
 		final int sessionTimeoutSec = Sessions.getCurrent().getMaxInactiveInterval();
 		if (sessionTimeoutSec > 60) {
 			return (sessionTimeoutSec - 60) * 1000;

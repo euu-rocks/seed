@@ -19,6 +19,8 @@ package org.seed.core.form;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
@@ -38,13 +40,15 @@ public interface FormService extends ApplicationEntityService<Form> {
 	
 	FormAction createCustomAction(Form form);
 	
-	List<Filter> getFilters(Form form);
+	List<Filter> getFilters(Form form, Session sesion);
 	
 	List<Form> findForms(Entity entity);
 	
+	List<Form> findForms(Entity entity, Session session);
+	
 	List<FormField> getAvailableFields(Form form);
 	
-	List<FormTransformer> getAvailableTransformers(Form form);
+	List<FormTransformer> getAvailableTransformers(Form form, Session session);
 	
 	List<FormTransformer> getFormTransformers(Form form, User user, EntityStatus status);
 	

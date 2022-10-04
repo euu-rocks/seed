@@ -176,7 +176,7 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 	}
 
 	public List<Entity> getEntities() {
-		return entityService.findNonGenericEntities();
+		return entityService.findNonGenericEntities(currentSession());
 	}
 	
 	public List<EntityField> getAvailableTargetFields() {
@@ -344,6 +344,7 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 		transformerService.adjustElements(getObject(), elements, nesteds);
 		
 		cmdSaveObject(component);
+		resetCurrentSession();
 		refreshObject();
 	}
 	
@@ -405,7 +406,7 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 		switch (key) {
 			case PERMISSIONS:
 				return MiscUtils.castList(listNum == LIST_AVAILABLE
-							? transformerService.getAvailablePermissions(getObject())
+							? transformerService.getAvailablePermissions(getObject(), currentSession())
 							: new ArrayList<>(getObject().getPermissions()));
 						
 			case STATUS:

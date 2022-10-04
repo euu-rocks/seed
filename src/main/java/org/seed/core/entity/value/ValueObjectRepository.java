@@ -506,6 +506,28 @@ public class ValueObjectRepository {
 		}
 	}
 	
+	protected String getIdentifier(ValueObject object, Session session) {
+		Assert.notNull(object, C.OBJECT);
+		
+		final Entity entity = getEntity(object.getEntityId(), session);
+		if (entity.getIdentifierPattern() != null) {
+			return resolveIdentifierPattern(entity, object);
+		}
+		
+		// fallback if no pattern exist
+		final EntityField defaultField = entity.findDefaultIdentifierField();
+		Object value = null;
+		if (defaultField != null) {
+			value = objectAccess.getValue(object, defaultField);
+		}
+		if (value != null) {
+			return value.toString();
+		}
+		else {
+			return entity.getName() + " (" + object.getId() + ')';
+		}
+	}
+	
 	private String resolveIdentifierPattern(Entity entity, ValueObject object) {
 		String pattern = entity.getIdentifierPattern();
 		pattern = pattern.replace("{entity}", entity.getName());

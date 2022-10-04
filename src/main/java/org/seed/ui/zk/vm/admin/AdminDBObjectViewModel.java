@@ -117,6 +117,7 @@ public class AdminDBObjectViewModel extends AbstractAdminViewModel<DBObject> {
 	@Command
 	public void deleteDBObject(@BindingParam(C.ELEM) Component component) {
 		cmdDeleteObject(component);
+		resetCurrentSession();
 	}
 	
 	@Command
@@ -124,6 +125,7 @@ public class AdminDBObjectViewModel extends AbstractAdminViewModel<DBObject> {
 	public void saveDBObject(@BindingParam(C.ELEM) Component component) {
 		try {
 			cmdSaveObject(component);
+			resetCurrentSession();
 			errorMessage = null;
 		}
 		catch (DataException dboex) {

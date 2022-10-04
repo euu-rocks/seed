@@ -19,13 +19,15 @@ package org.seed.core.report;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.data.ValidationException;
 import org.seed.core.user.User;
 
 public interface ReportService extends ApplicationEntityService<Report> {
 	
-	List<Report> getReports(User user);
+	List<Report> getReports(User user, Session session);
 	
 	ReportDataSource createDataSource(Report report);
 	

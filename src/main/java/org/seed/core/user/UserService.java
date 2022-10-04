@@ -19,6 +19,8 @@ package org.seed.core.user;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.core.data.SystemEntityService;
 import org.seed.core.data.ValidationException;
 
@@ -27,6 +29,8 @@ public interface UserService extends SystemEntityService<User> {
 	void initDefaults();
 	
 	User getCurrentUser();
+	
+	User getCurrentUser(Session session);
 	
 	List<UserGroup> getAvailableUserGroups(User user);
 	

@@ -21,11 +21,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.hibernate.Session;
+
 import org.seed.C;
 import org.seed.core.application.setting.ApplicationSettingService;
 import org.seed.core.application.setting.Setting;
 import org.seed.core.config.FullTextSearchProvider;
 import org.seed.core.config.Limits;
+import org.seed.core.config.OpenSessionInViewFilter;
+import org.seed.core.config.SessionProvider;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.form.Form;
@@ -61,6 +65,9 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	protected static final String DEFAULT_APPLICATION_NAME = "Seed";
 	
 	private static final String INCLUDE_PATH = "/inc/";  //NOSONAR
+	
+	@WireVariable(value="defaultSessionProvider")
+	private SessionProvider provider;
 	
 	@WireVariable(value="applicationSettingServiceImpl")
 	protected ApplicationSettingService settingService;
@@ -122,7 +129,7 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	}
 	
 	public final List<Report> getUserReports() {
-		return reportService.getReports(getUser());
+		return reportService.getReports(getUser(), currentSession());
 	}
 	
 	public boolean isFullTextSearchAvailable() {
@@ -148,11 +155,21 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	protected final User getUser() {
 		User user = getSessionObject(C.USER);
 		if (user == null) {
-			user = userService.getCurrentUser();
+			user = userService.getCurrentUser(currentSession());
 			Assert.stateAvailable(user, C.USER);
 			setSessionObject(C.USER, user);
 		}
 		return user;
+	}
+	
+	protected final Session currentSession() {
+		final Session session = getRequestObject(OpenSessionInViewFilter.ATTR_SESSION);
+		Assert.stateAvailable(session, "current session");
+		return session;
+	}
+	
+	protected void resetCurrentSession() {
+		setRequestAttribute(OpenSessionInViewFilter.ATTR_SESSION, provider.getSession());
 	}
 	
 	protected final boolean isDoubleClick(String key) {
@@ -195,12 +212,6 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 		globalCommand("globalOpenTab", new TabParameterMap(form.getName(), 
 														   "/form/detailform.zul", null, 
 														   new FormParameter(form, object)));
-	}
-	
-	protected static void showDialog(String view, Object param) {
-		Assert.notNull(view, C.VIEW);
-		
-		UIUtils.showDialog(view, param);
 	}
 	
 	protected static void showView(String view, Object param) {

@@ -133,10 +133,10 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	@Override
-	public List<Filter> getFilters(Form form) {
+	public List<Filter> getFilters(Form form, Session session) {
 		Assert.notNull(form, C.FORM);
 		
-		return filterService.findFilters(form.getEntity());
+		return filterService.findFilters(form.getEntity(), session);
 	}
 	
 	@Override
@@ -192,6 +192,14 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		Assert.notNull(entity, C.ENTITY);
 		
 		return formRepository.find(queryParam(C.ENTITY, entity));
+	}
+	
+	@Override
+	public List<Form> findForms(Entity entity, Session session) {
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(session, C.SESSION);
+		
+		return formRepository.find(session, queryParam(C.ENTITY, entity));
 	}
 	
 	@Override
@@ -308,10 +316,10 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	@Override
-	public List<FormTransformer> getAvailableTransformers(Form form) {
+	public List<FormTransformer> getAvailableTransformers(Form form, Session session) {
 		Assert.notNull(form, C.FORM);
 		
-		return filterAndConvert(transformerService.findTransformers(form.getEntity()), 
+		return filterAndConvert(transformerService.findTransformers(form.getEntity(), session), 
 								trans -> noneMatch(form.getTransformers(), formTrans -> trans.equals(formTrans.getTransformer())), 
 								trans -> createTransformer(form, trans));
 	}

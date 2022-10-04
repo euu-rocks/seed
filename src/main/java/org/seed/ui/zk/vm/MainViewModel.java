@@ -93,7 +93,7 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	}
 	
 	public int getSessionKeepAliveInterval() {
-		return UIUtils.getSessionKeepAliveInterval();
+		return getSessionKeepAliveIntervalMs();
 	}
 	
 	public List<Tab> getTabs() {
@@ -117,9 +117,9 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	}
 
 	public List<TreeNode> getMenuList() {
-		return menuManager.getMenuList(getUser(), 
+		return menuManager.getMenuList(getUser(), currentSession(),
 									   !getUserReports().isEmpty(), 
-									   !taskService.getTasks(getUser()).isEmpty(), 
+									   !taskService.getTasks(getUser(), currentSession()).isEmpty(), 
 									   isFullTextSearchAvailable());
 	}
 	
@@ -208,7 +208,7 @@ public class MainViewModel extends AbstractApplicationViewModel {
 			else if (selectedNode.viewName != null) {
 				FormParameter param = null;
 				if (selectedNode.formId != null) {
-					final Form form = formService.getObject(selectedNode.formId);
+					final Form form = formService.getObject(selectedNode.formId, currentSession());
 					param = new FormParameter(form);
 				}
 				globalOpenTab(selectedNode.label, selectedNode.viewName, selectedNode.iconClass, param);

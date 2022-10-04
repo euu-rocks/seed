@@ -19,6 +19,8 @@ package org.seed.core.entity;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.ValidationException;
@@ -42,29 +44,31 @@ public interface EntityService extends ApplicationEntityService<Entity> {
 	
 	EntityFieldGroup createFieldGroup(Entity entity);
 	
-	boolean existGenericEntities();
+	boolean existGenericEntities(Session session);
 	
-	boolean existNonGenericEntities();
+	boolean existNonGenericEntities(Session session);
 	
-	List<Entity> findGenericEntities();
+	List<Entity> findGenericEntities(Session session);
 	
 	List<Entity> findNonGenericEntities();
+	
+	List<Entity> findNonGenericEntities(Session session);
 	
 	List<Entity> findTransferableEntities();
 	
 	List<Entity> findDescendants(Entity genericEntity);
 	
-	List<Entity> getAvailableNestedEntities(Entity entity);
+	List<Entity> getAvailableNestedEntities(Entity entity, Session session);
 	
 	FieldType[] getAvailableFieldTypes(Entity entity, EntityField field, boolean existObjects);
 	
-	List<EntityPermission> getAvailablePermissions(Entity entity);
+	List<EntityPermission> getAvailablePermissions(Entity entity, Session session);
 	
 	List<EntityStatus> getAvailableStatusList(Entity entity, EntityStatus currentStatus, User user);
 	
 	List<EntityStatusTransitionFunction> getAvailableStatusTransitionFunctions(Entity entity, EntityStatusTransition transition);
 	
-	List<EntityStatusTransitionPermission> getAvailableStatusTransitionPermissions(EntityStatusTransition transition);
+	List<EntityStatusTransitionPermission> getAvailableStatusTransitionPermissions(EntityStatusTransition transition, Session session);
 	
 	void initNestedEntity(Entity entity) throws ValidationException;
 	

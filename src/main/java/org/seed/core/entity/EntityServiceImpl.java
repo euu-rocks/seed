@@ -212,23 +212,29 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	@Override
-	public boolean existGenericEntities() {
-		return existGeneric(true);
+	public boolean existGenericEntities(Session session) {
+		return existGeneric(true, session);
 	}
 	
 	@Override
-	public boolean existNonGenericEntities() {
-		return existGeneric(false);
+	public boolean existNonGenericEntities(Session session) {
+		return existGeneric(false, session);
 	}
 	
 	@Override
-	public List<Entity> findGenericEntities() {
-		return findGeneric(true);
+	public List<Entity> findGenericEntities(Session session) {
+		return findGeneric(true, session);
 	}
 	
-	@Override
 	public List<Entity> findNonGenericEntities() {
-		return findGeneric(false);
+		try (Session session = entityRepository.getSession()) {
+			return findGeneric(false, session);
+		}
+	}
+	
+	@Override
+	public List<Entity> findNonGenericEntities(Session session) {
+		return findGeneric(false, session);
 	}
 	
 	@Override
@@ -330,31 +336,32 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	@Override
-	public List<Entity> getAvailableNestedEntities(Entity entity) {
+	public List<Entity> getAvailableNestedEntities(Entity entity, Session session) {
 		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(session, C.SESSION);
 		
-		try (Session session = entityRepository.getSession()) {
-			return subList(entityRepository.find(session), 
-					nested -> !nested.equals(entity) &&
-							  !nested.isGeneric() &&
-							  !nested.getReferenceFields(entity).isEmpty());
-		}
+		return subList(entityRepository.find(session), 
+				nested -> !nested.equals(entity) &&
+						  !nested.isGeneric() &&
+						  !nested.getReferenceFields(entity).isEmpty());
 	}
 	
 	@Override
-	public List<EntityPermission> getAvailablePermissions(Entity entity) {
+	public List<EntityPermission> getAvailablePermissions(Entity entity, Session session) {
 		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(session, C.SESSION);
 		
-		return filterAndConvert(userGroupService.findNonSystemGroups(), 
+		return filterAndConvert(userGroupService.findNonSystemGroups(session), 
 								group -> !entity.containsPermission(group), 
 								group -> createPermission(entity, group));
 	}
 	
 	@Override
-	public List<EntityStatusTransitionPermission> getAvailableStatusTransitionPermissions(EntityStatusTransition transition) {
+	public List<EntityStatusTransitionPermission> getAvailableStatusTransitionPermissions(EntityStatusTransition transition, Session session) {
 		Assert.notNull(transition, C.TRANSITION);
+		Assert.notNull(session, C.SESSION);
 		
-		return filterAndConvert(userGroupService.findNonSystemGroups(), 
+		return filterAndConvert(userGroupService.findNonSystemGroups(session), 
 								group -> !transition.containsPermission(group), 
 								group -> createTransitionPermission(transition, group));
 	}
@@ -787,12 +794,12 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		return false;
 	}
 	
-	private List<Entity> findGeneric(boolean generic) {
-		return entityRepository.find(queryParam("isGeneric", generic));
+	private List<Entity> findGeneric(boolean generic, Session session) {
+		return entityRepository.find(session, queryParam("isGeneric", generic));
 	}
 	
-	private boolean existGeneric(boolean generic) {
-		return entityRepository.exist(queryParam("isGeneric", generic));
+	private boolean existGeneric(boolean generic, Session session) {
+		return entityRepository.exist(session, queryParam("isGeneric", generic));
 	}
 	
 	private EntityField getDeletedAutonumField(Entity currentVersion, Entity entity) {

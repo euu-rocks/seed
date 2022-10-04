@@ -45,7 +45,7 @@ public class TaskViewModel extends AbstractApplicationViewModel {
 	}
 
 	public List<Task> getTasks() {
-		return taskService.getTasks(getUser());
+		return taskService.getTasks(getUser(), currentSession());
 	}
 	
 	@Command

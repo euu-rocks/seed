@@ -67,7 +67,7 @@ public class AdminReportViewModel extends AbstractAdminViewModel<Report> {
 	}
 	
 	public List<IDataSource> getDataSources() {
-		return dataSourceService.getObjects();
+		return dataSourceService.getObjects(currentSession());
 	}
 	
 	public ReportDataSource getDataSource() {

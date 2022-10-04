@@ -19,6 +19,8 @@ package org.seed.core.user;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.core.application.ApplicationEntityService;
 
 public interface UserGroupService extends ApplicationEntityService<UserGroup> {
@@ -27,7 +29,9 @@ public interface UserGroupService extends ApplicationEntityService<UserGroup> {
 	
 	List<UserGroup> findNonSystemGroups();
 	
-	List<UserGroup> findNonSystemGroupsWithoutModule();
+	List<UserGroup> findNonSystemGroupsWithoutModule(Session session);
+	
+	List<UserGroup> findNonSystemGroups(Session session);
 	
 	List<UserGroupAuthorisation> getAvailableAuthorisations(UserGroup userGroup);
 	

@@ -117,10 +117,10 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	}
 	
 	@Override
-	public List<Transformer> findTransformers(Entity sourceEntity) {
+	public List<Transformer> findTransformers(Entity sourceEntity, Session session) {
 		Assert.notNull(sourceEntity, C.SOURCEENTITY);
 		
-		return repository.find(queryParam(C.SOURCEENTITY, sourceEntity));
+		return repository.find(session, queryParam(C.SOURCEENTITY, sourceEntity));
 	}
 	
 	@Override
@@ -145,10 +145,10 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		return Collections.emptyList();
 	}
 	
-	public List<TransformerPermission> getAvailablePermissions(Transformer transformer) {
+	public List<TransformerPermission> getAvailablePermissions(Transformer transformer, Session session) {
 		Assert.notNull(transformer, C.TRANSFORMER);
 		
-		return filterAndConvert(userGroupService.findNonSystemGroups(), 
+		return filterAndConvert(userGroupService.findNonSystemGroups(session), 
 								group -> !transformer.containsPermission(group), 
 								group -> createPermission(transformer, group));
 	}

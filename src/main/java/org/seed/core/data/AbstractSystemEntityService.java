@@ -60,7 +60,8 @@ public abstract class AbstractSystemEntityService<T extends SystemEntity>
 		return getRepository().get(id);
 	}
 	
-	protected T getObject(Long id, Session session) {
+	@Override
+	public T getObject(Long id, Session session) {
 		return getRepository().get(id, session);
 	}
 	
@@ -85,13 +86,13 @@ public abstract class AbstractSystemEntityService<T extends SystemEntity>
 	}
 	
 	@Override
-	public void reloadObject(T object) {
-		getRepository().reload(object);
+	public void reloadObject(T object, Session session) {
+		getRepository().reload(object, session);
 	}
 	
 	@Override
-	public boolean existObjects() {
-		return getRepository().exist();
+	public boolean existObjects(Session session) {
+		return getRepository().exist(session);
 	}
 
 	@Override
@@ -102,6 +103,11 @@ public abstract class AbstractSystemEntityService<T extends SystemEntity>
 	@Override
 	public List<T> getObjects() {
 		return getRepository().find();
+	}
+	
+	@Override
+	public List<T> getObjects(Session session) {
+		return getRepository().find(session);
 	}
 	
 	@Override

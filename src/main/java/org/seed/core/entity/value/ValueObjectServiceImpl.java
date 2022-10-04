@@ -130,8 +130,21 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
+	public boolean existObjects(Entity entity, Session session) {
+		return entity.isGeneric()
+				? anyMatch(entityService.findDescendants(entity), 
+						   descendant -> repository.exist(descendant, null))
+				: repository.exist(session, entity, null);
+	}
+	
+	@Override
 	public String getIdentifier(ValueObject object) {
 		return repository.getIdentifier(object);
+	}
+	
+	@Override
+	public String getIdentifier(ValueObject object, Session session) {
+		return repository.getIdentifier(object, session);
 	}
 	
 	@Override
@@ -401,6 +414,11 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
+	public List<ValueObject> getAllObjects(Session session, Entity entity) {
+		return repository.findAll(session, entity);
+	}
+	
+	@Override
 	public List<ValueObject> getAllObjects(Session session, Class<?> entityClass) {
 		return repository.findAll(session, entityClass);
 	}
@@ -428,6 +446,15 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
+	public List<ValueObject> find(Entity entity, Filter filter, Session session) {
+		Assert.notNull(filter, C.FILTER);
+		Assert.notNull(session, C.SESSION);
+		
+		filterService.initFilterCriteria(filter);
+		return repository.find(session, entity, filter);
+	}
+	
+	@Override
 	public List<ValueObject> find(Session session, Entity entity, Filter filter) {
 		Assert.notNull(filter, C.FILTER);
 		
@@ -440,6 +467,13 @@ public class ValueObjectServiceImpl
 		Assert.notNull(entity, C.ENTITY);
 		
 		return findUnique(entity, entity.getUidField(), uid);
+	}
+	
+	@Override
+	public ValueObject findByUid(Entity entity, String uid, Session session) {
+		Assert.notNull(entity, C.ENTITY);
+		
+		return findUnique(entity, entity.getUidField(), uid, session);
 	}
 	
 	@Override

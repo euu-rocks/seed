@@ -19,23 +19,26 @@ package org.seed.core.form.navigation;
 
 import java.util.List;
 
+import org.hibernate.Session;
 import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.form.Form;
 import org.seed.core.user.User;
 
 public interface MenuService extends ApplicationEntityService<Menu> {
 	
-	boolean existCustomMenus();
+	boolean existCustomMenus(Session session);
 	
 	String getDefaultMenuName();
 	
 	List<Menu> getTopLevelMenus();
 	
-	List<Menu> getCustomTopLevelMenus();
+	List<Menu> getTopLevelMenus(Session session);
 	
-	List<Menu> findCustomMenusWithoutModule();
+	List<Menu> getCustomTopLevelMenus(Session session);
 	
-	List<Menu> getMenus(User user);
+	List<Menu> findCustomMenusWithoutModule(Session session);
+	
+	List<Menu> getMenus(User user, Session session);
 	
 	Menu createMenuEntry(Menu menu, Form form);
 	

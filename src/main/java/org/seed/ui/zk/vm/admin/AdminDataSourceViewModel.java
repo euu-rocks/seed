@@ -72,7 +72,7 @@ public class AdminDataSourceViewModel extends AbstractAdminViewModel<IDataSource
 	}
 	
 	public List<Entity> getEntities() {
-		return entityService.findNonGenericEntities();
+		return entityService.findNonGenericEntities(currentSession());
 	}
 	
 	public DataSourceParameter getParameter() {

@@ -112,6 +112,7 @@ public class AdminCustomCodeViewModel extends AbstractAdminViewModel<CustomCode>
 						 @BindingParam(C.ELEM) Component component) {
 		if (compileCode(code, component)) {
 			cmdSaveObject(component);
+			resetCurrentSession();
 		}
 	}
 	

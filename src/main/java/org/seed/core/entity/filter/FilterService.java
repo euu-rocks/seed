@@ -21,6 +21,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import org.hibernate.Session;
 import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
@@ -32,7 +33,9 @@ public interface FilterService extends ApplicationEntityService<Filter> {
 	
 	List<Filter> findFilters(Entity entity);
 	
-	List<Filter> getFilters(Entity entity, User user);
+	List<Filter> findFilters(Entity entity, Session session);
+	
+	List<Filter> getFilters(Entity entity, User user, Session session);
 	
 	Filter getFilterByName(Entity entity, String name);
 	
@@ -42,7 +45,7 @@ public interface FilterService extends ApplicationEntityService<Filter> {
 	
 	List<FilterElement> getFilterElements(Filter filter, @Nullable NestedEntity nestedEntity);
 	
-	List<FilterPermission> getAvailablePermissions(Filter filter);
+	List<FilterPermission> getAvailablePermissions(Filter filter, Session session);
 	
 	void initFilterCriteria(Filter filter);
 	

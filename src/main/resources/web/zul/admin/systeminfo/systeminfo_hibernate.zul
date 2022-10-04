@@ -58,7 +58,7 @@
 				</cell>
 				<cell style="padding: 4px 4px">
 					<label value="@load(vm.hbnStatistic.sessionOpenCount)"/> /
-					<label value="@load(vm.hbnStatistic.sessionCloseCount)"/>
+					<label value="@load(vm.hbnStatistic.sessionCloseCount + 1)"/>
 				</cell>
 			</row>
 			<row>

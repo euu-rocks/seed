@@ -186,11 +186,11 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	public boolean existGenericEntities() {
-		return entityService.existGenericEntities();
+		return entityService.existGenericEntities(currentSession());
 	}
 	
 	public boolean existNonGenericEntities() {
-		return entityService.existNonGenericEntities();
+		return entityService.existNonGenericEntities(currentSession());
 	}
 	
 	public boolean existParentEntities() {
@@ -199,22 +199,22 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	
 	public boolean existValueObjects() {
 		return !getObject().isNew() &&
-				valueObjectService.existObjects(getObject());
+				valueObjectService.existObjects(getObject(), currentSession());
 	}
 	
 	public List<Menu> getMenus() {
-		return menuService.getCustomTopLevelMenus();
+		return menuService.getCustomTopLevelMenus(currentSession());
 	}
 	
 	public Object getReferenceValue(ValueObject valueObject) {
 		return valueObject != null 
-				? valueObjectService.getIdentifier(valueObject) 
+				? valueObjectService.getIdentifier(valueObject, currentSession()) 
 				: null;
 	}
 	
 	public List<ValueObject> getReferenceValues(EntityField referenceField) {
 		return referenceField != null && referenceField.getReferenceEntity() != null
-				? valueObjectService.getAllObjects(referenceField.getReferenceEntity())
+				? valueObjectService.getAllObjects(currentSession(), referenceField.getReferenceEntity())
 				: null;
 	}
 	
@@ -386,29 +386,29 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	public List<Entity> getGenericEntities() {
-		return entityService.findGenericEntities();
+		return entityService.findGenericEntities(currentSession());
 	}
 	
 	// reference entity can only be selected if field id new
 	public List<Entity> getReferenceEntities() {
 		if (field != null) {
 			return field.isNew() 
-					? entityService.findNonGenericEntities()
+					? entityService.findNonGenericEntities(currentSession())
 					: Collections.singletonList(field.getReferenceEntity());
 		}
 		return Collections.emptyList();
 	}
 	
 	public List<Entity> getAvailableNesteds() {
-		return entityService.getAvailableNestedEntities(getObject());
+		return entityService.getAvailableNestedEntities(getObject(), currentSession());
 	}
 	
 	public List<Entity> getParentEntities() {
-		return subList(entityService.findNonGenericEntities(), entity -> !entity.isTransferable());
+		return subList(entityService.findNonGenericEntities(currentSession()), entity -> !entity.isTransferable());
 	}
 	
 	public List<Entity> getRelationEntities() {
-		return entityService.findNonGenericEntities();
+		return entityService.findNonGenericEntities(currentSession());
 	}
 	
 	@Override
@@ -499,6 +499,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 			
 			if (cmdSaveObject(component)) {
 				// old session is invalid after configuration update
+				resetCurrentSession();
 				refreshObject();
 				if (isCreate) {
 					refreshMenu();
@@ -1060,7 +1061,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 		switch (key) {
 			case PERMISSIONS:
 				return MiscUtils.castList(listNum == LIST_AVAILABLE 
-						? entityService.getAvailablePermissions(getObject()) 
+						? entityService.getAvailablePermissions(getObject(), currentSession()) 
 						: getObject().getPermissions());
 			
 			case TRANSITIONFUNCTIONS:
@@ -1074,7 +1075,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 			case TRANSITIONPERMISSIONS:
 				if (statusTransition != null) {
 					return MiscUtils.castList(listNum == LIST_AVAILABLE
-							  ? entityService.getAvailableStatusTransitionPermissions(statusTransition)
+							  ? entityService.getAvailableStatusTransitionPermissions(statusTransition, currentSession())
 							  : statusTransition.getPermissions());
 				}
 				break;

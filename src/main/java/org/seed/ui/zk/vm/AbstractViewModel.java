@@ -43,7 +43,7 @@ import org.zkoss.zkplus.spring.DelegatingVariableResolver;
 import org.zkoss.zul.Messagebox;
 
 @VariableResolver(DelegatingVariableResolver.class)
-abstract class AbstractViewModel {
+abstract class AbstractViewModel extends UIUtils {
 	
 	private static final String NOBR_START   = "<nobr>";
 	private static final String NOBR_END     = "</nobr>";
@@ -61,22 +61,6 @@ abstract class AbstractViewModel {
 	
 	protected final LabelProvider getLabelProvider() {
 		return labelProvider;
-	}
-	
-	protected final boolean hasSessionObject(String name) {
-		return UIUtils.hasSessionObject(name);
-	}
-	
-	protected final <T> T getSessionObject(String name) {
-		return UIUtils.getSessionObject(name);
-	}
-	
-	protected final void setSessionObject(String name, Object object) {
-		UIUtils.setSessionObject(name, object);
-	}
-	
-	protected final void removeSessionObject(String name) {
-		UIUtils.removeSessionObject(name);
 	}
 	
 	protected final void confirm(String questionKey, final Component elem, final Object confirmParam, String ...params) {
@@ -100,7 +84,7 @@ abstract class AbstractViewModel {
 	}
 	
 	protected final void wireComponents(Component component) {
-		UIUtils.wireComponents(component, this);
+		wireComponents(component, this);
 	}
 	
 	protected final void notifyChange(String ...properties) {
@@ -114,10 +98,10 @@ abstract class AbstractViewModel {
 	protected final void showNotification(Component component, boolean warning, String msgKey, String ...params) {
 		Assert.notNull(msgKey, "msgKey");
 		
-		UIUtils.showNotification(component, 
-								 warning ? Clients.NOTIFICATION_TYPE_WARNING : Clients.NOTIFICATION_TYPE_INFO, 
-								 warning ? 3000 : 2000, 
-								 NOBR_START + getLabel(msgKey, params) + NOBR_END);
+		showNotification(component, 
+						 warning ? Clients.NOTIFICATION_TYPE_WARNING : Clients.NOTIFICATION_TYPE_INFO, 
+						 warning ? 3000 : 2000, 
+						 NOBR_START + getLabel(msgKey, params) + NOBR_END);
 	}
 	
 	protected final void showValidationErrors(Component component, String errorKey, Set<ValidationError> validationErrors) {
@@ -143,31 +127,31 @@ abstract class AbstractViewModel {
 		if (isList) {
 			buf.append("</ul>");
 		}
-		UIUtils.showNotification(component, 
-								 Clients.NOTIFICATION_TYPE_WARNING, 
-								 5000 + (validationErrors.size() * 1000), 
-								 buf.toString());
+		showNotification(component, 
+						 Clients.NOTIFICATION_TYPE_WARNING, 
+						 5000 + (validationErrors.size() * 1000), 
+						 buf.toString());
 	}
 	
 	protected final void showError(Component component, String msgKey, String ...params) {
 		Assert.notNull(msgKey, "msgKey");
 		
-		UIUtils.showError(component, NOBR_START + getLabel(msgKey, params) + NOBR_END);
+		showError(component, NOBR_START + getLabel(msgKey, params) + NOBR_END);
 	}
 	
 	protected final void showError(Component component, Exception ex) {
 		final String msg = StringUtils.hasText(ex.getMessage()) 
 							? ex.getMessage()
 							: ExceptionUtils.getStackTraceAsString(ex);
-		UIUtils.showError(component, msg);
+		showError(component, msg);
 	}
 	
 	protected final void showErrorMessage(String message) {
-		UIUtils.showErrorMessage(getLabel("label.erroroccurred"), message);
+		showErrorMessage(getLabel("label.erroroccurred"), message);
 	}
 	
 	protected final void showWarnMessage(String message) {
-		UIUtils.showWarnMessage(getLabel("label.warning"), message);
+		showWarnMessage(getLabel("label.warning"), message);
 	}
 	
 	private void buildError(StringBuilder buf, ValidationError error) {
@@ -196,19 +180,15 @@ abstract class AbstractViewModel {
 	protected static InputStream getMediaStream(Media media) {
 		Assert.notNull(media, "media");
 		
-		return new ByteArrayInputStream(UIUtils.getBytes(media));
+		return new ByteArrayInputStream(getBytes(media));
 	}
 	
 	protected static void globalCommand(String command, Object param) {
-		UIUtils.globalCommand(command, createParameterMap(param));
+		globalCommand(command, createParameterMap(param));
 	}
 	
 	protected static void notifyObjectChange(Object object, String ...properties) {
-		UIUtils.notifyChange(object, properties);
-	}
-	
-	protected static void redirect(String url) {
-		UIUtils.redirect(url);
+		notifyChange(object, properties);
 	}
 	
 	@SuppressWarnings("unchecked")

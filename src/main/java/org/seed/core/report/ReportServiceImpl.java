@@ -78,10 +78,10 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 	}
 	
 	@Override
-	public List<Report> getReports(User user) {
+	public List<Report> getReports(User user, Session session) {
 		Assert.notNull(user, C.USER);
 		
-		return subList(getObjects(), report -> report.checkPermissions(user));
+		return subList(getObjects(session), report -> report.checkPermissions(user));
 	}
 	
 	@Override

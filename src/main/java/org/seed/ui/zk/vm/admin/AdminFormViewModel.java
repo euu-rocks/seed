@@ -169,7 +169,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	public List<Filter> getFilters() {
-		return formService.getFilters(getObject());
+		return formService.getFilters(getObject(), currentSession());
 	}
 
 	public boolean existFilters() {
@@ -206,21 +206,21 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	public boolean existTransformers() {
 		return getObject() != null && 
 				(getObject().hasTransformers() || 
-				 !formService.getAvailableTransformers(getObject()).isEmpty());
+				 !formService.getAvailableTransformers(getObject(), currentSession()).isEmpty());
 	}
 	
 	public List<Form> getTargetForms(FormTransformer transformer) {
 		return transformer != null 
-				? formService.findForms(transformer.getTransformer().getTargetEntity())
+				? formService.findForms(transformer.getTransformer().getTargetEntity(), currentSession())
 				: null;
 	}
 	
 	public List<Entity> getEntities() {
-		return entityService.findNonGenericEntities();
+		return entityService.findNonGenericEntities(currentSession());
 	}
 	
 	public List<Menu> getMenus() {
-		return menuService.getTopLevelMenus();
+		return menuService.getTopLevelMenus(currentSession());
 	}
 	
 	@Override
@@ -251,7 +251,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 						
 			case TRANSFORMERS:
 				return MiscUtils.castList(listNum == LIST_AVAILABLE
-							? formService.getAvailableTransformers(getObject())
+							? formService.getAvailableTransformers(getObject(), currentSession())
 							: getObject().getTransformers());
 			
 			default:

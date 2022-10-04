@@ -34,7 +34,7 @@ public interface ApplicationEntityService<T extends ApplicationEntity> extends S
 	
 	T findByUid(Session session, String uid);
 	
-	List<T> findObjectsWithoutModule();
+	List<T> findObjectsWithoutModule(Session session);
 	
 	void analyzeObjects(ImportAnalysis analysis, Module currentVersionModule);
 	

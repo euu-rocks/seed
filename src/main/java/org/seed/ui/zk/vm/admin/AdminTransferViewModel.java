@@ -126,7 +126,7 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	}
 	
 	public List<Entity> getEntities() {
-		return entityService.findNonGenericEntities();
+		return entityService.findNonGenericEntities(currentSession());
 	}
 	
 	@Command

@@ -63,6 +63,8 @@ public interface ValueObjectService extends EntityUsage {
 	
 	QueryCursor<FullTextResult> createFullTextSearchCursor(String fullTextQueryString);
 	
+	boolean existObjects(Entity entity, Session session);
+	
 	List<ValueObject> loadChunk(QueryCursor<ValueObject> cursor);
 	
 	List<ValueObject> loadChunk(Session session, QueryCursor<ValueObject> cursor);
@@ -108,6 +110,8 @@ public interface ValueObjectService extends EntityUsage {
 	
 	String getIdentifier(ValueObject object);
 	
+	String getIdentifier(ValueObject object, Session session);
+	
 	long count(Session session, Class<?> entityClass);
 	
 	ValueObject getObject(Entity entity, Long objectId);
@@ -118,17 +122,23 @@ public interface ValueObjectService extends EntityUsage {
 	
 	List<ValueObject> getAllObjects(Entity entity);
 	
+	List<ValueObject> getAllObjects(Session session, Entity entity);
+	
 	List<ValueObject> getAllObjects(Session session, Class<?> entityClass);
 	
 	List<ValueObject> getAvailableRelationObjects(ValueObject object, EntityRelation relation);
 	
 	List<ValueObject> find(Entity entity, Filter filter);
 	
+	List<ValueObject> find(Entity entity, Filter filter, Session session);
+	
 	List<ValueObject> find(Session session, Entity entity, Filter filter);
 	
 	List<ValueObject> find(Session session, CriteriaQuery<ValueObject> query);
 	
 	ValueObject findByUid(Entity entity, String uid);
+	
+	ValueObject findByUid(Entity entity, String uid, Session session);
 	
 	ValueObject findUnique(Entity entity, EntityField entityField, Object value);
 	

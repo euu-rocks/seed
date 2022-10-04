@@ -29,7 +29,7 @@ public interface SystemEntityRepository<T extends SystemEntity> {
 	
 	T get(Long id, Session session);
 	
-	void reload(T object);
+	void reload(T object, Session session);
 	
 	long count();
 	

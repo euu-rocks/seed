@@ -19,6 +19,7 @@ package org.seed.core.entity.transform;
 
 import java.util.List;
 
+import org.hibernate.Session;
 import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.entity.Entity;
 
@@ -28,7 +29,7 @@ public interface TransformerService extends ApplicationEntityService<Transformer
 	
 	TransformerFunction createFunction(Transformer transformer);
 	
-	List<Transformer> findTransformers(Entity sourceEntity);
+	List<Transformer> findTransformers(Entity sourceEntity, Session session);
 	
 	List<Transformer> findTransformers(Entity sourceEntity, Entity targetEntity);
 	
@@ -36,7 +37,7 @@ public interface TransformerService extends ApplicationEntityService<Transformer
 	
 	List<NestedTransformer> getNestedTransformers(Transformer transformer);
 	
-	List<TransformerPermission> getAvailablePermissions(Transformer transformer);
+	List<TransformerPermission> getAvailablePermissions(Transformer transformer, Session session);
 	
 	List<TransformerStatus> getAvailableStatus(Transformer transformer);
 	

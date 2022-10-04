@@ -102,7 +102,7 @@ public class ModuleTransfer {
 	private Jaxb2Marshaller marshaller;
 	
 	@PostConstruct
-	private void init() throws Exception {
+	private void init() {
 		final String propExternalModuleDir = applicationProperties.getProperty(Seed.PROP_MODULE_EXT_ROOT_DIR);
 		if (propExternalModuleDir == null) {
 			return;
