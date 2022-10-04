@@ -348,6 +348,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 		Assert.notNull(module, C.MODULE);
 		
 		moduleService.importModule(module);
+		resetCurrentSession();
 		switch (getViewMode()) {
 			case DETAIL:
 				internalRefresh(module);
