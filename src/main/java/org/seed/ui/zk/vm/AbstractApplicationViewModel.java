@@ -44,7 +44,6 @@ import org.seed.ui.DoubleClickDetector;
 import org.seed.ui.FormParameter;
 import org.seed.ui.TabParameterMap;
 import org.seed.ui.ViewParameterMap;
-import org.seed.ui.zk.UIUtils;
 import org.seed.ui.zk.convert.Converters;
 import org.seed.ui.zk.convert.DateTimeConverter;
 import org.seed.ui.zk.convert.FileIconConverter;
@@ -67,7 +66,7 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	private static final String INCLUDE_PATH = "/inc/";  //NOSONAR
 	
 	@WireVariable(value="defaultSessionProvider")
-	private SessionProvider provider;
+	private SessionProvider sessionProvider;
 	
 	@WireVariable(value="applicationSettingServiceImpl")
 	protected ApplicationSettingService settingService;
@@ -162,14 +161,8 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 		return user;
 	}
 	
-	protected final Session currentSession() {
-		final Session session = getRequestObject(OpenSessionInViewFilter.ATTR_SESSION);
-		Assert.stateAvailable(session, "current session");
-		return session;
-	}
-	
-	protected void resetCurrentSession() {
-		setRequestAttribute(OpenSessionInViewFilter.ATTR_SESSION, provider.getSession());
+	protected final void resetCurrentSession() {
+		setRequestAttribute(OpenSessionInViewFilter.ATTR_SESSION, sessionProvider.getSession());
 	}
 	
 	protected final boolean isDoubleClick(String key) {
@@ -182,17 +175,6 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 								  .detect();
 	}
 	
-	@SuppressWarnings("unchecked")
-	protected final <T extends Component> T getComponentById(String id) {
-		Assert.notNull(id, C.ID);
-		
-		return (T) UIUtils.getComponent(INCLUDE_PATH.concat(id));
-	}
-	
-	protected final void refreshMenu() {
-		globalCommand("globalRefreshMenu", null);
-	}
-	
 	protected final void downloadReport(Report report, ReportFormat format) 
 		throws ValidationException {
 		Filedownload.save(reportService.generateReport(report, format),
@@ -203,6 +185,23 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	private void setDirty(boolean dirty) {
 		this.dirty = dirty;
 		notifyChange("isDirty");
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected static <T extends Component> T getComponentById(String id) {
+		Assert.notNull(id, C.ID);
+		
+		return (T) getComponent(INCLUDE_PATH.concat(id));
+	}
+	
+	protected static void refreshMenu() {
+		globalCommand("globalRefreshMenu", null);
+	}
+	
+	protected static Session currentSession() {
+		final Session session = getRequestObject(OpenSessionInViewFilter.ATTR_SESSION);
+		Assert.stateAvailable(session, "current session");
+		return session;
 	}
 	
 	protected static void openTab(Form form, ValueObject object) {

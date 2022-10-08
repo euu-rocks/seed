@@ -56,6 +56,8 @@ public interface Task
 	
 	void removeNotification(TaskNotification notification);
 	
+	boolean hasRuns();
+	
 	List<TaskRun> getRuns();
 	
 	TaskRun getRunById(Long id);
@@ -63,5 +65,7 @@ public interface Task
 	void addRun(TaskRun run);
 	
 	TaskResult getLastResult();
+	
+	Date getLastRunDate();
 	
 }

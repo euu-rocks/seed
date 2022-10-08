@@ -97,12 +97,11 @@
 					<tabpanel>
 						<borderlayout>
 							<center border="0">
-								<textbox value="@bind(vm.object.content)"
-											 onChange="@command('flagDirty')"
-											 multiline="true"
-											 mandatory="true"
-											 style="margin:5px"
-											 hflex="1" vflex="1"/>
+								<codemirror value="@bind(vm.object.content)" 
+											onChange="@command('flagDirty')"
+											mode="text/x-pgsql" 
+											lineNumbers="true"
+											hflex="1" vflex="1"/>
 							</center>
 							<south border="0" size="15%"
 								   visible="@load(!empty vm.errorMessage)"

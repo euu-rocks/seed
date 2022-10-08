@@ -21,6 +21,9 @@
 <borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.TaskViewModel')">
 	<north border="0">
 		<toolbar hflex="1">
+			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+						   label="${labels.button.refresh}" 
+						   onClick="@command('refresh')"/>	
 			<toolbarbutton iconSclass="z-icon-play alpha-icon-lg" 
 						   label="${labels.button.start}" 
 						   onClick="@command('runTask')"
@@ -34,14 +37,28 @@
 			<listhead sizable="true">
 				<listheader label="${labels.label.job}" 
 	            			sort="auto(name)" onCreate="self.sort(true)"/>
+	            <listheader label="${labels.label.lastrun}" 
+	            			sort="auto(lastRunDate)" hflex="min"/>
+	            <listheader label="${labels.label.resultshort}" 
+	            			sort="auto(lastResult)" hflex="min"/>
 			</listhead>
 			<template name="model" var="task">
 				<listitem>
 	            	<listcell iconSclass="z-icon-cog z-icon-fw alpha-icon-lg">
-	            		<label value="@init(task.name)" style="margin-left:3px"/>
+	            		<label value="@load(task.name)" style="margin-left:3px"/>
+	            	</listcell>
+	            	<listcell>
+	            		<label value="@load(task.lastRunDate) @converter(vm.dateTimeConverter)" style="margin-left:3px"/>
+	            	</listcell>
+	            	<listcell>
+	            		<taskstatus result="@load(task.lastResult)"/>
 	            	</listcell>
 	            </listitem>
 			</template>
 		</listbox>
 	</center>
+	<south>
+		<timer delay="5000" repeats="true"
+		       onTimer="@command('checkJobStatus')"/>
+	</south>
 </borderlayout>

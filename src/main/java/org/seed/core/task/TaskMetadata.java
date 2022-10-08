@@ -224,6 +224,11 @@ public class TaskMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
+	public boolean hasRuns() {
+		return notEmpty(getRuns());
+	}
+	
+	@Override
 	@XmlElement(name="permission")
 	@XmlElementWrapper(name="permissions")
 	public List<TaskPermission> getPermissions() {
@@ -302,8 +307,21 @@ public class TaskMetadata extends AbstractApplicationEntity
 
 	@Override
 	public TaskResult getLastResult() {
-		return notEmpty(getRuns()) 
-				? getRuns().get(getRuns().size() - 1).getResult() 
+		return hasRuns() ? 
+				getLastRun().getResult() 
+				: null;
+	}
+	
+	@Override
+	public Date getLastRunDate() {
+		return hasRuns() 
+				? getLastRun().getStartTime() 
+				: null;
+	}
+	
+	private TaskRun getLastRun() {
+		return hasRuns() 
+				? getRuns().get(getRuns().size() - 1) 
 				: null;
 	}
 	

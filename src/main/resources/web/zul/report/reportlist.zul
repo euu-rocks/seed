@@ -21,6 +21,9 @@
 <borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.ReportViewModel')">
 	<north border="0">
 		<toolbar hflex="1">
+			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+						   label="${labels.button.refresh}" 
+						   onClick="@command('refresh')"/>	
 			<toolbarbutton iconSclass="z-icon-print alpha-icon-lg" 
 						   label="${labels.label.generatereports}" 
 						   onClick="@command('generateReport')"

@@ -81,7 +81,7 @@ class ValueObjectProvider implements EntityObjectProvider {
 		Assert.notNull(entityObject, C.ENTITYOBJECT);
 		Assert.notNull(statusNumber, "status number");
 		
-		final Entity entity = entityService.getObject(((ValueObject) entityObject).getEntityId());
+		final Entity entity = getEntity((ValueObject) entityObject);
 		final Status status = entity.getStatusByNumber(statusNumber); 
 		Assert.state(status != null, "status " + statusNumber + " not available for " + entity.getName());
 		return status;
@@ -91,7 +91,7 @@ class ValueObjectProvider implements EntityObjectProvider {
 	public <T extends EntityObject> String getIdentifier(T entityObject) {
 		Assert.notNull(entityObject, C.ENTITYOBJECT);
 		
-		return valueObjectService.getIdentifier((ValueObject) entityObject);
+		return valueObjectService.getIdentifier((ValueObject) entityObject, functionContext.getSession());
 	}
 	
 	@Override
@@ -238,8 +238,8 @@ class ValueObjectProvider implements EntityObjectProvider {
 			final T sourceObject = BeanUtils.instantiate(sourceClass);
 			final U targetObject = BeanUtils.instantiate(targetClass);
 			return transformerService
-					.getTransformerByName(entityService.getObject(((ValueObject) sourceObject).getEntityId()),
-										  entityService.getObject(((ValueObject) targetObject).getEntityId()), 
+					.getTransformerByName(getEntity((ValueObject) sourceObject),
+										  getEntity((ValueObject) targetObject), 
 										  transformerName);
 		}
 		catch (Exception ex) {
@@ -287,7 +287,11 @@ class ValueObjectProvider implements EntityObjectProvider {
 	
 	private Entity getEntity(Class<ValueObject> clas) {
 		final ValueObject object = BeanUtils.instantiate(clas);
-		return entityService.getObject(object.getEntityId());
+		return getEntity(object);
+	}
+	
+	private Entity getEntity(ValueObject object) {
+		return entityService.getObject(object.getEntityId(), functionContext.getSession());
 	}
 	
 }

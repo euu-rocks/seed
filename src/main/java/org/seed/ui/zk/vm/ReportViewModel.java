@@ -40,6 +40,11 @@ public class ReportViewModel extends AbstractApplicationViewModel {
 	}
 	
 	@Command
+	public void refresh() {
+		notifyChange("reports");
+	}
+	
+	@Command
 	public void generateReport() {
 		showDialog("/form/selectreportformat.zul", new SelectReportFormatParameter(this, report));
 	}

@@ -78,17 +78,17 @@ public class UserGroupServiceImpl extends AbstractApplicationEntityService<UserG
 	
 	@Override
 	public List<UserGroup> findNonSystemGroups() {
-		return repository.find(queryParam("isSystemGroup", false));
+		return repository.find(nonSystemGroup());
 	}
 	
 	@Override
 	public List<UserGroup> findNonSystemGroups(Session session) {
-		return repository.find(session, queryParam("isSystemGroup", false));
+		return repository.find(session, nonSystemGroup());
 	}
 	
 	@Override
 	public List<UserGroup> findNonSystemGroupsWithoutModule(Session session) {
-		return repository.find(session, queryParam("isSystemGroup", false),
+		return repository.find(session, nonSystemGroup(),
 							   			queryParam(C.MODULE, QueryParameter.IS_NULL));
 	}
 	
@@ -258,6 +258,10 @@ public class UserGroupServiceImpl extends AbstractApplicationEntityService<UserG
 				handleException(tx, ex);
 			}
 		}
+	}
+	
+	private static QueryParameter nonSystemGroup() {
+		return queryParam("isSystemGroup", false);
 	}
 	
 	private static UserGroupAuthorisation createAuthorization(UserGroup userGroup, Authorisation authorisation) {
