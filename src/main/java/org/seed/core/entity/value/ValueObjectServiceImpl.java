@@ -344,8 +344,8 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public void preallocateFileObjects(ValueObject object) {
-		setFileObjects(object, true);
+	public void preallocateFileObjects(ValueObject object, Session session) {
+		setFileObjects(object, session, true);
 	}
 	
 	@Override
@@ -505,19 +505,12 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public void reloadObject(ValueObject object) {
-		Assert.notNull(object, C.OBJECT);
-		
-		clearEmptyFileObjects(object);
-		repository.reload(object);
-	}
-	
-	@Override
 	public void deleteObject(ValueObject object) throws ValidationException {
 		Assert.notNull(object, C.OBJECT);
-		clearEmptyFileObjects(object);
+		
 		
 		try (Session session = repository.getSession()) {
+			clearEmptyFileObjects(object, session);
 			Transaction tx = null;
 			try {
 				tx = session.beginTransaction();
@@ -576,10 +569,10 @@ public class ValueObjectServiceImpl
 	@Override
 	public void saveObject(ValueObject object, List<FileObject> deletedFiles) throws ValidationException {
 		Assert.notNull(object, C.OBJECT);
-		clearEmptyFileObjects(object);
 		
 		final boolean isInsert = object.isNew();
 		try (Session session = repository.getSession()) {
+			clearEmptyFileObjects(object, session);
 			Transaction tx = null;
 			try {
 				tx = session.beginTransaction();
@@ -617,17 +610,17 @@ public class ValueObjectServiceImpl
 			throws ValidationException {
 		Assert.notNull(object, C.OBJECT);
 		final boolean isInsert = object.isNew();
-		final Session sessionToUse = functionContext != null 
+		final Session localSession = functionContext != null 
 										? functionContext.getSession() 
 										: session;
-		validator.validateSave(object);
+		validator.validateSave(localSession, object);
 		repository.save(object, session, functionContext);
 		
 		if (isInsert) {
-			changeAwareObjects.forEach(changeAware -> changeAware.notifyCreate(object, sessionToUse));
+			changeAwareObjects.forEach(changeAware -> changeAware.notifyCreate(object, localSession));
 		}
 		else {
-			changeAwareObjects.forEach(changeAware -> changeAware.notifyChange(object, sessionToUse));
+			changeAwareObjects.forEach(changeAware -> changeAware.notifyChange(object, localSession));
 		}
 	}
 	
@@ -640,9 +633,11 @@ public class ValueObjectServiceImpl
 	public void changeStatus(ValueObject object, EntityStatus targetStatus) throws ValidationException {
 		Assert.notNull(object, C.OBJECT);
 		
-		clearEmptyFileObjects(object);
-		validator.validateChangeStatus(object, targetStatus);
-		repository.changeStatus(object, targetStatus);
+		try (Session session = repository.getSession()) {
+			clearEmptyFileObjects(object, session);
+			validator.validateChangeStatus(object, targetStatus);
+			repository.changeStatus(object, targetStatus, session);
+		}
 	}
 	
 	@Override
@@ -650,7 +645,7 @@ public class ValueObjectServiceImpl
 			 Session session, ValueObjectFunctionContext functionContext) throws ValidationException {
 		Assert.notNull(object, C.OBJECT);
 		
-		clearEmptyFileObjects(object);
+		clearEmptyFileObjects(object, session != null ? session : functionContext.getSession());
 		validator.validateChangeStatus(object, targetStatus);
 		repository.changeStatus(object, targetStatus, session, functionContext);
 	}
@@ -836,8 +831,8 @@ public class ValueObjectServiceImpl
 		return isModified;
 	}
 	
-	private void clearEmptyFileObjects(ValueObject object) {
-		setFileObjects(object, false);
+	private void clearEmptyFileObjects(ValueObject object, Session session) {
+		setFileObjects(object, session, false);
 	}
 	
 	private void collectFileObjects(ValueObject object, Entity entity, List<FileObject> fileObjects) {
@@ -849,8 +844,8 @@ public class ValueObjectServiceImpl
 		}
 	}
 	
-	private void setFileObjects(ValueObject object, boolean createObject) {
-		final Entity entity = repository.getEntity(object);
+	private void setFileObjects(ValueObject object, Session session, boolean createObject) {
+		final Entity entity = repository.getEntity(session, object);
 		setFileFields(object, entity, createObject);
 		filterAndForEach(entity.getNesteds(), 
 						 nested -> nested.getNestedEntity().hasAllFields() && hasNestedObjects(object, nested), 

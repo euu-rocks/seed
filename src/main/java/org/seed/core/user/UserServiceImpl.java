@@ -235,7 +235,7 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 				user.setEnabled(true);
 				user.setName(C.SEED);
 				user.setEmail("seed@seed.org");
-				user.setPassword(passwordEncoder.encode(C.SEED));
+				user.setPassword("$2a$10$yiUz8SpvqJNy4hVocA8EKOjcdsLg/POsJMg.b0YXmIHqFbUVFeS1S");
 				user.getUserGroups().add(groupAdmin);
 				saveObject(user, session);
 				log.info("Default user 'seed' created.");

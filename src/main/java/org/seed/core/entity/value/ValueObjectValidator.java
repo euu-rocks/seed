@@ -19,6 +19,8 @@ package org.seed.core.entity.value;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.C;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.config.Limits;
@@ -106,10 +108,11 @@ public class ValueObjectValidator implements ApplicationContextAware {
 		}
 	}
 	
-	public void validateSave(ValueObject object) throws ValidationException {
+	public void validateSave(Session session, ValueObject object) throws ValidationException {
+		Assert.notNull(session, C.SESSION);
 		Assert.notNull(object, C.OBJECT);
 	
-		final Entity entity = entityRepository.get(object.getEntityId());
+		final Entity entity = entityRepository.get(object.getEntityId(), session);
 		final ValidationErrors errors = new ValidationErrors();
 		
 		// fields

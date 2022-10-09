@@ -505,7 +505,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	
 	private void initFileObjects() {
 		fileObjects = valueObjectService().getFileObjects(getObject());
-		valueObjectService().preallocateFileObjects(getObject());
+		valueObjectService().preallocateFileObjects(getObject(), currentSession());
 	}
 	
 	private void reset() {

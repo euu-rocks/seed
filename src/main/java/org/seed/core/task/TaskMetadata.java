@@ -320,9 +320,7 @@ public class TaskMetadata extends AbstractApplicationEntity
 	}
 	
 	private TaskRun getLastRun() {
-		return hasRuns() 
-				? getRuns().get(getRuns().size() - 1) 
-				: null;
+		return getRuns().get(getRuns().size() - 1);
 	}
 	
 	@Override

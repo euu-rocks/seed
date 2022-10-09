@@ -109,7 +109,7 @@ public class ValueObjectEventHandler {
 	
 	private boolean processEntityEvent(ValueObjectEvent event) {
 		boolean functionExecuted = false;
-		final Entity entity = entityRepository.get(event.object.getEntityId());
+		final Entity entity = entityRepository.get(event.object.getEntityId(), event.getSession());
 		
 		if (entity.hasFunctions()) {
 			for (EntityFunction function : entity.getFunctions()) {

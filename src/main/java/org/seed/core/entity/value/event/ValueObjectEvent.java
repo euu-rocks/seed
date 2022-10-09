@@ -71,4 +71,8 @@ public class ValueObjectEvent {
 		this.entityFunction = entityFunction;
 	}
 	
+	Session getSession() {
+		return session != null ? session : functionContext.getSession();
+	}
+	
 }

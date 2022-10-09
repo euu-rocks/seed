@@ -106,7 +106,7 @@ public interface ValueObjectService extends EntityUsage {
 	
 	List<FileObject> getFileObjects(ValueObject object);
 	
-	void preallocateFileObjects(ValueObject object);
+	void preallocateFileObjects(ValueObject object, Session session);
 	
 	String getIdentifier(ValueObject object);
 	
@@ -147,8 +147,6 @@ public interface ValueObjectService extends EntityUsage {
 	List<ValueObject> findByIds(Session session, Class<?> entityClass, Long ...ids);
 	
 	List<ValueObject> findByIds(Session session, Class<?> entityClass, List<Long> idList);
-	
-	void reloadObject(ValueObject object);
 	
 	void deleteObject(ValueObject object) throws ValidationException;
 	
