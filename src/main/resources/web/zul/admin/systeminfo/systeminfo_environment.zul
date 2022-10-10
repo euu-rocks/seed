@@ -39,9 +39,9 @@
 					<label value="${labels.systeminfo.environment.memory}:"/>
 				</cell>
 				<cell style="padding: 4px 4px">
-					<label value="@load(vm.memMaxInfo)"/> / 
-					<label value="@load(vm.memAllocInfo)"/> /
-					<label value="@load(vm.memUsedInfo)"/> 
+					<label value="@load(vm.memMax) @converter(vm.memorySizeConverter)"/> / 
+					<label value="@load(vm.memAlloc) @converter(vm.memorySizeConverter)"/> /
+					<label value="@load(vm.memUsed) @converter(vm.memorySizeConverter)"/> 
 				</cell>
 			</row>
 			<row>
@@ -49,8 +49,8 @@
 					<label value="${labels.systeminfo.environment.filesystem}:"/>
 				</cell>
 				<cell style="padding: 4px 4px">
-					<label value="@load(vm.filesystemTotalInfo)"/> / 
-					<label value="@load(vm.filesystemUsedInfo)"/>
+					<label value="@load(vm.filesystemTotal) @converter(vm.memorySizeConverter)"/> / 
+					<label value="@load(vm.filesystemUsed) @converter(vm.memorySizeConverter)"/>
 				</cell>
 			</row>
 			<row>

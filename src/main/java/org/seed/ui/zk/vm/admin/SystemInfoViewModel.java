@@ -30,7 +30,6 @@ import org.seed.core.config.SessionProvider;
 import org.seed.core.config.SystemLog;
 import org.seed.core.config.SystemLog.LogEntry;
 import org.seed.core.task.job.JobStatistics;
-import org.seed.core.util.MiscUtils;
 import org.seed.ui.zk.vm.AbstractApplicationViewModel;
 
 import org.springframework.core.env.Environment;
@@ -105,26 +104,25 @@ public class SystemInfoViewModel extends AbstractApplicationViewModel {
 			   System.getProperty("java.version.date") + ')';
 	}
 	
-	public String getMemMaxInfo() {
-		return MiscUtils.formatMemorySize(Runtime.getRuntime().maxMemory());
+	public Long getMemMax() {
+		return Runtime.getRuntime().maxMemory();
 	}
 	
-	public String getMemAllocInfo() {
-		return MiscUtils.formatMemorySize(Runtime.getRuntime().totalMemory());
+	public Long getMemAlloc() {
+		return Runtime.getRuntime().totalMemory();
 	}
 	
-	public String getMemUsedInfo() {
-		return MiscUtils.formatMemorySize(Runtime.getRuntime().totalMemory() - 
-										  Runtime.getRuntime().freeMemory());
+	public Long getMemUsed() {
+		return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 	}
 	
-	public String getFilesystemTotalInfo() {
-		return MiscUtils.formatMemorySize(new File("/").getTotalSpace());
+	public Long getFilesystemTotal() {
+		return new File("/").getTotalSpace();
 	}
 	
-	public String getFilesystemUsedInfo() {
+	public Long getFilesystemUsed() {
 		final File root = new File("/");
-		return MiscUtils.formatMemorySize(root.getTotalSpace() - root.getFreeSpace());
+		return root.getTotalSpace() - root.getFreeSpace();
 	}
  	
 	public Long getJobTotalDuration() {

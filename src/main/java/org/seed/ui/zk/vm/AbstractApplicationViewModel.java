@@ -49,6 +49,7 @@ import org.seed.ui.zk.convert.DateTimeConverter;
 import org.seed.ui.zk.convert.DurationConverter;
 import org.seed.ui.zk.convert.FileIconConverter;
 import org.seed.ui.zk.convert.ImageConverter;
+import org.seed.ui.zk.convert.MemorySizeConverter;
 import org.seed.ui.zk.convert.StringConverter;
 import org.seed.ui.zk.convert.TimeConverter;
 import org.seed.ui.zk.convert.ValueConverter;
@@ -109,7 +110,7 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	}
 	
 	public final ImageConverter getImageConverter() {
-		return Converters.IMAGE_CONVERTER;
+		return Converters.getImageConverter();
 	}
 	
 	public final FileIconConverter getFileIconConverter() {
@@ -130,6 +131,10 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	
 	public final DurationConverter getDurationConverter() {
 		return Converters.getDurationConverter();
+	}
+	
+	public final MemorySizeConverter getMemorySizeConverter() {
+		return Converters.getMemorySizeConverter();
 	}
 	
 	public final List<Report> getUserReports() {
