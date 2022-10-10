@@ -47,7 +47,7 @@
 					<label value="${labels.systeminfo.system.uptime}:"/>
 				</cell>
 				<cell style="padding: 4px 4px">
-					<label value="@load(vm.upTime)"/>
+					<label value="@load(vm.upTime) @converter(vm.durationConverter)"/>
 				</cell>
 			</row>
            </rows>

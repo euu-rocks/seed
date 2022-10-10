@@ -76,7 +76,7 @@
 				</cell>
 				<cell style="padding: 4px 4px">
 					<label value="@load(vm.hbnStatistic.queryExecutionCount)"/> /
-					<label value="@load(vm.maxQueryTime)"
+					<label value="@load(vm.maxQueryTime) @converter(vm.durationConverter)"
 						   tooltiptext="@load(vm.hbnStatistic.queryExecutionMaxTimeQueryString)"/>
 				</cell>
 			</row>

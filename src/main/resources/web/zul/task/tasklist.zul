@@ -35,10 +35,12 @@
 				 model="@load(vm.tasks)" 
 		         selectedItem="@bind(vm.task)">
 			<listhead sizable="true">
-				<listheader label="${labels.label.job}" 
+				<listheader label="${labels.label.job}" hflex="5"
 	            			sort="auto(name)" onCreate="self.sort(true)"/>
 	            <listheader label="${labels.label.lastrun}" 
-	            			sort="auto(lastRunDate)" hflex="min"/>
+	            			sort="auto(lastRunDate)" hflex="1"/>
+	            <listheader label="${labels.label.runtime}" 
+	            			sort="auto(lastRunDuration)" hflex="1"/>			
 	            <listheader label="${labels.label.resultshort}" 
 	            			sort="auto(lastResult)" hflex="min"/>
 			</listhead>
@@ -49,6 +51,9 @@
 	            	</listcell>
 	            	<listcell>
 	            		<label value="@load(task.lastRunDate) @converter(vm.dateTimeConverter)" style="margin-left:3px"/>
+	            	</listcell>
+	            	<listcell>
+	            		<label value="@load(task.lastRunDuration) @converter(vm.durationConverter)" style="margin-left:3px"/>
 	            	</listcell>
 	            	<listcell>
 	            		<taskstatus result="@load(task.lastResult)"/>

@@ -46,6 +46,7 @@ import org.seed.ui.TabParameterMap;
 import org.seed.ui.ViewParameterMap;
 import org.seed.ui.zk.convert.Converters;
 import org.seed.ui.zk.convert.DateTimeConverter;
+import org.seed.ui.zk.convert.DurationConverter;
 import org.seed.ui.zk.convert.FileIconConverter;
 import org.seed.ui.zk.convert.ImageConverter;
 import org.seed.ui.zk.convert.StringConverter;
@@ -53,7 +54,7 @@ import org.seed.ui.zk.convert.TimeConverter;
 import org.seed.ui.zk.convert.ValueConverter;
 
 import org.springframework.security.core.context.SecurityContextHolder;
-
+import org.springframework.util.StringUtils;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Sessions;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
@@ -61,7 +62,7 @@ import org.zkoss.zul.Filedownload;
 
 public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	
-	protected static final String DEFAULT_APPLICATION_NAME = "Seed";
+	protected static final String DEFAULT_APPLICATION_NAME = StringUtils.capitalize(C.SEED);
 	
 	private static final String INCLUDE_PATH = "/inc/";  //NOSONAR
 	
@@ -112,7 +113,7 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	}
 	
 	public final FileIconConverter getFileIconConverter() {
-		return Converters.FILEICON_CONVERTER;
+		return Converters.getFileIconConverter();
 	}
 	
 	public final ValueConverter getValueConverter() {
@@ -125,6 +126,10 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	
 	public final TimeConverter getTimeConverter() {
 		return Converters.getTimeConverter();
+	}
+	
+	public final DurationConverter getDurationConverter() {
+		return Converters.getDurationConverter();
 	}
 	
 	public final List<Report> getUserReports() {

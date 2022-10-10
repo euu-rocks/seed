@@ -30,8 +30,10 @@ import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.Path;
 import org.zkoss.zk.ui.Sessions;
+import org.zkoss.zk.ui.WebApps;
 import org.zkoss.zk.ui.select.Selectors;
 import org.zkoss.zk.ui.util.Clients;
+import org.zkoss.zk.ui.util.Statistic;
 import org.zkoss.zul.Messagebox;
 
 public abstract class UIUtils {
@@ -47,6 +49,14 @@ public abstract class UIUtils {
 					: media.getStringData().getBytes(MiscUtils.CHARSET);
 		}
 		return MiscUtils.EMPTY_BYTE_ARRAY;
+	}
+	
+	public static Statistic getStatistic() {
+		final Statistic statistic = (Statistic) 
+			WebApps.getCurrent().getConfiguration().getMonitor();
+		Assert.stateAvailable(statistic, "statistic");
+		
+		return statistic;
 	}
 	
 	public static Component getComponent(String path) {

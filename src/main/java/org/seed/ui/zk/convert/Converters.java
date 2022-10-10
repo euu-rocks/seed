@@ -26,8 +26,6 @@ public abstract class Converters {
 	
 	public static final ImageConverter IMAGE_CONVERTER = new ImageConverter();
 	
-	public static final FileIconConverter FILEICON_CONVERTER = new FileIconConverter();
-	
 	private static LabelProvider labelProvider;
 	
 	private static ValueConverter valueConverter;
@@ -35,6 +33,10 @@ public abstract class Converters {
 	private static DateTimeConverter dateTimeConverter;
 	
 	private static TimeConverter timeConverter;
+	
+	private static DurationConverter durationConverter;
+	
+	private static FileIconConverter fileIconConverter;
 	
 	private Converters() {}
 	
@@ -57,6 +59,20 @@ public abstract class Converters {
 			timeConverter = new TimeConverter(getLabelProvider(), true);
 		}
 		return timeConverter;
+	}
+	
+	public static DurationConverter getDurationConverter() {
+		if (durationConverter == null) {
+			durationConverter = new DurationConverter(getLabelProvider());
+		}
+		return durationConverter;
+	}
+	
+	public static FileIconConverter getFileIconConverter() {
+		if (fileIconConverter == null) {
+			fileIconConverter = new FileIconConverter(getLabelProvider());
+		}
+		return fileIconConverter;
 	}
 	
 	private static LabelProvider getLabelProvider() {

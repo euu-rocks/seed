@@ -30,7 +30,6 @@ import org.seed.core.config.SessionProvider;
 import org.seed.core.config.SystemLog;
 import org.seed.core.config.SystemLog.LogEntry;
 import org.seed.core.task.job.JobStatistics;
-import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 import org.seed.ui.zk.vm.AbstractApplicationViewModel;
 
@@ -38,7 +37,6 @@ import org.springframework.core.env.Environment;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zk.ui.WebApps;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
 import org.zkoss.zk.ui.util.Statistic;
 
@@ -85,12 +83,12 @@ public class SystemInfoViewModel extends AbstractApplicationViewModel {
 		return new Date(getHbnStatistic().getStartTime());
 	}
 	
-	public String getMaxQueryTime() {
-		return MiscUtils.formatDurationTime(getHbnStatistic().getQueryExecutionMaxTime());
+	public Long getMaxQueryTime() {
+		return getHbnStatistic().getQueryExecutionMaxTime();
 	}
 	
-	public String getUpTime() {
-		return MiscUtils.formatDuration(getZkStatistic().getStartTime());
+	public Long getUpTime() {
+		return System.currentTimeMillis() - getZkStatistic().getStartTime();
 	}
 	
 	public String getOsInfo() {
@@ -129,29 +127,20 @@ public class SystemInfoViewModel extends AbstractApplicationViewModel {
 		return MiscUtils.formatMemorySize(root.getTotalSpace() - root.getFreeSpace());
 	}
  	
-	public String getJobTotalDuration() {
-		return jobStatistics.getTotalRunsDurationTime() > 0 
-				? MiscUtils.formatDurationTime(jobStatistics.getTotalRunsDurationTime()) 
-				: null;
+	public Long getJobTotalDuration() {
+		return jobStatistics.getTotalRunsDurationTime();
 	}
 	
-	public String getJobLongestDuration() {
-		return jobStatistics.getLongestRunDurationTime() > 0 
-				? MiscUtils.formatDurationTime(jobStatistics.getLongestRunDurationTime())
-				: null;	
+	public Long getJobLongestDuration() {
+		return jobStatistics.getLongestRunDurationTime();
 	}
 	
-	public String getJobAverageDuration() {
-		return jobStatistics.getAverageDurationTime() > 0 
-				? MiscUtils.formatDurationTime(jobStatistics.getAverageDurationTime())
-				: null;
+	public Long getJobAverageDuration() {
+		return jobStatistics.getAverageDurationTime();
 	}
 	
 	public Statistic getZkStatistic() {
-		final Statistic statistic = (Statistic) WebApps.getCurrent().getConfiguration().getMonitor();
-		Assert.stateAvailable(statistic, "statistic");
-		
-		return statistic;
+		return getStatistic();
 	}
 	
 	public Statistics getHbnStatistic() {

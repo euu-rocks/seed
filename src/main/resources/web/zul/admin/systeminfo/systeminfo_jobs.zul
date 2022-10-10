@@ -49,7 +49,7 @@
 					<label value="${labels.systeminfo.jobs.totalduration}:"/>
 				</cell>
 				<cell style="padding: 4px 4px">
-					<label value="@load(vm.jobTotalDuration)"/>
+					<label value="@load(vm.jobTotalDuration) @converter(vm.durationConverter)"/>
 				</cell>
 			</row>
 			<row>
@@ -57,7 +57,7 @@
 					<label value="${labels.systeminfo.jobs.averageduration}:"/>
 				</cell>
 				<cell style="padding: 4px 4px">
-					<label value="@load(vm.jobAverageDuration)"/>
+					<label value="@load(vm.jobAverageDuration) @converter(vm.durationConverter)"/>
 				</cell>
 			</row>
 			<row>
@@ -65,7 +65,7 @@
 					<label value="${labels.systeminfo.jobs.longestduration}:"/>
 				</cell>
 				<cell style="padding: 4px 4px">
-					<label value="@load(vm.jobLongestDuration)"/>
+					<label value="@load(vm.jobLongestDuration) @converter(vm.durationConverter)"/>
 				</cell>
 			</row>
 		</rows>

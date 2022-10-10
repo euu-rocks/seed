@@ -305,17 +305,21 @@ public class TaskMetadata extends AbstractApplicationEntity
 		this.runs = runs;
 	}
 
-	@Override
 	public TaskResult getLastResult() {
 		return hasRuns() ? 
 				getLastRun().getResult() 
 				: null;
 	}
 	
-	@Override
 	public Date getLastRunDate() {
 		return hasRuns() 
 				? getLastRun().getStartTime() 
+				: null;
+	}
+	
+	public Long getLastRunDuration() {
+		return hasRuns()
+				? getLastRun().getDuration()
 				: null;
 	}
 	

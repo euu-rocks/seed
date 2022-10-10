@@ -64,8 +64,4 @@ public interface Task
 	
 	void addRun(TaskRun run);
 	
-	TaskResult getLastResult();
-	
-	Date getLastRunDate();
-	
 }

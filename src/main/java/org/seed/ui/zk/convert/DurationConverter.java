@@ -18,21 +18,22 @@
 package org.seed.ui.zk.convert;
 
 import org.seed.LabelProvider;
-import org.seed.ui.zk.FileTypeIcons;
+import org.seed.core.util.MiscUtils;
 
 import org.zkoss.bind.BindContext;
 import org.zkoss.zk.ui.Component;
 
-public class FileIconConverter extends AbstractConverter<String, String, Component> {
-	
-	FileIconConverter(LabelProvider labelProvider) {
+public class DurationConverter extends AbstractConverter<String, Long, Component> {
+
+	DurationConverter(LabelProvider labelProvider) {
 		super(labelProvider);
 	}
 
 	@Override
-	public String coerceToUi(String beanProp, Component component, BindContext ctx) {
-		return FileTypeIcons.getIcon(beanProp);
+	public String coerceToUi(Long beanProp, Component component, BindContext ctx) {
+		return beanProp != null && beanProp > 0 
+				? MiscUtils.formatDurationTime(beanProp) 
+				: null;
 	}
 
-	
 }

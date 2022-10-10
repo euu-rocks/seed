@@ -25,7 +25,7 @@ import org.zkoss.zk.ui.Component;
 
 public class DateTimeConverter extends AbstractConverter<String, Date, Component> {
 
-	public DateTimeConverter(LabelProvider labelProvider) {
+	DateTimeConverter(LabelProvider labelProvider) {
 		super(labelProvider);
 	}
 
