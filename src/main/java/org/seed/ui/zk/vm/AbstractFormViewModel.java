@@ -276,7 +276,7 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 	}
 	
 	protected void transformObject() {
-		final ValueObject targetObject = valueObjectService.transform(transformer.getTransformer(), object);
+		final ValueObject targetObject = valueObjectService.transform(transformer.getTransformer(), object, currentSession());
 		showDetailForm(transformer.getTargetForm(), targetObject);
 	}
 	

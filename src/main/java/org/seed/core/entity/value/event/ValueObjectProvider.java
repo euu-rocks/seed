@@ -210,7 +210,7 @@ class ValueObjectProvider implements EntityObjectProvider {
 		Assert.notNull(sourceObject, "source object");
 		Assert.notNull(targetObject, "target object");
 		
-		valueObjectService.transform((Transformer) transformer, (ValueObject) sourceObject, (ValueObject) targetObject);
+		valueObjectService.transform((Transformer) transformer, (ValueObject) sourceObject, (ValueObject) targetObject, functionContext.getSession());
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -219,7 +219,7 @@ class ValueObjectProvider implements EntityObjectProvider {
 		Assert.notNull(transformer, C.TRANSFORMER);
 		Assert.notNull(sourceObject, "source object");
 		
-		return (U) valueObjectService.transform((Transformer) transformer, (ValueObject) sourceObject);
+		return (U) valueObjectService.transform((Transformer) transformer, (ValueObject) sourceObject, functionContext.getSession());
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -229,7 +229,7 @@ class ValueObjectProvider implements EntityObjectProvider {
 		Assert.notNull(filterName, "filter name");
 		
 		final Entity entity = getEntity((Class<ValueObject>) objectClass);
-		return filterService.getFilterByName(entity, filterName);
+		return filterService.getFilterByName(entity, filterName, functionContext.getSession());
 	}
 	
 	@Override
@@ -240,7 +240,7 @@ class ValueObjectProvider implements EntityObjectProvider {
 			return transformerService
 					.getTransformerByName(getEntity((ValueObject) sourceObject),
 										  getEntity((ValueObject) targetObject), 
-										  transformerName);
+										  transformerName, functionContext.getSession());
 		}
 		catch (Exception ex) {
 			throw new InternalException(ex);

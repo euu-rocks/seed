@@ -35,6 +35,8 @@ public interface SystemEntityService<T extends SystemEntity> {
 	
 	T findByName(String name);
 	
+	T findByName(String name, Session session);
+	
 	void initObject(T object) throws ValidationException;
 	
 	void reloadObject(T object, Session session);

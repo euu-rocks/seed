@@ -80,11 +80,13 @@ public interface ValueObjectService extends EntityUsage {
 	void changeStatus(ValueObject object, EntityStatus targetStatus,
 			 Session session, ValueObjectFunctionContext functionContext) throws ValidationException;
 	
-	void transform(Transformer transformer, ValueObject targetObject, EntityField sourceObjectField);
+	void transform(Transformer transformer, ValueObject targetObject, EntityField sourceObjectField, Session session);
 	
 	ValueObject transform(Transformer transformer, ValueObject sourceObject);
 	
-	void transform(Transformer transformer, ValueObject sourceObject, ValueObject targetObject);
+	ValueObject transform(Transformer transformer, ValueObject sourceObject, Session session);
+	
+	void transform(Transformer transformer, ValueObject sourceObject, ValueObject targetObject, Session session);
 	
 	boolean isEmpty(ValueObject object, EntityField field);
 	

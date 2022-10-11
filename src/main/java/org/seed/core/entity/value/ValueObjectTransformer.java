@@ -29,7 +29,6 @@ import org.seed.core.api.CallbackEventType;
 import org.seed.core.api.TransformationFunction;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.codegen.GeneratedCode;
-import org.seed.core.config.SessionProvider;
 import org.seed.core.data.FileObject;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.transform.NestedTransformer;
@@ -56,17 +55,15 @@ public class ValueObjectTransformer {
 	@Autowired
 	private ValueObjectAccess objectAccess;
 	
-	@Autowired
-	private SessionProvider sessionProvider;
-	
-	public void transform(Transformer transformer, ValueObject sourceObject, ValueObject targetObject) {
+	public void transform(Transformer transformer, ValueObject sourceObject, ValueObject targetObject, Session session) {
 		Assert.notNull(transformer, C.TRANSFORMER);
 		Assert.notNull(sourceObject, "source object");
 		Assert.notNull(targetObject, "target object");
+		Assert.notNull(session, C.SESSION);
 		Assert.state(sourceObject.getEntityId().equals(transformer.getSourceEntity().getId()), "illegal source object");
 		Assert.state(targetObject.getEntityId().equals(transformer.getTargetEntity().getId()), "illegal target object");
 		
-		callFunctions(transformer, sourceObject, targetObject, true);
+		callFunctions(transformer, sourceObject, targetObject, session, true);
 		transformElements(transformerService.getMainObjectElements(transformer), sourceObject, targetObject);
 		for (NestedTransformer nestedTransformer : transformerService.getNestedTransformers(transformer)) {
 			if (objectAccess.hasNestedObjects(sourceObject, nestedTransformer.getSourceNested())) {
@@ -76,17 +73,17 @@ public class ValueObjectTransformer {
 				}
 			}
 		}
-		callFunctions(transformer, sourceObject, targetObject, false);
+		callFunctions(transformer, sourceObject, targetObject, session, false);
 	}
 	
-	public void transform(Transformer transformer, ValueObject targetObject, EntityField sourceObjectField) {
+	public void transform(Transformer transformer, ValueObject targetObject, EntityField sourceObjectField, Session session) {
 		Assert.notNull(transformer, C.TRANSFORMER);
 		Assert.notNull(targetObject, "target object");
 		Assert.notNull(sourceObjectField, "source object field");
 		Assert.state(targetObject.getEntityId().equals(transformer.getTargetEntity().getId()), "illegal target object");
 
 		final ValueObject sourceObject = (ValueObject) objectAccess.getValue(targetObject, sourceObjectField);
-		callFunctions(transformer, sourceObject, targetObject, true);
+		callFunctions(transformer, sourceObject, targetObject, session, true);
 		if (transformer.hasElements()) {
 			for (TransformerElement element : transformer.getElements()) {
 				final Object value = sourceObject != null 
@@ -95,7 +92,7 @@ public class ValueObjectTransformer {
 				objectAccess.setValue(targetObject, element.getTargetField(), value);
 			}
 		}
-		callFunctions(transformer, sourceObject, targetObject, false);
+		callFunctions(transformer, sourceObject, targetObject, session, false);
 	}
 	
 	private void transformElements(List<TransformerElement> elements, 
@@ -113,19 +110,17 @@ public class ValueObjectTransformer {
 	
 	private void callFunctions(Transformer transformer, 
 							   ValueObject sourceObject, ValueObject targetObject,
-							   boolean beforeTransformation) {
+							   Session session, boolean beforeTransformation) {
 		if (transformer.hasFunctions()) {
-			try (Session session = sessionProvider.getSession()) {
-				final ValueObjectFunctionContext functionContext = 
-						new ValueObjectFunctionContext(session, transformer.getModule());
-				functionContext.setEventType(beforeTransformation 
-												? CallbackEventType.BEFORETRANSFORMATION 
-												: CallbackEventType.AFTERTRANSFORMATION);
-				filterAndForEach(transformer.getFunctions(), 
-								 function -> (beforeTransformation && function.isActiveBeforeTransformation()) || 
-								 			 (!beforeTransformation && function.isActiveAfterTransformation()), 
-								 function -> callFunction(function, sourceObject, targetObject, functionContext));
-			}
+			final ValueObjectFunctionContext functionContext = 
+					new ValueObjectFunctionContext(session, transformer.getModule());
+			functionContext.setEventType(beforeTransformation 
+											? CallbackEventType.BEFORETRANSFORMATION 
+											: CallbackEventType.AFTERTRANSFORMATION);
+			filterAndForEach(transformer.getFunctions(), 
+							 function -> (beforeTransformation && function.isActiveBeforeTransformation()) || 
+							 			 (!beforeTransformation && function.isActiveAfterTransformation()), 
+							 function -> callFunction(function, sourceObject, targetObject, functionContext));
 		}
 	}
 	

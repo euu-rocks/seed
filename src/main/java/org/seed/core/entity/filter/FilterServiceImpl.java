@@ -112,11 +112,12 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	}
 	
 	@Override
-	public Filter getFilterByName(Entity entity, String name) {
+	public Filter getFilterByName(Entity entity, String name, Session session) {
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(name, C.NAME);
 		
-		return filterRepository.findUnique(queryParam(C.ENTITY, entity),
+		return filterRepository.findUnique(session,
+										   queryParam(C.ENTITY, entity),
 										   queryParam(C.NAME, name));
 	}
 	
@@ -341,14 +342,14 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	}
 	
 	@Override
-	public List<Filter> findUsage(ValueObject object) {
+	public List<Filter> findUsage(Session session, ValueObject object) {
 		Assert.notNull(object, C.OBJECT);
 		
 		if (object instanceof TransferableObject) {
 			final String objectUid = ((TransferableObject) object).getUid();
 			Assert.stateAvailable(objectUid, "object uid");
 			
-			return subList(getObjects(), filter -> containsReferenceUid(filter, objectUid));
+			return subList(getObjects(session), filter -> containsReferenceUid(filter, objectUid));
 		}
 		return Collections.emptyList();
 	}

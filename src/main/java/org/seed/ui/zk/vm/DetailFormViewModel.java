@@ -284,8 +284,8 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 		final FormFieldExtra fieldExtra = getForm().getFieldExtra(entityField);
 		if (fieldExtra != null && fieldExtra.getTransformer() != null) {
 			valueObjectService().transform(fieldExtra.getTransformer(),
-										   getObject(),
-										   entityField);
+										   getObject(), entityField,
+										   currentSession());
 			notifyChange = true;
 		}
 		if (valueObjectService().notifyChange(getObject())) {
@@ -310,7 +310,8 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 		if (subFormField.getTransformer() != null) {
 			valueObjectService().transform(subFormField.getTransformer(), 
 										   valueObject, 
-										   subFormField.getEntityField());
+										   subFormField.getEntityField(),
+										   currentSession());
 			notifyChange = true;
 		}
 		if (valueObjectService().notifyChange(valueObject)) {

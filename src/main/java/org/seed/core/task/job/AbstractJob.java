@@ -30,11 +30,9 @@ public abstract class AbstractJob implements Job, org.quartz.Job {
 	
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
-		final Session session = (Session) context.get(DefaultJobContext.RUN_SESSION);
-		Assert.stateAvailable(session, C.SESSION);
-		
 		Transaction tx = null;
-		try {
+		try (Session session = (Session) context.get(DefaultJobContext.RUN_SESSION)) {
+			Assert.stateAvailable(session, C.SESSION);
 			tx = session.beginTransaction();
 			execute(new DefaultJobContext(context));
 			tx.commit();
@@ -44,9 +42,6 @@ public abstract class AbstractJob implements Job, org.quartz.Job {
 				tx.rollback();
 			}
 			throw new JobExecutionException(ex);
-		}
-		finally {
-			session.close();
 		}
 	}
 	

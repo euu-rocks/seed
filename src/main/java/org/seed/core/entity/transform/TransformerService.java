@@ -25,7 +25,7 @@ import org.seed.core.entity.Entity;
 
 public interface TransformerService extends ApplicationEntityService<Transformer> {
 	
-	Transformer getTransformerByName(Entity sourceEntity, Entity targetEntity, String name);
+	Transformer getTransformerByName(Entity sourceEntity, Entity targetEntity, String name, Session session);
 	
 	TransformerFunction createFunction(Transformer transformer);
 	

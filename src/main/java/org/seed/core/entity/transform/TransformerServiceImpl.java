@@ -105,12 +105,14 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	}
 	
 	@Override
-	public Transformer getTransformerByName(Entity sourceEntity, Entity targetEntity, String name) {
+	public Transformer getTransformerByName(Entity sourceEntity, Entity targetEntity, 
+											String name, Session session) {
 		Assert.notNull(sourceEntity, C.SOURCEENTITY);
 		Assert.notNull(targetEntity, C.TARGETENTITY);
 		Assert.notNull(name, C.NAME);
 		
-		final List<Transformer> list = repository.find(queryParam(C.SOURCEENTITY, sourceEntity),
+		final List<Transformer> list = repository.find(session,
+													   queryParam(C.SOURCEENTITY, sourceEntity),
 				   									   queryParam(C.TARGETENTITY, targetEntity),
 				   									   queryParam(C.NAME, name));
 		return !list.isEmpty() ? list.get(0) : null;

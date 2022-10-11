@@ -72,7 +72,8 @@ public abstract class AbstractSystemEntityService<T extends SystemEntity>
 		return getRepository().findUnique(queryParam(C.NAME, name));
 	}
 	
-	protected T findByName(String name, Session session) {
+	@Override
+	public T findByName(String name, Session session) {
 		Assert.notNull(name, C.NAME);
 		
 		return getRepository().findUnique(session, queryParam(C.NAME, name));

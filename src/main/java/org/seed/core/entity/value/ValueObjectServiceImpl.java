@@ -530,13 +530,13 @@ public class ValueObjectServiceImpl
 	public void deleteObject(ValueObject object, Session session, ValueObjectFunctionContext functionContext) 
 			throws ValidationException {
 		Assert.notNull(object, C.OBJECT);
-		final Session sessionToUse = functionContext != null 
+		final Session localSession = functionContext != null 
 				? functionContext.getSession() 
 				: session;
 		
-		validator.validateDelete(object);
+		validator.validateDelete(localSession, object);
 		repository.delete(object, session, functionContext);
-		changeAwareObjects.forEach(changeAware -> changeAware.notifyDelete(object, sessionToUse));
+		changeAwareObjects.forEach(changeAware -> changeAware.notifyDelete(object, localSession));
 	}
 	
 	@Override
@@ -635,7 +635,7 @@ public class ValueObjectServiceImpl
 		
 		try (Session session = repository.getSession()) {
 			clearEmptyFileObjects(object, session);
-			validator.validateChangeStatus(object, targetStatus);
+			validator.validateChangeStatus(object, targetStatus, session);
 			repository.changeStatus(object, targetStatus, session);
 		}
 	}
@@ -644,29 +644,37 @@ public class ValueObjectServiceImpl
 	public void changeStatus(ValueObject object, EntityStatus targetStatus,
 			 Session session, ValueObjectFunctionContext functionContext) throws ValidationException {
 		Assert.notNull(object, C.OBJECT);
+		final Session localSession = session != null ? session : functionContext.getSession();
 		
-		clearEmptyFileObjects(object, session != null ? session : functionContext.getSession());
-		validator.validateChangeStatus(object, targetStatus);
+		clearEmptyFileObjects(object, localSession);
+		validator.validateChangeStatus(object, targetStatus, localSession);
 		repository.changeStatus(object, targetStatus, session, functionContext);
 	}
 	
 	@Override
-	public void transform(Transformer transformer, ValueObject sourceObject, ValueObject targetObject) {
-		objectTransformer.transform(transformer, sourceObject, targetObject);
+	public void transform(Transformer transformer, ValueObject sourceObject, ValueObject targetObject, Session session) {
+		objectTransformer.transform(transformer, sourceObject, targetObject, session);
 	}
 	
 	@Override
-	public void transform(Transformer transformer, ValueObject targetObject, EntityField sourceObjectField) {
-		objectTransformer.transform(transformer, targetObject, sourceObjectField);
+	public void transform(Transformer transformer, ValueObject targetObject, EntityField sourceObjectField, Session session) {
+		objectTransformer.transform(transformer, targetObject, sourceObjectField, session);
 	}
 	
 	@Override
 	public ValueObject transform(Transformer transformer, ValueObject sourceObject) {
+		try (Session session = repository.getSession()) {
+			return transform(transformer, sourceObject, session);
+		}
+	}
+	
+	@Override
+	public ValueObject transform(Transformer transformer, ValueObject sourceObject, Session session) {
 		Assert.notNull(transformer, "transformer");
 		Assert.notNull(sourceObject, "sourceObject");
 		
 		final ValueObject targetObject = createInstance(transformer.getTargetEntity());
-		objectTransformer.transform(transformer, sourceObject, targetObject);
+		objectTransformer.transform(transformer, sourceObject, targetObject, session);
 		return targetObject;
 	}
 	
@@ -714,14 +722,15 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public List<Entity> findUsage(ValueObject object) {
+	public List<Entity> findUsage(Session session, ValueObject object) {
+		Assert.notNull(session, C.SESSION);
 		final List<Entity> result = new ArrayList<>();
-		final Entity entity = repository.getEntity(object);
-		for (Entity otherEntity : subList(entityService.findNonGenericEntities(), 
+		final Entity entity = repository.getEntity(session, object);
+		for (Entity otherEntity : subList(entityService.findNonGenericEntities(session), 
 										  other -> !entity.equals(other))) {
 			for (EntityField otherRefField : otherEntity.getReferenceFields(entity)) {
 				final Filter filter = filterService.createFieldFilter(otherEntity, otherRefField, object);
-				if (repository.exist(otherEntity, filter)) {
+				if (repository.exist(session, otherEntity, filter)) {
 					result.add(otherEntity);
 					break;
 				}

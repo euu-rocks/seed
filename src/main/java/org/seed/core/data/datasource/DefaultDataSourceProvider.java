@@ -46,7 +46,7 @@ public class DefaultDataSourceProvider implements DataSourceProvider {
 	public DataSource getDataSource(String dataSourceName) {
 		Assert.notNull(dataSourceName, "dataSourceName");
 		
-		return dataSourceService.findByName(dataSourceName);
+		return dataSourceService.findByName(dataSourceName, functionContext.getSession());
 	}
 
 	@Override

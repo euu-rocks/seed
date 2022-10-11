@@ -65,11 +65,11 @@ public class ValueObjectValidator implements ApplicationContextAware {
 		this.applicationContext = applicationContext;
 	}
 	
-	public void validateChangeStatus(ValueObject object, EntityStatus targetStatus) throws ValidationException {
+	public void validateChangeStatus(ValueObject object, EntityStatus targetStatus, Session session) throws ValidationException {
 		Assert.notNull(object, C.OBJECT);
 		Assert.notNull(targetStatus, "targetStatus");
 		
-		final Entity entity = entityRepository.get(object.getEntityId());
+		final Entity entity = entityRepository.get(object.getEntityId(), session);
 		final ValidationErrors errors = new ValidationErrors();
 		if (entity.hasFieldConstraints()) {
 			for (EntityFieldConstraint constraint : entity.getFieldConstraints()) {
@@ -85,13 +85,14 @@ public class ValueObjectValidator implements ApplicationContextAware {
 		}
 	}
 	
-	public void validateDelete(ValueObject object) throws ValidationException {
+	public void validateDelete(Session session, ValueObject object) throws ValidationException {
+		Assert.notNull(session, C.SESSION);
 		Assert.notNull(object, C.OBJECT);
 		
-		final Entity objectEntity = entityRepository.get(object.getEntityId());
+		final Entity objectEntity = entityRepository.get(object.getEntityId(), session);
 		final ValidationErrors errors = new ValidationErrors();
 		for (ValueObjectDependent<? extends SystemEntity> dependent : getValueObjectDependents()) {
-			for (SystemEntity systemEntity : dependent.findUsage(object)) {
+			for (SystemEntity systemEntity : dependent.findUsage(session, object)) {
 				if (systemEntity instanceof Entity) {
 					final Entity entity = (Entity) systemEntity;
 					if (!objectEntity.isNestedEntity(entity)) {

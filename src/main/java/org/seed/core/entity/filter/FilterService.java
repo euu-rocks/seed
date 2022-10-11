@@ -38,7 +38,7 @@ public interface FilterService extends ApplicationEntityService<Filter> {
 	
 	List<Filter> getFilters(Entity entity, User user, Session session);
 	
-	Filter getFilterByName(Entity entity, String name);
+	Filter getFilterByName(Entity entity, String name, Session session);
 	
 	Filter createFieldFilter(Entity entity, EntityField entityField, Object value);
 	

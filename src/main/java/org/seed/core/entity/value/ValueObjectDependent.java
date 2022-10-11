@@ -19,10 +19,12 @@ package org.seed.core.entity.value;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.core.data.SystemEntity;
 
 public interface ValueObjectDependent<T extends SystemEntity> {
 	
-	List<T> findUsage(ValueObject object);
+	List<T> findUsage(Session session, ValueObject object);
 	
 }
