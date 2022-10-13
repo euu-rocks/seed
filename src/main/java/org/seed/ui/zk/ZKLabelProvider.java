@@ -21,60 +21,38 @@ import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.annotation.PostConstruct;
-
 import org.seed.C;
 import org.seed.LabelProvider;
+import org.seed.core.application.setting.ApplicationSettingService;
+import org.seed.core.application.setting.Setting;
 import org.seed.core.util.Assert;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.zkoss.math.BigDecimals;
 import org.zkoss.text.DateFormats;
+import org.zkoss.util.Locales;
 import org.zkoss.util.resource.Labels;
 
 @Component
 public class ZKLabelProvider implements LabelProvider {
 	
-	private static final Locale LOCALE = Locale.getDefault();
-	
-	private static final TimeZone TIMEZONE = TimeZone.getDefault();
-	
 	private static final Map<Enum<?>, String> enumLabelCache = new ConcurrentHashMap<>();
 	
-	private final DateFormat dateFormat = new SimpleDateFormat(
-			DateFormats.getDateFormat(DateFormat.DEFAULT, LOCALE, "yyyy/MM/dd"),
-			LOCALE);
-	
-	private final DateFormat dateTimeFormat = new SimpleDateFormat(
-			DateFormats.getDateTimeFormat(DateFormat.DEFAULT, DateFormat.DEFAULT, LOCALE, "yyyy/MM/dd HH:mm:ss"),
-			LOCALE);
-	
-	private final DateFormat timeFormat = new SimpleDateFormat(
-			DateFormats.getTimeFormat(DateFormat.DEFAULT, LOCALE, "HH:mm:ss"),
-			LOCALE);
-	
-	@PostConstruct
-	private void init() {
-		dateFormat.setTimeZone(TIMEZONE);
-		dateTimeFormat.setTimeZone(TIMEZONE);
-		timeFormat.setTimeZone(TIMEZONE);
-	}
+	@Autowired
+	private ApplicationSettingService settingService;
 	
 	@Override
 	public String getLabel(String key, String ...params) {
 		Assert.notNull(key, C.KEY);
 		
-		final String label = params != null 
-								? Labels.getLabel(key, params) 
-								: Labels.getLabel(key);
-				
-		Assert.state(label != null, "no label found for key: " + key);
-		return label;
+		return params != null 
+				? Labels.getLabel(key, params) 
+				: Labels.getLabel(key);
 	}
 
 	@Override
@@ -92,48 +70,69 @@ public class ZKLabelProvider implements LabelProvider {
 	
 	@Override
 	public String formatBoolean(Boolean bool) {
-		if (bool == null) {
-			return emptyString();
-		}
-		return getLabel(bool.booleanValue() ? "boolean.true" : "boolean.false");
+		return bool != null
+				? getLabel(bool.booleanValue() ? "boolean.true" : "boolean.false")
+				: emptyString();
 	}
 	
 	@Override
 	public String formatDate(Date date) {
-		if (date == null) {
-			return emptyString();
-		}
-		synchronized (dateFormat) {
-			return dateFormat.format(date);
-		}
+		return date != null
+				? dateFormat().format(date)
+				: emptyString();
 	}
 	
 	@Override
 	public String formatDateTime(Date date) {
-		if (date == null) {
-			return emptyString();
-		}
-		synchronized (dateTimeFormat) {
-			return dateTimeFormat.format(date);
-		}
+		return date != null
+				? dateTimeFormat().format(date)
+				: emptyString();
 	}
 	
 	@Override
 	public String formatTime(Date time) {
-		if (time == null) {
-			return emptyString();
-		}
-		synchronized (timeFormat) {
-			return timeFormat.format(time);
-		}
+		return time != null
+				? timeFormat().format(time)
+				: emptyString();
 	}
 	
 	@Override
 	public String formatBigDecimal(BigDecimal decimal) {
-		if (decimal == null) {
-			return emptyString();
+		return decimal != null
+				? BigDecimals.toLocaleString(decimal, Locales.getCurrent())
+				: emptyString();
+	}
+	
+	private DateFormat dateFormat() {
+		return applyTimeZone(new SimpleDateFormat(
+				DateFormats.getDateFormat(DateFormat.DEFAULT, Locales.getCurrent(), "yyyy/MM/dd"),
+				Locales.getCurrent()));
+	}
+	
+	private DateFormat dateTimeFormat() {
+		return applyTimeZone(new SimpleDateFormat(
+				DateFormats.getDateTimeFormat(DateFormat.DEFAULT, DateFormat.DEFAULT, Locales.getCurrent(), "yyyy/MM/dd HH:mm:ss"),
+				Locales.getCurrent()));
+	}
+	
+	private DateFormat timeFormat() {
+		return applyTimeZone(new SimpleDateFormat(
+				DateFormats.getTimeFormat(DateFormat.DEFAULT, Locales.getCurrent(), "HH:mm:ss"),
+				Locales.getCurrent()));
+	}
+	
+	private DateFormat applyTimeZone(DateFormat dateFormat) {
+		final TimeZone timeZone = getApplicationTimeZone();
+		if (timeZone != null) {
+			dateFormat.setTimeZone(timeZone);
 		}
-		return BigDecimals.toLocaleString(decimal, LOCALE);
+		return dateFormat;
+	}
+	
+	private TimeZone getApplicationTimeZone() {
+		return settingService.hasSetting(Setting.APPLICATION_TIMEZONE)
+				? TimeZone.getTimeZone(settingService.getSetting(Setting.APPLICATION_TIMEZONE))
+				: null;
 	}
 	
 	private static String getEnumLabelKey(Enum<?> enm) {

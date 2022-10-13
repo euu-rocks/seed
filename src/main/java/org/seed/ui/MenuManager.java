@@ -68,7 +68,7 @@ public class MenuManager {
 		if (user.isAuthorised(Authorisation.RUN_JOBS) && tasksExist) {
 			menuList.add(createNode("label.runjobs", 
 									"/task/tasklist.zul", 
-									"z-icon-cogs"));
+									"z-icon-cog"));
 		}
 		
 		// reports
@@ -126,7 +126,7 @@ public class MenuManager {
 		if (user.isAuthorised(Authorisation.ADMIN_JOB)) {
 			nodeAdmin.addChild(createNode("label.jobs", 
 										  "/admin/task/tasklist.zul", 
-										  "z-icon-cog"));
+										  "z-icon-cogs"));
 		}
 		if (user.isAuthorised(Authorisation.ADMIN_DBOBJECT)) {
 			nodeAdmin.addChild(createNode("label.dbobjects", 
@@ -154,7 +154,7 @@ public class MenuManager {
 		if (user.isAuthorised(Authorisation.ADMIN_MODULE)) {
 			nodeAdmin.addChild(createNode("label.modules", 
 										  "/admin/module/modulelist.zul", 
-										  "z-icon-cube"));
+										  "z-icon-cubes"));
 		}
 		if (user.isAuthorised(Authorisation.ADMIN_SETTINGS)) {
 			nodeAdmin.addChild(createNode("label.settings", 

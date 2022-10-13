@@ -42,6 +42,9 @@ public class ApplicationSettingServiceImpl implements ApplicationSettingService 
 	private ApplicationSettingRepository repository;
 	
 	@Autowired
+	private ApplicationSettingValidator validator;
+	
+	@Autowired
 	private List<SettingChangeAware> changeAwareObjects;
 	
 	private Map<Setting, String> settingMap;
@@ -124,6 +127,7 @@ public class ApplicationSettingServiceImpl implements ApplicationSettingService 
 							appSetting.setSetting(entry.getKey());
 						}
 						appSetting.setValue(entry.getValue());
+						validator.validateSave(appSetting);
 						repository.save(appSetting, session);
 					}
 					else if (appSetting != null) {
@@ -136,6 +140,9 @@ public class ApplicationSettingServiceImpl implements ApplicationSettingService 
 				}
 				tx.commit();
 				resetSettingMap(settings);
+			}
+			catch (ValidationException vex) {
+				throw vex;
 			}
 			catch (Exception ex) {
 				if (tx != null) {

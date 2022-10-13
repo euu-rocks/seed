@@ -19,6 +19,7 @@ package org.seed.ui.zk.vm;
 
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.hibernate.Session;
@@ -95,6 +96,10 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	
 	public final String getDefaultApplicationName() {
 		return DEFAULT_APPLICATION_NAME;
+	}
+	
+	public final String getDefaultApplicationTimeZone() {
+		return TimeZone.getDefault().getID();
 	}
 	
 	protected final String getSetting(Setting setting) {

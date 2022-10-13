@@ -30,17 +30,29 @@
 					<caption label="${labels.settings.common}"/>
 					<grid class="alpha-noborder">
 						<columns>
-							<column hflex="2"/>
+							<column hflex="3"/>
 							<column hflex="5"/>
 	                    </columns>
 	                    <rows>
 	                    	<row>
-	                    		<cell>
+	                    		<cell align="right">
 	                    			<label value="${labels.settings.appname}"/>
 	                    		</cell>
 	                    		<cell>
 	                    			<textbox value="@bind(vm.getSetting('APPLICATION_NAME').value) @converter(vm.stringConverter)"
 	                    					 placeholder="@init(vm.defaultApplicationName)"
+	                    					 onChange="@command('flagDirty')"
+	                    					 instant="true"
+	                    					 hflex="1"/>
+	                    		</cell>
+	                    	</row>
+	                    	<row>
+	                    		<cell align="right">
+	                    			<label value="${labels.label.timezone}"/>
+	                    		</cell>
+	                    		<cell>
+	                    			<textbox value="@bind(vm.getSetting('APPLICATION_TIMEZONE').value) @converter(vm.stringConverter)"
+	                    					 placeholder="@init(vm.defaultApplicationTimeZone)"
 	                    					 onChange="@command('flagDirty')"
 	                    					 instant="true"
 	                    					 hflex="1"/>
@@ -57,7 +69,7 @@
 					<caption label="${labels.settings.menumode}"/>
 					<grid class="alpha-noborder">
 						<columns>
-							<column hflex="2"/>
+							<column hflex="3"/>
 							<column hflex="5"/>
 	                    </columns>
 	                    <rows>
