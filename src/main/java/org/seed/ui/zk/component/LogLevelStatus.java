@@ -23,9 +23,10 @@ import org.seed.core.config.LogLevel;
 
 import org.zkoss.zul.A;
 
-@SuppressWarnings("serial")
 public class LogLevelStatus extends A {
 	
+	private static final long serialVersionUID = -2162168127848819299L;
+
 	public LogLevelStatus() {
 		setIconSclass(ICON_CIRCLE);
 		setLogLevel(null);

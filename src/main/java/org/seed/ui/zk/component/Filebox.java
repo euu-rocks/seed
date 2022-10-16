@@ -39,9 +39,10 @@ import org.zkoss.zul.Filedownload;
 import org.zkoss.zul.Inputgroup;
 import org.zkoss.zul.Textbox;
 
-@SuppressWarnings("serial")
 public class Filebox extends Inputgroup implements EventListener<Event> {
 	
+	private static final long serialVersionUID = -8712100989950712695L;
+
 	private final A elemIcon;
 	
 	private final Textbox elemFilename;

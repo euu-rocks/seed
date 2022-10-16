@@ -17,43 +17,17 @@
  */
 package org.seed.ui.zk.component;
 
-import static org.seed.ui.zk.component.ComponentUtils.*;
+import org.zkoss.zul.Textbox;
 
-import org.seed.core.task.TaskResult;
+public class ErrorMessages extends Textbox {
 
-import org.zkoss.zul.A;
-
-public class TaskStatus extends A {
+	private static final long serialVersionUID = 5992063760633025984L;
 	
-	private static final long serialVersionUID = 5036600708041436064L;
-
-	public TaskStatus() {
-		setIconSclass(ICON_CIRCLE);
-		setResult(null);
-	}
-	
-	public void setResult(TaskResult result) {
-		if (result != null) {
-			switch (result) {
-				case SUCCESS:
-					setStyle(STYLE_INFO);
-					break;
-					
-				case WARNING:
-					setStyle(STYLE_WARNIUNG);
-					break;
-					
-				case ERROR:
-					setStyle(STYLE_ERROR);
-					break;
-					
-				default:
-					throw new UnsupportedOperationException(result.name());
-			}
-		}
-		else {
-			setStyle(STYLE_UNDEFINED);
-		}
+	public ErrorMessages() {
+		setStyle("color:crimson");
+		setMultiline(true);
+		setHflex("1");
+		setVflex("1");
 	}
 	
 }

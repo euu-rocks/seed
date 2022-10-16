@@ -19,8 +19,9 @@ package org.seed.ui.zk.component;
 
 import org.zkoss.zul.Textbox;
 
-@SuppressWarnings("serial")
 public class MandatoryTextbox extends Textbox {
+	
+	private static final long serialVersionUID = 3605037718290918507L;
 	
 	private boolean mandatory;
 	

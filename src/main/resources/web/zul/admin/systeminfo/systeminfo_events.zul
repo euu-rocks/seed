@@ -63,9 +63,6 @@
 	<south visible="@load(!empty vm.logEntry.details)" 
 		   autoscroll="true" splittable="true"
 		   size="150px" border="0">
-		<textbox value="@load(vm.logEntry.details)"
-				 multiline="true" 
-				 style="color:crimson"
-				 hflex="1" vflex="1"/>	
+		<errormessages value="@load(vm.logEntry.details)"/>   
 	</south>
 </borderlayout>

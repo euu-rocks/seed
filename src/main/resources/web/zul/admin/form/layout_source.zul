@@ -46,10 +46,7 @@
 				<south border="0" size="20%"
 					   visible="@load(!empty vm.errorMessage)"
 					   autoscroll="true" splittable="true">
-					<textbox value="@load(vm.errorMessage)"
-							 multiline="true" 
-							 style="color:crimson"
-							 hflex="1" vflex="1"/>
+					<errormessages value="@load(vm.errorMessage)"/>
 				</south>
 			</borderlayout>
 		</center>

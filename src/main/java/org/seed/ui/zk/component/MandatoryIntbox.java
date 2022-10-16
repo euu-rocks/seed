@@ -19,8 +19,9 @@ package org.seed.ui.zk.component;
 
 import org.zkoss.zul.Intbox;
 
-@SuppressWarnings("serial")
 public class MandatoryIntbox extends Intbox {
+	
+	private static final long serialVersionUID = 6126051561441784404L;
 	
 	private boolean mandatory;
 	

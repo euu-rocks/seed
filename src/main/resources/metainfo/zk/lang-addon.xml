@@ -99,6 +99,11 @@
 	     <component-class>org.seed.ui.zk.component.RevisionInfo</component-class>
 	</component>
 	<component>
+		 <component-name>errormessages</component-name>
+	     <extends>textbox</extends>
+	     <component-class>org.seed.ui.zk.component.ErrorMessages</component-class>
+	</component>
+	<component>
 		 <component-name>toolbar</component-name>
 	     <extends>toolbar</extends>
 	     <component-class>org.seed.ui.zk.component.OverflowToolbar</component-class>

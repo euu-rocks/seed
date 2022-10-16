@@ -28,8 +28,9 @@ import org.zkoss.zul.Label;
 import org.zkoss.zul.Popup;
 import org.zkoss.zul.Separator;
 
-@SuppressWarnings("serial")
 public class HelpInfo extends Div {
+
+	private static final long serialVersionUID = -6646676176579611556L;
 
 	private final A elemIcon;
 	

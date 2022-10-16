@@ -21,9 +21,7 @@ import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Map;
 import java.util.TimeZone;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.seed.C;
 import org.seed.LabelProvider;
@@ -41,8 +39,6 @@ import org.zkoss.util.resource.Labels;
 @Component
 public class ZKLabelProvider implements LabelProvider {
 	
-	private static final Map<Enum<?>, String> enumLabelCache = new ConcurrentHashMap<>();
-	
 	@Autowired
 	private ApplicationSettingService settingService;
 	
@@ -57,21 +53,15 @@ public class ZKLabelProvider implements LabelProvider {
 
 	@Override
 	public String getEnumLabel(Enum<?> enm) {
-		if (enm == null) {
-			return null;
-		}
-		String label = enumLabelCache.get(enm);
-		if (label == null) {
-			label = getLabel(getEnumLabelKey(enm));
-			enumLabelCache.put(enm, label);
-		}
-		return label;
+		return enm != null 
+				? Labels.getLabel(getEnumLabelKey(enm)) 
+				: null;
 	}
 	
 	@Override
 	public String formatBoolean(Boolean bool) {
 		return bool != null
-				? getLabel(bool.booleanValue() ? "boolean.true" : "boolean.false")
+				? Labels.getLabel(getBooleanKey(bool))
 				: emptyString();
 	}
 	
@@ -122,17 +112,14 @@ public class ZKLabelProvider implements LabelProvider {
 	}
 	
 	private DateFormat applyTimeZone(DateFormat dateFormat) {
-		final TimeZone timeZone = getApplicationTimeZone();
-		if (timeZone != null) {
-			dateFormat.setTimeZone(timeZone);
+		if (settingService.hasSetting(Setting.APPLICATION_TIMEZONE)) {
+			dateFormat.setTimeZone(TimeZone.getTimeZone(settingService.getSetting(Setting.APPLICATION_TIMEZONE)));
 		}
 		return dateFormat;
 	}
 	
-	private TimeZone getApplicationTimeZone() {
-		return settingService.hasSetting(Setting.APPLICATION_TIMEZONE)
-				? TimeZone.getTimeZone(settingService.getSetting(Setting.APPLICATION_TIMEZONE))
-				: null;
+	private static String getBooleanKey(boolean bool) {
+		return bool ? "boolean.true" : "boolean.false";
 	}
 	
 	private static String getEnumLabelKey(Enum<?> enm) {

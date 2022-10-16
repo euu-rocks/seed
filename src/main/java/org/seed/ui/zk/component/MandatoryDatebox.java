@@ -19,8 +19,9 @@ package org.seed.ui.zk.component;
 
 import org.zkoss.zul.Datebox;
 
-@SuppressWarnings("serial")
 public class MandatoryDatebox extends Datebox {
+	
+	private static final long serialVersionUID = -2547364328152405020L;
 	
 	private boolean mandatory;
 	

@@ -20,12 +20,10 @@
 <!DOCTYPE xml>
 <borderlayout>
 	<center border="0">
-		<textbox value="@bind(vm.object.hqlQuery)"
-				 onChange="@command('flagDirty')"
-				 instant="true"
-				 multiline="true"
-				 mandatory="true"
-				 style="margin:5px"
-				 hflex="1" vflex="1"/>
+		<codemirror value="@bind(vm.object.hqlQuery)" 
+					onChange="@command('flagDirty')"
+					mode="text/x-pgsql" 
+					lineNumbers="true"
+					hflex="1" vflex="1"/>
 	</center>	
 </borderlayout>

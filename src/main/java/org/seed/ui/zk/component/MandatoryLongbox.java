@@ -19,8 +19,9 @@ package org.seed.ui.zk.component;
 
 import org.zkoss.zul.Longbox;
 
-@SuppressWarnings("serial")
 public class MandatoryLongbox extends Longbox {
+	
+	private static final long serialVersionUID = -2060223043281626300L;
 	
 	private boolean mandatory;
 	

@@ -25,8 +25,9 @@ import org.seed.core.data.SystemObject;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Label;
 
-@SuppressWarnings("serial")
 public class SystemFields extends Div {
+	
+	private static final long serialVersionUID = -7947167674639048365L;
 	
 	private static final String LABEL_PROGRESS   = "...";
 	private static final String LABEL_INCREATION = "label.increation";

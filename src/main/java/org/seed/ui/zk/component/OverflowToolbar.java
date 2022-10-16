@@ -19,9 +19,10 @@ package org.seed.ui.zk.component;
 
 import org.zkoss.zul.Toolbar;
 
-@SuppressWarnings("serial")
 public class OverflowToolbar extends Toolbar  {
 	
+	private static final long serialVersionUID = -3566156685737011758L;
+
 	public OverflowToolbar() {
 		
 		/*

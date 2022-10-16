@@ -108,16 +108,7 @@ public class ApplicationSettingServiceImpl implements ApplicationSettingService 
 			try {
 				tx = session.beginTransaction();
 				// read current settings
-				final Map<Setting, ApplicationSetting> appSettings = new EnumMap<>(Setting.class);
-				for (ApplicationSetting setting : repository.find(session)) {
-					// and delete no longer existing ones
-					if (!settings.containsKey(setting.getSetting())) {
-						repository.delete(setting, session);
-					}
-					else {
-						appSettings.put(setting.getSetting(), setting);
-					}
-				}
+				final Map<Setting, ApplicationSetting> appSettings = getCurrentSettings(settings, session);
 				// save settings
 				for (Map.Entry<Setting, String> entry : settings.entrySet()) {
 					ApplicationSetting appSetting = appSettings.get(entry.getKey());
@@ -151,6 +142,20 @@ public class ApplicationSettingServiceImpl implements ApplicationSettingService 
 				throw new InternalException(ex);
 			}
 		}
+	}
+	
+	private Map<Setting, ApplicationSetting> getCurrentSettings(Map<Setting, String> settings, Session session) {
+		final Map<Setting, ApplicationSetting> appSettings = new EnumMap<>(Setting.class);
+		for (ApplicationSetting setting : repository.find(session)) {
+			// delete no longer existing setting
+			if (!settings.containsKey(setting.getSetting())) {
+				repository.delete(setting, session);
+			}
+			else {
+				appSettings.put(setting.getSetting(), setting);
+			}
+		}
+		return appSettings;
 	}
 	
 	private void resetSettingMap(Map<Setting, String> settings) {

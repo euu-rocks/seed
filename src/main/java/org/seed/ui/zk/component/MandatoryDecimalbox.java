@@ -19,9 +19,10 @@ package org.seed.ui.zk.component;
 
 import org.zkoss.zul.Decimalbox;
 
-@SuppressWarnings("serial")
 public class MandatoryDecimalbox extends Decimalbox {
 
+	private static final long serialVersionUID = 5458565181103966855L;
+	
 	private boolean mandatory;
 	
 	public void setMandatory(boolean mandatory) {

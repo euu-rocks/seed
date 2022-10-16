@@ -27,9 +27,10 @@ import org.zkoss.zul.Comboitem;
 import org.zkoss.zul.ListModel;
 import org.zkoss.zul.ListModelList;
 
-@SuppressWarnings("serial")
 public class NullableCombobox extends Combobox {
 	
+	private static final long serialVersionUID = 5816372433186458372L;
+
 	private boolean nullable = true;
 	
 	private boolean mandatory;

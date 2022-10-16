@@ -31,9 +31,10 @@ import org.zkoss.zul.A;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Html;
 
-@SuppressWarnings("serial")
 public class RichTextArea extends Div implements EventListener<Event> {
 	
+	private static final long serialVersionUID = -1718335356920368276L;
+
 	private static final String PATH_EDITOR = "/component/richtexteditor.zul";  //NOSONAR
 	
 	private Html html;

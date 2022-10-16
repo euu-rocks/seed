@@ -24,8 +24,9 @@ import org.seed.core.data.revision.Revision;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Label;
 
-@SuppressWarnings("serial")
 public class RevisionInfo extends Div {
+	
+	private static final long serialVersionUID = 7931018872173874076L;
 	
 	private final Label labelRevision = new Label();
 	

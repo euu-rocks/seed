@@ -21,8 +21,9 @@ import org.zkoss.zk.au.AuRequest;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zul.Bandbox;
 
-@SuppressWarnings("serial")
 public class MandatoryBandbox extends Bandbox  {
+	
+	private static final long serialVersionUID = 7059442665518884104L;
 	
 	private boolean mandatory;
 	

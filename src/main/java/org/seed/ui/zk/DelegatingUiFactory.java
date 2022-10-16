@@ -19,6 +19,7 @@ package org.seed.ui.zk;
 
 import org.seed.Seed;
 import org.seed.core.form.layout.LayoutProvider;
+import org.seed.core.util.Assert;
 
 import org.zkoss.zk.ui.http.SimpleUiFactory;
 import org.zkoss.zk.ui.metainfo.PageDefinition;
@@ -48,6 +49,7 @@ public class DelegatingUiFactory extends SimpleUiFactory {
 	private LayoutProvider getLayoutProvider() {
 		if (layoutProvider == null) {
 			layoutProvider = Seed.getBean(LayoutProvider.class);
+			Assert.stateAvailable(layoutProvider, "layout provider");
 		}
 		return layoutProvider;
 	}

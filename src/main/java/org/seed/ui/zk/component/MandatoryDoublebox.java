@@ -19,8 +19,9 @@ package org.seed.ui.zk.component;
 
 import org.zkoss.zul.Doublebox;
 
-@SuppressWarnings("serial")
 public class MandatoryDoublebox extends Doublebox {
+	
+	private static final long serialVersionUID = -5870689304947997366L;
 	
 	private boolean mandatory;
 	
