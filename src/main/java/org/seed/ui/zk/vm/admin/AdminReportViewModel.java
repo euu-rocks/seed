@@ -159,7 +159,7 @@ public class AdminReportViewModel extends AbstractAdminViewModel<Report> {
 	protected List<SystemObject> getListManagerSource(String key, int listNum) {
 		if (PERMISSIONS.equals(key)) {
 			return MiscUtils.castList(listNum == LIST_AVAILABLE 
-					? reportService.getAvailablePermissions(getObject()) 
+					? reportService.getAvailablePermissions(getObject(), currentSession()) 
 					: getObject().getPermissions());
 		}
 		else {

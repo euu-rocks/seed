@@ -118,10 +118,11 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 	}
 	
 	@Override
-	public List<ReportPermission> getAvailablePermissions(Report report) {
+	public List<ReportPermission> getAvailablePermissions(Report report, Session session) {
 		Assert.notNull(report, C.REPORT);
+		Assert.notNull(report, C.SESSION);
 		
-		return filterAndConvert(userGroupService.findNonSystemGroups(), 
+		return filterAndConvert(userGroupService.findNonSystemGroups(session), 
 								group -> !report.containsPermission(group), 
 								group -> createPermission(report, group));
 	}

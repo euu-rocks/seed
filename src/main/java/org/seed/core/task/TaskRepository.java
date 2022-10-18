@@ -42,27 +42,25 @@ public class TaskRepository extends AbstractSystemEntityRepository<Task> {
 		return super.getSession();
 	}
 	
-	protected SystemTaskRun getLastSystemTaskRun(SystemTask systemTask) {
+	protected SystemTaskRun getLastSystemTaskRun(SystemTask systemTask, Session session) {
 		Assert.notNull(systemTask, C.SYSTEMTASK);
+		Assert.notNull(session, C.SESSION);
 		
-		try (Session session = super.getSession()) {
-			final List<SystemTaskRun> result = 
-					session.createQuery(QUERY_SYSTEMTASK_RUNS, SystemTaskRun.class)
-						   .setParameter(C.SYSTEMTASK, systemTask)
-						   .setMaxResults(1)
-						   .list();
-			return result.isEmpty() ? null : result.get(0);
-		}
+		final List<SystemTaskRun> result = 
+				session.createQuery(QUERY_SYSTEMTASK_RUNS, SystemTaskRun.class)
+					   .setParameter(C.SYSTEMTASK, systemTask)
+					   .setMaxResults(1)
+					   .list();
+		return result.isEmpty() ? null : result.get(0);
 	}
 	
-	protected List<SystemTaskRun> getSystemTaskRuns(SystemTask systemTask) {
+	protected List<SystemTaskRun> getSystemTaskRuns(SystemTask systemTask, Session session) {
 		Assert.notNull(systemTask, C.SYSTEMTASK);
+		Assert.notNull(session, C.SESSION);
 		
-		try (Session session = super.getSession()) {
-			return session.createQuery(QUERY_SYSTEMTASK_RUNS, SystemTaskRun.class)
-						  .setParameter(C.SYSTEMTASK, systemTask)
-						  .list();
-		}
+		return session.createQuery(QUERY_SYSTEMTASK_RUNS, SystemTaskRun.class)
+					  .setParameter(C.SYSTEMTASK, systemTask)
+					  .list();
 	}
 	
 }

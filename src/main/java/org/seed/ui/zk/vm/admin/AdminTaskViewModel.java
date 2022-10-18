@@ -146,7 +146,7 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	}
 	
 	public List<User> getUsers() {
-		return userService.getObjects();
+		return userService.getObjects(currentSession());
 	}
 	
 	@Init

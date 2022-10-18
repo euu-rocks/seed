@@ -152,7 +152,7 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 			hqlInput = true;
 		}
 		else {
-			filterService.initFilterCriteria(filter);
+			filterService.initFilterCriteria(filter, currentSession());
 		}
 	}
 	

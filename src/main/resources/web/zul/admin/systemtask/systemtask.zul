@@ -22,6 +22,9 @@
 <borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.SystemTaskViewModel')">
 	<north border="0">
 		<toolbar hflex="1">
+			<toolbarbutton iconSclass="z-icon-arrow-left alpha-icon-lg" 
+						   label="${labels.button.back}" 
+						   onClick="@command('back')"/>
 			<toolbarbutton iconSclass="z-icon-play alpha-icon-lg" 
 						   label="${labels.button.start}" 
 						   onClick="@command('startTask')"/>

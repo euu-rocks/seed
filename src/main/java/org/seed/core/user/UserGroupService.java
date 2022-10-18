@@ -25,7 +25,7 @@ import org.seed.core.application.ApplicationEntityService;
 
 public interface UserGroupService extends ApplicationEntityService<UserGroup> {
 	
-	List<User> getAvailableUsers(UserGroup userGroup);
+	List<User> getAvailableUsers(UserGroup userGroup, Session session);
 	
 	List<UserGroup> findNonSystemGroups();
 	

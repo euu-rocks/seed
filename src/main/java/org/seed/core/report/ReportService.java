@@ -31,7 +31,7 @@ public interface ReportService extends ApplicationEntityService<Report> {
 	
 	ReportDataSource createDataSource(Report report);
 	
-	List<ReportPermission> getAvailablePermissions(Report report);
+	List<ReportPermission> getAvailablePermissions(Report report, Session session);
 	
 	byte[] generateReport(Report report, ReportFormat format) throws ValidationException;
 	

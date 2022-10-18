@@ -383,12 +383,13 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	}
 	
 	@Override
-	public void initFilterCriteria(Filter filter) {
+	public void initFilterCriteria(Filter filter, Session session) {
 		Assert.notNull(filter, C.FILTER);
+		Assert.notNull(session, C.SESSION);
 		
 		if (filter.hasCriteria()) {
 			for (FilterCriterion filterCriterion : filter.getCriteria()) {
-				initFilterCriterionElement(filter, filterCriterion, true);
+				initFilterCriterionElement(filter, filterCriterion, true, session);
 			}
 		}
 	}
@@ -396,7 +397,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	private void initFilter(Entity entity, Filter filter, Filter currentVersionFilter, Session session) {
 		if (filter.hasCriteria()) {
 			for (FilterCriterion criterion : filter.getCriteria()) {
-				initFilterCriterion(entity, criterion, filter, currentVersionFilter);
+				initFilterCriterion(entity, criterion, filter, currentVersionFilter, session);
 			}
 		}
 		if (filter.hasPermissions()) {
@@ -407,7 +408,8 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	}
 	
 	private void initFilterCriterion(Entity entity, FilterCriterion criterion, 
-									 Filter filter, Filter currentVersionFilter) {
+									 Filter filter, Filter currentVersionFilter,
+									 Session session) {
 		criterion.setFilter(filter);
 		if (criterion.getEntityFieldUid() != null) {
 			criterion.setEntityField(entity.findFieldByUid(criterion.getEntityFieldUid()));
@@ -419,10 +421,11 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		if (currentVersionCriterion != null) {
 			currentVersionCriterion.copySystemFieldsTo(criterion);
 		}
-		initFilterCriterionElement(filter, criterion, false);
+		initFilterCriterionElement(filter, criterion, false, session);
 	}
 	
-	private void initFilterCriterionElement(Filter filter, FilterCriterion criterion, boolean setReference) {
+	private void initFilterCriterionElement(Filter filter, FilterCriterion criterion, 
+											boolean setReference, Session session) {
 		final FilterElement element = new FilterElement();
 		criterion.setElement(element);
 		
@@ -431,7 +434,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 			element.setEntityField(criterion.getEntityField());
 			// reference field
 			if (setReference && criterion.getReferenceUid() != null) {
-				criterion.setReference(getReferenceObject(criterion));
+				criterion.setReference(getReferenceObject(criterion, session));
 			}
 		}
 		
@@ -448,11 +451,11 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		}
 	}
 	
-	private TransferableObject getReferenceObject(FilterCriterion criterion) {
+	private TransferableObject getReferenceObject(FilterCriterion criterion, Session session) {
 		return (TransferableObject) 
 				Seed.getBean(ValueObjectService.class)
 					.findByUid(criterion.getEntityField().getReferenceEntity(), 
-		 					   criterion.getReferenceUid());
+		 					   criterion.getReferenceUid(), session);
 	}
 	
 	private void initFilterPermission(FilterPermission permission, Filter filter, 

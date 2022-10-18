@@ -48,6 +48,6 @@ public interface FilterService extends ApplicationEntityService<Filter> {
 	
 	List<FilterPermission> getAvailablePermissions(Filter filter, Session session);
 	
-	void initFilterCriteria(Filter filter);
+	void initFilterCriteria(Filter filter, Session session);
 	
 }

@@ -106,7 +106,12 @@ public class SystemTaskViewModel extends AbstractApplicationViewModel
 	}
 	
 	public List<SystemTaskRun> getRuns() {
-		return taskService.getSystemTaskRuns(systemTask);
+		return taskService.getSystemTaskRuns(systemTask, currentSession());
+	}
+	
+	@Command
+	public void back() {
+		showView("/admin/systemtask/systemtasklist.zul", null);
 	}
 	
 	@Command
@@ -166,7 +171,7 @@ public class SystemTaskViewModel extends AbstractApplicationViewModel
 		if (mapLastRun != null) {
 			run = mapLastRun.get(task);
 			if (run == null) {
-				run = taskService.getLastSystemTaskRun(task);
+				run = taskService.getLastSystemTaskRun(task, currentSession());
 				if (run != null) {
 					mapLastRun.put(task, run);
 				}

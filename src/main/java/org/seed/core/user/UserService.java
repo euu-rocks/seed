@@ -32,7 +32,7 @@ public interface UserService extends SystemEntityService<User> {
 	
 	User getCurrentUser(Session session);
 	
-	List<UserGroup> getAvailableUserGroups(User user);
+	List<UserGroup> getAvailableUserGroups(User user, Session session);
 	
 	void setPassword(User user, String password, String passwordRepeated) throws ValidationException;
 	

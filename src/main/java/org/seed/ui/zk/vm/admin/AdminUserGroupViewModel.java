@@ -146,7 +146,7 @@ public class AdminUserGroupViewModel extends AbstractAdminViewModel<UserGroup> {
 				
 			case USERS:
 				return MiscUtils.castList(listNum == LIST_AVAILABLE
-						? userGroupService().getAvailableUsers(getObject())
+						? userGroupService().getAvailableUsers(getObject(), currentSession())
 						: new ArrayList<>(getObject().getUsers()));
 			
 			default:

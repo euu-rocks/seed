@@ -441,8 +441,10 @@ public class ValueObjectServiceImpl
 	public List<ValueObject> find(Entity entity, Filter filter) {
 		Assert.notNull(filter, C.FILTER);
 		
-		filterService.initFilterCriteria(filter);
-		return repository.find(entity, filter);
+		try (Session session = repository.getSession()) {
+			filterService.initFilterCriteria(filter, session);
+			return repository.find(session, entity, filter);
+		}
 	}
 	
 	@Override
@@ -450,15 +452,16 @@ public class ValueObjectServiceImpl
 		Assert.notNull(filter, C.FILTER);
 		Assert.notNull(session, C.SESSION);
 		
-		filterService.initFilterCriteria(filter);
+		filterService.initFilterCriteria(filter, session);
 		return repository.find(session, entity, filter);
 	}
 	
 	@Override
 	public List<ValueObject> find(Session session, Entity entity, Filter filter) {
 		Assert.notNull(filter, C.FILTER);
+		Assert.notNull(session, C.SESSION);
 		
-		filterService.initFilterCriteria(filter);
+		filterService.initFilterCriteria(filter, session);
 		return repository.find(session, entity, filter);
 	}
 	

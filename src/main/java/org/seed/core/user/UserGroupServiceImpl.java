@@ -102,10 +102,11 @@ public class UserGroupServiceImpl extends AbstractApplicationEntityService<UserG
 	}
 	
 	@Override
-	public List<User> getAvailableUsers(UserGroup userGroup) {
+	public List<User> getAvailableUsers(UserGroup userGroup, Session session) {
 		Assert.notNull(userGroup, C.USERGROUP);
+		Assert.notNull(session, C.SESSION);
 		
-		return subList(userRepository.find(), 
+		return subList(userRepository.find(session), 
 					   user -> noneMatch(userGroup.getUsers(), user::equals));
 	}
 	

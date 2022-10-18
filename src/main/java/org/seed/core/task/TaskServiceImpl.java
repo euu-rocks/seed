@@ -150,14 +150,14 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	
 	@Override
 	@Secured("ROLE_SYSTEMTASK")
-	public SystemTaskRun getLastSystemTaskRun(SystemTask systemTask) {
-		return taskRepository.getLastSystemTaskRun(systemTask);
+	public SystemTaskRun getLastSystemTaskRun(SystemTask systemTask, Session session) {
+		return taskRepository.getLastSystemTaskRun(systemTask, session);
 	}
 	
 	@Override
 	@Secured("ROLE_SYSTEMTASK")
-	public List<SystemTaskRun> getSystemTaskRuns(SystemTask systemTask) {
-		return taskRepository.getSystemTaskRuns(systemTask);
+	public List<SystemTaskRun> getSystemTaskRuns(SystemTask systemTask, Session session) {
+		return taskRepository.getSystemTaskRuns(systemTask, session);
 	}
 	
 	@Override
