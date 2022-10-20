@@ -46,15 +46,15 @@ jobs:
       with:
         check_name: Seed Report
         report_paths: '**/surefire-reports/TEST-*.xml'
-    - name: Install doctl
-      uses: digitalocean/action-doctl@v2
-      with:
-        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-    - name: REGISTRY LOGIN
-      run: doctl registry login --expiry-seconds 600
-    - name: DOCKER BUILD
-      run: docker build -t registry.digitalocean.com/euu/seed .
-    - name: DOCKER PUSH
-      run: docker push registry.digitalocean.com/euu/seed:latest
-    - name: REGISTRY LOGOUT
-      run: doctl registry logout
+    #- name: Install doctl
+    #  uses: digitalocean/action-doctl@v2
+    #  with:
+    #    token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+    #- name: REGISTRY LOGIN
+    #  run: doctl registry login --expiry-seconds 600
+    #- name: DOCKER BUILD
+    #  run: docker build -t registry.digitalocean.com/euu/seed .
+    #- name: DOCKER PUSH
+    #  run: docker push registry.digitalocean.com/euu/seed:latest
+    #- name: REGISTRY LOGOUT
+   #   run: doctl registry logout

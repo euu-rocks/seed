@@ -42,15 +42,24 @@ jobs:
           asset_path: ./target/seed.jar
           asset_name: seed-${{ env.RELEASE_VERSION }}.jar
           asset_content_type: application/java-archive
-      - name: Install doctl
-        uses: digitalocean/action-doctl@v2
+      #- name: Install doctl
+      #  uses: digitalocean/action-doctl@v2
+      #  with:
+      #    token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      #- name: REGISTRY LOGIN
+      #  run: doctl registry login --expiry-seconds 600
+      #- name: DOCKER BUILD
+      #  run: docker build -t registry.digitalocean.com/euu/seed:${{ env.RELEASE_VERSION }} .
+      #- name: DOCKER PUSH
+      #  run: docker push registry.digitalocean.com/euu/seed:${{ env.RELEASE_VERSION }}
+      #- name: REGISTRY LOGOUT
+      #  run: doctl registry logout
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
         with:
-          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-      - name: REGISTRY LOGIN
-        run: doctl registry login --expiry-seconds 600
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: DOCKER BUILD
-        run: docker build -t registry.digitalocean.com/euu/seed:${{ env.RELEASE_VERSION }} .
+        run: docker build -t euurocks/seed:${{ env.RELEASE_VERSION }} .
       - name: DOCKER PUSH
-        run: docker push registry.digitalocean.com/euu/seed:${{ env.RELEASE_VERSION }}
-      - name: REGISTRY LOGOUT
-        run: doctl registry logout
+        run: docker push euurocks/seed:${{ env.RELEASE_VERSION }}
