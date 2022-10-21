@@ -30,6 +30,10 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.core.application.AbstractOrderedTransferableObject;
+import org.seed.core.util.ReferenceJsonSerializer;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @javax.persistence.Entity
 @Table(name = "sys_entity_statustran_func")
@@ -38,10 +42,12 @@ public class EntityStatusTransitionFunction extends AbstractOrderedTransferableO
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "transition_id")
+	@JsonIgnore
 	private EntityStatusTransition statusTransition;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "function_id")
+	@JsonSerialize(using = ReferenceJsonSerializer.class)
 	private EntityFunction function;
 	
 	private boolean isActiveBeforeTransition;
@@ -49,6 +55,7 @@ public class EntityStatusTransitionFunction extends AbstractOrderedTransferableO
 	private boolean isActiveAfterTransition;
 	
 	@Transient
+	@JsonIgnore
 	private String functionUid;
 	
 	@XmlTransient

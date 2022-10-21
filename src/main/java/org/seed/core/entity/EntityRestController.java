@@ -19,13 +19,17 @@ package org.seed.core.entity;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.C;
 import org.seed.core.application.AbstractRestController;
+import org.seed.core.config.OpenSessionInViewFilter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -47,16 +51,17 @@ public class EntityRestController extends AbstractRestController<Entity> {
 	@Override
 	@ApiOperation(value = "getAllEntities", notes = "returns a list of all authorized entities")
 	@GetMapping
-	public List<Entity> getAll() {
-		return getAll(e -> checkPermissions(e, EntityAccess.READ));
+	public List<Entity> getAll(@RequestAttribute(OpenSessionInViewFilter.ATTR_SESSION) Session session) {
+		return getAll(session, entity -> checkPermissions(session, entity, EntityAccess.READ));
 	}
 	
 	@Override
 	@ApiOperation(value = "getEntityById", notes = "returns the entity with the given id")
 	@GetMapping(value = "/{id}")
-	public Entity get(@PathVariable(C.ID) Long id) {
-		final Entity entity = super.get(id);
-		if (!checkPermissions(entity, EntityAccess.READ)) {
+	public Entity get(@RequestAttribute(OpenSessionInViewFilter.ATTR_SESSION) Session session,
+					  @PathVariable(C.ID) Long id) {
+		final Entity entity = super.get(session, id);
+		if (entity != null && !checkPermissions(session, entity, EntityAccess.READ)) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN);
 		}
 		return entity;

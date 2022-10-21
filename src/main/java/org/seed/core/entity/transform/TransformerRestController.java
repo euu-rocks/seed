@@ -19,13 +19,17 @@ package org.seed.core.entity.transform;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.C;
 import org.seed.core.application.AbstractRestController;
+import org.seed.core.config.OpenSessionInViewFilter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -47,16 +51,17 @@ public class TransformerRestController extends AbstractRestController<Transforme
 	@Override
 	@ApiOperation(value = "getAllTransformations", notes="returns a list of all authorized transformations")
 	@GetMapping
-	public List<Transformer> getAll() {
-		return getAll(this::checkPermissions);
+	public List<Transformer> getAll(@RequestAttribute(OpenSessionInViewFilter.ATTR_SESSION) Session session) {
+		return getAll(session, transformer -> checkPermissions(session, transformer));
 	}
 	
 	@Override
 	@ApiOperation(value = "getTransformationById", notes="returns the transformation with the given id")
 	@GetMapping(value = "/{id}")
-	public Transformer get(@PathVariable(C.ID) Long id) {
-		final Transformer transformer = super.get(id);
-		if (!checkPermissions(transformer)) {
+	public Transformer get(@RequestAttribute(OpenSessionInViewFilter.ATTR_SESSION) Session session,
+						   @PathVariable(C.ID) Long id) {
+		final Transformer transformer = super.get(session, id);
+		if (transformer != null && !checkPermissions(session, transformer)) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN);
 		}
 		return transformer;

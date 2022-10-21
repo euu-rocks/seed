@@ -20,14 +20,16 @@ package org.seed.core.application;
 import java.util.List;
 import java.util.function.Predicate;
 
+import org.hibernate.Session;
+
 import org.seed.C;
 import org.seed.core.user.Authorisation;
 import org.seed.core.user.UserService;
+import org.seed.core.util.Assert;
 import org.seed.core.util.CollectionUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
 
 public abstract class AbstractRestController<T extends ApplicationEntity> {
@@ -35,32 +37,44 @@ public abstract class AbstractRestController<T extends ApplicationEntity> {
 	@Autowired
 	private UserService userService;
 	
-	protected List<T> getAll() {
-		return getService().getObjects();
+	protected List<T> getAll(Session session) {
+		Assert.notNull(session, C.SESSION);
+		
+		return getService().getObjects(session);
 	}
 	
-	protected List<T> getAll(Predicate<T> filter) {
-		return CollectionUtils.subList(getAll(), filter);
+	protected List<T> getAll(Session session, Predicate<T> filter) {
+		Assert.notNull(session, C.SESSION);
+		
+		return CollectionUtils.subList(getService().getObjects(session), filter);
 	}
 	
-	protected T get(@PathVariable(C.ID) Long id) {
-		final T object = getService().getObject(id);
+	protected T get(Session session, Long id) {
+		Assert.notNull(session, C.SESSION);
+		
+		final T object = getService().getObject(id, session);
 		if (object == null) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
 		return object;
 	}
 	
-	protected boolean checkPermissions(ApplicationEntity object) {
-		return checkPermissions(object, null);
+	protected boolean checkPermissions(Session session, ApplicationEntity object) {
+		Assert.notNull(session, C.SESSION);
+		
+		return checkPermissions(session, object, null);
 	}
 	
-	protected boolean checkPermissions(ApplicationEntity object, Enum<?> access) {
-		return object.checkPermissions(userService.getCurrentUser(), access);
+	protected boolean checkPermissions(Session session, ApplicationEntity object, Enum<?> access) {
+		Assert.notNull(session, C.SESSION);
+		
+		return object.checkPermissions(userService.getCurrentUser(session), access);
 	}
 	
-	protected boolean isAuthorised(Authorisation authorisation) {
-		return userService.getCurrentUser().isAuthorised(authorisation);
+	protected boolean isAuthorised(Session session, Authorisation authorisation) {
+		Assert.notNull(session, C.SESSION);
+		
+		return userService.getCurrentUser(session).isAuthorised(authorisation);
 	}
 	
 	protected abstract ApplicationEntityService<T> getService();

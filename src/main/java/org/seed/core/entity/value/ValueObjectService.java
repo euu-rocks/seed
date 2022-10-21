@@ -49,7 +49,7 @@ public interface ValueObjectService extends EntityUsage {
 	
 	ValueObject createInstance(Entity entity, Session session, ValueObjectFunctionContext functionContext);
 	
-	ValueObject createObject(Entity entity, Map<String,Object> valueMap);
+	ValueObject createObject(Session session, Entity entity, Map<String,Object> valueMap);
 	
 	QueryCursor<ValueObject> createCursor(Entity entity, int chunkSize);
 	
@@ -155,7 +155,7 @@ public interface ValueObjectService extends EntityUsage {
 	void deleteObject(ValueObject object, Session session, ValueObjectFunctionContext functionContext) 
 			throws ValidationException;
 	
-	ValueObject updateObject(Entity entity, Long objectId, Map<String,Object> valueMap) throws ValidationException;
+	ValueObject updateObject(Session session, Entity entity, Long objectId, Map<String,Object> valueMap) throws ValidationException;
 	
 	void saveObject(ValueObject object) throws ValidationException;
 	
@@ -164,7 +164,7 @@ public interface ValueObjectService extends EntityUsage {
 	void saveObject(ValueObject object, Session session, ValueObjectFunctionContext functionContext) 
 			throws ValidationException;
 	
-	String callUserActionFunction(ValueObject object, EntityFunction function);
+	String callUserActionFunction(Session session, ValueObject object, EntityFunction function);
 	
 	Session openSession();
 	

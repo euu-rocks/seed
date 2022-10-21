@@ -31,6 +31,8 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.seed.core.application.AbstractPermissionObject;
 import org.seed.core.application.Permission;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "sys_entity_transform_perm")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -39,6 +41,7 @@ public class TransformerPermission extends AbstractPermissionObject
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "transform_id")
+	@JsonIgnore
 	private TransformerMetadata transformer;
 	
 	@XmlTransient

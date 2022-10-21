@@ -19,13 +19,17 @@ package org.seed.core.entity.filter;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.C;
 import org.seed.core.application.AbstractRestController;
+import org.seed.core.config.OpenSessionInViewFilter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -47,16 +51,17 @@ public class FilterRestController extends AbstractRestController<Filter> {
 	@Override
 	@ApiOperation(value = "getAllFilters", notes="returns a list of all authorized filters")
 	@GetMapping
-	public List<Filter> getAll() {
-		return getAll(this::checkPermissions);
+	public List<Filter> getAll(@RequestAttribute(OpenSessionInViewFilter.ATTR_SESSION) Session session) {
+		return getAll(session, filter -> checkPermissions(session, filter));
 	}
 	
 	@Override
 	@ApiOperation(value = "getFilterById", notes="returns the filter with the given id")
 	@GetMapping(value = "/{id}")
-	public Filter get(@PathVariable(C.ID) Long id) {
-		final Filter filter = super.get(id);
-		if (!checkPermissions(filter)) {
+	public Filter get(@RequestAttribute(OpenSessionInViewFilter.ATTR_SESSION) Session session,
+					  @PathVariable(C.ID) Long id) {
+		final Filter filter = super.get(session, id);
+		if (filter != null && !checkPermissions(session, filter)) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN);
 		}
 		return filter;

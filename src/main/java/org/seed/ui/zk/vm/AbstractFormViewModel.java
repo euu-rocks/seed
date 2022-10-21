@@ -384,7 +384,7 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 	
 	private void callEntityFunction(Component component, ValueObject object, EntityFunction function) {
 		try {
-			final String successMessage = valueObjectService.callUserActionFunction(object, function);
+			final String successMessage = valueObjectService.callUserActionFunction(currentSession(), object, function);
 			if (successMessage != null) {
 				showNotification(component, false, "value.parameter", successMessage);
 			}

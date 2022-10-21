@@ -29,6 +29,8 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.core.application.AbstractPermissionObject;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @javax.persistence.Entity
 @Table(name = "sys_entity_statustran_perm")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -36,6 +38,7 @@ public class EntityStatusTransitionPermission extends AbstractPermissionObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "transition_id")
+	@JsonIgnore
 	private EntityStatusTransition statusTransition;
 	
 	@XmlTransient

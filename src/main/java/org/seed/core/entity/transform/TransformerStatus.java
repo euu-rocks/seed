@@ -44,7 +44,7 @@ public class TransformerStatus extends AbstractTransferableObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "transformer_id")
-	@JsonSerialize(using = ReferenceJsonSerializer.class)
+	@JsonIgnore
 	private TransformerMetadata transformer;
 	
 	@ManyToOne(fetch = FetchType.LAZY)

@@ -25,9 +25,10 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
-@SuppressWarnings("serial")
 public class ReferenceJsonSerializer extends StdSerializer<SystemObject> {
 	
+	private static final long serialVersionUID = -597156653430418805L;
+
 	protected ReferenceJsonSerializer() {
 		this(null);
 	}

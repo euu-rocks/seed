@@ -32,8 +32,10 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.seed.core.application.AbstractOrderedTransferableObject;
 import org.seed.core.util.Assert;
 import org.seed.core.util.NameUtils;
+import org.seed.core.util.ReferenceJsonSerializer;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @javax.persistence.Entity
 @Table(name = "sys_entity_relation")
@@ -49,7 +51,7 @@ public class EntityRelation extends AbstractOrderedTransferableObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "related_entity_id")
-	@JsonIgnore
+	@JsonSerialize(using = ReferenceJsonSerializer.class)
 	private EntityMetadata relatedEntity;
 	
 	private String name;

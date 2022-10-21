@@ -181,26 +181,25 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public ValueObject createObject(Entity entity, Map<String,Object> valueMap) {
+	public ValueObject createObject(Session session, Entity entity, Map<String,Object> valueMap) {
+		Assert.notNull(session, C.SESSION);
 		Assert.notNull(entity, C.ENTITY);
 		
-		try (Session session = repository.getSession()) {
-			Transaction tx = null;
-			try {
-				tx = session.beginTransaction();
-				final ValueObject object = repository.createInstance(entity, session, null);
-				if (setObjectValues(session, entity, object, valueMap)) {
-					saveObject(object, session, null);
-				}
-				tx.commit();
-				return object;
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			final ValueObject object = repository.createInstance(entity, session, null);
+			if (setObjectValues(session, entity, object, valueMap)) {
+				saveObject(object, session, null);
 			}
-			catch (Exception ex) {
-				if (tx != null) {
-					tx.rollback();
-				}
-				throw new InternalException(ex);
+			tx.commit();
+			return object;
+		}
+		catch (Exception ex) {
+			if (tx != null) {
+				tx.rollback();
 			}
+			throw new InternalException(ex);
 		}
 	}
 	
@@ -321,25 +320,24 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public String callUserActionFunction(ValueObject object, EntityFunction function) {
+	public String callUserActionFunction(Session session, ValueObject object, EntityFunction function) {
+		Assert.notNull(session, C.SESSION);
 		Assert.notNull(object, C.OBJECT);
 		Assert.notNull(function, C.FUNCTION);
 		
 		String message = null;
-		try (Session session = repository.getSession()) {
-			Transaction tx = null;
-			try {
-				tx = session.beginTransaction();
-				message = eventHandler.processUserEvent(new ValueObjectEvent(object, function, session));
-				tx.commit();
-				return message;
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			message = eventHandler.processUserEvent(new ValueObjectEvent(object, function, session));
+			tx.commit();
+			return message;
+		}
+		catch (Exception ex) {
+			if (tx != null) {
+				tx.rollback();
 			}
-			catch (Exception ex) {
-				if (tx != null) {
-					tx.rollback();
-				}
-				throw ex;
-			}
+			throw ex;
 		}
 	}
 	
@@ -543,24 +541,22 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public ValueObject updateObject(Entity entity, Long objectId, Map<String,Object> valueMap) throws ValidationException {
-		try (Session session = repository.getSession()) {
-			Transaction tx = null;
-			try {
-				tx = session.beginTransaction();
-				final ValueObject object = repository.get(session, entity, objectId);
-				if (setObjectValues(session, entity, object, valueMap)) {
-					saveObject(object, session, null);
-				}
-				tx.commit();
-				return object;
+	public ValueObject updateObject(Session session, Entity entity, Long objectId, Map<String,Object> valueMap) throws ValidationException {
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			final ValueObject object = repository.get(session, entity, objectId);
+			if (setObjectValues(session, entity, object, valueMap)) {
+				saveObject(object, session, null);
 			}
-			catch (Exception ex) {
-				if (tx != null) {
-					tx.rollback();
-				}
-				throw ex;
+			tx.commit();
+			return object;
+		}
+		catch (Exception ex) {
+			if (tx != null) {
+				tx.rollback();
 			}
+			throw ex;
 		}
 	}
 	
