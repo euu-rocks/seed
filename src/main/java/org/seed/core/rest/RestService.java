@@ -28,7 +28,7 @@ import org.springframework.web.client.RestTemplate;
 
 public interface RestService extends ApplicationEntityService<Rest> {
 	
-	Rest findByMapping(String mapping);
+	Rest findByMapping(Session session, String mapping);
 	
 	RestTemplate createTemplate(String url);
 	
@@ -39,6 +39,6 @@ public interface RestService extends ApplicationEntityService<Rest> {
 	List<RestPermission> getAvailablePermissions(Rest rest, Session session);
 	
 	Object callFunction(RestFunction function, MethodType method, 
-						Object body, String[] parameters);
+						Object body, String[] parameters, Session session);
 	
 }

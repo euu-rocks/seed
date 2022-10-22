@@ -24,6 +24,7 @@ import org.hibernate.Session;
 
 import org.seed.C;
 import org.seed.core.user.Authorisation;
+import org.seed.core.user.User;
 import org.seed.core.user.UserService;
 import org.seed.core.util.Assert;
 import org.seed.core.util.CollectionUtils;
@@ -68,13 +69,19 @@ public abstract class AbstractRestController<T extends ApplicationEntity> {
 	protected boolean checkPermissions(Session session, ApplicationEntity object, Enum<?> access) {
 		Assert.notNull(session, C.SESSION);
 		
-		return object.checkPermissions(userService.getCurrentUser(session), access);
+		return object.checkPermissions(getUser(session), access);
 	}
 	
 	protected boolean isAuthorised(Session session, Authorisation authorisation) {
 		Assert.notNull(session, C.SESSION);
 		
-		return userService.getCurrentUser(session).isAuthorised(authorisation);
+		return getUser(session).isAuthorised(authorisation);
+	}
+	
+	protected User getUser(Session session) {
+		final User user = userService.getCurrentUser(session);
+		Assert.stateAvailable(user, C.USER);
+		return user;
 	}
 	
 	protected abstract ApplicationEntityService<T> getService();

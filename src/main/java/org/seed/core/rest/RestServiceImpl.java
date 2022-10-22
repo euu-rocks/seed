@@ -111,12 +111,13 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 	}
 	
 	@Override
-	public Rest findByMapping(String mapping) {
+	public Rest findByMapping(Session session, String mapping) {
+		Assert.notNull(session, C.SESSION);
 		Assert.notNull(mapping, "mapping");
 		
-		Rest rest = repository.findUnique(queryParam("mapping", '/' + mapping));
+		Rest rest = repository.findUnique(session, queryParam("mapping", '/' + mapping));
 		if (rest == null) {
-			rest = firstMatch(repository.find(), 
+			rest = firstMatch(repository.find(session), 
 							  res -> mapping.equalsIgnoreCase(res.getInternalName()));
 		}
 		return rest;
@@ -132,38 +133,37 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 	
 	@Override
 	public Object callFunction(RestFunction function, MethodType method, 
-							   Object body, String[] parameters) {
+							   Object body, String[] parameters, Session session) {
 		Assert.notNull(function, C.FUNCTION);
+		Assert.notNull(session, C.SESSION);
 		Assert.notNull(method, "method");
 		
 		final Class<GeneratedCode> functionClass = codeManager.getGeneratedClass(function);
 		Assert.stateAvailable(functionClass, "function class");
 		
 		Object result = null;
-		try (Session session = repository.openSession()) {
-			Transaction tx = null;
-			try {
-				tx = session.beginTransaction();
-				
-				// create context
-				final RestFunctionContext context = 
-						new DefaultRestFunctionContext(method, parameters, body, 
-													   session, function.getRest().getModule());
-				// create instance
-				final org.seed.core.api.RestFunction functionInstance = 
-						(org.seed.core.api.RestFunction) BeanUtils.instantiate(functionClass);
-				
-				// call function
-				result = functionInstance.call(context);
-				
-				tx.commit();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			
+			// create context
+			final RestFunctionContext context = 
+					new DefaultRestFunctionContext(method, parameters, body, 
+												   session, function.getRest().getModule());
+			// create instance
+			final org.seed.core.api.RestFunction functionInstance = 
+					(org.seed.core.api.RestFunction) BeanUtils.instantiate(functionClass);
+			
+			// call function
+			result = functionInstance.call(context);
+			
+			tx.commit();
+		}
+		catch (Exception ex) {
+			if (tx != null) {
+				tx.rollback();
 			}
-			catch (Exception ex) {
-				if (tx != null) {
-					tx.rollback();
-				}
-				throw new InternalException(ex);
-			}
+			throw new InternalException(ex);
 		}
 		return result;
 	}

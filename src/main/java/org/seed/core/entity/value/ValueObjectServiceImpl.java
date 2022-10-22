@@ -123,10 +123,9 @@ public class ValueObjectServiceImpl
 	
 	@Override
 	public boolean existObjects(Entity entity) {
-		return entity.isGeneric()
-				? anyMatch(entityService.findDescendants(entity), 
-						   descendant -> repository.exist(descendant, null))
-				: repository.exist(entity, null);
+		try (Session session = repository.getSession()) {
+			return existObjects(entity, session);
+		}
 	}
 	
 	@Override
@@ -302,11 +301,12 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public List<FileObject> getFileObjects(ValueObject object) {
+	public List<FileObject> getFileObjects(ValueObject object, Session session) {
 		Assert.notNull(object, C.OBJECT);
+		Assert.notNull(session, C.SESSION);
 		
 		final List<FileObject> fileObjects = new ArrayList<>();
-		final Entity entity = repository.getEntity(object);
+		final Entity entity = repository.getEntity(session, object);
 		collectFileObjects(object, entity, fileObjects);
 		if (entity.hasNesteds()) {
 			for (NestedEntity nested : entity.getNesteds()) {
@@ -392,11 +392,6 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public ValueObject getObject(Entity entity, Long objectId) {
-		return repository.get(entity, objectId);
-	}
-	
-	@Override
 	public ValueObject getObject(Session session, Entity entity, Long id) {
 		return repository.get(session, entity, id);
 	}
@@ -422,8 +417,12 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public List<ValueObject> getAvailableRelationObjects(ValueObject object, EntityRelation relation) {
-		final List<ValueObject> result = getAllObjects(relation.getRelatedEntity());
+	public List<ValueObject> getAvailableRelationObjects(Session session, ValueObject object, EntityRelation relation) {
+		Assert.notNull(session, C.SESSION);
+		Assert.notNull(object, C.OBJECT);
+		Assert.notNull(relation, C.RELATION);
+		
+		final List<ValueObject> result = getAllObjects(session, relation.getRelatedEntity());
 		if (objectAccess.hasRelatedObjects(object, relation)) {
 			result.removeAll(objectAccess.getRelatedObjects(object, relation));
 		}
@@ -433,25 +432,6 @@ public class ValueObjectServiceImpl
 	@Override
 	public List<ValueObject> find(Session session, CriteriaQuery<ValueObject> query) {
 		return repository.find(session, query);
-	}
-	
-	@Override
-	public List<ValueObject> find(Entity entity, Filter filter) {
-		Assert.notNull(filter, C.FILTER);
-		
-		try (Session session = repository.getSession()) {
-			filterService.initFilterCriteria(filter, session);
-			return repository.find(session, entity, filter);
-		}
-	}
-	
-	@Override
-	public List<ValueObject> find(Entity entity, Filter filter, Session session) {
-		Assert.notNull(filter, C.FILTER);
-		Assert.notNull(session, C.SESSION);
-		
-		filterService.initFilterCriteria(filter, session);
-		return repository.find(session, entity, filter);
 	}
 	
 	@Override
@@ -658,13 +638,6 @@ public class ValueObjectServiceImpl
 	@Override
 	public void transform(Transformer transformer, ValueObject targetObject, EntityField sourceObjectField, Session session) {
 		objectTransformer.transform(transformer, targetObject, sourceObjectField, session);
-	}
-	
-	@Override
-	public ValueObject transform(Transformer transformer, ValueObject sourceObject) {
-		try (Session session = repository.getSession()) {
-			return transform(transformer, sourceObject, session);
-		}
 	}
 	
 	@Override

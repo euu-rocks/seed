@@ -131,12 +131,6 @@ public class DataSourceServiceImpl extends AbstractApplicationEntityService<IDat
 	}
 	
 	@Override
-	public DataSourceResult query(IDataSource dataSource, Map<String, Object> parameters) throws ValidationException {
-		validator.validateParameterValues(dataSource, parameters);
-		return repository.query(dataSource, parameters);
-	}
-	
-	@Override
 	protected void analyzeNextVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
 		if (analysis.getModule().getDataSources() != null) {
 			for (IDataSource dataSource : analysis.getModule().getDataSources()) {

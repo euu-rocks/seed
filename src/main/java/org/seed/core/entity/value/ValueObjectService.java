@@ -82,8 +82,6 @@ public interface ValueObjectService extends EntityUsage {
 	
 	void transform(Transformer transformer, ValueObject targetObject, EntityField sourceObjectField, Session session);
 	
-	ValueObject transform(Transformer transformer, ValueObject sourceObject);
-	
 	ValueObject transform(Transformer transformer, ValueObject sourceObject, Session session);
 	
 	void transform(Transformer transformer, ValueObject sourceObject, ValueObject targetObject, Session session);
@@ -106,7 +104,7 @@ public interface ValueObjectService extends EntityUsage {
 	
 	void removeRelation(ValueObject object, EntityRelation relation, ValueObject relatedObject);
 	
-	List<FileObject> getFileObjects(ValueObject object);
+	List<FileObject> getFileObjects(ValueObject object, Session session);
 	
 	void preallocateFileObjects(ValueObject object, Session session);
 	
@@ -115,8 +113,6 @@ public interface ValueObjectService extends EntityUsage {
 	String getIdentifier(ValueObject object, Session session);
 	
 	long count(Session session, Class<?> entityClass);
-	
-	ValueObject getObject(Entity entity, Long objectId);
 	
 	ValueObject getObject(Session session, Entity entity, Long id);
 	
@@ -128,11 +124,7 @@ public interface ValueObjectService extends EntityUsage {
 	
 	List<ValueObject> getAllObjects(Session session, Class<?> entityClass);
 	
-	List<ValueObject> getAvailableRelationObjects(ValueObject object, EntityRelation relation);
-	
-	List<ValueObject> find(Entity entity, Filter filter);
-	
-	List<ValueObject> find(Entity entity, Filter filter, Session session);
+	List<ValueObject> getAvailableRelationObjects(Session session, ValueObject object, EntityRelation relation);
 	
 	List<ValueObject> find(Session session, Entity entity, Filter filter);
 	

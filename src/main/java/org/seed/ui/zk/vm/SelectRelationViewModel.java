@@ -36,7 +36,7 @@ import org.zkoss.zk.ui.select.annotation.Wire;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
 import org.zkoss.zul.Window;
 
-public class SelectRelationViewModel extends AbstractViewModel {
+public class SelectRelationViewModel extends AbstractApplicationViewModel {
 	
 	@Wire("#selectRelationWin")
 	private Window window;
@@ -86,7 +86,7 @@ public class SelectRelationViewModel extends AbstractViewModel {
 	
 	public List<ValueObject> getAvailableRelations() {
 		final List<ValueObject> relations = 
-				valueObjectService.getAvailableRelationObjects(parentVM.getObject(), relation);
+				valueObjectService.getAvailableRelationObjects(currentSession(), parentVM.getObject(), relation);
 		valueObjectService.sortObjects(relations);
 		return relations;
 	}

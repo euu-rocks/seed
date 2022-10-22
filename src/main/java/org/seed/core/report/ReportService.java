@@ -33,6 +33,6 @@ public interface ReportService extends ApplicationEntityService<Report> {
 	
 	List<ReportPermission> getAvailablePermissions(Report report, Session session);
 	
-	byte[] generateReport(Report report, ReportFormat format) throws ValidationException;
+	byte[] generateReport(Report report, ReportFormat format, Session session) throws ValidationException;
 	
 }

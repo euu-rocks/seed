@@ -36,6 +36,8 @@ import org.seed.core.codegen.GeneratedObject;
 
 import org.springframework.util.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "sys_rest_function")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -44,6 +46,7 @@ public class RestFunction extends AbstractContentObject
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rest_id")
+	@JsonIgnore
 	private RestMetadata rest;
 	
 	private String mapping;

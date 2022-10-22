@@ -97,7 +97,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	
 	@DependsOn("listModel")
 	public int getCursorTotalCount() {
-		return listModel.getSize();
+		return getListModel().getSize();
 	}
 	
 	@Override
@@ -131,31 +131,33 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	}
 
 	public ListModel<ValueObject> getListModel() {
-		final SearchParameter searchParam = getTab().getSearchParameter();
-		QueryCursor<ValueObject> cursor;
-		if (searchParam != null) {
-			cursor = valueObjectService().createCursor(searchParam.searchObject, searchParam.mapOperators);
-		}
-		else if (fullTextQuery != null) {
-			cursor = valueObjectService().createFullTextSearchCursor(fullTextQuery, getForm().getEntity());
-			fullTextQuery = null;
-		}
-		else {
-			if (sort != null) {
-				cursor = valueObjectService().createCursor(getForm().getEntity(), currentFilter, sort);
+		if (listModel == null) {
+			final SearchParameter searchParam = getTab().getSearchParameter();
+			QueryCursor<ValueObject> cursor;
+			if (searchParam != null) {
+				cursor = valueObjectService().createCursor(searchParam.searchObject, searchParam.mapOperators);
+			}
+			else if (fullTextQuery != null) {
+				cursor = valueObjectService().createFullTextSearchCursor(fullTextQuery, getForm().getEntity());
+				fullTextQuery = null;
 			}
 			else {
-				cursor = valueObjectService().createCursor(getForm().getEntity(), currentFilter);
+				if (sort != null) {
+					cursor = valueObjectService().createCursor(getForm().getEntity(), currentFilter, sort);
+				}
+				else {
+					cursor = valueObjectService().createCursor(getForm().getEntity(), currentFilter);
+				}
 			}
+			listModel = new LoadOnDemandListModel<ValueObject>(cursor, false) {
+				private static final long serialVersionUID = 6122960735585906371L;
+				
+				@Override
+				protected List<ValueObject> loadChunk(QueryCursor<ValueObject> cursor) {
+					return valueObjectService().loadChunk(currentSession(), cursor);
+				}
+			};
 		}
-		listModel = new LoadOnDemandListModel<ValueObject>(cursor, false) {
-			private static final long serialVersionUID = 6122960735585906371L;
-			
-			@Override
-			protected List<ValueObject> loadChunk(QueryCursor<ValueObject> cursor) {
-				return valueObjectService().loadChunk(currentSession(), cursor);
-			}
-		};
 		return listModel;
 	}
 	
@@ -207,13 +209,14 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	@Command
 	@NotifyChange("listModel")
 	public void selectFilter() {
-		// do nothing, just notify
+		listModel = null;
 	}
 	
 	@Command
 	@NotifyChange("listModel")
 	public void searchFullText() {
 		fullTextQuery = fullTextSearchTerm;
+		listModel = null;
 	}
 	
 	@Command
@@ -294,6 +297,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 		else if (formField.getSystemField() != null) {
 			sort = new Sort(formField.getSystemField().property, directionAscending);
 		}
+		listModel = null;
 	}
 	
 	@Override
@@ -336,6 +340,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	}
 	
 	private void reload() {
+		listModel = null;
 		notifyChange("listModel");
 	}
 	

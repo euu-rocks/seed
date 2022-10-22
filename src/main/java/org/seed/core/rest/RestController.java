@@ -22,7 +22,10 @@ import java.util.Arrays;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.hibernate.Session;
+
 import org.seed.core.api.RestFunction.MethodType;
+import org.seed.core.config.OpenSessionInViewFilter;
 import org.seed.core.user.Authorisation;
 import org.seed.core.user.User;
 import org.seed.core.user.UserService;
@@ -61,22 +64,24 @@ public class RestController {
 	private ResponseEntity<Object> handleRequest(MethodType method, HttpServletRequest request, Object body) {
 		final String uri = request.getRequestURI().substring(10); // "/seed/rest" - length
 		if (!uri.isEmpty()) {
+			final Session session = (Session) request.getAttribute(OpenSessionInViewFilter.ATTR_SESSION);
 			final String[] uriParts = uri.substring(1).split("/"); 
 			if (uriParts.length >= 2) {
-				final Rest rest = restService.findByMapping(uriParts[0]);
+				final Rest rest = restService.findByMapping(session, uriParts[0]);
 				if (rest != null) {
 					return callRest(rest, uriParts[1], method, body, 
-									Arrays.copyOfRange(uriParts, 2, uriParts.length));
+									Arrays.copyOfRange(uriParts, 2, uriParts.length),
+									session);
 				}
 			}
 		}
 		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 	
-	private ResponseEntity<Object> callRest(Rest rest, String functionMapping, 
-											MethodType method, Object body, String[] parameters) {
+	private ResponseEntity<Object> callRest(Rest rest, String functionMapping, MethodType method, 
+											Object body, String[] parameters, Session session) {
 		// check access
-		final User user = userService.getCurrentUser();
+		final User user = userService.getCurrentUser(session);
 		if (user == null || !user.isAuthorised(Authorisation.CALL_REST) ||
 			!rest.checkPermissions(user)) {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
@@ -85,7 +90,7 @@ public class RestController {
 		final RestFunction function = rest.getFunctionByMapping(functionMapping);
 		if (function != null && function.getMethod() == method) {
 			try {
-				final Object result = restService.callFunction(function, method, body, parameters);
+				final Object result = restService.callFunction(function, method, body, parameters, session);
 				return new ResponseEntity<>(result, HttpStatus.OK);
 			}
 			catch (Exception ex) {

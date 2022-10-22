@@ -65,7 +65,7 @@ public class QueryDialogViewModel extends AbstractApplicationViewModel {
 	}
 	
 	public List<ValueObject> getReferenceObjects(DataSourceParameter parameter) {
-		return valueObjectService.getAllObjects(parameter.getReferenceEntity());
+		return valueObjectService.getAllObjects(currentSession(), parameter.getReferenceEntity());
 	}
 	
 	@Init
@@ -83,7 +83,7 @@ public class QueryDialogViewModel extends AbstractApplicationViewModel {
 	@NotifyChange(C.RESULT)
 	public void query(@BindingParam(C.ELEM) Component component) {
 		try {
-			result = dataSourceService.query(dataSource, getParameterMap());
+			result = dataSourceService.query(dataSource, getParameterMap(), currentSession());
 		} 
 		catch (ValidationException vex) {
 			showValidationErrors(component, "admin.datasource.queryfail", vex.getErrors());

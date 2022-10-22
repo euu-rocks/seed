@@ -201,7 +201,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 			setObject(param.object);
 		}
 		else if (param.objectId != null) {
-			setObject(valueObjectService().getObject(getForm().getEntity(), param.objectId));
+			setObject(valueObjectService().getObject(currentSession(), getForm().getEntity(), param.objectId));
 		}
 		else {
 			newObject();
@@ -393,7 +393,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	public void selectRevision() {
 		// current version
 		if (revisions.indexOf(revision) == revisions.size() - 1) {
-			setObject(valueObjectService().getObject(getForm().getEntity(), getObject().getId()));
+			setObject(valueObjectService().getObject(currentSession(), getForm().getEntity(), getObject().getId()));
 			revision = null;
 		}
 		else {
@@ -480,7 +480,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	}
 	
 	private void refreshObject() {
-		setObject(valueObjectService().getObject(getForm().getEntity(), getObject().getId()));
+		setObject(valueObjectService().getObject(currentSession(), getForm().getEntity(), getObject().getId()));
 		initFileObjects();
 		revision = null;
 		reset();
@@ -490,7 +490,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 		try {
 			final List<FileObject> deletedFileObjects = new ArrayList<>(fileObjects);
 			// removes all file objects that still exist, only deleted ones remain
-			deletedFileObjects.removeAll(valueObjectService().getFileObjects(getObject()));
+			deletedFileObjects.removeAll(valueObjectService().getFileObjects(getObject(), currentSession()));
 			valueObjectService().saveObject(getObject(), deletedFileObjects);
 			initFileObjects();
 			revision = null;
@@ -505,7 +505,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	}
 	
 	private void initFileObjects() {
-		fileObjects = valueObjectService().getFileObjects(getObject());
+		fileObjects = valueObjectService().getFileObjects(getObject(), currentSession());
 		valueObjectService().preallocateFileObjects(getObject(), currentSession());
 	}
 	

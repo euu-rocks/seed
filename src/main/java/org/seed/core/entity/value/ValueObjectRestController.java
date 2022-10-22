@@ -88,7 +88,7 @@ public class ValueObjectRestController {
 										 @PathVariable("filterid") Long filterid) {
 		Assert.notNull(session, C.SESSION);
 		
-		return service.find(getEntity(session, name), getFilter(session, filterid), session);
+		return service.find(session, getEntity(session, name), getFilter(session, filterid));
 	}
 	
 	@ApiOperation(value = "insertObject", 
@@ -198,11 +198,7 @@ public class ValueObjectRestController {
 			 				 @PathVariable(C.ID) Long id) {
 		Assert.notNull(session, C.SESSION);
 		
-		final Entity entity = getEntity(session, name);
-		if (entity == null) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, C.ENTITY + ' ' + name);
-		}
-		checkEntityAccess(session, entity, EntityAccess.DELETE);
+		checkEntityAccess(session, getEntity(session, name), EntityAccess.DELETE);
 		try {
 			service.deleteObject(getObject(session, name, id), session, null);
 		} 

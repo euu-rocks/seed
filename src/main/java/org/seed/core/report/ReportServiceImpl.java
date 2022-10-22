@@ -95,8 +95,9 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 	}
 	
 	@Override
-	public byte[] generateReport(Report report, ReportFormat format) throws ValidationException {
+	public byte[] generateReport(Report report, ReportFormat format, Session session) throws ValidationException {
 		Assert.notNull(report, C.REPORT);
+		Assert.notNull(session, C.SESSION);
 		Assert.notNull(format, "format");
 		
 		validator.validateGenerate(report);
@@ -110,7 +111,7 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 					dataSource.getParameters()
 							  .forEach(param -> parameterMap.put(param.getName(),param.getValue()));
 				}
-				final DataSourceResult result = dataSourceService.query(dataSource, parameterMap);
+				final DataSourceResult result = dataSourceService.query(dataSource, parameterMap, session);
 				generator.addDataSourceResult(reportDataSource, result);
 			}
 		}

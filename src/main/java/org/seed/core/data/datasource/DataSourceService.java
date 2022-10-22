@@ -30,6 +30,4 @@ public interface DataSourceService extends ApplicationEntityService<IDataSource>
 	
 	DataSourceResult query(IDataSource dataSource, Map<String, Object> parameters, Session session) throws ValidationException;
 	
-	DataSourceResult query(IDataSource dataSource, Map<String, Object> parameters) throws ValidationException;
-	
 }

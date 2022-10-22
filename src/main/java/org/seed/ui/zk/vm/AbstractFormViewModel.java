@@ -282,7 +282,7 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 	
 	protected List<ValueObject> getReferenceValues(EntityField referenceField, Filter filter) {
 		final List<ValueObject> valueObjectList = filter != null 
-												? valueObjectService.find(referenceField.getReferenceEntity(), filter, currentSession())
+												? valueObjectService.find(currentSession(), referenceField.getReferenceEntity(), filter)
 												: valueObjectService.getAllObjects(currentSession(), referenceField.getReferenceEntity());
 		final FormFieldExtra fieldExtra = form.getFieldExtra(referenceField);
 		if (fieldExtra == null || !fieldExtra.isUnsortedValues()) {

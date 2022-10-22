@@ -166,12 +166,6 @@ public class ValueObjectRepository {
 		return false;
 	}
 	
-	long count(Entity entity) {
-		try (Session session = getSession()) {
-			return count(session, entity);
-		}
-	}
-	
 	long count(Session session, Entity entity) {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(entity, C.ENTITY);
@@ -208,12 +202,6 @@ public class ValueObjectRepository {
 		final CriteriaQuery<ValueObject> query = (CriteriaQuery<ValueObject>) 
 				session.getCriteriaBuilder().createQuery(entityClass);
 		return find(session, query.select((Selection<? extends ValueObject>) query.from(entityClass)));
-	}
-	
-	List<ValueObject> find(Entity entity, Filter filter, Sort ...sorts) {
-		try (Session session = getSession()) {
-			return find(session, entity, filter, sorts);
-		}
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -296,19 +284,6 @@ public class ValueObjectRepository {
 					  .setCacheable(true)
 					  .setMaxResults(2)
 					  .uniqueResult();
-	}
-	
-	void reload(ValueObject object) {
-		try (Session session = getSession()) {
-			reload(session, object);
-		}
-	}
-	
-	void reload(Session session, ValueObject object) {
-		Assert.notNull(session, C.SESSION);
-		Assert.notNull(object, C.OBJECT);
-		
-		session.refresh(object);
 	}
 	
 	void delete(ValueObject object, Session session, ValueObjectFunctionContext functionContext) {

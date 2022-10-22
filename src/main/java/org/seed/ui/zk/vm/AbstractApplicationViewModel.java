@@ -192,7 +192,7 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	
 	protected final void downloadReport(Report report, ReportFormat format) 
 		throws ValidationException {
-		Filedownload.save(reportService.generateReport(report, format),
+		Filedownload.save(reportService.generateReport(report, format, currentSession()),
 						  format.contentType,
 						  report.getName() + '.' + format.fileType);
 	}

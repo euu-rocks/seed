@@ -30,6 +30,8 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.seed.core.application.AbstractPermissionObject;
 import org.seed.core.application.Permission;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @javax.persistence.Entity
 @Table(name = "sys_rest_permission")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -38,6 +40,7 @@ public class RestPermission extends AbstractPermissionObject
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rest_id")
+	@JsonIgnore
 	private RestMetadata rest;
 	
 	@XmlTransient

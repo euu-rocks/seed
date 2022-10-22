@@ -102,7 +102,7 @@ public class FullTextSearchViewModel extends AbstractApplicationViewModel {
 	public void clickResult(@BindingParam("entityId") Long entityId,
 							@BindingParam("objectId") Long objectId) {
 		final Entity entity = entityService.getObject(entityId);
-		final ValueObject object = valueObjectService.getObject(entity, objectId);
+		final ValueObject object = valueObjectService.getObject(currentSession(), entity, objectId);
 		Assert.state(object != null, "value object not available: " + objectId);
 		
 		final List<Form> forms = formService.findForms(entity);

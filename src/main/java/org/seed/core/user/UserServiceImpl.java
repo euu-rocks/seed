@@ -86,14 +86,6 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 	}
 	
 	@Override
-	public User getCurrentUser() {
-		final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		return authentication != null
-				? getUser(authentication)
-				: null;
-	}
-	
-	@Override
 	public User getCurrentUser(Session session) {
 		final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		return authentication != null

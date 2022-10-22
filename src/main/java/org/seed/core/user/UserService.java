@@ -28,8 +28,6 @@ public interface UserService extends SystemEntityService<User> {
 	
 	void initDefaults();
 	
-	User getCurrentUser();
-	
 	User getCurrentUser(Session session);
 	
 	List<UserGroup> getAvailableUserGroups(User user, Session session);
