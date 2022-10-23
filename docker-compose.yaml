@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: seed
+      POSTGRES_PASSWORD: seed
+    ports:
+      - 5432:5432
+  seed:
+    image: euurocks/seed:v0.9.34
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/seed
+    ports:
+      - 8080:8080
