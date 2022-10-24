@@ -17,10 +17,11 @@
  */
 package org.seed.core.task.job;
 
+import static org.seed.core.util.CollectionUtils.firstMatch;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import org.hibernate.Session;
 import org.quartz.JobExecutionContext;
@@ -64,14 +65,8 @@ class DefaultJobContext extends ValueObjectFunctionContext
 	public String getJobParameter(String name) {
 		Assert.notNull(name, "parameter name");
 		
-		if (parameters != null) {
-			final Optional<TaskParameter> optional = parameters.stream()
-					.filter(param -> param.getName().equalsIgnoreCase(name)).findFirst();
-			if (optional.isPresent()) {
-				return optional.get().getValue();
-			}
-		}
-		return null;
+		final TaskParameter parameter = firstMatch(parameters, param -> param.getName().equalsIgnoreCase(name));
+		return parameter != null ? parameter.getValue() : null;
 	}
 	
 	@Override

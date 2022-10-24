@@ -17,8 +17,12 @@
  */
 package org.seed.core.rest.codegen;
 
+import static org.seed.core.util.CollectionUtils.convertedList;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import org.hibernate.Session;
 
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.codegen.SourceCodeBuilder;
@@ -46,14 +50,10 @@ public class RestCodeProvider implements SourceCodeProvider {
 	}
 	
 	@Override
-	public List<SourceCodeBuilder> getSourceCodeBuilders() {
+	public List<SourceCodeBuilder> getSourceCodeBuilders(Session session) {
 		final List<SourceCodeBuilder> result = new ArrayList<>();
-		for (Rest rest : repository.find()) {
-			if (rest.hasFunctions()) {
-				for (RestFunction function : rest.getFunctions()) {
-					result.add(new RestCodeBuilder(function));
-				}
-			}
+		for (Rest rest : repository.find(session)) {
+			result.addAll(convertedList(rest.getFunctions(), RestCodeBuilder::new));
 		}
 		return result;
 	}

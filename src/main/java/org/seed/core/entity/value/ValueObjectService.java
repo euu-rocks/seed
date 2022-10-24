@@ -53,11 +53,9 @@ public interface ValueObjectService extends EntityUsage {
 	
 	QueryCursor<ValueObject> createCursor(Entity entity, int chunkSize);
 	
-	QueryCursor<ValueObject> createCursor(Entity entity, @Nullable Filter filter, Sort ...sort);
-	
 	QueryCursor<ValueObject> createCursor(Session session, Entity entity, @Nullable Filter filter, int chunkSize, Sort ...sort);
 	
-	QueryCursor<ValueObject> createCursor(ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sort);
+	QueryCursor<ValueObject> createCursor(Session session, ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sort);
 	
 	QueryCursor<ValueObject> createFullTextSearchCursor(String fullTextQueryString, Entity entity);
 	
@@ -75,7 +73,7 @@ public interface ValueObjectService extends EntityUsage {
 	
 	boolean notifyChange(ValueObject object);
 	
-	void changeStatus(ValueObject object, EntityStatus targetStatus) throws ValidationException;
+	void changeStatus(ValueObject object, EntityStatus targetStatus, Session session) throws ValidationException;
 	
 	void changeStatus(ValueObject object, EntityStatus targetStatus,
 			 Session session, ValueObjectFunctionContext functionContext) throws ValidationException;

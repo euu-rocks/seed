@@ -221,13 +221,6 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public QueryCursor<ValueObject> createCursor(Entity entity, @Nullable Filter filter, Sort ...sort) {
-		Assert.notNull(entity, C.ENTITY);
-		
-		return repository.createCursor(entity, filter, ValueObjectRepository.DEFAULT_CHUNK_SIZE, sort);
-	}
-	
-	@Override
 	public QueryCursor<ValueObject> createCursor(Session session, Entity entity, @Nullable Filter filter, int chunkSize, Sort ...sort) {
 		Assert.notNull(entity, C.ENTITY);
 		
@@ -242,11 +235,12 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public QueryCursor<ValueObject> createCursor(ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sort) {
+	public QueryCursor<ValueObject> createCursor(Session session, ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sort) {
+		Assert.notNull(session, C.SESSION);
 		Assert.notNull(searchObject, "searchObject");
 		Assert.notNull(criteriaMap, "criteriaMap");
 		
-		return repository.createCursor(searchObject, criteriaMap, sort);
+		return repository.createCursor(session, searchObject, criteriaMap, sort);
 	}
 	
 	@Override
@@ -609,14 +603,12 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public void changeStatus(ValueObject object, EntityStatus targetStatus) throws ValidationException {
+	public void changeStatus(ValueObject object, EntityStatus targetStatus, Session session) throws ValidationException {
 		Assert.notNull(object, C.OBJECT);
 		
-		try (Session session = repository.getSession()) {
-			clearEmptyFileObjects(object, session);
-			validator.validateChangeStatus(object, targetStatus, session);
-			repository.changeStatus(object, targetStatus, session);
-		}
+		clearEmptyFileObjects(object, session);
+		validator.validateChangeStatus(object, targetStatus, session);
+		repository.changeStatus(object, targetStatus, session);
 	}
 	
 	@Override

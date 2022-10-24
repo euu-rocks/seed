@@ -17,8 +17,12 @@
  */
 package org.seed.core.entity.transform.codegen;
 
+import static org.seed.core.util.CollectionUtils.filterAndForEach;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import org.hibernate.Session;
 
 import org.seed.C;
 import org.seed.core.codegen.SourceCode;
@@ -52,17 +56,13 @@ public class TransformerFunctionCodeProvider implements SourceCodeProvider {
 	}
 	
 	@Override
-	public List<SourceCodeBuilder> getSourceCodeBuilders() {
+	public List<SourceCodeBuilder> getSourceCodeBuilders(Session session) {
 		final List<SourceCodeBuilder> result = new ArrayList<>();
-		for (Transformer transformer : transformerRepository.find()) {
-			if (transformer.hasFunctions()) {
-				for (TransformerFunction function : transformer.getFunctions()) {
-					if (function.isActiveBeforeTransformation() ||
-						function.isActiveAfterTransformation()) {
-						result.add(new TransformerFunctionCodeBuilder(function));
-					}
-				}
-			}
+		for (Transformer transformer : transformerRepository.find(session)) {
+			filterAndForEach(transformer.getFunctions(), 
+							 function -> function.isActiveBeforeTransformation() ||
+							 			 function.isActiveAfterTransformation(), 
+							 function -> result.add(new TransformerFunctionCodeBuilder(function)));
 		}
 		return result;
 	}

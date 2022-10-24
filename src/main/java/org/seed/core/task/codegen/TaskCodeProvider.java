@@ -21,6 +21,8 @@ import static org.seed.core.util.CollectionUtils.convertedList;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.codegen.SourceCodeBuilder;
 import org.seed.core.codegen.SourceCodeBuilder.BuildMode;
@@ -46,8 +48,8 @@ public class TaskCodeProvider implements SourceCodeProvider {
 	}
 	
 	@Override
-	public List<SourceCodeBuilder> getSourceCodeBuilders() {
-		return convertedList(taskRepository.find(), TaskCodeBuilder::new);
+	public List<SourceCodeBuilder> getSourceCodeBuilders(Session session) {
+		return convertedList(taskRepository.find(session), TaskCodeBuilder::new);
 	}
 	
 }

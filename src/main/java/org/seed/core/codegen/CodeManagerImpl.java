@@ -25,7 +25,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.core.codegen.compile.CompilerException;
+import org.seed.core.config.SessionProvider;
 import org.seed.core.config.SystemLog;
 import org.seed.core.util.Assert;
 
@@ -52,6 +55,9 @@ public class CodeManagerImpl implements CodeManager {
 	
 	@Autowired
 	private ExternalCodeManager externalCodeManager;
+	
+	@Autowired
+	private SessionProvider sessionProvider;
 	
 	@Autowired
 	private List<SourceCodeProvider> codeProviders;
@@ -218,12 +224,12 @@ public class CodeManagerImpl implements CodeManager {
 	
 	private List<SourceCodeBuilder> collectCodeBuilders() {
 		final List<SourceCodeBuilder> builderList = new ArrayList<>();
-		for (SourceCodeProvider codeProvider : codeProviders) {
-			for (SourceCodeBuilder builder : codeProvider.getSourceCodeBuilders()) {
-				// compile only if code has changed since last compiler run
-				if (lastCompilerRun == null || builder.getLastModified().after(lastCompilerRun)) {
-					builderList.add(builder);
-				}
+		try (Session session = sessionProvider.getSession()) {
+			for (SourceCodeProvider codeProvider : codeProviders) {
+                // compile only if code has changed since last compiler run
+				builderList.addAll(subList(codeProvider.getSourceCodeBuilders(session), 
+										   builder -> lastCompilerRun == null || 
+										   			  builder.getLastModified().after(lastCompilerRun)));
 			}
 		}
 		return builderList;

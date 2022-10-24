@@ -99,12 +99,12 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 		if (log.isDebugEnabled()) {
 			log.debug("login user: {}", userName);
 		}
-		final User user = getUser(event.getAuthentication());
-		Assert.state(user != null, "user not available: " + userName);
-		((UserMetadata) user).setLastLogin(new Date());
-		try {
-			super.saveObject(user);
-		} 
+		try (Session session = repository.openSession()) {
+			final User user = getUser(event.getAuthentication(), session);
+			Assert.stateAvailable(user, "user: " + userName);
+			((UserMetadata) user).setLastLogin(new Date());
+			super.saveObject(user, session);
+		}
 		catch (ValidationException vex) {
 			throw new InternalException(vex);
 		}
@@ -180,10 +180,6 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 	@Override
 	protected UserValidator getValidator() {
 		return validator;
-	}
-	
-	private User getUser(Authentication authentication) {
-		return findByName(authentication.getName());
 	}
 	
 	private User getUser(Authentication authentication, Session session) {

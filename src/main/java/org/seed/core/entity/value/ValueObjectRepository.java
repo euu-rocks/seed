@@ -81,7 +81,7 @@ import org.springframework.util.StringUtils;
 @Repository
 public class ValueObjectRepository {
 	
-	protected static final int DEFAULT_CHUNK_SIZE = 50;
+	public static final int DEFAULT_CHUNK_SIZE = 50;
 	
 	@Autowired
 	private SessionProvider sessionProvider;
@@ -642,13 +642,11 @@ public class ValueObjectRepository {
 		return new QueryCursor<>(query, totalSize.intValue(), chuckSize);
 	}
 	
-	QueryCursor<ValueObject> createCursor(ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sort) {
-		try (Session session = getSession()) {
-			final CriteriaQuery<Long> countQuery = buildCountQuery(session, searchObject, criteriaMap);
-			final Long totalSize = querySingleResult(session, countQuery);
-			final CriteriaQuery<ValueObject> query = buildQuery(session, searchObject, criteriaMap, sort);
-			return new QueryCursor<>(query, totalSize.intValue(), DEFAULT_CHUNK_SIZE);
-		}
+	QueryCursor<ValueObject> createCursor(Session session, ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sort) {
+		final CriteriaQuery<Long> countQuery = buildCountQuery(session, searchObject, criteriaMap);
+		final Long totalSize = querySingleResult(session, countQuery);
+		final CriteriaQuery<ValueObject> query = buildQuery(session, searchObject, criteriaMap, sort);
+		return new QueryCursor<>(query, totalSize.intValue(), DEFAULT_CHUNK_SIZE);
 	}
 	
 	@SuppressWarnings("unchecked")

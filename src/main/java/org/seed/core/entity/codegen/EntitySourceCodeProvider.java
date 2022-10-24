@@ -41,10 +41,8 @@ public class EntitySourceCodeProvider implements SourceCodeProvider {
 	private EntityRepository entityRepository;
 	
 	@Override
-	public List<SourceCodeBuilder> getSourceCodeBuilders() {
-		try (Session session = entityRepository.getSession()) {
-			return convertedList(entityRepository.find(session), EntitySourceCodeBuilder::new);
-		}
+	public List<SourceCodeBuilder> getSourceCodeBuilders(Session session) {
+		return convertedList(entityRepository.find(session), EntitySourceCodeBuilder::new);
 	}
 	
 	public SourceCode getEntitySource(Entity entity) {

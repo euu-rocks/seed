@@ -94,10 +94,18 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	
 	@Override
 	public Task getTask(Job job) {
+		try (Session session = taskRepository.getSession()) {
+			return getTask(session, job);
+		}
+	}
+	
+	@Override
+	public Task getTask(Session session, Job job) {
+		Assert.notNull(session, C.SESSION);
 		Assert.notNull(job, "job");
 		
 		final String jobName = job.getClass().getSimpleName();
-		return firstMatch(getObjects(), task -> jobName.equalsIgnoreCase(task.getInternalName()));
+		return firstMatch(getObjects(session), task -> jobName.equalsIgnoreCase(task.getInternalName()));
 	}
 	
 	@Override
@@ -297,8 +305,8 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	}
 	
 	@Override
-	public void saveTaskDirectly(Task task) {
-		saveObjectDirectly(task);
+	public void saveTaskDirectly(Task task, Session session) {
+		saveObjectDirectly(task, session);
 	}
 	
 	@Override

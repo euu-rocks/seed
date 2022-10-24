@@ -240,11 +240,12 @@ public class DefaultJobScheduler
 	
 	private void prepareJob(JobExecutionContext context) {
 		final Job job = (Job) context.getJobInstance();
-		final Task task = getTask(job);
+		final Session session = sessionProvider.getSession();
+		final Task task = getTask(job, session);
 		final TaskRun run = taskService.createRun(task);
-		taskService.saveTaskDirectly(task);
+		taskService.saveTaskDirectly(task, session);
 		
-		context.put(DefaultJobContext.RUN_SESSION, openSession());
+		context.put(DefaultJobContext.RUN_SESSION, session);
 		context.put(DefaultJobContext.RUN_TASK, task);
 		context.put(DefaultJobContext.RUN_ID, run.getId());
 		if (task.hasParameters()) {
@@ -281,28 +282,33 @@ public class DefaultJobScheduler
 	@SuppressWarnings("unchecked")
 	private void finalizeJob(JobExecutionContext context, JobExecutionException jobException) {
 		final Job job = (Job) context.getJobInstance();
-		final Task task = getTask(job);
 		final Long taskRunId = (Long) context.get(DefaultJobContext.RUN_ID);
-		final TaskRun run = task.getRunById(taskRunId);
-		Assert.stateAvailable(run, "run " + taskRunId);
+		final Session session = (Session) context.get(DefaultJobContext.RUN_SESSION);
+		Assert.stateAvailable(session, C.SESSION);
 		
-		final List<TaskRunLog> logs = (List<TaskRunLog>) context.get(DefaultJobContext.RUN_LOGS);
-		if (logs != null) {
-			logs.forEach(run::addLog);
-		}
-		LogLevel maxLevel = run.getMaxLogLevel();
-		if (jobException != null) {
-			logError(run, jobException.getCause());
-			maxLevel = LogLevel.ERROR;
-		}
-		run.setEndTime(new Date());
-		run.setResult(TaskResult.getResult(maxLevel));
-		
-		jobStatistics.registerRun(run);
-		taskService.saveTaskDirectly(task);
-		
-		if (task.hasNotifications()) {
-			taskService.sendNotifications(task, run);
+		try (session) {
+			final Task task = getTask(job, session);
+			final TaskRun run = task.getRunById(taskRunId);
+			Assert.stateAvailable(run, "run " + taskRunId);
+			
+			final List<TaskRunLog> logs = (List<TaskRunLog>) context.get(DefaultJobContext.RUN_LOGS);
+			if (logs != null) {
+				logs.forEach(run::addLog);
+			}
+			LogLevel maxLevel = run.getMaxLogLevel();
+			if (jobException != null) {
+				logError(run, jobException.getCause());
+				maxLevel = LogLevel.ERROR;
+			}
+			run.setEndTime(new Date());
+			run.setResult(TaskResult.getResult(maxLevel));
+			
+			jobStatistics.registerRun(run);
+			taskService.saveTaskDirectly(task, session);
+			
+			if (task.hasNotifications()) {
+				taskService.sendNotifications(task, run);
+			}
 		}
 	}
 	
@@ -334,6 +340,12 @@ public class DefaultJobScheduler
 		return task;
 	}
 	
+	private Task getTask(Job job, Session session) {
+		final Task task = taskService.getTask(session, job);
+		Assert.stateAvailable(task, "task for job " + job.getClass().getName());
+		return task;
+	}
+	
 	private void logError(AbstractTaskRun run, Throwable throwable) {
 		for (String line : ExceptionUtils.getStackTraceAsString(throwable).split("\n")) {
 			if (line.contains(AbstractJob.class.getName())) {
@@ -350,10 +362,6 @@ public class DefaultJobScheduler
 	
 	private void scheduleJob(Job job) {
 		scheduleTask(getTask(job));
-	}
-	
-	private Session openSession() {
-		return sessionProvider.getSession();
 	}
 	
 	@SuppressWarnings("unchecked")

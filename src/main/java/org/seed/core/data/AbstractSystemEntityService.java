@@ -117,11 +117,21 @@ public abstract class AbstractSystemEntityService<T extends SystemEntity>
 	}
 	
 	// save without validation
-	protected void saveObjectDirectly(T object) {
-		getRepository().save(object);
+	protected void saveObjectDirectly(T object, Session session) {
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			getRepository().save(object, session);
+			tx.commit();
+		}
+		catch (Exception ex) {
+			if (tx != null) {
+				tx.rollback();
+			}
+		}
 	}
 
-	protected void saveObject(T object, Session session) throws ValidationException {
+	public void saveObject(T object, Session session) throws ValidationException {
 		Assert.notNull(object, C.OBJECT);
 		
 		if (getValidator() != null) {

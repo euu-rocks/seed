@@ -17,8 +17,12 @@
  */
 package org.seed.core.entity.codegen;
 
+import static org.seed.core.util.CollectionUtils.filterAndForEach;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import org.hibernate.Session;
 
 import org.seed.C;
 import org.seed.core.codegen.SourceCode;
@@ -55,16 +59,11 @@ public class EntityFunctionCodeProvider implements SourceCodeProvider {
 	}
 	
 	@Override
-	public List<SourceCodeBuilder> getSourceCodeBuilders() {
+	public List<SourceCodeBuilder> getSourceCodeBuilders(Session session) {
 		final List<SourceCodeBuilder> result = new ArrayList<>();
-		for (Entity entity : entityRepository.find()) {
-			if (entity.hasFunctions()) {
-				for (EntityFunction function : entity.getCallbackFunctions()) {
-					if (function.isActive()) {
-						result.add(new EntityFunctionCodeBuilder(function));
-					}
-				}
-			}
+		for (Entity entity : entityRepository.find(session)) {
+			filterAndForEach(entity.getCallbackFunctions(), EntityFunction::isActive, 
+							 function -> result.add(new EntityFunctionCodeBuilder(function)));
 		}
 		return result;
 	}

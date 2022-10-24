@@ -34,6 +34,7 @@ import org.seed.core.entity.transfer.TransferElement;
 import org.seed.core.entity.transfer.TransferFormat;
 import org.seed.core.entity.transfer.TransferService;
 import org.seed.core.entity.value.ValueObject;
+import org.seed.core.entity.value.ValueObjectRepository;
 import org.seed.core.form.FormAction;
 import org.seed.core.form.FormActionType;
 import org.seed.core.form.FormField;
@@ -135,7 +136,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 			final SearchParameter searchParam = getTab().getSearchParameter();
 			QueryCursor<ValueObject> cursor;
 			if (searchParam != null) {
-				cursor = valueObjectService().createCursor(searchParam.searchObject, searchParam.mapOperators);
+				cursor = valueObjectService().createCursor(currentSession(), searchParam.searchObject, searchParam.mapOperators);
 			}
 			else if (fullTextQuery != null) {
 				cursor = valueObjectService().createFullTextSearchCursor(fullTextQuery, getForm().getEntity());
@@ -143,10 +144,12 @@ public class ListFormViewModel extends AbstractFormViewModel {
 			}
 			else {
 				if (sort != null) {
-					cursor = valueObjectService().createCursor(getForm().getEntity(), currentFilter, sort);
+					cursor = valueObjectService().createCursor(currentSession(), getForm().getEntity(), currentFilter, 
+															   ValueObjectRepository.DEFAULT_CHUNK_SIZE, sort);
 				}
 				else {
-					cursor = valueObjectService().createCursor(getForm().getEntity(), currentFilter);
+					cursor = valueObjectService().createCursor(currentSession(), getForm().getEntity(), currentFilter,
+															   ValueObjectRepository.DEFAULT_CHUNK_SIZE);
 				}
 			}
 			listModel = new LoadOnDemandListModel<ValueObject>(cursor, false) {
@@ -319,7 +322,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 			case STATUS:
 				if (confirmed) {
 					try {
-						valueObjectService().changeStatus(getObject(), getStatus());
+						valueObjectService().changeStatus(getObject(), getStatus(), currentSession());
 					}
 					catch (ValidationException vex) {
 						showValidationErrors(component, "form.action.statusfail", vex.getErrors());

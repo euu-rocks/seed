@@ -19,8 +19,10 @@ package org.seed.core.codegen;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 public interface SourceCodeProvider {
 	
-	List<SourceCodeBuilder> getSourceCodeBuilders();
+	List<SourceCodeBuilder> getSourceCodeBuilders(Session session);
 	
 }

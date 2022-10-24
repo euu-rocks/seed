@@ -84,12 +84,6 @@ public abstract class UIUtils {
 		Executions.getCurrent().setAttribute(name, value);
 	}
 	
-	public static boolean hasSessionObject(String name) {
-		Assert.notNull(name, C.NAME);
-		
-		return Sessions.getCurrent().hasAttribute(name);
-	}
-	
 	@SuppressWarnings("unchecked")
 	public static <T> T getSessionObject(String name) {
 		Assert.notNull(name, C.NAME);
@@ -102,12 +96,6 @@ public abstract class UIUtils {
 		Assert.notNull(object, C.OBJECT);
 		
 		Sessions.getCurrent().setAttribute(name, object);
-	}
-	
-	public static void removeSessionObject(String name) {
-		Assert.notNull(name, C.NAME);
-		
-		Sessions.getCurrent().removeAttribute(name);
 	}
 	
 	public static int getSessionKeepAliveIntervalMs() {

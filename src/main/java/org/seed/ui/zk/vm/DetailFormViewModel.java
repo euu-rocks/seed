@@ -442,7 +442,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 			case STATUS:
 				if (confirmed) {
 					try {
-						valueObjectService().changeStatus(getObject(), getStatus());
+						valueObjectService().changeStatus(getObject(), getStatus(), currentSession());
 					}
 					catch (ValidationException vex) {
 						showValidationErrors(component, "form.action.statusfail", vex.getErrors());

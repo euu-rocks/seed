@@ -31,6 +31,7 @@ import org.seed.core.entity.EntityService;
 import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.filter.Filter;
 import org.seed.core.entity.value.ValueObject;
+import org.seed.core.entity.value.ValueObjectRepository;
 import org.seed.core.entity.value.ValueObjectService;
 import org.seed.core.form.AbstractFormAction;
 import org.seed.core.form.Form;
@@ -293,12 +294,13 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 	
 	@SuppressWarnings("serial")
 	protected ListModel<ValueObject> createReferenceListModel(EntityField referenceField, Filter filter) {
-		final QueryCursor<ValueObject> cursor = valueObjectService.createCursor(referenceField.getReferenceEntity(), filter);
+		final QueryCursor<ValueObject> cursor = valueObjectService.createCursor(currentSession(), referenceField.getReferenceEntity(), 
+																				filter, ValueObjectRepository.DEFAULT_CHUNK_SIZE);
 		return new LoadOnDemandListModel<ValueObject>(cursor, true) {
 			
 			@Override
 			protected List<ValueObject> loadChunk(QueryCursor<ValueObject> cursor) {
-				return valueObjectService.loadChunk(cursor);
+				return valueObjectService.loadChunk(currentSession(), cursor);
 			}
 		};
 	}

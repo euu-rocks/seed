@@ -38,6 +38,8 @@ public interface TaskService extends ApplicationEntityService<Task> {
 	
 	Task getTask(Job job);
 	
+	Task getTask(Session session, Job job);
+	
 	List<Task> getTasks(User user, Session session);
 	
 	SystemTaskRun getLastSystemTaskRun(SystemTask systemTask, Session session);
@@ -48,7 +50,7 @@ public interface TaskService extends ApplicationEntityService<Task> {
 	
 	<T extends AbstractSystemJob> Class<T> getSystemJobClass(SystemTask systemTask);
 	
-	void saveTaskDirectly(Task task);
+	void saveTaskDirectly(Task task, Session session);
 	
 	void saveSystemTaskRun(SystemTaskRun run);
 	
