@@ -38,13 +38,6 @@ public abstract class AbstractApplicationEntityService<T extends ApplicationEnti
 	implements ApplicationEntityService<T>, ModuleDependent<T> {
 	
 	@Override
-	public T findByUid(String uid) {
-		Assert.notNull(uid, C.UID);
-		
-		return getRepository().findUnique(queryParam(C.UID, uid));
-	}
-	
-	@Override
 	public T findByUid(Session session, String uid) {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(uid, C.UID);

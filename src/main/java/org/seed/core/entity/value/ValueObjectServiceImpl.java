@@ -130,9 +130,12 @@ public class ValueObjectServiceImpl
 	
 	@Override
 	public boolean existObjects(Entity entity, Session session) {
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(session, C.SESSION);
+		
 		return entity.isGeneric()
-				? anyMatch(entityService.findDescendants(entity), 
-						   descendant -> repository.exist(descendant, null))
+				? anyMatch(entityService.findDescendants(entity, session), 
+						   descendant -> repository.exist(session, descendant, null))
 				: repository.exist(session, entity, null);
 	}
 	
@@ -396,11 +399,6 @@ public class ValueObjectServiceImpl
 	}
 
 	@Override
-	public List<ValueObject> getAllObjects(Entity entity) {
-		return repository.findAll(entity);
-	}
-	
-	@Override
 	public List<ValueObject> getAllObjects(Session session, Entity entity) {
 		return repository.findAll(session, entity);
 	}
@@ -435,13 +433,6 @@ public class ValueObjectServiceImpl
 		
 		filterService.initFilterCriteria(filter, session);
 		return repository.find(session, entity, filter);
-	}
-	
-	@Override
-	public ValueObject findByUid(Entity entity, String uid) {
-		Assert.notNull(entity, C.ENTITY);
-		
-		return findUnique(entity, entity.getUidField(), uid);
 	}
 	
 	@Override
@@ -712,15 +703,17 @@ public class ValueObjectServiceImpl
 	
 	private List<ValueObject> loadFullTextObjects(QueryCursor<?> cursor) {
 		final List<ValueObject> result = new ArrayList<>(cursor.getChunkSize());
-		Entity entity = null;
-		for (int i = cursor.getStartIndex(); i < Math.min(cursor.getStartIndex() + cursor.getChunkSize(), cursor.getTotalCount()); i++) {
-			final Tupel<Long, Long> fullTextResult = cursor.getFullTextResult(i);
-			if (entity == null || !entity.getId().equals(fullTextResult.x)) {
-				entity = repository.getEntity(fullTextResult.x);
+		try (Session session = repository.getSession()) {
+			Entity entity = null;
+			for (int i = cursor.getStartIndex(); i < Math.min(cursor.getStartIndex() + cursor.getChunkSize(), cursor.getTotalCount()); i++) {
+				final Tupel<Long, Long> fullTextResult = cursor.getFullTextResult(i);
+				if (entity == null || !entity.getId().equals(fullTextResult.x)) {
+					entity = repository.getEntity(fullTextResult.x, session);
+				}
+				final ValueObject object = repository.get(session, entity, fullTextResult.y);
+				Assert.state(object != null, "value object is not available. id:" + fullTextResult.y);
+				result.add(object);
 			}
-			final ValueObject object = repository.get(entity, fullTextResult.y);
-			Assert.state(object != null, "value object is not available. id:" + fullTextResult.y);
-			result.add(object);
 		}
 		return result;
 	}

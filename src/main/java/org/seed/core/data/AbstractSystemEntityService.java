@@ -97,11 +97,6 @@ public abstract class AbstractSystemEntityService<T extends SystemEntity>
 	}
 
 	@Override
-	public long countObjects() {
-		return getRepository().count();
-	}
-	
-	@Override
 	public List<T> getObjects() {
 		return getRepository().find();
 	}

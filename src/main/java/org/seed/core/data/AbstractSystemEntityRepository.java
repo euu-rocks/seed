@@ -78,16 +78,6 @@ public abstract class AbstractSystemEntityRepository<T extends SystemEntity>
 	}
 	
 	@Override
-	public long count() {
-		try (Session session = getSession()) {
-			final CriteriaBuilder builder = session.getCriteriaBuilder();
-			final CriteriaQuery<Long> query = builder.createQuery(Long.class);
-			query.select(builder.count(query.from(entityTypeClass)));
-			return session.createQuery(query).getSingleResult();
-		}
-	}
-	
-	@Override
 	public boolean exist(QueryParameter ...params) {
 		try (Session session = getSession()) {
 			return exist(session, params);

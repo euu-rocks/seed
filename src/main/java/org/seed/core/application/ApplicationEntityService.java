@@ -30,8 +30,6 @@ import org.seed.core.data.ValidationException;
 
 public interface ApplicationEntityService<T extends ApplicationEntity> extends SystemEntityService<T> {
 	
-	T findByUid(String uid);
-	
 	T findByUid(Session session, String uid);
 	
 	List<T> findObjectsWithoutModule(Session session);

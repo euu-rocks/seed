@@ -116,8 +116,6 @@ public interface ValueObjectService extends EntityUsage {
 	
 	ValueObject getObject(Session session, Class<?> entityClass, Long id);
 	
-	List<ValueObject> getAllObjects(Entity entity);
-	
 	List<ValueObject> getAllObjects(Session session, Entity entity);
 	
 	List<ValueObject> getAllObjects(Session session, Class<?> entityClass);
@@ -127,8 +125,6 @@ public interface ValueObjectService extends EntityUsage {
 	List<ValueObject> find(Session session, Entity entity, Filter filter);
 	
 	List<ValueObject> find(Session session, CriteriaQuery<ValueObject> query);
-	
-	ValueObject findByUid(Entity entity, String uid);
 	
 	ValueObject findByUid(Entity entity, String uid, Session session);
 	

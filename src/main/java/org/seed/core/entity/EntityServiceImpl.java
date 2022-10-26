@@ -238,16 +238,12 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	@Override
-	public List<Entity> findTransferableEntities() {
-		return entityRepository.find(queryParam("isTransferable", true));
-	}
-	
-	@Override
-	public List<Entity> findDescendants(Entity genericEntity) {
+	public List<Entity> findDescendants(Entity genericEntity, Session session) {
 		Assert.notNull(genericEntity, "genericEntity");
+		Assert.notNull(session, C.SESSION);
 		Assert.state(genericEntity.isGeneric(), "entity is not generic");
 		
-		return entityRepository.find(queryParam("genericEntity", genericEntity));
+		return entityRepository.find(session, queryParam("genericEntity", genericEntity));
 	}
 	
 	@Override
@@ -584,7 +580,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		final List<ChangeLog> changeLogs = new ArrayList<>();
 		for (Entity entity : context.getNewEntities()) {
 			if (!entity.isGeneric()) {
-				final ChangeLog changeLog = createChangeLog(null, entity, referenceChangeLog);
+				final ChangeLog changeLog = createChangeLog(null, entity, session, referenceChangeLog);
 				if (changeLog != null) {
 					changeLogs.add(changeLog);
 				}
@@ -593,7 +589,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		for (Entity entity : context.getExistingEntities()) {
 			if (!entity.isGeneric()) {
 				final Entity currentVersionEntity = context.getCurrentVersionEntity(entity.getUid());
-				final ChangeLog changeLog = createChangeLog(currentVersionEntity, entity, referenceChangeLog);
+				final ChangeLog changeLog = createChangeLog(currentVersionEntity, entity, session, referenceChangeLog);
 				if (changeLog != null) {
 					changeLogs.add(changeLog);
 				}
@@ -646,7 +642,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				}
 				saveObject(entity, session);
 				
-				final ChangeLog changeLog = createChangeLog(currentVersionEntity, entity);
+				final ChangeLog changeLog = createChangeLog(currentVersionEntity, entity, session);
 				if (changeLog != null) {
 					session.saveOrUpdate(changeLog);
 				}
@@ -696,7 +692,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	private void afterSaveObject(Entity entity, Entity parentEntity, Session session, boolean isInsert) {
-		final List<Entity> descendants = entity.isGeneric() ? findDescendants(entity) : null;
+		final List<Entity> descendants = entity.isGeneric() ? findDescendants(entity, session) : null;
 		for (EntityChangeAware changeAware : getChangeAwareObjects()) {
 			if (isInsert) {
 				changeAware.notifyCreate(entity, session);
@@ -729,7 +725,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				}
 				deleteObject(entity, session);
 				
-				final ChangeLog changeLog = createChangeLog(entity, null);
+				final ChangeLog changeLog = createChangeLog(entity, null, session);
 				if (changeLog != null) {
 					session.saveOrUpdate(changeLog);
 				}
@@ -777,7 +773,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	private boolean processCallbackFunctionChange(SourceCode sourceCode, Session session) {
 		final String entityName = sourceCode.getPackageName().substring(CodeManagerImpl.GENERATED_ENTITY_PACKAGE.length() + 1);
-		for (Entity entity : getObjects()) {
+		for (Entity entity : getObjects(session)) {
 			if (entity.getName().equalsIgnoreCase(entityName)) {
 				final EntityFunction function = firstMatch(entity.getFunctions(), 
 						func -> func.isCallback() && 
@@ -1152,12 +1148,12 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		}
 	}
 	
-	private ChangeLog createChangeLog(Entity currentVersionEntity, Entity nextVersionEntity) {
-		return createChangeLog(currentVersionEntity, nextVersionEntity, null);
+	private ChangeLog createChangeLog(Entity currentVersionEntity, Entity nextVersionEntity, Session session) {
+		return createChangeLog(currentVersionEntity, nextVersionEntity, session, null);
 	}
 	
 	private ChangeLog createChangeLog(Entity currentVersionEntity, Entity nextVersionEntity,
-									  @Nullable ReferenceChangeLog referenceChangeLog) {
+									  Session session, @Nullable ReferenceChangeLog referenceChangeLog) {
 		final EntityChangeLogBuilder builder = 
 				new EntityChangeLogBuilder(schemaManager.getDatabaseInfo(), limits);
 		builder.setCurrentVersionObject(currentVersionEntity);
@@ -1165,17 +1161,16 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		builder.setReferenceChangeLog(referenceChangeLog);
 		// generic
 		if (currentVersionEntity != null && currentVersionEntity.isGeneric()) {
-			builder.setDescendants(findDescendants(currentVersionEntity));
+			builder.setDescendants(findDescendants(currentVersionEntity, session));
 		}
 		if (nextVersionEntity != null) {
-			builder.setInverseRelateds(findInverseRelatedEntities(nextVersionEntity));
+			builder.setInverseRelateds(findInverseRelatedEntities(nextVersionEntity, session));
 		}
 		return builder.build();
 	}
 	
-	private List<Entity> findInverseRelatedEntities(Entity entity) {
-		
-		return subList(getObjects(), otherEntity -> otherEntity.isRelatedEntity(entity));
+	private List<Entity> findInverseRelatedEntities(Entity entity, Session session) {
+		return subList(getObjects(session), otherEntity -> otherEntity.isRelatedEntity(entity));
 	}
 	
 	private List<EntityChangeAware> getChangeAwareObjects() {

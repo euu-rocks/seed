@@ -332,7 +332,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		Assert.notNull(session, C.SESSION);
 		
 		if (sourceCode.getPackageName().equals(CodeManagerImpl.GENERATED_TASK_PACKAGE)) {
-			for (Task task : getObjects()) {
+			for (Task task : getObjects(session)) {
 				if (task.getInternalName().equalsIgnoreCase(sourceCode.getClassName())) {
 					if (!task.getContent().equals(sourceCode.getContent())) {
 						task.setContent(sourceCode.getContent());

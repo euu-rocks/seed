@@ -54,9 +54,7 @@ public interface EntityService extends ApplicationEntityService<Entity> {
 	
 	List<Entity> findNonGenericEntities(Session session);
 	
-	List<Entity> findTransferableEntities();
-	
-	List<Entity> findDescendants(Entity genericEntity);
+	List<Entity> findDescendants(Entity genericEntity, Session session);
 	
 	List<Entity> getAvailableNestedEntities(Entity entity, Session session);
 	

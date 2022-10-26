@@ -31,8 +31,6 @@ public interface SystemEntityRepository<T extends SystemEntity> {
 	
 	void reload(T object, Session session);
 	
-	long count();
-	
 	boolean exist(QueryParameter ...params);
 	
 	boolean exist(Session session, QueryParameter ...params);

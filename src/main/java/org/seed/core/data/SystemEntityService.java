@@ -43,8 +43,6 @@ public interface SystemEntityService<T extends SystemEntity> {
 	
 	boolean existObjects(Session session);
 	
-	long countObjects();
-	
 	List<T> getObjects();
 	
 	List<T> getObjects(Session session);

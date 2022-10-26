@@ -171,7 +171,7 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 		try {
 			if (context.getModule().getReports() != null) {
 				for (Report report : context.getModule().getReports()) {
-					final Report currentVersionReport = findByUid(report.getUid());
+					final Report currentVersionReport = findByUid(session, report.getUid());
 					((ReportMetadata) report).setModule(context.getModule());
 					if (currentVersionReport != null) {
 						((ReportMetadata) currentVersionReport).copySystemFieldsTo(report);

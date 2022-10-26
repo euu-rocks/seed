@@ -101,15 +101,6 @@ public class ValueObjectRepository {
 	@Autowired
 	private CodeManager codeManager;
 	
-	ValueObject get(Entity entity, Long id) {
-		Assert.notNull(entity, C.ENTITY);
-		checkGeneric(entity);
-		
-		try (Session session = getSession()) {
-			return get(session, getEntityClass(session, entity), id);
-		}
-	}
-	
 	ValueObject get(Session session, Entity entity, Long id) {
 		Assert.notNull(entity, C.ENTITY);
 		checkGeneric(entity);
@@ -146,8 +137,8 @@ public class ValueObjectRepository {
 	boolean notifyChange(ValueObject object) {
 		Assert.notNull(object, C.OBJECT);
 		
-		if (anyMatch(getEntity(object).getFunctions(), EntityFunction::isActiveOnModify)) {
-			try (Session session = getSession()) {
+		try (Session session = getSession()) {
+			if (anyMatch(getEntity(session, object).getFunctions(), EntityFunction::isActiveOnModify)) {
 				Transaction tx = null;
 				try {
 					tx = session.beginTransaction();
@@ -166,14 +157,6 @@ public class ValueObjectRepository {
 		return false;
 	}
 	
-	long count(Session session, Entity entity) {
-		Assert.notNull(session, C.SESSION);
-		Assert.notNull(entity, C.ENTITY);
-		checkGeneric(entity);
-		
-		return entity.isNew() ? 0 : count(session, getEntityClass(session, entity));
-	}
-	
 	long count(Session session, Class<?> entityClass) {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(entityClass, C.ENTITYCLASS);
@@ -182,12 +165,6 @@ public class ValueObjectRepository {
 		final CriteriaQuery<Long> query = builder.createQuery(Long.class);
 		query.select(builder.count(query.from(entityClass)));
 		return session.createQuery(query).getSingleResult();
-	}
-	
-	List<ValueObject> findAll(Entity entity) {
-		try (Session session = getSession()) {
-			return findAll(session, entity);
-		}
 	}
 	
 	List<ValueObject> findAll(Session session, Entity entity) {
