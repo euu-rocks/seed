@@ -313,32 +313,35 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	}
 	
 	@Override
-	public List<Filter> findUsage(Entity entity) {
-		if (!entity.isGeneric()) {
-			return findFilters(entity);
-		}
-		return Collections.emptyList();
+	public List<Filter> findUsage(Entity entity, Session session) {
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(session, C.SESSION);
+		
+		return entity.isGeneric()
+				? Collections.emptyList()
+				: findFilters(entity, session);
 	}
 
 	@Override
-	public List<Filter> findUsage(EntityField entityField) {
+	public List<Filter> findUsage(EntityField entityField, Session session) {
 		Assert.notNull(entityField, C.ENTITYFIELD);
+		Assert.notNull(session, C.SESSION);
 		
-		if (entityField.getEntity().isGeneric()) {
-			return Collections.emptyList();
-		}
-		return subList(findFilters(entityField.getEntity()), 
-					   filter -> anyMatch(filter.getCriteria(), 
-						criterion -> entityField.equals(criterion.getEntityField())));
+		return entityField.getEntity().isGeneric()
+				? Collections.emptyList()
+				: subList(findFilters(entityField.getEntity(), session), 
+						   filter -> anyMatch(filter.getCriteria(), 
+								   			  criterion -> entityField.equals(criterion.getEntityField())));
 	}
 	
 	@Override
-	public List<Filter> findUsage(UserGroup userGroup) {
+	public List<Filter> findUsage(UserGroup userGroup, Session session) {
 		Assert.notNull(userGroup, C.USERGROUP);
+		Assert.notNull(session, C.SESSION);
 		
-		return subList(getObjects(), 
+		return subList(getObjects(session), 
 					   filter -> anyMatch(filter.getPermissions(), 
-					    perm -> userGroup.equals(perm.getUserGroup())));
+							   			  perm -> userGroup.equals(perm.getUserGroup())));
 	}
 	
 	@Override
@@ -355,11 +358,12 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	}
 	
 	@Override
-	public List<Filter> findUsage(EntityStatus entityStatus) {
+	public List<Filter> findUsage(EntityStatus entityStatus, Session session) {
 		Assert.notNull(entityStatus, "entity status");
+		Assert.notNull(session, C.SESSION);
 		Assert.state(entityStatus.getUid() != null, "status is new");
 		
-		return subList(getObjects(), filter -> containsReferenceUid(filter, entityStatus.getUid()));
+		return subList(getObjects(session), filter -> containsReferenceUid(filter, entityStatus.getUid()));
 	}
 	
 	@Override
@@ -368,17 +372,17 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	}
 	
 	@Override
-	public List<Filter> findUsage(EntityFunction entityFunction) {
+	public List<Filter> findUsage(EntityFunction entityFunction, Session session) {
 		return Collections.emptyList();
 	}
 	
 	@Override
-	public List<Filter> findUsage(NestedEntity nestedEntity) {
+	public List<Filter> findUsage(NestedEntity nestedEntity, Session session) {
 		return Collections.emptyList();
 	}
 	
 	@Override
-	public List<Filter> findUsage(EntityRelation entityRelation) {
+	public List<Filter> findUsage(EntityRelation entityRelation, Session session) {
 		return Collections.emptyList();
 	}
 	

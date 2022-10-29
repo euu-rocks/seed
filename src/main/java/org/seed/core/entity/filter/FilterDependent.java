@@ -19,10 +19,12 @@ package org.seed.core.entity.filter;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.core.data.SystemEntity;
 
 public interface FilterDependent<T extends SystemEntity> {
 	
-	List<T> findUsage(Filter filter);
+	List<T> findUsage(Filter filter, Session session);
 	
 }

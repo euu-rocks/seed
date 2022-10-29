@@ -634,15 +634,17 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public List<SystemEntity> findUsage(Entity entity) {
-		if (!entity.isGeneric() && repository.exist(entity, null)) {
-			return Collections.singletonList(VALUE_ENTITY);
-		}
-		return Collections.emptyList();
+	public List<SystemEntity> findUsage(Entity entity, Session session) {
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(session, C.SESSION);
+		
+		return entity.isGeneric() || !repository.exist(session, entity, null)
+				? Collections.emptyList()
+				: Collections.singletonList(VALUE_ENTITY);
 	}
 
 	@Override
-	public List<SystemEntity> findUsage(EntityField entityField) {
+	public List<SystemEntity> findUsage(EntityField entityField, Session session) {
 		return Collections.emptyList();
 	}
 
@@ -652,27 +654,29 @@ public class ValueObjectServiceImpl
 	}
 
 	@Override
-	public List<SystemEntity> findUsage(EntityStatus entityStatus) {
+	public List<SystemEntity> findUsage(EntityStatus entityStatus, Session session) {
+		Assert.notNull(entityStatus, C.STATUS);
+		Assert.notNull(session, C.SESSION);
+		
 		final Entity entity = entityStatus.getEntity();
 		final Filter filter = filterService.createStatusFilter(entity, entityStatus);
-		if (repository.exist(entity, filter)) {
-			return Collections.singletonList(VALUE_ENTITY);
-		}
-		return Collections.emptyList();
+		return repository.exist(session, entity, filter)
+				? Collections.singletonList(VALUE_ENTITY)
+				: Collections.emptyList();
 	}
 	
 	@Override
-	public List<SystemEntity> findUsage(EntityFunction entityFunction) {
+	public List<SystemEntity> findUsage(EntityFunction entityFunction, Session session) {
 		return Collections.emptyList();
 	}
 
 	@Override
-	public List<SystemEntity> findUsage(NestedEntity nestedEntity) {
+	public List<SystemEntity> findUsage(NestedEntity nestedEntity, Session session) {
 		return Collections.emptyList();
 	}
 	
 	@Override
-	public List<SystemEntity> findUsage(EntityRelation entityRelation) {
+	public List<SystemEntity> findUsage(EntityRelation entityRelation, Session session) {
 		return Collections.emptyList();
 	}
 	

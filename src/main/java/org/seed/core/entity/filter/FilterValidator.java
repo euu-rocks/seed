@@ -19,6 +19,8 @@ package org.seed.core.entity.filter;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.SystemEntity;
@@ -27,10 +29,14 @@ import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class FilterValidator extends AbstractSystemEntityValidator<Filter> {
+	
+	@Autowired
+	private FilterRepository repository;
 	
 	private List<FilterDependent<? extends SystemEntity>> filterDependents;
 	
@@ -95,17 +101,18 @@ public class FilterValidator extends AbstractSystemEntityValidator<Filter> {
 		Assert.notNull(filter, C.FILTER);
 		final ValidationErrors errors = new ValidationErrors();
 		
-		for (FilterDependent<? extends SystemEntity> dependent : getFilterDependents()) {
-			for (SystemEntity systemEntity : dependent.findUsage(filter)) {
-				if (C.FORM.equals(getEntityType(systemEntity))) {
-					errors.addError("val.inuse.filterform", systemEntity.getName());
-				}
-				else {
-					unhandledEntity(systemEntity);
+		try (Session session = repository.getSession()) {
+			for (FilterDependent<? extends SystemEntity> dependent : getFilterDependents()) {
+				for (SystemEntity systemEntity : dependent.findUsage(filter, session)) {
+					if (C.FORM.equals(getEntityType(systemEntity))) {
+						errors.addError("val.inuse.filterform", systemEntity.getName());
+					}
+					else {
+						unhandledEntity(systemEntity);
+					}
 				}
 			}
 		}
-		
 		validate(errors);
 	}
 	

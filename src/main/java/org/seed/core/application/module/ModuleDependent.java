@@ -19,10 +19,12 @@ package org.seed.core.application.module;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.core.application.ApplicationEntity;
 
 public interface ModuleDependent<T extends ApplicationEntity> {
 	
-	List<T> findUsage(Module module);
+	List<T> findUsage(Module module, Session session);
 	
 }

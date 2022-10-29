@@ -25,6 +25,8 @@ import java.util.Map;
 
 import javax.persistence.PersistenceException;
 
+import org.hibernate.Session;
+
 import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.AbstractSystemObject;
@@ -53,10 +55,12 @@ public class DataSourceValidator extends AbstractSystemEntityValidator<IDataSour
 		Assert.notNull(dataSource, C.DATASOURCE);
 		final ValidationErrors errors = new ValidationErrors();
 		
-		for (DataSourceDependent<? extends SystemEntity> dependent : getDataSourceDependents()) {
-			for (SystemEntity systemEntity : dependent.findUsage(dataSource)) {
-				if (C.REPORT.equals(getEntityType(systemEntity))) {
-					errors.addError("val.inuse.datasourcereport", systemEntity.getName());
+		try (Session session = repository.getSession()) {
+			for (DataSourceDependent<? extends SystemEntity> dependent : getDataSourceDependents()) {
+				for (SystemEntity systemEntity : dependent.findUsage(dataSource, session)) {
+					if (C.REPORT.equals(getEntityType(systemEntity))) {
+						errors.addError("val.inuse.datasourcereport", systemEntity.getName());
+					}
 				}
 			}
 		}

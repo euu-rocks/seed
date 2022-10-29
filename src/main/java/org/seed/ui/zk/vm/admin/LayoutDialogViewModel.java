@@ -512,7 +512,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	
 	public List<Filter> getAvailableFilters(EntityField entityField) {
 		return entityField != null && entityField.getType() == FieldType.REFERENCE 
-				? filterService.findFilters(entityField.getReferenceEntity())
+				? filterService.findFilters(entityField.getReferenceEntity(), currentSession())
 				: Collections.emptyList();
 	}
 	
@@ -531,7 +531,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	
 	public List<Form> getDetailForms(Entity entity) {
 		return entity != null 
-				? formService.findForms(entity) 
+				? formService.findForms(entity, currentSession()) 
 				: Collections.emptyList();
 	}
 	

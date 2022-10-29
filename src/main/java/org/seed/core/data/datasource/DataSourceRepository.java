@@ -57,6 +57,11 @@ public class DataSourceRepository extends AbstractSystemEntityRepository<IDataSo
 		super(DataSourceMetadata.class);
 	}
 	
+	@Override
+	public Session getSession() {
+		return super.getSession();
+	}
+	
 	public DataSourceResult query(IDataSource dataSource, Map<String, Object> parameters) {
 		try (Session session = getSession()) {
 			return query(dataSource, parameters, session);

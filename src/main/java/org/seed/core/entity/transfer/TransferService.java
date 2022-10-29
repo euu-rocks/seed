@@ -30,8 +30,6 @@ public interface TransferService extends ApplicationEntityService<Transfer> {
 	
 	ImportOptions createImportOptions(Transfer transfer);
 	
-	List<Transfer> findTransfers(Entity entity);
-	
 	List<TransferElement> getAvailableElements(Transfer transfer);
 	
 	byte[] doExport(Transfer transfer);

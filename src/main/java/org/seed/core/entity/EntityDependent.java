@@ -19,22 +19,24 @@ package org.seed.core.entity;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.core.data.SystemEntity;
 
 public interface EntityDependent<T extends SystemEntity> {
 	
-	List<T> findUsage(Entity entity);
+	List<T> findUsage(Entity entity, Session session);
 	
-	List<T> findUsage(EntityField entityField);
+	List<T> findUsage(EntityField entityField, Session session);
 	
 	List<T> findUsage(EntityFieldGroup fieldGroup);
 	
-	List<T> findUsage(EntityStatus entityStatus);
+	List<T> findUsage(EntityStatus entityStatus, Session session);
 	
-	List<T> findUsage(EntityFunction entityFunction);
+	List<T> findUsage(EntityFunction entityFunction, Session session);
 	
-	List<T> findUsage(NestedEntity nestedEntity);
+	List<T> findUsage(NestedEntity nestedEntity, Session session);
 	
-	List<T> findUsage(EntityRelation entityRelation);
+	List<T> findUsage(EntityRelation entityRelation, Session session);
 	
 }

@@ -128,10 +128,11 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 	}
 	
 	@Override
-	public List<Menu> findUsage(Form form) {
+	public List<Menu> findUsage(Form form, Session session) {
 		Assert.notNull(form, C.FORM);
+		Assert.notNull(session, C.SESSION);
 		
-		return menuRepository.find(queryParam(C.FORM, form));
+		return menuRepository.find(session, queryParam(C.FORM, form));
 	}
 	
 	@Override

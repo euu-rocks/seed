@@ -156,11 +156,10 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 		Assert.notNull(module, C.MODULE);
 		
 		final List<SystemEntity> moduleObjects = new ArrayList<>();
-		for (ModuleDependent<? extends ApplicationEntity> dependent : getModuleDependents()) {
-			moduleObjects.addAll(dependent.findUsage(module));
-		}
-		
 		try (Session session = repository.openSession()) {
+			for (ModuleDependent<? extends ApplicationEntity> dependent : getModuleDependents()) {
+				moduleObjects.addAll(dependent.findUsage(module, session));
+			}
 			Transaction tx = null;
 			try {
 				tx = session.beginTransaction();

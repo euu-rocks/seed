@@ -244,17 +244,19 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 	}
 
 	@Override
-	public List<Report> findUsage(IDataSource dataSource) {
+	public List<Report> findUsage(IDataSource dataSource, Session session) {
 		Assert.notNull(dataSource, C.DATASOURCE);
+		Assert.notNull(session, C.SESSION);
 		
-		return repository.find(queryParam(C.DATASOURCE, dataSource));
+		return repository.find(session, queryParam(C.DATASOURCE, dataSource));
 	}
 	
 	@Override
-	public List<Report> findUsage(UserGroup userGroup) {
+	public List<Report> findUsage(UserGroup userGroup, Session session) {
 		Assert.notNull(userGroup, C.USERGROUP);
+		Assert.notNull(session, C.SESSION);
 		
-		return subList(getObjects(), 
+		return subList(getObjects(session), 
 					   report -> anyMatch(report.getPermissions(), 
 										  perm -> userGroup.equals(perm.getUserGroup())));
 	}

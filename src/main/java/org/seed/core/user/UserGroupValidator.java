@@ -19,6 +19,8 @@ package org.seed.core.user;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.SystemEntity;
@@ -27,55 +29,66 @@ import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserGroupValidator extends AbstractSystemEntityValidator<UserGroup> {
+	
+	@Autowired
+	private UserGroupRepository repository;
 	
 	private List<UserGroupDependent<? extends SystemEntity>> userGroupDependents;
 	
 	@Override
 	public void validateDelete(UserGroup userGroup) throws ValidationException {
 		Assert.notNull(userGroup, C.USERGROUP);
-		
 		final ValidationErrors errors = new ValidationErrors();
-		for (UserGroupDependent<? extends SystemEntity> dependent : getUserGroupDependents()) {
-			for (SystemEntity systemEntity : dependent.findUsage(userGroup)) {
-				switch (getEntityType(systemEntity)) {
-					case "entity":
-						errors.addError("val.inuse.groupentity", systemEntity.getName());
-						break;
-						
-					case "filter":
-						errors.addError("val.inuse.groupfilter", systemEntity.getName());
-						break;
-						
-					case "transform":
-						errors.addError("val.inuse.grouptransform", systemEntity.getName());
-						break;
-						
-					case "report":
-						errors.addError("val.inuse.groupreport", systemEntity.getName());
-						break;
-						
-					case "rest":
-						errors.addError("val.inuse.grouprest", systemEntity.getName());
-						break;
-						
-					case "task":
-						errors.addError("val.inuse.grouptask", systemEntity.getName());
-						break;
-						
-					case "user":
-						errors.addError("val.inuse.groupuser", systemEntity.getName());
-						break;
-					
-					default:
-						unhandledEntity(systemEntity);
-				}
+		
+		try (Session session = repository.openSession()) {
+			for (UserGroupDependent<? extends SystemEntity> dependent : getUserGroupDependents()) {
+				validateDeleteDependent(userGroup, dependent, errors, session);
 			}
 		}
 		validate(errors);
+	}
+	
+	private void validateDeleteDependent(UserGroup userGroup, UserGroupDependent<? extends SystemEntity> dependent,
+										 ValidationErrors errors, Session session) {
+		for (SystemEntity systemEntity : dependent.findUsage(userGroup, session)) {
+			switch (getEntityType(systemEntity)) {
+			case "entity":
+				errors.addError("val.inuse.groupentity", systemEntity.getName());
+				break;
+
+			case "filter":
+				errors.addError("val.inuse.groupfilter", systemEntity.getName());
+				break;
+
+			case "transform":
+				errors.addError("val.inuse.grouptransform", systemEntity.getName());
+				break;
+
+			case "report":
+				errors.addError("val.inuse.groupreport", systemEntity.getName());
+				break;
+
+			case "rest":
+				errors.addError("val.inuse.grouprest", systemEntity.getName());
+				break;
+
+			case "task":
+				errors.addError("val.inuse.grouptask", systemEntity.getName());
+				break;
+
+			case "user":
+				errors.addError("val.inuse.groupuser", systemEntity.getName());
+				break;
+
+			default:
+				unhandledEntity(systemEntity);
+			}
+		}
 	}
 	
 	private List<UserGroupDependent<? extends SystemEntity>> getUserGroupDependents() {

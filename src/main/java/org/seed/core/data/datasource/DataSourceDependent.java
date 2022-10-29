@@ -19,10 +19,12 @@ package org.seed.core.data.datasource;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.core.data.SystemEntity;
 
 public interface DataSourceDependent<T extends SystemEntity> {
 	
-	List<T> findUsage(IDataSource dataSource);
+	List<T> findUsage(IDataSource dataSource, Session session);
 	
 }

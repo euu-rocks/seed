@@ -19,10 +19,12 @@ package org.seed.core.form;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.core.data.SystemEntity;
 
 public interface FormDependent<T extends SystemEntity> {
 	
-	List<T> findUsage(Form form);
+	List<T> findUsage(Form form, Session session);
 	
 }

@@ -247,10 +247,11 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	@Override
-	public List<Entity> findUsage(Entity entity) {
+	public List<Entity> findUsage(Entity entity, Session session) {
 		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(session, C.SESSION);
 		
-		return subList(getObjects(), obj -> !entity.equals(obj) && 
+		return subList(getObjects(session), obj -> !entity.equals(obj) && 
 											(entity.equals(obj.getGenericEntity()) ||
 											!obj.getReferenceFields(entity).isEmpty() ||
 											obj.isNestedEntity(entity) || 
@@ -269,39 +270,44 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	@Override
-	public List<Entity> findUsage(UserGroup userGroup) {
+	public List<Entity> findUsage(UserGroup userGroup, Session session) {
 		Assert.notNull(userGroup, C.USERNAME);
+		Assert.notNull(session, C.SESSION);
 		
-		return subList(getObjects(), entity -> entity.containsPermission(userGroup) ||
-					   anyMatch(entity.getStatusTransitions(), tran -> tran.containsPermission(userGroup)));
+		return subList(getObjects(session), 
+					   entity -> entity.containsPermission(userGroup) ||
+					   			 anyMatch(entity.getStatusTransitions(), 
+					   					  tran -> tran.containsPermission(userGroup)));
 	}
 	
 	@Override
-	public List<Entity> findUsage(EntityField entityField) {
+	public List<Entity> findUsage(EntityField entityField, Session session) {
 		Assert.notNull(entityField, C.ENTITYFIELD);
-		if (!entityField.getType().isReference()) {
-			return Collections.emptyList();
-		}
-		return subList(getObjects(), entity -> anyMatch(entity.getNesteds(), nested -> nested.getReferenceField().equals(entityField)));
+		Assert.notNull(session, C.SESSION);
+		
+		return entityField.getType().isReference()
+				? subList(getObjects(session), entity -> anyMatch(entity.getNesteds(), 
+																  nested -> nested.getReferenceField().equals(entityField)))
+				: Collections.emptyList();
 	}
 	
 	@Override
-	public List<Entity> findUsage(EntityStatus entityStatus) {
+	public List<Entity> findUsage(EntityStatus entityStatus, Session session) {
 		return Collections.emptyList();
 	}
 	
 	@Override
-	public List<Entity> findUsage(EntityFunction entityFunction) {
+	public List<Entity> findUsage(EntityFunction entityFunction, Session session) {
 		return Collections.emptyList();
 	}
 	
 	@Override
-	public List<Entity> findUsage(NestedEntity nestedEntity) {
+	public List<Entity> findUsage(NestedEntity nestedEntity, Session session) {
 		return Collections.emptyList();
 	}
 	
 	@Override
-	public List<Entity> findUsage(EntityRelation entityRelation) {
+	public List<Entity> findUsage(EntityRelation entityRelation, Session session) {
 		return Collections.emptyList();
 	}
 	
@@ -641,11 +647,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 					}
 				}
 				saveObject(entity, session);
-				
-				final ChangeLog changeLog = createChangeLog(currentVersionEntity, entity, session);
-				if (changeLog != null) {
-					session.saveOrUpdate(changeLog);
-				}
+				session.saveOrUpdate(createChangeLog(currentVersionEntity, entity, session));
 				tx.commit();
 			}
 			catch (Exception ex) {
@@ -715,6 +717,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	public void deleteObject(Entity entity) throws ValidationException {
 		Assert.notNull(entity, C.ENTITY);
 		
+		entityValidator.validateDelete(entity);
 		try (Session session = entityRepository.getSession()) {
 			Transaction tx = null;
 			try {
@@ -724,11 +727,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 					autonumService.deleteAutonumber(autonumField, session);
 				}
 				deleteObject(entity, session);
-				
-				final ChangeLog changeLog = createChangeLog(entity, null, session);
-				if (changeLog != null) {
-					session.saveOrUpdate(changeLog);
-				}
+				session.saveOrUpdate(createChangeLog(entity, null, session));
 				tx.commit();
 			}
 			catch (Exception ex) {

@@ -125,39 +125,11 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		Assert.notNull(entity, C.ENTITY);
 		final ValidationErrors errors = new ValidationErrors();
 		
-		for (EntityDependent<? extends SystemEntity> dependent : getEntityDependents()) {
-			for (SystemEntity systemEntity : dependent.findUsage(entity)) {
-				switch (getEntityType(systemEntity)) {
-					case "datasource":
-						errors.addError("val.inuse.entitydatasource", systemEntity.getName());
-						break;
-						
-					case C.ENTITY:
-						errors.addError("val.inuse.entityentity", systemEntity.getName());
-						break;
-						
-					case C.FILTER:
-						errors.addError("val.inuse.entityfilter", systemEntity.getName());
-						break;
-						
-					case C.FORM:
-						errors.addError("val.inuse.entityform", systemEntity.getName());
-						break;
-						
-					case "transform":
-						errors.addError("val.inuse.entitytransform", systemEntity.getName());
-						break;
-						
-					case C.VALUE:
-						errors.addError("val.inuse.entityvalue");
-						break;
-						
-					default:
-						unhandledEntity(systemEntity);
-				}
+		try (Session session = repository.getSession()) {
+			for (EntityDependent<? extends SystemEntity> dependent : getEntityDependents()) {
+				validateDeleteEntityDependent(entity, dependent, errors, session);
 			}
 		}
-		
 		validate(errors);
 	}
 	
@@ -173,31 +145,11 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 					errors.addError("val.inuse.fieldformula", entityField.getName());
 			}
 		}
-		for (EntityDependent<? extends SystemEntity> dependent : getEntityDependents()) {
-			for (SystemEntity systemEntity : dependent.findUsage(field)) {
-				switch (getEntityType(systemEntity)) {
-					case C.ENTITY:
-						errors.addError("val.inuse.fieldentity", systemEntity.getName());
-						break;
-						
-					case C.FILTER:
-						errors.addError("val.inuse.fieldfilter", systemEntity.getName());
-						break;
-						
-					case C.FORM:
-						errors.addError("val.inuse.fieldform", systemEntity.getName());
-						break;
-						
-					case "transform":
-						errors.addError("val.inuse.fieldtransform", systemEntity.getName());
-						break;
-						
-					default:
-						unhandledEntity(systemEntity);
-				}
+		try (Session session = repository.getSession()) {
+			for (EntityDependent<? extends SystemEntity> dependent : getEntityDependents()) {
+				validateRemoveFieldDependent(field, dependent, errors, session);
 			}
 		}
-		
 		validate(errors);
 	}
 	
@@ -221,77 +173,65 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		Assert.notNull(function, C.FUNCTION);
 		final ValidationErrors errors = new ValidationErrors();
 		
-		for (EntityDependent<? extends SystemEntity> dependent : getEntityDependents()) {
-			for (SystemEntity systemEntity : dependent.findUsage(function)) {
-				if (C.FORM.equals(getEntityType(systemEntity))) {
-					errors.addError("val.inuse.functionform", systemEntity.getName());
-				}
-				else {
-					unhandledEntity(systemEntity);
+		try (Session session = repository.getSession()) {
+			for (EntityDependent<? extends SystemEntity> dependent : getEntityDependents()) {
+				for (SystemEntity systemEntity : dependent.findUsage(function, session)) {
+					if (C.FORM.equals(getEntityType(systemEntity))) {
+						errors.addError("val.inuse.functionform", systemEntity.getName());
+					}
+					else {
+						unhandledEntity(systemEntity);
+					}
 				}
 			}
 		}
-		
 		validate(errors);
 	}
 	
 	public void validateRemoveStatus(EntityStatus status) throws ValidationException {
 		Assert.notNull(status, C.STATUS);
 		final ValidationErrors errors = new ValidationErrors();
-		
-		for (EntityDependent<? extends SystemEntity> dependent : getEntityDependents()) {
-			for (SystemEntity systemEntity : dependent.findUsage(status)) {
-				switch (getEntityType(systemEntity)) {
-					case C.FILTER:
-						errors.addError("val.inuse.statusfilter", systemEntity.getName());
-						break;
-						
-					case C.VALUE:
-						errors.addError("val.inuse.status");
-						break;
-						
-					default:
-						unhandledEntity(systemEntity);
-				}
+		try (Session session = repository.getSession()) {
+			for (EntityDependent<? extends SystemEntity> dependent : getEntityDependents()) {
+				validateRemoveStatusDependent(dependent, status, errors, session);
 			}
 		}
-		
 		validate(errors);
 	}
 	
 	public void validateRemoveNested(NestedEntity nestedEntity) throws ValidationException {
 		Assert.notNull(nestedEntity, C.NESTEDENTITY);
 		final ValidationErrors errors = new ValidationErrors();
-		
-		for (EntityDependent<? extends SystemEntity> dependent : getEntityDependents()) {
-			for (SystemEntity systemEntity : dependent.findUsage(nestedEntity)) {
-				if (C.FORM.equals(getEntityType(systemEntity))) {
-					errors.addError("val.inuse.nestedform", systemEntity.getName());
-				}
-				else {
-					unhandledEntity(systemEntity);
+		try (Session session = repository.getSession()) {
+			for (EntityDependent<? extends SystemEntity> dependent : getEntityDependents()) {
+				for (SystemEntity systemEntity : dependent.findUsage(nestedEntity, session)) {
+					if (C.FORM.equals(getEntityType(systemEntity))) {
+						errors.addError("val.inuse.nestedform", systemEntity.getName());
+					}
+					else {
+						unhandledEntity(systemEntity);
+					}
 				}
 			}
 		}
-		
 		validate(errors);
 	}
 	
 	public void validateRemoveRelation(EntityRelation relation) throws ValidationException {
 		Assert.notNull(relation, C.RELATION);
 		final ValidationErrors errors = new ValidationErrors();
-		
-		for (EntityDependent<? extends SystemEntity> dependent : getEntityDependents()) {
-			for (SystemEntity systemEntity : dependent.findUsage(relation)) {
-				if (C.FORM.equals(getEntityType(systemEntity))) {
-					errors.addError("val.inuse.relationform", systemEntity.getName());
-				}
-				else {
-					unhandledEntity(systemEntity);
+		try (Session session = repository.getSession()) {
+			for (EntityDependent<? extends SystemEntity> dependent : getEntityDependents()) {
+				for (SystemEntity systemEntity : dependent.findUsage(relation, session)) {
+					if (C.FORM.equals(getEntityType(systemEntity))) {
+						errors.addError("val.inuse.relationform", systemEntity.getName());
+					}
+					else {
+						unhandledEntity(systemEntity);
+					}
 				}
 			}
 		}
-		
 		validate(errors);
 	}
 	
@@ -597,6 +537,87 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 				errors.addError("val.ambiguous.fieldconstraint", 
 								constraint.getField().getName());
 				break;
+			}
+		}
+	}
+	
+	private void validateDeleteEntityDependent(Entity entity, EntityDependent<? extends SystemEntity> dependent,
+			 ValidationErrors errors, Session session) {
+		for (SystemEntity systemEntity : dependent.findUsage(entity, session)) {
+			switch (getEntityType(systemEntity)) {
+			case "datasource":
+				errors.addError("val.inuse.entitydatasource", systemEntity.getName());
+				break;
+
+			case C.ENTITY:
+				errors.addError("val.inuse.entityentity", systemEntity.getName());
+				break;
+
+			case C.FILTER:
+				errors.addError("val.inuse.entityfilter", systemEntity.getName());
+				break;
+
+			case C.FORM:
+				errors.addError("val.inuse.entityform", systemEntity.getName());
+				break;
+				
+			case C.TRANSFER:
+				errors.addError("val.inuse.entitytransfer", systemEntity.getName());
+				break;
+
+			case "transform":
+				errors.addError("val.inuse.entitytransform", systemEntity.getName());
+				break;
+
+			case C.VALUE:
+				errors.addError("val.inuse.entityvalue");
+				break;
+
+			default:
+				unhandledEntity(systemEntity);
+			}
+		}
+	}
+	
+	private void validateRemoveFieldDependent(EntityField field,EntityDependent<? extends SystemEntity> dependent,
+			  ValidationErrors errors, Session session) {
+		for (SystemEntity systemEntity : dependent.findUsage(field, session)) {
+			switch (getEntityType(systemEntity)) {
+			case C.ENTITY:
+				errors.addError("val.inuse.fieldentity", systemEntity.getName());
+				break;
+
+			case C.FILTER:
+				errors.addError("val.inuse.fieldfilter", systemEntity.getName());
+				break;
+
+			case C.FORM:
+				errors.addError("val.inuse.fieldform", systemEntity.getName());
+				break;
+
+			case "transform":
+				errors.addError("val.inuse.fieldtransform", systemEntity.getName());
+				break;
+
+			default:
+				unhandledEntity(systemEntity);
+			}
+		}
+	}
+	
+	private void validateRemoveStatusDependent(EntityDependent<? extends SystemEntity> dependent, EntityStatus status, ValidationErrors errors, Session session) {
+		for (SystemEntity systemEntity : dependent.findUsage(status, session)) {
+			switch (getEntityType(systemEntity)) {
+				case C.FILTER:
+					errors.addError("val.inuse.statusfilter", systemEntity.getName());
+					break;
+					
+				case C.VALUE:
+					errors.addError("val.inuse.status");
+					break;
+					
+				default:
+					unhandledEntity(systemEntity);
 			}
 		}
 	}

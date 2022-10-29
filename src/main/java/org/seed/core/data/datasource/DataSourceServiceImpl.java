@@ -86,16 +86,17 @@ public class DataSourceServiceImpl extends AbstractApplicationEntityService<IDat
 	}
 	
 	@Override
-	public List<IDataSource> findUsage(Entity entity) {
+	public List<IDataSource> findUsage(Entity entity, Session session) {
 		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(session, C.SESSION);
 		
-		return subList(repository.find(), 
+		return subList(repository.find(session), 
 					   dataSource -> anyMatch(dataSource.getParameters(), 
 							   				  param -> entity.equals(param.getReferenceEntity())));
 	}
 
 	@Override
-	public List<IDataSource> findUsage(EntityField entityField) {
+	public List<IDataSource> findUsage(EntityField entityField, Session session) {
 		return Collections.emptyList();
 	}
 
@@ -105,22 +106,22 @@ public class DataSourceServiceImpl extends AbstractApplicationEntityService<IDat
 	}
 	
 	@Override
-	public List<IDataSource> findUsage(EntityStatus entityStatus) {
+	public List<IDataSource> findUsage(EntityStatus entityStatus, Session session) {
 		return Collections.emptyList();
 	}
 	
 	@Override
-	public List<IDataSource> findUsage(EntityFunction entityFunction) {
+	public List<IDataSource> findUsage(EntityFunction entityFunction, Session session) {
 		return Collections.emptyList();
 	}
 
 	@Override
-	public List<IDataSource> findUsage(NestedEntity nestedEntity) {
+	public List<IDataSource> findUsage(NestedEntity nestedEntity, Session session) {
 		return Collections.emptyList();
 	}
 	
 	@Override
-	public List<IDataSource> findUsage(EntityRelation entityRelation) {
+	public List<IDataSource> findUsage(EntityRelation entityRelation, Session session) {
 		return Collections.emptyList();
 	}
 	

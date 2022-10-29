@@ -19,6 +19,8 @@ package org.seed.core.entity.transform;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.SystemEntity;
@@ -27,10 +29,14 @@ import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TransformerValidator extends AbstractSystemEntityValidator<Transformer> {
+	
+	@Autowired
+	private TransformerRepository repository;
 	
 	private List<TransformerDependent<? extends SystemEntity>> transformerDependents;
 	
@@ -81,13 +87,15 @@ public class TransformerValidator extends AbstractSystemEntityValidator<Transfor
 		Assert.notNull(transformer, C.TRANSFORMER);
 		final ValidationErrors errors = new ValidationErrors();
 		
-		for (TransformerDependent<? extends SystemEntity> dependent : getTransformerDependents()) {
-			for (SystemEntity systemEntity : dependent.findUsage(transformer)) {
-				if (C.FORM.equals(getEntityType(systemEntity))) {
-					errors.addError("val.inuse.transformform", systemEntity.getName());
-				}
-				else {
-					unhandledEntity(systemEntity);
+		try (Session session = repository.openSession()) {
+			for (TransformerDependent<? extends SystemEntity> dependent : getTransformerDependents()) {
+				for (SystemEntity systemEntity : dependent.findUsage(transformer, session)) {
+					if (C.FORM.equals(getEntityType(systemEntity))) {
+						errors.addError("val.inuse.transformform", systemEntity.getName());
+					}
+					else {
+						unhandledEntity(systemEntity);
+					}
 				}
 			}
 		}

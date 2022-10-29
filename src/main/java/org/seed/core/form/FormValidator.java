@@ -19,6 +19,8 @@ package org.seed.core.form;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.SystemEntity;
@@ -33,6 +35,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class FormValidator extends AbstractSystemEntityValidator<Form> {
+	
+	private FormRepository repository;
 	
 	private List<FormDependent<? extends SystemEntity>> formDependents;
 	
@@ -95,14 +99,15 @@ public class FormValidator extends AbstractSystemEntityValidator<Form> {
 		Assert.notNull(form, C.FORM);
 		final ValidationErrors errors = new ValidationErrors();
 		
-		for (FormDependent<? extends SystemEntity> dependent : getFormDependents()) {
-			for (SystemEntity systemEntity : dependent.findUsage(form)) {
-				if (C.FORM.equals(getEntityType(systemEntity))) {
-					errors.addError("val.inuse.formform", systemEntity.getName());
+		try (Session session = repository.openSession()) {
+			for (FormDependent<? extends SystemEntity> dependent : getFormDependents()) {
+				for (SystemEntity systemEntity : dependent.findUsage(form, session)) {
+					if (C.FORM.equals(getEntityType(systemEntity))) {
+						errors.addError("val.inuse.formform", systemEntity.getName());
+					}
 				}
 			}
 		}
-		
 		validate(errors);
 	}
 	

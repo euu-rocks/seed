@@ -231,7 +231,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 		final NestedEntity nested = getForm().getEntity().getNestedByUid(nestedUid);
 		final SubForm subForm = getForm().getSubFormByNestedEntityId(nested.getId());
 		final ValueObject valueObject = subForm.getSelectedObject();
-		final List<Form> forms = formService().findForms(nested.getNestedEntity());
+		final List<Form> forms = formService().findForms(nested.getNestedEntity(), currentSession());
 		if (!forms.isEmpty()) {
 			openTab(forms.get(0), valueObject);
 		}

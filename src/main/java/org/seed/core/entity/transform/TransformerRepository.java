@@ -17,6 +17,8 @@
  */
 package org.seed.core.entity.transform;
 
+import org.hibernate.Session;
+
 import org.seed.core.data.AbstractSystemEntityRepository;
 
 import org.springframework.stereotype.Repository;
@@ -26,6 +28,10 @@ public class TransformerRepository extends AbstractSystemEntityRepository<Transf
 
 	protected TransformerRepository() {
 		super(TransformerMetadata.class);
+	}
+	
+	Session openSession() {
+		return super.getSession();
 	}
 
 }

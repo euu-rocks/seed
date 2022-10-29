@@ -169,10 +169,11 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	}
 	
 	@Override
-	public List<Task> findUsage(UserGroup userGroup) {
+	public List<Task> findUsage(UserGroup userGroup, Session session) {
 		Assert.notNull(userGroup, C.USERGROUP);
+		Assert.notNull(session, C.SESSION);
 		
-		return subList(getObjects(), 
+		return subList(getObjects(session), 
 					   task -> anyMatch(task.getPermissions(), 
 							   			perm -> userGroup.equals(perm.getUserGroup())));
 	}

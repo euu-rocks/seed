@@ -101,11 +101,11 @@ public class FullTextSearchViewModel extends AbstractApplicationViewModel {
 	@Command
 	public void clickResult(@BindingParam("entityId") Long entityId,
 							@BindingParam("objectId") Long objectId) {
-		final Entity entity = entityService.getObject(entityId);
+		final Entity entity = entityService.getObject(entityId, currentSession());
 		final ValueObject object = valueObjectService.getObject(currentSession(), entity, objectId);
 		Assert.state(object != null, "value object not available: " + objectId);
 		
-		final List<Form> forms = formService.findForms(entity);
+		final List<Form> forms = formService.findForms(entity, currentSession());
 		if (!forms.isEmpty()) {
 			openTab(forms.get(0), object); // use first available form
 		}

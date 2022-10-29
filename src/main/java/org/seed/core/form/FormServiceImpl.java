@@ -203,30 +203,34 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	@Override
-	public List<Form> findUsage(Entity entity) {
-		if (!entity.isGeneric()) {
-			return formRepository.find(queryParam(C.ENTITY, entity), 
-									   queryParam("autoLayout", false)); // ignore auto layout forms
-		}
-		return Collections.emptyList();
+	public List<Form> findUsage(Entity entity, Session session) {
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(session, C.SESSION);
+		
+		return entity.isGeneric()
+				? Collections.emptyList()
+				: formRepository.find(session, queryParam(C.ENTITY, entity), 
+											   queryParam("autoLayout", false)); // ignore auto layout forms
 	}
 	
 	@Override
-	public List<Form> findUsage(EntityField entityField) {
+	public List<Form> findUsage(EntityField entityField, Session session) {
 		Assert.notNull(entityField, C.ENTITYFIELD);
+		Assert.notNull(session, C.SESSION);
 		
-		return subList(getObjects(), form -> !form.isAutoLayout() && 
+		return subList(getObjects(session), form -> !form.isAutoLayout() && 
 						(form.containsEntityField(entityField) || 
 						(form.getLayout() != null && getLayoutService().containsField(form.getLayout(), entityField)) ||
 						anyMatch(form.getSubForms(), subForm -> subForm.containsEntityField(entityField))));
 	}
 	
 	@Override
-	public List<Form> findUsage(EntityRelation entityRelation) {
+	public List<Form> findUsage(EntityRelation entityRelation, Session session) {
 		Assert.notNull(entityRelation, C.RELATION);
+		Assert.notNull(session, C.SESSION);
 		
-		return subList(getObjects(), form -> !form.isAutoLayout() && 
-											 getLayoutService().containsRelation(form.getLayout(), entityRelation));
+		return subList(getObjects(session), form -> !form.isAutoLayout() && 
+													getLayoutService().containsRelation(form.getLayout(), entityRelation));
 	}
 	
 	@Override
@@ -235,51 +239,56 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	@Override
-	public List<Form> findUsage(EntityStatus entityStatus) {
+	public List<Form> findUsage(EntityStatus entityStatus, Session session) {
 		return Collections.emptyList();
 	}
 	
 	@Override
-	public List<Form> findUsage(NestedEntity nestedEntity) {
+	public List<Form> findUsage(NestedEntity nestedEntity, Session session) {
 		Assert.notNull(nestedEntity, C.NESTEDENTITY);
+		Assert.notNull(session, C.SESSION);
 		
-		return subList(getObjects(), form -> !form.isAutoLayout() && 
-											 anyMatch(form.getSubForms(), 
-													  subForm -> nestedEntity.equals(subForm.getNestedEntity())));
+		return subList(getObjects(session), form -> !form.isAutoLayout() && 
+											 		anyMatch(form.getSubForms(), 
+											 				 subForm -> nestedEntity.equals(subForm.getNestedEntity())));
 	}
 	
 	@Override
-	public List<Form> findUsage(EntityFunction entityFunction) {
-		Assert.notNull(entityFunction, "entityFunction");
+	public List<Form> findUsage(EntityFunction entityFunction, Session session) {
+		Assert.notNull(entityFunction, C.FUNCTION);
+		Assert.notNull(session, C.SESSION);
 		
-		return subList(getObjects(), form -> form.containsEntityFunction(entityFunction) || 
-											 anyMatch(form.getSubForms(), 
-													  subForm -> subForm.containsEntityFunction(entityFunction)));
+		return subList(getObjects(session), form -> form.containsEntityFunction(entityFunction) || 
+											 		anyMatch(form.getSubForms(), 
+											 				 subForm -> subForm.containsEntityFunction(entityFunction)));
 	}
  	
 	@Override
-	public List<Form> findUsage(Form form) {
+	public List<Form> findUsage(Form form, Session session) {
 		Assert.notNull(form, C.FORM);
+		Assert.notNull(session, C.SESSION);
 		
-		return subList(getObjects(), other -> !form.equals(other) && 
-											  (form.containsForm(other) || 
-											   anyMatch(other.getSubForms(), subForm -> subForm.containsForm(form))));
+		return subList(getObjects(session), other -> !form.equals(other) && 
+													 (form.containsForm(other) || 
+													 anyMatch(other.getSubForms(), subForm -> subForm.containsForm(form))));
 	}
 	
 	@Override
-	public List<Form> findUsage(Transformer transformer) {
+	public List<Form> findUsage(Transformer transformer, Session session) {
 		Assert.notNull(transformer, C.TRANSFORMER);
+		Assert.notNull(session, C.SESSION);
 		
-		return subList(getObjects(), form -> form.containsTransformer(transformer) ||
-											 anyMatch(form.getSubForms(), subForm -> subForm.containsTransformer(transformer)));
+		return subList(getObjects(session), form -> form.containsTransformer(transformer) ||
+													anyMatch(form.getSubForms(), subForm -> subForm.containsTransformer(transformer)));
 	}
 	
 	@Override
-	public List<Form> findUsage(Filter filter) {
+	public List<Form> findUsage(Filter filter, Session session) {
 		Assert.notNull(filter, C.FILTER);
+		Assert.notNull(session, C.SESSION);
 		
-		return subList(getObjects(), form -> form.containsFilter(filter) ||
-											 anyMatch(form.getSubForms(), subForm -> subForm.containsFilter(filter)));
+		return subList(getObjects(session), form -> form.containsFilter(filter) ||
+													anyMatch(form.getSubForms(), subForm -> subForm.containsFilter(filter)));
 	}
 	
 	@Override

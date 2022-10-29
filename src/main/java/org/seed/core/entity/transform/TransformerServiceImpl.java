@@ -135,13 +135,14 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	}
 	
 	@Override
-	public List<Transformer> findUsage(Entity entity) {
+	public List<Transformer> findUsage(Entity entity, Session session) {
 		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(session, C.SESSION);
 		
 		if (!entity.isGeneric()) {
 			final Set<Transformer> result = new HashSet<>();
-			result.addAll(repository.find(queryParam(C.SOURCEENTITY, entity)));
-			result.addAll(repository.find(queryParam(C.TARGETENTITY, entity)));
+			result.addAll(repository.find(session, queryParam(C.SOURCEENTITY, entity)));
+			result.addAll(repository.find(session, queryParam(C.TARGETENTITY, entity)));
 			return new ArrayList<>(result);
 		}
 		return Collections.emptyList();
@@ -149,6 +150,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	
 	public List<TransformerPermission> getAvailablePermissions(Transformer transformer, Session session) {
 		Assert.notNull(transformer, C.TRANSFORMER);
+		Assert.notNull(session, C.SESSION);
 		
 		return filterAndConvert(userGroupService.findNonSystemGroups(session), 
 								group -> !transformer.containsPermission(group), 
@@ -257,20 +259,22 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	}
 
 	@Override
-	public List<Transformer> findUsage(EntityField entityField) {
+	public List<Transformer> findUsage(EntityField entityField, Session session) {
 		Assert.notNull(entityField, C.ENTITYFIELD);
+		Assert.notNull(session, C.SESSION);
 		
-		return subList(getObjects(), 
+		return subList(getObjects(session), 
 					   trans -> anyMatch(trans.getElements(), 
 									     elem -> entityField.equals(elem.getSourceField()) ||
 											     entityField.equals(elem.getTargetField())));
 	}
 	
 	@Override
-	public List<Transformer> findUsage(UserGroup userGroup) {
+	public List<Transformer> findUsage(UserGroup userGroup, Session session) {
 		Assert.notNull(userGroup, C.USERGROUP);
+		Assert.notNull(session, C.SESSION);
 		
-		return subList(getObjects(),
+		return subList(getObjects(session),
 					   trans -> anyMatch(trans.getPermissions(), 
 							   			 perm -> userGroup.equals(perm.getUserGroup())));
 	}
@@ -281,22 +285,22 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	}
 	
 	@Override
-	public List<Transformer> findUsage(EntityStatus entityStatus) {
+	public List<Transformer> findUsage(EntityStatus entityStatus, Session session) {
 		return Collections.emptyList();
 	}
 	
 	@Override
-	public List<Transformer> findUsage(EntityFunction entityFunction) {
+	public List<Transformer> findUsage(EntityFunction entityFunction, Session session) {
 		return Collections.emptyList();
 	}
 	
 	@Override
-	public List<Transformer> findUsage(NestedEntity nestedEntity) {
+	public List<Transformer> findUsage(NestedEntity nestedEntity, Session session) {
 		return Collections.emptyList();
 	}
 	
 	@Override
-	public List<Transformer> findUsage(EntityRelation entityRelation) {
+	public List<Transformer> findUsage(EntityRelation entityRelation, Session session) {
 		return Collections.emptyList();
 	}
 	

@@ -17,6 +17,8 @@
  */
 package org.seed.core.entity.filter;
 
+import org.hibernate.Session;
+
 import org.seed.core.data.AbstractSystemEntityRepository;
 
 import org.springframework.stereotype.Repository;
@@ -26,6 +28,11 @@ public class FilterRepository extends AbstractSystemEntityRepository<Filter> {
 	
 	public FilterRepository() {
 		super(FilterMetadata.class);
+	}
+	
+	@Override
+	public Session getSession() {
+		return super.getSession();
 	}
 	
 }

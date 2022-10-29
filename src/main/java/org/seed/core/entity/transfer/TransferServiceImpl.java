@@ -125,11 +125,11 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 		}
 	}
 	
-	@Override
-	public List<Transfer> findTransfers(Entity entity) {
+	private List<Transfer> findTransfers(Entity entity, Session session) {
 		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(session, C.SESSION);
 		
-		return transferRepository.find(queryParam(C.ENTITY, entity));
+		return transferRepository.find(session, queryParam(C.ENTITY, entity));
 	}
 	
 	@Override
@@ -214,18 +214,21 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	}
 	
 	@Override
-	public List<Transfer> findUsage(Entity entity) {
-		if (!entity.isGeneric()) {
-			return findTransfers(entity);
-		}
-		return Collections.emptyList();
+	public List<Transfer> findUsage(Entity entity, Session session) {
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(session, C.SESSION);
+		
+		return entity.isGeneric()
+				? Collections.emptyList()
+				: findTransfers(entity, session);
 	}
 
 	@Override
-	public List<Transfer> findUsage(EntityField entityField) {
+	public List<Transfer> findUsage(EntityField entityField, Session session) {
 		Assert.notNull(entityField, C.ENTITYFIELD);
+		Assert.notNull(session, C.SESSION);
 		
-		return subList(findTransfers(entityField.getEntity()), 
+		return subList(findTransfers(entityField.getEntity(), session), 
 					   trans -> anyMatch(trans.getElements(), 
 						elem -> entityField.equals(elem.getEntityField())));
 	}
@@ -236,22 +239,22 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	}
 	
 	@Override
-	public List<Transfer> findUsage(NestedEntity nestedEntity) {
+	public List<Transfer> findUsage(NestedEntity nestedEntity, Session session) {
 		return Collections.emptyList();
 	}
 	
 	@Override
-	public List<Transfer> findUsage(EntityRelation entityRelation) {
+	public List<Transfer> findUsage(EntityRelation entityRelation, Session session) {
 		return Collections.emptyList();
 	}
 	
 	@Override
-	public List<Transfer> findUsage(EntityStatus entityStatus) {
+	public List<Transfer> findUsage(EntityStatus entityStatus, Session session) {
 		return Collections.emptyList();
 	}
 	
 	@Override
-	public List<Transfer> findUsage(EntityFunction entityFunction) {
+	public List<Transfer> findUsage(EntityFunction entityFunction, Session session) {
 		return Collections.emptyList();
 	}
 	

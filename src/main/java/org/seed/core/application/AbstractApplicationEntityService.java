@@ -53,10 +53,11 @@ public abstract class AbstractApplicationEntityService<T extends ApplicationEnti
 	}
 	
 	@Override
-	public List<T> findUsage(Module module) {
+	public List<T> findUsage(Module module, Session session) {
 		Assert.notNull(module, C.MODULE);
+		Assert.notNull(session, C.SESSION);
 		
-		return getRepository().find(queryParam(C.MODULE, module));
+		return getRepository().find(session, queryParam(C.MODULE, module));
 	}
 	
 	@Override

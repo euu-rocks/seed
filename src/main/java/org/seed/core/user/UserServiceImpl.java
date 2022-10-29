@@ -120,10 +120,11 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 	}
 	
 	@Override
-	public List<User> findUsage(UserGroup userGroup) {
+	public List<User> findUsage(UserGroup userGroup, Session session) {
 		Assert.notNull(userGroup, C.USERGROUP);
+		Assert.notNull(session, C.SESSION);
 		
-		return subList(getObjects(), 
+		return subList(getObjects(session), 
 					   user -> anyMatch(user.getUserGroups(), userGroup::equals));
 	}
 	

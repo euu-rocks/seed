@@ -19,10 +19,12 @@ package org.seed.core.entity.transform;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.core.data.SystemEntity;
 
 public interface TransformerDependent<T extends SystemEntity> {
 
-	List<T> findUsage(Transformer transformer);
+	List<T> findUsage(Transformer transformer, Session session);
 	
 }

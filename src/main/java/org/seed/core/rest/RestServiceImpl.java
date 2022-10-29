@@ -124,11 +124,12 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 	}
 	
 	@Override
-	public List<Rest> findUsage(UserGroup userGroup) {
+	public List<Rest> findUsage(UserGroup userGroup, Session session) {
 		Assert.notNull(userGroup, C.USERGROUP);
+		Assert.notNull(session, C.SESSION);
 		
-		return subList(getObjects(), rest -> anyMatch(rest.getPermissions(), 
-													  perm -> userGroup.equals(perm.getUserGroup())));
+		return subList(getObjects(session), rest -> anyMatch(rest.getPermissions(), 
+															 perm -> userGroup.equals(perm.getUserGroup())));
 	}
 	
 	@Override

@@ -19,10 +19,12 @@ package org.seed.core.user;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.core.data.SystemEntity;
 
 public interface UserGroupDependent<T extends SystemEntity> {
 	
-	List<T> findUsage(UserGroup userGroup);
+	List<T> findUsage(UserGroup userGroup, Session session);
 	
 }
