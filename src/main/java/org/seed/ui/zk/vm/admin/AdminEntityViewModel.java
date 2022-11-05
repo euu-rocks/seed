@@ -256,7 +256,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 		originalName = null;
 		resetUnique = false;
 		resetMandatory = false;
-		mandatoryFieldIds.clear();
+		mandatoryFieldIds = null;
 	}
 	
 	public EntityField getField() {

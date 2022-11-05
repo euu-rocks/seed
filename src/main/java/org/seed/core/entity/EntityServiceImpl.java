@@ -647,7 +647,11 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 					}
 				}
 				saveObject(entity, session);
-				session.saveOrUpdate(createChangeLog(currentVersionEntity, entity, session));
+				
+				final ChangeLog changeLog = createChangeLog(currentVersionEntity, entity, session);
+				if (changeLog != null) {
+					session.saveOrUpdate(changeLog);
+				}
 				tx.commit();
 			}
 			catch (Exception ex) {
