@@ -19,9 +19,12 @@
 -->
 <!DOCTYPE xml>
 <?page contentType="text/html;charset=UTF-8"?>
-<window id="newEntityWin" width="400px" title="${labels.admin.create.entity}"
+<window id="newEntityWin" 
+		sclass="new-entity-win" 
+		title="${labels.admin.create.entity}"
 		viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminEntityViewModel')" 
-		mode="modal" closable="true">
+		width="400px" mode="modal" 
+		closable="true">
 	<div class="alpha-dialog">
 		<grid class="alpha-noborder">
             <columns>
@@ -33,7 +36,7 @@
             		<cell align="right">
                 		<label value="${labels.label.name}:"/>
                 	</cell>
-                	<cell>
+                	<cell sclass="name-fieldcell">
                 		<textbox value="@bind(vm.object.name) @converter(vm.stringConverter)"
 								 mandatory="true"
 								 hflex="1"/> 
@@ -160,11 +163,11 @@
             </rows>
 		</grid>
 		<div class="alpha-dialog-footer">
-			<button iconSclass="z-icon-check" 
+			<button iconSclass="create-button z-icon-check" 
 					label="${labels.button.create}" 
 					onClick="@command('createEntity',elem=self)"/>
 			<space/>
-			<button iconSclass="z-icon-close" 
+			<button iconSclass="close-button z-icon-close" 
 					label="${labels.button.cancel}" 
 					onClick="@command('cancel')"/>
 		</div>

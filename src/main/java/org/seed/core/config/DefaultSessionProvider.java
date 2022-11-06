@@ -47,7 +47,7 @@ public class DefaultSessionProvider implements SessionProvider {
 	}
 	
 	synchronized void setSessionFactory(SessionFactory sessionFactory) {
-		Assert.notNull(sessionFactory, "sessionFactory");
+		Assert.notNull(sessionFactory, "session factory");
 		
 		if (isSessionAvailable()) {
 			close();

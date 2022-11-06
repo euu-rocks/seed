@@ -24,6 +24,7 @@ import java.net.URI;
 
 import javax.tools.SimpleJavaFileObject;
 
+import org.seed.C;
 import org.seed.core.util.Assert;
 
 import org.springframework.util.FastByteArrayOutputStream;
@@ -37,7 +38,7 @@ class JavaClassFileObject extends SimpleJavaFileObject {
 	private byte[] byteCode;
 
 	JavaClassFileObject(String qualifiedName) {
-		super(URI.create(qualifiedName), Kind.CLASS);
+		super(createURI(qualifiedName), Kind.CLASS);
 		this.qualifiedName = qualifiedName;
 	}
 	
@@ -72,6 +73,12 @@ class JavaClassFileObject extends SimpleJavaFileObject {
 			byteCodeOutputStream = null;
 		}
 		return byteCode;
+	}
+	
+	private static URI createURI(String qualifiedName) {
+		Assert.notNull(qualifiedName, C.QUALIFIEDNAME);
+		
+		return URI.create(qualifiedName);
 	}
 
 }

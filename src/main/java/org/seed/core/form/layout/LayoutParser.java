@@ -23,6 +23,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.seed.C;
@@ -36,7 +37,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 class LayoutParser {
 	
-	private final SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+	private SAXParserFactory parserFactory;
 	
 	LayoutElement parse(String content) throws SAXException, IOException, ParserConfigurationException {
 		Assert.notNull(content, C.CONTENT);
@@ -48,8 +49,15 @@ class LayoutParser {
 		Assert.notNull(inputStream, "inputStream");
 		
 		final LayoutHandler layoutHandler = new LayoutHandler();
-		parserFactory.newSAXParser().parse(inputStream, layoutHandler);
+		getParser().parse(inputStream, layoutHandler);
 		return layoutHandler.rootElement;
+	}
+	
+	private SAXParser getParser() throws SAXException, ParserConfigurationException {
+		if (parserFactory == null) {
+			parserFactory = SAXParserFactory.newInstance();
+		}
+		return parserFactory.newSAXParser();
 	}
 	
 	private class LayoutHandler extends DefaultHandler {

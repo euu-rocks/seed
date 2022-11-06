@@ -22,10 +22,10 @@
 	<north border="0">
 		<toolbar width="100%">
 			<toolbarbutton label="${labels.admin.entity.newfunction}" 
-						   iconSclass="z-icon-file-o alpha-icon-lg" 
+						   iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 					   	   onClick="@command('newFunction')"/>
 			<toolbarbutton label="${labels.admin.entity.removefunction}" 
-						   iconSclass="z-icon-remove alpha-icon-lg" 
+						   iconSclass="remove-button z-icon-remove alpha-icon-lg" 
 					   	   onClick="@command('removeFunction',elem=self)"
 					   	   visible="@load(not empty vm.function)"/>
 		</toolbar>
@@ -58,11 +58,14 @@
 		  class="alpha-properties">
 		<vlayout class="alpha-properties-content" hflex="1">
 			<label value="${labels.label.functionname}:"/>
-            <textbox hflex="1"
-            		 value="@bind(vm.function.name) @converter(vm.stringConverter)"
-            		 mandatory="true"
-            		 onChange="@command('flagDirty')"/>
+			<div sclass="functionname-field">
+	            <textbox hflex="1"
+	            		 value="@bind(vm.function.name) @converter(vm.stringConverter)"
+	            		 mandatory="true"
+	            		 onChange="@command('flagDirty')"/>
+            </div>
             <button label="${labels.admin.entity.editsource}..."
+            		sclass="editfunction-button"
             		onClick="@command('editFunction')"
             		disabled="@load(empty vm.function.name)"
             		style="margin-top:8px;margin-bottom:8px"/>

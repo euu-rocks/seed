@@ -23,10 +23,10 @@
 		<hbox hflex="1">
 			<toolbar hflex="1">
 				<toolbarbutton label="${labels.admin.entity.newstatustransition}" 
-							   iconSclass="z-icon-plus alpha-icon-lg" 
+							   iconSclass="new-button z-icon-plus alpha-icon-lg" 
 						   	   onClick="@command('newStatusTransition')"/>
 				<toolbarbutton label="${labels.admin.entity.removestatustransition}" 
-							   iconSclass="z-icon-remove alpha-icon-lg" 
+							   iconSclass="remove-button z-icon-remove alpha-icon-lg" 
 						   	   onClick="@command('removeStatusTransition')"
 						   	   visible="@load(not empty vm.statusTransition)"/>
 			</toolbar>
@@ -72,31 +72,37 @@
 		  class="alpha-properties">
 		<vlayout class="alpha-properties-content">
 			<label value="${labels.label.sourcestatus}:"/>
-			<combobox model="@load(vm.object.statusList)" 
-	             	  mandatory="true"
-	             	  selectedItem="@bind(vm.statusTransition.sourceStatus)"
-	             	  onSelect="@command('flagDirty')"
-	             	  value="@load(vm.statusTransition.sourceStatus.numberAndName)"
-	             	  hflex="1">
-	        	<template name="model" var="status">
-	            	<comboitem label="@load(status.numberAndName)"/>
-	            </template>
-	     	</combobox>
+			<div sclass="sourcestatus-field"> 
+				<combobox model="@load(vm.object.statusList)" 
+		             	  mandatory="true"
+		             	  selectedItem="@bind(vm.statusTransition.sourceStatus)"
+		             	  onSelect="@command('flagDirty')"
+		             	  value="@load(vm.statusTransition.sourceStatus.numberAndName)"
+		             	  hflex="1">
+		        	<template name="model" var="status">
+		            	<comboitem label="@load(status.numberAndName)"/>
+		            </template>
+		     	</combobox>
+	     	</div>
 	     	<label value="${labels.label.targetstatus}:"/>
-			<combobox model="@load(vm.object.statusList)" 
-					  mandatory="true"
-	             	  selectedItem="@bind(vm.statusTransition.targetStatus)"
-	             	  onSelect="@command('flagDirty')"
-	             	  value="@load(vm.statusTransition.targetStatus.numberAndName)"
-	             	  hflex="1">
-	        	<template name="model" var="status">
-	            	<comboitem label="@load(status.numberAndName)"/>
-	            </template>
-	     	</combobox>
+	     	<div sclass="targetstatus-field">
+				<combobox model="@load(vm.object.statusList)" 
+						  mandatory="true"
+		             	  selectedItem="@bind(vm.statusTransition.targetStatus)"
+		             	  onSelect="@command('flagDirty')"
+		             	  value="@load(vm.statusTransition.targetStatus.numberAndName)"
+		             	  hflex="1">
+		        	<template name="model" var="status">
+		            	<comboitem label="@load(status.numberAndName)"/>
+		            </template>
+		     	</combobox>
+	     	</div>
 	     	<label value="${labels.label.description}:"/>
-            <textbox hflex="1" rows="5"
-               		 value="@bind(vm.statusTransition.description) @converter(vm.stringConverter)"
-               		 onChanging="@command('flagDirty')"/>
+	     	<div sclass="description-field">
+	            <textbox hflex="1" rows="5"
+	               		 value="@bind(vm.statusTransition.description) @converter(vm.stringConverter)"
+	               		 onChanging="@command('flagDirty')"/>
+            </div>
 		</vlayout>
 	</east>
 </borderlayout>

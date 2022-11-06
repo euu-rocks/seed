@@ -22,10 +22,10 @@
 	<north border="0">
 		<toolbar width="100%">
 			<toolbarbutton label="${labels.admin.entity.newfieldgroup}" 
-						   iconSclass="z-icon-file-o alpha-icon-lg" 
+						   iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 					   	   onClick="@command('newFieldGroup')"/>
 			<toolbarbutton label="${labels.admin.entity.removefieldgroup}" 
-						   iconSclass="z-icon-remove alpha-icon-lg" 
+						   iconSclass="remove-button z-icon-remove alpha-icon-lg" 
 					   	   onClick="@command('removeFieldGroup',elem=self)"
 					   	   visible="@load(not empty vm.fieldGroup)"/>
 		</toolbar>
@@ -59,10 +59,12 @@
 		  class="alpha-properties">
 		<vlayout class="alpha-properties-content">
         	<label value="${labels.label.name}:"/>
-            <textbox hflex="1"
-            		 value="@bind(vm.fieldGroup.name) @converter(vm.stringConverter)"
-            		 mandatory="true"
-            		 onChange="@command('flagDirty')"/>
+        	<div sclass="groupname-field">
+	            <textbox hflex="1"
+	            		 value="@bind(vm.fieldGroup.name) @converter(vm.stringConverter)"
+	            		 mandatory="true"
+	            		 onChange="@command('flagDirty')"/>
+	        </div>
         </vlayout>
     </east>
 </borderlayout>

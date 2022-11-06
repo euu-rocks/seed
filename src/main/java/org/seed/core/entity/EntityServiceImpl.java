@@ -636,6 +636,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		cleanup(entity);
 		final boolean isInsert = entity.isNew();
 		final Entity currentVersionEntity = !isInsert ? getObject(entity.getId()) : null;
+		boolean configChanged = false;
 		try (Session session = entityRepository.getSession()) {
 			Transaction tx = null;
 			try {
@@ -651,6 +652,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				final ChangeLog changeLog = createChangeLog(currentVersionEntity, entity, session);
 				if (changeLog != null) {
 					session.saveOrUpdate(changeLog);
+					configChanged = true;
 				}
 				tx.commit();
 			}
@@ -662,8 +664,9 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				handleException(tx, ex);
 			}
 		}
-		
-		configuration.updateConfiguration();
+		if (configChanged) {
+			configuration.updateConfiguration();
+		}
 	}
 	
 	@Override

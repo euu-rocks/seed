@@ -75,7 +75,7 @@
 				</tabs>
 				<tabpanels children="@load(vm.tabs)">
 					<template name="children" var="tab">
-						<tabpanel>
+						<tabpanel sclass="@init(tab.testClass.concat('panel'))">
 							<include param="@load(tab.parameter)" 
 					 			 	 src="@load(tab.path)"/>
 						</tabpanel>

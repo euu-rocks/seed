@@ -23,21 +23,21 @@
 		<hbox hflex="1">
 			<toolbar hflex="1">
 				<toolbarbutton mode="toggle" 
-							   iconSclass="z-icon-filter alpha-icon-lg" 
+							   iconSclass="filter-button z-icon-filter alpha-icon-lg" 
 							   tooltiptext="${labels.label.togglefilter}"
 							   checked="@bind(vm.listViewFilterGroup.visible)" 
 							   visible="@load(vm.listViewFilterGroup.visible or vm.existObjects())"/>
-				<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
+				<toolbarbutton iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 							   label="${labels.admin.entity.create}" 
 							   onClick="@command('newEntity')"/>
-				<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+				<toolbarbutton iconSclass="refresh-button z-icon-refresh alpha-icon-lg" 
 							   label="${labels.button.refresh}" 
 							   onClick="@command('refreshEntity')"/>
-				<toolbarbutton iconSclass="z-icon-wrench alpha-icon-lg" 
+				<toolbarbutton iconSclass="edit-button z-icon-wrench alpha-icon-lg" 
 							   label="${labels.admin.entity.edit}" 
 							   onClick="@command('editEntity')"
 							   visible="@load(!empty vm.object)"/>
-				<toolbarbutton iconSclass="z-icon-remove alpha-icon-lg" 
+				<toolbarbutton iconSclass="delete-button z-icon-remove alpha-icon-lg" 
 							   label="${labels.admin.entity.delete}" 
 							   onClick="@command('deleteEntity', elem=self)"
 							   visible="@load(!empty vm.object)"/>
@@ -114,7 +114,8 @@
 		        </auxheader>
 		    </auxhead>
 		    <template name="model" var="entity">
-	            <listitem onDoubleClick="@command('editEntity')">
+	            <listitem sclass="@load(entity.internalName.toLowerCase().concat('-listitem'))" 
+	            		  onDoubleClick="@command('editEntity')">
 	            	<listcell iconSclass="z-icon-table z-icon-fw alpha-icon-lg">
 	            		<label value="@load(entity.name)" style="margin-left:3px"/>
 	            	</listcell>

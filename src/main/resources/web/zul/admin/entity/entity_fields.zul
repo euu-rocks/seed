@@ -22,10 +22,10 @@
 	<north border="0">
 		<toolbar width="100%">
 			<toolbarbutton label="${labels.admin.entity.newfield}" 
-						   iconSclass="z-icon-file-o alpha-icon-lg" 
+						   iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 					   	   onClick="@command('newField')"/>
 			<toolbarbutton label="${labels.admin.entity.removefield}" 
-						   iconSclass="z-icon-remove alpha-icon-lg" 
+						   iconSclass="remove-button z-icon-remove alpha-icon-lg" 
 					   	   onClick="@command('removeField',elem=self)"
 					   	   visible="@load(not empty vm.field)"/>
 		</toolbar>
@@ -80,91 +80,109 @@
 		  class="alpha-properties">
 		<vlayout class="alpha-properties-content">
         	<label value="${labels.label.fieldname}:"/>
-            <textbox hflex="1"
-            		 value="@bind(vm.field.name) @converter(vm.stringConverter)"
-            		 tooltiptext="@load(vm.field.internalName)"
-            		 mandatory="true"
-            		 onChange="@command('flagDirty',notify='field')"/>
-            <label value="${labels.label.columnname}:"/>   		 
-            <textbox hflex="1"
-            		 value="@bind(vm.field.columnName) @converter(vm.stringConverter)"
-            		 placeholder="@load(vm.field.internalName)"
-            		 onChange="@command('flagDirty')"
-            		 instant="true"/>
+        	<div sclass="fieldname-field">
+	            <textbox value="@bind(vm.field.name) @converter(vm.stringConverter)"
+	            		 tooltiptext="@load(vm.field.internalName)"
+	            		 mandatory="true"
+	            		 onChange="@command('flagDirty',notify='field')"
+	            		 hflex="1"/>
+            </div>
+            <label value="${labels.label.columnname}:"/> 
+            <div sclass="columnname-field">  		 
+	            <textbox value="@bind(vm.field.columnName) @converter(vm.stringConverter)"
+	            		 sclass="columnname-field"
+	            		 placeholder="@load(vm.field.internalName)"
+	            		 onChange="@command('flagDirty')"
+	            		 instant="true"
+	            		 hflex="1"/>
+            </div>
             <vlayout visible="@load(!empty vm.object.allFieldGroups)">
 	            <label value="${labels.label.fieldgroup}:"/>
-	            <combobox model="@load(vm.object.allFieldGroups) @template(empty each.name ? 'empty' : 'group')"
-						  selectedItem="@bind(vm.field.fieldGroup)"
-						  value="@load(vm.field.fieldGroup.name)"
-						  onSelect="@command('flagDirty')"
-						  hflex="1">
-					<template name="empty" var="fieldGroup">
-	                    <comboitem/>
-	                </template>
-	                <template name="group" var="fieldGroup">
-	                    <comboitem label="@load(fieldGroup.name)"
-	                    		   iconSclass="z-icon-object-group z-icon-fw alpha-icon-lg"/>
-	                </template>
-	            </combobox>
+	            <div sclass="fieldgroup-field"> 
+		            <combobox model="@load(vm.object.allFieldGroups) @template(empty each.name ? 'empty' : 'group')"
+							  selectedItem="@bind(vm.field.fieldGroup)"
+							  value="@load(vm.field.fieldGroup.name)"
+							  onSelect="@command('flagDirty')"
+							  hflex="1">
+						<template name="empty" var="fieldGroup">
+		                    <comboitem/>
+		                </template>
+		                <template name="group" var="fieldGroup">
+		                    <comboitem label="@load(fieldGroup.name)"
+		                    		   iconSclass="z-icon-object-group z-icon-fw alpha-icon-lg"/>
+		                </template>
+		            </combobox>
+	            </div>
 	        </vlayout> 		 
             <label value="${labels.label.datatype}:"/>
-			<combobox model="@load(vm.fieldTypes)"
-					  mandatory="true"
-					  nullable="@load(vm.field.isNew() or !vm.field.type.isReference())"
-					  selectedItem="@bind(vm.field.type)"
-					  value="@load(vm.getEnumLabel(vm.field.type))"
-					  onSelect="@command('selectFieldType')"
-					  hflex="1">
-                <template name="model" var="fieldType">
-                    <comboitem label="@load(vm.getEnumLabel(fieldType))"/>
-                </template>
-            </combobox> 
+            <div sclass="datatype-field"> 
+				<combobox model="@load(vm.fieldTypes)"
+						  mandatory="true"
+						  nullable="@load(vm.field.isNew() or !vm.field.type.isReference())"
+						  selectedItem="@bind(vm.field.type)"
+						  value="@load(vm.getEnumLabel(vm.field.type))"
+						  onSelect="@command('selectFieldType')"
+						  hflex="1">
+	                <template name="model" var="fieldType">
+	                    <comboitem label="@load(vm.getEnumLabel(fieldType))"/>
+	                </template>
+	            </combobox>
+	        </div>
             <vlayout visible="@load(vm.field.type.isText())">
             	<label value="${labels.label.length}:"/>
-            	<intbox value="@bind(vm.field.length)"
-            			onChange="@command('flagDirty')"
-            			placeholder="@init(vm.maxFieldLength)"/>	
+            	<div sclass="length-field"> 
+	            	<intbox value="@bind(vm.field.length)"
+	            			onChange="@command('flagDirty')"
+	            			placeholder="@init(vm.maxFieldLength)"/>
+	            </div>	
             </vlayout>
             <vlayout visible="@load(vm.field.type.isAutonum())">
             	<hlayout>
             		<label value="${labels.label.pattern}:"/>
             		<helpinfo key="help.autonum.pattern"/>
             	</hlayout>
-            	<textbox hflex="1"
-            		 	 value="@bind(vm.field.autonumPattern)"
-            		 	 onChanging="@command('flagDirty')"/>
+            	<div sclass="autonumpattern-field"> 
+	            	<textbox hflex="1"
+	            		 	 value="@bind(vm.field.autonumPattern)"
+	            		 	 onChanging="@command('flagDirty')"/>
+            	</div>
             	<label value="${labels.label.startvalue}:"/>
-            	<longbox hflex="1"
-            		 	 value="@bind(vm.field.autonumStart)"
-            		 	 onChange="@command('flagDirty')"
-            		 	 placeholder="1"/>
+            	<div sclass="autonumstart-field"> 
+	            	<longbox hflex="1"
+	            		 	 value="@bind(vm.field.autonumStart)"
+	            		 	 onChange="@command('flagDirty')"
+	            		 	 placeholder="1"/>
+	            </div>
             </vlayout>
             <vlayout visible="@load(vm.field.type.isReference())">
             	<label value="${labels.label.refentity}:"/>
-            	<combobox model="@load(vm.referenceEntities) @template(empty each.name ? 'empty' : 'entity')"
-            			  mandatory="true"
-            			  nullable="@load(vm.field.isNew())"
-            			  selectedItem="@bind(vm.field.referenceEntity)"
-            			  value="@load(vm.field.referenceEntity.name)"
-            			  onSelect="@command('selectReferencedEntity')"
-					  	  hflex="1">
-					<template name="empty">
-                    	<comboitem/>
-                	</template>	
-            		<template name="entity" var="refEntity">
-                    	<comboitem label="@init(refEntity.name)"
-                    			   iconSclass="z-icon-table z-icon-fw alpha-icon-lg"/>
-                	</template>	
-            	</combobox>
+            	<div sclass="referenceentity-field"> 
+	            	<combobox model="@load(vm.referenceEntities) @template(empty each.name ? 'empty' : 'entity')"
+	            			  mandatory="true"
+	            			  nullable="@load(vm.field.isNew())"
+	            			  selectedItem="@bind(vm.field.referenceEntity)"
+	            			  value="@load(vm.field.referenceEntity.name)"
+	            			  onSelect="@command('selectReferencedEntity')"
+						  	  hflex="1">
+						<template name="empty">
+	                    	<comboitem/>
+	                	</template>	
+	            		<template name="entity" var="refEntity">
+	                    	<comboitem label="@init(refEntity.name)"
+	                    			   iconSclass="z-icon-table z-icon-fw alpha-icon-lg"/>
+	                	</template>	
+	            	</combobox>
+	            </div>
             </vlayout>
             <vlayout visible="@load(!empty vm.field.type and !vm.field.type.isBoolean())">
             	<space/>
 	       		<label value="${labels.label.options}:"/>	 
 	       		<hlayout visible="@load(!vm.field.calculated)">
-	        		<checkbox checked="@bind(vm.field.mandatory)"
+       				<checkbox sclass="mandatory-field"
+	        				  checked="@bind(vm.field.mandatory)"
 	        				  onCheck="@command('flagDirty')"
 	        				  disabled="@load(vm.field.type.isAutonum())"/>
-	        		<label value="${labels.label.mandatoryfield}"/>
+		        	<label value="${labels.label.mandatoryfield}"/>
 	       		</hlayout>
 	       		<hlayout visible="@load(!vm.field.type.isAutonum() and vm.field.mandatory and vm.existValueObjects() and !vm.isAlreadyMandatory(vm.field))">
 	       			<space/>
@@ -212,33 +230,39 @@
 		       		</vlayout>
 	       		</hlayout>
 	       		<hlayout visible="@load(!(vm.field.calculated or vm.field.type.isBinary() or vm.field.type.isFile()))">
-	        		<checkbox checked="@bind(vm.field.unique)" 
+        			<checkbox sclass="unique-field"
+        					  checked="@bind(vm.field.unique)" 
 	        				  onCheck="@command('flagDirty')"
 	        				  disabled="@load(vm.field.type.isAutonum())"/>
-	        		<label value="${labels.label.unique}"/>
+		        	<label value="${labels.label.unique}"/>
 	       		</hlayout>
 	       		<hlayout visible="@load(!(vm.field.calculated or vm.field.type.isBinary() or vm.field.type.isFile()))">
-	        		<checkbox checked="@bind(vm.field.indexed)" 
+        			<checkbox sclass="indexed-field"
+        					  checked="@bind(vm.field.indexed)" 
 	        				  onCheck="@command('flagDirty')"/>
-	        		<label value="${labels.label.index}"/>
+		        	<label value="${labels.label.index}"/>
 	       		</hlayout>
 	       		<hlayout visible="@load(vm.fullTextSearchAvailable and (vm.field.isTextField() or vm.field.type.isAutonum() or vm.field.type.isReference()))">
-	        		<checkbox checked="@bind(vm.field.fullTextSearch)" 
+        			<checkbox sclass="fulltextsearch-field"
+        					  checked="@bind(vm.field.fullTextSearch)" 
 	        				  onCheck="@command('flagDirty')"/>
-	        		<label value="${labels.label.fulltextsearch}"/>
+		        	<label value="${labels.label.fulltextsearch}"/>
 	       		</hlayout>
 	       		<hlayout visible="@load(!vm.object.isNew() and !(vm.field.type.isAutonum() or vm.field.type.isReference() or vm.field.type.isFile() or vm.field.mandatory or vm.field.unique or vm.field.indexed))">
-	        		<checkbox checked="@bind(vm.field.calculated)" 
+        			<checkbox sclass="calculated-field"
+        					  checked="@bind(vm.field.calculated)" 
 	        				  onCheck="@command('flagDirty')"/>
-	        		<label value="${labels.label.calculated}"/>
+		        	<label value="${labels.label.calculated}"/>
 	       		</hlayout>
 	       		<hlayout visible="@load(vm.field.calculated)">
 	       			<vlayout hflex="1">
 	       				<label value="${labels.label.calculationformula}:"/>
-		       			<textbox value="@bind(vm.field.formula)"
-		       					 onChange="@command('flagDirty')"
-		       					 mandatory="true"
-		       					 hflex="1" rows="3"/>
+	       				<div sclass="formula-field"> 
+			       			<textbox value="@bind(vm.field.formula)"
+			       					 onChange="@command('flagDirty')"
+			       					 mandatory="true"
+			       					 hflex="1" rows="3"/>
+			       		</div>
 		       		</vlayout>
 	       		</hlayout>
 	       	</vlayout>

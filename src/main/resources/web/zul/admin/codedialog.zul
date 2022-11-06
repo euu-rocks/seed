@@ -19,7 +19,9 @@
 -->
 <!DOCTYPE xml>
 <?page contentType="text/html;charset=UTF-8"?>
-<window id="codeDialogWin" width="90%" height="90%" 
+<window id="codeDialogWin"
+	    sclass="code-dialog-win" 
+	    width="90%" height="90%" 
 		viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.CodeDialogViewModel')" 
 		title="${labels.admin.entity.editsource}"
 		mode="modal" sizable="true">
@@ -38,6 +40,7 @@
 			<borderlayout>
 				<center border="0">
 					<codemirror id="codemirror"
+								sclass="content-field"
 								value="@load(vm.content)" 
 								mode="text/x-java" 
 								lineNumbers="true"
@@ -52,11 +55,11 @@
 		</center>
 		<south border="0">
 			<div align="center" style="padding:5px;background-color:#F8F8F8">
-				<button iconSclass="z-icon-check"
+				<button iconSclass="apply-button z-icon-check"
 						label="${labels.button.apply}" 
 						onClick="@command('applyCode',code=codemirror.getText(),elem=self)"/>
 				<space/>
-				<button iconSclass="z-icon-close" 
+				<button iconSclass="cancel-button z-icon-close" 
 						label="${labels.button.cancel}" 
 						onClick="@command('cancel')"/>
 			</div>

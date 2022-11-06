@@ -26,27 +26,31 @@
 	<center border="0" style="padding:5px">
 		<tabbox hflex="1" vflex="1">
 			<tabs>
-				<tab label="${labels.label.statuslist}"/>
-				<tab id="tabTransitions" label="${labels.label.statustransitions}"
+				<tab sclass="status-tab"
+					 label="${labels.label.statuslist}"/>
+				<tab id="tabTransitions" sclass="transitions-tab"
+					 label="${labels.label.statustransitions}"
 					 visible="@load(vm.object.statusList.size() > 1)"/>
-				<tab id="tabTransitionFunctions" label="${labels.label.functions}"	 
+				<tab id="tabTransitionFunctions" sclass="transitionfunctions-tab"
+					 label="${labels.label.functions}"	 
 					 visible="@load(!empty vm.object.statusTransitions and !vm.object.isNew())"
 					 onSelect="@command('selectTransitionDependent')"/>
-				<tab id="tabTransitionPermissions" label="${labels.label.permissions}"
+				<tab id="tabTransitionPermissions" sclass="transitionpermissions-tab" 
+					 label="${labels.label.permissions}"
 					 visible="@load(!empty vm.object.statusTransitions and vm.existUserGroups())"
 					 onSelect="@command('selectTransitionDependent')"/>
 			</tabs>
 			<tabpanels> 
-				<tabpanel>
+				<tabpanel sclass="status-tabpanel">
 					<statusmodel-status/>
 				</tabpanel>
-				<tabpanel fulfill="tabTransitions.onSelect">
+				<tabpanel sclass="transitions-tabpanel" fulfill="tabTransitions.onSelect">
 					<statusmodel-transitions/>
 				</tabpanel>
-				<tabpanel fulfill="tabTransitionFunctions.onSelect">
+				<tabpanel sclass="transitionfunctions-tabpanel" fulfill="tabTransitionFunctions.onSelect">
 					<statusmodel-functions/>
 				</tabpanel>
-				<tabpanel fulfill="tabTransitionPermissions.onSelect">
+				<tabpanel sclass="transitionpermissions-tabpanel" fulfill="tabTransitionPermissions.onSelect">
 					<statusmodel-permissions/>
 				</tabpanel>
 			</tabpanels>

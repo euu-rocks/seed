@@ -30,21 +30,21 @@
 <borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminEntityViewModel')">
 	<north border="0">
 		<toolbar>
-			<toolbarbutton iconSclass="z-icon-arrow-left alpha-icon-lg" 
+			<toolbarbutton iconSclass="back-button z-icon-arrow-left alpha-icon-lg" 
 						   label="${labels.button.back}" 
 						   onClick="@command('back')"/>
-			<toolbarbutton iconSclass="z-icon-save alpha-icon-lg" 
+			<toolbarbutton iconSclass="save-button z-icon-save alpha-icon-lg" 
 						   label="${labels.button.save}" 
 						   onClick="@command('saveEntity',elem=self)"
 						   disabled="@load(!vm.isDirty())"/>
-			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+			<toolbarbutton iconSclass="refresh-button z-icon-refresh alpha-icon-lg" 
 						   label="${labels.button.refresh}" 
 						   onClick="@command('refreshEntity',elem=self)"
 						   visible="@load(!vm.object.isNew())"/>
-			<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
+			<toolbarbutton iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 						   label="${labels.button.newobject}" 
 						   onClick="@command('newEntity')"/>
-			<toolbarbutton iconSclass="z-icon-remove alpha-icon-lg" 
+			<toolbarbutton iconSclass="delete-button z-icon-remove alpha-icon-lg" 
 						   label="${labels.button.delete}" 
 						   onClick="@command('deleteEntity', elem=self)"
 						   visible="@load(!vm.object.isNew())"/>
@@ -66,7 +66,8 @@
 						<cell style="padding: 4px 10px" align="right">
 							<label value="${labels.label.name}:"/>
 						</cell>
-						<cell style="padding: 4px 4px">
+						<cell sclass="name-fieldcell"
+							  style="padding: 4px 4px">
 							<textbox value="@bind(vm.object.name) @converter(vm.stringConverter)"
 									 mandatory="true"
 									 onChange="@command('flagDirty',notifyObject='internalName')"
@@ -79,7 +80,8 @@
 							<label value="${labels.label.generic}:"
 								   visible="@load(vm.object.generic)"/>
 						</cell>
-						<cell style="padding: 4px 4px">
+						<cell sclass="identifiergeneric-fieldcell"
+							  style="padding: 4px 4px">
 							<textbox value="@bind(vm.object.identifierPattern) @converter(vm.stringConverter)" 
 									 visible="@load(!vm.object.generic)"
 									 placeholder="@load(vm.object.defaultIdentifierPattern)"
@@ -90,7 +92,8 @@
 									  visible="@load(vm.object.generic)"
 									  disabled="true"/>   
 						</cell>
-						<cell style="padding: 4px 4px">
+						<cell sclass="audited-fieldcell"
+							  style="padding: 4px 4px">
 							<checkbox checked="@bind(vm.object.audited)"
 									  onCheck="@command('flagDirty')"/> 
 						</cell>
@@ -105,7 +108,8 @@
 							<label value="${labels.label.tablename}:"
 								   visible="@load(vm.object.transferable)"/>
 						</cell>
-						<cell style="padding: 4px 4px">
+						<cell sclass="tablename-fieldcell"
+							  style="padding: 4px 4px">
 							<textbox value="@load(vm.object.genericEntity.name)" 
 									 visible="@load(!vm.object.transferable)"
 									 hflex="1" readonly="true"/>
@@ -122,7 +126,7 @@
 							<label value="${labels.label.masterdata}:"
 								   visible="@load(vm.object.transferable)"/>
 						</cell>
-						<cell>
+						<cell sclass="tablenametransferable-fieldcell">
 							<textbox value="@bind(vm.object.tableName) @converter(vm.stringConverter)"
 									 placeholder="@load(vm.object.internalName.toLowerCase())"
 									 visible="@load(!(vm.object.generic or vm.object.transferable))"
@@ -140,50 +144,58 @@
 			</grid>
 			<tabbox id="mainTabbox" hflex="1" vflex="1" class="alpha-tabbox">
 				<tabs>
-					<tab label="${labels.label.fields}"
+					<tab label="${labels.label.fields}" sclass="fields-tab"
 						 onSelect="@command('selectFieldTab')"/>
-					<tab id="tabFieldGroups" label="${labels.label.fieldgroups}"/>
-					<tab id="tabFunctions" label="${labels.label.functions}"/>
-					<tab id="tabNesteds" label="${labels.label.nesteds}"
+					<tab id="tabFieldGroups" sclass="fieldgroups-tab"
+						 label="${labels.label.fieldgroups}"/>
+					<tab id="tabFunctions" sclass="functions-tab" 
+						 label="${labels.label.functions}"/>
+					<tab id="tabNesteds" sclass="nesteds-tab" 
+						 label="${labels.label.nesteds}"
 						 visible="@load((!(vm.object.generic or vm.object.transferable)) and !empty vm.availableNesteds)"/>
-					<tab id="tabRelations" label="${labels.label.relations}"
+					<tab id="tabRelations" sclass="relations-tab" 
+						 label="${labels.label.relations}"
 						 visible="@load(!vm.object.transferable and !empty vm.relationEntities)"/>	 
-					<tab id="tabFieldConstraints" label="${labels.label.fieldconstraints}"
+					<tab id="tabFieldConstraints" sclass="constraints-tab" 
+						 label="${labels.label.fieldconstraints}"
 						 visible="@load(!empty vm.object.fields and !vm.object.transferable and (vm.existUserGroups() or !empty vm.object.statusList))"
 						 onSelect="@command('selectConstraintTab')"/>
-					<tab id="tabStatusmodel" label="${labels.label.statusmodel}"
+					<tab id="tabStatusmodel" sclass="statusmodel-tab" 
+						 label="${labels.label.statusmodel}"
 						 visible="@load(!(vm.object.generic or vm.object.transferable))"/>
-					<tab id="tabCallbackFunctions" label="${labels.label.callbackfunctions}"
+					<tab id="tabCallbackFunctions" sclass="callbackfunctions-tab"
+						 label="${labels.label.callbackfunctions}"
 						 visible="@load(!(vm.object.isNew() or vm.object.generic or vm.object.transferable))"/>
-					<tab id="tabPermissions" label="${labels.label.permissions}"
+					<tab id="tabPermissions" sclass="permissions-tab" 
+						 label="${labels.label.permissions}"
 						 visible="@init(vm.existUserGroups() and !(vm.object.generic or vm.object.transferable))"/>
 				</tabs>
 				<tabpanels> 
-					<tabpanel>
+					<tabpanel sclass="fields-tabpanel">
 						<entity-fields/>
 					</tabpanel>
-					<tabpanel fulfill="tabFieldGroups.onSelect">
+					<tabpanel sclass="fieldgroups-tabpanel" fulfill="tabFieldGroups.onSelect">
 						<entity-fieldgroups/>
 					</tabpanel>
-					<tabpanel fulfill="tabFunctions.onSelect">
+					<tabpanel sclass="functions-tabpanel" fulfill="tabFunctions.onSelect">
 						<entity-functions/>
 					</tabpanel>
-					<tabpanel fulfill="tabNesteds.onSelect">
+					<tabpanel sclass="nesteds-tabpanel" fulfill="tabNesteds.onSelect">
 						<entity-nesteds/>
 					</tabpanel>
-					<tabpanel fulfill="tabRelations.onSelect">
+					<tabpanel sclass="relations-tabpanel" fulfill="tabRelations.onSelect">
 						<entity-relations/>
 					</tabpanel>
-					<tabpanel fulfill="tabFieldConstraints.onSelect">
+					<tabpanel sclass="constraints-tabpanel" fulfill="tabFieldConstraints.onSelect">
 						<entity-fieldconstraints/>
 					</tabpanel>
-					<tabpanel fulfill="tabStatusmodel.onSelect">
+					<tabpanel sclass="statusmodel-tabpanel" fulfill="tabStatusmodel.onSelect">
 						<entity-statusmodel/>
 					</tabpanel>
-					<tabpanel fulfill="tabCallbackFunctions.onSelect">
+					<tabpanel sclass="callbackfunctions-tabpanel" fulfill="tabCallbackFunctions.onSelect">
 						<entity-callbackfunctions/>
 					</tabpanel>
-					<tabpanel fulfill="tabPermissions.onSelect">
+					<tabpanel sclass="permissions-tabpanel" fulfill="tabPermissions.onSelect">
 						<entity-permissions/>
 					</tabpanel>
 				</tabpanels>

@@ -23,10 +23,10 @@
 		<hbox hflex="1">
 			<toolbar hflex="1">
 				<toolbarbutton label="${labels.admin.entity.newstatus}" 
-							   iconSclass="z-icon-file-o alpha-icon-lg" 
+							   iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 						   	   onClick="@command('newStatus')"/>
 				<toolbarbutton label="${labels.admin.entity.removestatus}" 
-							   iconSclass="z-icon-remove alpha-icon-lg" 
+							   iconSclass="remove-button z-icon-remove alpha-icon-lg" 
 						   	   onClick="@command('removeStatus',elem=self)"
 						   	   visible="@load(not empty vm.status)"/>
 			</toolbar>
@@ -73,22 +73,28 @@
 		  class="alpha-properties">
 		<vlayout class="alpha-properties-content">
         	<label value="${labels.label.statusname}:"/>
-            <textbox mandatory="true" hflex="1"
-               		 value="@bind(vm.status.name) @converter(vm.stringConverter)"
-               		 onChange="@command('flagDirty')"/>
+        	<div sclass="statusname-field">
+	            <textbox mandatory="true" hflex="1"
+	               		 value="@bind(vm.status.name) @converter(vm.stringConverter)"
+	               		 onChange="@command('flagDirty')"/>
+            </div>
             <label value="${labels.label.statusnumber}:"/>
-			<intbox mandatory="true" cols="4"
-               		value="@bind(vm.status.statusNumber)"
-               		onChange="@command('flagDirty')"/>
+            <div sclass="statusnumber-field">
+				<intbox mandatory="true" cols="4"
+	               		value="@bind(vm.status.statusNumber)"
+	               		onChange="@command('flagDirty')"/>
+            </div>
             <hlayout style="margin-top:8px;margin-bottom:8px">
 	            <checkbox checked="@bind(vm.status.initial)" 
 		        		  onCheck="@command('flagDirty')"/>
 		        <label value="${labels.label.initialstate}:"/>
 	        </hlayout>
 	        <label value="${labels.label.description}:"/>
-            <textbox hflex="1" rows="5"
-               		 value="@bind(vm.status.description) @converter(vm.stringConverter)"
-               		 onChanging="@command('flagDirty')"/>
+	        <div sclass="description-field">
+	            <textbox hflex="1" rows="5"
+	               		 value="@bind(vm.status.description) @converter(vm.stringConverter)"
+	               		 onChanging="@command('flagDirty')"/>
+            </div>
        	</vlayout>
 	</east>
 </borderlayout>

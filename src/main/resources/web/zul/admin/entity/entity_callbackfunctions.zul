@@ -22,10 +22,10 @@
 	<north border="0">
 		<toolbar width="100%">
 			<toolbarbutton label="${labels.admin.entity.newfunction}" 
-						   iconSclass="z-icon-file-o alpha-icon-lg" 
+						   iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 					   	   onClick="@command('newCallbackFunction')"/>
 			<toolbarbutton label="${labels.admin.entity.removefunction}" 
-						   iconSclass="z-icon-remove alpha-icon-lg" 
+						   iconSclass="remove-button z-icon-remove alpha-icon-lg" 
 					   	   onClick="@command('removeCallbackFunction',elem=self)"
 					   	   visible="@load(not empty vm.callbackFunction)"/>
 		</toolbar>
@@ -66,62 +66,75 @@
 		  class="alpha-properties">
 		<vlayout class="alpha-properties-content" hflex="1">
 			<label value="${labels.label.functionname}:"/>
-            <textbox hflex="1"
-            		 value="@bind(vm.callbackFunction.name)"
-            		 mandatory="true"
-            		 onChange="@command('flagDirty')"/>
+			<div sclass="functionname-field">
+	            <textbox hflex="1"
+	            		 value="@bind(vm.callbackFunction.name)"
+	            		 mandatory="true"
+	            		 onChange="@command('flagDirty')"/>
+	       	</div>
             <button label="${labels.admin.entity.editsource}..."
+            		sclass="editfunction-button"
             		onClick="@command('editCallbackFunction',elem=self)"
             		disabled="@load(empty vm.callbackFunction.name)"
             		style="margin-top:8px;margin-bottom:8px"/>
             <label value="${labels.admin.entity.functiontrigger}:"/>
 	        <hlayout>
-        		<checkbox checked="@bind(vm.callbackFunction.activeOnCreate)" 
+        		<checkbox sclass="activeoncreate-field"
+        				  checked="@bind(vm.callbackFunction.activeOnCreate)" 
         				  onCheck="@command('flagDirty')"/>
         		<label value="${labels.trigger.oncreate}"/>
        		</hlayout>
        		<hlayout>
-        		<checkbox checked="@bind(vm.callbackFunction.activeOnModify)" 
+        		<checkbox sclass="activeonmodify-field"
+        				  checked="@bind(vm.callbackFunction.activeOnModify)" 
         				  onCheck="@command('flagDirty')"/>
         		<label value="${labels.trigger.onmodify}"/>
        		</hlayout>
        		<hlayout>
-        		<checkbox checked="@bind(vm.callbackFunction.activeOnStatusTransition)" 
+        		<checkbox sclass="activeontransition-field"
+        				  checked="@bind(vm.callbackFunction.activeOnStatusTransition)" 
         				  onCheck="@command('flagDirty')"/>
         		<label value="${labels.trigger.onstatustransition}"/>
        		</hlayout>
        	    <hlayout>
-        		<checkbox checked="@bind(vm.callbackFunction.activeBeforeInsert)" 
+        		<checkbox sclass="activebeforeinsert-field"
+        				  checked="@bind(vm.callbackFunction.activeBeforeInsert)" 
         				  onCheck="@command('flagDirty')"/>
         		<label value="${labels.trigger.beforeinsert}"/>
        		</hlayout>
        		<hlayout>
-        		<checkbox checked="@bind(vm.callbackFunction.activeAfterInsert)" 
+        		<checkbox sclass="activeafterinsert-field"
+        				  checked="@bind(vm.callbackFunction.activeAfterInsert)" 
         				  onCheck="@command('flagDirty')"/>
         		<label value="${labels.trigger.afterinsert}"/>
        		</hlayout>
        		<hlayout>
-        		<checkbox checked="@bind(vm.callbackFunction.activeBeforeUpdate)" 
+        		<checkbox sclass="activebeforeupdate-field"
+        				  checked="@bind(vm.callbackFunction.activeBeforeUpdate)" 
         				  onCheck="@command('flagDirty')"/>
         		<label value="${labels.trigger.beforeupdate}"/>
        		</hlayout>
        		<hlayout>
-        		<checkbox checked="@bind(vm.callbackFunction.activeAfterUpdate)" 
+        		<checkbox sclass="activeafterupdate-field"
+        				  checked="@bind(vm.callbackFunction.activeAfterUpdate)" 
         				  onCheck="@command('flagDirty')"/>
         		<label value="${labels.trigger.afterupdate}"/>
        		</hlayout>
        		<hlayout>
-        		<checkbox checked="@bind(vm.callbackFunction.activeBeforeDelete)" 
+        		<checkbox sclass="activebeforedelete-field"
+        				  checked="@bind(vm.callbackFunction.activeBeforeDelete)" 
         				  onCheck="@command('flagDirty')"/>
         		<label value="${labels.trigger.beforedelete}"/>
        		</hlayout>
        		<hlayout>
-        		<checkbox checked="@bind(vm.callbackFunction.activeAfterDelete)" 
+        		<checkbox sclass="activeafterdelete-field"
+        				  checked="@bind(vm.callbackFunction.activeAfterDelete)" 
         				  onCheck="@command('flagDirty')"/>
         		<label value="${labels.trigger.afterdelete}"/>
        		</hlayout>
        		<hlayout>
-        		<checkbox checked="@bind(vm.callbackFunction.activeOnUserAction)" 
+        		<checkbox sclass="activeonuseraction-field"
+        				  checked="@bind(vm.callbackFunction.activeOnUserAction)" 
         				  onCheck="@command('flagDirty')"/>
         		<label value="${labels.trigger.useraction}"/>
        		</hlayout>	
