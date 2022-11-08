@@ -26,10 +26,11 @@
 					 model="@load(vm.getListManagerList('users',0))"
 					 droppable="true" onDrop="@command('dropToUserList',item=event.dragged.attributes.item,list=0)"
 					 hflex="1" vflex="1"
-					 class="alpha-noborder alpha-nobg" 
+					 class="available-items alpha-noborder alpha-nobg" 
 					 oddRowSclass="non-odd">
 				<template name="model" var="user">
-					<listitem attributes.item="@init(user)" 
+					<listitem sclass="@init(user.internalName.toLowerCase().concat('-item'))"
+							  attributes.item="@init(user)" 
 							  draggable="true" droppable="true" 
 	 						  onDrop="@command('insertToUserList',item=event.dragged.attributes.item,base=user,list=0)">
 						<listcell label="@init(user.name)" 
@@ -45,11 +46,12 @@
 			<listbox mold="paging" autopaging="true" 
 					 model="@load(vm.getListManagerList('users',1))"
 					 droppable="true" onDrop="@command('dropToUserList',item=event.dragged.attributes.item,list=1)"
-					 class="alpha-noborder alpha-nobg"
+					 class="selected-items alpha-noborder alpha-nobg"
 					 hflex="1" vflex="1"
 					 oddRowSclass="non-odd">
 				<template name="model" var="user">
-					<listitem attributes.item="@init(user)" 
+					<listitem sclass="@init(user.internalName.toLowerCase().concat('-item'))"
+							  attributes.item="@init(user)" 
 							  draggable="true" droppable="true" 
 							  onDrop="@command('insertToUserList',item=event.dragged.attributes.item,base=user,list=1)">
 						<listcell label="@init(user.name)" 

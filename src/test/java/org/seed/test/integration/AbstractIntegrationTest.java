@@ -24,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 
@@ -31,10 +32,11 @@ public abstract class AbstractIntegrationTest {
 	
 	private static final String TEST_BROWSER = "firefox";
 	
-	private static final long DELAY_AFTER_LOGIN		   = 1000;
-	private static final long DELAY_AFTER_CLICK_MENU   = 300;
-	private static final long DELAY_AFTER_OPEN_MENU	   = 100;
-	private static final long DELAY_AFTER_CLICK_BUTTON = 100;
+	private static final long DELAY_AFTER_LOGIN			= 1000;
+	private static final long DELAY_AFTER_CLICK_MENU	= 300;
+	private static final long DELAY_AFTER_OPEN_MENU		= 100;
+	private static final long DELAY_AFTER_CLICK_BUTTON	= 100;
+	private static final long DELAY_AFTER_DRAG_AND_DROP	= 100;
 	
 	private static final String SEED_URL  = "http://localhost:8080"; //NOSONAR
 	private static final String SEED_NAME = "Seed";
@@ -159,6 +161,13 @@ public abstract class AbstractIntegrationTest {
 	
 	protected WebElement findValidationMessage() {
 		return findByClass("z-icon-exclamation-circle");
+	}
+	
+	protected void dragAndDrop(WebElement parent, String itemName, String listName) {
+		final WebElement itemElement = parent.findElement(By.className(itemName + "-item"));
+		final WebElement listElement = parent.findElement(By.className(listName + "-items"));
+		new Actions(driver).dragAndDrop(itemElement, listElement).build().perform();
+		pause(DELAY_AFTER_DRAG_AND_DROP);
 	}
 	
 	protected void pause(long ms) {

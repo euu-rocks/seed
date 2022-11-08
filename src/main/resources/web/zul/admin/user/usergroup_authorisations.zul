@@ -27,10 +27,11 @@
 					 droppable="true" 
 					 onDrop="@command('dropToAuthorisationList',item=event.dragged.attributes.item,list=0)"
 					 hflex="1" vflex="1"
-					 class="alpha-noborder alpha-nobg" 
+					 class="available-items alpha-noborder alpha-nobg" 
 					 oddRowSclass="non-odd">
 				<template name="model" var="authorisation">
-					<listitem attributes.item="@init(authorisation)" 
+					<listitem sclass="@init(authorisation.authorisation.name().toLowerCase().replace('_','-').concat('-item'))"
+							  attributes.item="@init(authorisation)" 
 							  draggable="@load(!vm.object.systemGroup)" 
 							  droppable="true" 
 	 						  onDrop="@command('insertToAuthorisationList',item=event.dragged.attributes.item,base=authorisation,list=0)">
@@ -49,11 +50,12 @@
 					 disabled="@load(vm.object.systemGroup)"
 					 droppable="true" 
 					 onDrop="@command('dropToAuthorisationList',item=event.dragged.attributes.item,list=1)"
-					 class="alpha-noborder alpha-nobg"
+					 class="selected-items alpha-noborder alpha-nobg"
 					 hflex="1" vflex="1"
 					 oddRowSclass="non-odd">
 				<template name="model" var="authorisation">
-					<listitem attributes.item="@init(authorisation)" 
+					<listitem sclass="@init(authorisation.authorisation.name().toLowerCase().replace('_','-').concat('-item'))"
+							  attributes.item="@init(authorisation)" 
 							  draggable="@load(!vm.object.systemGroup)" 
 							  droppable="true" 
 							  onDrop="@command('insertToAuthorisationList',item=event.dragged.attributes.item,base=authorisation,list=1)">

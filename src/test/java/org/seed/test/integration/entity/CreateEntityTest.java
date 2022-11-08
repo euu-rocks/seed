@@ -28,7 +28,7 @@ import org.openqa.selenium.WebElement;
 import org.seed.test.integration.AbstractIntegrationTest;
 
 @TestMethodOrder(OrderAnnotation.class)
-class CreateEntityTest extends AbstractIntegrationTest {
+public class CreateEntityTest extends AbstractIntegrationTest {
 	
 	@Test
 	@Order(1)

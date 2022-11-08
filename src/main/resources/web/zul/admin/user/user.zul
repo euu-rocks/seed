@@ -22,25 +22,25 @@
 <borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminUserViewModel')">
 	<north border="0">
 		<toolbar>
-			<toolbarbutton iconSclass="z-icon-arrow-left alpha-icon-lg" 
+			<toolbarbutton iconSclass="back-button z-icon-arrow-left alpha-icon-lg" 
 						   label="${labels.button.back}" 
 						   onClick="@command('back')"/>
-			<toolbarbutton iconSclass="z-icon-save alpha-icon-lg" 
+			<toolbarbutton iconSclass="save-button z-icon-save alpha-icon-lg" 
 						   label="${labels.button.save}" 
 						   onClick="@command('saveUser',elem=self)"
 						   disabled="@load(!vm.isDirty())"/>
-			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+			<toolbarbutton iconSclass="refresh-button z-icon-refresh alpha-icon-lg" 
 						   label="${labels.button.refresh}" 
 						   onClick="@command('refreshUser',elem=self)"
 						   visible="@load(!vm.object.isNew())"/>
-			<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
+			<toolbarbutton iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 						   label="${labels.button.newobject}" 
 						   onClick="@command('newUser')"/>
-			<toolbarbutton iconSclass="z-icon-remove alpha-icon-lg" 
+			<toolbarbutton iconSclass="remove-button z-icon-remove alpha-icon-lg" 
 						   label="${labels.button.delete}" 
 						   onClick="@command('deleteUser', elem=self)"
 						   visible="@load(!vm.object.isNew())"/>
-			<toolbarbutton iconSclass="z-icon-key alpha-icon-lg" 
+			<toolbarbutton iconSclass="setpwd-button z-icon-key alpha-icon-lg" 
 						   label="${labels.admin.user.setpwd}" 
 						   onClick="@command('setPwd', elem=self)"
 						   visible="@load(!vm.object.isNew())"/>
@@ -60,7 +60,8 @@
 						<cell style="padding: 4px 10px" align="right">
 							<label value="${labels.label.username}:"/>
 						</cell>
-						<cell style="padding: 4px 4px">
+						<cell sclass="username-fieldcell"
+							  style="padding: 4px 4px">
 							<textbox value="@bind(vm.object.name) @converter(vm.stringConverter)"
 									 mandatory="true"
 									 onChange="@command('flagDirty')"
@@ -69,7 +70,8 @@
 						<cell style="padding: 4px 10px" align="right">
 							<label value="${labels.label.email}:"/>
 						</cell>
-						<cell style="padding: 4px 4px">
+						<cell sclass="email-fieldcell"
+							  style="padding: 4px 4px">
 							<textbox value="@bind(vm.object.email) @converter(vm.stringConverter)"
 									 mandatory="true"
 									 onChange="@command('flagDirty')"
@@ -81,7 +83,8 @@
 						<cell style="padding: 4px 10px" align="right">
 							<label value="${labels.label.firstname}:"/>
 						</cell>
-						<cell style="padding: 4px 4px">
+						<cell sclass="firstname-fieldcell"
+							  style="padding: 4px 4px">
 							<textbox value="@bind(vm.object.firstname) @converter(vm.stringConverter)"
 									 onChange="@command('flagDirty')"
 									 hflex="1"/> 
@@ -89,7 +92,8 @@
 						<cell style="padding: 4px 10px" align="right">
 							<label value="${labels.label.lastname}:"/>
 						</cell>
-						<cell style="padding: 4px 4px">
+						<cell sclass="lastname-fieldcell"
+							  style="padding: 4px 4px">
 							<textbox value="@bind(vm.object.lastname) @converter(vm.stringConverter)"
 									 onChange="@command('flagDirty')"
 									 hflex="1"/>

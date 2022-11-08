@@ -148,7 +148,7 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 		final boolean isInsert = user.isNew();
 		final UserMetadata userMeta = (UserMetadata) user;
 		// password change
-		if (userMeta.isPasswordChange()) {
+		if (user.getName() != null && userMeta.isPasswordChange()) {
 			pwd = user.getPassword() != null 
 					? user.getPassword() 
 					: user.getName();
