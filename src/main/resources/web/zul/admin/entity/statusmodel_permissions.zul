@@ -54,10 +54,11 @@
 					 droppable="true" oddRowSclass="non-odd"
 					 onDrop="@command('dropToStatusPermissionList',item=event.dragged.attributes.item,list=0)"
 					 mold="paging" autopaging="true"
-					 class="alpha-noborder alpha-nobg"
+					 class="available-items alpha-noborder alpha-nobg"
 					 hflex="1" vflex="1">
 				<template name="model" var="permission">
-					<listitem attributes.item="@init(permission)" 
+					<listitem sclass="@init(permission.userGroup.internalName.toLowerCase().concat('-item'))"
+							  attributes.item="@init(permission)" 
 							  draggable="true" droppable="true" 
 	 						  onDrop="@command('insertToStatusPermissionList',item=event.dragged.attributes.item,base=permission,list=0)">
 						<listcell label="@init(permission.userGroup.name)" 
@@ -74,10 +75,11 @@
 					 droppable="true" oddRowSclass="non-odd"
 					 onDrop="@command('dropToStatusPermissionList',item=event.dragged.attributes.item,list=1)"
 					 mold="paging" autopaging="true"
-					 class="alpha-noborder alpha-nobg"
+					 class="selected-items alpha-noborder alpha-nobg"
 					 hflex="1" vflex="1">
 				<template name="model" var="permission">
-					<listitem attributes.item="@init(permission)" 
+					<listitem sclass="@init(permission.userGroup.internalName.toLowerCase().concat('-item'))"
+							  attributes.item="@init(permission)" 
 							  draggable="true" droppable="true" 
 							  onDrop="@command('insertToStatusPermissionList',item=event.dragged.attributes.item,base=permission,list=1)">
 						<listcell label="@init(permission.userGroup.name)" 

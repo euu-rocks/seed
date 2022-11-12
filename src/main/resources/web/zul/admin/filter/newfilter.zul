@@ -19,9 +19,11 @@
 -->
 <!DOCTYPE xml>
 <?page contentType="text/html;charset=UTF-8"?>
-<window id="newFilterWin" width="350px" title="${labels.admin.create.filter}"
+<window id="newFilterWin" 
+		sclass="new-filter-win"
+		title="${labels.admin.create.filter}"
 		viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminFilterViewModel')" 
-		mode="modal" closable="true">
+		width="350px" mode="modal" closable="true">
 	<div class="alpha-dialog">
 		<grid class="alpha-noborder">
             <columns>
@@ -33,7 +35,7 @@
                 	<cell align="right">
                 		<label value="${labels.label.entity}:"/>
                 	</cell>
-                	<cell>
+                	<cell sclass="entity-fieldcell">
 	                	<combobox model="@init(vm.entities) @template(empty each.name ? 'empty' : 'entity')" 
 	                			  selectedItem="@bind(vm.object.entity)"
 	                			  mandatory="true"
@@ -78,11 +80,11 @@
 			</rows>
 		</grid>
 		<div class="alpha-dialog-footer">
-			<button iconSclass="z-icon-check" 
+			<button iconSclass="create-button z-icon-check" 
 					label="${labels.button.create}" 
 					onClick="@command('createFilter',elem=self)"/>
 			<space/>
-			<button iconSclass="z-icon-close" 
+			<button iconSclass="close-button z-icon-close" 
 					label="${labels.button.cancel}" 
 					onClick="@command('cancel')"/>
 		</div>

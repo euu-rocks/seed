@@ -22,10 +22,10 @@
 	<north border="0">
 		<toolbar width="100%">
 			<toolbarbutton label="${labels.admin.filter.newcriterion}" 
-						   iconSclass="z-icon-file-o alpha-icon-lg" 
+						   iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 					   	   onClick="@command('newCriterion')"/>
 			<toolbarbutton label="${labels.admin.filter.removecriterion}" 
-						   iconSclass="z-icon-remove alpha-icon-lg" 
+						   iconSclass="remove-button z-icon-remove alpha-icon-lg" 
 					   	   onClick="@command('removeCriterion',elem=self)"
 					   	   visible="@load(not empty vm.criterion)"/>
 		</toolbar>
@@ -76,94 +76,118 @@
 		<vlayout class="alpha-properties-content">
 			<vlayout visible="@load(!empty vm.object.entity.nesteds)">
 				<label value="${labels.label.nested}:"/>
-				<combobox model="@load(vm.object.entity.nesteds) @template(empty each.name ? 'empty' : 'nested')"
-						  selectedItem="@bind(vm.nested)"
-						  value="@load(vm.nested.name)"
-						  onSelect="@command('selectNested')"
-						  hflex="1">
-					<template name="empty">
-	                	<comboitem/>
-	              	</template>
-					<template name="nested" var="nested">
-	                	<comboitem label="@init(nested.name)"
-	                			   iconSclass="z-icon-sitemap z-icon-fw alpha-icon-lg"/>
-	              	</template>
-				</combobox>
+				<div sclass="nested-field">
+					<combobox model="@load(vm.object.entity.nesteds) @template(empty each.name ? 'empty' : 'nested')"
+							  selectedItem="@bind(vm.nested)"
+							  value="@load(vm.nested.name)"
+							  onSelect="@command('selectNested')"
+							  hflex="1">
+						<template name="empty">
+		                	<comboitem/>
+		              	</template>
+						<template name="nested" var="nested">
+		                	<comboitem label="@init(nested.name)"
+		                			   iconSclass="z-icon-sitemap z-icon-fw alpha-icon-lg"/>
+		              	</template>
+					</combobox>
+				</div>
 			</vlayout>
 			<label value="${labels.label.field}:"/>
-			<combobox model="@load(vm.getFilterElements(vm.nested)) @template(each.reference ? 'reference' : each.field ? 'field' : 'empty')" 
-           			  selectedItem="@bind(vm.criterion.element)"
-           			  value="@load(vm.getElementName(vm.criterion.element))"
-           			  onSelect="@command('flagDirty')"
-           			  mandatory="true"
-           			  hflex="1">
-           		<template name="empty">
-                	<comboitem/>
-             	</template>
-             	<template name="field" var="element">
-                	<comboitem label="@load(vm.getElementName(element))"
-                			   iconSclass="z-icon-font z-icon-fw alpha-icon-lg"/>
-             	</template>
-             	<template name="reference" var="element">
-                	<comboitem label="@load(vm.getElementName(element))"
-                			   iconSclass="z-icon-share z-icon-fw alpha-icon-lg"/>
-             	</template>
-			</combobox>
+			<div sclass="field-field">
+				<combobox model="@load(vm.getFilterElements(vm.nested)) @template(each.reference ? 'reference' : each.field ? 'field' : 'empty')" 
+	           			  selectedItem="@bind(vm.criterion.element)"
+	           			  value="@load(vm.getElementName(vm.criterion.element))"
+	           			  onSelect="@command('flagDirty')"
+	           			  mandatory="true"
+	           			  hflex="1">
+	           		<template name="empty">
+	                	<comboitem/>
+	             	</template>
+	             	<template name="field" var="element">
+	                	<comboitem label="@load(vm.getElementName(element))"
+	                			   iconSclass="z-icon-font z-icon-fw alpha-icon-lg"/>
+	             	</template>
+	             	<template name="reference" var="element">
+	                	<comboitem label="@load(vm.getElementName(element))"
+	                			   iconSclass="z-icon-share z-icon-fw alpha-icon-lg"/>
+	             	</template>
+				</combobox>
+			</div>
 			<label value="${labels.label.operator}:"/>
-			<combobox model="@load(vm.getOperators(vm.criterion.element))" 
-           			  selectedItem="@bind(vm.criterion.operator)"
-           			  value="@load(vm.getEnumLabel(vm.criterion.operator))"
-           			  onSelect="@command('flagDirty',notify='criterion')"
-           			  mandatory="true"
-           			  hflex="1">
-           		<template name="model" var="operator">
-                	<comboitem label="@init(vm.getEnumLabel(operator))"/>
-             	</template>
-			</combobox>
+			<div sclass="operator-field">
+				<combobox model="@load(vm.getOperators(vm.criterion.element))" 
+	           			  selectedItem="@bind(vm.criterion.operator)"
+	           			  value="@load(vm.getEnumLabel(vm.criterion.operator))"
+	           			  onSelect="@command('flagDirty',notify='criterion')"
+	           			  onBlur="@command('flagDirty',notify='criterion')"
+	           			  mandatory="true"
+	           			  hflex="1">
+	           		<template name="model" var="operator">
+	                	<comboitem label="@init(vm.getEnumLabel(operator))"/>
+	             	</template>
+				</combobox>
+			</div>
 			<vlayout visible="@load(!empty vm.criterion.element and vm.criterion.needsValue())">
 				<label value="${labels.label.value}:"/>
-				<textbox visible="@load(vm.criterion.element.type.isText() or vm.criterion.element.type.isTextLong())"
-	    				 value="@bind(vm.criterion.stringValue)"
-	    				 onChange="@command('flagDirty',notify='criterion')"
-	    				 mandatory="true" hflex="1"/>
-	    		<checkbox visible="@load(vm.criterion.element.type.isBoolean())"
+				<div sclass="stringvalue-field">
+					<textbox visible="@load(vm.criterion.element.type.isText() or vm.criterion.element.type.isTextLong())"
+		    				 value="@bind(vm.criterion.stringValue)"
+		    				 onChange="@command('flagDirty',notify='criterion')"
+		    				 mandatory="true" hflex="1"/>
+	    		</div>
+	    		<checkbox sclass="booleanvalue-field"
+	    				  visible="@load(vm.criterion.element.type.isBoolean())"
 	    				  checked="@bind(vm.criterion.booleanValue)"
-	    				  onCheck="@command('flagDirty',notify='criterion')"/>		 
-	    		<intbox visible="@load(vm.criterion.element.type.isInteger())"
-	    				value="@bind(vm.criterion.integerValue)"
-	    				onChange="@command('flagDirty',notify='criterion')"
-	    				mandatory="true" hflex="1"/>
-	    		<longbox visible="@load(vm.criterion.element.type.isLong())"
-	    				 value="@bind(vm.criterion.longValue)"
-	    				 onChange="@command('flagDirty',notify='criterion')"
-	    				 mandatory="true" hflex="1"/>
-	    		<datebox visible="@load(vm.criterion.element.type.isDate())"
-	    				 value="@bind(vm.criterion.dateValue)"
-	    				 onChange="@command('flagDirty',notify='criterion')"
-	    				 mandatory="true" hflex="1"/>
-	    		<datebox visible="@load(vm.criterion.element.type.isDateTime())"
-	    				 value="@bind(vm.criterion.dateTimeValue)"
-	    				 onChange="@command('flagDirty',notify='criterion')"
-	    				 format="medium+medium"
-	    				 mandatory="true" hflex="1"/>		 
-	    		<decimalbox visible="@load(vm.criterion.element.type.isDecimal())"
-	    					value="@bind(vm.criterion.decimalValue)"
-	    					onChange="@command('flagDirty',notify='criterion')"
-	    					mandatory="true" hflex="1"/>		 
-	    		<doublebox visible="@load(vm.criterion.element.type.isDouble())"
-	    				   value="@bind(vm.criterion.doubleValue)"
-	    				   onChange="@command('flagDirty',notify='criterion')"
-	    				   mandatory="true" hflex="1"/>		 
-	    		<combobox visible="@load(vm.criterion.element.type.isReference())"
-	    				  model="@load(vm.getReferenceValues(vm.criterion.element))"
-	    				  selectedItem="@bind(vm.criterion.reference)"
-	    				  value="@load(vm.getReferenceValue(vm.criterion))"
-	    				  onSelect="@command('flagDirty',notify='getReferenceValue')"
-	    				  mandatory="true" hflex="1">
-	    			<template name="model" var="obj">
-	    				<comboitem label="@load(vm.getReferenceValue(obj, vm.criterion.element))"/>
-	    			</template>
-	    		</combobox>
+	    				  onCheck="@command('flagDirty',notify='criterion')"/>
+	    		<div sclass="integervalue-field">		 
+		    		<intbox visible="@load(vm.criterion.element.type.isInteger())"
+		    				value="@bind(vm.criterion.integerValue)"
+		    				onChange="@command('flagDirty',notify='criterion')"
+		    				mandatory="true" hflex="1"/>
+	    		</div>
+	    		<div sclass="longvalue-field">
+		    		<longbox visible="@load(vm.criterion.element.type.isLong())"
+		    				 value="@bind(vm.criterion.longValue)"
+		    				 onChange="@command('flagDirty',notify='criterion')"
+		    				 mandatory="true" hflex="1"/>
+		    	</div>
+		    	<div sclass="datevalue-field">
+		    		<datebox visible="@load(vm.criterion.element.type.isDate())"
+		    				 value="@bind(vm.criterion.dateValue)"
+		    				 onChange="@command('flagDirty',notify='criterion')"
+		    				 mandatory="true" hflex="1"/>
+		    	</div>
+		    	<div sclass="datetimevalue-field">
+		    		<datebox visible="@load(vm.criterion.element.type.isDateTime())"
+		    				 value="@bind(vm.criterion.dateTimeValue)"
+		    				 onChange="@command('flagDirty',notify='criterion')"
+		    				 format="medium+medium"
+		    				 mandatory="true" hflex="1"/>
+	    		</div>
+	    		<div sclass="decimalvalue-field">	 
+		    		<decimalbox visible="@load(vm.criterion.element.type.isDecimal())"
+		    					value="@bind(vm.criterion.decimalValue)"
+		    					onChange="@command('flagDirty',notify='criterion')"
+		    					mandatory="true" hflex="1"/>
+	    		</div>
+	    		<div sclass="doublevalue-field">	 
+		    		<doublebox visible="@load(vm.criterion.element.type.isDouble())"
+		    				   value="@bind(vm.criterion.doubleValue)"
+		    				   onChange="@command('flagDirty',notify='criterion')"
+		    				   mandatory="true" hflex="1"/>
+		    	</div>
+		    	<div sclass="referencevalue-field">
+		    		<combobox visible="@load(vm.criterion.element.type.isReference())"
+		    				  model="@load(vm.getReferenceValues(vm.criterion.element))"
+		    				  selectedItem="@bind(vm.criterion.reference)"
+		    				  value="@load(vm.getReferenceValue(vm.criterion))"
+		    				  onSelect="@command('flagDirty',notify='getReferenceValue')"
+		    				  mandatory="true" hflex="1">
+		    			<template name="model" var="obj">
+		    				<comboitem label="@load(vm.getReferenceValue(obj, vm.criterion.element))"/>
+		    			</template>
+		    		</combobox>
+		    	</div>
 	    	</vlayout>
 		</vlayout>
 	</east>

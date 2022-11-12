@@ -20,6 +20,7 @@ package org.seed.test.integration;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -32,24 +33,30 @@ public abstract class AbstractIntegrationTest {
 	
 	private static final String TEST_BROWSER = "firefox";
 	
-	private static final long DELAY_AFTER_LOGIN			= 1000;
-	private static final long DELAY_AFTER_CLICK_MENU	= 300;
-	private static final long DELAY_AFTER_OPEN_MENU		= 100;
-	private static final long DELAY_AFTER_CLICK_BUTTON	= 100;
-	private static final long DELAY_AFTER_DRAG_AND_DROP	= 100;
+	private static final long DELAY_AFTER_LOGIN			 = 1000;
+	private static final long DELAY_AFTER_CLICK_MENU	 = 300;
+	private static final long DELAY_AFTER_OPEN_MENU		 = 100;
+	private static final long DELAY_AFTER_CLICK_BUTTON	 = 100;
+	private static final long DELAY_AFTER_CLICK_LISTITEM = 100;
+	private static final long DELAY_AFTER_DRAG_AND_DROP	 = 100;
 	
 	private static final String SEED_URL  = "http://localhost:8080"; //NOSONAR
 	private static final String SEED_NAME = "Seed";
 	private static final String SEED_USER = "seed";
 	private static final String SEED_PWD  = "seed";
 	
-	private static WebDriverManager manager = WebDriverManager.getInstance(TEST_BROWSER);
+	private static WebDriverManager driverManager;
 	
 	private WebDriver driver;
 	
+	@BeforeAll
+	static void init() {
+		driverManager = WebDriverManager.getInstance(TEST_BROWSER);
+	}
+	
 	@BeforeEach
     void setup() {
-		driver = manager.create();
+		driver = driverManager.create();
 		login();
 	}
 	
@@ -59,20 +66,22 @@ public abstract class AbstractIntegrationTest {
 	}
 	
 	protected void clickButton(WebElement parent, String className) {
-		parent.findElement(By.className(className + "-button")).click();
+		findByClass(parent, className + "-button").click();
 		pause(DELAY_AFTER_CLICK_BUTTON);
 	}
 	
 	protected void clickListItem(WebElement parent, String className) {
-		parent.findElement(By.className(className + "-listitem")).click();
+		WebElement trElement = findByClass(parent, className + "-listitem");
+		findByClass(trElement, "z-listcell-content").click();
+		pause(DELAY_AFTER_CLICK_LISTITEM);
 	}
 	
 	protected void clickOptionCheckbox(WebElement parent, String className) {
-		parent.findElement(By.className(className + "-field")).click();
+		findByClass(parent, className + "-field").click();
 	}
 	
 	protected void clickTab(WebElement parent, String className) {
-		parent.findElement(By.className(className + "-tab")).click();
+		findByClass(parent, className + "-tab").click();
 	}
 	
 	protected void clickMenu(String className) {
@@ -80,12 +89,11 @@ public abstract class AbstractIntegrationTest {
 		pause(DELAY_AFTER_CLICK_MENU);
 	}
 	
-	protected void openMenu(String className) {
-		final WebElement tdElement = findByClass(className + "-navi");
-		final WebElement divElement = tdElement.findElement(By.className("z-treecell-content"));
-		final WebElement spanElement = divElement.findElement(By.className("z-tree-icon"));
-		spanElement.click();
-		pause(DELAY_AFTER_OPEN_MENU);
+	protected void dragAndDrop(WebElement parent, String itemName, String listName) {
+		final WebElement itemElement = findByClass(parent, itemName + "-item");
+		final WebElement listElement = findByClass(parent, listName + "-items");
+		new Actions(driver).dragAndDrop(itemElement, listElement).build().perform();
+		pause(DELAY_AFTER_DRAG_AND_DROP);
 	}
 	
 	protected WebElement findWindow(String className) {
@@ -93,20 +101,20 @@ public abstract class AbstractIntegrationTest {
 	}
 	
 	protected WebElement findWindowHeader(WebElement window) {
-		return window.findElement(By.className("z-window-header")); 
+		return findByClass(window, "z-window-header");
 	}
 	
 	protected WebElement findTab(String className) {
 		final WebElement liElement = findByClass(className + "-tab");
-		final WebElement divElement = liElement.findElement(By.className("z-tab-content"));
-		final WebElement spanElement = divElement.findElement(By.className("z-tab-text"));
+		final WebElement divElement = findByClass(liElement, "z-tab-content");
+		final WebElement spanElement = findByClass(divElement, "z-tab-text");
 		return spanElement;
 	}
 	
 	protected WebElement findTab(WebElement parent, String className) {
-		final WebElement liElement = parent.findElement(By.className(className + "-tab"));
-		final WebElement divElement = liElement.findElement(By.className("z-tab-content"));
-		final WebElement spanElement = divElement.findElement(By.className("z-tab-text"));
+		final WebElement liElement = findByClass(parent, className + "-tab");
+		final WebElement divElement = findByClass(liElement, "z-tab-content");
+		final WebElement spanElement = findByClass(divElement, "z-tab-text");
 		return spanElement;
 	}
 	
@@ -115,44 +123,39 @@ public abstract class AbstractIntegrationTest {
 	}
 	
 	protected WebElement findTabpanel(WebElement parent, String className) {
-		return parent.findElement(By.className(className + "-tabpanel"));
+		return findByClass(parent, className + "-tabpanel");
+	}
+	
+	protected WebElement findCombobox(WebElement parent, String className) {
+		return findField(parent, className, "z-combobox-input");
 	}
 	
 	protected WebElement findDatebox(WebElement parent, String className) {
-		final WebElement tdElement = parent.findElement(By.className(className + "-fieldcell"));
-		final WebElement inputElement = tdElement.findElement(By.className("z-datebox-input"));
-		return inputElement;
+		return findField(parent, className, "z-datebox-input");
 	}
 	
 	protected WebElement findTextbox(WebElement parent, String className) {
-		final WebElement tdElement = parent.findElement(By.className(className + "-fieldcell"));
-		final WebElement inputElement = tdElement.findElement(By.className("z-textbox"));
-		return inputElement;
+		return findField(parent, className, "z-textbox");
 	}
 	
 	protected WebElement findCodeMirror(WebElement parent, String className, int line) {
-		final WebElement divElement = parent.findElement(By.className(className + "-field"));
-		final WebElement codeMirror = divElement.findElement(By.className("CodeMirror"));
-		codeMirror.findElements(By.className("CodeMirror-line")).get(line-1).click();
+		final WebElement divElement = findByClass(parent, className + "-field");
+		final WebElement codeMirror = findByClass(divElement, "CodeMirror");
+		line = Math.max(line, 1);
+		codeMirror.findElements(By.className("CodeMirror-line")).get(line - 1).click();
 		return codeMirror.findElement(By.cssSelector("textarea"));
 	}
 	
 	protected WebElement findOptionTextbox(WebElement parent, String className) {
-		final WebElement divElement = parent.findElement(By.className(className + "-field"));
-		final WebElement inputElement = divElement.findElement(By.className("z-textbox"));
-		return inputElement; 
+		return findOptionField(parent, className, "z-textbox");
 	}
 	
 	protected WebElement findOptionIntbox(WebElement parent, String className) {
-		final WebElement divElement = parent.findElement(By.className(className + "-field"));
-		final WebElement inputElement = divElement.findElement(By.className("z-intbox"));
-		return inputElement; 
+		return findOptionField(parent, className, "z-intbox");
 	}
 	
 	protected WebElement findOptionCombobox(WebElement parent, String className) {
-		final WebElement divElement = parent.findElement(By.className(className + "-field"));
-		final WebElement inputElement = divElement.findElement(By.className("z-combobox-input"));
-		return inputElement; 
+		return findOptionField(parent, className, "z-combobox-input");
 	}
 	
 	protected WebElement findSuccessMessage() {
@@ -163,14 +166,15 @@ public abstract class AbstractIntegrationTest {
 		return findByClass("z-icon-exclamation-circle");
 	}
 	
-	protected void dragAndDrop(WebElement parent, String itemName, String listName) {
-		final WebElement itemElement = parent.findElement(By.className(itemName + "-item"));
-		final WebElement listElement = parent.findElement(By.className(listName + "-items"));
-		new Actions(driver).dragAndDrop(itemElement, listElement).build().perform();
-		pause(DELAY_AFTER_DRAG_AND_DROP);
+	protected void openMenu(String className) {
+		final WebElement tdElement = findByClass(className + "-navi");
+		final WebElement divElement = findByClass(tdElement, "z-treecell-content");
+		final WebElement spanElement = findByClass(divElement, "z-tree-icon");
+		spanElement.click();
+		pause(DELAY_AFTER_OPEN_MENU);
 	}
 	
-	protected void pause(long ms) {
+	protected static void pause(long ms) {
 		try {
 			Thread.sleep(ms);
 		} 
@@ -197,6 +201,22 @@ public abstract class AbstractIntegrationTest {
         
         pause(DELAY_AFTER_LOGIN);
         assertEquals(SEED_NAME, driver.getTitle());
+	}
+	
+	private static WebElement findByClass(WebElement parent, String className) {
+		return parent.findElement(By.className(className));
+	}
+	
+	private static WebElement findField(WebElement parent, String className, String fieldClass) {
+		final WebElement tdElement = findByClass(parent, className + "-fieldcell");
+		final WebElement inputElement = findByClass(tdElement, fieldClass);
+		return inputElement;
+	}
+	
+	private static WebElement findOptionField(WebElement parent, String className, String fieldClass) {
+		final WebElement divElement = findByClass(parent, className + "-field");
+		final WebElement inputElement = findByClass(divElement, fieldClass);
+		return inputElement; 
 	}
 	
 }

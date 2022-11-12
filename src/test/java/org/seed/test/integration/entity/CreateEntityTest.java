@@ -99,6 +99,28 @@ public class CreateEntityTest extends AbstractIntegrationTest {
 	
 	@Test
 	@Order(5)
+	void testAddCallbackFunction() {
+		WebElement tabpanel = showEntity("integrationtest");
+		clickTab(tabpanel, "callbackfunctions");
+		WebElement tabpanelFunctions = findTabpanel(tabpanel, "callbackfunctions");
+		clickButton(tabpanelFunctions, "new");
+		
+		findOptionTextbox(tabpanelFunctions, "functionname").sendKeys("Testcallback");
+		pause(500);
+		clickButton(tabpanelFunctions, "editfunction");
+		
+		WebElement window = findWindow("code-dialog");
+		findCodeMirror(window, "content", 10).sendKeys("System.out.println(\"Testcallback\");");
+		clickButton(window, "apply");
+		
+		clickOptionCheckbox(tabpanelFunctions, "activebeforeinsert");
+		clickOptionCheckbox(tabpanelFunctions, "activebeforeupdate");
+		clickOptionCheckbox(tabpanelFunctions, "activeontransition");
+		saveEntity(tabpanel);
+	}
+	
+	@Test
+	@Order(6)
 	void testAddStatusmodel() {
 		WebElement tabpanel = showEntity("integrationtest");
 		clickTab(tabpanel, "statusmodel");
@@ -120,7 +142,7 @@ public class CreateEntityTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
-	@Order(6)
+	@Order(7)
 	void testAddStatusTransitions() {
 		WebElement tabpanel = showEntity("integrationtest");
 		clickTab(tabpanel, "statusmodel");
@@ -142,23 +164,50 @@ public class CreateEntityTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
-	@Order(7)
-	void testAddCallbackFunction() {
+	@Order(8)
+	void testAddStatusPermission() {
 		WebElement tabpanel = showEntity("integrationtest");
-		clickTab(tabpanel, "callbackfunctions");
-		WebElement tabpanelFunctions = findTabpanel(tabpanel, "callbackfunctions");
-		clickButton(tabpanelFunctions, "new");
+		clickTab(tabpanel, "statusmodel");
+		clickTab(tabpanel, "transitionpermissions");
+		WebElement tabpanelPermissions = findTabpanel(tabpanel, "transitionpermissions");
+		dragAndDrop(tabpanelPermissions, "testrole", "selected");
+		saveEntity(tabpanel);
+	}
+	
+	@Test
+	@Order(9)
+	void testAddStatusFunction() {
+		WebElement tabpanel = showEntity("integrationtest");
+		clickTab(tabpanel, "statusmodel");
+		clickTab(tabpanel, "transitionfunctions");
+		WebElement tabpanelFunctions = findTabpanel(tabpanel, "transitionfunctions");
+		dragAndDrop(tabpanelFunctions, "testcallback", "selected");
+		saveEntity(tabpanel);
+	}
+	
+	@Test
+	@Order(10)
+	void testAddPermission() {
+		WebElement tabpanel = showEntity("integrationtest");
+		clickTab(tabpanel, "permissions");
+		WebElement tabpanelPermissions = findTabpanel(tabpanel, "permissions");
+		dragAndDrop(tabpanelPermissions, "testrole", "selected");
+		saveEntity(tabpanel);
+	}
+	
+	@Test
+	@Order(11)
+	void testAddFieldConstraint() {
+		WebElement tabpanel = showEntity("integrationtest");
+		clickTab(tabpanel, "constraints");
+		WebElement tabpanelConstraints = findTabpanel(tabpanel, "constraints");
+		clickButton(tabpanelConstraints, "new");
 		
-		findOptionTextbox(tabpanelFunctions, "functionname").sendKeys("Testcallback");
-		pause(500);
-		clickButton(tabpanelFunctions, "editfunction");
-		
-		WebElement window = findWindow("code-dialog");
-		findCodeMirror(window, "content", 10).sendKeys("System.out.println(\"Testcallback\");");
-		clickButton(window, "apply");
-		
-		clickOptionCheckbox(tabpanelFunctions, "activebeforeinsert");
-		clickOptionCheckbox(tabpanelFunctions, "activebeforeupdate");
+		findOptionCombobox(tabpanelConstraints, "field").sendKeys("Textfield");
+		findOptionCombobox(tabpanelConstraints, "status").sendKeys("1 One");
+		findOptionCombobox(tabpanelConstraints, "usergroup").sendKeys("Testrole");
+		findOptionCombobox(tabpanelConstraints, "access").sendKeys("Lesen");
+		clickOptionCheckbox(tabpanelConstraints, "mandatory");
 		saveEntity(tabpanel);
 	}
 	

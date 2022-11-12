@@ -26,10 +26,11 @@
 					 model="@load(vm.getListManagerList('permissions',0))"
 					 droppable="true" onDrop="@command('dropToPermissionList',item=event.dragged.attributes.item,list=0)"
 					 hflex="1" vflex="1"
-					 class="alpha-noborder alpha-nobg" 
+					 class="available-items alpha-noborder alpha-nobg" 
 					 oddRowSclass="non-odd">
 				<template name="model" var="permission">
-					<listitem attributes.item="@init(permission)" 
+					<listitem sclass="@init(permission.userGroup.internalName.toLowerCase().concat('-item'))"
+							  attributes.item="@init(permission)" 
 							  draggable="true" droppable="true" 
 	 						  onDrop="@command('insertToPermissionList',item=event.dragged.attributes.item,base=permission,list=0)">
 						<listcell label="@init(permission.userGroup.name)" 
@@ -40,17 +41,18 @@
 		</groupbox>
 	</west>
 	<center border="0" style="padding:5px">
-		<groupbox  vflex="1">
+		<groupbox hflex="1" vflex="1">
 			<caption label="${labels.label.usergroupsselected}"/>
 			<listbox mold="paging" autopaging="true" 
 					 model="@load(vm.getListManagerList('permissions',1))"
 					 selectedItem="@bind(vm.permission)" 
 					 droppable="true" onDrop="@command('dropToPermissionList',item=event.dragged.attributes.item,list=1)"
-					 class="alpha-noborder alpha-nobg"
+					 class="selected-items alpha-noborder alpha-nobg"
 					 hflex="1" vflex="1"
 					 oddRowSclass="non-odd">
 				<template name="model" var="permission">
-					<listitem attributes.item="@init(permission)" 
+					<listitem sclass="@init(permission.userGroup.internalName.toLowerCase().concat('-item'))"
+							  attributes.item="@init(permission)" 
 							  draggable="true" droppable="true" 
 							  onDrop="@command('insertToPermissionList',item=event.dragged.attributes.item,base=permission,list=1)">
 						<listcell label="@init(permission.userGroup.name)" 

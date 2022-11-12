@@ -22,10 +22,10 @@
 	<north border="0">
 		<toolbar width="100%">
 			<toolbarbutton label="${labels.admin.entity.newconstraint}" 
-						   iconSclass="z-icon-file-o alpha-icon-lg" 
+						   iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 					   	   onClick="@command('newConstraint')"/>
 			<toolbarbutton label="${labels.admin.entity.removeconstraint}" 
-						   iconSclass="z-icon-remove alpha-icon-lg" 
+						   iconSclass="remove-button z-icon-remove alpha-icon-lg" 
 					   	   onClick="@command('removeConstraint',elem=self)"
 					   	   visible="@load(not empty vm.fieldConstraint)"/>
 		</toolbar>	
@@ -93,99 +93,112 @@
 		<vlayout class="alpha-properties-content">
 			<vlayout visible="@load(!empty vm.object.nesteds)">
 				<label value="${labels.label.nested}:"/>
-				<combobox model="@load(vm.object.nesteds) @template(empty each.name ? 'empty' : 'nested')"
-						  selectedItem="@bind(vm.constraintNested)"
-						  value="@load(vm.constraintNested.name)"
-						  onSelect="@command('selectConstraintNested')"
-						  hflex="1">
-					<template name="empty">
-	                	<comboitem/>
-	              	</template>
-					<template name="nested" var="nested">
-	                	<comboitem label="@init(nested.name)"
-	                			   iconSclass="z-icon-sitemap z-icon-fw alpha-icon-lg"/>
-	              	</template>
-				</combobox>
+				<div sclass="nested-field">
+					<combobox model="@load(vm.object.nesteds) @template(empty each.name ? 'empty' : 'nested')"
+							  selectedItem="@bind(vm.constraintNested)"
+							  value="@load(vm.constraintNested.name)"
+							  onSelect="@command('selectConstraintNested')"
+							  hflex="1">
+						<template name="empty">
+		                	<comboitem/>
+		              	</template>
+						<template name="nested" var="nested">
+		                	<comboitem label="@init(nested.name)"
+		                			   iconSclass="z-icon-sitemap z-icon-fw alpha-icon-lg"/>
+		              	</template>
+					</combobox>
+				</div>
 			</vlayout>
 			<label value="${labels.label.field}:"/>
-			<combobox model="@load(vm.getConstraintFields(vm.constraintNested)) @template(empty each.name ? 'empty' : each.type.isReference() ? 'reference' : 'field')"
-        		 	  selectedItem="@bind(vm.fieldConstraint.field)"
-        		 	  onSelect="@command('selectConstraintField')"
-        		 	  disabled="@load(!empty vm.fieldConstraint.fieldGroup)"
-        		 	  value="@load(vm.fieldConstraint.field.name)"
-        		 	  hflex="1">
-        		<template name="empty">
-                	<comboitem/>
-              	</template>
-              	<template name="field" var="field">
-                	<comboitem label="@load(field.name)"
-                			   iconSclass="z-icon-font z-icon-fw alpha-icon-lg"/>
-              	</template>
-              	<template name="reference" var="field">
-                	<comboitem label="@load(field.name)"
-                			   iconSclass="z-icon-share z-icon-fw alpha-icon-lg"/>
-              	</template>
-        	</combobox>
-        	<vlayout visible="@load(!empty vm.object.allFieldGroups)">
-        		<label value="${labels.label.fieldgroup}:"/>
-        		<combobox model="@load(vm.object.allFieldGroups) @template(empty each.name ? 'empty' : 'group')"
-						  selectedItem="@bind(vm.fieldConstraint.fieldGroup)"
-						  value="@load(vm.fieldConstraint.fieldGroup.name)"
-						  onSelect="@command('selectConstraintFieldGroup')"
-						  disabled="@load(!empty vm.fieldConstraint.field)"
-						  hflex="1">
-					<template name="empty" var="fieldGroup">
-	                    <comboitem/>
-	                </template>
-	                <template name="group" var="fieldGroup">
-	                    <comboitem label="@load(fieldGroup.name)"
-	                    		   iconSclass="z-icon-object-group z-icon-fw alpha-icon-lg"/>
-	                </template>
-	            </combobox>	
-        	</vlayout>
-        	<vlayout visible="@load(vm.object.hasStatus())">
-	        	<label value="${labels.label.status}:"/>
-				<combobox model="@load(vm.object.statusList)"
-	        		 	  selectedItem="@bind(vm.fieldConstraint.status)"
-	        		 	  onSelect="@command('flagDirty')"
-	        		 	  value="@load(vm.fieldConstraint.status.numberAndName)"
-	        		 	  hflex="1">
-	        		<template name="model" var="status">
-	                	<comboitem label="@init(status.numberAndName)"/>
-	              	</template>
-	            </combobox>
-	    	</vlayout>
-	    	<vlayout if="${vm.existUserGroups()}">
-	        	<label value="${labels.label.usergroup}:"/>
-				<combobox model="@init(vm.userGroups) @template(empty each.name ? 'empty' : 'group')"
-	        		 	  selectedItem="@bind(vm.fieldConstraint.userGroup)"
-	        		 	  onSelect="@command('flagDirty')"
-	        		 	  value="@load(vm.fieldConstraint.userGroup.name)"
+			<div sclass="field-field">
+				<combobox model="@load(vm.getConstraintFields(vm.constraintNested)) @template(empty each.name ? 'empty' : each.type.isReference() ? 'reference' : 'field')"
+	        		 	  selectedItem="@bind(vm.fieldConstraint.field)"
+	        		 	  onSelect="@command('selectConstraintField')"
+	        		 	  disabled="@load(!empty vm.fieldConstraint.fieldGroup)"
+	        		 	  value="@load(vm.fieldConstraint.field.name)"
 	        		 	  hflex="1">
 	        		<template name="empty">
 	                	<comboitem/>
 	              	</template>
-	        		<template name="group" var="group">
-	                	<comboitem label="@init(group.name)"
-	                			   iconSclass="z-icon-users alpha-icon-lg"/>
+	              	<template name="field" var="field">
+	                	<comboitem label="@load(field.name)"
+	                			   iconSclass="z-icon-font z-icon-fw alpha-icon-lg"/>
+	              	</template>
+	              	<template name="reference" var="field">
+	                	<comboitem label="@load(field.name)"
+	                			   iconSclass="z-icon-share z-icon-fw alpha-icon-lg"/>
 	              	</template>
 	        	</combobox>
+        	</div>
+        	<vlayout visible="@load(!empty vm.object.allFieldGroups)">
+        		<label value="${labels.label.fieldgroup}:"/>
+        		<div sclass="fieldgroup-field">
+	        		<combobox model="@load(vm.object.allFieldGroups) @template(empty each.name ? 'empty' : 'group')"
+							  selectedItem="@bind(vm.fieldConstraint.fieldGroup)"
+							  value="@load(vm.fieldConstraint.fieldGroup.name)"
+							  onSelect="@command('selectConstraintFieldGroup')"
+							  disabled="@load(!empty vm.fieldConstraint.field)"
+							  hflex="1">
+						<template name="empty" var="fieldGroup">
+		                    <comboitem/>
+		                </template>
+		                <template name="group" var="fieldGroup">
+		                    <comboitem label="@load(fieldGroup.name)"
+		                    		   iconSclass="z-icon-object-group z-icon-fw alpha-icon-lg"/>
+		                </template>
+		            </combobox>
+	            </div>
+        	</vlayout>
+        	<vlayout visible="@load(vm.object.hasStatus())">
+	        	<label value="${labels.label.status}:"/>
+	        	<div sclass="status-field">
+					<combobox model="@load(vm.object.statusList)"
+		        		 	  selectedItem="@bind(vm.fieldConstraint.status)"
+		        		 	  onSelect="@command('flagDirty')"
+		        		 	  value="@load(vm.fieldConstraint.status.numberAndName)"
+		        		 	  hflex="1">
+		        		<template name="model" var="status">
+		                	<comboitem label="@init(status.numberAndName)"/>
+		              	</template>
+		            </combobox>
+	            </div>
+	    	</vlayout>
+	    	<vlayout if="${vm.existUserGroups()}">
+	        	<label value="${labels.label.usergroup}:"/>
+	        	<div sclass="usergroup-field">
+					<combobox model="@init(vm.userGroups) @template(empty each.name ? 'empty' : 'group')"
+		        		 	  selectedItem="@bind(vm.fieldConstraint.userGroup)"
+		        		 	  onSelect="@command('flagDirty')"
+		        		 	  value="@load(vm.fieldConstraint.userGroup.name)"
+		        		 	  hflex="1">
+		        		<template name="empty">
+		                	<comboitem/>
+		              	</template>
+		        		<template name="group" var="group">
+		                	<comboitem label="@init(group.name)"
+		                			   iconSclass="z-icon-users alpha-icon-lg"/>
+		              	</template>
+		        	</combobox>
+	        	</div>
 	    	</vlayout>
 	    	<label value="${labels.label.access}:"/>
-			<combobox model="@init(vm.fieldAccesses)"
-					  mandatory="true"
-        		 	  selectedItem="@bind(vm.fieldConstraint.access)"
-        		 	  onSelect="@command('flagDirty')"
-        		 	  value="@load(vm.getEnumLabel(vm.fieldConstraint.access))"
-        		 	  hflex="1">
-        		<template name="model" var="access">
-                	<comboitem label="@init(vm.getEnumLabel(access))"/>
-              	</template>
-            </combobox>
+	    	<div sclass="access-field">
+				<combobox model="@init(vm.fieldAccesses)"
+						  mandatory="true"
+	        		 	  selectedItem="@bind(vm.fieldConstraint.access)"
+	        		 	  onSelect="@command('flagDirty')"
+	        		 	  value="@load(vm.getEnumLabel(vm.fieldConstraint.access))"
+	        		 	  hflex="1">
+	        		<template name="model" var="access">
+	                	<comboitem label="@init(vm.getEnumLabel(access))"/>
+	              	</template>
+	            </combobox>
+            </div>
             <space/>
        		<label value="${labels.label.options}:"/>	 
        		<hlayout>
-        		<checkbox checked="@bind(vm.fieldConstraint.mandatory)" 
+        		<checkbox  sclass="mandatory-field"
+        				  checked="@bind(vm.fieldConstraint.mandatory)" 
         				  onCheck="@command('flagDirty')"/>
         		<label value="${labels.label.mandatoryfield}"/>
        		</hlayout>

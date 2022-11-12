@@ -54,10 +54,11 @@
 					 droppable="true" oddRowSclass="non-odd"
 					 onDrop="@command('dropToStatusFunctionList',item=event.dragged.attributes.item,list=0)"
 					 mold="paging" autopaging="true"
-					 class="alpha-noborder alpha-nobg"
+					 class="available-items alpha-noborder alpha-nobg"
 					 hflex="1" vflex="1">
 				<template name="model" var="function">
-					<listitem attributes.item="@init(function)" 
+					<listitem sclass="@init(function.function.internalName.toLowerCase().concat('-item'))"
+							  attributes.item="@init(function)" 
 							  draggable="true" droppable="true" 
 	 						  onDrop="@command('insertToStatusFunctionList',item=event.dragged.attributes.item,base=function,list=0)">
 						<listcell label="@init(function.function.name)" 
@@ -75,10 +76,11 @@
 					 selectedItem="@bind(vm.transitionFunction)" 
 					 onDrop="@command('dropToStatusFunctionList',item=event.dragged.attributes.item,list=1)"
 					 mold="paging" autopaging="true"
-					 class="alpha-noborder alpha-nobg"
+					 class="selected-items alpha-noborder alpha-nobg"
 					 hflex="1" vflex="1">
 				<template name="model" var="function">
-					<listitem attributes.item="@init(function)" 
+					<listitem sclass="@init(function.function.internalName.toLowerCase().concat('-item'))"
+							  attributes.item="@init(function)" 
 							  draggable="true" droppable="true" 
 							  onDrop="@command('insertToStatusFunctionList',item=event.dragged.attributes.item,base=function,list=1)">
 						<listcell label="@init(function.function.name)" 
@@ -94,8 +96,8 @@
 	  	  class="alpha-properties">
 		<vlayout class="alpha-properties-content">
         	<label value="${labels.label.function}:"/>
-            <textbox readonly="true" hflex="1"
-              		 value="@bind(vm.transitionFunction.function.name) @converter(vm.stringConverter)"/>
+            <textbox value="@bind(vm.transitionFunction.function.name) @converter(vm.stringConverter)"
+            		 readonly="true" hflex="1"/>
             <space/>
             <label value="${labels.admin.entity.functiontrigger}:"/>
             <hlayout>
