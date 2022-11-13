@@ -124,8 +124,9 @@ public class AdminDBObjectViewModel extends AbstractAdminViewModel<DBObject> {
 	@SmartNotifyChange("errorMessage")
 	public void saveDBObject(@BindingParam(C.ELEM) Component component) {
 		try {
-			cmdSaveObject(component);
-			resetCurrentSession();
+			if (cmdSaveObject(component)) {
+				resetCurrentSession();
+			}
 			errorMessage = null;
 		}
 		catch (DataException dboex) {

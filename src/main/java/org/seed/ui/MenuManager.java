@@ -17,11 +17,13 @@
  */
 package org.seed.ui;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.hibernate.Session;
+
 import org.seed.C;
 import org.seed.LabelProvider;
 import org.seed.core.form.navigation.Menu;
@@ -261,20 +263,16 @@ public class MenuManager {
 		final TreeNode menuNode = menu.getForm() != null 
 				? new TreeNode(label, URL_LISTFORM, menu.getIcon(), menu.getForm().getId())
 				: new TreeNode(label, null, menu.getIcon());
-		if (menu.hasSubMenus()) {
-			menu.getSubMenus().stream()
-				.filter(subMenu -> subMenu.getForm().getEntity().checkPermissions(user))
-				.forEach(subMenu -> menuNode.addChild(
-										new TreeNode(subMenu.getName(), URL_LISTFORM, 
-													 subMenu.getIcon(), subMenu.getForm().getId())));
-		}
+		filterAndForEach(menu.getSubMenus(), 
+						 subMenu -> subMenu.getForm().getEntity().checkPermissions(user), 
+						 subMenu -> menuNode.addChild(
+									new TreeNode(subMenu.getName(), URL_LISTFORM, 
+												 subMenu.getIcon(), subMenu.getForm().getId())));	
 		return menuNode;
 	}
 	
 	private static TreeNode findNode(List<TreeNode> nodeList, String name) {
-		final Optional<TreeNode> optional = nodeList.stream()
-				.filter(node -> name.equalsIgnoreCase(node.getLabel())).findFirst();
-		return optional.isPresent() ? optional.get() : null;
+		return firstMatch(nodeList, node -> name.equalsIgnoreCase(node.getLabel()));
 	}
 
 }

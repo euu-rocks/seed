@@ -110,8 +110,8 @@ public class AdminCustomCodeViewModel extends AbstractAdminViewModel<CustomCode>
 	@NotifyChange("errorMessage")
 	public void saveCode(@BindingParam(C.CODE) String code,
 						 @BindingParam(C.ELEM) Component component) {
-		if (compileCode(code, component)) {
-			cmdSaveObject(component);
+		if (compileCode(code, component) && 
+			cmdSaveObject(component)) {
 			resetCurrentSession();
 		}
 	}

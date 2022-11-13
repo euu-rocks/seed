@@ -111,8 +111,9 @@ public class AdminMenuViewModel extends AbstractAdminViewModel<Menu> {
 	
 	@Command
 	public void saveMenu(@BindingParam(C.ELEM) Component elem) {
-		cmdSaveObject(elem);
-		refreshMenu();
+		if (cmdSaveObject(elem)) {
+			refreshMenu();
+		}
 	}
 	
 	@Command

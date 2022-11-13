@@ -203,8 +203,9 @@ public class AdminRestViewModel extends AbstractAdminViewModel<Rest> {
 	@Command
 	public void saveRest(@BindingParam(C.ELEM) Component elem) {
 		adjustLists(getObject().getPermissions(), getListManagerList(PERMISSIONS, LIST_SELECTED));
-		cmdSaveObject(elem);
-		resetCurrentSession();
+		if (cmdSaveObject(elem)) {
+			resetCurrentSession();
+		}
 	}
 	
 }

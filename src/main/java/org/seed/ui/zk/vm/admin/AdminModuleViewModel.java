@@ -282,8 +282,9 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	@Command
 	public void saveModule(@BindingParam(C.ELEM) Component component) {
 		((ModuleMetadata)getObject()).setChangedObjects(getChangedObjects());
-		cmdSaveObject(component);
-		cmdRefresh();
+		if (cmdSaveObject(component)) {
+			cmdRefresh();
+		}
 	}
 	
 	@Command

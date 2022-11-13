@@ -342,10 +342,10 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 		adjustLists(getObject().getPermissions(), getListManagerList(PERMISSIONS, LIST_SELECTED));
 		adjustLists(getObject().getStatus(), getListManagerList(STATUS, LIST_SELECTED));
 		transformerService.adjustElements(getObject(), elements, nesteds);
-		
-		cmdSaveObject(component);
-		resetCurrentSession();
-		refreshObject();
+		if (cmdSaveObject(component)) {
+			resetCurrentSession();
+			refreshObject();
+		}
 	}
 	
 	@Command

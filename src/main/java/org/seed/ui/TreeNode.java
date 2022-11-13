@@ -17,10 +17,11 @@
  */
 package org.seed.ui;
 
+import static org.seed.core.util.CollectionUtils.firstMatch;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import javax.annotation.Nullable;
 
@@ -142,15 +143,7 @@ public final class TreeNode {
 	TreeNode findChild(String label) {
 		Assert.notNull(label, C.LABEL);
 		
-		TreeNode child = null;
-		if (countChildren() > 0) {
-			final Optional<TreeNode> optional = getChildren().stream()
-					.filter(node -> label.equalsIgnoreCase(node.getLabel())).findFirst();
-			if (optional.isPresent()) {
-				child = optional.get();
-			}
-		}
-		return child;
+		return firstMatch(children, node -> label.equalsIgnoreCase(node.getLabel()));
 	}
 	
 }
