@@ -22,14 +22,14 @@
 	<north border="0">
 		<toolbar width="100%">
 			<toolbarbutton label="${labels.admin.transformer.newelement}" 
-						   iconSclass="z-icon-file-o alpha-icon-lg" 
+						   iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 					   	   onClick="@command('newElement')"/>
 			<toolbarbutton label="${labels.admin.transformer.removeelement}" 
-						   iconSclass="z-icon-remove alpha-icon-lg" 
+						   iconSclass="remove-button z-icon-remove alpha-icon-lg" 
 					   	   onClick="@command('removeElement',elem=self)"
 					   	   visible="@load(not empty vm.element)"/>
 			<toolbarbutton label="${labels.admin.transformer.automatch}"
-						   iconSclass="z-icon-magic alpha-icon-lg"    	   
+						   iconSclass="automatch-button z-icon-magic alpha-icon-lg"    	   
 					   	   onClick="@command('autoMatchFields',elem=self)"/>
 		</toolbar>
 	</north>
@@ -65,42 +65,47 @@
 		  class="alpha-properties">
 		<vlayout class="alpha-properties-content">
 			<label value="${labels.label.sourcefield}:"/>
-			<combobox model="@init(vm.object.sourceEntity.fields) @template(empty each.name ? 'empty' : each.type.isReference() ? 'reference' : 'field')" 
-           			  selectedItem="@bind(vm.element.sourceField)"
-           			  onSelect="@command('flagDirty',notify='availableTargetFields')"
-           			  mandatory="true"
-           			  hflex="1">
-           		<template name="empty">
-                	<comboitem/>
-             	</template>
-             	<template name="field" var="field">
-                	<comboitem label="@init(field.name)"
-                			   iconSclass="z-icon-font z-icon-fw alpha-icon-lg"/>
-             	</template>
-             	<template name="reference" var="field">
-                	<comboitem label="@init(field.name)"
-                			   iconSclass="z-icon-share z-icon-fw alpha-icon-lg"/>
-             	</template>
-			</combobox>
+			<div sclass="sourcefield-field">
+				<combobox model="@init(vm.object.sourceEntity.fields) @template(empty each.name ? 'empty' : each.type.isReference() ? 'reference' : 'field')" 
+	           			  selectedItem="@bind(vm.element.sourceField)"
+	           			  onSelect="@command('flagDirty',notify='availableTargetFields')"
+	           			  onBlur="@command('flagDirty',notify='availableTargetFields')"
+	           			  mandatory="true"
+	           			  hflex="1">
+	           		<template name="empty">
+	                	<comboitem/>
+	             	</template>
+	             	<template name="field" var="field">
+	                	<comboitem label="@init(field.name)"
+	                			   iconSclass="z-icon-font z-icon-fw alpha-icon-lg"/>
+	             	</template>
+	             	<template name="reference" var="field">
+	                	<comboitem label="@init(field.name)"
+	                			   iconSclass="z-icon-share z-icon-fw alpha-icon-lg"/>
+	             	</template>
+				</combobox>
+			</div>
 			<label value="${labels.label.targetfield}:"/>
-			<combobox model="@load(vm.availableTargetFields) @template(empty each.name ? 'empty' : each.type.isReference() ? 'reference' : 'field')" 
-           			  selectedItem="@bind(vm.element.targetField)"
-           			  value="@load(vm.element.targetField.name)"
-           			  onSelect="@command('flagDirty')"
-           			  mandatory="true"
-           			  hflex="1">
-           		<template name="empty">
-                	<comboitem/>
-             	</template>
-             	<template name="field" var="field">
-                	<comboitem label="@init(field.name)"
-                			   iconSclass="z-icon-font z-icon-fw alpha-icon-lg"/>
-             	</template>
-             	<template name="reference" var="field">
-                	<comboitem label="@init(field.name)"
-                			   iconSclass="z-icon-share z-icon-fw alpha-icon-lg"/>
-             	</template>
-			</combobox>
+			<div sclass="targetfield-field">
+				<combobox model="@load(vm.availableTargetFields) @template(empty each.name ? 'empty' : each.type.isReference() ? 'reference' : 'field')" 
+	           			  selectedItem="@bind(vm.element.targetField)"
+	           			  value="@load(vm.element.targetField.name)"
+	           			  onSelect="@command('flagDirty')"
+	           			  mandatory="true"
+	           			  hflex="1">
+	           		<template name="empty">
+	                	<comboitem/>
+	             	</template>
+	             	<template name="field" var="field">
+	                	<comboitem label="@init(field.name)"
+	                			   iconSclass="z-icon-font z-icon-fw alpha-icon-lg"/>
+	             	</template>
+	             	<template name="reference" var="field">
+	                	<comboitem label="@init(field.name)"
+	                			   iconSclass="z-icon-share z-icon-fw alpha-icon-lg"/>
+	             	</template>
+				</combobox>
+			</div>
 		</vlayout>
 	</east>
 </borderlayout>

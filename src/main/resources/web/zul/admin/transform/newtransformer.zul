@@ -19,9 +19,12 @@
 -->
 <!DOCTYPE xml>
 <?page contentType="text/html;charset=UTF-8"?>
-<window id="newTransformerWin" width="400px" title="${labels.admin.create.transformer}"
+<window id="newTransformerWin" 
+		sclass="new-transformer-win"
+		title="${labels.admin.create.transformer}"
 		viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminTransformerViewModel')" 
-		mode="modal" closable="true">
+		width="400px" mode="modal" 
+		closable="true">
 	<div class="alpha-dialog">
 		<grid class="alpha-noborder">
             <columns>
@@ -33,7 +36,7 @@
                 	<cell align="right">
                 		<label value="${labels.label.sourceentity}:"/>
                 	</cell>
-                	<cell>
+                	<cell sclass="sourceentity-fieldcell">
 	                	<combobox model="@init(vm.entities) @template(empty each.name ? 'empty' : 'entity')" 
 	                			  selectedItem="@bind(vm.object.sourceEntity)"
 	                			  mandatory="true"
@@ -52,7 +55,7 @@
                 	<cell align="right">
                 		<label value="${labels.label.targetentity}:"/>
                 	</cell>
-                	<cell>
+                	<cell sclass="targetentity-fieldcell">
 	                	<combobox model="@init(vm.entities) @template(empty each.name ? 'empty' : 'entity')" 
 	                			  selectedItem="@bind(vm.object.targetEntity)"
 	                			  mandatory="true"
@@ -71,7 +74,7 @@
                 	<cell align="right">
                 		<label value="${labels.label.module}:"/>
                 	</cell>
-                	<cell>
+                	<cell sclass="module-fieldcell">
 	                	<combobox model="@init(vm.modules) @template(empty each.name ? 'empty' : 'module')" 
 	                			  selectedItem="@bind(vm.object.module)"
 	                			  hflex="1">
@@ -88,11 +91,11 @@
 			</rows>
 		</grid>
 		<div class="alpha-dialog-footer">
-			<button iconSclass="z-icon-check" 
+			<button iconSclass="create-button z-icon-check" 
 					label="${labels.button.create}" 
 					onClick="@command('createTransformer',elem=self)"/>
 			<space/>
-			<button iconSclass="z-icon-close" 
+			<button iconSclass="cancel-button z-icon-close" 
 					label="${labels.button.cancel}" 
 					onClick="@command('cancel')"/>
 		</div>

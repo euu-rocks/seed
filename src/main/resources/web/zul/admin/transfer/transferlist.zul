@@ -22,29 +22,29 @@
 	<north border="0">
 		<toolbar hflex="1">
 			<toolbarbutton mode="toggle" 
-						   iconSclass="z-icon-filter alpha-icon-lg" 
+						   iconSclass="filter-button z-icon-filter alpha-icon-lg" 
 						   tooltiptext="${labels.label.togglefilter}"
 						   checked="@bind(vm.listViewFilterGroup.visible)" 
 						   visible="@load(vm.listViewFilterGroup.visible or vm.existObjects())"/>
-			<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
+			<toolbarbutton iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 						   label="${labels.admin.transfer.create}" 
 						   onClick="@command('newTransfer')"/>
-			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+			<toolbarbutton iconSclass="refresh-button z-icon-refresh alpha-icon-lg" 
 						   label="${labels.button.refresh}" 
 						   onClick="@command('refreshTransfer')"/>
-			<toolbarbutton iconSclass="z-icon-wrench alpha-icon-lg" 
+			<toolbarbutton iconSclass="edit-button z-icon-wrench alpha-icon-lg" 
 						   label="${labels.admin.transfer.edit}" 
 						   onClick="@command('editTransfer')"
 						   visible="@load(!empty vm.object)"/>
-			<toolbarbutton iconSclass="z-icon-remove alpha-icon-lg" 
+			<toolbarbutton iconSclass="delete-button z-icon-remove alpha-icon-lg" 
 						   label="${labels.admin.transfer.delete}" 
 						   onClick="@command('deleteTransfer', elem=self)"
 						   visible="@load(!empty vm.object)"/>
-			<toolbarbutton iconSclass="z-icon-upload alpha-icon-lg" 
+			<toolbarbutton iconSclass="export-button z-icon-upload alpha-icon-lg" 
 						   label="${labels.button.export}" 
 						   onClick="@command('exportTransfer', elem=self)"
 						   visible="@load(!empty vm.object)"/>
-			<toolbarbutton iconSclass="z-icon-download alpha-icon-lg" 
+			<toolbarbutton iconSclass="import-button z-icon-download alpha-icon-lg" 
 						   label="${labels.button.importing}" 
 						   onClick="@command('importTransfer', elem=self)"
 						   visible="@load(!empty vm.object)"/>
@@ -67,7 +67,8 @@
 	            			visible="@load(vm.existModules())"/>
 	        </listhead>
 	        <template name="model" var="transfer">
-	            <listitem onDoubleClick="@command('editTransfer')">
+	            <listitem sclass="@load(transfer.internalName.toLowerCase().concat('-listitem'))"
+	            		  onDoubleClick="@command('editTransfer')">
 	            	<listcell iconSclass="z-icon-exchange z-icon-fw alpha-icon-lg">
 	            		<label value="@init(transfer.name)" style="margin-left:3px"/>
 	            	</listcell>

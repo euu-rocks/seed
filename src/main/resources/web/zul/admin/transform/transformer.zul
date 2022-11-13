@@ -26,21 +26,21 @@
 <borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminTransformerViewModel')">
 	<north border="0">
 		<toolbar>
-			<toolbarbutton iconSclass="z-icon-arrow-left alpha-icon-lg" 
+			<toolbarbutton iconSclass="back-button z-icon-arrow-left alpha-icon-lg" 
 						   label="${labels.button.back}" 
 						   onClick="@command('back')"/>
-			<toolbarbutton iconSclass="z-icon-save alpha-icon-lg" 
+			<toolbarbutton iconSclass="save-button z-icon-save alpha-icon-lg" 
 						   label="${labels.button.save}" 
 						   onClick="@command('saveTransformer',elem=self)"
 						   disabled="@load(!vm.isDirty())"/>
-			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+			<toolbarbutton iconSclass="refresh-button z-icon-refresh alpha-icon-lg" 
 						   label="${labels.button.refresh}" 
 						   onClick="@command('refreshTransformer',elem=self)"
 						   visible="@load(!vm.object.isNew())"/>
-			<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
+			<toolbarbutton iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 						   label="${labels.button.newobject}" 
 						   onClick="@command('newTransformer')"/>
-			<toolbarbutton iconSclass="z-icon-remove alpha-icon-lg" 
+			<toolbarbutton iconSclass="delete-button z-icon-remove alpha-icon-lg" 
 						   label="${labels.button.delete}" 
 						   onClick="@command('deleteTransformer', elem=self)"
 						   visible="@load(!vm.object.isNew())"/>
@@ -60,7 +60,8 @@
 						<cell style="padding: 4px 10px" align="right">
 							<label value="${labels.label.name}:"/>
 						</cell>
-						<cell style="padding: 4px 4px">
+						<cell sclass="name-fieldcell"
+							  style="padding: 4px 4px">
 							<textbox value="@bind(vm.object.name) @converter(vm.stringConverter)"
 									 mandatory="true"
 									 onChange="@command('flagDirty')"
@@ -89,30 +90,35 @@
 			</grid>
 			<tabbox id="mainTabbox" hflex="1" vflex="1" class="alpha-tabbox">
 				<tabs>
-					<tab label="${labels.label.elements}"/>
-					<tab id="tab2" label="${labels.label.nesteds}"
+					<tab sclass="elements-tab"
+						 label="${labels.label.elements}"/>
+					<tab id="tab2" sclass="nesteds-tab" 
+						 label="${labels.label.nesteds}"
 						 visible="@load(vm.object.sourceEntity.hasNesteds() and vm.object.targetEntity.hasNesteds())"/>
-					<tab id="tab3" label="${labels.label.status}"
+					<tab id="tab3" sclass="status-tab"
+						 label="${labels.label.status}"
 						 visible="@load(vm.object.sourceEntity.hasStatus())"/>
-					<tab id="tab4" label="${labels.label.functions}"
+					<tab id="tab4" sclass="functions-tab" 
+						 label="${labels.label.functions}"
 						 visible="@load(!vm.object.isNew())"/>
-					<tab id="tab5" label="${labels.label.permissions}"
+					<tab id="tab5" sclass="permissions-tab"
+						 label="${labels.label.permissions}"
 						 visible="@init(vm.existUserGroups())"/>
 				</tabs>
 				<tabpanels> 
-					<tabpanel>
+					<tabpanel sclass="elements-tabpanel">
 						<transformer-elements/>
 					</tabpanel>
-					<tabpanel fulfill="tab2.onSelect">
+					<tabpanel sclass="nesteds-tabpanel" fulfill="tab2.onSelect">
 						<transformer-nesteds/>
 					</tabpanel>
-					<tabpanel fulfill="tab3.onSelect">
+					<tabpanel sclass="status-tabpanel" fulfill="tab3.onSelect">
 						<transformer-status/>
 					</tabpanel>
-					<tabpanel fulfill="tab4.onSelect">
+					<tabpanel sclass="functions-tabpanel" fulfill="tab4.onSelect">
 						<transformer-functions/>
 					</tabpanel>
-					<tabpanel fulfill="tab5.onSelect">
+					<tabpanel sclass="permissions-tabpanel" fulfill="tab5.onSelect">
 						<transformer-permissions/>
 					</tabpanel>
 				</tabpanels>

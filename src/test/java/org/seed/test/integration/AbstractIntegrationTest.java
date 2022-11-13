@@ -19,6 +19,7 @@ package org.seed.test.integration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,9 +50,16 @@ public abstract class AbstractIntegrationTest {
 	
 	private WebDriver driver;
 	
+	protected AbstractIntegrationTest() {}
+	
 	@BeforeAll
 	static void init() {
 		driverManager = WebDriverManager.getInstance(TEST_BROWSER);
+	}
+	
+	@AfterAll
+	static void exit() {
+		driverManager = null;
 	}
 	
 	@BeforeEach
@@ -174,15 +182,6 @@ public abstract class AbstractIntegrationTest {
 		pause(DELAY_AFTER_OPEN_MENU);
 	}
 	
-	protected static void pause(long ms) {
-		try {
-			Thread.sleep(ms);
-		} 
-		catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
 	private WebElement findByClass(String className) {
 		return driver.findElement(By.className(className));
 	}
@@ -201,6 +200,15 @@ public abstract class AbstractIntegrationTest {
         
         pause(DELAY_AFTER_LOGIN);
         assertEquals(SEED_NAME, driver.getTitle());
+	}
+	
+	protected static void pause(long ms) {
+		try {
+			Thread.sleep(ms);
+		} 
+		catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	private static WebElement findByClass(WebElement parent, String className) {

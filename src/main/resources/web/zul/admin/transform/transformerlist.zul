@@ -22,21 +22,21 @@
 	<north border="0">
 		<toolbar hflex="1">
 			<toolbarbutton mode="toggle" 
-						   iconSclass="z-icon-filter alpha-icon-lg" 
+						   iconSclass="filter-button z-icon-filter alpha-icon-lg" 
 						   tooltiptext="${labels.label.togglefilter}"
 						   checked="@bind(vm.listViewFilterGroup.visible)" 
 						   visible="@load(vm.listViewFilterGroup.visible or vm.existObjects())"/>
-			<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
+			<toolbarbutton iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 						   label="${labels.admin.transformer.create}" 
 						   onClick="@command('newTransformer')"/>
-			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+			<toolbarbutton iconSclass="refresh-button z-icon-refresh alpha-icon-lg" 
 						   label="${labels.button.refresh}" 
 						   onClick="@command('refreshTransformer')"/>
-			<toolbarbutton iconSclass="z-icon-wrench alpha-icon-lg" 
+			<toolbarbutton iconSclass="edit-button z-icon-wrench alpha-icon-lg" 
 						   label="${labels.admin.transformer.edit}" 
 						   onClick="@command('editTransformer')"
 						   visible="@load(!empty vm.object)"/>
-			<toolbarbutton iconSclass="z-icon-remove alpha-icon-lg" 
+			<toolbarbutton iconSclass="delete-button z-icon-remove alpha-icon-lg" 
 						   label="${labels.admin.transformer.delete}" 
 						   onClick="@command('deleteTransformer', elem=self)"
 						   visible="@load(!empty vm.object)"/>
@@ -104,7 +104,8 @@
 		        </auxheader>
 		    </auxhead>
 		    <template name="model" var="transformer">
-	            <listitem onDoubleClick="@command('editTransformer')">
+	            <listitem sclass="@load(transformer.internalName.toLowerCase().concat('-listitem'))"
+	            		  onDoubleClick="@command('editTransformer')">
 	            	<listcell iconSclass="z-icon-random z-icon-fw alpha-icon-lg">
 	            		<label value="@init(transformer.name)" style="margin-left:3px"/>
 	            	</listcell>

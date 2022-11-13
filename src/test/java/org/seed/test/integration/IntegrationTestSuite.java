@@ -22,10 +22,13 @@ import org.junit.platform.suite.api.Suite;
 
 import org.seed.test.integration.entity.CreateEntityTest;
 import org.seed.test.integration.filter.CreateFilterTest;
+import org.seed.test.integration.transfer.CreateTransferTest;
+import org.seed.test.integration.transformer.CreateTransformerTest;
 import org.seed.test.integration.user.CreateUserGroupTest;
 import org.seed.test.integration.user.CreateUserTest;
 
 @Suite
 @SelectClasses({ MainViewTest.class, CreateUserTest.class, CreateUserGroupTest.class, 
-				 CreateEntityTest.class, CreateFilterTest.class })
+				 CreateEntityTest.class, CreateFilterTest.class, CreateTransferTest.class,
+				 CreateTransformerTest.class})
 public class IntegrationTestSuite { }
