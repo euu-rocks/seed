@@ -166,6 +166,10 @@ public abstract class AbstractIntegrationTest {
 		return findOptionField(parent, className, "z-combobox-input");
 	}
 	
+	protected WebElement findErrorMessage() {
+		return findByClass("z-icon-times-circle");
+	}
+	
 	protected WebElement findSuccessMessage() {
 		return findByClass("z-icon-info-circle");
 	}

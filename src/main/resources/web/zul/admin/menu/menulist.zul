@@ -22,21 +22,21 @@
 	<north border="0">
 		<toolbar hflex="1">
 			<toolbarbutton mode="toggle" 
-						   iconSclass="z-icon-filter alpha-icon-lg" 
+						   iconSclass="filter-button z-icon-filter alpha-icon-lg" 
 						   tooltiptext="${labels.label.togglefilter}"
 						   checked="@bind(vm.listViewFilterGroup.visible)" 
 						   visible="@load(vm.listViewFilterGroup.visible or vm.existObjects())"/>
-			<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
+			<toolbarbutton iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 						   label="${labels.admin.menu.create}" 
 						   onClick="@command('newMenu')"/>
-			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+			<toolbarbutton iconSclass="refresh-button z-icon-refresh alpha-icon-lg" 
 						   label="${labels.button.refresh}" 
 						   onClick="@command('refreshMenu')"/>
-			<toolbarbutton iconSclass="z-icon-wrench alpha-icon-lg" 
+			<toolbarbutton iconSclass="edit-button z-icon-wrench alpha-icon-lg" 
 						   label="${labels.admin.menu.edit}" 
 						   onClick="@command('editMenu')"
 						   visible="@load(!empty vm.object)"/>
-			<toolbarbutton iconSclass="z-icon-remove alpha-icon-lg" 
+			<toolbarbutton iconSclass="delete-button z-icon-remove alpha-icon-lg" 
 						   label="${labels.admin.menu.delete}" 
 						   onClick="@command('deleteMenu', elem=self)"
 						   visible="@load(!empty vm.object)"/>
@@ -74,7 +74,8 @@
 		        </auxheader>
 		    </auxhead>
 		    <template name="model" var="menu">
-	            <listitem onDoubleClick="@command('editMenu')">
+	            <listitem sclass="@load(menu.internalName.toLowerCase().concat('-listitem'))" 
+	            		  onDoubleClick="@command('editMenu')">
 	            	<listcell iconSclass="z-icon-navicon z-icon-fw alpha-icon-lg">
 	            		<label value="@init(menu.name)" style="margin-left:3px"/>
 	            	</listcell>

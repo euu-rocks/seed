@@ -46,7 +46,7 @@
             		<cell align="right">
                 		<label value="${labels.label.basedon}:"/>
                 	</cell>
-                	<cell>
+                	<cell sclass="genericentity-fieldcell">
 	                	<combobox model="@init(vm.genericEntities) @template(empty each.name ? 'empty' : 'entity')" 
 	                			  selectedItem="@bind(vm.object.genericEntity)"
 	                			  hflex="1">
@@ -64,7 +64,7 @@
             		<cell align="right">
                 		<label value="${labels.label.parententity}:"/>
                 	</cell>
-                	<cell>
+                	<cell sclass="parententity-fieldcell">
 	                	<combobox model="@init(vm.parentEntities) @template(empty each.name ? 'empty' : 'entity')" 
 	                			  selectedItem="@bind(vm.object.parentEntity)"
 	                			  mandatory="true"
@@ -83,7 +83,7 @@
                 	<cell align="right">
                 		<label value="${labels.label.module}:"/>
                 	</cell>
-                	<cell>
+                	<cell sclass="module-fieldcell">
 	                	<combobox model="@init(vm.modules) @template(empty each.name ? 'empty' : 'module')" 
 	                			  selectedItem="@bind(vm.object.module)"
 	                			  hflex="1">
@@ -101,7 +101,7 @@
                 	<cell align="right">
                 		<label value="${labels.label.menuentry}:"/>
                 	</cell>
-                	<cell>
+                	<cell sclass="menu-fieldcell">
 	                	<combobox model="@init(vm.menus) @template(empty each.name ? 'empty' : 'menu')" 
 	                			  selectedItem="@bind(vm.object.options.menu)"
 	                			  hflex="1">

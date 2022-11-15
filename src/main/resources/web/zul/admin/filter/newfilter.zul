@@ -54,7 +54,7 @@
                 	<cell align="right">
                 		<label value="${labels.label.module}:"/>
                 	</cell>
-                	<cell>
+                	<cell sclass="module-fieldcell">
 	                	<combobox model="@init(vm.modules) @template(empty each.name ? 'empty' : 'module')" 
 	                			  selectedItem="@bind(vm.object.module)"
 	                			  hflex="1">

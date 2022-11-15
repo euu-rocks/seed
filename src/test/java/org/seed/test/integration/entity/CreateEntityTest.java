@@ -40,6 +40,8 @@ public class CreateEntityTest extends AbstractIntegrationTest {
 		
 		WebElement window = findWindow("new-entity");
 		assertEquals("Neue Entität erstellen", findWindowHeader(window).getText());
+		findCombobox(window, "module").sendKeys("Testmodule");
+		findCombobox(window, "menu").sendKeys("Testmenu");
 		clickButton(window, "create");
 		clickButton(tabpanel, "save");
 		findValidationMessage(); // name is empty

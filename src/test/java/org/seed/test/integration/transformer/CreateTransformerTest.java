@@ -43,6 +43,7 @@ public class CreateTransformerTest extends AbstractIntegrationTest {
 		assertEquals("Neue Transformation erstellen", findWindowHeader(window).getText());
 		findCombobox(window, "sourceentity").sendKeys("IntegrationTest");
 		findCombobox(window, "targetentity").sendKeys("IntegrationTest");
+		findCombobox(window, "module").sendKeys("Testmodule");
 		clickButton(window, "create");
 		
 		clickButton(tabpanel, "save");

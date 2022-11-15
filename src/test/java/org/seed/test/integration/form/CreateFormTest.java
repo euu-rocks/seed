@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.test.integration.transfer;
+package org.seed.test.integration.form;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -28,49 +28,26 @@ import org.openqa.selenium.WebElement;
 import org.seed.test.integration.AbstractIntegrationTest;
 
 @TestMethodOrder(OrderAnnotation.class)
-public class CreateTransferTest extends AbstractIntegrationTest {
+public class CreateFormTest extends AbstractIntegrationTest {
 	
 	@Test
 	@Order(1)
-	void testCreateTransfer() {
-		openMenu("administration-entitaeten");
-		clickMenu("administration-entitaeten-import--export");
-		findTab("import--export");
-		WebElement tabpanel = findTabpanel("import--export");
+	void testCreateForm() {
+		clickMenu("administration-formulare");
+		findTab("formulare");
+		WebElement tabpanel = findTabpanel("formulare");
 		clickButton(tabpanel, "new");
 		
-		WebElement window = findWindow("new-transfer");
-		assertEquals("Neuen Import / Export erstellen", findWindowHeader(window).getText());
+		WebElement window = findWindow("new-form");
+		assertEquals("Neues Formular erstellen", findWindowHeader(window).getText());
 		findCombobox(window, "entity").sendKeys("IntegrationTest");
-		findCombobox(window, "format").sendKeys("CSV");
 		findCombobox(window, "module").sendKeys("Testmodule");
+		findCombobox(window, "menu").sendKeys("Testmenu");
 		clickButton(window, "create");
 		
-		clickButton(tabpanel, "save");
-		findValidationMessage(); // name is empty
-		findTextbox(tabpanel, "name").sendKeys("Testtransfer");
+		findTextbox(tabpanel, "name").sendKeys("Testform");
 		clickButton(tabpanel, "save");
 		findSuccessMessage();
 	}
 	
-	@Test
-	@Order(2)
-	void testAddElement() {
-		WebElement tabpanel = showTransfer("testtransfer");
-		findTab(tabpanel, "fields");
-		WebElement tabpanelCriteria = findTabpanel(tabpanel, "fields");
-		dragAndDrop(tabpanelCriteria, "textfield", "selected");
-		clickButton(tabpanel, "save");
-		findSuccessMessage();
-	}
-	
-	private WebElement showTransfer(String name) {
-		openMenu("administration-entitaeten");
-		clickMenu("administration-entitaeten-import--export");
-		findTab("import--export");
-		final WebElement tabpanel = findTabpanel("import--export");
-		clickListItem(tabpanel, name);
-		clickButton(tabpanel, "edit");
-		return tabpanel;
-	}
 }

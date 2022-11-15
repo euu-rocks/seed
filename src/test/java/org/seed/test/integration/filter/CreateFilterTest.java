@@ -42,6 +42,7 @@ public class CreateFilterTest extends AbstractIntegrationTest {
 		WebElement window = findWindow("new-filter");
 		assertEquals("Neuen Filter erstellen", findWindowHeader(window).getText());
 		findCombobox(window, "entity").sendKeys("IntegrationTest");
+		findCombobox(window, "module").sendKeys("Testmodule");
 		clickButton(window, "create");
 		
 		clickButton(tabpanel, "save");
