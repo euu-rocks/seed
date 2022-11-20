@@ -22,21 +22,21 @@
 	<north border="0">
 		<toolbar hflex="1">
 			<toolbarbutton mode="toggle" 
-						   iconSclass="z-icon-filter alpha-icon-lg" 
+						   iconSclass="filter-button z-icon-filter alpha-icon-lg" 
 						   tooltiptext="${labels.label.togglefilter}"
 						   checked="@bind(vm.listViewFilterGroup.visible)" 
 						   visible="@load(vm.listViewFilterGroup.visible or vm.existObjects())"/>
-			<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
+			<toolbarbutton iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 						   label="${labels.admin.rest.create}" 
 						   onClick="@command('newRest')"/>
-			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+			<toolbarbutton iconSclass="refresh-button z-icon-refresh alpha-icon-lg" 
 						   label="${labels.button.refresh}" 
 						   onClick="@command('refreshRest')"/>
-			<toolbarbutton iconSclass="z-icon-wrench alpha-icon-lg" 
+			<toolbarbutton iconSclass="edit-button z-icon-wrench alpha-icon-lg" 
 						   label="${labels.admin.rest.edit}" 
 						   onClick="@command('editRest')"
 						   visible="@load(!empty vm.object)"/>
-			<toolbarbutton iconSclass="z-icon-remove alpha-icon-lg" 
+			<toolbarbutton iconSclass="remove-button z-icon-remove alpha-icon-lg" 
 						   label="${labels.admin.rest.delete}" 
 						   onClick="@command('deleteRest', elem=self)"
 						   visible="@load(!empty vm.object)"/>
@@ -80,7 +80,8 @@
 		        </auxheader>
 		    </auxhead>
 		    <template name="model" var="rest">
-	            <listitem onDoubleClick="@command('editRest')">
+	            <listitem sclass="@load(rest.internalName.toLowerCase().concat('-listitem'))" 
+	            		  onDoubleClick="@command('editRest')">
 	            	<listcell iconSclass="z-icon-server z-icon-fw alpha-icon-lg">
 	            		<label value="@init(rest.name)" style="margin-left:3px"/>
 	            	</listcell>

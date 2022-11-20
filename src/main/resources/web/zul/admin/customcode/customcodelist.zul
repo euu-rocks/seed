@@ -22,21 +22,21 @@
 	<north border="0">
 		<toolbar hflex="1">
 			<toolbarbutton mode="toggle" 
-						   iconSclass="z-icon-filter alpha-icon-lg" 
+						   iconSclass="filter-button z-icon-filter alpha-icon-lg" 
 						   tooltiptext="${labels.label.togglefilter}"
 						   checked="@bind(vm.listViewFilterGroup.visible)" 
 						   visible="@load(vm.listViewFilterGroup.visible or vm.existObjects())"/>
-			<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
+			<toolbarbutton iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 						   label="${labels.admin.customcode.create}" 
 						   onClick="@command('newCode')"/>
-			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+			<toolbarbutton iconSclass="refresh-button z-icon-refresh alpha-icon-lg" 
 						   label="${labels.button.refresh}" 
 						   onClick="@command('refreshCode')"/>
-			<toolbarbutton iconSclass="z-icon-wrench alpha-icon-lg" 
+			<toolbarbutton iconSclass="edit-button z-icon-wrench alpha-icon-lg" 
 						   label="${labels.admin.customcode.edit}" 
 						   onClick="@command('editCode')"
 						   visible="@load(!empty vm.object)"/>
-			<toolbarbutton iconSclass="z-icon-remove alpha-icon-lg" 
+			<toolbarbutton iconSclass="delete-button z-icon-remove alpha-icon-lg" 
 						   label="${labels.admin.customcode.delete}" 
 						   onClick="@command('deleteCode', elem=self)"
 						   visible="@load(!empty vm.object)"/>
@@ -74,7 +74,8 @@
 		        </auxheader>
 		    </auxhead>
 		    <template name="model" var="customcode">
-	            <listitem onDoubleClick="@command('editCode')">
+	            <listitem sclass="@load(customcode.internalName.toLowerCase().concat('-listitem'))"
+	            		  onDoubleClick="@command('editCode')">
 	            	<listcell iconSclass="z-icon-code z-icon-fw alpha-icon-lg">
 	            		<label value="@init(customcode.name)" style="margin-left:3px"/>
 	            	</listcell>

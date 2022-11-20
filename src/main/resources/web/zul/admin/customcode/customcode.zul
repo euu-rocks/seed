@@ -22,21 +22,21 @@
 <borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminCustomCodeViewModel')">
 	<north border="0">
 		<toolbar>
-			<toolbarbutton iconSclass="z-icon-arrow-left alpha-icon-lg" 
+			<toolbarbutton iconSclass="back-button z-icon-arrow-left alpha-icon-lg" 
 						   label="${labels.button.back}" 
 						   onClick="@command('back')"/>
-			<toolbarbutton iconSclass="z-icon-save alpha-icon-lg" 
+			<toolbarbutton iconSclass="save-button z-icon-save alpha-icon-lg" 
 						   label="${labels.button.save}" 
 						   onClick="@command('saveCode',code=codemirror.getText(),elem=self)"
 						   disabled="@load(!vm.isDirty())"/>
-			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+			<toolbarbutton iconSclass="refresh-button z-icon-refresh alpha-icon-lg" 
 						   label="${labels.button.refresh}" 
 						   onClick="@command('refreshCode',elem=self)"
 						   visible="@load(!vm.object.isNew())"/>
-			<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
+			<toolbarbutton iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 						   label="${labels.button.newobject}" 
 						   onClick="@command('newCode')"/>
-			<toolbarbutton iconSclass="z-icon-remove alpha-icon-lg" 
+			<toolbarbutton iconSclass="delete-button z-icon-remove alpha-icon-lg" 
 						   label="${labels.button.delete}" 
 						   onClick="@command('deleteCode', elem=self)"
 						   visible="@load(!vm.object.isNew())"/>

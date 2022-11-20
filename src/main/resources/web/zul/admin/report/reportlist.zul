@@ -22,25 +22,25 @@
 	<north border="0">
 		<toolbar hflex="1">
 			<toolbarbutton mode="toggle" 
-						   iconSclass="z-icon-filter alpha-icon-lg" 
+						   iconSclass="filter-button z-icon-filter alpha-icon-lg" 
 						   tooltiptext="${labels.label.togglefilter}"
 						   checked="@bind(vm.listViewFilterGroup.visible)" 
 						   visible="@load(vm.listViewFilterGroup.visible or vm.existObjects())"/>
-			<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
+			<toolbarbutton iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 						   label="${labels.admin.report.create}" 
 						   onClick="@command('newReport')"/>
-			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+			<toolbarbutton iconSclass="refresh-button z-icon-refresh alpha-icon-lg" 
 						   label="${labels.button.refresh}" 
 						   onClick="@command('refreshReport')"/>
-			<toolbarbutton iconSclass="z-icon-wrench alpha-icon-lg" 
+			<toolbarbutton iconSclass="edit-button z-icon-wrench alpha-icon-lg" 
 						   label="${labels.admin.report.edit}" 
 						   onClick="@command('editReport')"
 						   visible="@load(!empty vm.object)"/>
-			<toolbarbutton iconSclass="z-icon-remove alpha-icon-lg" 
+			<toolbarbutton iconSclass="delete-button z-icon-remove alpha-icon-lg" 
 						   label="${labels.admin.report.delete}" 
 						   onClick="@command('deleteReport', elem=self)"
 						   visible="@load(!empty vm.object)"/>
-			<toolbarbutton iconSclass="z-icon-print alpha-icon-lg" 
+			<toolbarbutton iconSclass="run-button z-icon-print alpha-icon-lg" 
 						   label="${labels.admin.report.generate}" 
 						   onClick="@command('generateReport', elem=self)"
 						   visible="@load(!empty vm.object)"/>
@@ -78,7 +78,8 @@
 		        </auxheader>
 		    </auxhead>
 		    <template name="model" var="report">
-	            <listitem onDoubleClick="@command('editReport')">
+	            <listitem sclass="@load(report.internalName.toLowerCase().concat('-listitem'))" 
+	            		  onDoubleClick="@command('editReport')">
 	            	<listcell iconSclass="z-icon-book z-icon-fw alpha-icon-lg">
 	            		<label value="@init(report.name)" style="margin-left:3px"/>
 	            	</listcell>

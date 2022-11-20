@@ -28,6 +28,7 @@
 	</north>
 	<center border="0">
 		<codemirror id="codemirror"
+					sclass="content-field"
 					value="@load(vm.object.content)" 
 					onChange="@command('setObjectContent',content=codemirror.getText())"
 					mode="text/x-java" 

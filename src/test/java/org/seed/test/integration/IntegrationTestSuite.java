@@ -20,6 +20,7 @@ package org.seed.test.integration;
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 
+import org.seed.test.integration.customcode.CreateCustomCodeTest;
 import org.seed.test.integration.data.CreateDataSourceTest;
 import org.seed.test.integration.data.CreateViewTest;
 import org.seed.test.integration.entity.CreateEntityTest;
@@ -27,6 +28,8 @@ import org.seed.test.integration.filter.CreateFilterTest;
 import org.seed.test.integration.form.CreateFormTest;
 import org.seed.test.integration.menu.CreateMenuTest;
 import org.seed.test.integration.module.CreateModuleTest;
+import org.seed.test.integration.report.CreateReportTest;
+import org.seed.test.integration.rest.CreateRestTest;
 import org.seed.test.integration.task.CreateJobTest;
 import org.seed.test.integration.transfer.CreateTransferTest;
 import org.seed.test.integration.transformer.CreateTransformerTest;
@@ -38,5 +41,6 @@ import org.seed.test.integration.user.CreateUserTest;
 				 CreateUserTest.class, CreateUserGroupTest.class, CreateEntityTest.class, 
 				 CreateFilterTest.class, CreateTransferTest.class, CreateTransformerTest.class,
 				 CreateFormTest.class, CreateJobTest.class, CreateViewTest.class,
-				 CreateDataSourceTest.class })
+				 CreateDataSourceTest.class, CreateReportTest.class, CreateCustomCodeTest.class,
+				 CreateRestTest.class })
 public class IntegrationTestSuite { }

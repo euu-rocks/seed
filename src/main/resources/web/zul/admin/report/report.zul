@@ -23,25 +23,25 @@
 <borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminReportViewModel')">
 	<north border="0">
 		<toolbar>
-			<toolbarbutton iconSclass="z-icon-arrow-left alpha-icon-lg" 
+			<toolbarbutton iconSclass="back-button z-icon-arrow-left alpha-icon-lg" 
 						   label="${labels.button.back}" 
 						   onClick="@command('back')"/>
-			<toolbarbutton iconSclass="z-icon-save alpha-icon-lg" 
+			<toolbarbutton iconSclass="save-button z-icon-save alpha-icon-lg" 
 						   label="${labels.button.save}" 
 						   onClick="@command('saveReport',elem=self)"
 						   disabled="@load(!vm.isDirty())"/>
-			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+			<toolbarbutton iconSclass="refersh-button z-icon-refresh alpha-icon-lg" 
 						   label="${labels.button.refresh}" 
 						   onClick="@command('refreshReport',elem=self)"
 						   visible="@load(!vm.object.isNew())"/>
-			<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
+			<toolbarbutton iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 						   label="${labels.button.newobject}" 
 						   onClick="@command('newReport')"/>
-			<toolbarbutton iconSclass="z-icon-remove alpha-icon-lg" 
+			<toolbarbutton iconSclass="delete-button z-icon-remove alpha-icon-lg" 
 						   label="${labels.button.delete}" 
 						   onClick="@command('deleteReport', elem=self)"
 						   visible="@load(!vm.object.isNew())"/>
-			<toolbarbutton iconSclass="z-icon-print alpha-icon-lg" 
+			<toolbarbutton iconSclass="run-button z-icon-print alpha-icon-lg" 
 						   label="${labels.admin.report.generate}" 
 						   onClick="@command('generateReport', elem=self)"
 						   visible="@load(!vm.object.isNew())"/>
@@ -61,7 +61,8 @@
 						<cell style="padding: 4px 10px" align="right">
 							<label value="${labels.label.name}:"/>
 						</cell>
-						<cell style="padding: 4px 4px">
+						<cell sclass="name-fieldcell"
+							  style="padding: 4px 4px">
 							<textbox value="@bind(vm.object.name) @converter(vm.stringConverter)"
 									 mandatory="true"
 									 onChange="@command('flagDirty')"
@@ -74,14 +75,16 @@
 			</grid>
 			<tabbox id="mainTabbox" hflex="1" vflex="1" class="alpha-tabbox">
 				<tabs>
-					<tab label="${labels.label.datasources}"/>
-					<tab id="tabPermissions" label="${labels.label.permissions}"/>
+					<tab sclass="datasources-tab"
+						 label="${labels.label.datasources}"/>
+					<tab id="tabPermissions" sclass="permissions-tab"
+						 label="${labels.label.permissions}"/>
 				</tabs>
 				<tabpanels> 
-					<tabpanel>
+					<tabpanel sclass="datasources-tabpanel">
 						<report-datasources/>
 					</tabpanel>
-					<tabpanel fulfill="tabPermissions.onSelect">
+					<tabpanel sclass="permissions-tabpanel" fulfill="tabPermissions.onSelect">
 						<report-permissions/>
 					</tabpanel>
 				</tabpanels>

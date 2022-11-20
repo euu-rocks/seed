@@ -100,7 +100,7 @@ public abstract class AbstractIntegrationTest {
 	protected void dragAndDrop(WebElement parent, String itemName, String listName) {
 		final WebElement itemElement = findByClass(parent, itemName + "-item");
 		final WebElement listElement = findByClass(parent, listName + "-items");
-		new Actions(driver).dragAndDrop(itemElement, listElement).build().perform();
+		actions().dragAndDrop(itemElement, listElement).build().perform();
 		pause(DELAY_AFTER_DRAG_AND_DROP);
 	}
 	
@@ -204,6 +204,10 @@ public abstract class AbstractIntegrationTest {
         
         pause(DELAY_AFTER_LOGIN);
         assertEquals(SEED_NAME, driver.getTitle());
+	}
+	
+	private Actions actions() {
+		return new Actions(driver);
 	}
 	
 	protected static void pause(long ms) {

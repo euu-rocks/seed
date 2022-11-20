@@ -22,10 +22,10 @@
 	<north border="0">
 		<toolbar width="100%">
 			<toolbarbutton label="${labels.admin.report.newdatasource}" 
-						   iconSclass="z-icon-file-o alpha-icon-lg" 
+						   iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 					   	   onClick="@command('newDataSource')"/>
 			<toolbarbutton label="${labels.admin.report.removedatasource}" 
-						   iconSclass="z-icon-remove alpha-icon-lg" 
+						   iconSclass="remove-button z-icon-remove alpha-icon-lg" 
 					   	   onClick="@command('removeDataSource',elem=self)"
 					   	   visible="@load(not empty vm.dataSource)"/>
 		</toolbar>
@@ -65,25 +65,29 @@
 		  class="alpha-properties">
 		<vlayout class="alpha-properties-content">
         	<label value="${labels.label.label}:"/>
-            <textbox hflex="1" instant="true"
-            		 value="@bind(vm.dataSource.label) @converter(vm.stringConverter)"
-            		 placeholder="@load(vm.dataSource.dataSource.name)"
-            		 onChange="@command('flagDirty')"/>
+        	<div sclass="name-field">
+	            <textbox hflex="1" instant="true"
+	            		 value="@bind(vm.dataSource.label) @converter(vm.stringConverter)"
+	            		 placeholder="@load(vm.dataSource.dataSource.name)"
+	            		 onChange="@command('flagDirty')"/>
+	        </div>
             <label value="${labels.label.datasource}:"/>
-            <combobox model="@load(vm.dataSources) @template(empty each.name ? 'empty' : 'datasource')"
-          			  mandatory="true"
-          			  selectedItem="@bind(vm.dataSource.dataSource)"
-          			  value="@load(vm.dataSource.dataSource.name)"
-          			  onSelect="@command('flagDirty',notify='field')"
-			  	  	  hflex="1">
-			  	<template name="empty">
-                   	<comboitem/>
-               	</template>
-           		<template name="datasource" var="datasource">
-                   	<comboitem label="@init(datasource.name)"
-                   			   iconSclass="z-icon-share-alt z-icon-fw alpha-icon-lg"/>
-               	</template>
-          	</combobox>
+            <div sclass="datasource-field">
+	            <combobox model="@load(vm.dataSources) @template(empty each.name ? 'empty' : 'datasource')"
+	          			  mandatory="true"
+	          			  selectedItem="@bind(vm.dataSource.dataSource)"
+	          			  value="@load(vm.dataSource.dataSource.name)"
+	          			  onSelect="@command('flagDirty',notify='field')"
+				  	  	  hflex="1">
+				  	<template name="empty">
+	                   	<comboitem/>
+	               	</template>
+	           		<template name="datasource" var="datasource">
+	                   	<comboitem label="@init(datasource.name)"
+	                   			   iconSclass="z-icon-share-alt z-icon-fw alpha-icon-lg"/>
+	               	</template>
+	          	</combobox>
+          	</div>
         </vlayout>
     </east>
 </borderlayout>
