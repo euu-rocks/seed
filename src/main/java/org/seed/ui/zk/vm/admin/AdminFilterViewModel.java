@@ -347,6 +347,11 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 	public void globalRefreshObject(@BindingParam(C.PARAM) Long objectId) {
 		refreshObject(objectId);
 	}
+	
+	public void setFilterContent(@BindingParam(C.CONTENT) String content) {
+		((FilterMetadata) getObject()).setHqlQuery(content);
+		flagDirty();
+	}
 
 	@Override
 	protected void resetProperties() {

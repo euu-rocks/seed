@@ -464,6 +464,11 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 		cmdDeleteObject(component);
 	}
 	
+	@Override
+	protected void afterObjectDeleted(Entity entity) {
+		resetCurrentSession();
+	}
+	
 	@Command
 	public void showERDiagram() {
 		showDialog("/admin/entity/diagram.zul", 

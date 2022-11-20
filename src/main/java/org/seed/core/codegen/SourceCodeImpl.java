@@ -33,8 +33,8 @@ public class SourceCodeImpl implements SourceCode {
 	}
 	
 	SourceCodeImpl(ClassMetadata classMetadata, String content) {
-		Assert.notNull(classMetadata, "classMetadata");
-		Assert.state(StringUtils.hasText(content), C.CONTENT);
+		Assert.notNull(classMetadata, "class metadata");
+		Assert.stateAvailable(StringUtils.hasText(content), C.CONTENT);
 		
 		this.classMetadata = classMetadata;
 		this.content = content;

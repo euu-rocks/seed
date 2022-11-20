@@ -289,6 +289,11 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 		cmdDeleteObject(component);
 	}
 	
+	@Override
+	protected void afterObjectDeleted(Task task) {
+		resetCurrentSession();
+	}
+	
 	@Command
 	public void saveTask(@BindingParam(C.ELEM) Component elem) {
 		// detect content change

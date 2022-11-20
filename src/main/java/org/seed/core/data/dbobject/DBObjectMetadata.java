@@ -28,13 +28,14 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.core.application.AbstractApplicationEntity;
+import org.seed.core.application.ContentObject;
 import org.seed.core.util.CDATAXmlAdapter;
 
 @Entity
 @Table(name = "sys_dbobject")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class DBObjectMetadata extends AbstractApplicationEntity 
-	implements DBObject {
+	implements DBObject, ContentObject {
 	
 	private DBObjectType type;
 	
@@ -68,7 +69,8 @@ public class DBObjectMetadata extends AbstractApplicationEntity
 	public String getContent() {
 		return content;
 	}
-
+	
+	@Override
 	public void setContent(String content) {
 		this.content = content;
 	}

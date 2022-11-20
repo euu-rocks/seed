@@ -50,6 +50,7 @@ import org.seed.ui.ViewMode;
 import org.seed.ui.zk.vm.AbstractApplicationViewModel;
 
 import org.springframework.security.access.AccessDeniedException;
+import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
 import org.zkoss.zul.Tabbox;
@@ -557,6 +558,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	protected void deleteObject(Component component) {
 		try {
 			getObjectService().deleteObject(object);
+			afterObjectDeleted(object);
 			switch(viewMode) {
 				case DETAIL:
 					cmdBack();
@@ -576,6 +578,10 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 			final String msgKey = PRE_ADMIN + objectLabelKey + ".deletefail";
 			showValidationErrors(component, msgKey, vex.getErrors());
 		}
+	}
+	
+	protected void afterObjectDeleted(T object) {
+		// do nothing by default
 	}
 	
 	protected void cmdInitObject(Component component, Window window) {
@@ -636,6 +642,11 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 			}
 		}
 		return false;
+	}
+	
+	public void setObjectContent(@BindingParam(C.CONTENT) String content) {
+		((ContentObject) object).setContent(content);
+		flagDirty();
 	}
 	
 	protected void handleValidationException(ValidationException vex, Component component, String msgKey) {

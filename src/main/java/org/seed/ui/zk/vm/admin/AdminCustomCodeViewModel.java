@@ -97,6 +97,11 @@ public class AdminCustomCodeViewModel extends AbstractAdminViewModel<CustomCode>
 		cmdDeleteObject(component);
 	}
 	
+	@Override
+	protected void afterObjectDeleted(CustomCode customCode) {
+		resetCurrentSession();
+	}
+	
 	@Command
 	@NotifyChange("errorMessage")
 	public void compile(@BindingParam(C.CODE) String code,

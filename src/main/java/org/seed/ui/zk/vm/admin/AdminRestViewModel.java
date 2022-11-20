@@ -157,6 +157,11 @@ public class AdminRestViewModel extends AbstractAdminViewModel<Rest> {
 		cmdDeleteObject(component);
 	}
 	
+	@Override
+	protected void afterObjectDeleted(Rest rest) {
+		resetCurrentSession();
+	}
+	
 	@Command
 	@NotifyChange(C.FUNCTION)
 	public void newFunction() {

@@ -117,6 +117,10 @@ public class AdminDBObjectViewModel extends AbstractAdminViewModel<DBObject> {
 	@Command
 	public void deleteDBObject(@BindingParam(C.ELEM) Component component) {
 		cmdDeleteObject(component);
+	}
+	
+	@Override
+	protected void afterObjectDeleted(DBObject dbObject) {
 		resetCurrentSession();
 	}
 	
@@ -133,7 +137,7 @@ public class AdminDBObjectViewModel extends AbstractAdminViewModel<DBObject> {
 			errorMessage = ExceptionUtils.getRootCauseMessage(dboex.getCause());
 		}
 	}
-
+	
 	@Override
 	protected DBObjectService getObjectService() {
 		return objectService;

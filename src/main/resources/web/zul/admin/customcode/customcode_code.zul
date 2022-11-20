@@ -28,8 +28,8 @@
 	</north>
 	<center border="0">
 		<codemirror id="codemirror"
-					value="@bind(vm.object.content)" 
-					onChange="@command('flagDirty')"
+					value="@load(vm.object.content)" 
+					onChange="@command('setObjectContent',content=codemirror.getText())"
 					mode="text/x-java" 
 					lineNumbers="true"
 					hflex="1" vflex="1"/>

@@ -41,6 +41,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntity;
+import org.seed.core.application.ContentObject;
 import org.seed.core.util.Assert;
 import org.seed.core.util.CDATAXmlAdapter;
 
@@ -48,7 +49,7 @@ import org.seed.core.util.CDATAXmlAdapter;
 @Table(name = "sys_datasource")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class DataSourceMetadata extends AbstractApplicationEntity
-	implements IDataSource {
+	implements IDataSource, ContentObject {
 	
 	/*  \\{: escape character '{'
 	    (  : start match group
@@ -76,7 +77,8 @@ public class DataSourceMetadata extends AbstractApplicationEntity
 	public String getContent() {
 		return content;
 	}
-
+	
+	@Override
 	public void setContent(String content) {
 		this.content = content;
 	}

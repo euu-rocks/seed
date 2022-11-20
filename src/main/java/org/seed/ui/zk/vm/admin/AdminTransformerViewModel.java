@@ -337,6 +337,11 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 		cmdDeleteObject(component);
 	}
 	
+	@Override
+	protected void afterObjectDeleted(Transformer transformer) {
+		resetCurrentSession();
+	}
+	
 	@Command
 	public void saveTransformer(@BindingParam(C.ELEM) Component component) {
 		adjustLists(getObject().getPermissions(), getListManagerList(PERMISSIONS, LIST_SELECTED));

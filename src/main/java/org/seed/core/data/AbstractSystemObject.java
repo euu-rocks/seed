@@ -151,7 +151,7 @@ public abstract class AbstractSystemObject implements SystemObject {
 		return getClass().getSimpleName() + " id:" + id;
 	}
 	
-	public void copySystemFieldsTo(SystemObject object) {
+	public final void copySystemFieldsTo(SystemObject object) {
 		Assert.notNull(object, C.OBJECT);
 		
 		final AbstractSystemObject other = (AbstractSystemObject) object;
@@ -163,7 +163,7 @@ public abstract class AbstractSystemObject implements SystemObject {
 		other.modifiedOn = modifiedOn;
 	}
 	
-	public void resetId() {
+	public final void resetId() {
 		id = null;
 	}
 	
