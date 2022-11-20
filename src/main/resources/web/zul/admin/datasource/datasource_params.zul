@@ -22,10 +22,10 @@
 	<north border="0">
 		<toolbar width="100%">
 			<toolbarbutton label="${labels.admin.datasource.newparam}" 
-						   iconSclass="z-icon-file-o alpha-icon-lg" 
+						   iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 					   	   onClick="@command('newParameter')"/>
 			<toolbarbutton label="${labels.admin.datasource.removeparam}" 
-						   iconSclass="z-icon-remove alpha-icon-lg" 
+						   iconSclass="remove-button z-icon-remove alpha-icon-lg" 
 					   	   onClick="@command('removeParameter',elem=self)"
 					   	   visible="@load(not empty vm.parameter)"/>
 		</toolbar>
@@ -62,38 +62,44 @@
 		  class="alpha-properties">
 		<vlayout class="alpha-properties-content">
         	<label value="${labels.label.name}:"/>
-            <textbox hflex="1"
-            		 value="@bind(vm.parameter.name)"
-            		 mandatory="true"
-            		 onChange="@command('flagDirty')"/>
+        	<div sclass="name-field">
+	            <textbox hflex="1"
+	            		 value="@bind(vm.parameter.name)"
+	            		 mandatory="true"
+	            		 onChange="@command('flagDirty')"/>
+	        </div>
             <label value="${labels.label.datatype}:"/>
-			<combobox model="@load(vm.parameterTypes)"
-					  mandatory="true"
-					  selectedItem="@bind(vm.parameter.type)"
-					  value="@load(vm.getEnumLabel(vm.parameter.type))"
-					  onSelect="@command('flagDirty')"
-					  hflex="1">
-                <template name="model" var="paramType">
-                    <comboitem label="@load(vm.getEnumLabel(paramType))"/>
-                </template>
-            </combobox>
+            <div sclass="type-field">
+				<combobox model="@load(vm.parameterTypes)"
+						  mandatory="true"
+						  selectedItem="@bind(vm.parameter.type)"
+						  value="@load(vm.getEnumLabel(vm.parameter.type))"
+						  onSelect="@command('flagDirty')"
+						  hflex="1">
+	                <template name="model" var="paramType">
+	                    <comboitem label="@load(vm.getEnumLabel(paramType))"/>
+	                </template>
+	            </combobox>
+	        </div>
             <vlayout visible="@load(vm.parameter.type.isReference())">
             	<label value="${labels.label.refentity}:"/>
-            	<combobox model="@load(vm.entities) @template(empty each.name ? 'empty' : 'entity')"
-            			  mandatory="true"
-            			  nullable="@load(vm.parameter.isNew())"
-            			  selectedItem="@bind(vm.parameter.referenceEntity)"
-            			  value="@load(vm.parameter.referenceEntity.name)"
-            			  onSelect="@command('flagDirty')"
-            			  hflex="1">
-					<template name="empty">
-                    	<comboitem/>
-                	</template>	
-            		<template name="entity" var="refEntity">
-                    	<comboitem label="@init(refEntity.name)"
-                    			   iconSclass="z-icon-table z-icon-fw alpha-icon-lg"/>
-                	</template>	
-            	</combobox>
+            	<div sclass="reference-field">
+	            	<combobox model="@load(vm.entities) @template(empty each.name ? 'empty' : 'entity')"
+	            			  mandatory="true"
+	            			  nullable="@load(vm.parameter.isNew())"
+	            			  selectedItem="@bind(vm.parameter.referenceEntity)"
+	            			  value="@load(vm.parameter.referenceEntity.name)"
+	            			  onSelect="@command('flagDirty')"
+	            			  hflex="1">
+						<template name="empty">
+	                    	<comboitem/>
+	                	</template>	
+	            		<template name="entity" var="refEntity">
+	                    	<comboitem label="@init(refEntity.name)"
+	                    			   iconSclass="z-icon-table z-icon-fw alpha-icon-lg"/>
+	                	</template>	
+	            	</combobox>
+	            </div>
             </vlayout>
         </vlayout>
     </east>

@@ -22,10 +22,10 @@
 	<north border="0">
 		<toolbar width="100%">
 			<toolbarbutton label="${labels.admin.task.newnotification}" 
-						   iconSclass="z-icon-file-o alpha-icon-lg" 
+						   iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 					   	   onClick="@command('newNotification')"/>
 			<toolbarbutton label="${labels.admin.task.removenotification}" 
-						   iconSclass="z-icon-remove alpha-icon-lg" 
+						   iconSclass="remove-button z-icon-remove alpha-icon-lg" 
 					   	   onClick="@command('removeNotification',elem=self)"
 					   	   visible="@load(not empty vm.notification)"/>
 		</toolbar>
@@ -62,31 +62,35 @@
 		  class="alpha-properties">
 		<vlayout class="alpha-properties-content">
 			<label value="${labels.label.user}:"/>
-			<combobox model="@load(vm.users) @template(empty each.name ? 'empty' : 'user')"
-					  selectedItem="@bind(vm.notification.user)"
-					  value="@load(vm.notification.user.name)"
-					  onSelect="@command('flagDirty')"
-					  mandatory="true"
-					  hflex="1">
-				<template name="empty">
-                    <comboitem/>
-                </template>
-                <template name="user" var="user">
-                    <comboitem label="@load(user.name)"
-                    		   iconSclass="z-icon-user z-icon-fw alpha-icon-lg"/>
-                </template>
-            </combobox>
+			<div sclass="user-field">
+				<combobox model="@load(vm.users) @template(empty each.name ? 'empty' : 'user')"
+						  selectedItem="@bind(vm.notification.user)"
+						  value="@load(vm.notification.user.name)"
+						  onSelect="@command('flagDirty')"
+						  mandatory="true"
+						  hflex="1">
+					<template name="empty">
+	                    <comboitem/>
+	                </template>
+	                <template name="user" var="user">
+	                    <comboitem label="@load(user.name)"
+	                    		   iconSclass="z-icon-user z-icon-fw alpha-icon-lg"/>
+	                </template>
+	            </combobox>
+	        </div>
             <label value="${labels.label.result}:"/>
-            <combobox model="@load(vm.taskResults)"
-					  selectedItem="@bind(vm.notification.result)"
-					  value="@load(vm.getEnumLabel(vm.notification.result))"
-					  onSelect="@command('flagDirty')"
-					  mandatory="true"
-					  hflex="1">
-                <template name="model" var="taskResult">
-                    <comboitem label="@load(vm.getEnumLabel(taskResult))"/>
-                </template>
-            </combobox> 
+            <div sclass="result-field">
+	            <combobox model="@load(vm.taskResults)"
+						  selectedItem="@bind(vm.notification.result)"
+						  value="@load(vm.getEnumLabel(vm.notification.result))"
+						  onSelect="@command('flagDirty')"
+						  mandatory="true"
+						  hflex="1">
+	                <template name="model" var="taskResult">
+	                    <comboitem label="@load(vm.getEnumLabel(taskResult))"/>
+	                </template>
+	            </combobox>
+	        </div>
 		</vlayout>
 	</east>
 </borderlayout>

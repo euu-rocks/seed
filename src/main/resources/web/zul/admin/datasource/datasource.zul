@@ -22,25 +22,25 @@
 <borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminDataSourceViewModel')">
 	<north border="0">
 		<toolbar>
-			<toolbarbutton iconSclass="z-icon-arrow-left alpha-icon-lg" 
+			<toolbarbutton iconSclass="back-button z-icon-arrow-left alpha-icon-lg" 
 						   label="${labels.button.back}" 
 						   onClick="@command('back')"/>
-			<toolbarbutton iconSclass="z-icon-save alpha-icon-lg" 
+			<toolbarbutton iconSclass="save-button z-icon-save alpha-icon-lg" 
 						   label="${labels.button.save}" 
 						   onClick="@command('saveDataSource',elem=self)"
 						   disabled="@load(!vm.isDirty())"/>
-			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+			<toolbarbutton iconSclass="refresh-button z-icon-refresh alpha-icon-lg" 
 						   label="${labels.button.refresh}" 
 						   onClick="@command('refreshDatasource',elem=self)"
 						   visible="@load(!vm.object.isNew())"/>
-			<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
+			<toolbarbutton iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 						   label="${labels.button.newobject}" 
 						   onClick="@command('newDataSource')"/>
-			<toolbarbutton iconSclass="z-icon-remove alpha-icon-lg" 
+			<toolbarbutton iconSclass="delete-button z-icon-remove alpha-icon-lg" 
 						   label="${labels.button.delete}" 
 						   onClick="@command('deleteDataSource', elem=self)"
 						   visible="@load(!vm.object.isNew())"/>
-			<toolbarbutton iconSclass="z-icon-play alpha-icon-lg" 
+			<toolbarbutton iconSclass="run-button z-icon-play alpha-icon-lg" 
 						   label="${labels.button.start}" 
 						   onClick="@command('runQuery', elem=self)"/>
 		</toolbar>
@@ -59,7 +59,8 @@
 						<cell style="padding: 4px 10px" align="right">
 							<label value="${labels.label.name}:"/>
 						</cell>
-						<cell style="padding: 4px 4px">
+						<cell sclass="name-fieldcell"
+							  style="padding: 4px 4px">
 							<textbox value="@bind(vm.object.name) @converter(vm.stringConverter)"
 									 mandatory="true"
 									 onChange="@command('flagDirty')"
@@ -84,15 +85,19 @@
 			</grid>
 			<tabbox hflex="1" vflex="1" class="alpha-tabbox">
 				<tabs>
-					<tab label="@load(vm.expressionLabel)"/>
-					<tab id="tabParams" label="${labels.label.parameter}"/>
+					<tab sclass="sql-tab"
+						 label="@load(vm.expressionLabel)"/>
+					<tab id="tabParams" sclass="parameters-tab"
+						 label="${labels.label.parameter}"/>
 				</tabs>
 				<tabpanels> 
-					<tabpanel>
+					<tabpanel sclass="sql-tabpanel">
 						<borderlayout>
 							<center border="0">
-								<codemirror value="@bind(vm.object.content)" 
-											onChange="@command('flagDirty')"
+								<codemirror id="codemirror"
+											sclass="content-field"
+											value="@bind(vm.object.content)" 
+											onChange="@command('setObjectContent',content=codemirror.getText())"
 											mode="text/x-pgsql" 
 											lineNumbers="true"
 											hflex="1" vflex="1"/>		 
@@ -104,7 +109,7 @@
 							</south>
 						</borderlayout>
 					</tabpanel>
-					<tabpanel fulfill="tabParams.onSelect">
+					<tabpanel sclass="parameters-tabpanel" fulfill="tabParams.onSelect">
 						<datasource-params/>
 					</tabpanel>
 				</tabpanels>

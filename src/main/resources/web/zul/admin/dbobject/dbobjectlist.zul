@@ -22,21 +22,21 @@
 	<north border="0">
 		<toolbar hflex="1">
 			<toolbarbutton mode="toggle" 
-						   iconSclass="z-icon-filter alpha-icon-lg" 
+						   iconSclass="filter-button z-icon-filter alpha-icon-lg" 
 						   tooltiptext="${labels.label.togglefilter}"
 						   checked="@bind(vm.listViewFilterGroup.visible)" 
 						   visible="@load(vm.listViewFilterGroup.visible or vm.existObjects())"/>
-			<toolbarbutton iconSclass="z-icon-file-o alpha-icon-lg" 
+			<toolbarbutton iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 						   label="${labels.admin.dbobject.create}" 
 						   onClick="@command('newDBObject')"/>
-			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+			<toolbarbutton iconSclass="refresh-button z-icon-refresh alpha-icon-lg" 
 						   label="${labels.button.refresh}" 
 						   onClick="@command('refreshDBObject')"/>
-			<toolbarbutton iconSclass="z-icon-wrench alpha-icon-lg" 
+			<toolbarbutton iconSclass="edit-button z-icon-wrench alpha-icon-lg" 
 						   label="${labels.admin.dbobject.edit}" 
 						   onClick="@command('editDBObject')"
 						   visible="@load(!empty vm.object)"/>
-			<toolbarbutton iconSclass="z-icon-remove alpha-icon-lg" 
+			<toolbarbutton iconSclass="delete-button z-icon-remove alpha-icon-lg" 
 						   label="${labels.admin.dbobject.delete}" 
 						   onClick="@command('deleteDBObject', elem=self)"
 						   visible="@load(!empty vm.object)"/>
@@ -92,7 +92,8 @@
 		    </auxhead>
 		    <template name="model" var="dbobject">
 	            <listitem onDoubleClick="@command('editDBObject')">
-	            	<listcell iconSclass="z-icon-database z-icon-fw alpha-icon-lg">
+	            	<listcell sclass="@load(dbobject.internalName.toLowerCase().concat('-listitem'))"
+	            			  iconSclass="z-icon-database z-icon-fw alpha-icon-lg">
 	            		<label value="@init(dbobject.name)" style="margin-left:3px"/>
 	            	</listcell>
 	            	<listcell>

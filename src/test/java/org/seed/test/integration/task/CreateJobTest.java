@@ -1,0 +1,103 @@
+/**
+ * Seed
+ * Copyright (C) 2021 EUU⛰ROCKS
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.seed.test.integration.task;
+
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.openqa.selenium.WebElement;
+
+import org.seed.test.integration.AbstractIntegrationTest;
+
+@TestMethodOrder(OrderAnnotation.class)
+public class CreateJobTest extends AbstractIntegrationTest {
+	
+	@Test
+	@Order(1)
+	void testCreateJob() {
+		clickMenu("administration-jobs");
+		findTab("jobs");
+		WebElement tabpanel = findTabpanel("jobs");
+		clickButton(tabpanel, "new");
+		
+		clickButton(tabpanel, "save");
+		findValidationMessage(); // name is empty
+		
+		findTextbox(tabpanel, "name").sendKeys("Testjob");
+		pause(500);
+		clickButton(tabpanel, "editcode");
+		
+		WebElement window = findWindow("code-dialog");
+		findCodeMirror(window, "content", 11).sendKeys("System.out.println(\"Testjob\");");
+		clickButton(window, "apply");
+		
+		clickButton(tabpanel, "save");
+		pause(2000);
+		findSuccessMessage();
+	}
+	
+	@Test
+	@Order(2)
+	void testAddParameter() {
+		WebElement tabpanel = showJob("testjob");
+		clickTab(tabpanel, "parameters");
+		WebElement tabpanelParameters = findTabpanel(tabpanel, "parameters");
+		clickButton(tabpanelParameters, "new");
+
+		findOptionTextbox(tabpanelParameters, "name").sendKeys("Testparameter");
+		findOptionTextbox(tabpanelParameters, "value").sendKeys("Test value");
+		clickButton(tabpanel, "save");
+		findSuccessMessage();
+	}
+	
+	@Test
+	@Order(3)
+	void testAddNotification() {
+		WebElement tabpanel = showJob("testjob");
+		clickTab(tabpanel, "notifications");
+		WebElement tabpanelNotifications = findTabpanel(tabpanel, "notifications");
+		clickButton(tabpanelNotifications, "new");
+		
+		findOptionCombobox(tabpanelNotifications, "user").sendKeys("Testuser");
+		clickButton(tabpanel, "save");
+		findSuccessMessage();
+	}
+	
+	@Test
+	@Order(4)
+	void testAddPermission() {
+		WebElement tabpanel = showJob("testjob");
+		clickTab(tabpanel, "permissions");
+		
+		WebElement tabpanelPermissions = findTabpanel(tabpanel, "permissions");
+		dragAndDrop(tabpanelPermissions, "testrole", "selected");
+		clickButton(tabpanel, "save");
+		findSuccessMessage();
+	}
+	
+	private WebElement showJob(String name) {
+		clickMenu("administration-jobs");
+		findTab("jobs");
+		WebElement tabpanel = findTabpanel("jobs");
+		clickListItem(tabpanel, name);
+		clickButton(tabpanel, "edit");
+		return tabpanel;
+	}
+	
+}

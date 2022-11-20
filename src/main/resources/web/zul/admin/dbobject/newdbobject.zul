@@ -19,9 +19,12 @@
 -->
 <!DOCTYPE xml>
 <?page contentType="text/html;charset=UTF-8"?>
-<window id="newDBObjectWin" width="300px" title="${labels.admin.create.dbobject}"
+<window id="newDBObjectWin" 
+		sclass="new-dbobject-win" 
+		title="${labels.admin.create.dbobject}"
 		viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminDBObjectViewModel')" 
-		mode="modal" closable="true">
+		width="300px" mode="modal" 
+		closable="true">
 	<div class="alpha-dialog">
 		<grid class="alpha-noborder">
             <columns>
@@ -33,7 +36,7 @@
             		<cell align="right">
                 		<label value="${labels.label.type}:"/>
                 	</cell>
-                	<cell>
+                	<cell sclass="type-fieldcell">
                 		<combobox model="@init(vm.objectTypes)" 
                 			      selectedItem="@bind(vm.object.type)"
                 			      mandatory="true"
@@ -48,7 +51,7 @@
                 	<cell align="right">
                 		<label value="${labels.label.module}:"/>
                 	</cell>
-                	<cell>
+                	<cell sclass="module-fieldcell">
 	                	<combobox model="@init(vm.modules) @template(empty each.name ? 'empty' : 'module')" 
 	                			  selectedItem="@bind(vm.object.module)"
 	                			  hflex="1">
@@ -65,11 +68,11 @@
             </rows>
 		</grid>
 		<div class="alpha-dialog-footer">
-			<button iconSclass="z-icon-check" 
+			<button iconSclass="create-button z-icon-check" 
 					label="${labels.button.create}" 
 					onClick="@command('createDBObject',elem=self)"/>
 			<space/>
-			<button iconSclass="z-icon-close" 
+			<button iconSclass="cancel-button z-icon-close" 
 					label="${labels.button.cancel}" 
 					onClick="@command('cancel')"/>
 		</div>

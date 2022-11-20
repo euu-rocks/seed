@@ -20,8 +20,9 @@
 <!DOCTYPE xml>
 <borderlayout>
 	<center border="0">
-		<codemirror value="@bind(vm.object.hqlQuery)" 
-					onChange="@command('flagDirty')"
+		<codemirror id="codemirror"
+					value="@load(vm.object.hqlQuery)" 
+					onChange="@command('setFilterContent',content=codemirror.getText())"
 					mode="text/x-pgsql" 
 					lineNumbers="true"
 					hflex="1" vflex="1"/>
