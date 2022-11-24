@@ -262,6 +262,14 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		return objectList;
 	}
 	
+	public String getListItemTestClass(Object object) {
+		return getTestClass(object, "-listitem");
+	}
+	
+	public String getItemTestClass(Object object) {
+		return getTestClass(object, "-item");
+	}
+	
 	protected List<T> loadObjectList() {
 		return getObjectService().getObjects(currentSession());
 	}
@@ -710,5 +718,5 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		
 		confirm("question.dirty", null, action);
 	}
-
+	
 }

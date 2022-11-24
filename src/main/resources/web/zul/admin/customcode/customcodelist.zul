@@ -74,7 +74,7 @@
 		        </auxheader>
 		    </auxhead>
 		    <template name="model" var="customcode">
-	            <listitem sclass="@load(customcode.internalName.toLowerCase().concat('-listitem'))"
+	            <listitem sclass="@init(vm.getListItemTestClass(customcode))"
 	            		  onDoubleClick="@command('editCode')">
 	            	<listcell iconSclass="z-icon-code z-icon-fw alpha-icon-lg">
 	            		<label value="@init(customcode.name)" style="margin-left:3px"/>

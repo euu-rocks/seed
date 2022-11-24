@@ -92,7 +92,7 @@
 		        </auxheader>
 		    </auxhead>
 		    <template name="model" var="datasource">
-	            <listitem sclass="@load(datasource.internalName.toLowerCase().concat('-listitem'))"
+	            <listitem sclass="@init(vm.getListItemTestClass(datasource))"
 	            		  onDoubleClick="@command('editDataSource')">
 	            	<listcell iconSclass="z-icon-share-alt z-icon-fw alpha-icon-lg">
 	            		<label value="@init(datasource.name)" style="margin-left:3px"/>

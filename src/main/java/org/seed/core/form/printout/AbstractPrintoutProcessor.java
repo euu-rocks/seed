@@ -168,9 +168,8 @@ public abstract class AbstractPrintoutProcessor extends ObjectAccess implements 
 		return new ByteArrayInputStream(printout.getContent());
 	}
 	
-	@SuppressWarnings("unchecked")
 	protected static List<ValueObject> getNestedObjects(ValueObject valueObject, NestedEntity nestedEntity) {
-		return (List<ValueObject>) callGetter(valueObject, nestedEntity.getInternalName());
+		return callGetter(valueObject, nestedEntity.getInternalName());
 	}
 	
 	private static int findPatternStart(String text, int idx) {

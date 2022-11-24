@@ -104,7 +104,7 @@
 		        </auxheader>
 		    </auxhead>
 		    <template name="model" var="transformer">
-	            <listitem sclass="@load(transformer.internalName.toLowerCase().concat('-listitem'))"
+	            <listitem sclass="@init(vm.getListItemTestClass(transformer))" 
 	            		  onDoubleClick="@command('editTransformer')">
 	            	<listcell iconSclass="z-icon-random z-icon-fw alpha-icon-lg">
 	            		<label value="@init(transformer.name)" style="margin-left:3px"/>

@@ -67,7 +67,7 @@
 	            			visible="@load(vm.existModules())"/>
 	        </listhead>
 	        <template name="model" var="transfer">
-	            <listitem sclass="@load(transfer.internalName.toLowerCase().concat('-listitem'))"
+	            <listitem sclass="@init(vm.getListItemTestClass(transfer))" 
 	            		  onDoubleClick="@command('editTransfer')">
 	            	<listcell iconSclass="z-icon-exchange z-icon-fw alpha-icon-lg">
 	            		<label value="@init(transfer.name)" style="margin-left:3px"/>

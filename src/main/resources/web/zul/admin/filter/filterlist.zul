@@ -89,7 +89,7 @@
 		        </auxheader>
 		    </auxhead>
 		    <template name="model" var="filter">
-	            <listitem sclass="@load(filter.internalName.toLowerCase().concat('-listitem'))"
+	            <listitem sclass="@init(vm.getListItemTestClass(filter))"
 	            		  onDoubleClick="@command('editFilter')">
 	            	<listcell iconSclass="z-icon-filter z-icon-fw alpha-icon-lg">
 	            		<label value="@init(filter.name)" style="margin-left:3px"/>

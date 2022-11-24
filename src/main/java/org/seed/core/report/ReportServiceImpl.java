@@ -248,7 +248,9 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 		Assert.notNull(dataSource, C.DATASOURCE);
 		Assert.notNull(session, C.SESSION);
 		
-		return repository.find(session, queryParam(C.DATASOURCE, dataSource));
+		return subList(getObjects(session),
+					   report -> anyMatch(report.getDataSources(), 
+							   			  reportDS -> dataSource.equals(reportDS.getDataSource())));
 	}
 	
 	@Override

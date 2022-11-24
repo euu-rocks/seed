@@ -72,7 +72,8 @@
                 	<cell align="right"/>
                 	<cell>
                 		<hlayout>
-	                		<checkbox checked="@bind(vm.hqlInput)"/>
+	                		<checkbox sclass="hql-field"
+	                				  checked="@bind(vm.hqlInput)"/>
 	                		<label value=" ${labels.label.hqlinput}"/>
                 		</hlayout>
                 	</cell>

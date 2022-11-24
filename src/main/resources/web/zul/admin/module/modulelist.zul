@@ -74,7 +74,7 @@
 		        </auxheader>
 		    </auxhead>
 		    <template name="model" var="module">
-	            <listitem sclass="@load(module.internalName.toLowerCase().concat('-listitem'))"
+	            <listitem sclass="@init(vm.getListItemTestClass(module))" 
 	            		  onDoubleClick="@command('editModule')">
 	            	<listcell iconSclass="z-icon-cube z-icon-fw alpha-icon-lg">
 	            		<label value="@init(module.name)" style="margin-left:3px"/>

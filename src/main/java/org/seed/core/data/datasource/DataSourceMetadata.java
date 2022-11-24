@@ -20,6 +20,7 @@ package org.seed.core.data.datasource;
 import static org.seed.core.util.CollectionUtils.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -51,15 +52,23 @@ import org.seed.core.util.CDATAXmlAdapter;
 public class DataSourceMetadata extends AbstractApplicationEntity
 	implements IDataSource, ContentObject {
 	
-	/*  \\{: escape character '{'
-	    (  : start match group
-	    [  : one of the following characters
-	    ^  : not the following character
-	    +  : one or more
-	    )  : stop match group
-	    \\}: escape character '}'  
+	/*  \\{= escape character '{'
+	    (  = start match group
+	    [  = one of the following characters
+	    ^  = not the following character
+	    +  = one or more
 	*/
-	private static final Pattern PARAM_PATTERN = Pattern.compile("\\{([^}]+)\\}");
+	private static final Pattern PATTERN_PARAM_SQL = Pattern.compile("\\{([^}]+)");
+	
+	/*
+		:  = character ':'
+		(  = start match group
+		[  = one of the following characters
+		^  = not the following character
+		\s = whitespace
+		+  = one or more
+	 */
+	private static final Pattern PATTERN_PARAM_HQL = Pattern.compile(":([^\s]+)");
 	
 	private DataSourceType type;
 	
@@ -138,14 +147,30 @@ public class DataSourceMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public Set<String> getContentParameterSet() {
-		final Set<String> result = new HashSet<>();
 		if (content != null) {
-			final Matcher matcher = PARAM_PATTERN.matcher(content);
+			Assert.stateAvailable(type, C.TYPE);
+			final Set<String> result = new HashSet<>();
+			Pattern pattern;
+			switch (type) {
+				case SQL:
+					pattern = PATTERN_PARAM_SQL;
+					break;
+				
+				case HQL:
+					pattern = PATTERN_PARAM_HQL;
+					break;
+					
+				default:
+					throw new UnsupportedOperationException(type.name());
+			}
+			
+			final Matcher matcher = pattern.matcher(content);
 			while (matcher.find()) {
 				result.add(matcher.group(1));
 			}
+			return result;
 		}
-		return result;
+		return Collections.emptySet();
 	}
 	
 	@Override

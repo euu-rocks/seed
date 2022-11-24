@@ -92,7 +92,7 @@
 		    </auxhead>
 		    <template name="model" var="dbobject">
 	            <listitem onDoubleClick="@command('editDBObject')">
-	            	<listcell sclass="@load(dbobject.internalName.toLowerCase().concat('-listitem'))"
+	            	<listcell sclass="@init(vm.getListItemTestClass(entity))"
 	            			  iconSclass="z-icon-database z-icon-fw alpha-icon-lg">
 	            		<label value="@init(dbobject.name)" style="margin-left:3px"/>
 	            	</listcell>

@@ -74,7 +74,7 @@
 		        </auxheader>
 		    </auxhead>
 		    <template name="model" var="usergroup">
-	            <listitem sclass="@load(usergroup.internalName.toLowerCase().concat('-listitem'))"
+	            <listitem sclass="@init(vm.getListItemTestClass(usergroup))" 
 	            		  onDoubleClick="@command('editUserGroup')">
 	            	<listcell iconSclass="z-icon-users z-icon-fw alpha-icon-lg">
 	            		<label value="@init(usergroup.name)" style="margin-left:3px"/>

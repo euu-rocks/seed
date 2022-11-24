@@ -74,7 +74,7 @@
 		        </auxheader>
 		    </auxhead>
 		    <template name="model" var="menu">
-	            <listitem sclass="@load(menu.internalName.toLowerCase().concat('-listitem'))" 
+	            <listitem sclass="@init(vm.getListItemTestClass(menu))"  
 	            		  onDoubleClick="@command('editMenu')">
 	            	<listcell iconSclass="z-icon-navicon z-icon-fw alpha-icon-lg">
 	            		<label value="@init(menu.name)" style="margin-left:3px"/>

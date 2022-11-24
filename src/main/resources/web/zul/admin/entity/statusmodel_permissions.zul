@@ -57,7 +57,7 @@
 					 class="available-items alpha-noborder alpha-nobg"
 					 hflex="1" vflex="1">
 				<template name="model" var="permission">
-					<listitem sclass="@init(permission.userGroup.internalName.toLowerCase().concat('-item'))"
+					<listitem sclass="@init(vm.getItemTestClass(permission.userGroup))"
 							  attributes.item="@init(permission)" 
 							  draggable="true" droppable="true" 
 	 						  onDrop="@command('insertToStatusPermissionList',item=event.dragged.attributes.item,base=permission,list=0)">
@@ -78,7 +78,7 @@
 					 class="selected-items alpha-noborder alpha-nobg"
 					 hflex="1" vflex="1">
 				<template name="model" var="permission">
-					<listitem sclass="@init(permission.userGroup.internalName.toLowerCase().concat('-item'))"
+					<listitem sclass="@init(vm.getItemTestClass(permission.userGroup))"
 							  attributes.item="@init(permission)" 
 							  draggable="true" droppable="true" 
 							  onDrop="@command('insertToStatusPermissionList',item=event.dragged.attributes.item,base=permission,list=1)">

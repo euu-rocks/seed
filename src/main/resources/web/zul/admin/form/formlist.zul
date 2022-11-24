@@ -110,7 +110,7 @@
 		        </auxheader>
 		    </auxhead>
 		    <template name="model" var="form">
-	            <listitem sclass="@load(form.internalName.toLowerCase().concat('-listitem'))" 
+	            <listitem sclass="@init(vm.getListItemTestClass(form))" 
 	            		  onDoubleClick="@command('editForm')">
 	            	<listcell iconSclass="z-icon-list-alt z-icon-fw alpha-icon-lg">
 	            		<label value="@load(form.name)" style="margin-left:3px"/>

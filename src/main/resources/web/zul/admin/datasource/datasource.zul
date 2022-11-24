@@ -74,7 +74,8 @@
 										selectedItem="@bind(vm.object.type)"
 										onCheck="@command('typeSelected')">
 								<template name="model" var="type">
-									<radio label="@load(vm.getEnumLabel(type))" 
+									<radio sclass="@init(vm.getEnumLabel(type).toLowerCase().concat('-radio'))"
+										   label="@init(vm.getEnumLabel(type))" 
 										   value="@load(type)"
 										   style="margin-right:10px"/>
 								</template>
@@ -85,13 +86,13 @@
 			</grid>
 			<tabbox hflex="1" vflex="1" class="alpha-tabbox">
 				<tabs>
-					<tab sclass="sql-tab"
+					<tab sclass="query-tab"
 						 label="@load(vm.expressionLabel)"/>
 					<tab id="tabParams" sclass="parameters-tab"
 						 label="${labels.label.parameter}"/>
 				</tabs>
 				<tabpanels> 
-					<tabpanel sclass="sql-tabpanel">
+					<tabpanel sclass="query-tabpanel">
 						<borderlayout>
 							<center border="0">
 								<codemirror id="codemirror"

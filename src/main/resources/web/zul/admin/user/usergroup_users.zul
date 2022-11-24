@@ -29,7 +29,7 @@
 					 class="available-items alpha-noborder alpha-nobg" 
 					 oddRowSclass="non-odd">
 				<template name="model" var="user">
-					<listitem sclass="@init(user.internalName.toLowerCase().concat('-item'))"
+					<listitem sclass="@init(vm.getItemTestClass(user))"
 							  attributes.item="@init(user)" 
 							  draggable="true" droppable="true" 
 	 						  onDrop="@command('insertToUserList',item=event.dragged.attributes.item,base=user,list=0)">
@@ -50,7 +50,7 @@
 					 hflex="1" vflex="1"
 					 oddRowSclass="non-odd">
 				<template name="model" var="user">
-					<listitem sclass="@init(user.internalName.toLowerCase().concat('-item'))"
+					<listitem sclass="@init(vm.getItemTestClass(user))"
 							  attributes.item="@init(user)" 
 							  draggable="true" droppable="true" 
 							  onDrop="@command('insertToUserList',item=event.dragged.attributes.item,base=user,list=1)">

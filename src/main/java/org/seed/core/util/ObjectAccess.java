@@ -31,10 +31,10 @@ public abstract class ObjectAccess {
 	private static final String PRE_SET = "set";
 	
 	public static Boolean callBooleanGetter(Object object, String propertyName) {
-		return (Boolean) callMethod(object, PRE_IS.concat(StringUtils.capitalize(propertyName)));
+		return callMethod(object, PRE_IS.concat(StringUtils.capitalize(propertyName)));
 	}
 	
-	public static Object callGetter(Object object, String propertyName) {
+	public static <T> T callGetter(Object object, String propertyName) {
 		return callMethod(object, PRE_GET.concat(StringUtils.capitalize(propertyName)));
 	}
 	
@@ -42,10 +42,11 @@ public abstract class ObjectAccess {
 		callMethod(object, PRE_SET.concat(StringUtils.capitalize(propertyName)), parameters);
 	}
 	
-	protected static Object callMethod(Object object, String methodName, Object ...parameters) {
+	@SuppressWarnings("unchecked")
+	protected static <T> T callMethod(Object object, String methodName, Object ...parameters) {
 		for (Method method : object.getClass().getMethods()) {
 			if (method.getName().equals(methodName)) {
-				return ReflectionUtils.invokeMethod(method, object, parameters);
+				return (T) ReflectionUtils.invokeMethod(method, object, parameters);
 			}
 		}
         throw new IllegalStateException("method not found: " + object.getClass().getName() + '.' + methodName);

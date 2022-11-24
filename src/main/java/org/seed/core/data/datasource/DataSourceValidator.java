@@ -188,6 +188,14 @@ public class DataSourceValidator extends AbstractSystemEntityValidator<IDataSour
 					value = new Date();
 					break;
 				
+				case LONG:
+					value = 1L;
+					break;
+					
+				case BOOLEAN:
+					value = Boolean.TRUE;
+					break;
+					
 				case REFERENCE:
 					value = new AbstractSystemObject() {
 						

@@ -96,14 +96,17 @@
 			<tabbox hflex="1" vflex="1" class="alpha-tabbox"
 					visible="@load(vm.hqlInput)">
 				<tabs>
-					<tab label="${labels.label.hqlinput}"/>
-					<tab id="tabFilterPermissions2" label="${labels.label.permissions}"/>
+					<tab sclass="hql-tab"
+						 label="${labels.label.hqlinput}"/>
+					<tab id="tabFilterPermissions2" sclass="permissions2-tab"
+						 label="${labels.label.permissions}"/>
 				</tabs>
 				<tabpanels> 
-					<tabpanel>
+					<tabpanel sclass="hql-tabpanel">
 						<filter-hql/>
 					</tabpanel>
-					<tabpanel fulfill="tabFilterPermissions2.onSelect">
+					<tabpanel sclass="permissions2-tabpanel"
+							  fulfill="tabFilterPermissions2.onSelect">
 						<filter-permissions/>
 					</tabpanel>
 				</tabpanels>

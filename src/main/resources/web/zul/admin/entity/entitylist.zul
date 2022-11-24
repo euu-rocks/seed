@@ -114,7 +114,7 @@
 		        </auxheader>
 		    </auxhead>
 		    <template name="model" var="entity">
-	            <listitem sclass="@load(entity.internalName.toLowerCase().concat('-listitem'))" 
+	            <listitem sclass="@init(vm.getListItemTestClass(entity))" 
 	            		  onDoubleClick="@command('editEntity')">
 	            	<listcell iconSclass="z-icon-table z-icon-fw alpha-icon-lg">
 	            		<label value="@load(entity.name)" style="margin-left:3px"/>

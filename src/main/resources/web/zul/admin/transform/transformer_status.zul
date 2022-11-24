@@ -29,7 +29,7 @@
 					 class="available-items alpha-noborder alpha-nobg" 
 					 oddRowSclass="non-odd">
 				<template name="model" var="status">
-					<listitem sclass="@init(status.status.internalName.toLowerCase().concat('-item'))"
+					<listitem sclass="@init(vm.getItemTestClass(status.status))"
 							  attributes.item="@init(status)" 
 							  draggable="true" droppable="true" 
 	 						  onDrop="@command('insertToStatusList',item=event.dragged.attributes.item,base=status,list=0)">
@@ -49,7 +49,7 @@
 					 hflex="1" vflex="1"
 					 oddRowSclass="non-odd">
 				<template name="model" var="status">
-					<listitem sclass="@init(status.status.internalName.toLowerCase().concat('-item'))"
+					<listitem sclass="@init(vm.getItemTestClass(status.status))"
 							  attributes.item="@init(status)" 
 							  draggable="true" droppable="true" 
 							  onDrop="@command('insertToStatusList',item=event.dragged.attributes.item,base=status,list=1)">

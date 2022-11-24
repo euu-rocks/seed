@@ -57,7 +57,7 @@
 					 class="available-items alpha-noborder alpha-nobg"
 					 hflex="1" vflex="1">
 				<template name="model" var="function">
-					<listitem sclass="@init(function.function.internalName.toLowerCase().concat('-item'))"
+					<listitem sclass="@init(vm.getItemTestClass(function.function))"
 							  attributes.item="@init(function)" 
 							  draggable="true" droppable="true" 
 	 						  onDrop="@command('insertToStatusFunctionList',item=event.dragged.attributes.item,base=function,list=0)">
@@ -79,7 +79,7 @@
 					 class="selected-items alpha-noborder alpha-nobg"
 					 hflex="1" vflex="1">
 				<template name="model" var="function">
-					<listitem sclass="@init(function.function.internalName.toLowerCase().concat('-item'))"
+					<listitem sclass="@init(vm.getItemTestClass(function.function))"
 							  attributes.item="@init(function)" 
 							  draggable="true" droppable="true" 
 							  onDrop="@command('insertToStatusFunctionList',item=event.dragged.attributes.item,base=function,list=1)">

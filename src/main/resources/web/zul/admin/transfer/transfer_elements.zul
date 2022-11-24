@@ -36,7 +36,7 @@
 					 class="available-items alpha-noborder alpha-nobg"
 					 oddRowSclass="non-odd">
 				<template name="model" var="element">
-					<listitem sclass="@init(element.entityField.internalName.toLowerCase().concat('-item'))"
+					<listitem sclass="@init(vm.getItemTestClass(element.entityField))"
 							  attributes.item="@init(element)" 
 							  draggable="true" droppable="true" 
 	 						  onDrop="@command('insertToElementList',item=event.dragged.attributes.item,base=element,list=0)">
@@ -59,7 +59,7 @@
 					 hflex="1" vflex="1"
 					 oddRowSclass="non-odd">
 				<template name="model" var="element">
-					<listitem sclass="@init(element.entityField.internalName.toLowerCase().concat('-item'))"
+					<listitem sclass="@init(vm.getItemTestClass(element.entityField))"
 							  attributes.item="@init(element)" 
 							  draggable="true" droppable="true" 
 							  onDrop="@command('insertToElementList',item=event.dragged.attributes.item,base=element,list=1)">

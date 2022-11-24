@@ -80,7 +80,7 @@
 		        </auxheader>
 		    </auxhead>
 		    <template name="model" var="rest">
-	            <listitem sclass="@load(rest.internalName.toLowerCase().concat('-listitem'))" 
+	            <listitem sclass="@init(vm.getListItemTestClass(rest))"  
 	            		  onDoubleClick="@command('editRest')">
 	            	<listcell iconSclass="z-icon-server z-icon-fw alpha-icon-lg">
 	            		<label value="@init(rest.name)" style="margin-left:3px"/>

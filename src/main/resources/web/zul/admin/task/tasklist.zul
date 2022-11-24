@@ -89,7 +89,7 @@
 		    </auxhead>
 	        <template name="model" var="task">
 	            <listitem onDoubleClick="@command('editTask')">
-	            	<listcell sclass="@load(task.internalName.toLowerCase().concat('-listitem'))" 
+	            	<listcell sclass="@init(vm.getListItemTestClass(task))" 
 	            			  iconSclass="z-icon-cog z-icon-fw alpha-icon-lg">
 	            		<label value="@init(task.name)" style="margin-left:3px"/>
 	            	</listcell>

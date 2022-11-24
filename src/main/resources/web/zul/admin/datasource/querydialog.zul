@@ -70,6 +70,14 @@
 	            		 	   mandatory="true"/>
 	            	</vlayout>
 		        </template>
+		        <template name="long">
+					<vlayout>
+			           <label value="@init(each.name)"/>
+			           <longbox hflex="1"
+	  							value="@bind(each.value)"
+	           					mandatory="true"/>
+	            	</vlayout>
+		        </template>
 		        <template name="double">
 					<vlayout>
 			           <label value="@init(each.name)"/>
@@ -92,6 +100,12 @@
 			           <datebox hflex="1"
 	            				value="@bind(each.value)"
 	           					mandatory="true"/>
+	            	</vlayout>
+		        </template>
+		        <template name="boolean">
+					<vlayout>
+			           <label value="@init(each.name)"/>
+			           <checkbox checked="@bind(each.value)"/>
 	            	</vlayout>
 		        </template>
 		        <template name="reference">

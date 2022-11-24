@@ -78,7 +78,7 @@
 		        </auxheader>
 		    </auxhead>
 		    <template name="model" var="report">
-	            <listitem sclass="@load(report.internalName.toLowerCase().concat('-listitem'))" 
+	            <listitem sclass="@init(vm.getListItemTestClass(report))" 
 	            		  onDoubleClick="@command('editReport')">
 	            	<listcell iconSclass="z-icon-book z-icon-fw alpha-icon-lg">
 	            		<label value="@init(report.name)" style="margin-left:3px"/>

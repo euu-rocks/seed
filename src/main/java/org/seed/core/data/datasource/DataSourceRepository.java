@@ -19,15 +19,21 @@ package org.seed.core.data.datasource;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
+import org.hibernate.jdbc.ReturningWork;
+import org.hibernate.query.NativeQuery;
+import org.hibernate.query.Query;
+import org.hibernate.query.internal.AbstractProducedQuery;
 
 import org.seed.C;
 import org.seed.InternalException;
@@ -35,6 +41,7 @@ import org.seed.LabelProvider;
 import org.seed.core.data.AbstractSystemEntityRepository;
 import org.seed.core.data.SystemObject;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,9 +53,6 @@ import org.springframework.util.StringUtils;
 public class DataSourceRepository extends AbstractSystemEntityRepository<IDataSource> {
 	
 	private static final Logger log = LoggerFactory.getLogger(DataSourceRepository.class);
-	
-	@Autowired
-	private javax.sql.DataSource sqlDataSource;
 	
 	@Autowired
 	private LabelProvider labelProvider;
@@ -71,7 +75,7 @@ public class DataSourceRepository extends AbstractSystemEntityRepository<IDataSo
 	public DataSourceResult query(IDataSource dataSource, Map<String, Object> parameters, Session session) {
 		try {
 			return new DefaultDataSourceResult(query(dataSource, parameters, session, false), 
-											   getMetadata(dataSource, parameters));
+											   getMetadata(dataSource, parameters, session));
 		} 
 		catch (SQLException ex) {
 			throw new InternalException(ex);
@@ -84,39 +88,65 @@ public class DataSourceRepository extends AbstractSystemEntityRepository<IDataSo
 		}
 	}
 	
-	private ResultSetMetaData getMetadata(IDataSource dataSource, Map<String, Object> parameters) {
-		Assert.notNull(dataSource, C.DATASOURCE);
-		Assert.notNull(parameters, "parameters");
-		
+	private ResultSetMetaData getMetadata(IDataSource dataSource, Map<String, Object> parameters, Session session) {
 		final String sql = buildQuery(dataSource, parameters);
-		try (Connection connection = sqlDataSource.getConnection()) {
-			try (Statement statement = connection.createStatement();
-				 ResultSet resultSet = statement.executeQuery(sql)) {
-				return resultSet.getMetaData();
-			}
-		} 
-		catch (SQLException ex) {
-			throw new InternalException(ex);
+		switch(dataSource.getType()) {
+			case SQL:
+				return session.doReturningWork(new ReturningWork<ResultSetMetaData>() {
+
+					@Override
+					public ResultSetMetaData execute(Connection connection) throws SQLException {
+						try (Statement statement = connection.createStatement();
+							 ResultSet resultSet = statement.executeQuery(sql)) {
+							return resultSet.getMetaData();
+						}
+					}
+				});
+				
+			case HQL:
+				final Query<?> query = session.createQuery(sql);
+				return session.doReturningWork(new ReturningWork<ResultSetMetaData>() {
+					
+					@Override
+					public ResultSetMetaData execute(Connection connection) throws SQLException {
+						try (PreparedStatement statement = connection.prepareStatement(getSQL(query))) {
+							int idx = 1;
+							for (String contentParameter : dataSource.getContentParameterSet()) {
+								final Object paramValue = parameters.get(contentParameter);
+								statement.setObject(idx++, paramValue);
+							}
+							try (ResultSet resultSet = statement.executeQuery()) {
+								return resultSet.getMetaData();
+							}
+						}
+					}
+				});
+
+			default:
+				throw new UnsupportedOperationException(dataSource.getType().name());	
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	private List<Object> query(IDataSource dataSource, Map<String, Object> parameters, Session session, boolean testQuery) {
-		Assert.notNull(dataSource, C.DATASOURCE);
-		Assert.notNull(parameters, "parameters");
-		Assert.notNull(session, C.SESSION);
-		
-		final String query = buildQuery(dataSource, parameters);
+		final String queryString = buildQuery(dataSource, parameters);
 		switch (dataSource.getType()) {
 			case SQL:
-				return testQuery
-						? session.createSQLQuery(query).setMaxResults(1).list()
-						: session.createSQLQuery(query).list();
+				final NativeQuery<?> sqlQuery = session.createSQLQuery(queryString);
+				if (testQuery) {
+					sqlQuery.setMaxResults(1);
+				}
+				return MiscUtils.castList(sqlQuery.list());
 			
 			case HQL:
-				return testQuery
-						? session.createQuery(query).setMaxResults(1).list()
-						: session.createQuery(query).list();
+				final Query<?> query = session.createQuery(queryString);
+				for (String contentParameter : dataSource.getContentParameterSet()) {
+					final Object paramValue = parameters.get(contentParameter);
+					query.setParameter(contentParameter, paramValue);
+				}
+				if (testQuery) {
+					query.setMaxResults(1);
+				}
+				return MiscUtils.castList(query.list());
 			
 			default:
 				throw new UnsupportedOperationException(dataSource.getType().name());
@@ -127,10 +157,12 @@ public class DataSourceRepository extends AbstractSystemEntityRepository<IDataSo
 		String query = dataSource.getContent();
 		Assert.stateAvailable(query, C.CONTENT);
 		
-		for (String contentParameter : dataSource.getContentParameterSet()) {
-			final Object paramValue = parameters.get(contentParameter);
-			Assert.stateAvailable(paramValue, "parameter value " + contentParameter);
-			query = query.replace('{' + contentParameter + '}', formatParameter(paramValue));
+		if (dataSource.getType() == DataSourceType.SQL) {
+			for (String contentParameter : dataSource.getContentParameterSet()) {
+				final Object paramValue = parameters.get(contentParameter);
+				Assert.stateAvailable(paramValue, "parameter value " + contentParameter);
+				query = query.replace('{' + contentParameter + '}', formatParameter(paramValue));
+			}
 		}
 		if (log.isDebugEnabled()) {
 			log.debug("[{}] {}", dataSource.getName(), query);
@@ -153,6 +185,13 @@ public class DataSourceRepository extends AbstractSystemEntityRepository<IDataSo
 			return id != null ? id.toString() : null;
 		}
 		return parameter != null ? parameter.toString() : "null";
+	}
+	
+	private static String getSQL(Query<?> query) {
+		final AbstractProducedQuery<?> producedQuery = query.unwrap(AbstractProducedQuery.class);
+        return producedQuery.getProducer().getFactory().getQueryPlanCache()
+        	.getHQLQueryPlan(producedQuery.getQueryString(), false, Collections.emptyMap())
+            .getSqlStrings()[0];
 	}
 	
 }

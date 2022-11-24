@@ -24,7 +24,9 @@ public enum DataSourceParameterType {
 	DOUBLE,
 	DECIMAL,
 	DATE,
-	REFERENCE;
+	REFERENCE,
+	LONG,
+	BOOLEAN;
 	
 	public String getName() {
 		return name().toLowerCase();

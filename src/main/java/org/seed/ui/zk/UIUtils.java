@@ -23,6 +23,7 @@ import java.util.Map;
 import org.seed.C;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
+import org.seed.core.util.ObjectAccess;
 
 import org.zkoss.bind.BindUtils;
 import org.zkoss.util.media.Media;
@@ -104,6 +105,15 @@ public abstract class UIUtils {
 			return (sessionTimeoutSec - 60) * 1000;
 		}
 		return (sessionTimeoutSec / 4) * 3000;
+	}
+	
+	public static String getTestClass(Object object, String suffix) {
+		if (object != null) {
+			final String name = ObjectAccess.callGetter(object, "internalName");
+			Assert.stateAvailable(name, "internal name");
+			return name.replace('_', '-').toLowerCase().concat(suffix);
+		}
+		return null;
 	}
 	
 	@SuppressWarnings("unchecked")

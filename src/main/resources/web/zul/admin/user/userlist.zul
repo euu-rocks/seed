@@ -58,7 +58,7 @@
 		        </auxheader>
 		    </auxhead>
 		    <template name="model" var="user">
-	            <listitem sclass="@load(user.internalName.toLowerCase().concat('-listitem'))"
+	            <listitem sclass="@init(vm.getListItemTestClass(user))" 
 	            		  onDoubleClick="@command('editUser')">
 	            	<listcell iconSclass="z-icon-user z-icon-fw alpha-icon-lg">
 	            		<label value="@init(user.name)" style="margin-left:3px"/>
