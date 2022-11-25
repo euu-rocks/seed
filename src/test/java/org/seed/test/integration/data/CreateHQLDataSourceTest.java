@@ -26,30 +26,32 @@ import org.openqa.selenium.WebElement;
 import org.seed.test.integration.AbstractIntegrationTest;
 
 @TestMethodOrder(OrderAnnotation.class)
-public class CreateDataSourceTest extends AbstractIntegrationTest {
+public class CreateHQLDataSourceTest extends AbstractIntegrationTest {
 	
 	@Test
 	@Order(1)
-	void testCreateDataSource() {
+	void testCreateHQLDataSource() {
 		clickMenu("administration-abfragen");
 		findTab("abfragen");
 		WebElement tabpanel = findTabpanel("abfragen");
 		clickButton(tabpanel, "new");
+		clickRadioItem(tabpanel, "hql");
 		
 		clickTab(tabpanel, "parameters");
 		WebElement tabpanelParameters = findTabpanel(tabpanel, "parameters");
 		clickButton(tabpanelParameters, "new");
 		
 		findOptionTextbox(tabpanelParameters, "name").sendKeys("id");
-		findOptionCombobox(tabpanelParameters, "type").sendKeys("Ganzzahl");
+		findOptionCombobox(tabpanelParameters, "type").sendKeys("Ganzzahl (lang)");
+		
 		
 		clickTab(tabpanel, "query");
 		WebElement tabpanelQuery = findTabpanel(tabpanel, "query");
-		findCodeMirror(tabpanelQuery, "content", 1).sendKeys("select * from integrationtest where id={id}");
+		findCodeMirror(tabpanelQuery, "content", 1).sendKeys("select textfield from IntegrationTest it where it.id=:id");
 		clickButton(tabpanel, "save");
 		findValidationMessage(); // name is empty
 		
-		findTextbox(tabpanel, "name").sendKeys("Testquery");
+		findTextbox(tabpanel, "name").sendKeys("Test HQL query");
 		clickButton(tabpanel, "save");
 		findSuccessMessage();
 	}

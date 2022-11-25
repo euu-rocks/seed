@@ -75,9 +75,9 @@ public class CreateEntityTest extends AbstractIntegrationTest {
 		findOptionTextbox(tabpanelFields, "fieldname").sendKeys("Textfield");
 		
 		pause(50);
-		clickOptionCheckbox(tabpanelFields, "mandatory");
-		clickOptionCheckbox(tabpanelFields, "unique");
-		clickOptionCheckbox(tabpanelFields, "indexed");
+		clickCheckbox(tabpanelFields, "mandatory");
+		clickCheckbox(tabpanelFields, "unique");
+		clickCheckbox(tabpanelFields, "indexed");
 		saveEntity(tabpanel);
 	}
 	
@@ -115,9 +115,9 @@ public class CreateEntityTest extends AbstractIntegrationTest {
 		findCodeMirror(window, "content", 10).sendKeys("System.out.println(\"Testcallback\");");
 		clickButton(window, "apply");
 		
-		clickOptionCheckbox(tabpanelFunctions, "activebeforeinsert");
-		clickOptionCheckbox(tabpanelFunctions, "activebeforeupdate");
-		clickOptionCheckbox(tabpanelFunctions, "activeontransition");
+		clickCheckbox(tabpanelFunctions, "activebeforeinsert");
+		clickCheckbox(tabpanelFunctions, "activebeforeupdate");
+		clickCheckbox(tabpanelFunctions, "activeontransition");
 		saveEntity(tabpanel);
 	}
 	
@@ -208,8 +208,8 @@ public class CreateEntityTest extends AbstractIntegrationTest {
 		findOptionCombobox(tabpanelConstraints, "field").sendKeys("Textfield");
 		findOptionCombobox(tabpanelConstraints, "status").sendKeys("1 One");
 		findOptionCombobox(tabpanelConstraints, "usergroup").sendKeys("Testrole");
-		findOptionCombobox(tabpanelConstraints, "access").sendKeys("Lesen");
-		clickOptionCheckbox(tabpanelConstraints, "mandatory");
+		findOptionCombobox(tabpanelConstraints, "access").sendKeys("Schreiben");
+		clickCheckbox(tabpanelConstraints, "mandatory");
 		saveEntity(tabpanel);
 	}
 	

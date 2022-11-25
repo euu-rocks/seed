@@ -187,6 +187,7 @@ public class DataSourceRepository extends AbstractSystemEntityRepository<IDataSo
 		return parameter != null ? parameter.toString() : "null";
 	}
 	
+	@SuppressWarnings("deprecation")
 	private static String getSQL(Query<?> query) {
 		final AbstractProducedQuery<?> producedQuery = query.unwrap(AbstractProducedQuery.class);
         return producedQuery.getProducer().getFactory().getQueryPlanCache()

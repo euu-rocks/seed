@@ -71,11 +71,16 @@ public abstract class AbstractIntegrationTest {
 	@AfterEach
     void quit() {
 		driver.quit();
+		driver = null;
 	}
 	
 	protected void clickButton(WebElement parent, String className) {
 		findByClass(parent, className + "-button").click();
 		pause(DELAY_AFTER_CLICK_BUTTON);
+	}
+	
+	protected void clickCheckbox(WebElement parent, String className) {
+		findByClass(parent, className + "-field").click();
 	}
 	
 	protected void clickListItem(WebElement parent, String className) {
@@ -84,8 +89,8 @@ public abstract class AbstractIntegrationTest {
 		pause(DELAY_AFTER_CLICK_LISTITEM);
 	}
 	
-	protected void clickOptionCheckbox(WebElement parent, String className) {
-		findByClass(parent, className + "-field").click();
+	protected void clickRadioItem(WebElement parent, String className) {
+		findByClass(parent, className + "-radio").click();
 	}
 	
 	protected void clickTab(WebElement parent, String className) {

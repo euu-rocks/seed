@@ -105,8 +105,8 @@ public class CreateTransformerTest extends AbstractIntegrationTest {
 		findCodeMirror(window, "content", 10).sendKeys("System.out.println(\"Testtransformation\");");
 		clickButton(window, "apply");
 		
-		clickOptionCheckbox(tabpanelFunctions, "activebeforetransformation");
-		clickOptionCheckbox(tabpanelFunctions, "activeaftertransformation");
+		clickCheckbox(tabpanelFunctions, "activebeforetransformation");
+		clickCheckbox(tabpanelFunctions, "activeaftertransformation");
 		clickButton(tabpanel, "save");
 		pause(2000);
 		findSuccessMessage();

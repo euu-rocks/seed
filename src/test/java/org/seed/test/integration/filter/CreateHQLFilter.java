@@ -15,65 +15,59 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.test.integration.user;
+package org.seed.test.integration.filter;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.openqa.selenium.WebElement;
-
 import org.seed.test.integration.AbstractIntegrationTest;
 
 @TestMethodOrder(OrderAnnotation.class)
-public class CreateUserGroupTest extends AbstractIntegrationTest {
+public class CreateHQLFilter extends AbstractIntegrationTest {
 	
 	@Test
 	@Order(1)
-	void testCreateUserGroup() {
-		openMenu("administration-benutzer");
-		clickMenu("administration-benutzer-rollen");
-		findTab("rollen");
-		WebElement tabpanel = findTabpanel("rollen");
+	void testCreateHQLFilter() {
+		openMenu("administration-entitaeten");
+		clickMenu("administration-entitaeten-filter");
+		findTab("filter");
+		WebElement tabpanel = findTabpanel("filter");
 		clickButton(tabpanel, "new");
+		
+		WebElement window = findWindow("new-filter");
+		assertEquals("Neuen Filter erstellen", findWindowHeader(window).getText());
+		findCombobox(window, "entity").sendKeys("IntegrationTest");
+		findCombobox(window, "module").sendKeys("Testmodule");
+		clickCheckbox(window, "hql");
+		clickButton(window, "create");
+		
 		clickButton(tabpanel, "save");
 		findValidationMessage(); // name is empty
-		
-		findTextbox(tabpanel, "name").sendKeys("Testrole");
+		findTextbox(tabpanel, "name").sendKeys("Test HQL filter");
 		clickButton(tabpanel, "save");
 		findSuccessMessage();
 	}
 	
 	@Test
 	@Order(2)
-	void testAssignUser() {
-		WebElement tabpanel = showGroup("testrole");
-		findTab(tabpanel, "users");
-		WebElement tabpanelUsers = findTabpanel(tabpanel, "users");
-		dragAndDrop(tabpanelUsers, "testuser", "selected");
-		dragAndDrop(tabpanelUsers, "seed", "selected");
+	void testAddPermission() {
+		WebElement tabpanel = showFilter("test-hql-filter");
+		clickTab(tabpanel, "permissions2");
+		WebElement tabpanelPermissions = findTabpanel(tabpanel, "permissions2");
+		dragAndDrop(tabpanelPermissions, "testrole", "selected");
 		clickButton(tabpanel, "save");
 		findSuccessMessage();
 	}
 	
-	@Test
-	@Order(3)
-	void testAssignPermissions() {
-		WebElement tabpanel = showGroup("testrole");
-		clickTab(tabpanel, "permissions");
-		WebElement tabpanelPermissions = findTabpanel(tabpanel, "permissions");
-		dragAndDrop(tabpanelPermissions, "admin-entity", "selected");
-		dragAndDrop(tabpanelPermissions, "admin-form", "selected");
-		dragAndDrop(tabpanelPermissions, "admin-menu", "selected");
-		clickButton(tabpanel, "save");
-		findSuccessMessage();
-	}
-	
-	private WebElement showGroup(String name) {
-		openMenu("administration-benutzer");
-		clickMenu("administration-benutzer-rollen");
-		findTab("rollen");
-		WebElement tabpanel = findTabpanel("rollen");
+	private WebElement showFilter(String name) {
+		openMenu("administration-entitaeten");
+		clickMenu("administration-entitaeten-filter");
+		findTab("filter");
+		final WebElement tabpanel = findTabpanel("filter");
 		clickListItem(tabpanel, name);
 		clickButton(tabpanel, "edit");
 		return tabpanel;
