@@ -24,7 +24,11 @@ import org.seed.test.integration.customcode.CreateCustomCodeTest;
 import org.seed.test.integration.data.CreateDataSourceTest;
 import org.seed.test.integration.data.CreateHQLDataSourceTest;
 import org.seed.test.integration.data.CreateViewTest;
+import org.seed.test.integration.entity.CreateDerivedEntityTest;
 import org.seed.test.integration.entity.CreateEntityTest;
+import org.seed.test.integration.entity.CreateGenericEntityTest;
+import org.seed.test.integration.entity.CreateNestedEntityTest;
+import org.seed.test.integration.entity.CreateTransferableEntityTest;
 import org.seed.test.integration.filter.CreateFilterTest;
 import org.seed.test.integration.filter.CreateHQLFilter;
 import org.seed.test.integration.form.CreateFormTest;
@@ -39,10 +43,12 @@ import org.seed.test.integration.user.CreateUserGroupTest;
 import org.seed.test.integration.user.CreateUserTest;
 
 @Suite
-@SelectClasses({ MainViewTest.class, CreateModuleTest.class, CreateMenuTest.class,
-				 CreateUserTest.class, CreateUserGroupTest.class, CreateEntityTest.class, 
-				 CreateFilterTest.class, CreateHQLFilter.class, CreateTransferTest.class, 
-				 CreateTransformerTest.class, CreateFormTest.class, CreateJobTest.class, 
-				 CreateViewTest.class, CreateDataSourceTest.class, CreateHQLDataSourceTest.class, 
-				 CreateReportTest.class, CreateCustomCodeTest.class, CreateRestTest.class })
+@SelectClasses({ NavigationTest.class, CreateModuleTest.class, CreateMenuTest.class,
+				 CreateUserTest.class, CreateUserGroupTest.class, CreateTransferableEntityTest.class,
+				 CreateEntityTest.class, CreateNestedEntityTest.class, CreateGenericEntityTest.class, 
+				 CreateDerivedEntityTest.class, CreateFilterTest.class, CreateHQLFilter.class, 
+				 CreateTransferTest.class, CreateTransformerTest.class, CreateFormTest.class, 
+				 CreateJobTest.class, CreateViewTest.class, CreateDataSourceTest.class, 
+				 CreateHQLDataSourceTest.class, CreateReportTest.class, CreateCustomCodeTest.class, 
+				 CreateRestTest.class })
 public class IntegrationTestSuite { }

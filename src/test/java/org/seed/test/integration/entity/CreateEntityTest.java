@@ -17,29 +17,22 @@
  */
 package org.seed.test.integration.entity;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.openqa.selenium.WebElement;
 
-import org.seed.test.integration.AbstractIntegrationTest;
-
 @TestMethodOrder(OrderAnnotation.class)
-public class CreateEntityTest extends AbstractIntegrationTest {
+public class CreateEntityTest extends AbstractEntityTest {
 	
 	@Test
 	@Order(1)
 	void testCreateEntity() {
-		clickMenu("administration-entitaeten");
-		findTab("entitaeten");
-		WebElement tabpanel = findTabpanel("entitaeten");
-		clickButton(tabpanel, "new");
-		
-		WebElement window = findWindow("new-entity");
-		assertEquals("Neue Entität erstellen", findWindowHeader(window).getText());
+		WebElement tabpanel = newEntity();
+		WebElement window = newEntityWindow();
+		                                      
+		clickCheckbox(window, "audited");
 		findCombobox(window, "module").sendKeys("Testmodule");
 		findCombobox(window, "menu").sendKeys("Testmenu");
 		clickButton(window, "create");
@@ -213,19 +206,16 @@ public class CreateEntityTest extends AbstractIntegrationTest {
 		saveEntity(tabpanel);
 	}
 	
-	private WebElement showEntity(String name) {
-		clickMenu("administration-entitaeten");
-		findTab("entitaeten");
-		final WebElement tabpanel = findTabpanel("entitaeten");
-		clickListItem(tabpanel, name);
-		clickButton(tabpanel, "edit");
-		return tabpanel;
-	}
-	
-	private void saveEntity(WebElement tabpanel) {
-		clickButton(tabpanel, "save");
-		pause(2000);
-		findSuccessMessage();
+	@Test
+	@Order(12)
+	void testAddRelation() {
+		WebElement tabpanel = showEntity("integrationtest");
+		clickTab(tabpanel, "relations");
+		WebElement tabpanelRelations = findTabpanel(tabpanel, "relations");
+		clickButton(tabpanelRelations, "new");
+		
+		findOptionCombobox(tabpanelRelations, "relationentity").sendKeys("TransferableTest");
+		saveEntity(tabpanel);
 	}
 	
 }
