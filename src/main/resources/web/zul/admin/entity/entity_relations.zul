@@ -22,10 +22,10 @@
 	<north border="0">
 		<toolbar width="100%">
 			<toolbarbutton label="${labels.admin.entity.newrelation}" 
-						   iconSclass="z-icon-file-o alpha-icon-lg" 
+						   iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 					   	   onClick="@command('newRelation')"/>
 			<toolbarbutton label="${labels.admin.entity.removerelation}" 
-						   iconSclass="z-icon-remove alpha-icon-lg" 
+						   iconSclass="remove-button z-icon-remove alpha-icon-lg" 
 					   	   onClick="@command('removeRelation',elem=self)"
 					   	   visible="@load(not empty vm.relation)"/>
 		</toolbar>
@@ -64,26 +64,30 @@
 		  class="alpha-properties">
 		<vlayout class="alpha-properties-content">
 			<label value="${labels.label.name}:"/>
-            <textbox value="@bind(vm.relation.name) @converter(vm.stringConverter)"
-            		 tooltiptext="@load(vm.relation.internalName)"
-            		 onChange="@command('flagDirty',notify='relation')"
-            		 mandatory="true"
-            		 hflex="1"/>
+			<div sclass="relationname-field">
+	            <textbox value="@bind(vm.relation.name) @converter(vm.stringConverter)"
+	            		 tooltiptext="@load(vm.relation.internalName)"
+	            		 onChange="@command('flagDirty',notify='relation')"
+	            		 mandatory="true"
+	            		 hflex="1"/>
+			</div>
            	<label value="${labels.label.relatedentity}:"/>
-           	<combobox model="@load(vm.relationEntities) @template(empty each.name ? 'empty' : 'relation')"
-           			  mandatory="true"
-           			  selectedItem="@bind(vm.relation.relatedEntity)"
-           			  value="@load(vm.relation.relatedEntity.name)"
-           			  onSelect="@command('selectRelatedEntity')"
-				  	  hflex="1">
-           		<template name="empty">
-                   	<comboitem/>
-               	</template>	
-               	<template name="relation" var="relatedEntity">
-                   	<comboitem label="@init(relatedEntity.name)"
-                   			   iconSclass="z-icon-table z-icon-fw alpha-icon-lg"/>
-               	</template>	
-           	</combobox>
+           	<div sclass="relationentity-field">
+	           	<combobox model="@load(vm.relationEntities) @template(empty each.name ? 'empty' : 'relation')"
+	           			  mandatory="true"
+	           			  selectedItem="@bind(vm.relation.relatedEntity)"
+	           			  value="@load(vm.relation.relatedEntity.name)"
+	           			  onSelect="@command('selectRelatedEntity')"
+					  	  hflex="1">
+	           		<template name="empty">
+	                   	<comboitem/>
+	               	</template>	
+	               	<template name="relation" var="relatedEntity">
+	                   	<comboitem label="@init(relatedEntity.name)"
+	                   			   iconSclass="z-icon-table z-icon-fw alpha-icon-lg"/>
+	               	</template>	
+	           	</combobox>
+           	</div>
         </vlayout>
     </east>
 </borderlayout>

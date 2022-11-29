@@ -68,7 +68,7 @@ public class DataSourceMetadata extends AbstractApplicationEntity
 		\s = whitespace
 		+  = one or more
 	 */
-	private static final Pattern PATTERN_PARAM_HQL = Pattern.compile(":([^\s]+)");
+	private static final Pattern PATTERN_PARAM_HQL = Pattern.compile(":([^\\s]+)");
 	
 	private DataSourceType type;
 	

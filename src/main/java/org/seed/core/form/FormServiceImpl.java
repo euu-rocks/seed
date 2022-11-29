@@ -594,17 +594,31 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(session, C.SESSION);
 		
-		for (Form form : formRepository.find(session, queryParam(C.ENTITY, entity))) {
-			// remove field if entity field no longer exist
-			form.getFields().removeIf(field -> field.getEntityField() != null && 
-											   !entity.containsAllField(field.getEntityField()));
-			if (form.isAutoLayout()) {
-				updateAutoLayout(entity, form);
+		if (!entity.isGeneric()) {
+			for (Form form : findForms(entity, session)) {
+				// remove field if entity field no longer exist
+				form.getFields().removeIf(field -> field.getEntityField() != null && 
+												   !entity.containsAllField(field.getEntityField()));
+				updateFormLayout(form, entity, session);
 			}
-			else if (form.getLayout() != null) {
-				getLayoutService().rebuildLayout(form);
+			// update parent entity forms (entity is used as nested entity)
+			for (Entity parentEntity : entityService.findParentEntities(entity, session)) {
+				findForms(parentEntity, session).forEach(parentForm -> updateFormLayout(parentForm, parentEntity, session));
 			}
-			session.save(form.getLayout());
+		}
+	}
+	
+	private void updateFormLayout(Form form, Entity entity, Session session) {
+		boolean layoutChanged = false;
+		if (form.isAutoLayout()) {
+			updateAutoLayout(entity, form);
+			layoutChanged = true;
+		}
+		else if (form.getLayout() != null) {
+			getLayoutService().rebuildLayout(form);
+			layoutChanged = true;
+		}
+		if (layoutChanged) {
 			session.save(form);
 		}
 	}

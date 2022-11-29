@@ -95,10 +95,12 @@
 						<cell sclass="audited-fieldcell"
 							  style="padding: 4px 4px">
 							<checkbox checked="@bind(vm.object.audited)"
+									  visible="@load(!vm.object.generic)"
 									  onCheck="@command('flagDirty')"/> 
 						</cell>
 						<cell style="padding: 4px 4px">
-							<label value="${labels.label.audited}"/>	
+							<label value="${labels.label.audited}"
+								   visible="@load(!vm.object.generic)"/>	
 						</cell>
 					</row>
 					<row visible="@load(!vm.object.generic)">

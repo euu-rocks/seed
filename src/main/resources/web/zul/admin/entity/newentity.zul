@@ -38,7 +38,7 @@
                 	</cell>
                 	<cell sclass="name-fieldcell">
                 		<textbox value="@bind(vm.object.name) @converter(vm.stringConverter)"
-								 mandatory="true"
+								 mandatory="false"
 								 hflex="1"/> 
                 	</cell>
             	</row>
@@ -118,7 +118,8 @@
                 <row>
                 	<cell/>
                 	<cell>
-                		<checkbox checked="@bind(vm.object.generic)"
+                		<checkbox sclass="generic-field"
+                				  checked="@bind(vm.object.generic)"
                 				  onCheck="@command('selectOption',option='generic')"/>
                 		<label value="${labels.label.genericentity}"
                 			   style="margin-left: 5px"/>
@@ -127,7 +128,8 @@
                 <row>
                 	<cell/>
                 	<cell>
-                		<checkbox checked="@bind(vm.nestedEntity)"
+                		<checkbox sclass="nested-field"
+                				  checked="@bind(vm.nestedEntity)"
                 				  onCheck="@command('selectOption',option='nested')"/>
                 		<label value="${labels.label.nested}"
                 			   style="margin-left: 5px"/>
@@ -136,7 +138,8 @@
                 <row>
                 	<cell/>
                 	<cell>
-                		<checkbox checked="@bind(vm.object.transferable)"
+                		<checkbox sclass="transferable-field"
+                				  checked="@bind(vm.object.transferable)"
                 				  onCheck="@command('selectOption',option='transferable')"/>
                 		<label value="${labels.label.transferableentity}"
                 			   style="margin-left: 5px"/>
@@ -145,7 +148,8 @@
                 <row>
                 	<cell/>
                 	<cell>
-                		<checkbox checked="@bind(vm.object.audited)"
+                		<checkbox sclass="audited-field"
+                				  checked="@bind(vm.object.audited)"
                 				  onCheck="@command('selectOption',option='audited')"/>
                 		<label value="${labels.label.audited}"
                 			   style="margin-left: 5px"/>
@@ -154,7 +158,8 @@
                 <row>
                 	<cell/>
                 	<cell>
-                		<checkbox checked="@bind(vm.object.options.autoLayout)"
+                		<checkbox sclass="autolayout-field"
+                				  checked="@bind(vm.object.options.autoLayout)"
                 				  onCheck="@command('selectOption',option='autolayout')"/>
                 		<label value="${labels.label.autoform}"
                 			   style="margin-left: 5px"/>

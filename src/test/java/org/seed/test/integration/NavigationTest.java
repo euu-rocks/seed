@@ -19,7 +19,7 @@ package org.seed.test.integration;
 
 import org.junit.jupiter.api.Test;
 
-class MainViewTest extends AbstractIntegrationTest {
+class NavigationTest extends AbstractIntegrationTest {
 	
 	@Test
 	void testLogin() {

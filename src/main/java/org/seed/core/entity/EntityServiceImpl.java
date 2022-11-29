@@ -238,6 +238,11 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	@Override
+	public List<Entity> findParentEntities(Entity entity, Session session) {
+		return entityRepository.findParentEntities(entity, session);
+	}
+	
+	@Override
 	public List<Entity> findDescendants(Entity genericEntity, Session session) {
 		Assert.notNull(genericEntity, "genericEntity");
 		Assert.notNull(session, C.SESSION);

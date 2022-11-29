@@ -17,7 +17,7 @@
  */
 package org.seed.core.entity;
 
-import static org.seed.core.util.CollectionUtils.subList;
+import static org.seed.core.util.CollectionUtils.*;
 
 import java.util.List;
 
@@ -41,10 +41,17 @@ public class EntityRepository extends AbstractSystemEntityRepository<Entity> {
 		return super.getSession();
 	}
 	
-	public List<Entity> findParentEntities(Entity entity) {
+	List<Entity> findParentEntities(Entity entity) {
 		Assert.notNull(entity, C.ENTITY);
 		
 		return subList(find(), parent -> parent.isNestedEntity(entity));
+	}
+	
+	List<Entity> findParentEntities(Entity entity, Session session) {
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(entity, C.SESSION);
+		
+		return subList(find(session), parent -> parent.isNestedEntity(entity));
 	}
 	
 }

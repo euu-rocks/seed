@@ -17,8 +17,9 @@
  */
 package org.seed.core.codegen.compile;
 
-import static org.seed.core.util.CollectionUtils.convertedMap;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -27,15 +28,28 @@ import org.seed.core.util.Assert;
 
 class GeneratedCodeClassLoader extends ClassLoader {
 	
-	private final Map<String, Class<GeneratedCode>> mapClasses;
+	private final Map<String, Class<GeneratedCode>> mapClasses = new HashMap<>();
 	
 	GeneratedCodeClassLoader(List<JavaClassFileObject> classFileObjects, ClassLoader parent) {
 		super(parent);
 		Assert.notNull(classFileObjects, "classFileObjects");
+		final List<JavaClassFileObject> objectsToDefine = new ArrayList<>(classFileObjects);
 		
-		mapClasses = convertedMap(classFileObjects, 
-								  JavaClassFileObject::getQualifiedName, 
-								  this::defineClass);
+		while (!objectsToDefine.isEmpty()) {
+			final int initialSize = objectsToDefine.size();
+			for (Iterator<JavaClassFileObject> it = objectsToDefine.iterator(); it.hasNext();) {
+				final JavaClassFileObject classFileObject = it.next();
+				try {
+					final Class<GeneratedCode> definedClass = defineClass(classFileObject);
+					mapClasses.put(classFileObject.getQualifiedName(), definedClass);
+					it.remove();
+				}
+				catch (NoClassDefFoundError err) {
+					// object remains in list
+				}
+			}
+			Assert.state(objectsToDefine.size() < initialSize, "no progress");
+		}
 	}
 	
 	Map<String, Class<GeneratedCode>> getClassMap() {

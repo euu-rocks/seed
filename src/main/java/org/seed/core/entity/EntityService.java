@@ -56,6 +56,8 @@ public interface EntityService extends ApplicationEntityService<Entity> {
 	
 	List<Entity> findDescendants(Entity genericEntity, Session session);
 	
+	List<Entity> findParentEntities(Entity entity, Session session);
+	
 	List<Entity> getAvailableNestedEntities(Entity entity, Session session);
 	
 	FieldType[] getAvailableFieldTypes(Entity entity, EntityField field, boolean existObjects);

@@ -86,15 +86,14 @@ public abstract class AbstractApplicationEntity extends AbstractSystemEntity
 		Assert.state(this instanceof ApprovableObject, "object is not approvable");
 		final ApprovableObject<?> approvable = (ApprovableObject<?>) this;
 		
-		// as long as there are no permissions, 
-		// every access is permitted
-		if (!approvable.hasPermissions()) {
-			return true;
+		if (approvable.hasPermissions()) {
+			return anyMatch(approvable.getPermissions(), permission -> 
+							user.belongsTo(permission.getUserGroup()) && 
+							(access == null || // access doesn't exist or granted
+							 permission.getAccess().ordinal() >= access.ordinal()));
 		}
-		return anyMatch(approvable.getPermissions(), permission -> 
-						  user.belongsTo(permission.getUserGroup()) && 
-						  (access == null || // access doesn't exist or granted
-						   permission.getAccess().ordinal() >= access.ordinal()));
+		// as long as there are no permissions, every access is permitted
+		return true; 
 	}
 	
 	@Override

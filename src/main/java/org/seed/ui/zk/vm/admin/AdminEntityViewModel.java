@@ -758,7 +758,9 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 					getOptions().setAutoLayout(false);
 					getOptions().setMenu(null);
 					entityMeta.setTransferable(false);
+					entityMeta.setAudited(false);
 					entityMeta.setParentEntity(null);
+					entityMeta.setGenericEntity(null);
 					isNestedEntity = false;
 				}
 				break;
@@ -791,6 +793,9 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 				break;
 				
 			case AUDITED:
+				if (getObject().isAudited()) {
+					entityMeta.setGeneric(false);
+				}
 				break;	
 			
 			default:
