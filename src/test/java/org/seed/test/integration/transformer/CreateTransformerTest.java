@@ -69,6 +69,28 @@ public class CreateTransformerTest extends AbstractIntegrationTest {
 	
 	@Test
 	@Order(3)
+	void testAddNested() {
+		WebElement tabpanel = showTransformer("testtransformer");
+		clickTab(tabpanel, "nesteds");
+		WebElement tabpanelNesteds = findTabpanel(tabpanel, "nesteds");
+		
+		findTab(tabpanelNesteds, "nestedtransformers");
+		WebElement tabpanelTransformers = findTabpanel(tabpanel, "nestedtransformers");
+		clickButton(tabpanelTransformers, "new");
+		findOptionCombobox(tabpanelTransformers, "sourcenested").sendKeys("NestedTest");
+		findOptionCombobox(tabpanelTransformers, "targetnested").sendKeys("NestedTest");
+		
+		clickTab(tabpanelNesteds, "nestedelements");
+		WebElement tabpanelElements = findTabpanel(tabpanel, "nestedelements");
+		clickButton(tabpanelElements, "new");
+		findOptionCombobox(tabpanelElements, "sourcefield").sendKeys("Name");
+		findOptionCombobox(tabpanelElements, "targetfield").sendKeys("Name");
+		clickButton(tabpanel, "save");
+		findSuccessMessage();
+	}
+	
+	@Test
+	@Order(4)
 	void testAddStatus() {
 		WebElement tabpanel = showTransformer("testtransformer");
 		clickTab(tabpanel, "status");
@@ -79,7 +101,7 @@ public class CreateTransformerTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
-	@Order(4)
+	@Order(5)
 	void testAddPermission() {
 		WebElement tabpanel = showTransformer("testtransformer");
 		clickTab(tabpanel, "permissions");
@@ -90,7 +112,7 @@ public class CreateTransformerTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
-	@Order(5)
+	@Order(6)
 	void testAddFunction() {
 		WebElement tabpanel = showTransformer("testtransformer");
 		clickTab(tabpanel, "functions");
@@ -111,8 +133,6 @@ public class CreateTransformerTest extends AbstractIntegrationTest {
 		pause(2000);
 		findSuccessMessage();
 	}
-	
-	
 	
 	private WebElement showTransformer(String name) {
 		openMenu("administration-entitaeten");

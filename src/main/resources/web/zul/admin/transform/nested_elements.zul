@@ -51,14 +51,14 @@
 			<north border="0">
 				<toolbar width="100%">
 					<toolbarbutton label="${labels.admin.transformer.newelement}" 
-								   iconSclass="z-icon-file-o alpha-icon-lg" 
+								   iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 							   	   onClick="@command('newNestedElement')"/>
 					<toolbarbutton label="${labels.admin.transformer.removeelement}" 
-								   iconSclass="z-icon-remove alpha-icon-lg" 
+								   iconSclass="remove-button z-icon-remove alpha-icon-lg" 
 							   	   onClick="@command('removeNestedElement',elem=self)"
 							   	   visible="@load(not empty vm.nestedElement)"/>
 					<toolbarbutton label="${labels.admin.transformer.automatch}"
-						   		   iconSclass="z-icon-magic alpha-icon-lg"    	   
+						   		   iconSclass="automatch-button z-icon-magic alpha-icon-lg"    	   
 								   onClick="@command('autoMatchNestedFields',elem=self)"/>
 				</toolbar>
 			</north>
@@ -94,42 +94,46 @@
 				  class="alpha-properties">
 				<vlayout class="alpha-properties-content">
 					<label value="${labels.label.sourcefield}:"/>
-					<combobox model="@load(vm.nested.sourceNested.nestedEntity.fields) @template(empty each.name ? 'empty' : each.type.isReference() ? 'reference' : 'field')" 
-		           			  selectedItem="@bind(vm.nestedElement.sourceField)"
-		           			  onSelect="@command('flagDirty',notify='availableNestedTargetFields')"
-		           			  mandatory="true"
-		           			  hflex="1">
-		           		<template name="empty">
-		                	<comboitem/>
-		             	</template>
-		             	<template name="field" var="field">
-		                	<comboitem label="@init(field.name)"
-		                			   iconSclass="z-icon-font z-icon-fw alpha-icon-lg"/>
-		             	</template>
-		             	<template name="reference" var="field">
-		                	<comboitem label="@init(field.name)"
-		                			   iconSclass="z-icon-share z-icon-fw alpha-icon-lg"/>
-		             	</template>
-					</combobox>
+					<div sclass="sourcefield-field">
+						<combobox model="@load(vm.nested.sourceNested.getFields(true)) @template(empty each.name ? 'empty' : each.type.isReference() ? 'reference' : 'field')" 
+			           			  selectedItem="@bind(vm.nestedElement.sourceField)"
+			           			  onSelect="@command('flagDirty',notify='availableNestedTargetFields')"
+			           			  mandatory="true"
+			           			  hflex="1">
+			           		<template name="empty">
+			                	<comboitem/>
+			             	</template>
+			             	<template name="field" var="field">
+			                	<comboitem label="@init(field.name)"
+			                			   iconSclass="z-icon-font z-icon-fw alpha-icon-lg"/>
+			             	</template>
+			             	<template name="reference" var="field">
+			                	<comboitem label="@init(field.name)"
+			                			   iconSclass="z-icon-share z-icon-fw alpha-icon-lg"/>
+			             	</template>
+						</combobox>
+					</div>
 					<label value="${labels.label.targetfield}:"/>
-					<combobox model="@load(vm.availableNestedTargetFields) @template(empty each.name ? 'empty' : each.type.isReference() ? 'reference' : 'field')" 
-		           			  selectedItem="@bind(vm.nestedElement.targetField)"
-		           			  value="@load(vm.nestedElement.targetField.name)"
-		           			  onSelect="@command('flagDirty')"
-		           			  mandatory="true"
-		           			  hflex="1">
-		           		<template name="empty">
-		                	<comboitem/>
-		             	</template>
-		             	<template name="field" var="field">
-		                	<comboitem label="@init(field.name)"
-		                			   iconSclass="z-icon-font z-icon-fw alpha-icon-lg"/>
-		             	</template>
-		             	<template name="reference" var="field">
-		                	<comboitem label="@init(field.name)"
-		                			   iconSclass="z-icon-share z-icon-fw alpha-icon-lg"/>
-		             	</template>
-					</combobox>
+					<div sclass="targetfield-field">
+						<combobox model="@load(vm.availableNestedTargetFields) @template(empty each.name ? 'empty' : each.type.isReference() ? 'reference' : 'field')" 
+			           			  selectedItem="@bind(vm.nestedElement.targetField)"
+			           			  value="@load(vm.nestedElement.targetField.name)"
+			           			  onSelect="@command('flagDirty')"
+			           			  mandatory="true"
+			           			  hflex="1">
+			           		<template name="empty">
+			                	<comboitem/>
+			             	</template>
+			             	<template name="field" var="field">
+			                	<comboitem label="@init(field.name)"
+			                			   iconSclass="z-icon-font z-icon-fw alpha-icon-lg"/>
+			             	</template>
+			             	<template name="reference" var="field">
+			                	<comboitem label="@init(field.name)"
+			                			   iconSclass="z-icon-share z-icon-fw alpha-icon-lg"/>
+			             	</template>
+						</combobox>
+					</div>
 				</vlayout>
 			</east>
 		</borderlayout>	

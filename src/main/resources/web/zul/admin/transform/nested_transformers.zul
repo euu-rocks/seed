@@ -22,10 +22,10 @@
 	<north border="0">
 		<toolbar width="100%">
 			<toolbarbutton label="${labels.admin.transformer.create}" 
-						   iconSclass="z-icon-file-o alpha-icon-lg" 
+						   iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 					   	   onClick="@command('newNested')"/>
 			<toolbarbutton label="${labels.admin.transformer.delete}" 
-						   iconSclass="z-icon-remove alpha-icon-lg" 
+						   iconSclass="remove-button z-icon-remove alpha-icon-lg" 
 					   	   onClick="@command('removeNested',elem=self)"
 					   	   visible="@load(!empty vm.nested)"/>
 		</toolbar>
@@ -62,31 +62,35 @@
 		  class="alpha-properties">
 		<vlayout class="alpha-properties-content">
 			<label value="${labels.label.sourcenested}:"/>
-			<combobox model="@load(vm.object.sourceEntity.nesteds) @template(empty each.name ? 'empty' : 'nested')" 
-           			  selectedItem="@bind(vm.nested.sourceNested)"
-           			  mandatory="true"
-           			  hflex="1">
-           		<template name="empty">
-                	<comboitem/>
-             	</template>
-             	<template name="nested" var="nested">
-                	<comboitem label="@init(nested.name)"
-                			   iconSclass="z-icon-table z-icon-fw alpha-icon-lg"/>
-             	</template>
-			</combobox>
+			<div sclass="sourcenested-field">
+				<combobox model="@load(vm.object.sourceEntity.nesteds) @template(empty each.name ? 'empty' : 'nested')" 
+	           			  selectedItem="@bind(vm.nested.sourceNested)"
+	           			  mandatory="true"
+	           			  hflex="1">
+	           		<template name="empty">
+	                	<comboitem/>
+	             	</template>
+	             	<template name="nested" var="nested">
+	                	<comboitem label="@init(nested.name)"
+	                			   iconSclass="z-icon-table z-icon-fw alpha-icon-lg"/>
+	             	</template>
+				</combobox>
+			</div>
 			<label value="${labels.label.targetnested}:"/>
-			<combobox model="@load(vm.object.targetEntity.nesteds) @template(empty each.name ? 'empty' : 'nested')" 
-           			  selectedItem="@bind(vm.nested.targetNested)"
-           			  mandatory="true"
-           			  hflex="1">
-           		<template name="empty">
-                	<comboitem/>
-             	</template>
-             	<template name="nested" var="nested">
-                	<comboitem label="@init(nested.name)"
-                			   iconSclass="z-icon-table z-icon-fw alpha-icon-lg"/>
-             	</template>
-			</combobox>
+			<div sclass="targetnested-field">
+				<combobox model="@load(vm.object.targetEntity.nesteds) @template(empty each.name ? 'empty' : 'nested')" 
+	           			  selectedItem="@bind(vm.nested.targetNested)"
+	           			  mandatory="true"
+	           			  hflex="1">
+	           		<template name="empty">
+	                	<comboitem/>
+	             	</template>
+	             	<template name="nested" var="nested">
+	                	<comboitem label="@init(nested.name)"
+	                			   iconSclass="z-icon-table z-icon-fw alpha-icon-lg"/>
+	             	</template>
+				</combobox>
+			</div>
 		</vlayout>
 	</east>
 </borderlayout>

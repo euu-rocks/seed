@@ -24,16 +24,19 @@
 	<center border="0" style="padding:5px">
 		<tabbox hflex="1" vflex="1">
 			<tabs>
-				<tab label="${labels.label.transformers}"/>
-				<tab id="tabNestedElements" label="${labels.label.elements}"
+				<tab sclass="nestedtransformers-tab"
+					 label="${labels.label.transformers}"/>
+				<tab id="tabNestedElements" sclass="nestedelements-tab" 
+					 label="${labels.label.elements}"
 					 visible="@load(!empty vm.nesteds)"
 					 onSelect="@command('selectNestedElements')"/>
 			</tabs>
 			<tabpanels> 
-				<tabpanel>
+				<tabpanel sclass="nestedtransformers-tabpanel">
 					<nested-transformers/>
 				</tabpanel>
-				<tabpanel fulfill="tabNestedElements.onSelect">
+				<tabpanel sclass="nestedelements-tabpanel"
+						  fulfill="tabNestedElements.onSelect">
 					<nested-elements/>
 				</tabpanel>
 			</tabpanels>

@@ -69,4 +69,37 @@ public class CreateGenericEntityTest extends AbstractEntityTest {
 		saveEntity(tabpanel);
 	}
 	
+	@Test
+	@Order(4)
+	void testAddFunction() {
+		WebElement tabpanel = showEntity("generictest");
+		clickTab(tabpanel, "functions");
+		WebElement tabpanelFunctions = findTabpanel(tabpanel, "functions");
+		clickButton(tabpanelFunctions, "new");
+		
+		findOptionTextbox(tabpanelFunctions, "functionname").sendKeys("Genericfunction");
+		pause(500);
+		clickButton(tabpanelFunctions, "editfunction");
+		
+		WebElement window = findWindow("code-dialog");
+		findCodeMirror(window, "content", 4).sendKeys("       System.out.println(\"Genericfunction\");");
+		clickButton(window, "apply");
+		saveEntity(tabpanel);
+	}
+	
+	@Test
+	@Order(5)
+	void testAddFieldConstraint() {
+		WebElement tabpanel = showEntity("generictest");
+		clickTab(tabpanel, "constraints");
+		WebElement tabpanelConstraints = findTabpanel(tabpanel, "constraints");
+		clickButton(tabpanelConstraints, "new");
+		
+		findOptionCombobox(tabpanelConstraints, "fieldgroup").sendKeys("generic");
+		findOptionCombobox(tabpanelConstraints, "usergroup").sendKeys("Testrole");
+		findOptionCombobox(tabpanelConstraints, "access").sendKeys("Schreiben");
+		clickCheckbox(tabpanelConstraints, "mandatory");
+		saveEntity(tabpanel);
+	}
+	
 }

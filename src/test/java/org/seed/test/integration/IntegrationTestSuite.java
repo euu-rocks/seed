@@ -45,8 +45,8 @@ import org.seed.test.integration.user.CreateUserTest;
 @Suite
 @SelectClasses({ NavigationTest.class, CreateModuleTest.class, CreateMenuTest.class,
 				 CreateUserTest.class, CreateUserGroupTest.class, CreateTransferableEntityTest.class,
-				 CreateEntityTest.class, CreateNestedEntityTest.class, CreateGenericEntityTest.class, 
-				 CreateDerivedEntityTest.class, CreateFilterTest.class, CreateHQLFilter.class, 
+				 CreateGenericEntityTest.class, CreateDerivedEntityTest.class, CreateEntityTest.class, 
+				 CreateNestedEntityTest.class,  CreateFilterTest.class, CreateHQLFilter.class, 
 				 CreateTransferTest.class, CreateTransformerTest.class, CreateFormTest.class, 
 				 CreateJobTest.class, CreateViewTest.class, CreateDataSourceTest.class, 
 				 CreateHQLDataSourceTest.class, CreateReportTest.class, CreateCustomCodeTest.class, 

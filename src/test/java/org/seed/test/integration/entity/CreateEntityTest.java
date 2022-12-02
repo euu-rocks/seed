@@ -76,6 +76,21 @@ public class CreateEntityTest extends AbstractEntityTest {
 	
 	@Test
 	@Order(4)
+	void testAddReferenceField() {
+		WebElement tabpanel = showEntity("integrationtest");
+		findTab(tabpanel, "fields");
+		WebElement tabpanelFields = findTabpanel(tabpanel, "fields");
+		clickButton(tabpanelFields, "new");
+		
+		findOptionCombobox(tabpanelFields, "fieldgroup").sendKeys("Testgroup");
+		findOptionCombobox(tabpanelFields, "datatype").sendKeys("Referenz");
+		clickTab(tabpanel, "fields"); // lose focus
+		findOptionCombobox(tabpanelFields, "referenceentity").sendKeys("DerivedTest");
+		saveEntity(tabpanel);
+	}
+	
+	@Test
+	@Order(5)
 	void testAddFunction() {
 		WebElement tabpanel = showEntity("integrationtest");
 		clickTab(tabpanel, "functions");
@@ -93,7 +108,7 @@ public class CreateEntityTest extends AbstractEntityTest {
 	}
 	
 	@Test
-	@Order(5)
+	@Order(6)
 	void testAddCallbackFunction() {
 		WebElement tabpanel = showEntity("integrationtest");
 		clickTab(tabpanel, "callbackfunctions");
@@ -115,7 +130,7 @@ public class CreateEntityTest extends AbstractEntityTest {
 	}
 	
 	@Test
-	@Order(6)
+	@Order(7)
 	void testAddStatusmodel() {
 		WebElement tabpanel = showEntity("integrationtest");
 		clickTab(tabpanel, "statusmodel");
@@ -137,7 +152,7 @@ public class CreateEntityTest extends AbstractEntityTest {
 	}
 	
 	@Test
-	@Order(7)
+	@Order(8)
 	void testAddStatusTransitions() {
 		WebElement tabpanel = showEntity("integrationtest");
 		clickTab(tabpanel, "statusmodel");
@@ -159,7 +174,7 @@ public class CreateEntityTest extends AbstractEntityTest {
 	}
 	
 	@Test
-	@Order(8)
+	@Order(9)
 	void testAddStatusPermission() {
 		WebElement tabpanel = showEntity("integrationtest");
 		clickTab(tabpanel, "statusmodel");
@@ -170,7 +185,7 @@ public class CreateEntityTest extends AbstractEntityTest {
 	}
 	
 	@Test
-	@Order(9)
+	@Order(10)
 	void testAddStatusFunction() {
 		WebElement tabpanel = showEntity("integrationtest");
 		clickTab(tabpanel, "statusmodel");
@@ -181,7 +196,7 @@ public class CreateEntityTest extends AbstractEntityTest {
 	}
 	
 	@Test
-	@Order(10)
+	@Order(11)
 	void testAddPermission() {
 		WebElement tabpanel = showEntity("integrationtest");
 		clickTab(tabpanel, "permissions");
@@ -191,7 +206,7 @@ public class CreateEntityTest extends AbstractEntityTest {
 	}
 	
 	@Test
-	@Order(11)
+	@Order(12)
 	void testAddFieldConstraint() {
 		WebElement tabpanel = showEntity("integrationtest");
 		clickTab(tabpanel, "constraints");
@@ -207,7 +222,7 @@ public class CreateEntityTest extends AbstractEntityTest {
 	}
 	
 	@Test
-	@Order(12)
+	@Order(13)
 	void testAddRelation() {
 		WebElement tabpanel = showEntity("integrationtest");
 		clickTab(tabpanel, "relations");
