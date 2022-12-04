@@ -23,6 +23,7 @@ import org.seed.core.config.changelog.CreateFunctionChange;
 import org.seed.core.config.changelog.CreateTriggerChange;
 import org.seed.core.config.changelog.DropFunctionChange;
 import org.seed.core.config.changelog.DropTriggerChange;
+import org.seed.core.util.MiscUtils;
 import org.seed.core.util.StreamUtils;
 
 import org.springframework.util.ObjectUtils;
@@ -106,7 +107,7 @@ class DBObjectChangeLogBuilder extends AbstractChangeLogBuilder<DBObject> {
 	private void addCreateViewChange(DBObject dbObject) {
 		final CreateViewChange createViewChange = new CreateViewChange();
 		createViewChange.setFullDefinition(Boolean.FALSE);
-		createViewChange.setEncoding(StreamUtils.CHARSET.name());
+		createViewChange.setEncoding(MiscUtils.CHARSET.name());
 		createViewChange.setViewName(dbObject.getInternalName());
 		createViewChange.setSelectQuery(dbObject.getContent());
 		addChange(createViewChange);
@@ -120,7 +121,7 @@ class DBObjectChangeLogBuilder extends AbstractChangeLogBuilder<DBObject> {
 	
 	private void addCreateProcedureChange(DBObject dbObject) {
 		final CreateProcedureChange createProcedureChange = new CreateProcedureChange();
-		createProcedureChange.setEncoding(StreamUtils.CHARSET.name());
+		createProcedureChange.setEncoding(MiscUtils.CHARSET.name());
 		createProcedureChange.setProcedureName(dbObject.getInternalName());
 		createProcedureChange.setProcedureText(dbObject.getContent());
 		addChange(createProcedureChange);

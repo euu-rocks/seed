@@ -46,6 +46,7 @@ import org.seed.core.config.SessionProvider;
 import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.util.Assert;
 import org.seed.core.util.BeanUtils;
+import org.seed.core.util.MiscUtils;
 import org.seed.core.util.NameUtils;
 import org.seed.core.util.StreamUtils;
 
@@ -167,7 +168,7 @@ public class ExternalCodeManager implements ApplicationContextAware {
 			log.warn("Couldn't create external source dir {}", dir.getAbsolutePath());
 			return;
 		}
-		try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(file), StreamUtils.CHARSET)) {
+		try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(file), MiscUtils.CHARSET)) {
 			osw.append(sourceCode.getContent());
 		}
 		catch (IOException ioex) {

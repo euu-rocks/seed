@@ -124,7 +124,7 @@ public final class TreeNode {
 	}
 	
 	public TreeNode getChildAt(int index) {
-		Assert.state(countChildren() > 0, "node has no children");
+		Assert.state(index >= 0 && countChildren() > index, "illegal index: " + index);
 		
 		return children.get(index);
 	}

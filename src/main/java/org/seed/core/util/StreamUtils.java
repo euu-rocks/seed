@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.Base64;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterOutputStream;
@@ -33,8 +32,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.util.FastByteArrayOutputStream;
 
 public abstract class StreamUtils {
-	
-	public static final Charset CHARSET = MiscUtils.CHARSET;
 	
 	private StreamUtils() {}
 	
@@ -47,7 +44,7 @@ public abstract class StreamUtils {
 	}
 	
 	public static InputStream getStringAsStream(String string) {
-		return new ByteArrayInputStream(string.getBytes(CHARSET));
+		return new ByteArrayInputStream(string.getBytes(MiscUtils.CHARSET));
 	}
 	
 	public static SafeZipInputStream getZipStream(byte[] bytes) {
@@ -57,14 +54,14 @@ public abstract class StreamUtils {
 	public static String compress(String text) {
 		if (text != null) {
 			try {
-				final byte[] compressedBytes = compress(text.getBytes(CHARSET));
-				return new String(Base64.getEncoder().encode(compressedBytes), CHARSET);
+				final byte[] compressedBytes = compress(text.getBytes(MiscUtils.CHARSET));
+				return MiscUtils.toString(Base64.getEncoder().encode(compressedBytes));
 			} 
 			catch (IOException ex) {
 				throw new InternalException(ex);
 			}
 		}
-		return text;
+		return null;
 	}
 	
 	public static String decompress(String compressedText) {
@@ -77,34 +74,39 @@ public abstract class StreamUtils {
 				throw new InternalException(ex);
 			}  
 		}
-		return compressedText;
+		return null;
 	}
 	
 	public static byte[] compress(byte[] bytes) throws IOException {
 		if (bytes != null) {
-			try (FastByteArrayOutputStream out = new FastByteArrayOutputStream();
-				 DeflaterOutputStream deflaterStream = new DeflaterOutputStream(out)) {
-				deflaterStream.write(bytes); 
+			try (FastByteArrayOutputStream out = new FastByteArrayOutputStream()) {
+				try (DeflaterOutputStream deflaterStream = new DeflaterOutputStream(out)) {
+					deflaterStream.write(bytes);
+				}
 				return out.toByteArray();
 			}
 		}
-		return bytes;
+		return null;
 	}
 	
 	public static byte[] decompress(byte[] bytes) throws IOException {
 		if (bytes != null) {
-			try (FastByteArrayOutputStream out = new FastByteArrayOutputStream();
-				 InflaterOutputStream inflaterStream = new InflaterOutputStream(out)) {
-			    inflaterStream.write(bytes);    
+			try (FastByteArrayOutputStream out = new FastByteArrayOutputStream()) {
+				try (InflaterOutputStream inflaterStream = new InflaterOutputStream(out)) {
+					inflaterStream.write(bytes);   
+				}
 				return out.toByteArray();
 			}
 		}
-		return bytes;
+		return null;
 	}
 	
-	private static String getStreamAsText(InputStream stream) throws IOException {
+	public static String getStreamAsText(InputStream stream) {
 		try (InputStream inputStream = stream) {
-			return org.springframework.util.StreamUtils.copyToString(inputStream, CHARSET);
+			return org.springframework.util.StreamUtils.copyToString(inputStream, MiscUtils.CHARSET);
+		}
+		catch (IOException ex) {
+			throw new InternalException(ex);
 		}
 	}
 	

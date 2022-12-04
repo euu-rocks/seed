@@ -22,10 +22,10 @@
 	<north border="0">
 		<toolbar width="100%">
 			<toolbarbutton label="${labels.admin.module.newparam}" 
-						   iconSclass="z-icon-file-o alpha-icon-lg" 
+						   iconSclass="new-button z-icon-file-o alpha-icon-lg" 
 					   	   onClick="@command('newParameter')"/>
 			<toolbarbutton label="${labels.admin.module.removeparam}" 
-						   iconSclass="z-icon-remove alpha-icon-lg" 
+						   iconSclass="remove-button z-icon-remove alpha-icon-lg" 
 					   	   onClick="@command('removeParameter',elem=self)"
 					   	   visible="@load(not empty vm.parameter)"/>
 		</toolbar>
@@ -62,14 +62,18 @@
 		  class="alpha-properties">
 		<vlayout class="alpha-properties-content">
         	<label value="${labels.label.name}:"/>
-            <textbox hflex="1"
-            		 value="@bind(vm.parameter.name)"
-            		 mandatory="true"
-            		 onChange="@command('flagDirty')"/>
+        	<div sclass="parametername-field">
+	            <textbox hflex="1"
+	            		 value="@bind(vm.parameter.name)"
+	            		 mandatory="true"
+	            		 onChange="@command('flagDirty')"/>
+        	</div>
             <label value="${labels.label.value}:"/>
-            <textbox hflex="1" instant="true"
-            		 value="@bind(vm.parameter.value) @converter(vm.stringConverter)"
-            		 onChange="@command('flagDirty')"/>
+            <div sclass="parametervalue-field">
+	            <textbox hflex="1" instant="true"
+	            		 value="@bind(vm.parameter.value) @converter(vm.stringConverter)"
+	            		 onChange="@command('flagDirty')"/>
+            </div>
         </vlayout>
     </east>
 </borderlayout>

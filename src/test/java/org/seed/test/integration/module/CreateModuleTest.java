@@ -44,4 +44,40 @@ public class CreateModuleTest extends AbstractIntegrationTest {
 		findSuccessMessage();
 	}
 	
+	@Test
+	@Order(2)
+	void testAddParameter() {
+		WebElement tabpanel = showModule("testmodule");
+		findTab(tabpanel, "parameters");
+		WebElement tabpanelParameters = findTabpanel(tabpanel, "parameters");
+		clickButton(tabpanelParameters, "new");
+		
+		findOptionTextbox(tabpanelParameters, "parametername").sendKeys("Testparameter");
+		findOptionTextbox(tabpanelParameters, "parametervalue").sendKeys("test");
+		clickButton(tabpanel, "save");
+		findSuccessMessage();
+	}
+	
+	@Test
+	@Order(3)
+	void testAddUsergroup() {
+		WebElement tabpanel = showModule("testmodule");
+		clickTab(tabpanel, "usergroups");
+		WebElement tabpanelPermissions = findTabpanel(tabpanel, "usergroups");
+		dragAndDrop(tabpanelPermissions, "testrole", "selected");
+		clickButton(tabpanel, "save");
+		findSuccessMessage();
+		
+		pause(5000);
+	}
+	
+	protected WebElement showModule(String name) {
+		clickMenu("administration-module");
+		findTab("module");
+		final WebElement tabpanel = findTabpanel("module");
+		clickListItem(tabpanel, name);
+		clickButton(tabpanel, "edit");
+		return tabpanel;
+	}
+	
 }

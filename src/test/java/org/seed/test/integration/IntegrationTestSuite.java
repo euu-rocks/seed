@@ -23,7 +23,7 @@ import org.junit.platform.suite.api.Suite;
 import org.seed.test.integration.customcode.CreateCustomCodeTest;
 import org.seed.test.integration.data.CreateDataSourceTest;
 import org.seed.test.integration.data.CreateHQLDataSourceTest;
-import org.seed.test.integration.data.CreateViewTest;
+import org.seed.test.integration.data.CreateDBObjectTest;
 import org.seed.test.integration.entity.CreateDerivedEntityTest;
 import org.seed.test.integration.entity.CreateEntityTest;
 import org.seed.test.integration.entity.CreateGenericEntityTest;
@@ -43,12 +43,12 @@ import org.seed.test.integration.user.CreateUserGroupTest;
 import org.seed.test.integration.user.CreateUserTest;
 
 @Suite
-@SelectClasses({ NavigationTest.class, CreateModuleTest.class, CreateMenuTest.class,
-				 CreateUserTest.class, CreateUserGroupTest.class, CreateTransferableEntityTest.class,
+@SelectClasses({ NavigationTest.class, CreateUserTest.class, CreateUserGroupTest.class, 
+				 CreateModuleTest.class, CreateMenuTest.class, CreateTransferableEntityTest.class,
 				 CreateGenericEntityTest.class, CreateDerivedEntityTest.class, CreateEntityTest.class, 
 				 CreateNestedEntityTest.class,  CreateFilterTest.class, CreateHQLFilter.class, 
 				 CreateTransferTest.class, CreateTransformerTest.class, CreateFormTest.class, 
-				 CreateJobTest.class, CreateViewTest.class, CreateDataSourceTest.class, 
+				 CreateJobTest.class, CreateDBObjectTest.class, CreateDataSourceTest.class, 
 				 CreateHQLDataSourceTest.class, CreateReportTest.class, CreateCustomCodeTest.class, 
 				 CreateRestTest.class })
 public class IntegrationTestSuite { }

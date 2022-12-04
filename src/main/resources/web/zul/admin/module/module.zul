@@ -102,80 +102,109 @@
 			</grid>
 			<tabbox id="mainTabbox" hflex="1" vflex="1" class="alpha-tabbox">
 				<tabs>
-					<tab label="${labels.label.parameter}"/>
-					<tab id="tabEntities" label="${labels.label.entities}"
+					<tab sclass="parameters-tab"
+						 label="${labels.label.parameter}"/>
+					<tab id="tabEntities" sclass="entities-tab" 
+						 label="${labels.label.entities}"
 						 visible="@load(vm.existEntities())"/>
-					<tab id="tabFilters" label="${labels.label.filter}"
+					<tab id="tabFilters" sclass="filters-tab"
+						 label="${labels.label.filter}"
 						 visible="@load(vm.existFilters())"/>
-					<tab id="tabTransformers" label="${labels.label.transformers}"
+					<tab id="tabTransformers" sclass="transformers-tab"
+						 label="${labels.label.transformers}"
 						 visible="@load(vm.existTransformers())"/>
-					<tab id="tabTransfers" label="${labels.label.transfer}"
+					<tab id="tabTransfers" sclass="transfers-tab" 
+						 label="${labels.label.transfer}"
 						 visible="@load(vm.existTransfers())"/>
-					<tab id="tabForms" label="${labels.label.forms}"
+					<tab id="tabForms" sclass="forms-tab"
+						 label="${labels.label.forms}"
 						 visible="@load(vm.existForms())"/>
-					<tab id="tabMenus" label="${labels.label.menus}"
+					<tab id="tabMenus" sclass="menus-tab"
+						 label="${labels.label.menus}"
 						 visible="@load(vm.existMenus())"/>
-					<tab id="tabJobs" label="${labels.label.jobs}"
+					<tab id="tabJobs" sclass="jobs-tab"
+						 label="${labels.label.jobs}"
 						 visible="@load(vm.existTasks())"/>
-					<tab id="tabDBObjects" label="${labels.label.dbobjects}"
+					<tab id="tabDBObjects" sclass="dbobjects-tab"
+						 label="${labels.label.dbobjects}"
 						 visible="@load(vm.existDBObjects())"/>
-					<tab id="tabDataSources" label="${labels.label.datasources}"
+					<tab id="tabDataSources" sclass="datasources-tab"
+						 label="${labels.label.datasources}"
 						 visible="@load(vm.existDataSources())"/>
-					<tab id="tabReports" label="${labels.label.reports}"
+					<tab id="tabReports" sclass="reports-tab" 
+						 label="${labels.label.reports}"
 						 visible="@load(vm.existReports())"/>
-					<tab id="tabRests" label="${labels.label.restservice}"
+					<tab id="tabRests" sclass="restservives-tab"
+						 label="${labels.label.restservice}"
 						 visible="@load(vm.existRests())"/>
-					<tab id="tabCustomCodes" label="${labels.label.customcode}"
+					<tab id="tabCustomCodes" sclass="customcodes-tab"
+						 label="${labels.label.customcode}"
 						 visible="@load(vm.existCustomCodes())"/>
-					<tab id="tabCustomLibs" label="${labels.label.customlibs}"
+					<tab id="tabCustomLibs" sclass="customlibs-tab" 
+						 label="${labels.label.customlibs}"
 						 visible="@load(vm.existCustomLibs())"/>
-					<tab id="tabGroups" label="${labels.label.usergroups}"
+					<tab id="tabGroups" sclass="usergroups-tab" 
+						 label="${labels.label.usergroups}"
 						 visible="@load(vm.existNonSystemUserGroups())"/>
 				</tabs>
 				<tabpanels>
-					<tabpanel>
+					<tabpanel sclass="parameters-tabpanel">
 						<module-params/>
 					</tabpanel>
-					<tabpanel fulfill="tabEntities.onSelect">
+					<tabpanel sclass="entities-tabpanel"
+							  fulfill="tabEntities.onSelect">
 						<module-entities/>
 					</tabpanel>
-					<tabpanel fulfill="tabFilters.onSelect">
+					<tabpanel sclass="filters-tabpanel"
+							  fulfill="tabFilters.onSelect">
 						<module-filters/>
 					</tabpanel>
-					<tabpanel fulfill="tabTransformers.onSelect">
+					<tabpanel sclass="transformers-tabpanel"
+							  fulfill="tabTransformers.onSelect">
 						<module-transformers/>
 					</tabpanel>
-					<tabpanel fulfill="tabTransfers.onSelect">
+					<tabpanel sclass="transfers-tabpanel"
+							  fulfill="tabTransfers.onSelect">
 						<module-transfers/>
 					</tabpanel>
-					<tabpanel fulfill="tabForms.onSelect">
+					<tabpanel sclass="forms-tabpanel"
+							  fulfill="tabForms.onSelect">
 						<module-forms/>
 					</tabpanel>
-					<tabpanel fulfill="tabMenus.onSelect">
+					<tabpanel sclass="menus-tabpanel"
+							  fulfill="tabMenus.onSelect">
 						<module-menus/>
 					</tabpanel>
-					<tabpanel fulfill="tabJobs.onSelect">
+					<tabpanel sclass="jobs-tabpanel"
+							  fulfill="tabJobs.onSelect">
 						<module-tasks/>
 					</tabpanel>
-					<tabpanel fulfill="tabDBObjects.onSelect">
+					<tabpanel sclass="dbobjects-tabpanel"
+							  fulfill="tabDBObjects.onSelect">
 						<module-dbobjects/>
 					</tabpanel>
-					<tabpanel fulfill="tabDataSources.onSelect">
+					<tabpanel sclass="datasources-tabpanel"
+							  fulfill="tabDataSources.onSelect">
 						<module-datasources/>
 					</tabpanel>
-					<tabpanel fulfill="tabReports.onSelect">
+					<tabpanel sclass="reports-tabpanel"
+							  fulfill="tabReports.onSelect">
 						<module-reports/>
 					</tabpanel>
-					<tabpanel fulfill="tabRests.onSelect">
+					<tabpanel sclass="restservices-tabpanel"
+							  fulfill="tabRests.onSelect">
 						<module-rests/>
 					</tabpanel>
-					<tabpanel fulfill="tabCustomCodes.onSelect">
+					<tabpanel sclass="customcodes-tabpanel"
+							  fulfill="tabCustomCodes.onSelect">
 						<module-customcodes/>
 					</tabpanel>
-					<tabpanel fulfill="tabCustomLibs.onSelect">
+					<tabpanel sclass="customlibs-tabpanel"
+							  fulfill="tabCustomLibs.onSelect">
 						<module-customlibs/>
 					</tabpanel>
-					<tabpanel fulfill="tabGroups.onSelect">
+					<tabpanel sclass="usergroups-tabpanel"
+							  fulfill="tabGroups.onSelect">
 						<module-usergroups/>
 					</tabpanel>
 				</tabpanels>
