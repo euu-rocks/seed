@@ -17,26 +17,20 @@
  */
 package org.seed.core.api;
 
-public interface CallbackFunctionContext extends FunctionContext {
+public interface StoredProcedureCall {
 	
-	CallbackEventType getEventType();
+	void awaitOutput(int paramIndex, Class<?> outputClass);
 	
-	ClientProvider getClientProvider();
+	void awaitOutput(String paramName, Class<?> outputClass);
 	
-	ParameterProvider getParameterProvider();
+	void execute();
 	
-	MailProvider getMailProvider();
+	<T> T getOutput(int paramIndex);
 	
-	EntityObjectProvider getObjectProvider();
+	<T> T getOutput(String paramName);
 	
-	DataSourceProvider getDataSourceProvider();
+	void setParameter(int paramIndex, Object paramValue);
 	
-	StoredProcedureProvider getStoredProcedureProvider();
-	
-	RestProvider getRestProvider();
-	
-	Status getSourceStatus();
-	
-	Status getTargetStatus();
+	void setParameter(String paramName, Object paramValue);
 	
 }

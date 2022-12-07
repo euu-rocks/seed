@@ -33,9 +33,11 @@ import org.seed.core.api.MailProvider;
 import org.seed.core.api.ParameterProvider;
 import org.seed.core.api.RestProvider;
 import org.seed.core.api.Status;
+import org.seed.core.api.StoredProcedureProvider;
 import org.seed.core.application.module.DefaultParameterProvider;
 import org.seed.core.application.module.Module;
 import org.seed.core.data.datasource.DefaultDataSourceProvider;
+import org.seed.core.data.procedure.DefaultStoredProcedureProvider;
 import org.seed.core.entity.EntityStatusTransition;
 import org.seed.core.mail.DefaultMailProvider;
 import org.seed.core.rest.DefaultRestProvider;
@@ -61,6 +63,8 @@ public class ValueObjectFunctionContext extends AbstractFunctionContext
 	private EntityObjectProvider objectProvider;
 	
 	private DataSourceProvider dataSourceProvider;
+	
+	private StoredProcedureProvider storedProcedureProvider;
 	
 	private RestProvider restProvider;
 	
@@ -129,6 +133,14 @@ public class ValueObjectFunctionContext extends AbstractFunctionContext
 			dataSourceProvider = new DefaultDataSourceProvider(this);
 		}
 		return dataSourceProvider;
+	}
+	
+	@Override
+	public StoredProcedureProvider getStoredProcedureProvider() {
+		if (storedProcedureProvider == null) {
+			storedProcedureProvider = new DefaultStoredProcedureProvider(this);
+		}
+		return storedProcedureProvider;
 	}
 	
 	@Override
