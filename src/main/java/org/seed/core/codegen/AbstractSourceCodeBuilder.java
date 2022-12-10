@@ -18,6 +18,7 @@
 package org.seed.core.codegen;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -53,6 +54,8 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 	
 	protected static final String LFLF = LF + LF;
 	
+	protected static final String SEPARATOR = ", ";
+	
 	protected static final String CODE_PLACEHOLDER = LF + "\t\t// put your code here" + LF;
 	
 	private final ClassMetadata classMetadata;
@@ -68,7 +71,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 	protected AbstractSourceCodeBuilder(GeneratedObject generatedObject, boolean isAbstract,
 										TypeClass superClass, TypeClass[] interfaceClasses, 
 										AnnotationMetadata ...annotations) {
-		Assert.notNull(generatedObject, "generatedObject");
+		Assert.notNull(generatedObject, "generated object");
 
 		classMetadata = new ClassMetadata(generatedObject, isAbstract, superClass, 
 										  interfaceClasses, annotations);
@@ -102,10 +105,15 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		if (classMetadata.superClass != null) {
 			addImport(classMetadata.superClass);
 		}
+		
+		final List<String> importPackageList = new ArrayList<>(importPackages);
+		Collections.sort(importPackageList);
+		importPackageList.forEach(i -> buildImportPackage(buildBuffer, i));
+		
 		final List<TypeClass> importList = new ArrayList<>(importTypes);
+		importList.removeIf(type -> importPackages.contains(type.packageName));
 		TypeClass.sort(importList);
 		importList.forEach(i -> buildImport(buildBuffer, i));
-		importPackages.forEach(i -> buildImportPackage(buildBuffer, i));
 		buildBuffer.append(LF);
 		
 		// class
@@ -117,7 +125,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 	}
 	
 	protected void addImport(Class<?> importClass) {
-		Assert.notNull(importClass, "importClass");
+		Assert.notNull(importClass, "import class");
 		
 		addImport(new TypeClass(importClass));
 	}
@@ -201,7 +209,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 	protected void addMethod(TypeClass returnType, String methodName, 
 							 ParameterMetadata[] parameters, 
 							 String content, AnnotationMetadata ...annotations) {
-		Assert.notNull(methodName, "methodName");
+		Assert.notNull(methodName, "method name");
 		Assert.notNull(content, C.CONTENT);
 		
 		// annotations
@@ -234,7 +242,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 					first = false;
 				}
 				else {
-					codeBuffer.append(',');
+					codeBuffer.append(SEPARATOR);
 				}
 				if (parameter.annotation != null) {
 					addImport(parameter.annotation);
@@ -271,7 +279,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 	}
 	
 	private MemberMetadata getMember(String memberName) {
-		Assert.notNull(memberName, "memberName");
+		Assert.notNull(memberName, "member name");
 		Assert.state(memberMap.containsKey(memberName), "member not exist: " + memberName);
 		
 		return memberMap.get(memberName);
@@ -316,7 +324,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		if (classMetadata.interfaceClasses != null) {
 			for (TypeClass interfaceClass : classMetadata.interfaceClasses) {
 				if (!first) {
-					buf.append(',');
+					buf.append(SEPARATOR);
 				}
 				buildTypeClass(buf, interfaceClass);
 				first = false;
@@ -374,7 +382,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 					first = false;
 				}
 				else {
-					buf.append(',');
+					buf.append(SEPARATOR);
 				}
 				buf.append(entry.getKey()).append('=');
 				
@@ -402,7 +410,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 				first = false;
 			}
 			else {
-				buf.append(',');
+				buf.append(SEPARATOR);
 			}
 			buildAnnotation(buf, annotation);
 		}
@@ -418,7 +426,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 			buf.append('<');
 			for (int i = 0; i < typeClass.typeClasses.length; i++) {
 				if (i > 0) {
-					buf.append(',');
+					buf.append(SEPARATOR);
 				}
 				buildTypeClass(buf, typeClass.typeClasses[i]);
 			}

@@ -67,8 +67,6 @@ public class CreateModuleTest extends AbstractIntegrationTest {
 		dragAndDrop(tabpanelPermissions, "testrole", "selected");
 		clickButton(tabpanel, "save");
 		findSuccessMessage();
-		
-		pause(5000);
 	}
 	
 	protected WebElement showModule(String name) {

@@ -40,7 +40,6 @@ public class CreateRestTest extends AbstractIntegrationTest {
 		
 		findTextbox(tabpanel, "name").sendKeys("TestRest");
 		clickButton(tabpanel, "save");
-		pause(2000);
 		findSuccessMessage();
 	}
 	
@@ -61,7 +60,6 @@ public class CreateRestTest extends AbstractIntegrationTest {
 		findCodeMirror(window, "content", 10).sendKeys("return \"TestRestfunction\";");
 		clickButton(window, "apply");
 		clickButton(tabpanel, "save");
-		pause(2000);
 		findSuccessMessage();
 	}
 	
@@ -73,7 +71,6 @@ public class CreateRestTest extends AbstractIntegrationTest {
 		WebElement tabpanelPermissions = findTabpanel(tabpanel, "permissions");
 		dragAndDrop(tabpanelPermissions, "testrole", "selected");
 		clickButton(tabpanel, "save");
-		pause(2000);
 		findSuccessMessage();
 	}
 	

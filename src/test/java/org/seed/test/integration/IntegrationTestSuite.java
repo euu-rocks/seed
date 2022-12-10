@@ -48,7 +48,7 @@ import org.seed.test.integration.user.CreateUserTest;
 				 CreateGenericEntityTest.class, CreateDerivedEntityTest.class, CreateEntityTest.class, 
 				 CreateNestedEntityTest.class,  CreateFilterTest.class, CreateHQLFilter.class, 
 				 CreateTransferTest.class, CreateTransformerTest.class, CreateFormTest.class, 
-				 CreateJobTest.class, CreateDBObjectTest.class, CreateDataSourceTest.class, 
-				 CreateHQLDataSourceTest.class, CreateReportTest.class, CreateCustomCodeTest.class, 
-				 CreateRestTest.class })
+				 CreateDBObjectTest.class, CreateDataSourceTest.class, CreateHQLDataSourceTest.class, 
+				 CreateReportTest.class, CreateCustomCodeTest.class, CreateRestTest.class,
+				 CreateJobTest.class })
 public class IntegrationTestSuite { }

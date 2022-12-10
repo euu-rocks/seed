@@ -49,7 +49,6 @@ public class CreateCustomCodeTest extends AbstractIntegrationTest {
 				+ "}");
 		
 		clickButton(tabpanel, "save");
-		pause(2000);
 		findSuccessMessage();
 	}
 }

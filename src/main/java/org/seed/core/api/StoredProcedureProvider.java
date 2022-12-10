@@ -19,6 +19,6 @@ package org.seed.core.api;
 
 public interface StoredProcedureProvider {
 	
-	StoredProcedureCall createCall(String procedureClass);
+	StoredProcedureCall createCall(String procedureName);
 	
 }

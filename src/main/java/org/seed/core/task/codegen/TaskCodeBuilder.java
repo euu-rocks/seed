@@ -52,6 +52,7 @@ class TaskCodeBuilder extends AbstractSourceCodeBuilder {
 		
 		switch (buildMode) {
 			case TEMPLATE:
+				addImportPackage(CodeManagerImpl.API_PACKAGE);
 				addImportPackage(CodeManagerImpl.GENERATED_ENTITY_PACKAGE);
 				addMethod(null, "execute", 
 						  new ParameterMetadata[] {

@@ -19,6 +19,8 @@ package org.seed.test.integration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.Duration;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -27,6 +29,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 
@@ -34,12 +37,11 @@ public abstract class AbstractIntegrationTest {
 	
 	private static final String TEST_BROWSER = "firefox";
 	
-	private static final long DELAY_AFTER_LOGIN			 = 1000;
-	private static final long DELAY_AFTER_CLICK_MENU	 = 300;
-	private static final long DELAY_AFTER_OPEN_MENU		 = 100;
-	private static final long DELAY_AFTER_CLICK_BUTTON	 = 100;
-	private static final long DELAY_AFTER_CLICK_LISTITEM = 100;
-	private static final long DELAY_AFTER_DRAG_AND_DROP	 = 100;
+	private static final int DELAY_AFTER_CLICK_MENU	   = 300;
+	private static final int DELAY_AFTER_DRAG_AND_DROP = 100;
+	
+	private static final int MAX_WAIT_ELEMENT		   = 1000;
+	private static final int MAX_WAIT_SUCCESS		   = 3000;
 	
 	private static final String SEED_URL  = "http://localhost:8080"; //NOSONAR
 	private static final String SEED_NAME = "Seed";
@@ -76,7 +78,6 @@ public abstract class AbstractIntegrationTest {
 	
 	protected void clickButton(WebElement parent, String className) {
 		findByClass(parent, className + "-button").click();
-		pause(DELAY_AFTER_CLICK_BUTTON);
 	}
 	
 	protected void clickCheckbox(WebElement parent, String className) {
@@ -86,7 +87,6 @@ public abstract class AbstractIntegrationTest {
 	protected void clickListItem(WebElement parent, String className) {
 		WebElement trElement = findByClass(parent, className + "-listitem");
 		findByClass(trElement, "z-listcell-content").click();
-		pause(DELAY_AFTER_CLICK_LISTITEM);
 	}
 	
 	protected void clickRadioItem(WebElement parent, String className) {
@@ -176,7 +176,8 @@ public abstract class AbstractIntegrationTest {
 	}
 	
 	protected WebElement findSuccessMessage() {
-		return findByClass("z-icon-info-circle");
+		return new WebDriverWait(driver, Duration.ofMillis(MAX_WAIT_SUCCESS))
+        .until(driver -> driver.findElement(By.className("z-icon-info-circle")));
 	}
 	
 	protected WebElement findValidationMessage() {
@@ -188,11 +189,11 @@ public abstract class AbstractIntegrationTest {
 		final WebElement divElement = findByClass(tdElement, "z-treecell-content");
 		final WebElement spanElement = findByClass(divElement, "z-tree-icon");
 		spanElement.click();
-		pause(DELAY_AFTER_OPEN_MENU);
 	}
 	
 	private WebElement findByClass(String className) {
-		return driver.findElement(By.className(className));
+		return new WebDriverWait(driver, Duration.ofMillis(MAX_WAIT_ELEMENT))
+				.until(driver -> driver.findElement(By.className(className)));
 	}
 	
 	private WebElement findById(String id) {
@@ -206,8 +207,6 @@ public abstract class AbstractIntegrationTest {
 		findById("username").sendKeys(SEED_USER);
         findById("password").sendKeys(SEED_PWD);
         findByClass("btn").click();
-        
-        pause(DELAY_AFTER_LOGIN);
         assertEquals(SEED_NAME, driver.getTitle());
 	}
 	

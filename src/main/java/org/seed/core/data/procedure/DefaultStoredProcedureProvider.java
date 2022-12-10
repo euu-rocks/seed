@@ -17,28 +17,29 @@
  */
 package org.seed.core.data.procedure;
 
+import org.hibernate.Session;
+
 import org.seed.C;
 import org.seed.core.api.StoredProcedureCall;
 import org.seed.core.api.StoredProcedureProvider;
-import org.seed.core.entity.value.event.ValueObjectFunctionContext;
 import org.seed.core.util.Assert;
 
 public class DefaultStoredProcedureProvider implements StoredProcedureProvider {
 
-	private final ValueObjectFunctionContext functionContext;
+	private final Session session;
 	
-	public DefaultStoredProcedureProvider(ValueObjectFunctionContext functionContext) {
-		Assert.notNull(functionContext, C.CONTEXT);
+	public DefaultStoredProcedureProvider(Session session) {
+		Assert.notNull(session, C.SESSION);
 		
-		this.functionContext = functionContext;
+		this.session = session;
 	}
 
 	@Override
 	public StoredProcedureCall createCall(String procedureName) {
 		Assert.notNull(procedureName, "procedure name");
 		
-		return new DefaultStoredProcedureCall(functionContext.getSession()
-							.createStoredProcedureCall(procedureName));
+		return new DefaultStoredProcedureCall(
+				session.createStoredProcedureCall(procedureName));
 	}
 	
 }

@@ -130,7 +130,6 @@ public class CreateTransformerTest extends AbstractIntegrationTest {
 		clickCheckbox(tabpanelFunctions, "activebeforetransformation");
 		clickCheckbox(tabpanelFunctions, "activeaftertransformation");
 		clickButton(tabpanel, "save");
-		pause(2000);
 		findSuccessMessage();
 	}
 	

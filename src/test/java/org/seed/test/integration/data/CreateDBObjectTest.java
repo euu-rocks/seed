@@ -60,11 +60,15 @@ public class CreateDBObjectTest extends AbstractIntegrationTest {
 		findValidationMessage(); // name is empty
 		
 		findTextbox(tabpanel, "name").sendKeys("Testprocedure");
-		findCodeMirror(tabpanel, "content", 1).sendKeys("create or replace procedure Testprocedure()\r\n"
+		findCodeMirror(tabpanel, "content", 1).sendKeys("create or replace procedure Testprocedure(\n"
+				+ "	text1 in varchar(100),\n"
+				+ "	text2 in varchar(100),\n"
+				+ "	result inout varchar(200)\n"
+				+ ")\n"
 				+ "language plpgsql as\n"
 				+ "$$\n"
 				+ "begin\n"
-				+ "	select * from sys_user;\n"
+				+ "	select text1 || ' ' || text2 into result;\n"
 				+ "end\n"
 				+ "$$");
 		saveDBObject(tabpanel);
@@ -99,6 +103,48 @@ public class CreateDBObjectTest extends AbstractIntegrationTest {
 		saveDBObject(tabpanel);
 	}
 	
+	@Test
+	@Order(4)
+	void testCreateTriggerFunction() {
+		WebElement tabpanel = newDBObject();
+		WebElement window = newDBObjectWindow();
+		
+		findCombobox(window, "type").sendKeys("Funktion");
+		findCombobox(window, "module").sendKeys("Testmodule");
+		clickButton(window, "create");
+		
+		findTextbox(tabpanel, "name").sendKeys("Triggerfunction");
+		findCodeMirror(tabpanel, "content", 1).sendKeys("create or replace function Triggerfunction()\n"
+				+ "returns trigger\n"
+				+ "language plpgsql\n"
+				+ "as\n"
+				+ "$$\n"
+				+ "begin\n"
+				+ "	return NEW;\n"
+				+ "end\n"
+				+ "$$");
+		saveDBObject(tabpanel);
+	}
+	
+	@Test
+	@Order(5)
+	void testCreateTrigger() {
+		WebElement tabpanel = newDBObject();
+		WebElement window = newDBObjectWindow();
+		
+		findCombobox(window, "type").sendKeys("Trigger");
+		findCombobox(window, "module").sendKeys("Testmodule");
+		clickButton(window, "create");
+	
+		findTextbox(tabpanel, "name").sendKeys("Testtrigger");
+		findCodeMirror(tabpanel, "content", 1).sendKeys("create trigger Testtrigger\n"
+				+ "  before update\n"
+				+ "  on sys_user\n"
+				+ "  for each row\n"
+				+ "  execute procedure triggerfunction()");
+		saveDBObject(tabpanel);
+	}
+	
 	private WebElement newDBObject() {
 		clickMenu("administration-datenbankelemente");
 		findTab("datenbankelemente");
@@ -115,7 +161,6 @@ public class CreateDBObjectTest extends AbstractIntegrationTest {
 	
 	private void saveDBObject(WebElement tabpanel) {
 		clickButton(tabpanel, "save");
-		pause(2000);
 		findSuccessMessage();
 	}
 	

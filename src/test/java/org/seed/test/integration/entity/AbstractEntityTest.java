@@ -52,7 +52,6 @@ abstract class AbstractEntityTest extends AbstractIntegrationTest {
 	
 	protected void saveEntity(WebElement tabpanel) {
 		clickButton(tabpanel, "save");
-		pause(2000);
 		findSuccessMessage();
 	}
 	

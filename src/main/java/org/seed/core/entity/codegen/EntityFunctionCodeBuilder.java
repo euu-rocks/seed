@@ -23,6 +23,7 @@ import org.seed.C;
 import org.seed.core.api.CallbackFunction;
 import org.seed.core.api.CallbackFunctionContext;
 import org.seed.core.codegen.AbstractSourceCodeBuilder;
+import org.seed.core.codegen.CodeManagerImpl;
 import org.seed.core.codegen.ParameterMetadata;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.codegen.TypeClass;
@@ -56,6 +57,8 @@ class EntityFunctionCodeBuilder extends AbstractSourceCodeBuilder {
 		
 		switch (buildMode) {
 			case TEMPLATE:
+				addImportPackage(CodeManagerImpl.API_PACKAGE);
+				addImportPackage(CodeManagerImpl.GENERATED_ENTITY_PACKAGE);
 				addMethod(null, "call", 
 						  new ParameterMetadata[] { 
 							newParameter(entityFunction.getEntity().getInternalName().toLowerCase(), 

@@ -42,6 +42,8 @@ public class CodeManagerImpl implements CodeManager {
 	
 	private static final Logger log = LoggerFactory.getLogger(CodeManagerImpl.class);
 	
+	public static final String API_PACKAGE				   = "org.seed.core.api";
+	
 	public static final String GENERATED_ENTITY_PACKAGE    = "org.seed.generated.entity";
 	public static final String GENERATED_REST_PACKAGE      = "org.seed.generated.rest";
 	public static final String GENERATED_TASK_PACKAGE      = "org.seed.generated.task";

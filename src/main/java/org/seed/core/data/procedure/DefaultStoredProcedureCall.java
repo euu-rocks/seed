@@ -44,14 +44,16 @@ class DefaultStoredProcedureCall implements StoredProcedureCall {
 
 	@Override
 	public void setParameter(int paramIndex, Object paramValue) {
-		procedureCall.registerParameter(paramIndex, paramValue.getClass(), ParameterMode.IN)
+		final Class<?> paramClass = paramValue != null ? paramValue.getClass() : Object.class;
+		procedureCall.registerParameter(paramIndex, paramClass, ParameterMode.IN)
 					 .enablePassingNulls(true);
 		procedureCall.setParameter(paramIndex, paramValue);
 	}
 	
 	@Override
 	public void setParameter(String paramName, Object paramValue) {
-		procedureCall.registerParameter(paramName, paramValue.getClass(), ParameterMode.IN)
+		final Class<?> paramClass = paramValue != null ? paramValue.getClass() : Object.class;
+		procedureCall.registerParameter(paramName, paramClass, ParameterMode.IN)
 					 .enablePassingNulls(true);
 		procedureCall.setParameter(paramName, paramValue);
 	}

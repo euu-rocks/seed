@@ -44,11 +44,15 @@ public class CreateJobTest extends AbstractIntegrationTest {
 		clickButton(tabpanel, "editcode");
 		
 		WebElement window = findWindow("code-dialog");
-		findCodeMirror(window, "content", 11).sendKeys("System.out.println(\"Testjob\");");
+		findCodeMirror(window, "content", 11).sendKeys("StoredProcedureCall call = context.getStoredProcedureProvider().createCall(\"testprocedure\");\n"
+				+ "		call.setParameter(\"text1\",\"Hello\");\n"
+				+ "      	call.setParameter(\"text2\",\"World\");\n"
+				+ "      	call.awaitOutput(\"result\",String.class);\n"
+				+ "        String result = call.getOutput(\"result\");\n"
+				+ "      	context.logInfo(result);");
 		clickButton(window, "apply");
 		
 		clickButton(tabpanel, "save");
-		pause(2000);
 		findSuccessMessage();
 	}
 	

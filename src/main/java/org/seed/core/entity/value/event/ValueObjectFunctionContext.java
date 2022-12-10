@@ -138,7 +138,7 @@ public class ValueObjectFunctionContext extends AbstractFunctionContext
 	@Override
 	public StoredProcedureProvider getStoredProcedureProvider() {
 		if (storedProcedureProvider == null) {
-			storedProcedureProvider = new DefaultStoredProcedureProvider(this);
+			storedProcedureProvider = new DefaultStoredProcedureProvider(getSession());
 		}
 		return storedProcedureProvider;
 	}
