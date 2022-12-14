@@ -52,6 +52,7 @@
 			 				  onOpen="@command('openMenu',node=node)">
 			 			<treerow>
 			 				<treecell label="@load(node.label)"
+			 						  style="@load(vm.getTreeCellStyle(node))"
 			 						  iconSclass="@init(node.iconClass)"
 			 						  sclass="@init(node.testClass)"/>
 			 			</treerow>
@@ -97,6 +98,7 @@
 							  onClick="@command('closeAllTabs')"/>
 				</menupopup>
 				<timer delay="@init(vm.sessionKeepAliveInterval)" repeats="true" onTimer=""/>
+				<timer delay="30000" repeats="true" onTimer="@command('checkCompilerError')"/>
 			</vlayout>
 		</south>
 	</borderlayout>

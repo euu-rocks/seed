@@ -88,7 +88,18 @@ public class InMemoryCompiler implements Compiler {
 	}
 	
 	@Override
-	public synchronized void compile(List<SourceCode> sourceCodes) {
+	public void compile(List<SourceCode> sourceCodes) {
+		compile(sourceCodes, fileManager);
+	}
+	
+	@Override
+	public void compileSeparately(List<SourceCode> sourceCodes) {
+		final CompilerFileManager fileManager = new CompilerFileManager(javaCompiler.getStandardFileManager(null, null, null));
+		fileManager.setCustomJars(getCustomJars());
+		compile(sourceCodes, fileManager);
+	}
+	
+	private synchronized void compile(List<SourceCode> sourceCodes, CompilerFileManager fileManager) {
 		Assert.notNull(sourceCodes, "sourceCodes");
 		if (sourceCodes.isEmpty()) {
 			return;
@@ -116,6 +127,14 @@ public class InMemoryCompiler implements Compiler {
 				= new GeneratedCodeClassLoader(fileManager.getClassFileObjects(), parent);
 		mapClasses = classLoader.getClassMap();
 		return classLoader;
+	}
+	
+	@Override
+	public synchronized void removeClass(String qualifiedName) {
+		Assert.notNull(qualifiedName, C.QUALIFIEDNAME);
+		
+		mapClasses.remove(qualifiedName);
+		fileManager.removeClassFileObject(qualifiedName);
 	}
 	
 	private List<CustomJar> getCustomJars() {

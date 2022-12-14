@@ -164,9 +164,11 @@ public class MenuManager {
 										  "z-icon-wrench"));
 		}
 		if (user.isAuthorised(Authorisation.SYSTEMINFO)) {
-			nodeAdmin.addChild(createNode("user.authorisation.systeminfo", 
-										  "/admin/systeminfo/systeminfo.zul", 
-										  "z-icon-info"));
+			final TreeNode nodeInfo = createNode("user.authorisation.systeminfo", 
+					  					  "/admin/systeminfo/systeminfo.zul", 
+										  "z-icon-info");
+			nodeInfo.setPurpose("systeminfo");
+			nodeAdmin.addChild(nodeInfo);
 		}
 		if (user.isAuthorised(Authorisation.SYSTEMTASK)) {
 			nodeAdmin.addChild(createNode("label.systemtasks",

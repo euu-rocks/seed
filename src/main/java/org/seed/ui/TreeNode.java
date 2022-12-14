@@ -41,6 +41,8 @@ public final class TreeNode {
 	
 	private TreeNode parent;
 	
+	private String purpose;
+	
 	private boolean top;
 	
 	private boolean link;
@@ -74,6 +76,14 @@ public final class TreeNode {
 
 	public String getIconClass() {
 		return iconClass;
+	}
+
+	public String getPurpose() {
+		return purpose;
+	}
+
+	public void setPurpose(String purpose) {
+		this.purpose = purpose;
 	}
 
 	public boolean isTop() {

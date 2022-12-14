@@ -353,7 +353,10 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	public void dropToTransformerList(@BindingParam(C.ITEM) FormTransformer item,
 									  @BindingParam(C.LIST) int listNum) {
 		super.dropToList(TRANSFORMERS, listNum, item);
-		if (listNum == LIST_AVAILABLE && item == transformer) {
+		if (listNum == LIST_SELECTED) {
+			transformer = item;
+		}
+		else if (listNum == LIST_AVAILABLE && item == transformer) {
 			transformer = null;
 		}
 	}
@@ -364,7 +367,10 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 			   					  		@BindingParam(C.ITEM) FormTransformer item,
 			   					  		@BindingParam(C.LIST) int listNum) {
 		super.insertToList(TRANSFORMERS, listNum, base, item);
-		if (listNum == LIST_AVAILABLE && item == transformer) {
+		if (listNum == LIST_SELECTED) {
+			transformer = item;
+		}
+		else if (listNum == LIST_AVAILABLE && item == transformer) {
 			transformer = null;
 		}
 	}
@@ -376,7 +382,10 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	public void dropToFieldList(@BindingParam(C.ITEM) FormField item,
 								@BindingParam(C.LIST) int listNum) {
 		super.dropToList(FIELDS, listNum, item);
-		if (listNum == LIST_AVAILABLE && item == field) {
+		if (listNum == LIST_SELECTED) {
+			field = item;
+		}
+		else if (listNum == LIST_AVAILABLE && item == field) {
 			field = null;
 		}
 	}
@@ -387,7 +396,10 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 			   					  @BindingParam(C.ITEM) FormField item,
 			   					  @BindingParam(C.LIST) int listNum) {
 		super.insertToList(FIELDS, listNum, base, item);
-		if (listNum == LIST_AVAILABLE && item == field) {
+		if (listNum == LIST_SELECTED) {
+			field = item;
+		}
+		else if (listNum == LIST_AVAILABLE && item == field) {
 			field = null;
 		}
 	}
@@ -397,7 +409,10 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	public void dropToActionList(@BindingParam(C.ITEM) FormAction item,
 								 @BindingParam(C.LIST) int listNum) {
 		super.dropToList(ACTIONS, listNum, item);
-		if (listNum == LIST_AVAILABLE && item == action) {
+		if (listNum == LIST_SELECTED) {
+			action = item;
+		}
+		else if (listNum == LIST_AVAILABLE && item == action) {
 			action = null;
 		}
 	}
@@ -408,7 +423,10 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 			   					   @BindingParam(C.ITEM) FormAction item,
 			   					   @BindingParam(C.LIST) int listNum) {
 		super.insertToList(ACTIONS, listNum, base, item);
-		if (listNum == LIST_AVAILABLE && item == action) {
+		if (listNum == LIST_SELECTED) {
+			action = item;
+		}
+		else if (listNum == LIST_AVAILABLE && item == action) {
 			action = null;
 		}
 	}

@@ -983,7 +983,10 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	public void dropToPermissionList(@BindingParam(C.ITEM) EntityPermission item,
 									 @BindingParam(C.LIST) int listNum) {
 		dropToList(PERMISSIONS, listNum, item);
-		if (listNum == LIST_AVAILABLE && item == permission) {
+		if (listNum == LIST_SELECTED) {
+			permission = item;
+		}
+		else if (listNum == LIST_AVAILABLE && item == permission) {
 			this.permission = null;
 		}
 	}
@@ -994,8 +997,11 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 										 @BindingParam(C.LIST) int listNum) {
 		dropToList(TRANSITIONFUNCTIONS, listNum, item);
 		adjustLists(statusTransition.getFunctions(), getListManagerList(TRANSITIONFUNCTIONS, LIST_SELECTED));
-		if (listNum == LIST_AVAILABLE && item == transitionFunction) {
-			this.transitionFunction = null;
+		if (listNum == LIST_SELECTED) {
+			transitionFunction = item;
+		}
+		else if (listNum == LIST_AVAILABLE && item == transitionFunction) {
+			transitionFunction = null;
 		}
 	}
 	
@@ -1012,8 +1018,11 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 									   @BindingParam(C.ITEM) EntityPermission item,
 									   @BindingParam(C.LIST) int listNum) {
 		insertToList(PERMISSIONS, listNum, base, item);
-		if (listNum == LIST_AVAILABLE && item == permission) {
-			this.permission = null;
+		if (listNum == LIST_SELECTED) {
+			permission = item;
+		}
+		else if (listNum == LIST_AVAILABLE && item == permission) {
+			permission = null;
 		}
 	}
 	
@@ -1024,7 +1033,10 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 			   							   @BindingParam(C.LIST) int listNum) {
 		insertToList(TRANSITIONFUNCTIONS, listNum, base, item);
 		adjustLists(statusTransition.getFunctions(), getListManagerList(TRANSITIONFUNCTIONS, LIST_SELECTED));
-		if (listNum == LIST_AVAILABLE && item == transitionFunction) {
+		if (listNum == LIST_SELECTED) {
+			transitionFunction = item;
+		}
+		else if (listNum == LIST_AVAILABLE && item == transitionFunction) {
 			this.transitionFunction = null;
 		}
 	}

@@ -38,7 +38,9 @@ import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
 import org.seed.core.codegen.CodeChangeAware;
+import org.seed.core.codegen.CodeManager;
 import org.seed.core.codegen.CodeManagerImpl;
+import org.seed.core.codegen.CodeUtils;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.config.Limits;
 import org.seed.core.config.SchemaManager;
@@ -88,6 +90,9 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	@Autowired
 	private SchemaManager schemaManager; 
+	
+	@Autowired
+	private CodeManager codeManager;
 	
 	@Autowired
 	private Limits limits;
@@ -652,6 +657,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 						autonumService.deleteAutonumber(deletedAutonum, session);
 					}
 				}
+				
 				saveObject(entity, session);
 				
 				final ChangeLog changeLog = createChangeLog(currentVersionEntity, entity, session);
@@ -670,6 +676,9 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 			}
 		}
 		if (configChanged) {
+			if (!isInsert && !entity.getInternalName().equals(currentVersionEntity.getInternalName())) {
+				removeEntityClass(currentVersionEntity);
+			}
 			configuration.updateConfiguration();
 		}
 	}
@@ -746,7 +755,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				handleException(tx, ex);
 			}
 		}
-		
+		removeEntityClass(entity);
 		configuration.updateConfiguration();
 	}
 	
@@ -799,6 +808,11 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 			}
 		}
 		return false;
+	}
+	
+	private void removeEntityClass(Entity entity) {
+		codeManager.removeClass(CodeUtils.getQualifiedName(entity.getGeneratedPackage(), 
+														   entity.getGeneratedClass()));
 	}
 	
 	private List<Entity> findGeneric(boolean generic, Session session) {

@@ -20,8 +20,10 @@ package org.seed.core.data.dbobject;
 import org.seed.core.config.changelog.AbstractChangeLogBuilder;
 import org.seed.core.config.changelog.ChangeLog;
 import org.seed.core.config.changelog.CreateFunctionChange;
+import org.seed.core.config.changelog.CreateSequenceChange;
 import org.seed.core.config.changelog.CreateTriggerChange;
 import org.seed.core.config.changelog.DropFunctionChange;
+import org.seed.core.config.changelog.DropSequenceChange;
 import org.seed.core.config.changelog.DropTriggerChange;
 import org.seed.core.util.MiscUtils;
 import org.seed.core.util.StreamUtils;
@@ -75,6 +77,10 @@ class DBObjectChangeLogBuilder extends AbstractChangeLogBuilder<DBObject> {
 			case TRIGGER:
 				addCreateTriggerChange(dbObject);
 				break;
+			
+			case SEQUENCE:
+				addCreateSequenceChange(dbObject);
+				break;
 				
 			default:
 				throw new UnsupportedOperationException(dbObject.getType().name());
@@ -97,6 +103,10 @@ class DBObjectChangeLogBuilder extends AbstractChangeLogBuilder<DBObject> {
 				
 			case TRIGGER:
 				addDropTriggerChange(dbObject);
+				break;
+			
+			case SEQUENCE:
+				addDropSequenceChange(dbObject);
 				break;
 				
 			default:
@@ -135,7 +145,7 @@ class DBObjectChangeLogBuilder extends AbstractChangeLogBuilder<DBObject> {
 	
 	private void addCreateFunctionChange(DBObject dbObject) {
 		final CreateFunctionChange createFunctionChange = new CreateFunctionChange();
-		createFunctionChange.setFunctionText(StreamUtils.compress(dbObject.getContent()));
+		createFunctionChange.setFunctionText(getCompressedContent(dbObject));
 		addChange(createFunctionChange);
 	}
 		
@@ -147,7 +157,7 @@ class DBObjectChangeLogBuilder extends AbstractChangeLogBuilder<DBObject> {
 	
 	private void addCreateTriggerChange(DBObject dbObject) {
 		final CreateTriggerChange createTriggerChange = new CreateTriggerChange();
-		createTriggerChange.setTriggerText(StreamUtils.compress(dbObject.getContent()));
+		createTriggerChange.setTriggerText(getCompressedContent(dbObject));
 		addChange(createTriggerChange);
 	}
 		
@@ -157,4 +167,19 @@ class DBObjectChangeLogBuilder extends AbstractChangeLogBuilder<DBObject> {
 		addChange(dropTriggerChange);
 	}
 	
+	private void addCreateSequenceChange(DBObject dbObject) {
+		final CreateSequenceChange createSequenceChange = new CreateSequenceChange();
+		createSequenceChange.setSequenceText(getCompressedContent(dbObject));
+		addChange(createSequenceChange);
+	}
+	
+	private void addDropSequenceChange(DBObject dbObject) {
+		final DropSequenceChange dropSequenceChange = new DropSequenceChange();
+		dropSequenceChange.setSequenceName(dbObject.getInternalName());
+		addChange(dropSequenceChange);
+	}
+	
+	private static String getCompressedContent(DBObject dbObject) {
+		return StreamUtils.compress(dbObject.getContent());
+	}
 }

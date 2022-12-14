@@ -21,6 +21,8 @@ import java.util.List;
 
 public interface CodeManager {
 	
+	boolean existsCompilerError();
+	
 	void generateClasses();
 	
 	ClassLoader getClassLoader();
@@ -30,6 +32,8 @@ public interface CodeManager {
 	Class<GeneratedCode> getGeneratedClass(String qualifiedName);
 	
 	List<Class<GeneratedCode>> getGeneratedClasses(Class<?> type);
+	
+	void removeClass(String qualifiedName);
 	
 	void testCompile(SourceCode sourceCode);
 	

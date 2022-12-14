@@ -29,6 +29,10 @@ public interface Compiler {
 	
 	void compile(List<SourceCode> sourceCodes);
 	
+	void compileSeparately(List<SourceCode> sourceCodes);
+	
+	void removeClass(String qualifiedName);
+	
 	void resetCustomJars();
 
 }

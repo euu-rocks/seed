@@ -103,6 +103,12 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 					errors.addNotContains("trigger");
 				}
 				break;
+				
+			case SEQUENCE:
+				if (!dbObject.contains(" sequence ")) {
+					errors.addNotContains("sequence");
+				}
+				break;
 			
 			default:
 				throw new UnsupportedOperationException(dbObject.getType().name());
@@ -122,6 +128,7 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 					case PROCEDURE:
 					case FUNCTION:
 					case TRIGGER:
+					case SEQUENCE:
 						session.createSQLQuery(dbObject.getContent()).executeUpdate();
 						break;
 						

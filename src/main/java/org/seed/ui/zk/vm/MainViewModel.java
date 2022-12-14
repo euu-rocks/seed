@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.seed.C;
 import org.seed.core.application.setting.Setting;
+import org.seed.core.codegen.CodeManager;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormService;
 import org.seed.core.task.TaskService;
@@ -56,12 +57,17 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	@WireVariable(value="taskServiceImpl")
 	private TaskService taskService;
 	
+	@WireVariable(value="codeManagerImpl")
+	private CodeManager codeManager;
+	
 	@WireVariable(value="menuManager")
 	private MenuManager menuManager;
 	
 	private final List<String> openNodes = new ArrayList<>();
 	
 	private final List<Tab> tabs = new ArrayList<>();
+	
+	private volatile boolean existsCompilerError = false;
 	
 	private TreeNode selectedNode;
 	
@@ -74,6 +80,13 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	@AfterCompose
 	public void afterCompose(@ContextParam(ContextType.PAGE) Page page) {
 	    this.page = page;
+	}
+	
+	public String getTreeCellStyle(TreeNode node) {
+		if (existsCompilerError && "systeminfo".equals(node.getPurpose())) {
+			return "color:crimson";
+		}
+		return null;
 	}
 	
 	public String getApplicationName() {
@@ -130,6 +143,7 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	
 	@Init
     public void init() {
+		existsCompilerError = codeManager.existsCompilerError();
 		Clients.confirmClose(getLabel("question.quit"));
 		openNodes.add(getLabel("label.administration"));
 		openNodes.add(menuManager.getDefaultMenuName());
@@ -216,6 +230,15 @@ public class MainViewModel extends AbstractApplicationViewModel {
 				openMenu(selectedNode);
 				notifyChange("isNodeOpen");
 			}
+		}
+	}
+	
+	@Command
+	public void checkCompilerError() {
+		final boolean existsError = codeManager.existsCompilerError();
+		if (this.existsCompilerError != existsError) {
+			this.existsCompilerError = existsError;
+			notifyChange("getTreeCellStyle");
 		}
 	}
 	

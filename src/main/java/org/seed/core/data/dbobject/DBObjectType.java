@@ -22,6 +22,7 @@ public enum DBObjectType {
 	VIEW,
 	PROCEDURE,
 	FUNCTION,
-	TRIGGER;
+	TRIGGER,
+	SEQUENCE;
 	
 }

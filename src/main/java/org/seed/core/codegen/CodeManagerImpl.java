@@ -24,6 +24,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javax.annotation.PostConstruct;
 
 import org.hibernate.Session;
 
@@ -39,6 +43,16 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CodeManagerImpl implements CodeManager {
+	
+	private class CompilerStatusCheck extends TimerTask {
+
+		@Override
+		public void run() {
+			if (compilerError) {
+				compilerError = !compileAllCodeBuilders();
+			}
+		}
+	}
 	
 	private static final Logger log = LoggerFactory.getLogger(CodeManagerImpl.class);
 	
@@ -64,7 +78,19 @@ public class CodeManagerImpl implements CodeManager {
 	@Autowired
 	private List<SourceCodeProvider> codeProviders;
 	
+	private volatile boolean compilerError = false;
+	
 	private Date lastCompilerRun;
+	
+	@PostConstruct
+	private void init() {
+		new Timer().schedule(new CompilerStatusCheck(), 0, 60 * 1000); // every minute
+	}
+	
+	@Override
+	public boolean existsCompilerError() {
+		return compilerError;
+	}
 	
 	@Override
 	public ClassLoader getClassLoader() {
@@ -90,6 +116,11 @@ public class CodeManagerImpl implements CodeManager {
 	}
 	
 	@Override
+	public void removeClass(String qualifiedName) {
+		compiler.removeClass(qualifiedName);
+	}
+	
+	@Override
 	public void testCompile(SourceCode sourceCode) {
 		Assert.notNull(sourceCode, "source code");
 		
@@ -98,10 +129,11 @@ public class CodeManagerImpl implements CodeManager {
 	
 	@Override
 	public void generateClasses() {
-		final List<SourceCode> sourceCodeList = buildSources(collectCodeBuilders());
+		final List<SourceCode> sourceCodeList = buildSources(collectCodeBuilders(false));
 		if (sourceCodeList.isEmpty()) {
 			return;
 		}
+		compilerError = false;
 		// compile
 		if (!compileAllClasses(sourceCodeList)) {
 			// fallback: compile classes separately
@@ -133,6 +165,16 @@ public class CodeManagerImpl implements CodeManager {
 		lastCompilerRun = new Date();
 	}
 	
+	private boolean compileAllCodeBuilders() {
+		try {
+			compiler.compileSeparately(buildSources(collectCodeBuilders(true)));
+			return true;
+		}
+		catch (CompilerException cex) {
+			return false;
+		}
+	}
+	
 	private boolean compileAllClasses(List<SourceCode> sourceCodeList) {
 		try {
 			compile(sourceCodeList);
@@ -152,6 +194,7 @@ public class CodeManagerImpl implements CodeManager {
 		catch (CompilerException cex) {
 			log.warn("Error while compiling entity classes {}", cex.getMessage());
 			systemLog.logError("systemlog.error.compileentities", cex);
+			compilerError = true;
 		}
 	}
 	
@@ -163,6 +206,7 @@ public class CodeManagerImpl implements CodeManager {
 			catch (CompilerException cex) {
 				log.warn("Error while compiling entity transformation class {}", cex.getMessage());
 				systemLog.logError("systemlog.error.compiletransform", cex);
+				compilerError = true;
 			}
 		}
 	}
@@ -175,6 +219,7 @@ public class CodeManagerImpl implements CodeManager {
 			catch (CompilerException cex) {
 				log.warn("Error while compiling rest class {}", cex.getMessage());
 				systemLog.logError("systemlog.error.compilerest", cex);
+				compilerError = true;
 			}
 		}
 	}
@@ -187,6 +232,7 @@ public class CodeManagerImpl implements CodeManager {
 			catch (CompilerException cex) {
 				log.warn("Error while compiling task class {}", cex.getMessage());
 				systemLog.logError("systemlog.error.compiletask", cex);
+				compilerError = true;
 			}
 		}
 	}
@@ -198,6 +244,7 @@ public class CodeManagerImpl implements CodeManager {
 		catch (CompilerException cex) {
 			log.warn("Error while compiling custom classes {}", cex.getMessage());
 			systemLog.logError("systemlog.error.compilecustom", cex);
+			compilerError = true;
 		}
 	}
 	
@@ -224,13 +271,13 @@ public class CodeManagerImpl implements CodeManager {
 				 isTaskSource(code));
 	}
 	
-	private List<SourceCodeBuilder> collectCodeBuilders() {
+	private List<SourceCodeBuilder> collectCodeBuilders(boolean all) {
 		final List<SourceCodeBuilder> builderList = new ArrayList<>();
 		try (Session session = sessionProvider.getSession()) {
 			for (SourceCodeProvider codeProvider : codeProviders) {
                 // compile only if code has changed since last compiler run
 				builderList.addAll(subList(codeProvider.getSourceCodeBuilders(session), 
-										   builder -> lastCompilerRun == null || 
+										   builder -> all || lastCompilerRun == null || 
 										   			  builder.getLastModified().after(lastCompilerRun)));
 			}
 		}
