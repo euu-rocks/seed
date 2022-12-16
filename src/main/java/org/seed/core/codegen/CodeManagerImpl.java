@@ -84,7 +84,8 @@ public class CodeManagerImpl implements CodeManager {
 	
 	@PostConstruct
 	private void init() {
-		new Timer().schedule(new CompilerStatusCheck(), 0, 60 * 1000); // every minute
+		new Timer("CodeManagerTask")
+			.schedule(new CompilerStatusCheck(), 0, 60 * 1000); // every minute
 	}
 	
 	@Override

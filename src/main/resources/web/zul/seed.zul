@@ -52,7 +52,7 @@
 			 				  onOpen="@command('openMenu',node=node)">
 			 			<treerow>
 			 				<treecell label="@load(node.label)"
-			 						  style="@load(vm.getTreeCellStyle(node))"
+			 						  style="@load(vm.getTreeNodeStyle(node))"
 			 						  iconSclass="@init(node.iconClass)"
 			 						  sclass="@init(node.testClass)"/>
 			 			</treerow>

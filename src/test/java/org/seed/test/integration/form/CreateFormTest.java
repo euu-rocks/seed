@@ -50,4 +50,26 @@ public class CreateFormTest extends AbstractIntegrationTest {
 		findSuccessMessage();
 	}
 	
+	@Test
+	@Order(2)
+	void testAddTransformer() {
+		WebElement tabpanel = showForm("testform");
+		clickTab(tabpanel, "transformers");
+		WebElement tabpanelTransformers = findTabpanel(tabpanel, "transformers");
+		
+		dragAndDrop(tabpanelTransformers, "testtransformer", "selected");
+		findOptionCombobox(tabpanelTransformers, "targetform").sendKeys("IntegrationTest");
+		clickButton(tabpanel, "save");
+		findSuccessMessage();
+	}
+	
+	private WebElement showForm(String name) {
+		clickMenu("administration-formulare");
+		findTab("formulare");
+		final WebElement tabpanel = findTabpanel("formulare");
+		clickListItem(tabpanel, name);
+		clickButton(tabpanel, "edit");
+		return tabpanel;
+	}
+	
 }

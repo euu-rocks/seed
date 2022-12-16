@@ -82,11 +82,10 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	    this.page = page;
 	}
 	
-	public String getTreeCellStyle(TreeNode node) {
-		if (existsCompilerError && "systeminfo".equals(node.getPurpose())) {
-			return "color:crimson";
-		}
-		return null;
+	public String getTreeNodeStyle(TreeNode node) {
+		return existsCompilerError && MenuManager.NODE_SYSTEMINFO.equals(node.getPurpose())
+				? "color:crimson"
+				: null;
 	}
 	
 	public String getApplicationName() {
@@ -215,8 +214,8 @@ public class MainViewModel extends AbstractApplicationViewModel {
 			if (selectedNode.isLink()) {
 				redirect(selectedNode.viewName);
 			}
-			else if (MenuManager.REDIRECT_LOGOUT.equals(selectedNode.viewName)) {
-				confirm("question.logout", null, MenuManager.REDIRECT_LOGOUT);
+			else if (MenuManager.NODE_LOGOUT.equals(selectedNode.getPurpose())) {
+				confirm("question.logout", null, MenuManager.NODE_LOGOUT);
 			}
 			else if (selectedNode.viewName != null) {
 				FormParameter param = null;
@@ -238,13 +237,13 @@ public class MainViewModel extends AbstractApplicationViewModel {
 		final boolean existsError = codeManager.existsCompilerError();
 		if (this.existsCompilerError != existsError) {
 			this.existsCompilerError = existsError;
-			notifyChange("getTreeCellStyle");
+			notifyChange("getTreeNodeStyle");
 		}
 	}
 	
 	@Override
 	protected void confirmed(boolean confirmed, Component elem, Object confirmParam) {
-		if (confirmed && MenuManager.REDIRECT_LOGOUT.equals(confirmParam)) {
+		if (confirmed && MenuManager.NODE_LOGOUT.equals(confirmParam)) {
 			Clients.confirmClose(null);
 			logout();
 		}

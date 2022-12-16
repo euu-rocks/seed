@@ -145,6 +145,21 @@ public class CreateDBObjectTest extends AbstractIntegrationTest {
 		saveDBObject(tabpanel);
 	}
 	
+	@Test
+	@Order(6)
+	void testCreateSequence() {
+		WebElement tabpanel = newDBObject();
+		WebElement window = newDBObjectWindow();
+		
+		findCombobox(window, "type").sendKeys("Sequenz");
+		findCombobox(window, "module").sendKeys("Testmodule");
+		clickButton(window, "create");
+		
+		findTextbox(tabpanel, "name").sendKeys("Testsequence");
+		findCodeMirror(tabpanel, "content", 1).sendKeys("create sequence Testsequence START 100");
+		saveDBObject(tabpanel);
+	}
+	
 	private WebElement newDBObject() {
 		clickMenu("administration-datenbankelemente");
 		findTab("datenbankelemente");

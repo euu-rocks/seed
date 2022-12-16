@@ -29,6 +29,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -37,11 +38,13 @@ public abstract class AbstractIntegrationTest {
 	
 	private static final String TEST_BROWSER = "firefox";
 	
-	private static final int DELAY_AFTER_CLICK_MENU	   = 300;
-	private static final int DELAY_AFTER_DRAG_AND_DROP = 100;
+	private static final long DELAY_AFTER_CLICK_MENU	= 300;
+	private static final long DELAY_AFTER_DRAG_AND_DROP = 100;
+	private static final long DELAY_AFTER_CLEAR_FIELD	= 100;
 	
-	private static final int MAX_WAIT_ELEMENT		   = 1000;
-	private static final int MAX_WAIT_SUCCESS		   = 3000;
+	private static final long MAX_WAIT_ELEMENT		    = 1000;
+	private static final long MAX_WAIT_SUCCESS		    = 3000;
+	private static final long MAX_WAIT_DISAPAER		    = 3000;
 	
 	private static final String SEED_URL  = "http://localhost:8080"; //NOSONAR
 	private static final String SEED_NAME = "Seed";
@@ -76,6 +79,11 @@ public abstract class AbstractIntegrationTest {
 		driver = null;
 	}
 	
+	protected void clearTextbox(WebElement parent, String className) {
+		findTextbox(parent, className).clear();
+		pause(DELAY_AFTER_CLEAR_FIELD);
+	}
+	
 	protected void clickButton(WebElement parent, String className) {
 		findByClass(parent, className + "-button").click();
 	}
@@ -85,7 +93,7 @@ public abstract class AbstractIntegrationTest {
 	}
 	
 	protected void clickListItem(WebElement parent, String className) {
-		WebElement trElement = findByClass(parent, className + "-listitem");
+		final WebElement trElement = findByClass(parent, className + "-listitem");
 		findByClass(trElement, "z-listcell-content").click();
 	}
 	
@@ -191,9 +199,18 @@ public abstract class AbstractIntegrationTest {
 		spanElement.click();
 	}
 	
+	protected void waitWindowDisapear(String className) {
+		waitElementDisapear(className + "-win");
+	}
+	
 	private WebElement findByClass(String className) {
 		return new WebDriverWait(driver, Duration.ofMillis(MAX_WAIT_ELEMENT))
-				.until(driver -> driver.findElement(By.className(className)));
+					.until(driver -> driver.findElement(By.className(className)));
+	}
+	
+	private void waitElementDisapear(String className) {
+		new WebDriverWait(driver, Duration.ofMillis(MAX_WAIT_DISAPAER))
+					.until(ExpectedConditions.invisibilityOfElementLocated(By.className(className)));
 	}
 	
 	private WebElement findById(String id) {

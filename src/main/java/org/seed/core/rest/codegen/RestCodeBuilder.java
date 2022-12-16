@@ -22,6 +22,7 @@ import java.util.Date;
 import org.seed.C;
 import org.seed.core.api.RestFunctionContext;
 import org.seed.core.codegen.AbstractSourceCodeBuilder;
+import org.seed.core.codegen.CodeManagerImpl;
 import org.seed.core.codegen.ParameterMetadata;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.codegen.TypeClass;
@@ -51,6 +52,8 @@ class RestCodeBuilder extends AbstractSourceCodeBuilder {
 		
 		switch (buildMode) {
 			case TEMPLATE:
+				addImportPackage(CodeManagerImpl.API_PACKAGE);
+				addImportPackage(CodeManagerImpl.GENERATED_ENTITY_PACKAGE);
 				addMethod(newTypeClass(Object.class), "call", 
 						  new ParameterMetadata[] {
 							newParameter(C.CONTEXT, newTypeClass(RestFunctionContext.class))

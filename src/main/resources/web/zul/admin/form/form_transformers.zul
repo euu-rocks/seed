@@ -25,11 +25,12 @@
 			<listbox mold="paging" autopaging="true" 
 					 model="@load(vm.getListManagerList('transformers',0))"
 					 droppable="true" onDrop="@command('dropToTransformerList',item=event.dragged.attributes.item,list=0)"
-					 class="alpha-noborder alpha-nobg" 
+					 class="available-items alpha-noborder alpha-nobg" 
 					 oddRowSclass="non-odd" 
 					 hflex="1" vflex="1">
 				<template name="model" var="transformer">
-					<listitem attributes.item="@init(transformer)" 
+					<listitem sclass="@init(vm.getItemTestClass(transformer.transformer))"
+							  attributes.item="@init(transformer)" 
 							  draggable="true" droppable="true" 
 	 						  onDrop="@command('insertToTransformerList',item=event.dragged.attributes.item,base=transformer,list=0)">
 						<listcell label="@load(transformer.label)"
@@ -50,11 +51,12 @@
 					 model="@load(vm.getListManagerList('transformers',1))" 
 					 droppable="true" onDrop="@command('dropToTransformerList',item=event.dragged.attributes.item,list=1)"
 					 selectedItem="@bind(vm.transformer)"
-					 class="alpha-noborder alpha-nobg" 
+					 class="selected-items alpha-noborder alpha-nobg" 
 					 oddRowSclass="non-odd" 
 					 hflex="1" vflex="1">
 				<template name="model" var="transformer">
-					<listitem attributes.item="@init(transformer)" 
+					<listitem sclass="@init(vm.getItemTestClass(transformer.transformer))"
+							  attributes.item="@init(transformer)" 
 							  draggable="true" droppable="true" 
 							  onDrop="@command('insertToTransformerList',item=event.dragged.attributes.item,base=transformer,list=1)">
 						<listcell label="@load(transformer.label)"
@@ -74,27 +76,33 @@
 		  class="alpha-properties">
 		<vlayout class="alpha-properties-content">
 			<label value="${labels.label.transformer}:"/>
-	        <textbox value="@load(vm.transformer.transformer.name)"
-	        		 readonly="true" hflex="1"/> 
+			<div sclass="transformername-field">
+		        <textbox value="@load(vm.transformer.transformer.name)"
+		        		 readonly="true" hflex="1"/>
+			</div>
 			<label value="${labels.label.label}:"/>
-	        <textbox value="@bind(vm.transformer.label)
-	        				@converter(vm.stringConverter)"
-	        		 placeholder="@load(vm.transformer.transformer.name)"
-	        		 onChanging="@command('flagDirty')" 
-	        		 instant="true" hflex="1"/>
+			<div sclass="transformerlabel-field">
+		        <textbox value="@bind(vm.transformer.label)
+		        				@converter(vm.stringConverter)"
+		        		 placeholder="@load(vm.transformer.transformer.name)"
+		        		 onChanging="@command('flagDirty')" 
+		        		 instant="true" hflex="1"/>
+			</div>
 	        <label value="${labels.label.targetform}:"/>
-	        <combobox model="@load(vm.getTargetForms(vm.transformer)) @template(empty each.name ? 'empty' : 'form')"
-	        		  selectedItem="@bind(vm.transformer.targetForm)"
-	        		  onSelect="@command('flagDirty')"
-	        		  mandatory="true" hflex="1">
-	        	<template name="empty">
-    				<comboitem/>
-    			</template>	
-	        	<template name="form" var="form">
-    				<comboitem label="@load(form.name)"
-    						   iconSclass="z-icon-list-alt z-icon-fw alpha-icon-lg"/>
-    			</template>		  
-	        </combobox>
+	        <div sclass="targetform-field">
+		        <combobox model="@load(vm.getTargetForms(vm.transformer)) @template(empty each.name ? 'empty' : 'form')"
+		        		  selectedItem="@bind(vm.transformer.targetForm)"
+		        		  onSelect="@command('flagDirty')"
+		        		  mandatory="true" hflex="1">
+		        	<template name="empty">
+	    				<comboitem/>
+	    			</template>	
+		        	<template name="form" var="form">
+	    				<comboitem label="@load(form.name)"
+	    						   iconSclass="z-icon-list-alt z-icon-fw alpha-icon-lg"/>
+	    			</template>		  
+		        </combobox>
+	        </div>
 	    </vlayout>
 	</east>
 	<south border="0">

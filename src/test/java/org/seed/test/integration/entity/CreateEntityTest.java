@@ -104,6 +104,7 @@ public class CreateEntityTest extends AbstractEntityTest {
 		WebElement window = findWindow("code-dialog");
 		findCodeMirror(window, "content", 4).sendKeys("       System.out.println(\"Testfunction\");");
 		clickButton(window, "apply");
+		waitWindowDisapear("code-dialog");
 		saveEntity(tabpanel);
 	}
 	
@@ -120,8 +121,9 @@ public class CreateEntityTest extends AbstractEntityTest {
 		clickButton(tabpanelFunctions, "editfunction");
 		
 		WebElement window = findWindow("code-dialog");
-		findCodeMirror(window, "content", 10).sendKeys("System.out.println(\"Testcallback\");");
+		findCodeMirror(window, "content", 9).sendKeys("System.out.println(\"Testcallback\");");
 		clickButton(window, "apply");
+		waitWindowDisapear("code-dialog");
 		
 		clickCheckbox(tabpanelFunctions, "activebeforeinsert");
 		clickCheckbox(tabpanelFunctions, "activebeforeupdate");

@@ -51,6 +51,7 @@ public class CreateJobTest extends AbstractIntegrationTest {
 				+ "        String result = call.getOutput(\"result\");\n"
 				+ "      	context.logInfo(result);");
 		clickButton(window, "apply");
+		waitWindowDisapear("code-dialog");
 		
 		clickButton(tabpanel, "save");
 		findSuccessMessage();

@@ -59,6 +59,8 @@ public class CreateRestTest extends AbstractIntegrationTest {
 		WebElement window = findWindow("code-dialog");
 		findCodeMirror(window, "content", 10).sendKeys("return \"TestRestfunction\";");
 		clickButton(window, "apply");
+		waitWindowDisapear("code-dialog");
+		
 		clickButton(tabpanel, "save");
 		findSuccessMessage();
 	}

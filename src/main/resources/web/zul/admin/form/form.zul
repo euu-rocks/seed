@@ -120,27 +120,31 @@
 			</grid>
 			<tabbox id="mainTabbox" hflex="1" vflex="1" class="alpha-tabbox">
 				<tabs>
-					<tab label="${labels.label.layout}"/>
-					<tab id="tabFields" label="${labels.label.list}"/>
-					<tab id="tabActions" label="${labels.label.actions}"/>
-					<tab id="tabTransformers" label="${labels.label.transformers}"
+					<tab label="${labels.label.layout}" sclass="layout-tab"/>
+					<tab id="tabFields" sclass="fields-tab"
+						 label="${labels.label.list}"/>
+					<tab id="tabActions" sclass="actions-tab"
+						 label="${labels.label.actions}"/>
+					<tab id="tabTransformers" sclass="transformers-tab"
+						 label="${labels.label.transformers}"
 						 visible="@load(vm.existTransformers())"/>
-					<tab id="tabPrintouts" label="${labels.label.printouts}"/>
+					<tab id="tabPrintouts" sclass="printouts-tab"
+						 label="${labels.label.printouts}"/>
 				</tabs>
 				<tabpanels> 
-					<tabpanel>
+					<tabpanel sclass="layout-tabpanel">
 						<form-layout/>
 					</tabpanel>
-					<tabpanel fulfill="tabFields.onSelect">
+					<tabpanel sclass="fields-tabpanel" fulfill="tabFields.onSelect">
 						<form-fields/>
 					</tabpanel>
-					<tabpanel fulfill="tabActions.onSelect">
+					<tabpanel sclass="actions-tabpanel" fulfill="tabActions.onSelect">
 						<form-actions/>
 					</tabpanel>
-					<tabpanel fulfill="tabTransformers.onSelect">
+					<tabpanel sclass="transformers-tabpanel" fulfill="tabTransformers.onSelect">
 						<form-transformers/>
 					</tabpanel>
-					<tabpanel fulfill="tabPrintouts.onSelect">
+					<tabpanel sclass="printouts-tabpanel" fulfill="tabPrintouts.onSelect">
 						<form-printouts/>
 					</tabpanel>
 				</tabpanels>

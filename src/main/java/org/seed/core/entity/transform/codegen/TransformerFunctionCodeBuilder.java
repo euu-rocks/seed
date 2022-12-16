@@ -23,6 +23,7 @@ import org.seed.C;
 import org.seed.core.api.CallbackFunctionContext;
 import org.seed.core.api.TransformationFunction;
 import org.seed.core.codegen.AbstractSourceCodeBuilder;
+import org.seed.core.codegen.CodeManagerImpl;
 import org.seed.core.codegen.ParameterMetadata;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.codegen.TypeClass;
@@ -50,7 +51,9 @@ class TransformerFunctionCodeBuilder extends AbstractSourceCodeBuilder {
 	
 	@Override
 	public Date getLastModified() {
-		return transformerFunction.getLastModified();
+		return MiscUtils.maxDate(transformerFunction.getLastModified(),
+								 MiscUtils.maxDate(transformerFunction.getTransformer().getSourceEntity().getLastModified(), 
+												   transformerFunction.getTransformer().getTargetEntity().getLastModified()));
 	}
 	
 	@Override
@@ -59,6 +62,8 @@ class TransformerFunctionCodeBuilder extends AbstractSourceCodeBuilder {
 		
 		switch (buildMode) {
 			case TEMPLATE:
+				addImportPackage(CodeManagerImpl.API_PACKAGE);
+				addImportPackage(CodeManagerImpl.GENERATED_ENTITY_PACKAGE);
 				addMethod(null, "transform", 
 						new ParameterMetadata[] { 
 								newParameter("sourceObject", newTypeClass(transformerFunction.getTransformer().getSourceEntity())),
@@ -75,5 +80,5 @@ class TransformerFunctionCodeBuilder extends AbstractSourceCodeBuilder {
 				throw new UnsupportedOperationException(buildMode.name());
 		}
 	}
-	
+
 }

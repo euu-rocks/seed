@@ -44,6 +44,9 @@ public class MenuManager {
 	public static final String URL_FULLTEXTSEARCH 	= "/form/fulltextsearch.zul";
 	public static final String URL_LISTFORM 		= "/form/listform.zul";
 	
+	public static final String NODE_LOGOUT			= "logout";
+	public static final String NODE_SYSTEMINFO		= "systeminfo";
+	
 	@Autowired
 	private LabelProvider labelProvider;
 	
@@ -167,7 +170,7 @@ public class MenuManager {
 			final TreeNode nodeInfo = createNode("user.authorisation.systeminfo", 
 					  					  "/admin/systeminfo/systeminfo.zul", 
 										  "z-icon-info");
-			nodeInfo.setPurpose("systeminfo");
+			nodeInfo.setPurpose(NODE_SYSTEMINFO);
 			nodeAdmin.addChild(nodeInfo);
 		}
 		if (user.isAuthorised(Authorisation.SYSTEMTASK)) {
@@ -215,16 +218,17 @@ public class MenuManager {
 	}
 	
 	private TreeNode createAccountMenu(User user) {
-		final TreeNode nodeAccount = new TreeNode(user.getName(), null, 
-				 								  "z-icon-user");
-		nodeAccount.addChild(createNode("label.logout", 
-										REDIRECT_LOGOUT, 
-										"z-icon-sign-out"));
+		final TreeNode nodeAccount = new TreeNode(user.getName(), null, "z-icon-user");
+		final TreeNode nodeLogout = createNode("label.logout", REDIRECT_LOGOUT, "z-icon-sign-out"); 
+		nodeLogout.setPurpose(NODE_LOGOUT);
+		nodeAccount.addChild(nodeLogout);
 		return nodeAccount;
 	}
 	
 	private TreeNode createNode(String labelKey, String viewName, String icon) {
-		return new TreeNode(getLabel(labelKey), viewName, icon != null ? icon.concat(" z-icon-fw alpha-icon-lg") : null);
+		return new TreeNode(getLabel(labelKey), viewName, icon != null 
+															? icon.concat(" z-icon-fw alpha-icon-lg") 
+															: null);
 	}
 	
 	private String getLabel(String key, String ...params) {

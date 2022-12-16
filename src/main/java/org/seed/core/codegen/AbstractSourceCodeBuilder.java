@@ -368,7 +368,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		buf.append("\tpublic void set").append(StringUtils.capitalize(member.name)).append('(');
 		buildTypeClass(buf, member.typeClass);
 		buf.append(' ').append(member.name).append(") {").append(LF)
-			.append("\t\tthis.").append(member.name).append('=').append(member.name).append(';').append(LF)
+			.append("\t\tthis.").append(member.name).append(" = ").append(member.name).append(';').append(LF)
 			.append("\t}").append(LFLF);
 	}
 	
@@ -384,7 +384,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 				else {
 					buf.append(SEPARATOR);
 				}
-				buf.append(entry.getKey()).append('=');
+				buf.append(entry.getKey()).append(" = ");
 				
 				if (entry.getValue() instanceof AnnotationMetadata[]) {
 					buildAnnotations(buf, (AnnotationMetadata[]) entry.getValue());
