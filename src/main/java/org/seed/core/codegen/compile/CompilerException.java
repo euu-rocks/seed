@@ -23,11 +23,13 @@ import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
 import org.seed.InternalException;
-import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
 public class CompilerException extends InternalException {
 
 	private static final long serialVersionUID = 5748866051489365928L;
+	
+	private List<Diagnostic<? extends JavaFileObject>> diagnostics;
 
 	CompilerException(String message) {
 		super(message);
@@ -37,25 +39,13 @@ public class CompilerException extends InternalException {
 		super(cause);
 	}
 	
-	CompilerException(String string, Throwable cause) {
-		super(string, cause);
-	}
-
 	CompilerException(List<Diagnostic<? extends JavaFileObject>> diagnostics) {
-		this(createDiagnosticsMessage(diagnostics));
+		super(MiscUtils.toString(diagnostics, "\n\n"));
+		this.diagnostics = diagnostics;
 	}
 	
-	static String createDiagnosticsMessage(List<Diagnostic<? extends JavaFileObject>> diagnostics) {
-		Assert.notNull(diagnostics, "diagnostics");
-		final StringBuilder buf = new StringBuilder();
-		
-		for (Diagnostic<?> diagnostic : diagnostics) {
-			if (buf.length() > 0) {
-				buf.append(System.lineSeparator());
-			}
-			buf.append(diagnostic.toString());
-		}
-		return buf.toString();
+	public CompilerErrors getCompilerErrors() {
+		return new CompilerErrors(diagnostics);
 	}
-
+	
 }

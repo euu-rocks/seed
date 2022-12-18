@@ -241,7 +241,7 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	}
 	
 	protected static String getUserName() {
-		return MiscUtils.geUserName();
+		return MiscUtils.getUserName();
 	}
 	
 }

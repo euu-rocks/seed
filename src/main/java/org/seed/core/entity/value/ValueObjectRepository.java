@@ -868,7 +868,7 @@ public class ValueObjectRepository {
 		if ((criterion.getSystemField() == SystemField.CREATEDBY || 
 			 criterion.getSystemField() == SystemField.MODIFIEDBY) &&
 			 criterion.getValue() instanceof String) {
-			return ((String) criterion.getValue()).replace("{username}", MiscUtils.geUserName());
+			return ((String) criterion.getValue()).replace("{username}", MiscUtils.getUserName());
 		}
 		return criterion.getValue();
 	}

@@ -25,7 +25,7 @@ class RevisionHandler implements RevisionListener {
 
 	@Override
 	public void newRevision(Object revisionEntity) {
-		((RevisionEntity) revisionEntity).setAuthor(MiscUtils.geUserName());
+		((RevisionEntity) revisionEntity).setAuthor(MiscUtils.getUserName());
 	}
 
 }

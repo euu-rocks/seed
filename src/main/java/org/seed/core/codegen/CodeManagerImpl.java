@@ -31,6 +31,7 @@ import javax.annotation.PostConstruct;
 
 import org.hibernate.Session;
 
+import org.seed.core.codegen.compile.CompilerErrors;
 import org.seed.core.codegen.compile.CompilerException;
 import org.seed.core.config.SessionProvider;
 import org.seed.core.config.SystemLog;
@@ -82,10 +83,12 @@ public class CodeManagerImpl implements CodeManager {
 	
 	private Date lastCompilerRun;
 	
+	private CompilerErrors compilerErrors;
+	
 	@PostConstruct
 	private void init() {
 		new Timer("CodeManagerTask")
-			.schedule(new CompilerStatusCheck(), 0, 60 * 1000); // every minute
+			  .schedule(new CompilerStatusCheck(), 0, 60 * 1000); // every minute
 	}
 	
 	@Override
@@ -93,6 +96,11 @@ public class CodeManagerImpl implements CodeManager {
 		return compilerError;
 	}
 	
+	@Override
+	public CompilerErrors getCompilerErrors() {
+		return compilerErrors;
+	}
+
 	@Override
 	public ClassLoader getClassLoader() {
 		return compiler.createClassLoader();
@@ -130,11 +138,14 @@ public class CodeManagerImpl implements CodeManager {
 	
 	@Override
 	public void generateClasses() {
+		compilerError = false;
+		compilerErrors = null;
+		
 		final List<SourceCode> sourceCodeList = buildSources(collectCodeBuilders(false));
 		if (sourceCodeList.isEmpty()) {
 			return;
 		}
-		compilerError = false;
+		
 		// compile
 		if (!compileAllClasses(sourceCodeList)) {
 			// fallback: compile classes separately
@@ -143,6 +154,9 @@ public class CodeManagerImpl implements CodeManager {
 			compileTransformClasses(sourceCodeList);
 			compileRestClasses(sourceCodeList);
 			compileTaskClasses(sourceCodeList);
+			if (compilerError) {
+				compileAllCodeBuilders();
+			}
 		}
 		
 		// external file storage
@@ -169,9 +183,11 @@ public class CodeManagerImpl implements CodeManager {
 	private boolean compileAllCodeBuilders() {
 		try {
 			compiler.compileSeparately(buildSources(collectCodeBuilders(true)));
+			compilerErrors = null;
 			return true;
 		}
 		catch (CompilerException cex) {
+			compilerErrors = cex.getCompilerErrors();
 			return false;
 		}
 	}

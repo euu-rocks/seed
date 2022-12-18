@@ -20,11 +20,14 @@
 <!DOCTYPE xml>
 <?component name="info-overview" macroURI="~./zul/admin/systeminfo/systeminfo_overview.zul" inline="true"?>
 <?component name="info-events" macroURI="~./zul/admin/systeminfo/systeminfo_events.zul" inline="true"?>
+<?component name="info-compilererror" macroURI="~./zul/admin/systeminfo/systeminfo_compilererror.zul" inline="true"?>
 <tabbox viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.SystemInfoViewModel')"
 		hflex="1" vflex="1" class="alpha-tabbox">
 	<tabs>
 		<tab label="${labels.label.overview}"/>
 		<tab id="tabSystemLog" label="${labels.label.events}"/>
+		<tab id="tabCompilerError" label="${labels.label.compilererror}" iconSclass="z-icon-exclamation"
+			 visible="@load(!empty vm.compilerErrors.errors)"/>
 	</tabs>
 	<tabpanels> 
 		<tabpanel>
@@ -32,6 +35,9 @@
 		</tabpanel>
 		<tabpanel fulfill="tabSystemLog.onSelect">
 			<info-events/>
+		</tabpanel>
+		<tabpanel fulfill="tabCompilerError.onSelect">
+			<info-compilererror/>
 		</tabpanel>
 	</tabpanels>
 </tabbox>

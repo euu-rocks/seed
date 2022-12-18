@@ -20,6 +20,7 @@ package org.seed.core.util;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Predicate;
@@ -47,7 +48,7 @@ public abstract class MiscUtils {
 	
 	private MiscUtils() {}
 	
-	public static String geUserName() {
+	public static String getUserName() {
 		return SecurityContextHolder.getContext().getAuthentication() != null 
 				? SecurityContextHolder.getContext().getAuthentication().getName()
 				: USERNAME_SYSTEM;
@@ -67,6 +68,17 @@ public abstract class MiscUtils {
 		return bytes != null 
 				? new String(bytes, 0, bytes.length, CHARSET) 
 				: null;
+	}
+	
+	public static String toString(Collection<?> col, String separator) {
+		final StringBuilder buf = new StringBuilder();
+		for (Object obj : col) {
+			if (buf.length() > 0) {
+				buf.append(separator);
+			}
+			buf.append(obj);
+		}
+		return buf.toString();
 	}
 	
 	public static String filterString(String text, Predicate<Character> predicate) {

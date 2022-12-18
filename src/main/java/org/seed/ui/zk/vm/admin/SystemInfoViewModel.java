@@ -24,6 +24,9 @@ import java.util.List;
 import org.hibernate.stat.Statistics;
 
 import org.seed.C;
+import org.seed.core.codegen.CodeManager;
+import org.seed.core.codegen.compile.CompilerErrors;
+import org.seed.core.codegen.compile.CompilerErrors.CompilerError;
 import org.seed.core.config.DatabaseInfo;
 import org.seed.core.config.SchemaManager;
 import org.seed.core.config.SessionProvider;
@@ -53,8 +56,13 @@ public class SystemInfoViewModel extends AbstractApplicationViewModel {
 	@WireVariable(value="jobStatistics")
 	private JobStatistics jobStatistics;
 	
+	@WireVariable(value="codeManagerImpl")
+	private CodeManager codeManager;
+	
 	@WireVariable(value="systemLog")
 	private SystemLog systemLog;
+	
+	private CompilerError compilerError; 
 	
 	private LogEntry logEntry;
 	
@@ -62,6 +70,18 @@ public class SystemInfoViewModel extends AbstractApplicationViewModel {
 		return environment.getProperty("info.app.version");
 	}
 	
+	public CompilerErrors getCompilerErrors() {
+		return codeManager.getCompilerErrors();
+	}
+	
+	public CompilerError getCompilerError() {
+		return compilerError;
+	}
+
+	public void setCompilerError(CompilerError compilerError) {
+		this.compilerError = compilerError;
+	}
+
 	public LogEntry getLogEntry() {
 		return logEntry;
 	}

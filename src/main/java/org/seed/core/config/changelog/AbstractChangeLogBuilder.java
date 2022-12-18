@@ -151,7 +151,7 @@ public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 	}
 	
 	static ChangeSet createChangeSet() {
-		return new ChangeSet(UID.createUID(), MiscUtils.geUserName(), 
+		return new ChangeSet(UID.createUID(), MiscUtils.getUserName(), 
 					false, false, null, null, null, false, null, null);
 	}
 	

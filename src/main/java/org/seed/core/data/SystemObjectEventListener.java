@@ -34,11 +34,11 @@ public class SystemObjectEventListener implements SaveOrUpdateEventListener {
 		object.setOrderIndexes();
 		if (object.getCreatedOn() == null) {
 			object.setCreatedOn(new Date());
-			object.setCreatedBy(MiscUtils.geUserName());
+			object.setCreatedBy(MiscUtils.getUserName());
 		}
 		else {
 			object.setModifiedOn(new Date());
-			object.setModifiedBy(MiscUtils.geUserName());
+			object.setModifiedBy(MiscUtils.getUserName());
 		}
 	}
 
