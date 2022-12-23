@@ -63,6 +63,14 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 	}
 	
 	@Override
+	public List<DBObject> findViewsContains(String name) {
+		Assert.notNull(name, C.NAME);
+		
+		return subList(repository.find(queryParam(C.TYPE, DBObjectType.VIEW)), 
+					   view -> view.contains(' ' + name));
+	}
+	
+	@Override
 	protected void analyzeNextVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
 		if (analysis.getModule().getDBObjects() != null) {
 			for (DBObject dbObject : analysis.getModule().getDBObjects()) {

@@ -118,28 +118,28 @@ class DBObjectChangeLogBuilder extends AbstractChangeLogBuilder<DBObject> {
 		final CreateViewChange createViewChange = new CreateViewChange();
 		createViewChange.setFullDefinition(Boolean.FALSE);
 		createViewChange.setEncoding(MiscUtils.CHARSET.name());
-		createViewChange.setViewName(dbObject.getInternalName());
+		createViewChange.setViewName(dbObject.getObjectName());
 		createViewChange.setSelectQuery(dbObject.getContent());
 		addChange(createViewChange);
 	}
 	
 	private void addDropViewChange(DBObject dbObject) {
 		final DropViewChange dropViewChange = new DropViewChange();
-		dropViewChange.setViewName(dbObject.getInternalName());
+		dropViewChange.setViewName(dbObject.getObjectName());
 		addChange(dropViewChange);
 	}
 	
 	private void addCreateProcedureChange(DBObject dbObject) {
 		final CreateProcedureChange createProcedureChange = new CreateProcedureChange();
 		createProcedureChange.setEncoding(MiscUtils.CHARSET.name());
-		createProcedureChange.setProcedureName(dbObject.getInternalName());
+		createProcedureChange.setProcedureName(dbObject.getObjectName());
 		createProcedureChange.setProcedureText(dbObject.getContent());
 		addChange(createProcedureChange);
 	}
 	
 	private void addDropProcedureChange(DBObject dbObject) {
 		final DropProcedureChange dropProcedureChange = new DropProcedureChange();
-		dropProcedureChange.setProcedureName(dbObject.getInternalName());
+		dropProcedureChange.setProcedureName(dbObject.getObjectName());
 		addChange(dropProcedureChange);
 	}
 	
@@ -151,7 +151,7 @@ class DBObjectChangeLogBuilder extends AbstractChangeLogBuilder<DBObject> {
 		
 	private void addDropFunctionChange(DBObject dbObject) {
 		final DropFunctionChange dropFunctionChange = new DropFunctionChange();
-		dropFunctionChange.setFunctionName(dbObject.getInternalName());
+		dropFunctionChange.setFunctionName(dbObject.getObjectName());
 		addChange(dropFunctionChange);
 	}
 	
@@ -163,7 +163,7 @@ class DBObjectChangeLogBuilder extends AbstractChangeLogBuilder<DBObject> {
 		
 	private void addDropTriggerChange(DBObject dbObject) {
 		final DropTriggerChange dropTriggerChange = new DropTriggerChange();
-		dropTriggerChange.setTriggerName(dbObject.getInternalName());
+		dropTriggerChange.setTriggerName(dbObject.getObjectName());
 		addChange(dropTriggerChange);
 	}
 	
@@ -175,7 +175,7 @@ class DBObjectChangeLogBuilder extends AbstractChangeLogBuilder<DBObject> {
 	
 	private void addDropSequenceChange(DBObject dbObject) {
 		final DropSequenceChange dropSequenceChange = new DropSequenceChange();
-		dropSequenceChange.setSequenceName(dbObject.getInternalName());
+		dropSequenceChange.setSequenceName(dbObject.getObjectName());
 		addChange(dropSequenceChange);
 	}
 	

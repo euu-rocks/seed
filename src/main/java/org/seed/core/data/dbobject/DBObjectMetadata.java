@@ -31,6 +31,8 @@ import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.application.ContentObject;
 import org.seed.core.util.CDATAXmlAdapter;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "sys_dbobject")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -73,6 +75,13 @@ public class DBObjectMetadata extends AbstractApplicationEntity
 	@Override
 	public void setContent(String content) {
 		this.content = content;
+	}
+	
+	@Override
+	@JsonIgnore
+	public String getObjectName() {
+		final String name = getInternalName();
+		return name != null ? name.toLowerCase() : null;
 	}
 	
 	@Override

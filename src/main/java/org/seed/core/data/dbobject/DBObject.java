@@ -21,7 +21,7 @@ import org.seed.core.application.ApplicationEntity;
 
 public interface DBObject extends ApplicationEntity {
 	
-	String getInternalName();
+	String getObjectName();
 	
 	DBObjectType getType();
 	

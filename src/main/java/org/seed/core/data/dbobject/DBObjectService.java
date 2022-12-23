@@ -17,8 +17,12 @@
  */
 package org.seed.core.data.dbobject;
 
+import java.util.List;
+
 import org.seed.core.application.ApplicationEntityService;
 
 public interface DBObjectService extends ApplicationEntityService<DBObject> {
-
+	
+	List<DBObject> findViewsContains(String name);
+	
 }

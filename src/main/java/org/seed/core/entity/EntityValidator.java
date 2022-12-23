@@ -17,6 +17,8 @@
  */
 package org.seed.core.entity;
 
+import static org.seed.core.util.CollectionUtils.subList;
+
 import java.util.List;
 
 import org.hibernate.Session;
@@ -26,6 +28,8 @@ import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
+import org.seed.core.data.dbobject.DBObject;
+import org.seed.core.data.dbobject.DBObjectService;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 import org.seed.core.util.NameUtils;
@@ -40,13 +44,16 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 	@Autowired
 	private EntityRepository repository;
 	
+	@Autowired
+	private DBObjectService dbObjectService;
+	
 	private List<EntityDependent<? extends SystemEntity>> entityDependents;
 	
 	void validateCreateNested(Entity entity) throws ValidationException {
 		Assert.notNull(entity, C.ENTITY);
 		final ValidationErrors errors = new ValidationErrors();
 		
-		if (isEmpty(((EntityMetadata)entity).getParentEntity())) {
+		if (isEmpty(((EntityMetadata) entity).getParentEntity())) {
 			errors.addError("val.empty.parententity");
 		}
 		
@@ -85,6 +92,9 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		// fields
 		if (entity.hasFields()) {
 			validateFields(entity, errors);
+			if (!entity.isNew()) {
+				validateFieldTypeChange(entity, errors);
+			}
 		}
 		
 		// functions
@@ -259,6 +269,19 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 			else if (field.getType().isReference() && 
 				     isEmpty(field.getReferenceEntity())) {
 				errors.addEmptyField("label.refentity");
+			}
+		}
+	}
+	
+	private void validateFieldTypeChange(Entity entity, final ValidationErrors errors) {
+		final Entity currentVersionEntity = repository.get(entity.getId());
+		for (EntityField field : subList(entity.getFields(), field -> !field.isNew())) {
+			final EntityField currentVersionField = currentVersionEntity.getFieldById(field.getId());
+			if (currentVersionField != null && field.getType() != currentVersionField.getType()) {
+				for (DBObject view : dbObjectService.findViewsContains(entity.getInternalName())) {
+					errors.addError("val.inuse.entityview", view.getName());
+				}
+				break;
 			}
 		}
 	}
