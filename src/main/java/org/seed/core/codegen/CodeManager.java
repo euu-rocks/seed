@@ -23,8 +23,6 @@ import org.seed.core.codegen.compile.CompilerErrors;
 
 public interface CodeManager {
 	
-	boolean existsCompilerError();
-	
 	CompilerErrors getCompilerErrors();
 	
 	void generateClasses();

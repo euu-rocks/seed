@@ -19,13 +19,6 @@
 -->
 <!DOCTYPE xml>
 <borderlayout>
-	<north border="0">
-		<toolbar>
-			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
-						   label="${labels.button.refresh}" 
-						   onClick="@command('refresh',elem=self)"/>
-		</toolbar>
-	</north>
 	<center border="0">
 		<listbox model="@load(vm.logEntries)" 
 		         selectedItem="@bind(vm.logEntry)"

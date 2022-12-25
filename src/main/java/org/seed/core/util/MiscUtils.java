@@ -43,6 +43,8 @@ public abstract class MiscUtils {
 	public static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 	
 	private static final long SEC_MINUTE = 60;
+	private static final long MILLIS = 1000;
+	private static final long MIN_MILLIS = SEC_MINUTE * MILLIS;
 	private static final long SEC_HOUR = 60 * SEC_MINUTE;
 	private static final long SEC_DAY = 24 * SEC_HOUR;
 	
@@ -72,27 +74,32 @@ public abstract class MiscUtils {
 	
 	public static String toString(Collection<?> col, String separator) {
 		final StringBuilder buf = new StringBuilder();
-		for (Object obj : col) {
-			if (buf.length() > 0) {
-				buf.append(separator);
+		if (col != null) {
+			for (Object obj : col) {
+				if (buf.length() > 0 && separator != null) {
+					buf.append(separator);
+				}
+				buf.append(obj);
 			}
-			buf.append(obj);
 		}
 		return buf.toString();
 	}
 	
 	public static String filterString(String text, Predicate<Character> predicate) {
-		return text.chars().mapToObj(c -> (char) c)
-				   .filter(predicate)
-				   .map(String::valueOf)
-				   .collect(Collectors.joining());
+		return text != null && predicate != null
+				? text.chars().mapToObj(c -> (char) c)
+					  .filter(predicate).map(String::valueOf)
+					  .collect(Collectors.joining())
+				: null;
 	}
 	
 	public static String replaceAllIgnoreCase(String text, String replaceable, String replacemnet) {
-		return Pattern.compile(replaceable, 
+		return text != null && replaceable != null && replacemnet != null
+				? Pattern.compile(replaceable, 
 				               Pattern.LITERAL | Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE)
-					  .matcher(text)
-					  .replaceAll(Matcher.quoteReplacement(replacemnet));
+						 .matcher(text)
+						 .replaceAll(Matcher.quoteReplacement(replacemnet))
+				: null;
 	}
 	
 	public static String getTimestampString() {
@@ -109,23 +116,24 @@ public abstract class MiscUtils {
 	
 	public static String formatDurationTime(long durationMs) {
 		final StringBuilder buf = new StringBuilder();
-		if (durationMs < 1000L) { // < 1sec
+		final long durationSec = durationMs / MILLIS;
+		if (durationMs < MILLIS) { // < 1sec
 			buf.append(durationMs).append(" ms");
 		}
-		else if (durationMs < 60000L) {    // < 1min
-			buf.append(durationMs / 1000d).append(" sec");
+		else if (durationMs < MIN_MILLIS) { // < 1min
+			buf.append(durationSec).append('.')
+			   .append(formatDurationPart((durationMs % MILLIS) / 10))
+			   .append(" sec");
 		}
 		else {
-			final long durationSec = durationMs / 1000L;
-			if (durationSec > SEC_DAY) {
+			if (durationSec >= SEC_DAY) {  // >= 1d
 				buf.append(durationSec / SEC_DAY).append(':');
 			}
-			if (durationSec > SEC_HOUR) {
-				buf.append(formatDurationPart((durationSec % SEC_DAY) / SEC_HOUR))
-				   .append(':');
+			if (durationSec >= SEC_HOUR) {
+				buf.append(formatDurationPart((durationSec % SEC_DAY) / SEC_HOUR)).append(':');
 			}
-			buf.append(formatDurationPart((durationSec % SEC_HOUR) / SEC_MINUTE)).append(':')	// min
-			   .append(formatDurationPart((durationSec % SEC_MINUTE)));							// sec
+			buf.append(formatDurationPart((durationSec % SEC_HOUR) / SEC_MINUTE)).append(':')
+			   .append(formatDurationPart((durationSec % SEC_MINUTE)));
 			if (durationSec < SEC_HOUR) {
 				buf.append(" min");
 			}

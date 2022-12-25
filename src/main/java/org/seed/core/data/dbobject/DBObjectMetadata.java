@@ -79,6 +79,12 @@ public class DBObjectMetadata extends AbstractApplicationEntity
 	
 	@Override
 	@JsonIgnore
+	public boolean isEnabled() {
+		return order == null || order >= 0;
+	}
+	
+	@Override
+	@JsonIgnore
 	public String getObjectName() {
 		final String name = getInternalName();
 		return name != null ? name.toLowerCase() : null;

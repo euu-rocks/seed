@@ -58,15 +58,20 @@ public class SchemaManager {
 	
 	private static final Logger log = LoggerFactory.getLogger(SchemaManager.class);
 	
-	private static final String TABLE_CHANGELOG = ChangeLog.class.getAnnotation(Table.class).name();
+	private static final String CHANGELOG_TABLE = ChangeLog.class.getAnnotation(Table.class).name();
 	
-	private static final String FILENAME_CHANGELOG = "changelog.json"; 
+	private static final String CHANGELOG_LOCKTABLE = "databasechangeloglock";
+	
+	private static final String CHANGELOG_FILENAME = "changelog.json"; 
 	
 	@Autowired
 	private ResourceLoader resourceLoader;
 	
 	@Autowired
 	private DataSource dataSource;
+	
+	@Autowired
+	private SystemLog systemLog;
 	
 	@Autowired
 	private Limits limits;
@@ -85,7 +90,7 @@ public class SchemaManager {
 			systemChangeLog = StreamUtils.getResourceAsText(systemChangeLogResource);
 		} 
 		catch (Exception ex) {
-			throw new ConfigurationException("failed to load system-changelog ", ex);
+			throw new ConfigurationException("Failed to load system-changelog ", ex);
 		}
 	}
 	
@@ -97,7 +102,7 @@ public class SchemaManager {
 												dbMeta.getDatabaseProductVersion());
 			}
 			catch (SQLException ex) {
-				throw new ConfigurationException("database detection failed", ex);
+				throw new ConfigurationException("Database detection failed", ex);
 			}
 		}
 		return databaseInfo;
@@ -118,19 +123,47 @@ public class SchemaManager {
 		}
 	}
 	
-	synchronized void updateSchema() {
+	synchronized boolean updateSchema() {
 		final long startTime = System.currentTimeMillis();
 		try (Connection connection = dataSource.getConnection()) {
 			final String customChangeSets = loadCustomChangeSets(connection);
 			final String changeLog = replaceLimits(systemChangeLog.replace("<#CHANGE_SETS#>", customChangeSets));
-			log.debug("changelog content:\r\n{}", changeLog);
+			if (log.isDebugEnabled()) {
+				log.debug("Changelog content:\r\n{}", changeLog);
+			}
 			createLiquibase(connection, changeLog).update(new Contexts());
+			log.info("Schema updated in {}", MiscUtils.formatDuration(startTime));
+			return true;
 		} 
 		catch (Exception ex) {
-			throw new ConfigurationException("failed to update schema", ex);
+			log.warn("Failed to update schema: {}", ex.getMessage());
+			systemLog.logError("systemlog.error.updateschema", ex);
+			return false;
 		}
-		if (log.isInfoEnabled()) {
-			log.info("Schema updated in {}", MiscUtils.formatDuration(startTime));
+	}
+	
+	synchronized void checkLiquibaseLock() {
+		try (Connection connection = dataSource.getConnection()) {
+			if (existTable(connection, CHANGELOG_LOCKTABLE) &&
+				existLock(connection)) {
+				log.warn("Liquibase lock detected");
+				removeLock(connection);
+				log.info("Liquibase lock removed");
+			}
+		}
+		catch (SQLException sqlex) {
+			log.warn("Failed to remove Liquibase lock");
+		}
+	}
+	
+	synchronized void repairSchema() {
+		log.info("Attempt to repair schema");
+		try (Connection connection = dataSource.getConnection()) {
+			removeLastChangeLog(connection);
+			log.info("Schema successfully repaired");
+		}
+		catch (SQLException sqlex) {
+			log.warn("Failed to repair schema", sqlex);
 		}
 	}
 	
@@ -148,9 +181,9 @@ public class SchemaManager {
 	
 	private String loadCustomChangeSets(Connection connection) throws SQLException {
 		final StringBuilder buf = new StringBuilder();
-		if (existChangeLogTable(connection)) {
+		if (existTable(connection, CHANGELOG_TABLE)) {
 			try (Statement statement = connection.createStatement();
-				 ResultSet resultSet = statement.executeQuery("select changeset from sys_changelog order by id")) {
+				 ResultSet resultSet = statement.executeQuery("select changeset from " + CHANGELOG_TABLE + " order by id")) {
 				while (resultSet.next()) {
 					if (buf.length() > 0) {
 						buf.append(',');
@@ -172,12 +205,28 @@ public class SchemaManager {
 		}
 	}
 	
-	private boolean existChangeLogTable(Connection connection) throws SQLException {
-		try (ResultSet resultSet = connection.getMetaData().getTables(null, null, 
-																	  TABLE_CHANGELOG, 
-																	  new String[] { "TABLE" })) {
+	private static boolean existLock(Connection connection) throws SQLException {
+		try (Statement statement = connection.createStatement();
+			 ResultSet resultSet = statement.executeQuery("select count(*) from " + CHANGELOG_LOCKTABLE + " where locked = true")) {
+			return resultSet.next() && resultSet.getInt(1) == 1;
+		}
+	}
+	private static void removeLock(Connection connection) throws SQLException {
+		try (Statement statement = connection.createStatement()) {
+			statement.executeUpdate("delete from " + CHANGELOG_LOCKTABLE);
+		}
+	}
+	
+	private static void removeLastChangeLog(Connection connection) throws SQLException {
+		try (Statement statement = connection.createStatement()) {
+			statement.executeUpdate("delete from " + CHANGELOG_TABLE + " where id = (select max(id) from " + CHANGELOG_TABLE + ')');
+		}
+	}
+	
+	private static boolean existTable(Connection connection, String tableName) throws SQLException {
+		try (ResultSet resultSet = connection.getMetaData().getTables(null, null, tableName, new String[] { "TABLE" })) {
 			while (resultSet.next()) { 
-				if (TABLE_CHANGELOG.equalsIgnoreCase(resultSet.getString("TABLE_NAME"))) {
+				if (tableName.equalsIgnoreCase(resultSet.getString("TABLE_NAME"))) {
 					return true;
 				}
 			}
@@ -189,7 +238,7 @@ public class SchemaManager {
 			throws LiquibaseException {
 		final Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(
 																	new JdbcConnection(connection));
-		return new Liquibase(FILENAME_CHANGELOG, 
+		return new Liquibase(CHANGELOG_FILENAME, 
 							 new StringResourceAccessor(changeLogAsString), 
 							 database);
 	}
@@ -204,7 +253,7 @@ public class SchemaManager {
 
 		@Override
 		public InputStreamList openStreams(String relativeTo, String streamPath) throws IOException {
-			Assert.state(FILENAME_CHANGELOG.equals(streamPath), "unknown path: " + streamPath);
+			Assert.state(CHANGELOG_FILENAME.equals(streamPath), "unknown path: " + streamPath);
 			
 			return new InputStreamList(null, StreamUtils.getStringAsStream(text)); 
 		}

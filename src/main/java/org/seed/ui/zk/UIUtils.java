@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.seed.C;
+import org.seed.Seed;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 import org.seed.core.util.ObjectAccess;
@@ -40,6 +41,8 @@ import org.zkoss.zul.Messagebox;
 public abstract class UIUtils {
 	
 	private static final String ZUL_PATH = "~./zul";
+	
+	private static final String MARKER_SCHEMAERROR_WARNING = " MARKER_SCHEMAERROR_WARNING";
 	
 	protected UIUtils() {}
 	
@@ -108,10 +111,11 @@ public abstract class UIUtils {
 	}
 	
 	public static String getTestClass(Object object, String suffix) {
-		if (object != null) {
+		if (object != null && suffix != null) {
 			final String name = ObjectAccess.callGetter(object, "internalName");
-			Assert.stateAvailable(name, "internal name");
-			return name.replace('_', '-').toLowerCase().concat(suffix);
+			if (name != null) {
+				return name.replace('_', '-').toLowerCase().concat(suffix);
+			}
 		}
 		return null;
 	}
@@ -132,12 +136,34 @@ public abstract class UIUtils {
 		Messagebox.show(message, title, Messagebox.OK, Messagebox.EXCLAMATION);
 	}
 	
+	public static void showWarnMessage(String titleKey, String[] messageKeys) {
+		final StringBuilder buf = new StringBuilder();
+		for (String messageKey : messageKeys) {
+			if (buf.length() > 0) {
+				buf.append("\n\n");
+			}
+			buf.append(Seed.getLabel(messageKey));
+		}
+		showWarnMessage(Seed.getLabel(titleKey), buf.toString());
+	}
+	
 	public static void showError(Component component, String message) {
 		showNotification(component, Clients.NOTIFICATION_TYPE_ERROR, 5000, message);
 	}
 	
 	public static void showNotification(Component component, String type, int duration, String message) {
 		Clients.showNotification(message, type, component, "after_center", duration, true);
+	}
+	
+	public static void showSchemaErrorWarning() {
+		// show only once per session lifetime
+		if (getSessionObject(MARKER_SCHEMAERROR_WARNING) == null) {
+			setSessionObject(MARKER_SCHEMAERROR_WARNING, C.TRUE);
+			showWarnMessage("warn.schemaupdate.title",
+					new String[] {"warn.schemaupdate.message1",
+								  "warn.schemaupdate.message2",
+								  "warn.schemaupdate.message3"});
+		}
 	}
 	
 	public static void globalCommand(String command, Map<String, Object> paramMap) {

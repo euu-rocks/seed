@@ -21,6 +21,8 @@ import org.seed.core.application.ApplicationEntity;
 
 public interface DBObject extends ApplicationEntity {
 	
+	boolean isEnabled();
+	
 	String getObjectName();
 	
 	DBObjectType getType();

@@ -33,10 +33,20 @@ public class SystemLog {
 	
 	private final List<LogEntry> entries = new CopyOnWriteArrayList<>();
 	
+	private volatile boolean errorOccured = false;
+	
 	public List<LogEntry> getEntries() {
 		return entries;
 	}
 	
+	public boolean hasErrorOccured() {
+		return errorOccured;
+	}
+
+	public void resetErrorFlag() {
+		errorOccured = false;
+	}
+
 	public void logInfo(String labelKey, String ...params) {
 		log(LogLevel.INFO, labelKey, null, params);
 	}
@@ -60,6 +70,9 @@ public class SystemLog {
 	private void log(LogLevel level, String labelKey, 
 					 Throwable throwable, String ...params) {
 		String details = null;
+		if (level == LogLevel.ERROR) {
+			errorOccured = true;
+		}
 		if (throwable != null) {
 			details = StringUtils.hasText(throwable.getMessage()) 
 						? throwable.getMessage()

@@ -41,21 +41,22 @@ class DBObjectChangeLogBuilder extends AbstractChangeLogBuilder<DBObject> {
 	public ChangeLog build() {
 		checkValid();
 		
-		// create object
-		if (currentVersionObject == null) {
+		// create or enable object
+		if ((currentVersionObject == null || !currentVersionObject.isEnabled()) && 
+			nextVersionObject.isEnabled()) {
 			addCreateChange(nextVersionObject);
 		}
-		// drop object
-		else if (nextVersionObject == null) {
+		// drop or disable object
+		else if (nextVersionObject == null || (!nextVersionObject.isEnabled() &&
+											   currentVersionObject.isEnabled())) {
 			addDropChange(currentVersionObject);
 		}
-		else {
-			// content changed
-			if (!ObjectUtils.nullSafeEquals(currentVersionObject.getContent(), 
+		// content changed
+		else if (nextVersionObject.isEnabled() &&
+				!ObjectUtils.nullSafeEquals(currentVersionObject.getContent(), 
 					   						nextVersionObject.getContent())) {
-				addDropChange(currentVersionObject);
-				addCreateChange(nextVersionObject);
-			}
+			addDropChange(currentVersionObject);
+			addCreateChange(nextVersionObject);
 		}
 		return super.build();
 	}

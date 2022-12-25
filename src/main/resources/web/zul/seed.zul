@@ -98,7 +98,7 @@
 							  onClick="@command('closeAllTabs')"/>
 				</menupopup>
 				<timer delay="@init(vm.sessionKeepAliveInterval)" repeats="true" onTimer=""/>
-				<timer delay="30000" repeats="true" onTimer="@command('checkCompilerError')"/>
+				<timer delay="30000" repeats="true" onTimer="@command('checkSystemError')"/>
 			</vlayout>
 		</south>
 	</borderlayout>

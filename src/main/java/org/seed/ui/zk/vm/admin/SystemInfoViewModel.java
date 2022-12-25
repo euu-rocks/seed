@@ -38,6 +38,7 @@ import org.seed.ui.zk.vm.AbstractApplicationViewModel;
 import org.springframework.core.env.Environment;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
 import org.zkoss.zk.ui.util.Statistic;
@@ -68,6 +69,10 @@ public class SystemInfoViewModel extends AbstractApplicationViewModel {
 	
 	public String getVersion() {
 		return environment.getProperty("info.app.version");
+	}
+	
+	public boolean existSystemError() {
+		return systemLog.hasErrorOccured();
 	}
 	
 	public CompilerErrors getCompilerErrors() {
@@ -176,6 +181,12 @@ public class SystemInfoViewModel extends AbstractApplicationViewModel {
 	@Command
 	public void refresh(@BindingParam(C.ELEM) Component component) {
 		notifyChangeAll();
+	}
+	
+	@Command
+	@NotifyChange("existSystemError")
+	public void resetNotification(@BindingParam(C.ELEM) Component component) {
+		systemLog.resetErrorFlag();
 	}
 	
 	public String formatAverage(Integer total, Double average) {

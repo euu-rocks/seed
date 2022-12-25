@@ -50,7 +50,8 @@
 	            			sort="auto(mandatory)" hflex="min"/>
 	        </listhead> 
 	        <template name="model" var="field">
-	            <listitem attributes.item="@load(field)" 
+	            <listitem sclass="@init(vm.getListItemTestClass(field))" 
+	            		  attributes.item="@load(field)" 
 	            		  draggable="true" droppable="true" 
 	            		  onDrop="@command('swapFields',item=event.dragged.attributes.item,base=field)">
 	            	<listcell iconSclass="@load(empty field.type ? '' : field.type.isReference() ? 'z-icon-share alpha-icon-lg' : 'z-icon-font alpha-icon-lg')">

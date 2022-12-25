@@ -33,6 +33,7 @@ import org.seed.core.user.UserService;
 import org.seed.core.util.Assert;
 import org.seed.core.util.BeanUtils;
 import org.seed.core.util.MiscUtils;
+import org.seed.ui.zk.UIUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -105,6 +106,7 @@ public class DynamicConfiguration implements UpdatableConfiguration, Integrator 
 	
 	@PostConstruct
 	private void init() {
+		schemaManager.checkLiquibaseLock();
 		buildBootSessionFactory();
 	}
 	
@@ -145,8 +147,13 @@ public class DynamicConfiguration implements UpdatableConfiguration, Integrator 
 	}
 	
 	private void buildBootSessionFactory() {
-		schemaManager.updateSchema();
+		final boolean updateResult = schemaManager.updateSchema();
 		sessionProvider.setSessionFactory(createSessionFactoryBuilder(true).build());
+		if (!updateResult) {
+			schemaManager.checkLiquibaseLock();
+			schemaManager.repairSchema();
+			UIUtils.showSchemaErrorWarning();
+		}
 	}
 	
 	private void buildConfiguration() {

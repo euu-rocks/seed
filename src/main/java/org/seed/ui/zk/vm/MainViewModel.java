@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.seed.C;
 import org.seed.core.application.setting.Setting;
-import org.seed.core.codegen.CodeManager;
+import org.seed.core.config.SystemLog;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormService;
 import org.seed.core.task.TaskService;
@@ -57,8 +57,8 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	@WireVariable(value="taskServiceImpl")
 	private TaskService taskService;
 	
-	@WireVariable(value="codeManagerImpl")
-	private CodeManager codeManager;
+	@WireVariable(value="systemLog")
+	private SystemLog systemLog;
 	
 	@WireVariable(value="menuManager")
 	private MenuManager menuManager;
@@ -67,7 +67,7 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	
 	private final List<Tab> tabs = new ArrayList<>();
 	
-	private volatile boolean existsCompilerError = false;
+	private volatile boolean existsSystemError = false;
 	
 	private TreeNode selectedNode;
 	
@@ -83,7 +83,7 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	}
 	
 	public String getTreeNodeStyle(TreeNode node) {
-		return existsCompilerError && MenuManager.NODE_SYSTEMINFO.equals(node.getPurpose())
+		return existsSystemError && MenuManager.NODE_SYSTEMINFO.equals(node.getPurpose())
 				? "color:crimson"
 				: null;
 	}
@@ -142,7 +142,7 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	
 	@Init
     public void init() {
-		existsCompilerError = codeManager.existsCompilerError();
+		existsSystemError = systemLog.hasErrorOccured();
 		Clients.confirmClose(getLabel("question.quit"));
 		openNodes.add(getLabel("label.administration"));
 		openNodes.add(menuManager.getDefaultMenuName());
@@ -233,10 +233,10 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	}
 	
 	@Command
-	public void checkCompilerError() {
-		final boolean existsError = codeManager.existsCompilerError();
-		if (this.existsCompilerError != existsError) {
-			this.existsCompilerError = existsError;
+	public void checkSystemError() {
+		final boolean existsError = systemLog.hasErrorOccured();
+		if (this.existsSystemError != existsError) {
+			this.existsSystemError = existsError;
 			notifyChange("getTreeNodeStyle");
 		}
 	}

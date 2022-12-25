@@ -67,7 +67,7 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 		Assert.notNull(name, C.NAME);
 		
 		return subList(repository.find(queryParam(C.TYPE, DBObjectType.VIEW)), 
-					   view -> view.contains(' ' + name));
+					   view -> view.isEnabled() && view.contains(' ' + name));
 	}
 	
 	@Override
@@ -133,6 +133,7 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 		Assert.notNull(session, C.SESSION);
 		
 		final List<DBObject> newObjects = new ArrayList<>(context.getNewDBObjects());
+		newObjects.removeIf(dbObject -> !dbObject.isEnabled());
 		newObjects.sort((DBObject dbObject1, DBObject dbObject2) -> 
 							Integer.compare(dbObject1.getOrder() != null ? dbObject1.getOrder() : 0, 
 											dbObject2.getOrder() != null ? dbObject2.getOrder() : 0));

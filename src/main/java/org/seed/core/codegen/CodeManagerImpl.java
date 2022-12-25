@@ -92,11 +92,6 @@ public class CodeManagerImpl implements CodeManager {
 	}
 	
 	@Override
-	public boolean existsCompilerError() {
-		return compilerError;
-	}
-	
-	@Override
 	public CompilerErrors getCompilerErrors() {
 		return compilerErrors;
 	}
