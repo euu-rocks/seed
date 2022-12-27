@@ -33,7 +33,6 @@ import javax.annotation.Nullable;
 import org.hibernate.Session;
 
 import org.seed.C;
-import org.seed.InternalException;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -339,19 +338,15 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	}
 	
 	@Override
-	public void importObjects(TransferContext context, Session session) {
+	public void importObjects(TransferContext context, Session session) throws ValidationException {
 		Assert.notNull(context, C.CONTEXT);
 		Assert.notNull(session, C.SESSION);
-		try {
-			if (context.getModule().getTransformers() != null) {
-				for (Transformer transformer : context.getModule().getTransformers()) {
-					initTransformer(transformer, context, session);
-					saveObject(transformer, session);
-				}
+		
+		if (context.getModule().getTransformers() != null) {
+			for (Transformer transformer : context.getModule().getTransformers()) {
+				initTransformer(transformer, context, session);
+				saveObject(transformer, session);
 			}
-		}
-		catch (ValidationException vex) {
-			throw new InternalException(vex);
 		}
 	}
 	

@@ -345,24 +345,33 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 		}
 	}
 	
-	void importModule(Module module) {
+	boolean importModule(Module module, Component elem) {
 		Assert.notNull(module, C.MODULE);
-		
-		moduleService.importModule(module);
-		resetCurrentSession();
-		switch (getViewMode()) {
-			case DETAIL:
-				internalRefresh(module);
-				break;
-			
-			case LIST:
-				refreshList();
-				break;
+		try {
+			moduleService.importModule(module);
+			resetCurrentSession();
+			switch (getViewMode()) {
+				case DETAIL:
+					internalRefresh(module);
+					break;
 				
-			default:
-				throw new UnsupportedOperationException(getViewMode().name());
+				case LIST:
+					refreshList();
+					break;
+					
+				default:
+					throw new UnsupportedOperationException(getViewMode().name());
+			}
+			refreshMenu();
+			return true;
 		}
-		refreshMenu();
+		catch (ValidationException vex) {
+			showValidationErrors(elem, ERROR_IMPORT_FAIL, vex.getErrors());
+		}
+		catch (Exception ex) {
+			showError(elem, ex);
+		}
+		return false;
 	}
 	
 	@Command

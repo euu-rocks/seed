@@ -28,7 +28,6 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import org.seed.C;
-import org.seed.InternalException;
 import org.seed.LabelProvider;
 import org.seed.core.api.Job;
 import org.seed.core.application.AbstractApplicationEntityService;
@@ -222,25 +221,21 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	}
 	
 	@Override
-	public void importObjects(TransferContext context, Session session) {
+	public void importObjects(TransferContext context, Session session) throws ValidationException {
 		Assert.notNull(context, C.CONTEXT);
 		Assert.notNull(session, C.SESSION);
-		try {
-			if (context.getModule().getTasks() != null) {
-				for (Task task : context.getModule().getTasks()) {
-					final Task currentVersionTask = findByUid(session, task.getUid());
-					((TaskMetadata) task).setModule(context.getModule());
-					if (currentVersionTask != null) {
-						((TaskMetadata) currentVersionTask).copySystemFieldsTo(task);
-						session.detach(currentVersionTask);
-					}
-					initTask(task, currentVersionTask, session);
-					saveObject(task, session);
+		
+		if (context.getModule().getTasks() != null) {
+			for (Task task : context.getModule().getTasks()) {
+				final Task currentVersionTask = findByUid(session, task.getUid());
+				((TaskMetadata) task).setModule(context.getModule());
+				if (currentVersionTask != null) {
+					((TaskMetadata) currentVersionTask).copySystemFieldsTo(task);
+					session.detach(currentVersionTask);
 				}
+				initTask(task, currentVersionTask, session);
+				saveObject(task, session);
 			}
-		}
-		catch (ValidationException vex) {
-			throw new InternalException(vex);
 		}
 	}
 	

@@ -38,6 +38,6 @@ public interface ModuleService extends SystemEntityService<Module> {
 	
 	void exportModuleToDir(Module module);
 	
-	void importModule(Module module);
+	void importModule(Module module) throws ValidationException;
 	
 }

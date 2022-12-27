@@ -275,13 +275,15 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 	
 	private void validateFieldTypeChange(Entity entity, final ValidationErrors errors) {
 		final Entity currentVersionEntity = repository.get(entity.getId());
-		for (EntityField field : subList(entity.getFields(), field -> !field.isNew())) {
-			final EntityField currentVersionField = currentVersionEntity.getFieldById(field.getId());
-			if (currentVersionField != null && field.getType() != currentVersionField.getType()) {
-				for (DBObject view : dbObjectService.findViewsContains(entity.getInternalName())) {
-					errors.addError("val.inuse.entityview", view.getName());
+		if (currentVersionEntity != null) {
+			for (EntityField field : subList(entity.getFields(), field -> !field.isNew())) {
+				final EntityField currentVersionField = currentVersionEntity.getFieldById(field.getId());
+				if (currentVersionField != null && field.getType() != currentVersionField.getType()) {
+					for (DBObject view : dbObjectService.findViewsContains(entity.getInternalName())) {
+						errors.addError("val.inuse.entityview", view.getName());
+					}
+					break;
 				}
-				break;
 			}
 		}
 	}

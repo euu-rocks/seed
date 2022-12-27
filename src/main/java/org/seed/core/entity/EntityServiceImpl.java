@@ -30,7 +30,6 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import org.seed.C;
-import org.seed.InternalException;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -542,28 +541,24 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	@Override
-	public void importObjects(TransferContext context, Session session) {
+	public void importObjects(TransferContext context, Session session) throws ValidationException {
 		Assert.notNull(context, C.CONTEXT);
 		Assert.notNull(session, C.SESSION);
-		try {
-			if (context.getModule().getEntities() != null) {
-				importEntities(context, session);
-				// init references to other entities
-				for (Entity entity : context.getModule().getEntities()) {
-					final Entity genericEntity = entity.getGenericEntityUid() != null
-							? findByUid(session, entity.getGenericEntityUid())
-							: null;
-					((EntityMetadata) entity).setGenericEntity(genericEntity);
-					initEntityReferences(entity, session);
-					initRelationEntities(session, entity);
-					initConstraintFields(entity);
-					// validate and save
-					saveObject(entity, session);
-				}
+		
+		if (context.getModule().getEntities() != null) {
+			importEntities(context, session);
+			// init references to other entities
+			for (Entity entity : context.getModule().getEntities()) {
+				final Entity genericEntity = entity.getGenericEntityUid() != null
+						? findByUid(session, entity.getGenericEntityUid())
+						: null;
+				((EntityMetadata) entity).setGenericEntity(genericEntity);
+				initEntityReferences(entity, session);
+				initRelationEntities(session, entity);
+				initConstraintFields(entity);
+				// validate and save
+				saveObject(entity, session);
 			}
-		}
-		catch (ValidationException vex) {
-			throw new InternalException(vex);
 		}
 	}
 	

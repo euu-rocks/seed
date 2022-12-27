@@ -180,7 +180,7 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 	}
 	
 	@Override
-	public void importObjects(TransferContext context, Session session) {
+	public void importObjects(TransferContext context, Session session) throws ValidationException {
 		Assert.notNull(context, C.CONTEXT);
 		Assert.notNull(session, C.SESSION);
 		
@@ -192,7 +192,7 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 				session.detach(currentVersionRest);
 			}
 			initRest(rest, currentVersionRest, session);
-			repository.save(rest, session);
+			super.saveObject(rest, session);
 		}
 	}
 	

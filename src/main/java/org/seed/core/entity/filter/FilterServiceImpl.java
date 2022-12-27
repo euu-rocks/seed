@@ -28,7 +28,6 @@ import javax.annotation.Nullable;
 import org.hibernate.Session;
 
 import org.seed.C;
-import org.seed.InternalException;
 import org.seed.Seed;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
@@ -239,27 +238,23 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	}
 	
 	@Override
-	public void importObjects(TransferContext context, Session session) {
+	public void importObjects(TransferContext context, Session session) throws ValidationException {
 		Assert.notNull(context, C.CONTEXT);
 		Assert.notNull(session, C.SESSION);
-		try {
-			if (context.getModule().getFilters() != null) {
-				for (Filter filter : context.getModule().getFilters()) {
-					final Entity entity = entityService.findByUid(session, filter.getEntityUid());
-					final Filter currentVersionFilter = findByUid(session, filter.getUid()); 
-					((FilterMetadata) filter).setModule(context.getModule());
-					((FilterMetadata) filter).setEntity(entity);
-					if (currentVersionFilter != null) {
-						((FilterMetadata) currentVersionFilter).copySystemFieldsTo(filter);
-						session.detach(currentVersionFilter);
-					}
-					initFilter(entity, filter, currentVersionFilter, session);
-					saveObject(filter, session);
+
+		if (context.getModule().getFilters() != null) {
+			for (Filter filter : context.getModule().getFilters()) {
+				final Entity entity = entityService.findByUid(session, filter.getEntityUid());
+				final Filter currentVersionFilter = findByUid(session, filter.getUid()); 
+				((FilterMetadata) filter).setModule(context.getModule());
+				((FilterMetadata) filter).setEntity(entity);
+				if (currentVersionFilter != null) {
+					((FilterMetadata) currentVersionFilter).copySystemFieldsTo(filter);
+					session.detach(currentVersionFilter);
 				}
+				initFilter(entity, filter, currentVersionFilter, session);
+				saveObject(filter, session);
 			}
-		}
-		catch (ValidationException vex) {
-			throw new InternalException(vex);
 		}
 	}
 	

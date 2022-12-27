@@ -136,7 +136,7 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 	
 	@Override
 	@Secured("ROLE_ADMIN_MODULE")
-	public void importModule(Module module) {
+	public void importModule(Module module) throws ValidationException {
 		transfer.importModule(module);
 	}
 	

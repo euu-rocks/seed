@@ -27,7 +27,6 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import org.seed.C;
-import org.seed.InternalException;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -164,27 +163,23 @@ public class UserGroupServiceImpl extends AbstractApplicationEntityService<UserG
 	}
 	
 	@Override
-	public void importObjects(TransferContext context, Session session) {
+	public void importObjects(TransferContext context, Session session) throws ValidationException {
 		Assert.notNull(context, C.CONTEXT);
 		Assert.notNull(session, C.SESSION);
-		try {
-			if (context.getModule().getUserGroups() != null) {
-				for (UserGroup group : context.getModule().getUserGroups()) {
-					((UserGroupMetadata) group).setModule(context.getModule());
-					final UserGroup currentVersionGroup = findByUid(session, group.getUid());
-					if (currentVersionGroup != null) {
-						((UserGroupMetadata) currentVersionGroup).copySystemFieldsTo(group);
-						session.detach(currentVersionGroup);
-					}
-					if (group.hasAuthorisations()) {
-						initAuthorisations(group, currentVersionGroup);
-					}
-					saveObject(group, session);
+		
+		if (context.getModule().getUserGroups() != null) {
+			for (UserGroup group : context.getModule().getUserGroups()) {
+				((UserGroupMetadata) group).setModule(context.getModule());
+				final UserGroup currentVersionGroup = findByUid(session, group.getUid());
+				if (currentVersionGroup != null) {
+					((UserGroupMetadata) currentVersionGroup).copySystemFieldsTo(group);
+					session.detach(currentVersionGroup);
 				}
+				if (group.hasAuthorisations()) {
+					initAuthorisations(group, currentVersionGroup);
+				}
+				saveObject(group, session);
 			}
-		}
-		catch (ValidationException vex) {
-			throw new InternalException(vex);
 		}
  	}
 	

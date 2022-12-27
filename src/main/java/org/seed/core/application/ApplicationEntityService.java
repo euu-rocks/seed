@@ -40,7 +40,7 @@ public interface ApplicationEntityService<T extends ApplicationEntity> extends S
 	
 	void handleSchemaUpdate(TransferContext context, SchemaVersion schemaVersion);
 	
-	void importObjects(TransferContext context, Session session);
+	void importObjects(TransferContext context, Session session) throws ValidationException;
 	
 	void createChangeLogs(TransferContext context, Session session);
 	

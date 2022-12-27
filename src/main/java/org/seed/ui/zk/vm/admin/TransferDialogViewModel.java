@@ -204,8 +204,9 @@ public class TransferDialogViewModel extends AbstractApplicationViewModel {
 	
 	@Command
 	public void importModule(@BindingParam(C.ELEM) Component component) {
-		window.detach();
-		moduleViewModule.importModule(importAnalysis.getModule());
+		if (moduleViewModule.importModule(importAnalysis.getModule(), component)) {
+			window.detach();
+		}
 	}
 	
 }

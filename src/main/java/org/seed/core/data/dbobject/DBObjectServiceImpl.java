@@ -105,7 +105,7 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 	}
 
 	@Override
-	public void importObjects(TransferContext context, Session session) {
+	public void importObjects(TransferContext context, Session session) throws ValidationException {
 		Assert.notNull(context, C.CONTEXT);
 		Assert.notNull(session, C.SESSION);
 		
@@ -122,7 +122,7 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 				else { // new db Object
 					context.addNewDBObject(dbObject);
 				}
-				repository.save(dbObject, session);
+				repository.save(dbObject, session); // don't validate
 			}
 		}
 	}

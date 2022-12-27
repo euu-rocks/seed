@@ -225,29 +225,25 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 	}
 	
 	@Override
-	public void importObjects(TransferContext context, Session session) {
+	public void importObjects(TransferContext context, Session session) throws ValidationException {
 		Assert.notNull(context, C.CONTEXT);
 		Assert.notNull(session, C.SESSION);
-		try {
-			if (context.getModule().getMenus() != null) {
-				for (Menu menu : context.getModule().getMenus()) {
-					MenuMetadata menuMeta = (MenuMetadata) menu;
-					menuMeta.setModule(context.getModule());
-					if (menu.getFormUid() != null) {
-						menuMeta.setForm(formService.findByUid(session, menu.getFormUid()));
-					}
-					final Menu currentVersionMenu = findByUid(session, menu.getUid());
-					if (currentVersionMenu != null) {
-						((MenuMetadata) currentVersionMenu).copySystemFieldsTo(menu);
-						session.detach(currentVersionMenu);
-					}
-					initMenu(menuMeta, currentVersionMenu, session);
-					saveObject(menu, session);	
+		
+		if (context.getModule().getMenus() != null) {
+			for (Menu menu : context.getModule().getMenus()) {
+				MenuMetadata menuMeta = (MenuMetadata) menu;
+				menuMeta.setModule(context.getModule());
+				if (menu.getFormUid() != null) {
+					menuMeta.setForm(formService.findByUid(session, menu.getFormUid()));
 				}
+				final Menu currentVersionMenu = findByUid(session, menu.getUid());
+				if (currentVersionMenu != null) {
+					((MenuMetadata) currentVersionMenu).copySystemFieldsTo(menu);
+					session.detach(currentVersionMenu);
+				}
+				initMenu(menuMeta, currentVersionMenu, session);
+				saveObject(menu, session);	
 			}
-		}
-		catch (ValidationException vex) {
-			throw new InternalException(vex);
 		}
 	}
 	

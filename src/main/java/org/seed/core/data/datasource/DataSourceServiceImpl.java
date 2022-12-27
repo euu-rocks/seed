@@ -184,7 +184,7 @@ public class DataSourceServiceImpl extends AbstractApplicationEntityService<IDat
 	}
 	
 	@Override
-	public void importObjects(TransferContext context, Session session) {
+	public void importObjects(TransferContext context, Session session) throws ValidationException {
 		Assert.notNull(context, C.CONTEXT);
 		Assert.notNull(session, C.SESSION);
 		
@@ -199,7 +199,7 @@ public class DataSourceServiceImpl extends AbstractApplicationEntityService<IDat
 				if (dataSource.hasParameters()) {
 					importParameters(dataSource, currentVersionDataSource, session);
 				}
-				repository.save(dataSource, session);
+				repository.save(dataSource, session); // don't validate
 			}
 		}
 	}

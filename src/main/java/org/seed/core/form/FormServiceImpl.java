@@ -388,35 +388,31 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	@Override
-	public void importObjects(TransferContext context, Session session) {
+	public void importObjects(TransferContext context, Session session) throws ValidationException {
 		Assert.notNull(context, C.CONTEXT);
 		Assert.notNull(session, C.SESSION);
-		try {
-			if (context.getModule().getForms() != null) {
-				for (Form form : context.getModule().getForms()) {
-					final Form currentVersionForm = findByUid(session, form.getUid());
-					final Entity entity = entityService.findByUid(session, form.getEntityUid());
-					((FormMetadata) form).setModule(context.getModule());
-					((FormMetadata) form).setEntity(entity);
-					if (currentVersionForm != null) {
-						((FormMetadata) currentVersionForm).copySystemFieldsTo(form);
-						session.detach(currentVersionForm);
-					}
-					initForm(form, currentVersionForm, session);
-					formRepository.save(form, session);
+		
+		if (context.getModule().getForms() != null) {
+			for (Form form : context.getModule().getForms()) {
+				final Form currentVersionForm = findByUid(session, form.getUid());
+				final Entity entity = entityService.findByUid(session, form.getEntityUid());
+				((FormMetadata) form).setModule(context.getModule());
+				((FormMetadata) form).setEntity(entity);
+				if (currentVersionForm != null) {
+					((FormMetadata) currentVersionForm).copySystemFieldsTo(form);
+					session.detach(currentVersionForm);
 				}
-				
-				// set references to other forms
-				for (Form form : context.getModule().getForms()) {
-					initFormReferences(form, session);
-					initSubFormReferences(form, session);
-					// validate and save
-					saveObject(form, session);
-				}
+				initForm(form, currentVersionForm, session);
+				formRepository.save(form, session);
 			}
-		}
-		catch (ValidationException vex) {
-			throw new InternalException(vex);
+			
+			// set references to other forms
+			for (Form form : context.getModule().getForms()) {
+				initFormReferences(form, session);
+				initSubFormReferences(form, session);
+				// validate and save
+				saveObject(form, session);
+			}
 		}
 	}
 	

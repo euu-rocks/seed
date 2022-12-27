@@ -305,19 +305,15 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	}
 	
 	@Override
-	public void importObjects(TransferContext context, Session session) {
+	public void importObjects(TransferContext context, Session session) throws ValidationException {
 		Assert.notNull(context, C.CONTEXT);
 		Assert.notNull(session, C.SESSION);
-		try {
-			if (context.getModule().getTransfers() != null) {
-				for (Transfer transfer : context.getModule().getTransfers()) {
-					initTransfer(transfer, context, session);
-					saveObject(transfer, session);
-				}
+		
+		if (context.getModule().getTransfers() != null) {
+			for (Transfer transfer : context.getModule().getTransfers()) {
+				initTransfer(transfer, context, session);
+				saveObject(transfer, session);
 			}
-		}
-		catch (ValidationException vex) {
-			throw new InternalException(vex);
 		}
 	}
 	

@@ -28,7 +28,6 @@ import javax.annotation.Nullable;
 import org.hibernate.Session;
 
 import org.seed.C;
-import org.seed.InternalException;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -165,30 +164,26 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 	}
 	
 	@Override
-	public void importObjects(TransferContext context, Session session) {
+	public void importObjects(TransferContext context, Session session) throws ValidationException {
 		Assert.notNull(context, C.CONTEXT);
 		Assert.notNull(session, C.SESSION);
-		try {
-			if (context.getModule().getReports() != null) {
-				for (Report report : context.getModule().getReports()) {
-					final Report currentVersionReport = findByUid(session, report.getUid());
-					((ReportMetadata) report).setModule(context.getModule());
-					if (currentVersionReport != null) {
-						((ReportMetadata) currentVersionReport).copySystemFieldsTo(report);
-						session.detach(currentVersionReport);
-					}
-					if (report.hasDataSources()) {
-						initDataSources(report, currentVersionReport, session);
-					}
-					if (report.hasPermissions()) {
-						initPermissions(report, currentVersionReport, session);
-					}
-					saveObject(report, session);
+		
+		if (context.getModule().getReports() != null) {
+			for (Report report : context.getModule().getReports()) {
+				final Report currentVersionReport = findByUid(session, report.getUid());
+				((ReportMetadata) report).setModule(context.getModule());
+				if (currentVersionReport != null) {
+					((ReportMetadata) currentVersionReport).copySystemFieldsTo(report);
+					session.detach(currentVersionReport);
 				}
+				if (report.hasDataSources()) {
+					initDataSources(report, currentVersionReport, session);
+				}
+				if (report.hasPermissions()) {
+					initPermissions(report, currentVersionReport, session);
+				}
+				saveObject(report, session);
 			}
-		}
-		catch (ValidationException vex) {
-			throw new InternalException(vex);
 		}
 	}
 	

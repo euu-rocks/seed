@@ -22,7 +22,6 @@ import java.util.List;
 import org.hibernate.Session;
 
 import org.seed.C;
-import org.seed.InternalException;
 import org.seed.Seed;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
@@ -95,25 +94,21 @@ public class CustomLibServiceImpl extends AbstractApplicationEntityService<Custo
 	}
 
 	@Override
-	public void importObjects(TransferContext context, Session session) {
+	public void importObjects(TransferContext context, Session session) throws ValidationException {
 		Assert.notNull(context, C.CONTEXT);
 		Assert.notNull(session, C.SESSION);
-		try {
-			if (context.getModule().getCustomLibs() != null) {
-				for (CustomLib customLib : context.getModule().getCustomLibs()) {
-					final CustomLib currentVersionLib = findByUid(session, customLib.getUid());
-					((CustomLibMetadata) customLib).setModule(context.getModule());
-					if (currentVersionLib != null) {
-						((CustomLibMetadata) currentVersionLib).copySystemFieldsTo(customLib);
-						session.detach(currentVersionLib);
-					}
-					saveObject(customLib, session);
+
+		if (context.getModule().getCustomLibs() != null) {
+			for (CustomLib customLib : context.getModule().getCustomLibs()) {
+				final CustomLib currentVersionLib = findByUid(session, customLib.getUid());
+				((CustomLibMetadata) customLib).setModule(context.getModule());
+				if (currentVersionLib != null) {
+					((CustomLibMetadata) currentVersionLib).copySystemFieldsTo(customLib);
+					session.detach(currentVersionLib);
 				}
-				resetCustomJars();
+				saveObject(customLib, session);
 			}
-		}
-		catch (ValidationException vex) {
-			throw new InternalException(vex);
+			resetCustomJars();
 		}
 	}
 	

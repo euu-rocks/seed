@@ -263,7 +263,7 @@ public class ModuleTransfer {
 		return analysis;
 	}
 	
-	void importModule(Module module) {
+	void importModule(Module module) throws ValidationException {
 		Assert.notNull(module, C.MODULE);
 		final Module currentVersionModule = getCurrentVersionModule(module);
 		final TransferContext context = new DefaultTransferContext(module);
@@ -301,8 +301,9 @@ public class ModuleTransfer {
 				// save module
 				moduleRepository.save(module, session);
 				// init components
-				sortedServices.forEach(service -> service.importObjects(context, session));
-				
+				for (ApplicationEntityService<?> service : sortedServices) {
+					service.importObjects(context, session);
+				}
 				// changelogs
 				if (module.getEntities() != null || module.getDBObjects() != null) {
 					sortedServices.forEach(service -> service.createChangeLogs(context, session));
@@ -312,6 +313,9 @@ public class ModuleTransfer {
 			catch (Exception ex) {
 				if (tx != null) {
 					tx.rollback();
+				}
+				if (ex instanceof ValidationException) {
+					throw (ValidationException) ex;
 				}
 				throw new InternalException(ex);
 			}

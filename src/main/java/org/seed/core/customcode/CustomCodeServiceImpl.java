@@ -20,7 +20,6 @@ package org.seed.core.customcode;
 import org.hibernate.Session;
 
 import org.seed.C;
-import org.seed.InternalException;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -86,24 +85,20 @@ public class CustomCodeServiceImpl extends AbstractApplicationEntityService<Cust
 	}
 
 	@Override
-	public void importObjects(TransferContext context, Session session) {
+	public void importObjects(TransferContext context, Session session) throws ValidationException {
 		Assert.notNull(context, C.CONTEXT);
 		Assert.notNull(session, C.SESSION);
-		try {
-			if (context.getModule().getCustomCodes() != null) {
-				for (CustomCode customCode : context.getModule().getCustomCodes()) {
-					final CustomCode currentVersionCode = findByUid(session, customCode.getUid());
-					((CustomCodeMetadata) customCode).setModule(context.getModule());
-					if (currentVersionCode != null) {
-						((CustomCodeMetadata) currentVersionCode).copySystemFieldsTo(customCode);
-						session.detach(currentVersionCode);
-					}
-					saveObject(customCode, session);
+		
+		if (context.getModule().getCustomCodes() != null) {
+			for (CustomCode customCode : context.getModule().getCustomCodes()) {
+				final CustomCode currentVersionCode = findByUid(session, customCode.getUid());
+				((CustomCodeMetadata) customCode).setModule(context.getModule());
+				if (currentVersionCode != null) {
+					((CustomCodeMetadata) currentVersionCode).copySystemFieldsTo(customCode);
+					session.detach(currentVersionCode);
 				}
+				saveObject(customCode, session);
 			}
-		}
-		catch (ValidationException vex) {
-			throw new InternalException(vex);
 		}
 	}
 
