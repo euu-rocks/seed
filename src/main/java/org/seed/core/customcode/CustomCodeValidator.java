@@ -31,7 +31,7 @@ public class CustomCodeValidator extends AbstractSystemEntityValidator<CustomCod
 	@Override
 	public void validateSave(CustomCode code) throws ValidationException {
 		Assert.notNull(code, C.CODE);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(code);
 		
 		if (isEmpty(code.getName())) {
 			errors.addEmptyName();

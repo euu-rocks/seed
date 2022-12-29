@@ -33,7 +33,7 @@ public class UserValidator extends AbstractSystemEntityValidator<User> {
 	@Override
 	public void validateSave(User user) throws ValidationException {
 		Assert.notNull(user, C.USER);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(user);
 		
 		if (isEmpty(user.getName())) {
 			errors.addEmptyName();
@@ -62,8 +62,9 @@ public class UserValidator extends AbstractSystemEntityValidator<User> {
 		validate(errors);
 	}
 	
-	void validatePassword(String password, String passwordRepeated) throws ValidationException {
-		final ValidationErrors errors = new ValidationErrors();
+	void validatePassword(User user, String password, String passwordRepeated) throws ValidationException {
+		Assert.notNull(user, C.USER);
+		final ValidationErrors errors = createValidationErrors(user);
 		
 		if (isEmpty(password)) {
 			errors.addEmptyField("label.password");

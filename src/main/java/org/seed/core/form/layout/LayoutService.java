@@ -68,7 +68,7 @@ public interface LayoutService {
 	
 	List<EntityRelation> getAvailableRelations(Form form, LayoutElement layoutRoot);
 	
-	LayoutElement createGridLayout(Integer columns, Integer rows) throws ValidationException;
+	LayoutElement createGridLayout(Form form, Integer columns, Integer rows) throws ValidationException;
 	
 	LayoutElement createBorderLayout(BorderLayoutProperties layoutProperties);
 	
@@ -122,17 +122,17 @@ public interface LayoutService {
 	
 	void addBorderLayout(Form form, BorderLayoutProperties layoutProperties, LayoutElement layoutRoot, String contextId);
 	
-	void applyProperties(LayoutElement element, LayoutElementAttributes properties) throws ValidationException;
+	void applyProperties(Form form, LayoutElement element, LayoutElementAttributes properties) throws ValidationException;
 	
 	void applyBorderLayoutProperties(Form form, LayoutElement layoutRoot, LayoutElement element, BorderLayoutProperties properties) throws ValidationException;
 	
-	void applyBorderLayoutAreaProperties(LayoutElement element, LayoutAreaProperties properties) throws ValidationException;
+	void applyBorderLayoutAreaProperties(Form form, LayoutElement element, LayoutAreaProperties properties) throws ValidationException;
 	
 	void removeBorderLayoutArea(Form form, LayoutElement layoutRoot, String contextId);
 	
 	void removeBorderLayout(Form form, LayoutElement layoutRoot, String contextId);
 	
-	void setLabelText(LayoutElement element, String text) throws ValidationException;
+	void setLabelText(Form form, LayoutElement element, String text) throws ValidationException;
 	
 	void setGridTitle(Form form, LayoutElement layoutRoot, LayoutElement element, String title);
 	

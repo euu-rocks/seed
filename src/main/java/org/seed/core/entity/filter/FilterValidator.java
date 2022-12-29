@@ -43,7 +43,7 @@ public class FilterValidator extends AbstractSystemEntityValidator<Filter> {
 	@Override
 	public void validateCreate(Filter filter) throws ValidationException {
 		Assert.notNull(filter, C.FILTER);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(filter);
 		
 		if (isEmpty(filter.getEntity())) {
 			errors.addEmptyField("label.entity");
@@ -55,7 +55,7 @@ public class FilterValidator extends AbstractSystemEntityValidator<Filter> {
 	@Override
 	public void validateSave(Filter filter) throws ValidationException {
 		Assert.notNull(filter, C.FILTER);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(filter);
 		
 		if (isEmpty(filter.getName())) {
 			errors.addEmptyName();
@@ -99,7 +99,7 @@ public class FilterValidator extends AbstractSystemEntityValidator<Filter> {
 	@Override
 	public void validateDelete(Filter filter) throws ValidationException {
 		Assert.notNull(filter, C.FILTER);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(filter);
 		
 		try (Session session = repository.getSession()) {
 			for (FilterDependent<? extends SystemEntity> dependent : getFilterDependents()) {

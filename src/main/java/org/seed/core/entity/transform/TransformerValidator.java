@@ -43,7 +43,7 @@ public class TransformerValidator extends AbstractSystemEntityValidator<Transfor
 	@Override
 	public void validateCreate(Transformer transformer) throws ValidationException {
 		Assert.notNull(transformer, C.TRANSFORMER);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(transformer);
 		
 		if (isEmpty(transformer.getSourceEntity())) {
 			errors.addEmptyField("label.sourceentity");
@@ -58,7 +58,7 @@ public class TransformerValidator extends AbstractSystemEntityValidator<Transfor
 	@Override
 	public void validateSave(Transformer transformer) throws ValidationException {
 		Assert.notNull(transformer, C.TRANSFORMER);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(transformer);
 		
 		if (isEmpty(transformer.getName())) {
 			errors.addEmptyName();
@@ -85,7 +85,7 @@ public class TransformerValidator extends AbstractSystemEntityValidator<Transfor
 	@Override
 	public void validateDelete(Transformer transformer) throws ValidationException {
 		Assert.notNull(transformer, C.TRANSFORMER);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(transformer);
 		
 		try (Session session = repository.openSession()) {
 			for (TransformerDependent<? extends SystemEntity> dependent : getTransformerDependents()) {

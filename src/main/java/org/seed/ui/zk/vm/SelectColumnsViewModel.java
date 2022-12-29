@@ -122,7 +122,7 @@ public class SelectColumnsViewModel extends AbstractViewModel {
 		// at least one column must be selected
 		final List<FormField> selectedFields = getFields(LIST_SELECTED);
 		if (selectedFields.isEmpty()) {
-			final ValidationError error = new ValidationError("val.empty.selection");
+			final ValidationError error = new ValidationError(null, "val.empty.selection");
 			showValidationErrors(elem, "form.action.selectfail", Collections.singleton(error));
 			return;
 		}

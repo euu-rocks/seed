@@ -51,7 +51,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 	
 	void validateCreateNested(Entity entity) throws ValidationException {
 		Assert.notNull(entity, C.ENTITY);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(entity);
 		
 		if (isEmpty(((EntityMetadata) entity).getParentEntity())) {
 			errors.addError("val.empty.parententity");
@@ -63,7 +63,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 	@Override
 	public void validateSave(Entity entity) throws ValidationException {
 		Assert.notNull(entity, C.ENTITY);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(entity);
 		
 		// name
 		validateName(entity, errors);
@@ -133,7 +133,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 	@Override
 	public void validateDelete(Entity entity) throws ValidationException {
 		Assert.notNull(entity, C.ENTITY);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(entity);
 		
 		try (Session session = repository.getSession()) {
 			for (EntityDependent<? extends SystemEntity> dependent : getEntityDependents()) {
@@ -145,7 +145,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 	
 	public void validateRemoveField(EntityField field) throws ValidationException {
 		Assert.notNull(field, C.FIELD);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(field.getEntity());
 		
 		// check if field is used in field formula
 		for (EntityField entityField : field.getEntity().getFields()) {
@@ -165,7 +165,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 	
 	public void validateRemoveFieldGroup(EntityFieldGroup fieldGroup) throws ValidationException {
 		Assert.notNull(fieldGroup, C.FIELDGROUP);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(fieldGroup.getEntity());
 		
 		for (EntityDependent<? extends SystemEntity> dependent : getEntityDependents()) {
 			if (dependent instanceof EntityService) {
@@ -181,7 +181,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 	
 	public void validateRemoveFunction(EntityFunction function) throws ValidationException {
 		Assert.notNull(function, C.FUNCTION);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(function.getEntity());
 		
 		try (Session session = repository.getSession()) {
 			for (EntityDependent<? extends SystemEntity> dependent : getEntityDependents()) {
@@ -200,7 +200,8 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 	
 	public void validateRemoveStatus(EntityStatus status) throws ValidationException {
 		Assert.notNull(status, C.STATUS);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(status.getEntity());
+		
 		try (Session session = repository.getSession()) {
 			for (EntityDependent<? extends SystemEntity> dependent : getEntityDependents()) {
 				validateRemoveStatusDependent(dependent, status, errors, session);
@@ -211,7 +212,8 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 	
 	public void validateRemoveNested(NestedEntity nestedEntity) throws ValidationException {
 		Assert.notNull(nestedEntity, C.NESTEDENTITY);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(nestedEntity.getParentEntity());
+		
 		try (Session session = repository.getSession()) {
 			for (EntityDependent<? extends SystemEntity> dependent : getEntityDependents()) {
 				for (SystemEntity systemEntity : dependent.findUsage(nestedEntity, session)) {
@@ -229,7 +231,8 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 	
 	public void validateRemoveRelation(EntityRelation relation) throws ValidationException {
 		Assert.notNull(relation, C.RELATION);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(relation.getEntity());
+		
 		try (Session session = repository.getSession()) {
 			for (EntityDependent<? extends SystemEntity> dependent : getEntityDependents()) {
 				for (SystemEntity systemEntity : dependent.findUsage(relation, session)) {

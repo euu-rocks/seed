@@ -40,6 +40,8 @@ public abstract class MiscUtils {
 	
 	public static final String TIMESTAMP_FORMAT = "dd-MM-yyyy_HH-mm-ss";
 	
+	public static final String HTML_TAG_PATTERN = "\\<[^>]++>";
+	
 	public static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 	
 	private static final long SEC_MINUTE = 60;
@@ -161,6 +163,10 @@ public abstract class MiscUtils {
 			return buf.toString();
 		}
 		return text;
+	}
+	
+	public static String removeHTMLTags(String text) {
+		return text != null ? text.replaceAll(HTML_TAG_PATTERN, "") : null;
 	}
 	
 	private static String formatDurationPart(long duration) {

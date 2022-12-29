@@ -40,22 +40,26 @@ public class FormValidator extends AbstractSystemEntityValidator<Form> {
 	
 	private List<FormDependent<? extends SystemEntity>> formDependents;
 	
-	public void validateAddSubForm(NestedEntity nested) throws ValidationException {
+	public void validateAddSubForm(Form form, NestedEntity nested) throws ValidationException {
+		Assert.notNull(form, C.FORM);
+		
 		if (isEmpty(nested)) {
-			validate(new ValidationErrors().addEmptyField("label.nested"));
+			validate(createValidationErrors(form).addEmptyField("label.nested"));
 		}
 	}
 	
-	public void validateAddRelationForm(EntityRelation relation) throws ValidationException {
+	public void validateAddRelationForm(Form form, EntityRelation relation) throws ValidationException {
+		Assert.notNull(form, C.FORM);
+		
 		if (isEmpty(relation)) {
-			validate(new ValidationErrors().addEmptyField("label.relation"));
+			validate(createValidationErrors(form).addEmptyField("label.relation"));
 		}
 	}
 	
 	@Override
 	public void validateCreate(Form form) throws ValidationException {
 		Assert.notNull(form, C.FORM);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(form);
 		
 		if (isEmpty(form.getEntity())) {
 			errors.addEmptyField("label.entity");
@@ -67,7 +71,7 @@ public class FormValidator extends AbstractSystemEntityValidator<Form> {
 	@Override
 	public void validateSave(Form form) throws ValidationException {
 		Assert.notNull(form, C.FORM);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(form);
 		
 		if (!isEmpty(form.getName()) && 
 			!isNameLengthAllowed(form.getName())) {
@@ -97,7 +101,7 @@ public class FormValidator extends AbstractSystemEntityValidator<Form> {
 	@Override
 	public void validateDelete(Form form) throws ValidationException {
 		Assert.notNull(form, C.FORM);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(form);
 		
 		try (Session session = repository.openSession()) {
 			for (FormDependent<? extends SystemEntity> dependent : getFormDependents()) {

@@ -44,14 +44,14 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 		Assert.notNull(dbObject, C.DBOBJECT);
 		
 		if (isEmpty(dbObject.getType())) {
-			throw new ValidationException(new ValidationErrors().addEmptyField("label.type"));
+			throw new ValidationException(createValidationErrors(dbObject).addEmptyField("label.type"));
 		}
 	}
 	
 	@Override
 	public void validateSave(DBObject dbObject) throws ValidationException {
 		Assert.notNull(dbObject, C.DBOBJECT);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(dbObject);
 		
 		if (isEmpty(dbObject.getName())) {
 			errors.addEmptyName();
@@ -143,7 +143,7 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 			}
 		}
 		catch (PersistenceException pex) {
-			throw new ValidationException(new ValidationError("val.illegal.sqlstatement"), 
+			throw new ValidationException(new ValidationError(dbObject, "val.illegal.sqlstatement"), 
 										  new DataException(pex));
 		}
 	}

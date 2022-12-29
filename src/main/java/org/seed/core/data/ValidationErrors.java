@@ -21,14 +21,28 @@ import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class ValidationErrors implements Serializable {
+public final class ValidationErrors implements Serializable {
 
 	private static final long serialVersionUID = 5038795516523393867L;
 	
 	private static final String LABEL_NAME = "label.name";
 	
+	private final SystemEntity systemEntity;
+	
 	private Set<ValidationError> errors;
 	
+	public ValidationErrors() {
+		this.systemEntity = null;
+	}
+	
+	public ValidationErrors(SystemEntity systemEntity) {
+		this.systemEntity = systemEntity;
+	}
+
+	public SystemEntity getSystemEntity() {
+		return systemEntity;
+	}
+
 	Set<ValidationError> getErrors() {
 		return errors;
 	}
@@ -41,7 +55,7 @@ public class ValidationErrors implements Serializable {
 		if (errors == null) {
 			errors = new LinkedHashSet<>();
 		}
-		errors.add(new ValidationError(error, parameters));
+		errors.add(new ValidationError(systemEntity, error, parameters));
 		return this;
 	}
 	

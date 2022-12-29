@@ -35,7 +35,7 @@ public class RestValidator extends AbstractSystemEntityValidator<Rest> {
 	@Override
 	public void validateSave(Rest rest) throws ValidationException {
 		Assert.notNull(rest, C.REST);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(rest);
 		
 		// name
 		if (isEmpty(rest.getName())) {

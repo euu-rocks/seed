@@ -104,6 +104,15 @@ abstract class AbstractViewModel extends UIUtils {
 						 NOBR_START + getLabel(msgKey, params) + NOBR_END);
 	}
 	
+	protected final void showValidationError(Component component, String errorKey) {
+		Assert.notNull(errorKey, "errorKey");
+		
+		showNotification(component, 
+						 Clients.NOTIFICATION_TYPE_WARNING, 
+						 5000, 
+						 NOBR_START + getLabel(errorKey) + NOBR_END);
+	}
+	
 	protected final void showValidationErrors(Component component, String errorKey, Set<ValidationError> validationErrors) {
 		Assert.notNull(validationErrors, "validationErrors");
 		
@@ -154,10 +163,9 @@ abstract class AbstractViewModel extends UIUtils {
 		showWarnMessage(getLabel("label.warning"), message);
 	}
 	
-	private void buildError(StringBuilder buf, ValidationError error) {
-		buf.append(NOBR_START);
+	protected final String formatValidationError(ValidationError error) {
 		if (ObjectUtils.isEmpty(error.getParameters())) {
-			buf.append(getLabel(error.getError()));
+			return getLabel(error.getError());
 		}
 		else {
 			final String[] params = error.getParameters();
@@ -166,9 +174,12 @@ abstract class AbstractViewModel extends UIUtils {
 					params[i] = getLabel(params[i]);
 				}
 			}
-			buf.append(getLabel(error.getError(), params));
+			return getLabel(error.getError(), params);
 		}
-		buf.append(NOBR_END);
+	}
+	
+	private void buildError(StringBuilder buf, ValidationError error) {
+		buf.append(NOBR_START).append(formatValidationError(error)).append(NOBR_END);
 	}
 	
 	protected static int getChildIndex(Component component) {

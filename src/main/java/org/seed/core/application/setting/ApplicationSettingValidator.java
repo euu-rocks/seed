@@ -35,7 +35,7 @@ public class ApplicationSettingValidator extends AbstractSystemEntityValidator<A
 		Assert.notNull(setting, "setting");
 		
 		if (setting.getSetting() == Setting.APPLICATION_TIMEZONE && setting.getValue() != null) {
-			final ValidationErrors errors = new ValidationErrors();
+			final ValidationErrors errors = createValidationErrors(setting);
 			try {
 				ZoneId.of(setting.getValue());
 			}

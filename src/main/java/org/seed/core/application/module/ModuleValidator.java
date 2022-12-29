@@ -73,7 +73,7 @@ public class ModuleValidator extends AbstractSystemEntityValidator<Module> {
 	
 	public void validateImport(Module module, Module existingModule) throws ValidationException {
 		Assert.notNull(module, C.MODULE);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(module);
 		
 		// entities
 		if (module.getEntities() != null) {
@@ -115,7 +115,7 @@ public class ModuleValidator extends AbstractSystemEntityValidator<Module> {
 	@SuppressWarnings("unchecked")
 	public void validateSave(Module module) throws ValidationException {
 		Assert.notNull(module, C.MODULE);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(module);
 		
 		if (isEmpty(module.getName())) {
 			errors.addEmptyName();

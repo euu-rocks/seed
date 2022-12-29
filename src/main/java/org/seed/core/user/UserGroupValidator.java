@@ -43,7 +43,7 @@ public class UserGroupValidator extends AbstractSystemEntityValidator<UserGroup>
 	@Override
 	public void validateDelete(UserGroup userGroup) throws ValidationException {
 		Assert.notNull(userGroup, C.USERGROUP);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(userGroup);
 		
 		try (Session session = repository.openSession()) {
 			for (UserGroupDependent<? extends SystemEntity> dependent : getUserGroupDependents()) {

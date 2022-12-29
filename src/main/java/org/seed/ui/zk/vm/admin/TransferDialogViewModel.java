@@ -17,9 +17,12 @@
  */
 package org.seed.ui.zk.vm.admin;
 
+import java.util.List;
+
 import org.seed.C;
 import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.data.FileObject;
+import org.seed.core.data.ValidationError;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.transfer.ImportOptions;
 import org.seed.core.entity.transfer.Transfer;
@@ -27,6 +30,7 @@ import org.seed.core.entity.transfer.TransferError;
 import org.seed.core.entity.transfer.TransferResult;
 import org.seed.core.entity.transfer.TransferService;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 import org.seed.ui.zk.vm.AbstractApplicationViewModel;
 
 import org.springframework.util.ObjectUtils;
@@ -65,6 +69,10 @@ public class TransferDialogViewModel extends AbstractApplicationViewModel {
 	private TransferResult transferResult;
 	
 	private FileObject importFile;
+
+	private List<ValidationError> importErrors;
+	
+	private ValidationError importError;
 	
 	@Init
     public void init(@ContextParam(ContextType.VIEW) Component view,
@@ -107,6 +115,18 @@ public class TransferDialogViewModel extends AbstractApplicationViewModel {
 		return transferResult;
 	}
 
+	public List<ValidationError> getImportErrors() {
+		return importErrors;
+	}
+
+	public ValidationError getImportError() {
+		return importError;
+	}
+
+	public void setImportError(ValidationError importError) {
+		this.importError = importError;
+	}
+
 	public boolean hasIdentifier() {
 		return transfer.getIdentifierField() != null;
 	}
@@ -146,10 +166,20 @@ public class TransferDialogViewModel extends AbstractApplicationViewModel {
 		return getLabel(IMPORT_FAILED);
 	}
 	
+	public String formatError(ValidationError error) {
+		return error != null ? MiscUtils.removeHTMLTags(formatValidationError(error)) : null;
+	}
+	
+	public String getErrorObject(ValidationError error) {
+		return error != null 
+				? getEntityName(error.getEntity()) + ' ' + error.getEntity().getName() 
+				: null;
+	}
+	
 	public String getErrorDetail(TransferError error) {
 		if (error.validationError != null) {
 			if (ObjectUtils.isEmpty(error.validationError.getParameters())) {
-				return getLabel(error.validationError.getError()).replaceAll("\\<[^>]++>","");
+				return MiscUtils.removeHTMLTags(getLabel(error.validationError.getError()));
 			}
 			else {
 				final String[] params = error.validationError.getParameters();
@@ -158,7 +188,7 @@ public class TransferDialogViewModel extends AbstractApplicationViewModel {
 						params[i] = getLabel(params[i]);
 					}
 				}
-				return getLabel(error.validationError.getError(), params).replaceAll("\\<[^>]++>","");
+				return MiscUtils.removeHTMLTags(getLabel(error.validationError.getError(), params));
 			}
 		}
 		else if (error.message != null) {
@@ -166,7 +196,7 @@ public class TransferDialogViewModel extends AbstractApplicationViewModel {
 		}
 		else {
 			return getLabel("val.transfer." + error.type.name().toLowerCase(), 
-							error.fieldName,  error.value);
+							error.fieldName, error.value);
 		}
 	}
 	
@@ -204,8 +234,14 @@ public class TransferDialogViewModel extends AbstractApplicationViewModel {
 	
 	@Command
 	public void importModule(@BindingParam(C.ELEM) Component component) {
-		if (moduleViewModule.importModule(importAnalysis.getModule(), component)) {
+		final ImportResult result = moduleViewModule.importModule(importAnalysis.getModule(), component);
+		if (result.success) {
 			window.detach();
+		}
+		else {
+			importErrors = result.errors;
+			importError = importErrors != null ? importErrors.get(0) : null;
+			notifyChange("importErrors");
 		}
 	}
 	

@@ -32,7 +32,7 @@ public class TransferValidator extends AbstractSystemEntityValidator<Transfer> {
 	@Override
 	public void validateCreate(Transfer transfer) throws ValidationException {
 		Assert.notNull(transfer, C.TRANSFER);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(transfer);
 		
 		if (isEmpty(transfer.getEntity())) {
 			errors.addEmptyField("label.entity");
@@ -46,7 +46,7 @@ public class TransferValidator extends AbstractSystemEntityValidator<Transfer> {
 	
 	public void validateImport(FileObject importFile) throws ValidationException {
 		Assert.notNull(importFile, "importFile");
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(importFile);
 		
 		if (importFile.isEmpty()) {
 			errors.addEmptyField("label.file");
@@ -58,7 +58,7 @@ public class TransferValidator extends AbstractSystemEntityValidator<Transfer> {
 	@Override
 	public void validateSave(Transfer transfer) throws ValidationException {
 		Assert.notNull(transfer, C.TRANSFER);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(transfer);
 		
 		if (isEmpty(transfer.getName())) {
 			errors.addEmptyName();

@@ -269,8 +269,9 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
-	public LayoutElement createGridLayout(Integer columns, Integer rows) throws ValidationException {
-		layoutValidator.validateNewGrid(columns, rows);
+	public LayoutElement createGridLayout(Form form, Integer columns, Integer rows) throws ValidationException {
+		Assert.notNull(form, C.FORM);
+		layoutValidator.validateNewGrid(form, columns, rows);
 		
 		final LayoutElement elemZK = createZK();
 		elemZK.addChild(createGrid(columns, rows, null));
@@ -289,7 +290,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Secured("ROLE_ADMIN_FORM")
 	public void addText(Form form, String text, LayoutElement layoutRoot, String contextId) throws ValidationException {
 		Assert.notNull(form, C.FORM);
-		layoutValidator.validateText(text);
+		layoutValidator.validateText(form, text);
 		
 		final LayoutElement elemCell = getElementByContextId(layoutRoot, contextId);
 		elemCell.removeAttribute(A_ALIGN);
@@ -313,9 +314,9 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	public void addField(Form form, EntityField entityField, LabelProperties labelProperties, 
 						 String width, String height, LayoutElement layoutRoot, String contextId) throws ValidationException {
 		Assert.notNull(form, C.FORM);
-		layoutValidator.validateEntityField(entityField);
+		layoutValidator.validateEntityField(form, entityField);
 		if (entityField.getType().isBinary()) {
-			layoutValidator.validateBinaryField(width, height);
+			layoutValidator.validateBinaryField(form, width, height);
 		}
 		
 		final LayoutElement elemCell = getElementByContextId(layoutRoot, contextId);
@@ -341,7 +342,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 			 					 LayoutElement layoutRoot, String contextId) throws ValidationException {
 		Assert.notNull(form, C.FORM);
 		
-		layoutValidator.validateEntityField(entityField);
+		layoutValidator.validateEntityField(form, entityField);
 		final LayoutElement elemCell = getElementByContextId(layoutRoot, contextId);
 		final LayoutElement elemField = createRichTextField(entityField);
 		elemCell.addChild(elemField);
@@ -378,7 +379,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Secured("ROLE_ADMIN_FORM")
 	public void addGrid(Form form, Integer columns, Integer rows, String title, LayoutElement layoutRoot, String contextId) throws ValidationException {
 		Assert.notNull(form, C.FORM);
-		layoutValidator.validateNewGrid(columns, rows);
+		layoutValidator.validateNewGrid(form, columns, rows);
 		
 		final LayoutElement element = getElementByContextId(layoutRoot, contextId);
 		element.addChild(createGrid(columns, rows, title));
@@ -404,7 +405,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Secured("ROLE_ADMIN_FORM")
 	public void addTabbox(Form form, String title, LayoutElement layoutRoot, String contextId) throws ValidationException {
 		Assert.notNull(form, C.FORM);
-		layoutValidator.validateText(title, "label.title");
+		layoutValidator.validateText(form, title, "label.title");
 		
 		final LayoutElement element = getElementByContextId(layoutRoot, contextId);
 		element.addChild(createTabbox(title));
@@ -415,7 +416,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Secured("ROLE_ADMIN_FORM")
 	public void addTab(Form form, String title, LayoutElement layoutRoot, String contextId) throws ValidationException {
 		Assert.notNull(form, C.FORM);
-		layoutValidator.validateText(title, "label.title");
+		layoutValidator.validateText(form, title, "label.title");
 		
 		final LayoutElement elemTab = getElementByContextId(layoutRoot, contextId);
 		elemTab.getParent().addChild(createTab(title));
@@ -572,21 +573,23 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
-	public void applyProperties(LayoutElement element, LayoutElementAttributes properties) throws ValidationException {
+	public void applyProperties(Form form, LayoutElement element, LayoutElementAttributes properties) throws ValidationException {
+		Assert.notNull(form, C.FORM);
 		Assert.notNull(element, C.ELEMENT);
 		Assert.notNull(properties, C.PROPERTIES);
 		
-		layoutValidator.validateProperties(element, properties);
+		layoutValidator.validateProperties(form, element, properties);
 		properties.applyTo(element);
 	}
 	
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
-	public void applyBorderLayoutAreaProperties(LayoutElement element, LayoutAreaProperties properties) throws ValidationException {
+	public void applyBorderLayoutAreaProperties(Form form, LayoutElement element, LayoutAreaProperties properties) throws ValidationException {
+		Assert.notNull(form, C.FORM);
 		Assert.notNull(element, C.ELEMENT);
 		Assert.notNull(properties, C.PROPERTIES);
 		
-		layoutValidator.validateBorderLayoutAreaProperties(properties);
+		layoutValidator.validateBorderLayoutAreaProperties(form, properties);
 		properties.applyTo(element);
 	}
 	
@@ -600,7 +603,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(properties, C.PROPERTIES);
 		Assert.state(element.is(LayoutElement.BORDERLAYOUT), "element is no borderlayout");
 		
-		layoutValidator.validateBorderLayoutProperties(properties);
+		layoutValidator.validateBorderLayoutProperties(form, properties);
 		// check areas visibility state change
 		boolean visibilityChanged = false;
 		for (LayoutAreaProperties areaProperties : properties.getLayoutAreaProperties()) {
@@ -641,11 +644,12 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
-	public void setLabelText(LayoutElement element, String text) throws ValidationException {
+	public void setLabelText(Form form, LayoutElement element, String text) throws ValidationException {
+		Assert.notNull(form, C.FORM);
 		Assert.notNull(element, C.ELEMENT);
 		Assert.state(element.is(LayoutElement.LABEL), "element is no label");
 		
-		layoutValidator.validateText(text);
+		layoutValidator.validateText(form, text);
 		if (text.contains("\n")) {
 			element.setAttribute(A_PRE, V_TRUE);
 			element.removeAttribute(A_VALUE);

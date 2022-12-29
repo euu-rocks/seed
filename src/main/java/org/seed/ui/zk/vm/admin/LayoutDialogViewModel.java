@@ -639,7 +639,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	public void applyProperties(@BindingParam(C.ELEM) Component elem) {
 		try {
 			if (element.is(LayoutElement.LABEL)) {
-				layoutService.setLabelText(element, text);
+				layoutService.setLabelText(parameter.form, element, text);
 			}
 			else if (element.is(LayoutElement.TAB)) {
 				tabboxProperties.applyTo(element.getParent().getParent());
@@ -647,7 +647,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 			else if (entityField != null) {
 				applyFieldProperties();
 			}
-			layoutService.applyProperties(element, properties);
+			layoutService.applyProperties(parameter.form, element, properties);
 			refreshAndClose();
 		}
 		catch (ValidationException vex) {
@@ -686,7 +686,8 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 			layoutService.setGridTitle(parameter.form, parameter.layoutRoot, element, text);
 			final LayoutElement elemColumns = element.getChild(LayoutElement.COLUMNS);
 			for (int i = 0; i < columnProperties.size(); i++) {
-				layoutService.applyProperties(elemColumns.getChildAt(i), 
+				layoutService.applyProperties(parameter.form, 
+											  elemColumns.getChildAt(i), 
 											  columnProperties.get(i));
 			}
 			refreshAndClose();
@@ -711,7 +712,8 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	@Command
 	public void applyBorderLayoutAreaProperties(@BindingParam(C.ELEM) Component elem) {
 		try {
-			layoutService.applyBorderLayoutAreaProperties(element, layoutAreaProperties);
+			layoutService.applyBorderLayoutAreaProperties(parameter.form, 
+														  element, layoutAreaProperties);
 			refreshAndClose();
 		}
 		catch (ValidationException vex) {
@@ -768,7 +770,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	public void addLayout(@BindingParam(C.ELEM) Component elem) {
 		try {
 			if (layoutType == null) {
-				throw new ValidationException(new ValidationErrors().addEmptyField("label.layouttype"));
+				throw new ValidationException(new ValidationErrors(parameter.form).addEmptyField("label.layouttype"));
 			}
 			switch (layoutType) {
 				case BORDERLAYOUT:
@@ -795,7 +797,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 	public void createLayout(@BindingParam(C.ELEM) Component elem) {
 		try {
 			if (layoutType == null) {
-				throw new ValidationException(new ValidationError("val.empty.field", "label.layouttype"));
+				throw new ValidationException(new ValidationError(null, "val.empty.field", "label.layouttype"));
 			}
 			LayoutElement layoutRoot = null;
 			switch (layoutType) {
@@ -804,7 +806,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 					break;
 					
 				case GRID:
-					layoutRoot = layoutService.createGridLayout(gridColumns, gridRows);
+					layoutRoot = layoutService.createGridLayout(parameter.form, gridColumns, gridRows);
 					break;
 					
 				default:

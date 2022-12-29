@@ -75,7 +75,7 @@ public class ModuleDialogViewModel extends AbstractApplicationViewModel {
 		}
 		else {
 			showValidationErrors(elem, "admin.transfer.importfail", 
-					 			 Collections.singleton(new ValidationError("admin.module.notfound")));
+					 			 Collections.singleton(new ValidationError(null, "admin.module.notfound")));
 		}
 	}
 	

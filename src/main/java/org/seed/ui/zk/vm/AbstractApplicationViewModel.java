@@ -31,12 +31,23 @@ import org.seed.core.config.FullTextSearchProvider;
 import org.seed.core.config.Limits;
 import org.seed.core.config.OpenSessionInViewFilter;
 import org.seed.core.config.SessionProvider;
+import org.seed.core.customcode.CustomCode;
+import org.seed.core.customcode.CustomLib;
+import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationException;
+import org.seed.core.data.datasource.IDataSource;
+import org.seed.core.data.dbobject.DBObject;
+import org.seed.core.entity.Entity;
+import org.seed.core.entity.filter.Filter;
+import org.seed.core.entity.transfer.Transfer;
+import org.seed.core.entity.transform.Transformer;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.form.Form;
+import org.seed.core.form.navigation.Menu;
 import org.seed.core.report.Report;
 import org.seed.core.report.ReportFormat;
 import org.seed.core.report.ReportService;
+import org.seed.core.task.Task;
 import org.seed.core.user.User;
 import org.seed.core.user.UserService;
 import org.seed.core.util.Assert;
@@ -157,6 +168,51 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	public void flagDirty() {
 		if (!dirty) {
 			setDirty(true);
+		}
+	}
+	
+	protected final String getEntityName(SystemEntity systemEntity) {
+		if (systemEntity == null) {
+			return null;
+		}
+		else if (systemEntity instanceof Entity) {
+			return getLabel("label.entity");
+		}
+		else if (systemEntity instanceof Filter) {
+			return getLabel("label.filter");
+		}
+		else if (systemEntity instanceof Transfer) {
+			return getLabel("label.transfer");
+		}
+		else if (systemEntity instanceof Transformer) {
+			return getLabel("label.transformer");
+		}
+		else if (systemEntity instanceof Form) {
+			return getLabel("label.form");
+		}
+		else if (systemEntity instanceof Menu) {
+			return getLabel("label.menu");
+		}
+		else if (systemEntity instanceof Task) {
+			return getLabel("label.job");
+		}
+		else if (systemEntity instanceof DBObject) {
+			return getLabel("label.dbobject");
+		}
+		else if (systemEntity instanceof IDataSource) {
+			return getLabel("label.datasource");
+		}
+		else if (systemEntity instanceof Report) {
+			return getLabel("label.report");
+		}
+		else if (systemEntity instanceof CustomCode) {
+			return getLabel("label.customcode");
+		}
+		else if (systemEntity instanceof CustomLib) {
+			return getLabel("label.customlib");
+		}
+		else {
+			throw new UnsupportedOperationException(systemEntity.getClass().getSimpleName());
 		}
 	}
 	

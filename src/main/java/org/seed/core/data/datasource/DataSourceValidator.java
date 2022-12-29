@@ -53,7 +53,7 @@ public class DataSourceValidator extends AbstractSystemEntityValidator<IDataSour
 	@Override
 	public void validateDelete(IDataSource dataSource) throws ValidationException {
 		Assert.notNull(dataSource, C.DATASOURCE);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(dataSource);
 		
 		try (Session session = repository.getSession()) {
 			for (DataSourceDependent<? extends SystemEntity> dependent : getDataSourceDependents()) {
@@ -70,7 +70,7 @@ public class DataSourceValidator extends AbstractSystemEntityValidator<IDataSour
 	@Override
 	public void validateSave(IDataSource dataSource) throws ValidationException {
 		Assert.notNull(dataSource, C.DATASOURCE);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(dataSource);
 		
 		if (isEmpty(dataSource.getName())) {
 			errors.addEmptyName();
@@ -98,7 +98,7 @@ public class DataSourceValidator extends AbstractSystemEntityValidator<IDataSour
 				repository.testQuery(dataSource, createTestParameterMap(dataSource));
 			}
 			catch (PersistenceException pex) {
-				throw new ValidationException(new ValidationError("val.illegal.sqlstatement"), 
+				throw new ValidationException(new ValidationError(dataSource, "val.illegal.sqlstatement"), 
 											  new DataException(pex));
 			}
 		}
@@ -112,7 +112,7 @@ public class DataSourceValidator extends AbstractSystemEntityValidator<IDataSour
 		if (!dataSource.hasParameters()) {
 			return;
 		}
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(dataSource);
 		for (DataSourceParameter parameter : dataSource.getParameters()) {
 			final Object value = parameters.get(parameter.getName());
 			if (value == null) {

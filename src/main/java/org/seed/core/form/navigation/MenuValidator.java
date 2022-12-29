@@ -31,7 +31,7 @@ public class MenuValidator extends AbstractSystemEntityValidator<Menu> {
 	@Override
 	public void validateSave(Menu menu) throws ValidationException {
 		Assert.notNull(menu, C.MENU);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(menu);
 		
 		if (isEmpty(menu.getName())) {
 			errors.addEmptyName();

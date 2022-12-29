@@ -560,7 +560,7 @@ public class ValueObjectServiceImpl
 				if (ExceptionUtils.isUniqueConstraintViolation(ex)) {
 					final Tupel<String, String> details = ExceptionUtils.getUniqueConstraintDetails(ex);
 					throw new ValidationException(
-							new ValidationError("val.ambiguous.unique", details.x, details.y));
+							new ValidationError(null, "val.ambiguous.unique", details.x, details.y));
 				}
 				else {
 					throw ex;

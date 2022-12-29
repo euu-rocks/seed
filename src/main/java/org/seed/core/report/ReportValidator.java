@@ -32,7 +32,7 @@ public class ReportValidator extends AbstractSystemEntityValidator<Report> {
 	
 	public void validateGenerate(Report report) throws ValidationException {
 		Assert.notNull(report, C.REPORT);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(report);
 		
 		if (report.hasDataSources()) {
 			for (ReportDataSource reportDataSource : report.getDataSources()) {
@@ -53,7 +53,7 @@ public class ReportValidator extends AbstractSystemEntityValidator<Report> {
 	@Override
 	public void validateSave(Report report) throws ValidationException {
 		Assert.notNull(report, C.REPORT);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(report);
 		
 		if (isEmpty(report.getName())) {
 			errors.addEmptyName();

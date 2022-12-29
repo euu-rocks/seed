@@ -144,7 +144,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	public SubForm addSubForm(Form form, NestedEntity nested) throws ValidationException {
 		Assert.notNull(form, C.FORM);
 		
-		formValidator.validateAddSubForm(nested);
+		formValidator.validateAddSubForm(form, nested);
 		final SubForm subForm = new SubForm();
 		subForm.setNestedEntity(nested);
 		form.addSubForm(subForm);
@@ -164,7 +164,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	public void addRelationForm(Form form, EntityRelation relation) throws ValidationException {
 		Assert.notNull(form, C.FORM);
 		
-		formValidator.validateAddRelationForm(relation);
+		formValidator.validateAddRelationForm(form, relation);
 	}
 	
 	@Override

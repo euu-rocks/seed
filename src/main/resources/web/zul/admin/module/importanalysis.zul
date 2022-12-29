@@ -58,8 +58,10 @@
 						 visible="@init(!empty vm.importAnalysis.customLibChanges)"/>
 					<tab id="tabUserGroup" label="${labels.label.usergroups}"
 						 visible="@init(!empty vm.importAnalysis.userGroupChanges)"/>
+					<tab id="tabError" label="${labels.label.errors}"
+						 visible="@load(!empty vm.importErrors)"/>
 				</tabs>
-				<tabpanels> 
+				<tabpanels>
 					<tabpanel>
 						<grid class="alpha-noborder">
 							<columns>
@@ -420,6 +422,36 @@
 					        	</listitem>
 					        </template>
 		         		</listbox>
+					</tabpanel>
+					<tabpanel fulfill="tabError.onSelect">
+						<borderlayout>
+							<center border="0">
+								<listbox mold="paging" autopaging="true" 
+						 				 model="@load(vm.importErrors)"
+						 				 selectedItem="@bind(vm.importError)"
+						 				 class="alpha-noborder"
+				         				 hflex="1" vflex="1">
+				         			<listhead sizable="true">
+							            <listheader label="${labels.label.object}" hflex="min"/>
+							            <listheader label="${labels.label.error}" hflex="max"/>
+							        </listhead>
+							        <template name="model" var="error">
+							        	<listitem>
+							        		<listcell>
+							        			<label value="@init(vm.getErrorObject(error))"/>
+							        		</listcell>
+							        		<listcell>
+							        			<label value="@init(vm.formatError(error))"/>
+							        		</listcell>
+							        	</listitem>
+							        </template>
+				         		</listbox>
+			         		</center>
+			         		<south visible="@load(!empty vm.importError)" border="0"
+			         			   size="20%" autoscroll="true" splittable="true">
+								<errormessages value="@load(vm.formatError(vm.importError))"/>	 
+							</south>
+		         		</borderlayout>	
 					</tabpanel>
 				</tabpanels>
 			</tabbox>

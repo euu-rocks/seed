@@ -59,7 +59,7 @@ public abstract class AbstractSystemEntityValidator<T extends SystemEntity>
 	public void validateSave(T object) throws ValidationException {
 		Assert.notNull(object, C.OBJECT);
 		
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(object);
 		if (isEmpty(object.getName())) {
 			errors.addEmptyName();
 		}
@@ -91,6 +91,12 @@ public abstract class AbstractSystemEntityValidator<T extends SystemEntity>
 		Assert.notNull(name, C.NAME);
 		
 		return name.length() <= getMaxNameLength();
+	}
+	
+	protected static ValidationErrors createValidationErrors(SystemEntity systemEntity) {
+		Assert.notNull(systemEntity, "system entity");
+		
+		return new ValidationErrors(systemEntity);
 	}
 	
 	protected static void validate(ValidationErrors errors) throws ValidationException {

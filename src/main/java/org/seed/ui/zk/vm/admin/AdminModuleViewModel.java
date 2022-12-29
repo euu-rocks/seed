@@ -309,7 +309,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 		}
 		else {
 			showValidationErrors(elem, ERROR_IMPORT_FAIL, 
-							     Collections.singleton(new ValidationError("admin.module.illegalformat")));
+							     Collections.singleton(new ValidationError(null, "admin.module.illegalformat")));
 		}
 	}
 	
@@ -325,7 +325,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 		}
 		else {
 			showValidationErrors(elem, ERROR_IMPORT_FAIL, 
-								 Collections.singleton(new ValidationError("admin.module.notfound")));
+								 Collections.singleton(new ValidationError(null, "admin.module.notfound")));
 		}
 	}
 	
@@ -345,7 +345,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 		}
 	}
 	
-	boolean importModule(Module module, Component elem) {
+	ImportResult importModule(Module module, Component elem) {
 		Assert.notNull(module, C.MODULE);
 		try {
 			moduleService.importModule(module);
@@ -363,15 +363,16 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 					throw new UnsupportedOperationException(getViewMode().name());
 			}
 			refreshMenu();
-			return true;
+			return new ImportResult(true);
 		}
 		catch (ValidationException vex) {
-			showValidationErrors(elem, ERROR_IMPORT_FAIL, vex.getErrors());
+			showValidationError(elem, "admin.module.importfailed");
+			return new ImportResult(false, vex.getErrors());
 		}
 		catch (Exception ex) {
 			showError(elem, ex);
+			return new ImportResult(false);
 		}
-		return false;
 	}
 	
 	@Command

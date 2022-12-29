@@ -33,7 +33,7 @@ public class TaskValidator extends AbstractSystemEntityValidator<Task> {
 	@Override
 	public void validateSave(Task task) throws ValidationException {
 		Assert.notNull(task, C.TASK);
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(task);
 		
 		if (isEmpty(task.getName())) {
 			errors.addEmptyName();

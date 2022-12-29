@@ -1126,7 +1126,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	
 	private void validateMandatoryDefaultValues() throws ValidationException {
 		if (getObject().hasFields() && existValueObjects()) {
-			final ValidationErrors errors = new ValidationErrors();
+			final ValidationErrors errors = new ValidationErrors(getObject());
 			for (EntityField entityField : getObject().getFields()) {
 				if (entityField.isMandatory() && !isAlreadyMandatory(entityField) &&
 					!entityField.getType().isAutonum() && !entityField.getType().isBinary() &&

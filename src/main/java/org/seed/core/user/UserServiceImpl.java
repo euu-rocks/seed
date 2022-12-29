@@ -132,7 +132,7 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 	public void setPassword(User user, String password, String passwordRepeated) throws ValidationException {
 		Assert.notNull(user, C.USER);
 		
-		validator.validatePassword(password, passwordRepeated);
+		validator.validatePassword(user, password, passwordRepeated);
 		
 		final UserMetadata userMeta = (UserMetadata) user;
 		userMeta.setPasswordChange(true);

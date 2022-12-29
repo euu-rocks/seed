@@ -29,6 +29,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.core.application.AbstractOrderedTransferableObject;
+import org.seed.core.util.NameUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -60,6 +61,13 @@ public class EntityFieldGroup extends AbstractOrderedTransferableObject {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	@JsonIgnore
+	public String getInternalName() {
+		return name != null 
+				? NameUtils.getInternalName(name).toLowerCase()
+				: null;
 	}
 
 	@Override

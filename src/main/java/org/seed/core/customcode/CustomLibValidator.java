@@ -33,7 +33,8 @@ public class CustomLibValidator extends AbstractSystemEntityValidator<CustomLib>
 	@Override
 	public void validateSave(CustomLib lib) throws ValidationException {
 		Assert.notNull(lib, "lib");
-		final ValidationErrors errors = new ValidationErrors();
+		final ValidationErrors errors = createValidationErrors(lib);
+		
 		if (isEmpty(lib.getName())) {
 			errors.addEmptyName();
 		}
