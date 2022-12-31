@@ -42,7 +42,8 @@
 	            			sort="auto(name)" hflex="1"/>
 	        </listhead> 
 	        <template name="model" var="group">
-	            <listitem attributes.item="@load(group)" 
+	            <listitem sclass="@init(vm.getListItemTestClass(group))" 
+	            		  attributes.item="@load(group)" 
 	            		  draggable="true" droppable="true" 
 	            		  onDrop="@command('swapFieldGroups',item=event.dragged.attributes.item,base=group)">
 	            	<listcell iconSclass="@load(empty group.name ? '' : 'z-icon-object-group alpha-icon-lg')">

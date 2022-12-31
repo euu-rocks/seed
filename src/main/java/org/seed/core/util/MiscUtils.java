@@ -135,7 +135,7 @@ public abstract class MiscUtils {
 				buf.append(formatDurationPart((durationSec % SEC_DAY) / SEC_HOUR)).append(':');
 			}
 			buf.append(formatDurationPart((durationSec % SEC_HOUR) / SEC_MINUTE)).append(':')
-			   .append(formatDurationPart((durationSec % SEC_MINUTE)));
+			   .append(formatDurationPart(durationSec % SEC_MINUTE));
 			if (durationSec < SEC_HOUR) {
 				buf.append(" min");
 			}
@@ -151,7 +151,9 @@ public abstract class MiscUtils {
 		if (date1 != null && date2 != null) {
 			return date1.after(date2) ? date1 : date2;
 		}
-		return date1 != null ? date1 : date2;
+		else {
+			return date1 != null ? date1 : date2;
+		}
 	}
 	
 	public static String addLeadingChars(String text, char leadingChar, int textLength) {

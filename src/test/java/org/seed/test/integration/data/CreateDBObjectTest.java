@@ -43,7 +43,7 @@ public class CreateDBObjectTest extends AbstractIntegrationTest {
 		findValidationMessage(); // name is empty
 		
 		findTextbox(tabpanel, "name").sendKeys("Testview");
-		findCodeMirror(tabpanel, "content", 1).sendKeys("select * from integrationtest");
+		findCodeMirror(tabpanel, "content", 1).sendKeys("select * from transferabletest");
 		saveDBObject(tabpanel);
 	}
 	

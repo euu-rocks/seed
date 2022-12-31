@@ -55,7 +55,8 @@
 		        			sort="auto(mandatory)"/>
 	        </listhead>
 	        <template name="model" var="constraint">
-	            <listitem attributes.item="@load(constraint)" 
+	            <listitem sclass="@init(vm.getListItemTestClass(constraint))" 
+	            		  attributes.item="@load(constraint)" 
 	            		  draggable="true" droppable="true" 
 	            		  onDrop="@command('swapConstraints',item=event.dragged.attributes.item,base=constraint)">
 	            	<listcell iconSclass="@load(empty constraint.field.type ? '' : constraint.field.type.isReference() ? 'z-icon-share alpha-icon-lg' : 'z-icon-font alpha-icon-lg')">

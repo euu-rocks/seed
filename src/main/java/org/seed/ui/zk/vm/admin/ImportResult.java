@@ -35,7 +35,7 @@ class ImportResult {
 	
 	ImportResult(boolean success, Collection<ValidationError> errors) {
 		this.success = success;
-		this.errors = new ArrayList<>(errors);
+		this.errors = errors != null ? new ArrayList<>(errors) : null;
 	}
 	
 }

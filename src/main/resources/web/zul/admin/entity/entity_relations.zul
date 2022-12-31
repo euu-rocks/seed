@@ -44,7 +44,8 @@
 	            			sort="auto(relatedEntity.name)" hflex="1"/>
 	        </listhead> 
 	        <template name="model" var="relation">
-	            <listitem attributes.item="@load(relation)" 
+	            <listitem sclass="@init(vm.getListItemTestClass(relation))" 
+	            		  attributes.item="@load(relation)" 
 	            		  draggable="true" droppable="true" 
 	            		  onDrop="@command('swapRelations',item=event.dragged.attributes.item,base=relation)">
 	            	<listcell iconSclass="@load(empty relation.relatedEntity ? '' : 'z-icon-link alpha-icon-lg')">

@@ -158,6 +158,16 @@ public class EntityFieldConstraint extends AbstractPermissionObject {
 		this.isMandatory = isMandatory;
 	}
 	
+	public String getInternalName() {
+		if (field != null) {
+			return field.getInternalName();
+		}
+		if (fieldGroup != null) {
+			return fieldGroup.getInternalName();
+		}
+		return null;
+	}
+	
 	@Override
 	public boolean isEqual(Object other) {
 		if (!isInstance(other)) {

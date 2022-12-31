@@ -42,7 +42,8 @@
 	            			sort="auto(name)" hflex="1"/>
 	        </listhead> 
 	        <template name="model" var="function">
-	            <listitem attributes.item="@load(function)" 
+	            <listitem sclass="@init(vm.getListItemTestClass(function))" 
+	            		  attributes.item="@load(function)" 
 	            		  onDoubleClick="@command('editFunction')"> 
 	            	<listcell iconSclass="z-icon-puzzle-piece alpha-icon-lg">
 	            		<label value="@load(function.name)" 

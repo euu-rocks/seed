@@ -46,7 +46,8 @@
 	            			sort="auto(referenceField.name)" hflex="1"/>
 	        </listhead>
 	        <template name="model" var="nested">
-	            <listitem attributes.item="@load(nested)" 
+	            <listitem sclass="@init(vm.getListItemTestClass(nested))" 
+	            		  attributes.item="@load(nested)" 
 	            		  draggable="true" droppable="true" 
 	            		  onDrop="@command('swapNesteds',item=event.dragged.attributes.item,base=nested)">
 	            	<listcell iconSclass="@load(empty nested.nestedEntity ? '' : 'z-icon-sitemap alpha-icon-lg')">
@@ -69,11 +70,13 @@
 		  class="alpha-properties">
 		<vlayout class="alpha-properties-content">
 			<label value="${labels.label.name}:"/>
-            <textbox value="@bind(vm.nested.name) @converter(vm.stringConverter)"
-            		 tooltiptext="@load(vm.nested.internalName)"
-            		 onChange="@command('flagDirty',notify='nested')"
-            		 mandatory="true"
-            		 hflex="1"/>
+			<div sclass="nestedname-field">
+	            <textbox value="@bind(vm.nested.name) @converter(vm.stringConverter)"
+	            		 tooltiptext="@load(vm.nested.internalName)"
+	            		 onChange="@command('flagDirty',notify='nested')"
+	            		 mandatory="true"
+	            		 hflex="1"/>
+	        </div>
             <label value="${labels.label.nested}:"/>
             <combobox model="@load(vm.availableNesteds) @template(empty each.name ? 'empty' : 'nested')"
            			  mandatory="true"

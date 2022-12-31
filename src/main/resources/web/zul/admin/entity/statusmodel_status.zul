@@ -53,7 +53,8 @@
 	            			sort="auto(name)"/>
 	        </listhead>
 	        <template name="model" var="status">
-	            <listitem attributes.item="@load(status)" 
+	            <listitem sclass="@init(vm.getListItemTestClass(status))"
+	            		  attributes.item="@load(status)" 
 	            		  draggable="true" droppable="true" 
 	            		  onDrop="@command('swapStatus',item=event.dragged.attributes.item,base=status)">
 	            	<listcell>
