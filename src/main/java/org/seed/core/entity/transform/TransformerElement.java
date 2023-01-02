@@ -109,6 +109,20 @@ public class TransformerElement extends AbstractTransferableObject {
 		this.targetFieldUid = targetFieldUid;
 	}
 	
+	@JsonIgnore
+	public String getInternalName() {
+		if (sourceField != null && targetField != null) {
+			return sourceField.getInternalName() + '-' + targetField.getInternalName();
+		}
+		else if (sourceField != null) {
+			return sourceField.getInternalName();
+		}
+		else if (targetField != null) {
+			return targetField.getInternalName();
+		}
+		return null;
+	}
+	
 	@Override
 	public boolean isEqual(Object other) {
 		if (!isInstance(other)) {

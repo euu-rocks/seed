@@ -31,6 +31,9 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.Seed;
 import org.seed.core.data.SystemField;
+import org.seed.core.util.NameUtils;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "sys_form_field")
@@ -85,6 +88,14 @@ public class FormField extends AbstractFormField {
 
 	public boolean isSystem() {
 		return systemField != null;
+	}
+	
+	@JsonIgnore
+	public String getInternalName() {
+		final String name = getName();
+		return name != null
+				? NameUtils.getInternalName(name)
+				: null;
 	}
 	
 	public String getName() {

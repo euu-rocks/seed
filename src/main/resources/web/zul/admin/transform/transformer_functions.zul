@@ -42,7 +42,8 @@
 	            			sort="auto(name)" hflex="1"/>
 	        </listhead> 
 	        <template name="model" var="function">
-	            <listitem attributes.item="@load(function)" 
+	            <listitem sclass="@init(vm.getListItemTestClass(function))" 
+	            		  attributes.item="@load(function)" 
 	            		  draggable="true" droppable="true"
 	            		  onDoubleClick="@command('editFunction')" 
 	            		  onDrop="@command('swapFunctions',item=event.dragged.attributes.item,base=function)">

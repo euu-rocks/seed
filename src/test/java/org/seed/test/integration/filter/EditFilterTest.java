@@ -17,8 +17,6 @@
  */
 package org.seed.test.integration.filter;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -26,51 +24,51 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.openqa.selenium.WebElement;
 
 @TestMethodOrder(OrderAnnotation.class)
-public class CreateFilterTest extends AbstractFilterTest {
+public class EditFilterTest extends AbstractFilterTest {
 	
 	@Test
 	@Order(1)
-	void testCreateFilter() {
-		openMenu("administration-entitaeten");
-		clickMenu("administration-entitaeten-filter");
-		findTab("filter");
-		WebElement tabpanel = findTabpanel("filter");
-		clickButton(tabpanel, "new");
-		
-		WebElement window = findWindow("new-filter");
-		assertEquals("Neuen Filter erstellen", findWindowHeader(window).getText());
-		findCombobox(window, "entity").sendKeys("IntegrationTest");
-		findCombobox(window, "module").sendKeys("Testmodule");
-		clickButton(window, "create");
-		
-		clickButton(tabpanel, "save");
-		findValidationMessage(); // name is empty
-		findTextbox(tabpanel, "name").sendKeys("Testfilter");
+	void testRenameFilter() {
+		WebElement tabpanel = showFilter("testfilter");
+		clearTextbox(tabpanel, "name");
+		findTextbox(tabpanel, "name").sendKeys("TestfilterNew");
 		saveFilter(tabpanel);
 	}
 	
 	@Test
 	@Order(2)
-	void testAddCriteria() {
-		WebElement tabpanel = showFilter("testfilter");
+	void testEditCriteria() {
+		WebElement tabpanel = showFilter("testfilternew");
 		findTab(tabpanel, "criteria");
 		WebElement tabpanelCriteria = findTabpanel(tabpanel, "criteria");
-		clickButton(tabpanelCriteria, "new");
+		clickListItem(tabpanelCriteria, "textfieldnew");
 		
-		findOptionCombobox(tabpanelCriteria, "field").sendKeys("Textfield");
-		findOptionCombobox(tabpanelCriteria, "operator").sendKeys("gleich");
+		findOptionCombobox(tabpanelCriteria, "nested").sendKeys("NestedTestNew");
 		clickTab(tabpanel, "criteria"); // lose focus
-		findOptionTextbox(tabpanelCriteria, "stringvalue").sendKeys("test");
+		findOptionCombobox(tabpanelCriteria, "field").sendKeys("Name");
+		clickTab(tabpanel, "criteria"); // lose focus
+		findOptionCombobox(tabpanelCriteria, "operator").sendKeys("ungleich");
 		saveFilter(tabpanel);
 	}
 	
 	@Test
 	@Order(3)
-	void testAddPermission() {
-		WebElement tabpanel = showFilter("testfilter");
+	void testEditHQLFilter() {
+		WebElement tabpanel = showFilter("test-hql-filter");
+		findTab(tabpanel, "hql");
+		WebElement tabpanelHQL = findTabpanel(tabpanel, "hql");
+		findCodeMirror(tabpanelHQL, "hql", 1).sendKeys("   --edited");
+		clickTab(tabpanel, "hql"); // lose focus
+		saveFilter(tabpanel);
+	}
+	
+	@Test
+	@Order(4)
+	void testRemovePermission() {
+		WebElement tabpanel = showFilter("testfilternew");
 		clickTab(tabpanel, "permissions");
 		WebElement tabpanelPermissions = findTabpanel(tabpanel, "permissions");
-		dragAndDrop(tabpanelPermissions, "testrole", "selected");
+		dragAndDrop(tabpanelPermissions, "testrole", "available");
 		saveFilter(tabpanel);
 	}
 	

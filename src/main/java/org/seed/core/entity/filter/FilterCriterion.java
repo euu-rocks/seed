@@ -244,6 +244,18 @@ public class FilterCriterion extends AbstractTransferableObject {
 		referenceUid = reference != null ? reference.getUid() : null;
 	}
 	
+	@JsonIgnore
+	public String getInternalName() {
+		if (entityField != null) {
+			return entityField.getInternalName();
+		}
+		else if (systemField != null) {
+			return systemField.property;
+		}
+		return null;
+	}
+	
+	@JsonIgnore
 	public boolean needsValue() {
 		return operator != null &&
 			   operator != CriterionOperator.EMPTY &&

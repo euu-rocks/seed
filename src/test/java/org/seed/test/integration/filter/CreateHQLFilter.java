@@ -24,10 +24,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.openqa.selenium.WebElement;
-import org.seed.test.integration.AbstractIntegrationTest;
 
 @TestMethodOrder(OrderAnnotation.class)
-public class CreateHQLFilter extends AbstractIntegrationTest {
+public class CreateHQLFilter extends AbstractFilterTest {
 	
 	@Test
 	@Order(1)
@@ -48,8 +47,7 @@ public class CreateHQLFilter extends AbstractIntegrationTest {
 		clickButton(tabpanel, "save");
 		findValidationMessage(); // name is empty
 		findTextbox(tabpanel, "name").sendKeys("Test HQL filter");
-		clickButton(tabpanel, "save");
-		findSuccessMessage();
+		saveFilter(tabpanel);
 	}
 	
 	@Test
@@ -59,18 +57,7 @@ public class CreateHQLFilter extends AbstractIntegrationTest {
 		clickTab(tabpanel, "permissions2");
 		WebElement tabpanelPermissions = findTabpanel(tabpanel, "permissions2");
 		dragAndDrop(tabpanelPermissions, "testrole", "selected");
-		clickButton(tabpanel, "save");
-		findSuccessMessage();
-	}
-	
-	private WebElement showFilter(String name) {
-		openMenu("administration-entitaeten");
-		clickMenu("administration-entitaeten-filter");
-		findTab("filter");
-		final WebElement tabpanel = findTabpanel("filter");
-		clickListItem(tabpanel, name);
-		clickButton(tabpanel, "edit");
-		return tabpanel;
+		saveFilter(tabpanel);
 	}
 	
 }

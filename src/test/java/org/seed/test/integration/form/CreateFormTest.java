@@ -25,10 +25,8 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.openqa.selenium.WebElement;
 
-import org.seed.test.integration.AbstractIntegrationTest;
-
 @TestMethodOrder(OrderAnnotation.class)
-public class CreateFormTest extends AbstractIntegrationTest {
+public class CreateFormTest extends AbstractFormTest {
 	
 	@Test
 	@Order(1)
@@ -46,12 +44,22 @@ public class CreateFormTest extends AbstractIntegrationTest {
 		clickButton(window, "create");
 		
 		findTextbox(tabpanel, "name").sendKeys("Testform");
-		clickButton(tabpanel, "save");
-		findSuccessMessage();
+		saveForm(tabpanel);
 	}
 	
 	@Test
 	@Order(2)
+	void testAddField() {
+		WebElement tabpanel = showForm("testform");
+		clickTab(tabpanel, "fields");
+		WebElement tabpanelFields = findTabpanel(tabpanel, "fields");
+		pause(100);
+		dragAndDrop(tabpanelFields, "status", "selected");
+		saveForm(tabpanel);
+	}
+	
+	@Test
+	@Order(3)
 	void testAddTransformer() {
 		WebElement tabpanel = showForm("testform");
 		clickTab(tabpanel, "transformers");
@@ -59,17 +67,7 @@ public class CreateFormTest extends AbstractIntegrationTest {
 		
 		dragAndDrop(tabpanelTransformers, "testtransformer", "selected");
 		findOptionCombobox(tabpanelTransformers, "targetform").sendKeys("IntegrationTest");
-		clickButton(tabpanel, "save");
-		findSuccessMessage();
-	}
-	
-	private WebElement showForm(String name) {
-		clickMenu("administration-formulare");
-		findTab("formulare");
-		final WebElement tabpanel = findTabpanel("formulare");
-		clickListItem(tabpanel, name);
-		clickButton(tabpanel, "edit");
-		return tabpanel;
+		saveForm(tabpanel);
 	}
 	
 }

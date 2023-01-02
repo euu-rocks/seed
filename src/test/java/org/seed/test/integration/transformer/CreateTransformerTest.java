@@ -25,10 +25,8 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.openqa.selenium.WebElement;
 
-import org.seed.test.integration.AbstractIntegrationTest;
-
 @TestMethodOrder(OrderAnnotation.class)
-public class CreateTransformerTest extends AbstractIntegrationTest {
+public class CreateTransformerTest extends AbstractTransformerTest {
 	
 	@Test
 	@Order(1)
@@ -49,8 +47,7 @@ public class CreateTransformerTest extends AbstractIntegrationTest {
 		clickButton(tabpanel, "save");
 		findValidationMessage(); // name is empty
 		findTextbox(tabpanel, "name").sendKeys("Testtransformer");
-		clickButton(tabpanel, "save");
-		findSuccessMessage();
+		saveTransformer(tabpanel);
 	}
 	
 	@Test
@@ -63,8 +60,7 @@ public class CreateTransformerTest extends AbstractIntegrationTest {
 		
 		findOptionCombobox(tabpanelElements, "sourcefield").sendKeys("Textfield");
 		findOptionCombobox(tabpanelElements, "targetfield").sendKeys("Textfield");
-		clickButton(tabpanel, "save");
-		findSuccessMessage();
+		saveTransformer(tabpanel);
 	}
 	
 	@Test
@@ -85,8 +81,7 @@ public class CreateTransformerTest extends AbstractIntegrationTest {
 		clickButton(tabpanelElements, "new");
 		findOptionCombobox(tabpanelElements, "sourcefield").sendKeys("Name");
 		findOptionCombobox(tabpanelElements, "targetfield").sendKeys("Name");
-		clickButton(tabpanel, "save");
-		findSuccessMessage();
+		saveTransformer(tabpanel);
 	}
 	
 	@Test
@@ -96,8 +91,7 @@ public class CreateTransformerTest extends AbstractIntegrationTest {
 		clickTab(tabpanel, "status");
 		WebElement tabpanelElements = findTabpanel(tabpanel, "status");
 		dragAndDrop(tabpanelElements, "one", "selected");
-		clickButton(tabpanel, "save");
-		findSuccessMessage();
+		saveTransformer(tabpanel);
 	}
 	
 	@Test
@@ -107,8 +101,7 @@ public class CreateTransformerTest extends AbstractIntegrationTest {
 		clickTab(tabpanel, "permissions");
 		WebElement tabpanelPermissions = findTabpanel(tabpanel, "permissions");
 		dragAndDrop(tabpanelPermissions, "testrole", "selected");
-		clickButton(tabpanel, "save");
-		findSuccessMessage();
+		saveTransformer(tabpanel);
 	}
 	
 	@Test
@@ -130,18 +123,7 @@ public class CreateTransformerTest extends AbstractIntegrationTest {
 		
 		clickCheckbox(tabpanelFunctions, "activebeforetransformation");
 		clickCheckbox(tabpanelFunctions, "activeaftertransformation");
-		clickButton(tabpanel, "save");
-		findSuccessMessage();
-	}
-	
-	private WebElement showTransformer(String name) {
-		openMenu("administration-entitaeten");
-		clickMenu("administration-entitaeten-transformationen");
-		findTab("transformationen");
-		final WebElement tabpanel = findTabpanel("transformationen");
-		clickListItem(tabpanel, name);
-		clickButton(tabpanel, "edit");
-		return tabpanel;
+		saveTransformer(tabpanel);
 	}
 	
 }

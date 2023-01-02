@@ -197,7 +197,7 @@ public abstract class AbstractIntegrationTest {
 	
 	protected WebElement findSuccessMessage() {
 		return new WebDriverWait(driver, Duration.ofMillis(MAX_WAIT_SUCCESS))
-        .until(driver -> driver.findElement(By.className("z-icon-info-circle")));
+					.until(driver -> driver.findElement(By.className("z-icon-info-circle")));
 	}
 	
 	protected WebElement findValidationMessage() {
@@ -258,14 +258,12 @@ public abstract class AbstractIntegrationTest {
 	
 	private static WebElement findField(WebElement parent, String className, String fieldClass) {
 		final WebElement tdElement = findByClass(parent, className + "-fieldcell");
-		final WebElement inputElement = findByClass(tdElement, fieldClass);
-		return inputElement;
+		return findByClass(tdElement, fieldClass);
 	}
 	
 	private static WebElement findOptionField(WebElement parent, String className, String fieldClass) {
 		final WebElement divElement = findByClass(parent, className + "-field");
-		final WebElement inputElement = findByClass(divElement, fieldClass);
-		return inputElement; 
+		return findByClass(divElement, fieldClass);
 	}
 	
 }

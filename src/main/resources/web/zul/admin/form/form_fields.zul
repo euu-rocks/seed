@@ -27,10 +27,11 @@
 					 droppable="true" 
 					 onDrop="@command('dropToFieldList',item=event.dragged.attributes.item,list=0)"
 					 hflex="1" vflex="1"
-					 class="alpha-noborder alpha-nobg"
+					 class="available-items alpha-noborder alpha-nobg"
 					 oddRowSclass="non-odd">
 				<template name="model" var="field">
-					<listitem attributes.item="@init(field)" 
+					<listitem sclass="@init(vm.getItemTestClass(field))"
+							  attributes.item="@init(field)" 
 							  draggable="true" droppable="true" 
 	 						  onDrop="@command('insertToFieldList',item=event.dragged.attributes.item,base=field,list=0)">
 						<listcell label="@init(field.name)"
@@ -48,11 +49,12 @@
 					 selectedItem="@bind(vm.field)" 
 					 droppable="true" 
 					 onDrop="@command('dropToFieldList',item=event.dragged.attributes.item,list=1)"
-					 class="alpha-noborder alpha-nobg" 
+					 class="selected-items alpha-noborder alpha-nobg" 
 					 hflex="1" vflex="1"
 					 oddRowSclass="non-odd">
 				<template name="model" var="field">
-					<listitem attributes.item="@init(field)" 
+					<listitem sclass="@init(vm.getItemTestClass(field))"
+							  attributes.item="@init(field)" 
 							  draggable="true" droppable="true" 
 							  onDrop="@command('insertToFieldList',item=event.dragged.attributes.item,base=field,list=1)">
 						<listcell label="@init(field.name)"

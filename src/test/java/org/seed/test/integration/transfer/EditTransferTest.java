@@ -17,8 +17,6 @@
  */
 package org.seed.test.integration.transfer;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -26,37 +24,24 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.openqa.selenium.WebElement;
 
 @TestMethodOrder(OrderAnnotation.class)
-public class CreateTransferTest extends AbstractTransferTest {
+public class EditTransferTest extends AbstractTransferTest {
 	
 	@Test
 	@Order(1)
-	void testCreateTransfer() {
-		openMenu("administration-entitaeten");
-		clickMenu("administration-entitaeten-import--export");
-		findTab("import--export");
-		WebElement tabpanel = findTabpanel("import--export");
-		clickButton(tabpanel, "new");
-		
-		WebElement window = findWindow("new-transfer");
-		assertEquals("Neuen Import / Export erstellen", findWindowHeader(window).getText());
-		findCombobox(window, "entity").sendKeys("IntegrationTest");
-		findCombobox(window, "format").sendKeys("CSV");
-		findCombobox(window, "module").sendKeys("Testmodule");
-		clickButton(window, "create");
-		
-		clickButton(tabpanel, "save");
-		findValidationMessage(); // name is empty
-		findTextbox(tabpanel, "name").sendKeys("Testtransfer");
+	void testRenameTransfer() {
+		WebElement tabpanel = showTransfer("testtransfer");
+		clearTextbox(tabpanel, "name");
+		findTextbox(tabpanel, "name").sendKeys("TesttransferNew");
 		saveTransfer(tabpanel);
 	}
 	
 	@Test
 	@Order(2)
-	void testAddElement() {
-		WebElement tabpanel = showTransfer("testtransfer");
+	void testRemoveElement() {
+		WebElement tabpanel = showTransfer("testtransfernew");
 		findTab(tabpanel, "fields");
 		WebElement tabpanelFields = findTabpanel(tabpanel, "fields");
-		dragAndDrop(tabpanelFields, "textfield", "selected");
+		dragAndDrop(tabpanelFields, "textfieldnew", "available");
 		saveTransfer(tabpanel);
 	}
 	

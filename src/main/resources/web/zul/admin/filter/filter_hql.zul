@@ -21,6 +21,7 @@
 <borderlayout>
 	<center border="0">
 		<codemirror id="codemirror"
+					sclass="hql-field"
 					value="@load(vm.object.hqlQuery)" 
 					onChange="@command('setFilterContent',content=codemirror.getText())"
 					mode="text/x-pgsql" 

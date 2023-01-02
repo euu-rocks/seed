@@ -47,7 +47,7 @@
 	            			sort="auto(targetField.name)" hflex="1"/>
 	        </listhead> 
 	        <template name="model" var="element">
-	            <listitem>
+	            <listitem sclass="@init(vm.getListItemTestClass(element))" >
 	            	<listcell iconSclass="@load(empty element.sourceField.type ? '' : element.sourceField.type.isReference() ? 'z-icon-share alpha-icon-lg' : 'z-icon-font alpha-icon-lg')">
 	            		<label value="@load(element.sourceField.name)" 
 	            			   style="margin-left:3px"/>

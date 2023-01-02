@@ -32,6 +32,7 @@ import org.seed.test.integration.entity.CreateTransferableEntityTest;
 import org.seed.test.integration.entity.EditEntityTest;
 import org.seed.test.integration.filter.CreateFilterTest;
 import org.seed.test.integration.filter.CreateHQLFilter;
+import org.seed.test.integration.filter.EditFilterTest;
 import org.seed.test.integration.form.CreateFormTest;
 import org.seed.test.integration.menu.CreateMenuTest;
 import org.seed.test.integration.module.CreateModuleTest;
@@ -39,7 +40,9 @@ import org.seed.test.integration.report.CreateReportTest;
 import org.seed.test.integration.rest.CreateRestTest;
 import org.seed.test.integration.task.CreateJobTest;
 import org.seed.test.integration.transfer.CreateTransferTest;
+import org.seed.test.integration.transfer.EditTransferTest;
 import org.seed.test.integration.transformer.CreateTransformerTest;
+import org.seed.test.integration.transformer.EditTransformerTest;
 import org.seed.test.integration.user.CreateUserGroupTest;
 import org.seed.test.integration.user.CreateUserTest;
 
@@ -51,5 +54,6 @@ import org.seed.test.integration.user.CreateUserTest;
 				 CreateTransferTest.class, CreateTransformerTest.class, CreateFormTest.class, 
 				 CreateDBObjectTest.class, CreateDataSourceTest.class, CreateHQLDataSourceTest.class, 
 				 CreateReportTest.class, CreateCustomCodeTest.class, CreateRestTest.class,
-				 CreateJobTest.class, EditEntityTest.class })
+				 CreateJobTest.class, EditEntityTest.class, EditFilterTest.class, EditTransferTest.class,
+				 EditTransformerTest.class })
 public class IntegrationTestSuite { }

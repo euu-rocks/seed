@@ -47,7 +47,7 @@
 	            			sort="auto(value)" hflex="1"/>
 	        </listhead> 
 	        <template name="model" var="criterion">
-	            <listitem>
+	            <listitem sclass="@init(vm.getListItemTestClass(criterion))" >
 	            	<listcell iconSclass="@load(criterion.element.reference ? 'z-icon-share alpha-icon-lg' : criterion.element.field ? 'z-icon-font alpha-icon-lg' : '')">
 	            		<label value="@load(vm.getFieldName(criterion.element))" 
 	            			   style="margin-left:3px"/>
