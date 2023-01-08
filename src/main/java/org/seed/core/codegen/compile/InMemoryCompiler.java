@@ -25,7 +25,6 @@ import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
-import javax.tools.JavaCompiler.CompilationTask;
 
 import org.seed.C;
 import org.seed.core.codegen.Compiler;
@@ -62,7 +61,7 @@ public class InMemoryCompiler implements Compiler {
 			throw new CompilerException("Java compiler not available. Use JDK instead of JRE");
 		}
 		fileManager = new CompilerFileManager(javaCompiler.getStandardFileManager(null, null, null));
-		log.info("Found Java compiler: {}", javaCompiler.getClass());
+		log.info("Found Java compiler: {}", javaCompiler.getClass().getName());
 	}
 	
 	@Override
@@ -94,7 +93,7 @@ public class InMemoryCompiler implements Compiler {
 	
 	@Override
 	public void compileSeparately(List<SourceCode> sourceCodes) {
-		final CompilerFileManager fileManager = new CompilerFileManager(javaCompiler.getStandardFileManager(null, null, null));
+		final var fileManager = new CompilerFileManager(javaCompiler.getStandardFileManager(null, null, null));
 		fileManager.setCustomJars(getCustomJars());
 		compile(sourceCodes, fileManager);
 	}
@@ -107,13 +106,12 @@ public class InMemoryCompiler implements Compiler {
 		
 		log.info("Compiling: {}", sourceCodes);
 		getCustomJars(); // load jars and init fileManager
-		final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
-		final CompilationTask task = javaCompiler.getTask(null, fileManager, diagnostics, null, null, 
-														  fileManager.createSourceFileObjects(sourceCodes));
+		final var diagnostics = new DiagnosticCollector<JavaFileObject>();
+		final var task = javaCompiler.getTask(null, fileManager, diagnostics, null, null, 
+											  fileManager.createSourceFileObjects(sourceCodes));
 		final Boolean result = task.call();
 		if (result == null || !result) {
-			sourceCodes.forEach(sourceCode -> 
-				fileManager.removeClassFileObject(sourceCode.getQualifiedName()));
+			sourceCodes.forEach(sourceCode -> fileManager.removeClassFileObject(sourceCode.getQualifiedName()));
 			throw new CompilerException(diagnostics.getDiagnostics());
 		}
 	}
@@ -123,8 +121,7 @@ public class InMemoryCompiler implements Compiler {
 		final ClassLoader parent = getCustomJars().isEmpty() 
 				? getClass().getClassLoader() 
 				: new CustomJarClassLoader(getCustomJars(), getClass().getClassLoader());
-		final GeneratedCodeClassLoader classLoader 
-				= new GeneratedCodeClassLoader(fileManager.getClassFileObjects(), parent);
+		final var classLoader = new GeneratedCodeClassLoader(fileManager.getClassFileObjects(), parent);
 		mapClasses = classLoader.getClassMap();
 		return classLoader;
 	}

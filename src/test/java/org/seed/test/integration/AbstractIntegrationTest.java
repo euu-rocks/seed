@@ -103,6 +103,11 @@ public abstract class AbstractIntegrationTest {
 		findByClass(parent, className + "-field").click();
 	}
 	
+	protected void clickItem(WebElement parent, String className) {
+		final WebElement trElement = findByClass(parent, className + "-item");
+		findByClass(trElement, "z-listcell-content").click();
+	}
+	
 	protected void clickListItem(WebElement parent, String className) {
 		final WebElement trElement = findByClass(parent, className + "-listitem");
 		findByClass(trElement, "z-listcell-content").click();

@@ -793,11 +793,9 @@ public class EntityMetadata extends AbstractApplicationEntity
 	public boolean isUnique(EntityStatusTransition statusTransition) {
 		Assert.notNull(statusTransition, C.STATUSTRANSITION);
 		
-		return !hasStatusTransitions() ||
-			   getStatusTransitions().stream()
-			   	.noneMatch(transition -> statusTransition != transition && 
+		return noneMatch(getStatusTransitions(), transition -> statusTransition != transition && 
 			   		ObjectUtils.nullSafeEquals(statusTransition.getSourceStatus(), transition.getSourceStatus()) &&
-			   		ObjectUtils.nullSafeEquals(statusTransition.getTargetStatus(), transition.getTargetStatus()));
+			   		ObjectUtils.nullSafeEquals(statusTransition.getTargetStatus(), transition.getTargetStatus()));	
 	}
 	
 	@Override

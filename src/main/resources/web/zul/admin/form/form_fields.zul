@@ -73,11 +73,13 @@
 	        <textbox value="@load(vm.field.system ? vm.getEnumLabel(vm.field.systemField) : vm.field.entityField.name)" 
 	        	     readonly="true" hflex="1"/>
 	        <label value="${labels.label.label}:"/>
-	        <textbox value="@bind(vm.field.label)
-	        				@converter(vm.stringConverter)"
-	        		 onChanging="@command('flagDirty')"
-	        		 placeholder="@load(vm.field.system ? vm.getEnumLabel(vm.field.systemField) : vm.field.entityField.name)"
-	        		 instant="true" hflex="1"/>
+	        <div sclass="fieldlabel-field">
+		        <textbox value="@bind(vm.field.label)
+		        				@converter(vm.stringConverter)"
+		        		 onChanging="@command('flagDirty')"
+		        		 placeholder="@load(vm.field.system ? vm.getEnumLabel(vm.field.systemField) : vm.field.entityField.name)"
+		        		 instant="true" hflex="1"/>
+		    </div>
 	        <vlayout visible="@load(!vm.field.entityField.type.isBinary())">
 		        <label value="${labels.label.style}:"/>
 		        <textbox value="@bind(vm.field.style)

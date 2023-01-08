@@ -18,7 +18,6 @@
 package org.seed.config;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -34,12 +33,12 @@ public class QuartzConfig {
     private Resource propertiyResource;
 	
 	@Bean
-	public SchedulerFactoryBean quartzScheduler() throws IOException {
-		final SchedulerFactoryBean quartzScheduler = new SchedulerFactoryBean();
+	SchedulerFactoryBean quartzScheduler() throws IOException {
+		final var quartzScheduler = new SchedulerFactoryBean();
 		
 		// load properties
-		final Properties properties = new Properties();
-		try (InputStream inputStream = propertiyResource.getInputStream()) {
+		final var properties = new Properties();
+		try (final var inputStream = propertiyResource.getInputStream()) {
 			properties.load(inputStream);
 		}
 		quartzScheduler.setQuartzProperties(properties);

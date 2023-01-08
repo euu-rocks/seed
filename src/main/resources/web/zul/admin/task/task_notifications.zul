@@ -44,7 +44,7 @@
 	            			sort="auto(result)" hflex="1"/>
 	        </listhead> 
 	        <template name="model" var="notification">
-	            <listitem>
+	            <listitem sclass="@init(vm.getListItemTestClass(notification))">
 	            	<listcell iconSclass="@load(empty notification.user.name ? '' : 'z-icon-user alpha-icon-lg')">
 	            		<label value="@load(notification.user.name)" 
 	            			   style="margin-left:3px"/>

@@ -29,7 +29,7 @@ public class RestClientConfig {
 	private final HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
 	
 	@Bean
-	public HttpComponentsClientHttpRequestFactory clientHttpRequestFactory() {
+	HttpComponentsClientHttpRequestFactory clientHttpRequestFactory() {
 	    return new HttpComponentsClientHttpRequestFactory(httpClientBuilder.build());
 	}
 

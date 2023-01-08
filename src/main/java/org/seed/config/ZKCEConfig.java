@@ -27,17 +27,17 @@ import org.zkoss.zk.ui.http.HttpSessionListener;
 public class ZKCEConfig {
 
 	@Bean
-	public ViewResolver zulViewResolver() {
+	ViewResolver zulViewResolver() {
 		return new InternalResourceViewResolver("/zkau/web/zul/", ".zul");
 	}
 	
 	@Bean
-	public ServletRegistrationBean<DHtmlUpdateServlet> dHtmlUpdateServlet() {
+	ServletRegistrationBean<DHtmlUpdateServlet> dHtmlUpdateServlet() {
 		return new ServletRegistrationBean<>(new DHtmlUpdateServlet(), "/zkau/*");
 	}
 	
 	@Bean
-	public HttpSessionListener httpSessionListener() {
+	HttpSessionListener httpSessionListener() {
 		return new HttpSessionListener();
 	}
 	

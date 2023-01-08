@@ -80,6 +80,12 @@ public abstract class AbstractFormAction extends AbstractOrderedTransferableObje
 		this.type = type;
 	}
 	
+	public String getInternalName() {
+		return label != null 
+				? NameUtils.getInternalName(label)
+				: type.name().toLowerCase();
+	}
+	
 	public String getTestClass() {
 		return NameUtils.getInternalName(Seed.getLabel("button." + type.name().toLowerCase()))
 				.replace('_','-').toLowerCase() + "-button";

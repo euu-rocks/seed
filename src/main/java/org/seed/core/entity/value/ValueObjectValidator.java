@@ -17,6 +17,8 @@
  */
 package org.seed.core.entity.value;
 
+import static org.seed.core.util.CollectionUtils.filterAndForEach;
+
 import java.util.List;
 
 import org.hibernate.Session;
@@ -188,8 +190,9 @@ public class ValueObjectValidator implements ApplicationContextAware {
 	private void validateNestedObjects(NestedEntity nested, List<ValueObject> nestedObjects, 
 									   ValidationErrors errors) {
 		for (ValueObject nestedObject : nestedObjects) {
-			nested.getFields(true).stream().filter(field -> !field.getType().isAutonum())
-				  .forEach(field -> validateNestedObjectField(nestedObject, nested, field, errors));
+			filterAndForEach(nested.getFields(true), 
+							 field -> !field.getType().isAutonum(), 
+							 field -> validateNestedObjectField(nestedObject, nested, field, errors));
 		}
 	}
 	

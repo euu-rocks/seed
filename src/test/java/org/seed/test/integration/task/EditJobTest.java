@@ -21,71 +21,70 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 
 @TestMethodOrder(OrderAnnotation.class)
-public class CreateJobTest extends AbstractJobTest {
+public class EditJobTest extends AbstractJobTest {
 	
 	@Test
 	@Order(1)
-	void testCreateJob() {
-		clickMenu("administration-jobs");
-		findTab("jobs");
-		WebElement tabpanel = findTabpanel("jobs");
-		clickButton(tabpanel, "new");
-		
-		clickButton(tabpanel, "save");
-		findValidationMessage(); // name is empty
-		
-		findTextbox(tabpanel, "name").sendKeys("Testjob");
-		pause(500);
+	void testRenameJob() {
+		WebElement tabpanel = showJob("testjob");
+		clearTextbox(tabpanel, "name");
+		findTextbox(tabpanel, "name").sendKeys("TestjobNew");
+		saveJob(tabpanel);
+	}
+	
+	@Test
+	@Order(2)
+	void testEditCode() {
+		WebElement tabpanel = showJob("testjobnew");
 		clickButton(tabpanel, "editcode");
-		
 		WebElement window = findWindow("code-dialog");
-		findCodeMirror(window, "content", 11).sendKeys("StoredProcedureCall call = context.getStoredProcedureProvider().createCall(\"testprocedure\");\n"
-				+ "		call.setParameter(\"text1\",\"Hello\");\n"
-				+ "      	call.setParameter(\"text2\",\"World\");\n"
-				+ "      	call.awaitOutput(\"result\",String.class);\n"
-				+ "        String result = call.getOutput(\"result\");\n"
-				+ "      	context.logInfo(result);");
+		
+		for (int i=0;i<22;i++) {
+			findCodeMirror(window, "content", 7).sendKeys(Keys.BACK_SPACE);
+		}
+		findCodeMirror(window, "content", 7).sendKeys("New extends AbstractJob {");
 		clickButton(window, "apply");
 		waitWindowDisapear("code-dialog");
 		saveJob(tabpanel);
 	}
 	
 	@Test
-	@Order(2)
-	void testAddParameter() {
-		WebElement tabpanel = showJob("testjob");
+	@Order(3)
+	void testChangeParameterValue() {
+		WebElement tabpanel = showJob("testjobnew");
 		clickTab(tabpanel, "parameters");
 		WebElement tabpanelParameters = findTabpanel(tabpanel, "parameters");
-		clickButton(tabpanelParameters, "new");
-
-		findOptionTextbox(tabpanelParameters, "name").sendKeys("Testparameter");
-		findOptionTextbox(tabpanelParameters, "value").sendKeys("Test value");
-		saveJob(tabpanel);
-	}
-	
-	@Test
-	@Order(3)
-	void testAddNotification() {
-		WebElement tabpanel = showJob("testjob");
-		clickTab(tabpanel, "notifications");
-		WebElement tabpanelNotifications = findTabpanel(tabpanel, "notifications");
-		clickButton(tabpanelNotifications, "new");
+		clickListItem(tabpanelParameters, "testparameter");
 		
-		findOptionCombobox(tabpanelNotifications, "user").sendKeys("Testuser");
+		clearOptionTextbox(tabpanelParameters, "value");
+		findOptionTextbox(tabpanelParameters, "value").sendKeys("Test value new");
 		saveJob(tabpanel);
 	}
 	
 	@Test
 	@Order(4)
-	void testAddPermission() {
-		WebElement tabpanel = showJob("testjob");
-		clickTab(tabpanel, "permissions");
+	void testChangeNotification() {
+		WebElement tabpanel = showJob("testjobnew");
+		clickTab(tabpanel, "notifications");
+		WebElement tabpanelNotifications = findTabpanel(tabpanel, "notifications");
+		clickListItem(tabpanelNotifications, "testuser");
 		
+		clearOptionCombobox(tabpanelNotifications, "result");
+		findOptionCombobox(tabpanelNotifications, "result").sendKeys("Fehler");
+		saveJob(tabpanel);
+	}
+	
+	@Test
+	@Order(5)
+	void testRemovePermission() {
+		WebElement tabpanel = showJob("testjobnew");
+		clickTab(tabpanel, "permissions");
 		WebElement tabpanelPermissions = findTabpanel(tabpanel, "permissions");
-		dragAndDrop(tabpanelPermissions, "testrole", "selected");
+		dragAndDrop(tabpanelPermissions, "testrole", "available");
 		saveJob(tabpanel);
 	}
 	

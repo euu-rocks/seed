@@ -33,11 +33,7 @@
 							  attributes.item="@init(transformer)" 
 							  draggable="true" droppable="true" 
 	 						  onDrop="@command('insertToTransformerList',item=event.dragged.attributes.item,base=transformer,list=0)">
-						<listcell label="@load(transformer.label)"
-								  visible="@load(!empty transformer.label)"
-								  iconSclass="z-icon-random z-icon-fw alpha-icon-lg"/>
-						<listcell label="@init(transformer.transformer.name)"
-								  visible="@load(empty transformer.label)"
+						<listcell label="@load(!empty transformer.label ? transformer.label : transformer.transformer.name)"
 								  iconSclass="z-icon-random z-icon-fw alpha-icon-lg"/>
 					</listitem>
 				</template>
@@ -59,11 +55,7 @@
 							  attributes.item="@init(transformer)" 
 							  draggable="true" droppable="true" 
 							  onDrop="@command('insertToTransformerList',item=event.dragged.attributes.item,base=transformer,list=1)">
-						<listcell label="@load(transformer.label)"
-								  visible="@load(!empty transformer.label)"
-								  iconSclass="z-icon-random z-icon-fw alpha-icon-lg"/>
-						<listcell label="@init(transformer.transformer.name)"
-								  visible="@load(empty transformer.label)"
+						<listcell label="@load(!empty transformer.label ? transformer.label : transformer.transformer.name)"
 								  iconSclass="z-icon-random z-icon-fw alpha-icon-lg"/>
 					</listitem>
 				</template>
@@ -76,10 +68,8 @@
 		  class="alpha-properties">
 		<vlayout class="alpha-properties-content">
 			<label value="${labels.label.transformer}:"/>
-			<div sclass="transformername-field">
-		        <textbox value="@load(vm.transformer.transformer.name)"
-		        		 readonly="true" hflex="1"/>
-			</div>
+		    <textbox value="@load(vm.transformer.transformer.name)"
+	        		 readonly="true" hflex="1"/>
 			<label value="${labels.label.label}:"/>
 			<div sclass="transformerlabel-field">
 		        <textbox value="@bind(vm.transformer.label)

@@ -100,7 +100,8 @@
 						<cell style="padding: 4px 10px" align="right">
 							<label value="${labels.label.filter}:"/>
 						</cell>
-						<cell style="padding: 4px 4px">
+						<cell sclass="filter-fieldcell"
+							  style="padding: 4px 4px">
 							<combobox model="@load(vm.filters) @template(empty each.name ? 'empty' : 'filter')"
 									  selectedItem="@bind(vm.object.filter)"
 									  value="@load(vm.object.filter.name)"

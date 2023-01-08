@@ -44,7 +44,7 @@ public final class Tupel<X, Y> {
 		if (other == this) {
 			return true;
 		}
-		final Tupel<?,?> otherTupel = (Tupel<?,?>) other;
+		final var otherTupel = (Tupel<?,?>) other;
 		return x.equals(otherTupel.x) && y.equals(otherTupel.y);
 	}
 	

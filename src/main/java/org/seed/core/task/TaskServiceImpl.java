@@ -37,7 +37,9 @@ import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
 import org.seed.core.codegen.CodeChangeAware;
+import org.seed.core.codegen.CodeManager;
 import org.seed.core.codegen.CodeManagerImpl;
+import org.seed.core.codegen.CodeUtils;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.data.Options;
 import org.seed.core.data.ValidationException;
@@ -64,6 +66,9 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	
 	@Autowired
 	private TaskValidator taskValidator;
+	
+	@Autowired
+	private CodeManager codeManager;
 	
 	@Autowired
 	private MailService mailService;
@@ -293,8 +298,12 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		
 		final boolean isNew = task.isNew();
 		final boolean contentChanged = ((TaskMetadata) task).isContentChanged();
+		final Task currentVersionTask = !isNew ? getObject(task.getId()) : null;
 		super.saveObject(task);
 		
+		if (!isNew && !task.getInternalName().equals(currentVersionTask.getInternalName())) {
+			removeTaskClass(currentVersionTask);
+		}
 		if (isNew || contentChanged) {
 			updateConfiguration();
 		}
@@ -320,6 +329,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	@Secured("ROLE_ADMIN_JOB")
 	public void deleteObject(Task task) throws ValidationException {
 		super.deleteObject(task);
+		removeTaskClass(task);
 	}
 	
 	@Override
@@ -376,6 +386,11 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	@Override
 	protected TaskValidator getValidator() {
 		return taskValidator;
+	}
+	
+	private void removeTaskClass(Task task) {
+		codeManager.removeClass(CodeUtils.getQualifiedName(task.getGeneratedPackage(), 
+														   task.getGeneratedClass()));
 	}
 	
 	private String getRunLogText(TaskRun run) {

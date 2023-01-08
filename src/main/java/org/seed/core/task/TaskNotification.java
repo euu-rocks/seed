@@ -64,5 +64,11 @@ public class TaskNotification extends AbstractSystemObject {
 	public void setResult(TaskResult result) {
 		this.result = result;
 	}
+	
+	public String getInternalName() {
+		return user != null 
+				? user.getInternalName() 
+				: null;
+	}
 
 }

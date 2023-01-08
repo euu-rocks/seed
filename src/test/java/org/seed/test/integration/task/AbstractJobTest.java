@@ -15,29 +15,26 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.test.integration.menu;
+package org.seed.test.integration.task;
 
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.openqa.selenium.WebElement;
 
-@TestMethodOrder(OrderAnnotation.class)
-public class CreateMenuTest extends AbstractMenuTest {
+import org.seed.test.integration.AbstractIntegrationTest;
+
+abstract class AbstractJobTest extends AbstractIntegrationTest {
 	
-	@Test
-	@Order(1)
-	void testCreateMenu() {
-		clickMenu("administration-menues");
-		findTab("menues");
-		WebElement tabpanel = findTabpanel("menues");
-		clickButton(tabpanel, "new");
-		
+	protected void saveJob(WebElement tabpanel) {
 		clickButton(tabpanel, "save");
-		findValidationMessage(); // name is empty
-		
-		findTextbox(tabpanel, "name").sendKeys("Testmenu");
-		saveMenu(tabpanel);
+		findSuccessMessage();
 	}
+	
+	protected WebElement showJob(String name) {
+		clickMenu("administration-jobs");
+		findTab("jobs");
+		WebElement tabpanel = findTabpanel("jobs");
+		clickListItem(tabpanel, name);
+		clickButton(tabpanel, "edit");
+		return tabpanel;
+	}
+	
 }

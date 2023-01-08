@@ -17,6 +17,8 @@
  */
 package org.seed.core.entity.doc;
 
+import static org.seed.core.util.CollectionUtils.filterAndForEach;
+
 import java.util.List;
 
 import org.seed.core.data.FieldType;
@@ -74,9 +76,9 @@ class ERDiagramBuilder extends AbstractPlantUMLBuilder {
 	
 	private static void buildReferences(StringBuilder buf, Entity entity) {
 		if (entity.hasAllFields()) {
-			entity.getAllFields().stream()
-				  .filter(field -> field.getType().isReference())
-				  .forEach(field -> buildReference(buf, field));
+			filterAndForEach(entity.getAllFields(), 
+							 field -> field.getType().isReference(), 
+							 field -> buildReference(buf, field));
 		}
 	}
 	

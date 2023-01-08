@@ -24,7 +24,6 @@ import java.util.List;
 import org.seed.C;
 import org.seed.InternalException;
 
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
@@ -67,12 +66,11 @@ public abstract class BeanUtils {
 	
 	@SuppressWarnings("unchecked")
 	private static <T> List<Class<? extends T>> findClasses(TypeFilter typeFilter) {
-		final List<Class<? extends T>> listClasses = new ArrayList<>();
-		final ClassPathScanningCandidateComponentProvider scanner =
-				new ClassPathScanningCandidateComponentProvider(false);
+		final var listClasses = new ArrayList<Class<? extends T>>();
+		final var scanner = new ClassPathScanningCandidateComponentProvider(false);
 		scanner.addIncludeFilter(typeFilter);
 		try {
-			for (BeanDefinition beanDef : scanner.findCandidateComponents(PACKAGE_SCAN_ROOT)) {
+			for (final var beanDef : scanner.findCandidateComponents(PACKAGE_SCAN_ROOT)) {
 				listClasses.add((Class<? extends T>) Class.forName(beanDef.getBeanClassName()));
 			}
 		}

@@ -18,7 +18,6 @@
 package org.seed.config;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.CorsEndpointProperties;
@@ -49,28 +48,28 @@ public class SwaggerConfig {
 	private Environment environment;
 	
 	@Bean
-    public Docket api() { 
+    Docket api() { 
         return new Docket(DocumentationType.OAS_30)
-						  .select()                                  
-						  .apis(RequestHandlerSelectors.any())              
-						  .paths(PathSelectors.ant("/seed/**"))
-						  .build()
-						  .ignoredParameterTypes(org.seed.core.customcode.CustomCode.class,
-								  				 org.seed.core.customcode.CustomLib.class,
-								  				 org.seed.core.data.dbobject.DBObject.class,
-								  				 org.seed.core.data.datasource.IDataSource.class,
-								  				 org.seed.core.data.datasource.DataSourceParameter.class,
-								  				 org.seed.core.form.Form.class,
-								  				 org.seed.core.form.navigation.Menu.class,
-								  				 org.seed.core.application.module.Module.class,
-								  				 org.seed.core.data.Options.class,
-								  				 org.seed.core.user.User.class,
-								  				 org.seed.core.user.UserGroup.class,
-								  				 org.seed.core.entity.value.ValueObject.class);                                           
+					  .select()                                  
+					  .apis(RequestHandlerSelectors.any())              
+					  .paths(PathSelectors.ant("/seed/**"))
+					  .build()
+					  .ignoredParameterTypes(org.seed.core.customcode.CustomCode.class,
+							  				 org.seed.core.customcode.CustomLib.class,
+							  				 org.seed.core.data.dbobject.DBObject.class,
+							  				 org.seed.core.data.datasource.IDataSource.class,
+							  				 org.seed.core.data.datasource.DataSourceParameter.class,
+							  				 org.seed.core.form.Form.class,
+							  				 org.seed.core.form.navigation.Menu.class,
+							  				 org.seed.core.application.module.Module.class,
+							  				 org.seed.core.data.Options.class,
+							  				 org.seed.core.user.User.class,
+							  				 org.seed.core.user.UserGroup.class,
+							  				 org.seed.core.entity.value.ValueObject.class);                                           
     }
 	
 	@Bean
-	public WebMvcEndpointHandlerMapping 
+	WebMvcEndpointHandlerMapping 
 				endpointHandlerMapping(WebEndpointsSupplier webEndpointsSupplier, 
 									   ServletEndpointsSupplier servletEndpointsSupplier, 
 									   ControllerEndpointsSupplier controllerEndpointsSupplier, 
@@ -78,7 +77,7 @@ public class SwaggerConfig {
 									   CorsEndpointProperties corsEndpointProperties, 
 									   WebEndpointProperties webEndpointProperties) {
 		final String basePath = webEndpointProperties.getBasePath();
-		final List<ExposableEndpoint<?>> endpoints = new ArrayList<>();
+		final var endpoints = new ArrayList<ExposableEndpoint<?>>();
         endpoints.addAll(webEndpointsSupplier.getEndpoints());
         endpoints.addAll(servletEndpointsSupplier.getEndpoints());
         endpoints.addAll(controllerEndpointsSupplier.getEndpoints());

@@ -43,7 +43,8 @@
 	            <listheader label="${labels.label.form}" hflex="1"/>
 	        </listhead> 
 	        <template name="model" var="submenu">
-	            <listitem attributes.item="@load(submenu)" 
+	            <listitem sclass="@init(vm.getListItemTestClass(submenu))"
+	            		  attributes.item="@load(submenu)" 
 	            		  draggable="true" droppable="true" 
 	            		  onDrop="@command('swapEntries',item=event.dragged.attributes.item,base=submenu)">
 	            	<listcell iconSclass="z-icon-navicon alpha-icon-lg">
@@ -63,10 +64,12 @@
 		  class="alpha-properties">
 		<vlayout class="alpha-properties-content">
         	<label value="${labels.label.name}:"/>
-            <textbox hflex="1"
-            		 value="@bind(vm.subMenu.name) @converter(vm.stringConverter)"
-            		 mandatory="true"
-            		 onChange="@command('flagDirty')"/>
+        	<div sclass="entryname-field">
+	            <textbox hflex="1"
+	            		 value="@bind(vm.subMenu.name) @converter(vm.stringConverter)"
+	            		 mandatory="true"
+	            		 onChange="@command('flagDirty')"/>
+	        </div>
             <label value="${labels.label.form}:"/>
             <combobox model="@load(vm.forms) @template(empty each.name ? 'empty' : 'form')"
 					  selectedItem="@bind(vm.subMenu.form)"

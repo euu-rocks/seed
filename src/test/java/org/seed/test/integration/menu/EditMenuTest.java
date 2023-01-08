@@ -24,20 +24,26 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.openqa.selenium.WebElement;
 
 @TestMethodOrder(OrderAnnotation.class)
-public class CreateMenuTest extends AbstractMenuTest {
+public class EditMenuTest extends AbstractMenuTest {
 	
 	@Test
 	@Order(1)
-	void testCreateMenu() {
-		clickMenu("administration-menues");
-		findTab("menues");
-		WebElement tabpanel = findTabpanel("menues");
-		clickButton(tabpanel, "new");
-		
-		clickButton(tabpanel, "save");
-		findValidationMessage(); // name is empty
-		
-		findTextbox(tabpanel, "name").sendKeys("Testmenu");
+	void testRenameMenu() {
+		WebElement tabpanel = showMenu("testmenu");
+		clearTextbox(tabpanel, "name");
+		findTextbox(tabpanel, "name").sendKeys("TestmenuNew");
 		saveMenu(tabpanel);
 	}
+	
+	@Test
+	@Order(2)
+	void testRenameMenuEntry() {
+		WebElement tabpanel = showMenu("testmenunew");
+		clickListItem(tabpanel, "testform");
+		
+		clearOptionTextbox(tabpanel, "entryname");
+		findOptionTextbox(tabpanel, "entryname").sendKeys("TestformRenamed");
+		saveMenu(tabpanel);
+	}
+	
 }

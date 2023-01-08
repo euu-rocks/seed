@@ -84,7 +84,7 @@ public abstract class NameUtils {
 		if (name == null) {
 			return null;
 		}
-		final StringBuilder buf = new StringBuilder();
+		final var buf = new StringBuilder();
 		for (int i = 0; i < name.length(); i++) {
 			final char ch = name.charAt(i);
 			switch (ch) {

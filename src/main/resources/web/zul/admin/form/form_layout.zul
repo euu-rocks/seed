@@ -21,13 +21,13 @@
 <borderlayout>
 	<north border="0">
 		<toolbar>
-			<toolbarbutton iconSclass="z-icon-newspaper-o alpha-icon-lg" 
+			<toolbarbutton iconSclass="newlayout-button z-icon-newspaper-o alpha-icon-lg" 
 						   label="${labels.admin.form.newlayout}"
 						   onClick="@command('newLayout')"/>
-			<toolbarbutton iconSclass="z-icon-newspaper-o alpha-icon-lg" 
+			<toolbarbutton iconSclass="autolayout-button z-icon-newspaper-o alpha-icon-lg" 
 						   label="${labels.label.autolayout}"
 						   onClick="@command('newAutoLayout')"/>
-			<toolbarbutton iconSclass="z-icon-code alpha-icon-lg" 
+			<toolbarbutton iconSclass="editsource-button z-icon-code alpha-icon-lg" 
 						   label="${labels.label.editsourcecode}"
 						   onClick="@command('editLayoutSource')"/>
 		</toolbar>

@@ -124,25 +124,26 @@ public class ModuleTransfer {
 	
 	Module readModule(InputStream inputStream) throws IOException {
 		Assert.notNull(inputStream, "input stream");
-		Map<String, byte[]> mapJars = new HashMap<>();
-		Map<String, byte[]> mapTransferContents = new HashMap<>();
+		var mapJars = new HashMap<String, byte[]>();
+		var mapTransferContents = new HashMap<String, byte[]>();
 		Module module = null;
 		
-		try (SafeZipInputStream zis = new SafeZipInputStream(inputStream)) {
+		try (final var stream = new SafeZipInputStream(inputStream)) {
 			ZipEntry entry;
-			while ((entry = zis.getNextEntrySafe()) != null) {
+			while ((entry = stream.getNextEntrySafe()) != null) {
 				// read module
 				if (MODULE_XML_FILENAME.equals(entry.getName())) {
 					module = (Module) getMarshaller().unmarshal(
-						new StreamSource(new ByteArrayInputStream(zis.readSafe(entry))));
+						new StreamSource(
+							new ByteArrayInputStream(stream.readSafe(entry))));
 				}
 				// read jar files
 				else if (isJarFile(entry.getName())) {
-					mapJars.put(entry.getName(), zis.readSafe(entry));
+					mapJars.put(entry.getName(), stream.readSafe(entry));
 				}
 				// read transfer files
 				else if (isTransferFile(entry.getName())) {
-					mapTransferContents.put(entry.getName(), zis.readSafe(entry));
+					mapTransferContents.put(entry.getName(), stream.readSafe(entry));
 				}
 				// ignore other entries
 			}
@@ -156,11 +157,11 @@ public class ModuleTransfer {
 	Module readModuleFromDir(String moduleName) throws IOException {
 		Assert.notNull(moduleName, "module name");
 		Assert.stateAvailable(externalModuleDir, "external module dir");
-		Map<String, byte[]> mapJars = new HashMap<>();
-		Map<String, byte[]> mapTransferContents = new HashMap<>();
+		var mapJars = new HashMap<String, byte[]>();
+		var mapTransferContents = new HashMap<String, byte[]>();
 		Module module = null;
 		
-		final File moduleDir = new File(externalModuleDir, moduleName);
+		final var moduleDir = new File(externalModuleDir, moduleName);
 		if (!moduleDir.exists() || !moduleDir.isDirectory()) {
 			return null;
 		}
@@ -193,23 +194,23 @@ public class ModuleTransfer {
 	byte[] exportModule(Module module) throws IOException {
 		Assert.notNull(module, C.MODULE);
 		
-		try (FastByteArrayOutputStream baos = new FastByteArrayOutputStream()) {
-			exportModule(module, baos);
-			return baos.toByteArray();
+		try (final var stream = new FastByteArrayOutputStream()) {
+			exportModule(module, stream);
+			return stream.toByteArray();
 		}
 	}
 	
 	private void exportModule(Module module, OutputStream out) throws IOException {
-		try (ZipOutputStream zos = new ZipOutputStream(out)) {
+		try (final var stream = new ZipOutputStream(out)) {
 		    // write module
-		    writeZipEntry(zos, MODULE_XML_FILENAME, getModuleContent(module));
+		    writeZipEntry(stream, MODULE_XML_FILENAME, getModuleContent(module));
 		    // write custom libs
 		    for (CustomLib customLib : module.getCustomLibs()) {
-		    	writeZipEntry(zos, customLib.getFilename(), customLib.getContent());
+		    	writeZipEntry(stream, customLib.getFilename(), customLib.getContent());
 		    }
 		    // write transferable objects
 		    for (Entity entity : module.getTransferableEntities()) {
-		    	writeZipEntry(zos, entity.getInternalName() + TransferFormat.CSV.fileExtension, 
+		    	writeZipEntry(stream, entity.getInternalName() + TransferFormat.CSV.fileExtension, 
 		    				  transferService.doExport(entity));
 		    }
 	    }
@@ -219,16 +220,16 @@ public class ModuleTransfer {
 		Assert.notNull(module, C.MODULE);
 		Assert.stateAvailable(externalModuleDir, "external module dir");
 		
-		final File moduleDir = new File(externalModuleDir, module.getName());
+		final var moduleDir = new File(externalModuleDir, module.getName());
 		moduleDir.mkdir();
 		// write module
 		writeToExternalDir(moduleDir, MODULE_XML_FILENAME, getModuleContent(module));
 		// write custom libs
-	    for (CustomLib customLib : module.getCustomLibs()) {
+	    for (final var customLib : module.getCustomLibs()) {
 	    	writeToExternalDir(moduleDir, customLib.getFilename(), customLib.getContent());
 	    }
 	    // write transferable objects
-	    for (Entity entity : module.getTransferableEntities()) {
+	    for (final var entity : module.getTransferableEntities()) {
 	    	writeToExternalDir(moduleDir, entity.getInternalName() + TransferFormat.CSV.fileExtension, 
 	    					   transferService.doExport(entity));
 	    }
@@ -241,12 +242,12 @@ public class ModuleTransfer {
 		
 		// module parameters
 		if (module.hasParameters()) {
-			for (ModuleParameter parameter : module.getParameters()) {
+			for (final var parameter : module.getParameters()) {
 				if (currentVersionModule == null) {
 					analysis.addChangeNew(parameter);
 				}
 				else {
-					final ModuleParameter currentVersionParameter =
+					final var currentVersionParameter =
 						currentVersionModule.getParameterByUid(parameter.getUid());
 					if (currentVersionParameter == null) {
 						analysis.addChangeNew(parameter);
@@ -266,8 +267,8 @@ public class ModuleTransfer {
 	void importModule(Module module) throws ValidationException {
 		Assert.notNull(module, C.MODULE);
 		final Module currentVersionModule = getCurrentVersionModule(module);
-		final TransferContext context = new DefaultTransferContext(module);
-		final List<ApplicationEntityService<?>> sortedServices = sortByDependencies(applicationServices);
+		final var context = new DefaultTransferContext(module);
+		final var sortedServices = sortByDependencies(applicationServices);
 		try (Session session = sessionProvider.getSession()) {
 			Transaction tx = null;
 			try {
@@ -301,7 +302,7 @@ public class ModuleTransfer {
 				// save module
 				moduleRepository.save(module, session);
 				// init components
-				for (ApplicationEntityService<?> service : sortedServices) {
+				for (final var service : sortedServices) {
 					service.importObjects(context, session);
 				}
 				// changelogs
@@ -330,10 +331,10 @@ public class ModuleTransfer {
 	}
 	
 	private void importModuleParameters(Module module, Module currentVersionModule) {
-		for (ModuleParameter parameter : module.getParameters()) {
+		for (final var parameter : module.getParameters()) {
 			parameter.setModule(module);
 			if (currentVersionModule != null) {
-				final ModuleParameter currentVersionParam = currentVersionModule.getParameterByUid(parameter.getUid());
+				final var currentVersionParam = currentVersionModule.getParameterByUid(parameter.getUid());
 				if (currentVersionParam != null) {
 					currentVersionParam.copySystemFieldsTo(parameter);
 				}
@@ -344,8 +345,8 @@ public class ModuleTransfer {
 	private void importModuleContent(Module module) {
 		// import transferable entity content
 		if (module.getTransferableEntities() != null) {
-			for (Entity entity : module.getTransferableEntities()) {
-				final byte[] content = module.getTransferContent(entity);
+			for (final var entity : module.getTransferableEntities()) {
+				final var content = module.getTransferContent(entity);
 				if (content != null) {
 					try {
 						transferService.doImport(entity, content);
@@ -363,16 +364,16 @@ public class ModuleTransfer {
 	}
 	
 	private void deleteObjects(Session session, Module module, Module currentVersionModule) {
-		final List<ApplicationEntityService<?>> services = sortByDependencies(applicationServices);
+		final var services = sortByDependencies(applicationServices);
 		Collections.reverse(services);
 		services.forEach(service -> service.deleteObjects(module, currentVersionModule, session));
 	}
 	
 	private byte[] getModuleContent(Module module) {
-		try (FastByteArrayOutputStream baos = new FastByteArrayOutputStream()) {
+		try (final var stream = new FastByteArrayOutputStream()) {
 			((ModuleMetadata) module).setSchemaVersion(SchemaVersion.currentVersion());
-			getMarshaller().marshal(module, new StreamResult(baos));
-			return baos.toByteArray();
+			getMarshaller().marshal(module, new StreamResult(stream));
+			return stream.toByteArray();
 		}
 	}
 	
@@ -396,19 +397,19 @@ public class ModuleTransfer {
 	}
 	
 	private static void initModuleContent(Module module, 
-								   Map<String, byte[]> mapJars, 
-								   Map<String, byte[]> mapTransferContents) {
+										  Map<String, byte[]> mapJars, 
+										  Map<String, byte[]> mapTransferContents) {
 		// init custom libs content
-		if (!mapJars.isEmpty() && module.getCustomLibs() != null) {
-			for (CustomLib customLib : module.getCustomLibs()) {
+		if (notEmpty(mapJars) && module.getCustomLibs() != null) {
+			for (final var customLib : module.getCustomLibs()) {
 				Assert.stateAvailable(mapJars.containsKey(customLib.getFilename()), customLib.getFilename());
 				((CustomLibMetadata) customLib).setContent(mapJars.get(customLib.getFilename()));
 			}
 		}
 		// store transfer file content in module
-		if (!mapTransferContents.isEmpty() && module.getTransferableEntities() != null) {
-			for (Entity entity : module.getTransferableEntities()) {
-				final byte[] content = mapTransferContents.get(entity.getInternalName() + TransferFormat.CSV.fileExtension);
+		if (notEmpty(mapTransferContents) && module.getTransferableEntities() != null) {
+			for (final var entity : module.getTransferableEntities()) {
+				final var content = mapTransferContents.get(entity.getInternalName().concat(TransferFormat.CSV.fileExtension));
 				if (content != null) {
 					module.addTransferContent(entity, content);
 				}
@@ -417,21 +418,21 @@ public class ModuleTransfer {
 	}
 	
 	private static void writeToExternalDir(File moduleDir, String name, byte[] content) throws IOException {
-		try (FileOutputStream fos = new FileOutputStream(new File(moduleDir, name))) {
-			fos.write(content);
+		try (final var stream = new FileOutputStream(new File(moduleDir, name))) {
+			stream.write(content);
 		}
 	}
 	
-	private static void writeZipEntry(ZipOutputStream zos, String name, byte[] content) throws IOException {
-		final ZipEntry entry = new ZipEntry(name);
+	private static void writeZipEntry(ZipOutputStream stream, String name, byte[] content) throws IOException {
+		final var entry = new ZipEntry(name);
 		entry.setSize(content.length);
-		zos.putNextEntry(entry);
-		zos.write(content);
-		zos.closeEntry();
+		stream.putNextEntry(entry);
+		stream.write(content);
+		stream.closeEntry();
 	}
 	
 	private static List<ApplicationEntityService<?>> sortByDependencies(List<ApplicationEntityService<?>> applicationServices) {
-		final List<ApplicationEntityService<?>> result = new ArrayList<>(applicationServices.size());
+		final var result = new ArrayList<ApplicationEntityService<?>>(applicationServices.size());
 		while (result.size() < applicationServices.size()) {
 			result.addAll(subList(applicationServices, 
 								  service -> !result.contains(service) &&
@@ -441,9 +442,9 @@ public class ModuleTransfer {
 	}
 	
 	private static boolean dependenciesResolved(ApplicationEntityService<?> applicationService, List<ApplicationEntityService<?>> resolvedServices) {
-		for (Class<?> dependency : applicationService.getImportDependencies()) {
+		for (final var dependencyClass : applicationService.getImportDependencies()) {
 			// check already resolved services
-			if (noneMatch(resolvedServices, service -> dependency.isAssignableFrom(service.getClass()))) {
+			if (noneMatch(resolvedServices, service -> dependencyClass.isAssignableFrom(service.getClass()))) {
 				return false;
 			}
 		}

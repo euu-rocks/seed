@@ -17,8 +17,6 @@
  */
 package org.seed.test.integration.form;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -26,56 +24,60 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.openqa.selenium.WebElement;
 
 @TestMethodOrder(OrderAnnotation.class)
-public class CreateFormTest extends AbstractFormTest {
+public class EditFormTest extends AbstractFormTest {
 	
 	@Test
 	@Order(1)
-	void testCreateForm() {
-		clickMenu("administration-formulare");
-		findTab("formulare");
-		WebElement tabpanel = findTabpanel("formulare");
-		clickButton(tabpanel, "new");
-		
-		WebElement window = findWindow("new-form");
-		assertEquals("Neues Formular erstellen", findWindowHeader(window).getText());
-		findCombobox(window, "entity").sendKeys("IntegrationTest");
-		findCombobox(window, "module").sendKeys("Testmodule");
-		findCombobox(window, "menu").sendKeys("Testmenu");
-		clickButton(window, "create");
-		
-		findTextbox(tabpanel, "name").sendKeys("Testform");
+	void testRenameForm() {
+		WebElement tabpanel = showForm("testform");
+		clearTextbox(tabpanel, "name");
+		findTextbox(tabpanel, "name").sendKeys("TestformNew");
 		saveForm(tabpanel);
 	}
 	
 	@Test
 	@Order(2)
-	void testAssignFilter() {
-		WebElement tabpanel = showForm("testform");
-		findCombobox(tabpanel, "filter").sendKeys("Testfilter");
-		clickTab(tabpanel, "fields"); // lose focus
+	void testRebuildLayout() {
+		WebElement tabpanel = showForm("testformnew");
+		findTab(tabpanel, "layout");
+		WebElement tabpanelLayout = findTabpanel(tabpanel, "layout");
+		clickButton(tabpanelLayout, "autolayout");
 		saveForm(tabpanel);
 	}
 	
 	@Test
 	@Order(3)
-	void testAddField() {
-		WebElement tabpanel = showForm("testform");
+	void testRenameField() {
+		WebElement tabpanel = showForm("testformnew");
 		clickTab(tabpanel, "fields");
 		WebElement tabpanelFields = findTabpanel(tabpanel, "fields");
-		pause(100);
-		dragAndDrop(tabpanelFields, "status", "selected");
+		clickItem(tabpanelFields, "status");
+		findOptionTextbox(tabpanelFields, "fieldlabel").sendKeys("StatusNew");
+		clickTab(tabpanel, "fields"); // lose focus
 		saveForm(tabpanel);
 	}
 	
 	@Test
 	@Order(4)
-	void testAddTransformer() {
-		WebElement tabpanel = showForm("testform");
+	void testRenameAction() {
+		WebElement tabpanel = showForm("testformnew");
+		clickTab(tabpanel, "actions");
+		WebElement tabpanelActions = findTabpanel(tabpanel, "actions");
+		clickItem(tabpanelActions, "save");
+		findOptionTextbox(tabpanelActions, "actionlabel").sendKeys("SpeichernNew");
+		clickTab(tabpanel, "actions"); // lose focus
+		saveForm(tabpanel);
+	}
+	
+	@Test
+	@Order(5)
+	void testRenameTransformer() {
+		WebElement tabpanel = showForm("testformnew");
 		clickTab(tabpanel, "transformers");
 		WebElement tabpanelTransformers = findTabpanel(tabpanel, "transformers");
-		
-		dragAndDrop(tabpanelTransformers, "testtransformer", "selected");
-		findOptionCombobox(tabpanelTransformers, "targetform").sendKeys("IntegrationTest");
+		clickItem(tabpanelTransformers, "testtransformernew");
+		findOptionTextbox(tabpanelTransformers, "transformerlabel").sendKeys("TesttransformerRenamed");
+		clickTab(tabpanel, "transformers"); // lose focus
 		saveForm(tabpanel);
 	}
 	

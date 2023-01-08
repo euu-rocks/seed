@@ -75,9 +75,9 @@ public abstract class MiscUtils {
 	}
 	
 	public static String toString(Collection<?> col, String separator) {
-		final StringBuilder buf = new StringBuilder();
+		final var buf = new StringBuilder();
 		if (col != null) {
-			for (Object obj : col) {
+			for (final var obj : col) {
 				if (buf.length() > 0 && separator != null) {
 					buf.append(separator);
 				}
@@ -117,7 +117,7 @@ public abstract class MiscUtils {
 	}
 	
 	public static String formatDurationTime(long durationMs) {
-		final StringBuilder buf = new StringBuilder();
+		final var buf = new StringBuilder();
 		final long durationSec = durationMs / MILLIS;
 		if (durationMs < MILLIS) { // < 1sec
 			buf.append(durationMs).append(" ms");
@@ -158,7 +158,7 @@ public abstract class MiscUtils {
 	
 	public static String addLeadingChars(String text, char leadingChar, int textLength) {
 		if (text != null && text.length() < textLength) {
-			final StringBuilder buf = new StringBuilder(text);
+			final var buf = new StringBuilder(text);
 			while (buf.length() < textLength) {
 				buf.insert(0, leadingChar);
 			}

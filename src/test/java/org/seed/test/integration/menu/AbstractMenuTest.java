@@ -17,27 +17,24 @@
  */
 package org.seed.test.integration.menu;
 
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.openqa.selenium.WebElement;
 
-@TestMethodOrder(OrderAnnotation.class)
-public class CreateMenuTest extends AbstractMenuTest {
+import org.seed.test.integration.AbstractIntegrationTest;
+
+abstract class AbstractMenuTest extends AbstractIntegrationTest {
 	
-	@Test
-	@Order(1)
-	void testCreateMenu() {
+	protected WebElement showMenu(String name) {
 		clickMenu("administration-menues");
 		findTab("menues");
-		WebElement tabpanel = findTabpanel("menues");
-		clickButton(tabpanel, "new");
-		
-		clickButton(tabpanel, "save");
-		findValidationMessage(); // name is empty
-		
-		findTextbox(tabpanel, "name").sendKeys("Testmenu");
-		saveMenu(tabpanel);
+		final WebElement tabpanel = findTabpanel("menues");
+		clickListItem(tabpanel, name);
+		clickButton(tabpanel, "edit");
+		return tabpanel;
 	}
+	
+	protected void saveMenu(WebElement tabpanel) {
+		clickButton(tabpanel, "save");
+		findSuccessMessage();
+	}
+	
 }

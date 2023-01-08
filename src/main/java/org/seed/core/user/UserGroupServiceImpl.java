@@ -119,11 +119,9 @@ public class UserGroupServiceImpl extends AbstractApplicationEntityService<UserG
 		}
 		if (schemaVersion == SchemaVersion.V_0_9_32) {
 			for (UserGroup userGroup : context.getModule().getUserGroups()) {
-				if (userGroup.hasAuthorisations()) {
-					userGroup.getAuthorisations().stream()
-							 .filter(auth -> auth.getUid() == null)
-							 .forEach(auth -> auth.setUid(UID.createUID()));
-				}
+				filterAndForEach(userGroup.getAuthorisations(), 
+								 auth -> auth.getUid() == null, 
+								 auth -> auth.setUid(UID.createUID()));
 			}
 		}
 	}
