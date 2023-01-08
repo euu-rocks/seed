@@ -40,12 +40,12 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-    - name: Publish Test Report
-      if: ${{ always() }}
-      uses: scacap/action-surefire-report@v1
-      with:
-        check_name: Seed Report
-        report_paths: '**/surefire-reports/TEST-*.xml'
+    #- name: Publish Test Report
+    #  if: ${{ always() }}
+    #  uses: scacap/action-surefire-report@v1
+    #  with:
+    #    check_name: Seed Report
+    #    report_paths: '**/surefire-reports/TEST-*.xml'
     #- name: Install doctl
     #  uses: digitalocean/action-doctl@v2
     #  with:
