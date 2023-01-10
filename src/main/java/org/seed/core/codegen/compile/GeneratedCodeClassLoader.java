@@ -19,7 +19,6 @@ package org.seed.core.codegen.compile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -33,14 +32,14 @@ class GeneratedCodeClassLoader extends ClassLoader {
 	GeneratedCodeClassLoader(List<JavaClassFileObject> classFileObjects, ClassLoader parent) {
 		super(parent);
 		Assert.notNull(classFileObjects, "classFileObjects");
-		final List<JavaClassFileObject> objectsToDefine = new ArrayList<>(classFileObjects);
+		final var objectsToDefine = new ArrayList<JavaClassFileObject>(classFileObjects);
 		
 		while (!objectsToDefine.isEmpty()) {
 			final int initialSize = objectsToDefine.size();
-			for (Iterator<JavaClassFileObject> it = objectsToDefine.iterator(); it.hasNext();) {
-				final JavaClassFileObject classFileObject = it.next();
+			for (final var it = objectsToDefine.iterator(); it.hasNext();) {
+				final var classFileObject = it.next();
 				try {
-					final Class<GeneratedCode> definedClass = defineClass(classFileObject);
+					final var definedClass = defineClass(classFileObject);
 					mapClasses.put(classFileObject.getQualifiedName(), definedClass);
 					it.remove();
 				}

@@ -31,7 +31,7 @@ import org.seed.test.integration.entity.CreateNestedEntityTest;
 import org.seed.test.integration.entity.CreateTransferableEntityTest;
 import org.seed.test.integration.entity.EditEntityTest;
 import org.seed.test.integration.filter.CreateFilterTest;
-import org.seed.test.integration.filter.CreateHQLFilter;
+import org.seed.test.integration.filter.CreateHQLFilterTest;
 import org.seed.test.integration.filter.EditFilterTest;
 import org.seed.test.integration.form.CreateFormTest;
 import org.seed.test.integration.form.EditFormTest;
@@ -53,7 +53,7 @@ import org.seed.test.integration.user.CreateUserTest;
 @SelectClasses({ NavigationTest.class, CreateUserTest.class, CreateUserGroupTest.class, 
 				 CreateModuleTest.class, CreateMenuTest.class, CreateTransferableEntityTest.class,
 				 CreateGenericEntityTest.class, CreateDerivedEntityTest.class, CreateEntityTest.class, 
-				 CreateNestedEntityTest.class,  CreateFilterTest.class, CreateHQLFilter.class, 
+				 CreateNestedEntityTest.class,  CreateFilterTest.class, CreateHQLFilterTest.class, 
 				 CreateTransferTest.class, CreateTransformerTest.class, CreateFormTest.class, 
 				 CreateDBObjectTest.class, CreateDataSourceTest.class, CreateHQLDataSourceTest.class, 
 				 CreateReportTest.class, CreateCustomCodeTest.class, CreateRestTest.class,

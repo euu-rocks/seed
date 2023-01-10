@@ -24,7 +24,7 @@ public class ValidationException extends Exception {
 	
 	private static final long serialVersionUID = -8839158339815075607L;
 	
-	private final Set<ValidationError> errors;
+	private final transient Set<ValidationError> errors;
 	
 	public ValidationException(ValidationError error) {
 		this.errors = Collections.singleton(error);

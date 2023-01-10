@@ -119,7 +119,7 @@ public class CreateTransformerTest extends AbstractTransformerTest {
 		WebElement window = findWindow("code-dialog");
 		findCodeMirror(window, "content", 9).sendKeys("System.out.println(\"Testtransformation\");");
 		clickButton(window, "apply");
-		waitWindowDisapear("code-dialog");
+		waitWindowDisappear("code-dialog");
 		
 		clickCheckbox(tabpanelFunctions, "activebeforetransformation");
 		clickCheckbox(tabpanelFunctions, "activeaftertransformation");

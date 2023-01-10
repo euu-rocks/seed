@@ -146,11 +146,11 @@ public abstract class AbstractSystemEntityValidator<T extends SystemEntity>
 	protected static boolean isUnique(Object value, String fieldName, 
 									  List<? extends SystemObject> ...elementLists) {
 		Assert.notNull(value, C.VALUE);
-		Assert.notNull(fieldName, "fieldName");
-		Assert.notNull(elementLists, "elementLists");
+		Assert.notNull(fieldName, "field name");
+		Assert.notNull(elementLists, "element lists");
 		
 		int occurrences = 0;
-		for (List<? extends SystemObject> elementList : elementLists) {
+		for (final var elementList : elementLists) {
 			if (elementList != null) {
 				for (SystemObject element : elementList) {
 					if (checkElement(value, fieldName, element) && 

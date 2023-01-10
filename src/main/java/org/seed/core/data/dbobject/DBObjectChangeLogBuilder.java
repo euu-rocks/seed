@@ -48,13 +48,15 @@ class DBObjectChangeLogBuilder extends AbstractChangeLogBuilder<DBObject> {
 		}
 		// drop or disable object
 		else if (nextVersionObject == null || (!nextVersionObject.isEnabled() &&
+											   currentVersionObject != null &&
 											   currentVersionObject.isEnabled())) {
 			addDropChange(currentVersionObject);
 		}
 		// content changed
 		else if (nextVersionObject.isEnabled() &&
-				!ObjectUtils.nullSafeEquals(currentVersionObject.getContent(), 
-					   						nextVersionObject.getContent())) {
+				 currentVersionObject != null &&
+				 !ObjectUtils.nullSafeEquals(currentVersionObject.getContent(), 
+					   						 nextVersionObject.getContent())) {
 			addDropChange(currentVersionObject);
 			addCreateChange(nextVersionObject);
 		}
@@ -116,7 +118,7 @@ class DBObjectChangeLogBuilder extends AbstractChangeLogBuilder<DBObject> {
 	}
 	
 	private void addCreateViewChange(DBObject dbObject) {
-		final CreateViewChange createViewChange = new CreateViewChange();
+		final var createViewChange = new CreateViewChange();
 		createViewChange.setFullDefinition(Boolean.FALSE);
 		createViewChange.setEncoding(MiscUtils.CHARSET.name());
 		createViewChange.setViewName(dbObject.getObjectName());
@@ -125,13 +127,13 @@ class DBObjectChangeLogBuilder extends AbstractChangeLogBuilder<DBObject> {
 	}
 	
 	private void addDropViewChange(DBObject dbObject) {
-		final DropViewChange dropViewChange = new DropViewChange();
+		final var dropViewChange = new DropViewChange();
 		dropViewChange.setViewName(dbObject.getObjectName());
 		addChange(dropViewChange);
 	}
 	
 	private void addCreateProcedureChange(DBObject dbObject) {
-		final CreateProcedureChange createProcedureChange = new CreateProcedureChange();
+		final var createProcedureChange = new CreateProcedureChange();
 		createProcedureChange.setEncoding(MiscUtils.CHARSET.name());
 		createProcedureChange.setProcedureName(dbObject.getObjectName());
 		createProcedureChange.setProcedureText(dbObject.getContent());
@@ -139,43 +141,43 @@ class DBObjectChangeLogBuilder extends AbstractChangeLogBuilder<DBObject> {
 	}
 	
 	private void addDropProcedureChange(DBObject dbObject) {
-		final DropProcedureChange dropProcedureChange = new DropProcedureChange();
+		final var dropProcedureChange = new DropProcedureChange();
 		dropProcedureChange.setProcedureName(dbObject.getObjectName());
 		addChange(dropProcedureChange);
 	}
 	
 	private void addCreateFunctionChange(DBObject dbObject) {
-		final CreateFunctionChange createFunctionChange = new CreateFunctionChange();
+		final var createFunctionChange = new CreateFunctionChange();
 		createFunctionChange.setFunctionText(getCompressedContent(dbObject));
 		addChange(createFunctionChange);
 	}
 		
 	private void addDropFunctionChange(DBObject dbObject) {
-		final DropFunctionChange dropFunctionChange = new DropFunctionChange();
+		final var dropFunctionChange = new DropFunctionChange();
 		dropFunctionChange.setFunctionName(dbObject.getObjectName());
 		addChange(dropFunctionChange);
 	}
 	
 	private void addCreateTriggerChange(DBObject dbObject) {
-		final CreateTriggerChange createTriggerChange = new CreateTriggerChange();
+		final var createTriggerChange = new CreateTriggerChange();
 		createTriggerChange.setTriggerText(getCompressedContent(dbObject));
 		addChange(createTriggerChange);
 	}
 		
 	private void addDropTriggerChange(DBObject dbObject) {
-		final DropTriggerChange dropTriggerChange = new DropTriggerChange();
+		final var dropTriggerChange = new DropTriggerChange();
 		dropTriggerChange.setTriggerName(dbObject.getObjectName());
 		addChange(dropTriggerChange);
 	}
 	
 	private void addCreateSequenceChange(DBObject dbObject) {
-		final CreateSequenceChange createSequenceChange = new CreateSequenceChange();
+		final var createSequenceChange = new CreateSequenceChange();
 		createSequenceChange.setSequenceText(getCompressedContent(dbObject));
 		addChange(createSequenceChange);
 	}
 	
 	private void addDropSequenceChange(DBObject dbObject) {
-		final DropSequenceChange dropSequenceChange = new DropSequenceChange();
+		final var dropSequenceChange = new DropSequenceChange();
 		dropSequenceChange.setSequenceName(dbObject.getObjectName());
 		addChange(dropSequenceChange);
 	}

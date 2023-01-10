@@ -17,14 +17,11 @@
  */
 package org.seed.core.data;
 
-import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public final class ValidationErrors implements Serializable {
+public final class ValidationErrors {
 
-	private static final long serialVersionUID = 5038795516523393867L;
-	
 	private static final String LABEL_NAME = "label.name";
 	
 	private final SystemEntity systemEntity;

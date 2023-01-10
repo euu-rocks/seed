@@ -192,25 +192,24 @@ public abstract class AbstractSystemEntityRepository<T extends SystemEntity>
 	
 	@SuppressWarnings({"unchecked"})
 	private Query createQuery(Session session, QueryParameter ...params) {
-		final CriteriaBuilder builder = session.getCriteriaBuilder();
-		final CriteriaQuery<T> query = (CriteriaQuery<T>) builder.createQuery(entityTypeClass);
-		final Root<T> table = (Root<T>) query.from(entityTypeClass);
+		final var criteriaBuilder = session.getCriteriaBuilder();
+		final var query = (CriteriaQuery<T>) criteriaBuilder.createQuery(entityTypeClass);
+		final var table = (Root<T>) query.from(entityTypeClass);
 		
 		query.select(table);
 		if (params != null) {
 			if (params.length == 1) {
-				query.where(createRestriction(builder, table, params[0]));
+				query.where(createRestriction(criteriaBuilder, table, params[0]));
 			}
 			else if (params.length > 1) {
-				final Predicate[] restrictions = new Predicate[params.length];
+				final var restrictions = new Predicate[params.length];
 				for (int i = 0; i < params.length; i++) {
-					restrictions[i] = createRestriction(builder, table, params[i]);
+					restrictions[i] = createRestriction(criteriaBuilder, table, params[i]);
 				}
-				query.where(builder.and(restrictions));
+				query.where(criteriaBuilder.and(restrictions));
 			}
 		}
-		return session.createQuery(query)
-					  .setCacheable(true);
+		return session.createQuery(query).setCacheable(true);
 	}
 	
 	private Predicate createRestriction(CriteriaBuilder builder, Root<T> table, QueryParameter param) {

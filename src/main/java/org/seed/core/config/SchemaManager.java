@@ -132,7 +132,9 @@ public class SchemaManager {
 				log.debug("Changelog content:\r\n{}", changeLog);
 			}
 			createLiquibase(connection, changeLog).update(new Contexts());
-			log.info("Schema updated in {}", MiscUtils.formatDuration(startTime));
+			if (log.isInfoEnabled()) {
+				log.info("Schema updated in {}", MiscUtils.formatDuration(startTime));
+			}
 			return true;
 		} 
 		catch (Exception ex) {

@@ -84,7 +84,7 @@ public class CreateGenericEntityTest extends AbstractEntityTest {
 		WebElement window = findWindow("code-dialog");
 		findCodeMirror(window, "content", 4).sendKeys("       System.out.println(\"Genericfunction\");");
 		clickButton(window, "apply");
-		waitWindowDisapear("code-dialog");
+		waitWindowDisappear("code-dialog");
 		saveEntity(tabpanel);
 	}
 	

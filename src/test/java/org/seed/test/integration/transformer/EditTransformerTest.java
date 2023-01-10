@@ -73,7 +73,7 @@ public class EditTransformerTest extends AbstractTransformerTest {
 		WebElement window = findWindow("code-dialog");
 		findCodeMirror(window, "content", 9).sendKeys("// edited");
 		clickButton(window, "apply");
-		waitWindowDisapear("code-dialog");
+		waitWindowDisappear("code-dialog");
 		saveTransformer(tabpanel);
 	}
 	

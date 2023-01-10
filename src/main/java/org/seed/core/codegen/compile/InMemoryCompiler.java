@@ -93,26 +93,25 @@ public class InMemoryCompiler implements Compiler {
 	
 	@Override
 	public void compileSeparately(List<SourceCode> sourceCodes) {
-		final var fileManager = new CompilerFileManager(javaCompiler.getStandardFileManager(null, null, null));
-		fileManager.setCustomJars(getCustomJars());
-		compile(sourceCodes, fileManager);
+		final var compilerFileManager = new CompilerFileManager(javaCompiler.getStandardFileManager(null, null, null));
+		compilerFileManager.setCustomJars(getCustomJars());
+		compile(sourceCodes, compilerFileManager);
 	}
 	
 	private synchronized void compile(List<SourceCode> sourceCodes, CompilerFileManager fileManager) {
-		Assert.notNull(sourceCodes, "sourceCodes");
-		if (sourceCodes.isEmpty()) {
-			return;
-		}
+		Assert.notNull(sourceCodes, "source codes");
 		
-		log.info("Compiling: {}", sourceCodes);
-		getCustomJars(); // load jars and init fileManager
-		final var diagnostics = new DiagnosticCollector<JavaFileObject>();
-		final var task = javaCompiler.getTask(null, fileManager, diagnostics, null, null, 
-											  fileManager.createSourceFileObjects(sourceCodes));
-		final Boolean result = task.call();
-		if (result == null || !result) {
-			sourceCodes.forEach(sourceCode -> fileManager.removeClassFileObject(sourceCode.getQualifiedName()));
-			throw new CompilerException(diagnostics.getDiagnostics());
+		if (!sourceCodes.isEmpty()) {
+			log.info("Compiling: {}", sourceCodes);
+			getCustomJars(); // load jars and init fileManager
+			final var diagnostics = new DiagnosticCollector<JavaFileObject>();
+			final var task = javaCompiler.getTask(null, fileManager, diagnostics, null, null, 
+												  fileManager.createSourceFileObjects(sourceCodes));
+			final Boolean result = task.call();
+			if (result == null || !result) {
+				sourceCodes.forEach(sourceCode -> fileManager.removeClassFileObject(sourceCode.getQualifiedName()));
+				throw new CompilerException(diagnostics.getDiagnostics());
+			}
 		}
 	}
 	

@@ -49,7 +49,7 @@ public class CreateJobTest extends AbstractJobTest {
 				+ "        String result = call.getOutput(\"result\");\n"
 				+ "      	context.logInfo(result);");
 		clickButton(window, "apply");
-		waitWindowDisapear("code-dialog");
+		waitWindowDisappear("code-dialog");
 		saveJob(tabpanel);
 	}
 	

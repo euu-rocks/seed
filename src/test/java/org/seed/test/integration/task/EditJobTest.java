@@ -33,27 +33,22 @@ public class EditJobTest extends AbstractJobTest {
 		WebElement tabpanel = showJob("testjob");
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TestjobNew");
+		clickButton(tabpanel, "save");
+		findValidationMessage(); // syntax error
+		
+		// edit source code
+		clickButton(tabpanel, "editcode");
+		WebElement window = findWindow("code-dialog");
+		WebElement codeMirror = findCodeMirror(window, "content", 7);
+		codeMirror.sendKeys(repeatKey(Keys.BACK_SPACE, 22));
+		codeMirror.sendKeys("New extends AbstractJob {");
+		clickButton(window, "apply");
+		waitWindowDisappear("code-dialog");
 		saveJob(tabpanel);
 	}
 	
 	@Test
 	@Order(2)
-	void testEditCode() {
-		WebElement tabpanel = showJob("testjobnew");
-		clickButton(tabpanel, "editcode");
-		WebElement window = findWindow("code-dialog");
-		
-		for (int i=0;i<22;i++) {
-			findCodeMirror(window, "content", 7).sendKeys(Keys.BACK_SPACE);
-		}
-		findCodeMirror(window, "content", 7).sendKeys("New extends AbstractJob {");
-		clickButton(window, "apply");
-		waitWindowDisapear("code-dialog");
-		saveJob(tabpanel);
-	}
-	
-	@Test
-	@Order(3)
 	void testChangeParameterValue() {
 		WebElement tabpanel = showJob("testjobnew");
 		clickTab(tabpanel, "parameters");
@@ -66,7 +61,7 @@ public class EditJobTest extends AbstractJobTest {
 	}
 	
 	@Test
-	@Order(4)
+	@Order(3)
 	void testChangeNotification() {
 		WebElement tabpanel = showJob("testjobnew");
 		clickTab(tabpanel, "notifications");
@@ -79,7 +74,7 @@ public class EditJobTest extends AbstractJobTest {
 	}
 	
 	@Test
-	@Order(5)
+	@Order(4)
 	void testRemovePermission() {
 		WebElement tabpanel = showJob("testjobnew");
 		clickTab(tabpanel, "permissions");

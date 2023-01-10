@@ -17,14 +17,10 @@
  */
 package org.seed.core.data;
 
-import java.io.Serializable;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public final class ValidationError implements Serializable {
-	
-	private static final long serialVersionUID = -1116515324696240537L;
+public final class ValidationError {
 	
 	private final SystemEntity systemEntity;
 

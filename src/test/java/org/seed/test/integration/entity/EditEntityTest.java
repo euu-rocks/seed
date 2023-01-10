@@ -87,7 +87,7 @@ public class EditEntityTest extends AbstractEntityTest {
 		WebElement window = findWindow("code-dialog");
 		findCodeMirror(window, "content", 4).sendKeys("//test edit");
 		clickButton(window, "apply");
-		waitWindowDisapear("code-dialog");
+		waitWindowDisappear("code-dialog");
 		saveEntity(tabpanel);
 	}
 	
@@ -167,7 +167,7 @@ public class EditEntityTest extends AbstractEntityTest {
 		WebElement window = findWindow("code-dialog");
 		findCodeMirror(window, "content", 9).sendKeys("//test edit");
 		clickButton(window, "apply");
-		waitWindowDisapear("code-dialog");
+		waitWindowDisappear("code-dialog");
 		saveEntity(tabpanel);
 	}
 }

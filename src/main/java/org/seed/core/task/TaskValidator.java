@@ -20,15 +20,25 @@ package org.seed.core.task;
 import org.quartz.CronExpression;
 
 import org.seed.C;
+import org.seed.core.codegen.CodeManager;
+import org.seed.core.codegen.compile.CompilerException;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
+import org.seed.core.task.codegen.TaskCodeProvider;
 import org.seed.core.util.Assert;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TaskValidator extends AbstractSystemEntityValidator<Task> {
+	
+	@Autowired
+	private CodeManager codeManager;
+	
+	@Autowired
+	private TaskCodeProvider taskCodeProvider;
 	
 	@Override
 	public void validateSave(Task task) throws ValidationException {
@@ -55,6 +65,9 @@ public class TaskValidator extends AbstractSystemEntityValidator<Task> {
 		if (task.isActive()) {
 			if (isEmpty(task.getContent())) {
 				errors.addEmptyField("label.sourcecode");
+			}
+			else {
+				validateCode(task, errors);
 			}
 			validateTrigger(task, errors);
 		}
@@ -107,6 +120,15 @@ public class TaskValidator extends AbstractSystemEntityValidator<Task> {
 			if (isEmpty(notification.getResult())) {
 				errors.addError("val.empty.notificationfield", "label.result");
 			}
+		}
+	}
+	
+	private void validateCode(Task task, ValidationErrors errors) {
+		try {
+			codeManager.testCompile(taskCodeProvider.getTaskSource(task));
+		}
+		catch (CompilerException cex) {
+			errors.addError("val.illegal.sourcecode");
 		}
 	}
 	

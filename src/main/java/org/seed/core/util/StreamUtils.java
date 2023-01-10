@@ -61,7 +61,7 @@ public abstract class StreamUtils {
 				throw new InternalException(ex);
 			}
 		}
-		return null;
+		return text;
 	}
 	
 	public static String decompress(String compressedText) {
@@ -74,36 +74,36 @@ public abstract class StreamUtils {
 				throw new InternalException(ex);
 			}  
 		}
-		return null;
+		return compressedText;
 	}
 	
 	public static byte[] compress(byte[] bytes) throws IOException {
 		if (bytes != null) {
-			try (FastByteArrayOutputStream out = new FastByteArrayOutputStream()) {
-				try (DeflaterOutputStream deflaterStream = new DeflaterOutputStream(out)) {
+			try (final var stream = new FastByteArrayOutputStream()) {
+				try (final var deflaterStream = new DeflaterOutputStream(stream)) {
 					deflaterStream.write(bytes);
 				}
-				return out.toByteArray();
+				return stream.toByteArray();
 			}
 		}
-		return null;
+		return bytes;
 	}
 	
 	public static byte[] decompress(byte[] bytes) throws IOException {
 		if (bytes != null) {
-			try (FastByteArrayOutputStream out = new FastByteArrayOutputStream()) {
-				try (InflaterOutputStream inflaterStream = new InflaterOutputStream(out)) {
+			try (final var stream = new FastByteArrayOutputStream()) {
+				try (final var inflaterStream = new InflaterOutputStream(stream)) {
 					inflaterStream.write(bytes);   
 				}
-				return out.toByteArray();
+				return stream.toByteArray();
 			}
 		}
-		return null;
+		return bytes;
 	}
 	
-	public static String getStreamAsText(InputStream stream) {
-		try (InputStream inputStream = stream) {
-			return org.springframework.util.StreamUtils.copyToString(inputStream, MiscUtils.CHARSET);
+	public static String getStreamAsText(InputStream intputStream) {
+		try (final var stream = intputStream) {
+			return org.springframework.util.StreamUtils.copyToString(stream, MiscUtils.CHARSET);
 		}
 		catch (IOException ex) {
 			throw new InternalException(ex);

@@ -26,7 +26,7 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.openqa.selenium.WebElement;
 
 @TestMethodOrder(OrderAnnotation.class)
-public class CreateHQLFilter extends AbstractFilterTest {
+public class CreateHQLFilterTest extends AbstractFilterTest {
 	
 	@Test
 	@Order(1)

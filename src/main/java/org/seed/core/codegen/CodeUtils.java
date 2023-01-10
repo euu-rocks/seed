@@ -123,14 +123,14 @@ public abstract class CodeUtils {
 	}
 	
 	public static String removeClassExtension(String classFileName) {
-		Assert.notNull(classFileName, "classFile");
+		Assert.notNull(classFileName, "class file name");
 		Assert.state(isClassFile(classFileName), "file is not a class file:" + classFileName);
 		
 		return classFileName.substring(0, classFileName.length() - Kind.CLASS.extension.length());
 	}
 	
 	public static String getPackageName(File baseDir, File dir) {
-		Assert.notNull(baseDir, "baseDir");
+		Assert.notNull(baseDir, "base dir");
 		Assert.notNull(dir, "dir");
 		
 		return dir.getAbsolutePath()
@@ -168,9 +168,9 @@ public abstract class CodeUtils {
 	}
 	
 	private static boolean isKind(String fileName, Kind kind) {
-		Assert.notNull(fileName, "fileName");
+		Assert.notNull(fileName, "file name");
 		
-		return fileName != null && fileName.endsWith(kind.extension);
+		return fileName.endsWith(kind.extension);
 	}
 	
 }

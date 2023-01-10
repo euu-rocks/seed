@@ -20,12 +20,14 @@ package org.seed.test.integration;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.Duration;
+import java.util.Arrays;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -45,7 +47,7 @@ public abstract class AbstractIntegrationTest {
 	
 	private static final long MAX_WAIT_ELEMENT			 = 1000;
 	private static final long MAX_WAIT_SUCCESS			 = 3000;
-	private static final long MAX_WAIT_DISAPAER			 = 3000;
+	private static final long MAX_WAIT_DISAPPEAR		 = 3000;
 	
 	private static final String SEED_URL  = "http://localhost:8080"; //NOSONAR
 	private static final String SEED_NAME = "Seed";
@@ -216,8 +218,8 @@ public abstract class AbstractIntegrationTest {
 		spanElement.click();
 	}
 	
-	protected void waitWindowDisapear(String className) {
-		waitElementDisapear(className + "-win");
+	protected void waitWindowDisappear(String className) {
+		waitElementDisappear(className + "-win");
 	}
 	
 	private WebElement findByClass(String className) {
@@ -225,8 +227,8 @@ public abstract class AbstractIntegrationTest {
 					.until(driver -> driver.findElement(By.className(className)));
 	}
 	
-	private void waitElementDisapear(String className) {
-		new WebDriverWait(driver, Duration.ofMillis(MAX_WAIT_DISAPAER))
+	private void waitElementDisappear(String className) {
+		new WebDriverWait(driver, Duration.ofMillis(MAX_WAIT_DISAPPEAR))
 					.until(ExpectedConditions.invisibilityOfElementLocated(By.className(className)));
 	}
 	
@@ -246,6 +248,12 @@ public abstract class AbstractIntegrationTest {
 	
 	private Actions actions() {
 		return new Actions(driver);
+	}
+	
+	protected static Keys[] repeatKey(Keys key, int count) {
+		final Keys[] array = new Keys[count];
+		Arrays.fill(array, key);
+		return array;
 	}
 	
 	protected static void pause(long ms) {
