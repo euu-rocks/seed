@@ -17,6 +17,8 @@
  */
 package org.seed.test.integration.rest;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -32,7 +34,7 @@ public class CreateRestTest extends AbstractIntegrationTest {
 	@Order(1)
 	void testCreateRest() {
 		clickMenu("administration-rest-services");
-		findTab("rest-services");
+		assertEquals("REST-Services", findTab("rest-services").getText());
 		WebElement tabpanel = findTabpanel("rest-services");
 		clickButton(tabpanel, "new");
 		clickButton(tabpanel, "save");

@@ -17,6 +17,8 @@
  */
 package org.seed.test.integration.user;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -33,7 +35,7 @@ public class CreateUserGroupTest extends AbstractIntegrationTest {
 	void testCreateUserGroup() {
 		openMenu("administration-benutzer");
 		clickMenu("administration-benutzer-rollen");
-		findTab("rollen");
+		assertEquals("Rollen", findTab("rollen").getText());
 		WebElement tabpanel = findTabpanel("rollen");
 		clickButton(tabpanel, "new");
 		clickButton(tabpanel, "save");

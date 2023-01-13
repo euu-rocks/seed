@@ -17,6 +17,8 @@
  */
 package org.seed.test.integration.form;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -39,7 +41,8 @@ public class EditFormTest extends AbstractFormTest {
 	@Order(2)
 	void testRebuildLayout() {
 		WebElement tabpanel = showForm("testformnew");
-		findTab(tabpanel, "layout");
+		assertEquals("Layout", findTab(tabpanel, "layout").getText());
+		
 		WebElement tabpanelLayout = findTabpanel(tabpanel, "layout");
 		clickButton(tabpanelLayout, "autolayout");
 		saveForm(tabpanel);

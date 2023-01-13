@@ -17,6 +17,8 @@
  */
 package org.seed.test.integration.task;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -31,6 +33,7 @@ public class EditJobTest extends AbstractJobTest {
 	@Order(1)
 	void testRenameJob() {
 		WebElement tabpanel = showJob("testjob");
+		assertEquals("Jobs", findTab("jobs").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TestjobNew");
 		clickButton(tabpanel, "save");

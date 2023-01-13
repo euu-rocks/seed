@@ -17,6 +17,8 @@
  */
 package org.seed.test.integration.entity;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -48,7 +50,7 @@ public class CreateDerivedEntityTest extends AbstractEntityTest {
 	@Order(2)
 	void testAddField() {
 		WebElement tabpanel = showEntity("derivedtest");
-		findTab(tabpanel, "fields");
+		assertEquals("Felder", findTab(tabpanel, "fields").getText());
 		WebElement tabpanelFields = findTabpanel(tabpanel, "fields");
 		clickButton(tabpanelFields, "new");
 		

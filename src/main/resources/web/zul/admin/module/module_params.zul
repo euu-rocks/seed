@@ -44,7 +44,7 @@
 	            			sort="auto(value)" hflex="1"/>
 	        </listhead> 
 	        <template name="model" var="parameter">
-	            <listitem>
+	            <listitem sclass="@init(vm.getListItemTestClass(parameter))">
 	            	<listcell>
 	            		<label value="@load(parameter.name)" 
 	            			   style="margin-left:3px"/>

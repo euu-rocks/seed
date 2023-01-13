@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.test.integration.filter;
+package org.seed.test.integration.report;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -26,52 +26,38 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.openqa.selenium.WebElement;
 
 @TestMethodOrder(OrderAnnotation.class)
-public class EditFilterTest extends AbstractFilterTest {
+public class EditReportTest extends AbstractReportTest {
 	
 	@Test
 	@Order(1)
-	void testRenameFilter() {
-		WebElement tabpanel = showFilter("testfilter");
+	void testRenameReport() {
+		WebElement tabpanel = showReport("testreport");
+		assertEquals("Reporte", findTab("reporte").getText());
 		clearTextbox(tabpanel, "name");
-		findTextbox(tabpanel, "name").sendKeys("TestfilterNew");
-		saveFilter(tabpanel);
+		findTextbox(tabpanel, "name").sendKeys("TestreportNew");
+		saveReport(tabpanel);
 	}
 	
 	@Test
 	@Order(2)
-	void testEditCriteria() {
-		WebElement tabpanel = showFilter("testfilternew");
-		assertEquals("Filterkriterien", findTab(tabpanel, "criteria").getText());
-		WebElement tabpanelCriteria = findTabpanel(tabpanel, "criteria");
-		clickListItem(tabpanelCriteria, "textfieldnew");
-		
-		findOptionCombobox(tabpanelCriteria, "nested").sendKeys("NestedTestNew");
-		clickTab(tabpanel, "criteria"); // lose focus
-		findOptionCombobox(tabpanelCriteria, "field").sendKeys("Name");
-		clickTab(tabpanel, "criteria"); // lose focus
-		findOptionCombobox(tabpanelCriteria, "operator").sendKeys("ungleich");
-		saveFilter(tabpanel);
+	void testRenameDatasource() {
+		WebElement tabpanel = showReport("testreportnew");
+		findTab(tabpanel, "datasources");
+		WebElement tabpanelDataSources = findTabpanel(tabpanel, "datasources");
+		clickListItem(tabpanelDataSources, "testquery");
+		findOptionTextbox(tabpanelDataSources, "label").sendKeys("TestqueryNew");
+		clickTab(tabpanel, "datasources"); // lose focus
+		saveReport(tabpanel);
 	}
 	
 	@Test
 	@Order(3)
-	void testEditHQLFilter() {
-		WebElement tabpanel = showFilter("test-hql-filter");
-		findTab(tabpanel, "hql");
-		WebElement tabpanelHQL = findTabpanel(tabpanel, "hql");
-		findCodeMirror(tabpanelHQL, "hql", 1).sendKeys("   --edited");
-		clickTab(tabpanel, "hql"); // lose focus
-		saveFilter(tabpanel);
-	}
-	
-	@Test
-	@Order(4)
 	void testRemovePermission() {
-		WebElement tabpanel = showFilter("testfilternew");
+		WebElement tabpanel = showReport("testreportnew");
 		clickTab(tabpanel, "permissions");
 		WebElement tabpanelPermissions = findTabpanel(tabpanel, "permissions");
 		dragAndDrop(tabpanelPermissions, "testrole", "available");
-		saveFilter(tabpanel);
+		saveReport(tabpanel);
 	}
 	
 }

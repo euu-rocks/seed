@@ -17,6 +17,8 @@
  */
 package org.seed.test.integration.entity;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -47,6 +49,7 @@ public class CreateGenericEntityTest extends AbstractEntityTest {
 	@Order(2)
 	void testAddFieldGroup() {
 		WebElement tabpanel = showEntity("generictest");
+		assertEquals("Feldgruppen", findTab(tabpanel, "fieldgroups").getText());
 		clickTab(tabpanel, "fieldgroups");
 		WebElement tabpanelGroups = findTabpanel(tabpanel, "fieldgroups");
 		clickButton(tabpanelGroups, "new");

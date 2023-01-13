@@ -26,43 +26,38 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.openqa.selenium.WebElement;
 
 @TestMethodOrder(OrderAnnotation.class)
-public class CreateModuleTest extends AbstractModuleTest {
+public class EditModuleTest extends AbstractModuleTest {
 	
 	@Test
 	@Order(1)
-	void testCreateModule() {
-		clickMenu("administration-module");
+	void testRenameModule() {
+		WebElement tabpanel = showModule("testmodule");
 		assertEquals("Module", findTab("module").getText());
-		WebElement tabpanel = findTabpanel("module");
-		clickButton(tabpanel, "new");
 		
-		clickButton(tabpanel, "save");
-		findValidationMessage(); // name is empty
-		
-		findTextbox(tabpanel, "name").sendKeys("Testmodule");
+		clearTextbox(tabpanel, "name");
+		findTextbox(tabpanel, "name").sendKeys("TestmoduleNew");
 		saveModule(tabpanel);
 	}
 	
 	@Test
 	@Order(2)
-	void testAddParameter() {
-		WebElement tabpanel = showModule("testmodule");
+	void testEditParameterValue() {
+		WebElement tabpanel = showModule("testmodulenew");
 		findTab(tabpanel, "parameters");
 		WebElement tabpanelParameters = findTabpanel(tabpanel, "parameters");
-		clickButton(tabpanelParameters, "new");
-		
-		findOptionTextbox(tabpanelParameters, "parametername").sendKeys("Testparameter");
-		findOptionTextbox(tabpanelParameters, "parametervalue").sendKeys("test");
+		clickListItem(tabpanelParameters, "testparameter");
+		findOptionTextbox(tabpanelParameters, "parametervalue").sendKeys(" new");
+		clickTab(tabpanel, "parameters"); // lose focus
 		saveModule(tabpanel);
 	}
 	
 	@Test
 	@Order(3)
-	void testAddUsergroup() {
-		WebElement tabpanel = showModule("testmodule");
-		clickTab(tabpanel, "usergroups");
-		WebElement tabpanelPermissions = findTabpanel(tabpanel, "usergroups");
-		dragAndDrop(tabpanelPermissions, "testrole", "selected");
+	void testAddMenu() {
+		WebElement tabpanel = showModule("testmodulenew");
+		clickTab(tabpanel, "menus");
+		WebElement tabpanelMenus = findTabpanel(tabpanel, "menus");
+		dragAndDrop(tabpanelMenus, "testmenunew", "selected");
 		saveModule(tabpanel);
 	}
 	

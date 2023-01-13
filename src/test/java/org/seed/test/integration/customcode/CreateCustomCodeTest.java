@@ -17,6 +17,8 @@
  */
 package org.seed.test.integration.customcode;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -32,7 +34,7 @@ public class CreateCustomCodeTest extends AbstractIntegrationTest {
 	@Order(1)
 	void testCreateCustomCode() {
 		clickMenu("administration-quellcode");
-		findTab("quellcode");
+		assertEquals("Quellcode", findTab("quellcode").getText());
 		WebElement tabpanel = findTabpanel("quellcode");
 		clickButton(tabpanel, "new");
 		clickButton(tabpanel, "save");

@@ -17,6 +17,8 @@
  */
 package org.seed.test.integration.transformer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -39,7 +41,8 @@ public class EditTransformerTest extends AbstractTransformerTest {
 	@Order(2)
 	void testEditElement() {
 		WebElement tabpanel = showTransformer("testtransformernew");
-		findTab(tabpanel, "elements");
+		assertEquals("Elemente", findTab("elements").getText());
+		
 		WebElement tabpanelElements = findTabpanel(tabpanel, "elements");
 		clickListItem(tabpanelElements, "textfieldnew-textfieldnew");
 		

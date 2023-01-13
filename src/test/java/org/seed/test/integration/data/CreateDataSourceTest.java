@@ -17,6 +17,8 @@
  */
 package org.seed.test.integration.data;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -32,7 +34,8 @@ public class CreateDataSourceTest extends AbstractIntegrationTest {
 	@Order(1)
 	void testCreateDataSource() {
 		clickMenu("administration-abfragen");
-		findTab("abfragen");
+		assertEquals("Abfragen", findTab("abfragen").getText());
+		
 		WebElement tabpanel = findTabpanel("abfragen");
 		clickButton(tabpanel, "new");
 		

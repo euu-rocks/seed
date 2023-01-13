@@ -17,6 +17,8 @@
  */
 package org.seed.test.integration.menu;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -30,7 +32,7 @@ public class CreateMenuTest extends AbstractMenuTest {
 	@Order(1)
 	void testCreateMenu() {
 		clickMenu("administration-menues");
-		findTab("menues");
+		assertEquals("Menüs", findTab("menues").getText());
 		WebElement tabpanel = findTabpanel("menues");
 		clickButton(tabpanel, "new");
 		

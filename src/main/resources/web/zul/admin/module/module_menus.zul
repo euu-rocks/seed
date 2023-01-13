@@ -26,10 +26,11 @@
 					 model="@load(vm.getListManagerList('menus',0))"
 					 droppable="true" onDrop="@command('dropToList',key='menus',item=event.dragged.attributes.item,list=0)"
 					 hflex="1" vflex="1"
-					 class="alpha-noborder alpha-nobg" 
+					 class="available-items alpha-noborder alpha-nobg" 
 					 oddRowSclass="non-odd">
 				<template name="model" var="menu">
-					<listitem attributes.item="@init(menu)" 
+					<listitem sclass="@init(vm.getItemTestClass(menu))"
+							  attributes.item="@init(menu)" 
 							  draggable="true" droppable="true" 
 	 						  onDrop="@command('insertToList',key='menus',item=event.dragged.attributes.item,base=menu,list=0)">
 						<listcell label="@init(menu.name)" 
@@ -45,11 +46,12 @@
 			<listbox mold="paging" autopaging="true" 
 					 model="@load(vm.getListManagerList('menus',1))"
 					 droppable="true" onDrop="@command('dropToList',key='menus',item=event.dragged.attributes.item,list=1)"
-					 class="alpha-noborder alpha-nobg"
+					 class="selected-items alpha-noborder alpha-nobg"
 					 hflex="1" vflex="1"
 					 oddRowSclass="non-odd">
 				<template name="model" var="menu">
-					<listitem attributes.item="@init(menu)" 
+					<listitem sclass="@init(vm.getItemTestClass(menu))"
+							  attributes.item="@init(menu)" 
 							  draggable="true" droppable="true" 
 							  onDrop="@command('insertToList',key='menus',item=event.dragged.attributes.item,base=menu,list=1)">
 						<listcell label="@init(menu.name)" 

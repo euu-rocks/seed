@@ -17,6 +17,8 @@
  */
 package org.seed.test.integration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Test;
 
 class NavigationTest extends AbstractIntegrationTest {
@@ -29,35 +31,36 @@ class NavigationTest extends AbstractIntegrationTest {
 	@Test
 	void testMenu() {
 		clickMenu("administration-entitaeten");
-		findTab("entitaeten");
+		assertEquals("Entitäten", findTab("entitaeten").getText());
 		
 		openMenu("administration-entitaeten");
 		clickMenu("administration-entitaeten-filter");
-		findTab("filter");
+		assertEquals("Filter", findTab("filter").getText());
 		
 		clickMenu("administration-entitaeten-import--export");
-		findTab("import--export");
+		assertEquals("Import / Export", findTab("import--export").getText());
 		
 		clickMenu("administration-entitaeten-transformationen");
-		findTab("transformationen");
+		assertEquals("Transformationen", findTab("transformationen").getText());
 		
 		clickMenu("administration-formulare");
-		findTab("formulare");
+		assertEquals("Formulare", findTab("formulare").getText());
 		
 		clickMenu("administration-menues");
-		findTab("menues");
+		assertEquals("Menüs", findTab("menues").getText());
 		
 		clickMenu("administration-jobs");
-		findTab("jobs");
+		assertEquals("Jobs", findTab("jobs").getText());
 		
 		clickMenu("administration-datenbankelemente");
 		findTab("datenbankelemente");
+		assertEquals("Datenbankelemente", findTab("datenbankelemente").getText());
 		
 		clickMenu("administration-abfragen");
-		findTab("abfragen");
+		assertEquals("Abfragen", findTab("abfragen").getText());
 		
 		clickMenu("administration-reporte");
-		findTab("reporte");
+		assertEquals("Reporte", findTab("reporte").getText());
 		
 		clickMenu("administration-quellcode");
 		findTab("quellcode");

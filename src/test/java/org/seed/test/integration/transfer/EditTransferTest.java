@@ -17,6 +17,8 @@
  */
 package org.seed.test.integration.transfer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -39,7 +41,7 @@ public class EditTransferTest extends AbstractTransferTest {
 	@Order(2)
 	void testRemoveElement() {
 		WebElement tabpanel = showTransfer("testtransfernew");
-		findTab(tabpanel, "fields");
+		assertEquals("Felder", findTab(tabpanel, "fields").getText());
 		WebElement tabpanelFields = findTabpanel(tabpanel, "fields");
 		dragAndDrop(tabpanelFields, "textfieldnew", "available");
 		saveTransfer(tabpanel);

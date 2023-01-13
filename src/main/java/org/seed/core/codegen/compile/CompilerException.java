@@ -29,7 +29,7 @@ public class CompilerException extends InternalException {
 
 	private static final long serialVersionUID = 5748866051489365928L;
 	
-	private transient final List<Diagnostic<? extends JavaFileObject>> diagnostics;
+	private final transient List<Diagnostic<? extends JavaFileObject>> diagnostics;
 
 	CompilerException(String message) {
 		super(message);

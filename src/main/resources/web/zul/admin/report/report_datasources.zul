@@ -44,7 +44,8 @@
 	            			sort="auto(dataSource.name)" hflex="1"/>
 	        </listhead> 
 	        <template name="model" var="datasource">
-	            <listitem attributes.item="@load(datasource)" 
+	            <listitem sclass="@init(vm.getListItemTestClass(datasource.dataSource))" 
+	            		  attributes.item="@load(datasource)" 
 	            		  draggable="true" droppable="true" 
 	            		  onDrop="@command('swapDataSources',item=event.dragged.attributes.item,base=datasource)">
 	            	<listcell>
@@ -65,7 +66,7 @@
 		  class="alpha-properties">
 		<vlayout class="alpha-properties-content">
         	<label value="${labels.label.label}:"/>
-        	<div sclass="name-field">
+        	<div sclass="label-field">
 	            <textbox hflex="1" instant="true"
 	            		 value="@bind(vm.dataSource.label) @converter(vm.stringConverter)"
 	            		 placeholder="@load(vm.dataSource.dataSource.name)"

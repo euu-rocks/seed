@@ -17,6 +17,8 @@
  */
 package org.seed.test.integration.task;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -30,7 +32,7 @@ public class CreateJobTest extends AbstractJobTest {
 	@Order(1)
 	void testCreateJob() {
 		clickMenu("administration-jobs");
-		findTab("jobs");
+		assertEquals("Jobs", findTab("jobs").getText());
 		WebElement tabpanel = findTabpanel("jobs");
 		clickButton(tabpanel, "new");
 		

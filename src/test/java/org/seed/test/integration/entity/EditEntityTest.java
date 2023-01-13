@@ -17,6 +17,8 @@
  */
 package org.seed.test.integration.entity;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -39,7 +41,7 @@ public class EditEntityTest extends AbstractEntityTest {
 	@Order(2)
 	void testRenameField() {
 		WebElement tabpanel = showEntity("integrationtestnew");
-		findTab(tabpanel, "fields");
+		assertEquals("Felder", findTab(tabpanel, "fields").getText());
 		WebElement tabpanelFields = findTabpanel(tabpanel, "fields");
 		clickListItem(tabpanelFields, "textfield");
 		

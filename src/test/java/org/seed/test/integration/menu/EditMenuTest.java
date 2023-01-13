@@ -17,6 +17,8 @@
  */
 package org.seed.test.integration.menu;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -30,6 +32,7 @@ public class EditMenuTest extends AbstractMenuTest {
 	@Order(1)
 	void testRenameMenu() {
 		WebElement tabpanel = showMenu("testmenu");
+		assertEquals("Menüs", findTab("menues").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TestmenuNew");
 		saveMenu(tabpanel);

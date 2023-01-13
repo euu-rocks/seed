@@ -15,30 +15,26 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.test.integration.user;
+package org.seed.test.integration.module;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import org.junit.jupiter.api.Test;
 import org.openqa.selenium.WebElement;
 
 import org.seed.test.integration.AbstractIntegrationTest;
 
-public class CreateUserTest extends AbstractIntegrationTest {
+abstract class AbstractModuleTest extends AbstractIntegrationTest {
 	
-	@Test
-	void testCreateUser() {
-		clickMenu("administration-benutzer");
-		assertEquals("Benutzer", findTab("benutzer").getText());
-		WebElement tabpanel = findTabpanel("benutzer");
-		clickButton(tabpanel, "new");
-		clickButton(tabpanel, "save");
-		findValidationMessage(); // name is empty
-		
-		findTextbox(tabpanel, "username").sendKeys("Testuser");
-		findTextbox(tabpanel, "email").sendKeys("testuser@euu.rocks");
+	protected void saveModule(WebElement tabpanel) {
 		clickButton(tabpanel, "save");
 		findSuccessMessage();
+	}
+	
+	protected WebElement showModule(String name) {
+		clickMenu("administration-module");
+		findTab("module");
+		final WebElement tabpanel = findTabpanel("module");
+		clickListItem(tabpanel, name);
+		clickButton(tabpanel, "edit");
+		return tabpanel;
 	}
 	
 }

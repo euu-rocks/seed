@@ -17,30 +17,29 @@
  */
 package org.seed.test.integration.report;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.openqa.selenium.WebElement;
 
-import org.seed.test.integration.AbstractIntegrationTest;
-
 @TestMethodOrder(OrderAnnotation.class)
-public class CreateReportTest extends AbstractIntegrationTest {
+public class CreateReportTest extends AbstractReportTest {
 	
 	@Test
 	@Order(1)
 	void testCreateReport() {
 		clickMenu("administration-reporte");
-		findTab("reporte");
+		assertEquals("Reporte", findTab("reporte").getText());
 		WebElement tabpanel = findTabpanel("reporte");
 		clickButton(tabpanel, "new");
 		clickButton(tabpanel, "save");
 		findValidationMessage();
 		
 		findTextbox(tabpanel, "name").sendKeys("Testreport");
-		clickButton(tabpanel, "save");
-		findSuccessMessage();
+		saveReport(tabpanel);
 	}
 	
 	@Test
@@ -52,8 +51,7 @@ public class CreateReportTest extends AbstractIntegrationTest {
 		clickButton(tabpanelDataSources, "new");
 		
 		findOptionCombobox(tabpanelDataSources, "datasource").sendKeys("Testquery");
-		clickButton(tabpanel, "save");
-		findSuccessMessage();
+		saveReport(tabpanel);
 	}
 	
 	@Test
@@ -63,16 +61,7 @@ public class CreateReportTest extends AbstractIntegrationTest {
 		clickTab(tabpanel, "permissions");
 		WebElement tabpanelPermissions = findTabpanel(tabpanel, "permissions");
 		dragAndDrop(tabpanelPermissions, "testrole", "selected");
-		clickButton(tabpanel, "save");
-		findSuccessMessage();
+		saveReport(tabpanel);
 	}
 	
-	private WebElement showReport(String name) {
-		clickMenu("administration-reporte");
-		findTab("reporte");
-		WebElement tabpanel = findTabpanel("reporte");
-		clickListItem(tabpanel, name);
-		clickButton(tabpanel, "edit");
-		return tabpanel;
-	}
 }
