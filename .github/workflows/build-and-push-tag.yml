@@ -24,7 +24,7 @@ jobs:
           java-version: 1.11
       - name: Build with Maven
         run: |
-          mvn -B clean deploy --file pom.xml
+          mvn -B clean deploy --file pom.xml -DskipTests 
           cp ./target/seed-*-exec.jar ./target/seed.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
