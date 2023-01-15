@@ -102,7 +102,7 @@ public class DynamicConfiguration implements UpdatableConfiguration, Integrator 
 	@Autowired
 	private SystemLog systemLog;
 	
-	private ClassLoader classLoader;	// current class loader
+	private ClassLoader classLoader;
 	
 	@PostConstruct
 	private void init() {
@@ -112,7 +112,7 @@ public class DynamicConfiguration implements UpdatableConfiguration, Integrator 
 	
 	@EventListener(ApplicationReadyEvent.class)
 	private void initConfiguration() {
-		if (updateSchemaConfiguration()) { // new system schema version detected
+		if (updateSchemaConfiguration()) {
 			systemLog.logInfo("systemlog.info.schemaupdated", SchemaVersion.currentVersion().name());
 			updateConfiguration();
 			userService.initDefaults();
@@ -161,11 +161,8 @@ public class DynamicConfiguration implements UpdatableConfiguration, Integrator 
 		final long startTime = System.currentTimeMillis();
 		codeManager.generateClasses();
 		classLoader = codeManager.getClassLoader();
-		// create new hibernate configuration but don't build session factory yet
-		final SessionFactoryBuilder sessionFactoryBuilder = createSessionFactoryBuilder(false);
-		// close current session factory
+		final var sessionFactoryBuilder = createSessionFactoryBuilder(false);
 		sessionProvider.close();
-		// build new session factory now
 		sessionProvider.setSessionFactory(sessionFactoryBuilder.build());
 		jobScheduler.scheduleAllTasks();
 		if (log.isInfoEnabled()) {
@@ -178,9 +175,8 @@ public class DynamicConfiguration implements UpdatableConfiguration, Integrator 
 			Transaction tx = null;
 			try {
 				tx = session.beginTransaction();
-				boolean saveConfig = false;
-				SchemaConfiguration schemaConfig = schemaManager.loadSchemaConfiguration(session);
-				// config is new
+				var saveConfig = false;
+				var schemaConfig = schemaManager.loadSchemaConfiguration(session);
 				if (schemaConfig == null) {
 					schemaConfig = new SchemaConfiguration();
 					if (SchemaVersion.existUpdates()) {
@@ -188,7 +184,6 @@ public class DynamicConfiguration implements UpdatableConfiguration, Integrator 
 					}
 					saveConfig = true;
 				}
-				// config is not up to date
 				else if (!schemaConfig.isUpToDate()) {
 					schemaManager.updateSchemaConfiguration(schemaConfig.getSchemaVersion(), session);
 					saveConfig = true;
@@ -213,21 +208,18 @@ public class DynamicConfiguration implements UpdatableConfiguration, Integrator 
 	}
 	
 	private SessionFactoryBuilder createSessionFactoryBuilder(boolean boot) {
-		final BootstrapServiceRegistryBuilder bootstrapServiceRegistryBuilder = 
-				new BootstrapServiceRegistryBuilder().applyIntegrator(this);
+		final var bootstrapServiceRegistryBuilder = new BootstrapServiceRegistryBuilder().applyIntegrator(this);
 		if (!boot) {
 			Assert.stateAvailable(classLoader, "class loader");
 			bootstrapServiceRegistryBuilder.applyClassLoader(classLoader);
 		}
-		final MetadataSources metaSources = new MetadataSources(
+		final var metaSources = new MetadataSources(
 				new StandardServiceRegistryBuilder(bootstrapServiceRegistryBuilder.build())
 					 .applySettings(createSettings(boot)).build());
 		
-		// register system entities
 		BeanUtils.getAnnotatedClasses(Entity.class).forEach(metaSources::addAnnotatedClass);
 		log.info("System entities registered");
 		
-		// register generated entities
 		if (!boot) {
 			codeManager.getGeneratedClasses(ValueEntity.class).forEach(metaSources::addAnnotatedClass);
 			log.info("Generated entities registered");
@@ -236,7 +228,7 @@ public class DynamicConfiguration implements UpdatableConfiguration, Integrator 
 	}
 	
 	private Map<String, Object> createSettings(boolean boot) {
-		final Map<String, Object> settings = new HashMap<>();
+		final var settings = new HashMap<String, Object>();
 		
 		// data source
 		settings.put("hibernate.connection.url", appProperties.getRequiredProperty(Seed.PROP_DATASOURCE_URL));                                

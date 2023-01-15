@@ -806,8 +806,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	private void removeEntityClass(Entity entity) {
-		codeManager.removeClass(CodeUtils.getQualifiedName(entity.getGeneratedPackage(), 
-														   entity.getGeneratedClass()));
+		codeManager.removeClass(CodeUtils.getQualifiedName(entity));
 	}
 	
 	private List<Entity> findGeneric(boolean generic, Session session) {

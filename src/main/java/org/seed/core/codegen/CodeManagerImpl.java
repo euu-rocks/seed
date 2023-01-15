@@ -110,8 +110,7 @@ public class CodeManagerImpl implements CodeManager {
 	public Class<GeneratedCode> getGeneratedClass(GeneratedObject generatedObject) {
 		Assert.notNull(generatedObject, "generated object");
 		
-		return getGeneratedClass(getQualifiedName(generatedObject.getGeneratedPackage(), 
-												  generatedObject.getGeneratedClass()));
+		return getGeneratedClass(getQualifiedName(generatedObject));
 	}
 	
 	@Override

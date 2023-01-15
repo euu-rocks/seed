@@ -17,46 +17,45 @@
  */
 package org.seed.test.integration.rest;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 
 @TestMethodOrder(OrderAnnotation.class)
-public class CreateRestTest extends AbstractRestTest {
+public class EditRestTest extends AbstractRestTest {
 	
 	@Test
 	@Order(1)
-	void testCreateRest() {
-		clickMenu("administration-rest-services");
-		assertEquals("REST-Services", findTab("rest-services").getText());
-		WebElement tabpanel = findTabpanel("rest-services");
-		clickButton(tabpanel, "new");
-		clickButton(tabpanel, "save");
-		findValidationMessage(); // name is empty
+	void testRenameRest() {
+		WebElement tabpanel = showRest("testrest");
 		
-		findTextbox(tabpanel, "name").sendKeys("TestRest");
+		clearTextbox(tabpanel, "name");
+		findTextbox(tabpanel, "name").sendKeys("TestRestNew");
 		saveRest(tabpanel);
 	}
 	
 	@Test
 	@Order(2)
-	void testAddFunction() {
-		WebElement tabpanel = showRest("testrest");
+	void testRenameFunction() {
+		WebElement tabpanel = showRest("testrestnew");
 		findTab(tabpanel, "functions");
 		WebElement tabpanelFunctions = findTabpanel(tabpanel, "functions");
-		clickButton(tabpanelFunctions, "new");
+		clickListItem(tabpanelFunctions, "test");
 		
-		findOptionCombobox(tabpanelFunctions, "method").sendKeys("GET");
-		findOptionTextbox(tabpanelFunctions, "functionname").sendKeys("test");
-		pause(500);
+		clearOptionTextbox(tabpanelFunctions, "functionname");
+		findOptionTextbox(tabpanelFunctions, "functionname").sendKeys("testnew");
+		clickTab(tabpanel, "functions"); // lose focus
+		clickButton(tabpanel, "save");
+		findValidationMessage(); // syntax error
+		
 		clickButton(tabpanelFunctions, "editfunction");
-		
 		WebElement window = findWindow("code-dialog");
-		findCodeMirror(window, "content", 10).sendKeys("return \"TestRestfunction\";");
+		WebElement codeMirror = findCodeMirror(window, "content", 6);
+		codeMirror.sendKeys(repeatKey(Keys.BACK_SPACE, 26));
+		codeMirror.sendKeys("new implements RestFunction {");
 		clickButton(window, "apply");
 		waitWindowDisappear("code-dialog");
 		saveRest(tabpanel);
@@ -64,11 +63,11 @@ public class CreateRestTest extends AbstractRestTest {
 	
 	@Test
 	@Order(3)
-	void testAddPermission() {
-		WebElement tabpanel = showRest("testrest");
+	void testRemovePermission() {
+		WebElement tabpanel = showRest("testrestnew");
 		clickTab(tabpanel, "permissions");
 		WebElement tabpanelPermissions = findTabpanel(tabpanel, "permissions");
-		dragAndDrop(tabpanelPermissions, "testrole", "selected");
+		dragAndDrop(tabpanelPermissions, "testrole", "available");
 		saveRest(tabpanel);
 	}
 	

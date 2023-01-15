@@ -18,24 +18,30 @@
 package org.seed.core.rest;
 
 import org.seed.C;
+import org.seed.core.codegen.CodeManager;
+import org.seed.core.codegen.compile.CompilerException;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
+import org.seed.core.rest.codegen.RestCodeProvider;
 import org.seed.core.util.Assert;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class RestValidator extends AbstractSystemEntityValidator<Rest> {
 	
-	private static final String LABEL_FUNCTION = "label.function";
-	private static final String LABEL_FUNCTIONNAME = "label.functionname";
-	private static final String LABEL_MAPPING = "label.mapping";
+	@Autowired
+	private CodeManager codeManager;
+	
+	@Autowired
+	private RestCodeProvider restCodeProvider;
 
 	@Override
 	public void validateSave(Rest rest) throws ValidationException {
 		Assert.notNull(rest, C.REST);
-		final ValidationErrors errors = createValidationErrors(rest);
+		final var errors = createValidationErrors(rest);
 		
 		// name
 		if (isEmpty(rest.getName())) {
@@ -103,6 +109,20 @@ public class RestValidator extends AbstractSystemEntityValidator<Rest> {
 					errors.addError("val.ambiguous.functionmapping", function.getMapping());
 				}
 			}
+			
+			// content
+			if (function.getContent() != null) {
+				validateFunctionCode(function, errors);
+			}
+		}
+	}
+	
+	private void validateFunctionCode(RestFunction function, ValidationErrors errors) {
+		try {
+			codeManager.testCompile(restCodeProvider.getRestSource(function));
+		}
+		catch (CompilerException cex) {
+			errors.addError("val.illegal.restfunctioncode", function.getName());
 		}
 	}
 	
@@ -113,8 +133,10 @@ public class RestValidator extends AbstractSystemEntityValidator<Rest> {
 				  name.equalsIgnoreCase(C.TASK)   	 ||
 				  name.equalsIgnoreCase(C.OBJECT))   ||
 				  name.equalsIgnoreCase("transform");
-				  
-		
 	}
+	
+	private static final String LABEL_FUNCTION = "label.function";
+	private static final String LABEL_FUNCTIONNAME = "label.functionname";
+	private static final String LABEL_MAPPING = "label.mapping";
 	
 }

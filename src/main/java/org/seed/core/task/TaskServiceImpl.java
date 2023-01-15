@@ -389,8 +389,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	}
 	
 	private void removeTaskClass(Task task) {
-		codeManager.removeClass(CodeUtils.getQualifiedName(task.getGeneratedPackage(), 
-														   task.getGeneratedClass()));
+		codeManager.removeClass(CodeUtils.getQualifiedName(task));
 	}
 	
 	private String getRunLogText(TaskRun run) {

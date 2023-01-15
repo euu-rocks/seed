@@ -42,6 +42,7 @@ import org.seed.test.integration.module.EditModuleTest;
 import org.seed.test.integration.report.CreateReportTest;
 import org.seed.test.integration.report.EditReportTest;
 import org.seed.test.integration.rest.CreateRestTest;
+import org.seed.test.integration.rest.EditRestTest;
 import org.seed.test.integration.task.CreateJobTest;
 import org.seed.test.integration.task.EditJobTest;
 import org.seed.test.integration.transfer.CreateTransferTest;
@@ -61,5 +62,5 @@ import org.seed.test.integration.user.CreateUserTest;
 				 CreateReportTest.class, CreateCustomCodeTest.class, CreateRestTest.class,
 				 CreateJobTest.class, EditEntityTest.class, EditFilterTest.class, EditTransferTest.class,
 				 EditTransformerTest.class, EditFormTest.class, EditMenuTest.class, EditJobTest.class,
-				 EditModuleTest.class, EditReportTest.class })
+				 EditModuleTest.class, EditReportTest.class, EditRestTest.class })
 public class IntegrationTestSuite { }

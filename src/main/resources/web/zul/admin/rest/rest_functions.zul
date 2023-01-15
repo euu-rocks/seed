@@ -46,7 +46,8 @@
 	            			sort="auto(mapping)" hflex="max"/>
 	        </listhead> 
 	        <template name="model" var="function">
-	            <listitem attributes.item="@load(function)" 
+	            <listitem sclass="@init(vm.getListItemTestClass(function))" 
+	            		  attributes.item="@load(function)" 
 	            		  onDoubleClick="@command('editFunctionSource')"> 
 	            	<listcell>
 	            		<label value="@load(vm.getEnumLabel(function.method))"/>

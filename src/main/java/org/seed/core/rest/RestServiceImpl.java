@@ -37,6 +37,7 @@ import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
 import org.seed.core.codegen.CodeManager;
+import org.seed.core.codegen.CodeUtils;
 import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.data.Options;
 import org.seed.core.data.ValidationException;
@@ -197,6 +198,15 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 	}
 	
 	@Override
+	@Secured("ROLE_ADMIN_REST")
+	public void deleteObject(Rest rest) throws ValidationException {
+		super.deleteObject(rest);
+		if (rest.hasFunctions()) {
+			rest.getFunctions().forEach(this::removeFunctionClass);
+		}
+	}
+	
+	@Override
 	public void deleteObjects(Module module, Module currentVersionModule, Session session) {
 		Assert.notNull(module, C.MODULE);
 		Assert.notNull(currentVersionModule, "currentVersionModule");
@@ -208,11 +218,23 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 	}
 	
 	@Override
-	@Secured("ROLE_ADMIN_JOB")
+	@Secured("ROLE_ADMIN_REST")
 	public void saveObject(Rest rest) throws ValidationException {
 		Assert.notNull(rest, C.REST);
 		
+		final boolean isNew = rest.isNew();
+		final Rest currentVersionRest = !isNew ? getObject(rest.getId()) : null;
 		super.saveObject(rest);
+		
+		if (!isNew && currentVersionRest.hasFunctions()) {
+			for (RestFunction currentFunction : currentVersionRest.getFunctions()) {
+				final RestFunction function = rest.getFunctionByUid(currentFunction.getUid());
+				if (function == null || !function.getName().equals(currentFunction.getName())) {
+					removeFunctionClass(currentFunction);
+				}
+			}
+		}
+		
 		updateConfiguration();
 	}
 
@@ -283,6 +305,10 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 		if (currentVersionPermission != null) {
 			currentVersionPermission.copySystemFieldsTo(permission);
 		}
+	}
+	
+	private void removeFunctionClass(RestFunction function) {
+		codeManager.removeClass(CodeUtils.getQualifiedName(function));
 	}
 	
 	private static RestPermission createPermission(Rest rest, UserGroup group) {

@@ -74,6 +74,10 @@ public abstract class CodeUtils {
 		return removeClassExtension(entryName).replace('/', '.');
 	}
 	
+	public static String getQualifiedName(GeneratedObject object) {
+		return getQualifiedName(object.getGeneratedPackage(), object.getGeneratedClass());
+	}
+	
 	public static String getQualifiedName(String packageName, String className) {
 		return packageName + '.' + className;
 	}
