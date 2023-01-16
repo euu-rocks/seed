@@ -544,7 +544,8 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	}
 	
 	protected void refreshObject() {
-		object = getObjectService().getObject(object.getId(), currentSession());
+		object.removeNewObjects();
+		getObjectService().reloadObject(object, currentSession());
 		internalRefresh(object);
 	}
 	
