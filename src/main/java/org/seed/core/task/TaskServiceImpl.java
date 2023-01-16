@@ -239,7 +239,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 					session.detach(currentVersionTask);
 				}
 				initTask(task, currentVersionTask, session);
-				saveObject(task, session);
+				getRepository().save(task, session);
 			}
 		}
 	}

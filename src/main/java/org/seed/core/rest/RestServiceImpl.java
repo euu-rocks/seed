@@ -193,7 +193,7 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 				session.detach(currentVersionRest);
 			}
 			initRest(rest, currentVersionRest, session);
-			super.saveObject(rest, session);
+			getRepository().save(rest, session);
 		}
 	}
 	
