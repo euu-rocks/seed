@@ -20,6 +20,7 @@ package org.seed.core.customcode;
 import org.hibernate.Session;
 
 import org.seed.C;
+import org.seed.Seed;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -27,6 +28,7 @@ import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
 import org.seed.core.codegen.CodeChangeAware;
+import org.seed.core.codegen.CodeManager;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
@@ -120,24 +122,33 @@ public class CustomCodeServiceImpl extends AbstractApplicationEntityService<Cust
 	@Override
 	@Secured("ROLE_ADMIN_SOURCECODE")
 	public void saveObject(CustomCode customCode) throws ValidationException {
-		Assert.notNull(customCode, "customCode");
+		Assert.notNull(customCode, "custom code");
+		
+		final boolean isNew = customCode.isNew();
+		final var currentVersionCode = !isNew ? getObject(customCode.getId()) : null;
 		
 		super.saveObject(customCode);
+		
+		if (!isNew && !customCode.getQualifiedName().equals(currentVersionCode.getQualifiedName())) {
+			removeCustomClass(currentVersionCode);
+		}
+		
 		updateConfiguration();
 	}
 	
 	@Override
 	@Secured("ROLE_ADMIN_SOURCECODE")
 	public void deleteObject(CustomCode customCode) throws ValidationException {
-		Assert.notNull(customCode, "customCode");
+		Assert.notNull(customCode, "custom code");
 		
 		super.deleteObject(customCode);
+		removeCustomClass(customCode);
 		updateConfiguration();
 	}
 	
 	@Override
 	public boolean processCodeChange(SourceCode sourceCode, Session session) {
-		Assert.notNull(sourceCode, "sourceCode");
+		Assert.notNull(sourceCode, "source code");
 		Assert.notNull(session, C.SESSION);
 		
 		final CustomCode customCode = findByName(sourceCode.getQualifiedName(), session);
@@ -158,6 +169,10 @@ public class CustomCodeServiceImpl extends AbstractApplicationEntityService<Cust
 	@Override
 	protected CustomCodeValidator getValidator() {
 		return validator;
+	}
+	
+	private void removeCustomClass(CustomCode customCode) {
+		Seed.getBean(CodeManager.class).removeClass(customCode.getQualifiedName());
 	}
 
 }

@@ -19,39 +19,24 @@ package org.seed.test.integration.data;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.openqa.selenium.WebElement;
 
-@TestMethodOrder(OrderAnnotation.class)
-public class CreateDataSourceTest extends AbstractDataSourceTest {
+import org.seed.test.integration.AbstractIntegrationTest;
+
+abstract class AbstractDataSourceTest extends AbstractIntegrationTest {
+
+	protected void saveDataSource(WebElement tabpanel) {
+		clickButton(tabpanel, "save");
+		findSuccessMessage();
+	}
 	
-	@Test
-	@Order(1)
-	void testCreateDataSource() {
+	protected WebElement showDataSource(String name) {
 		clickMenu("administration-abfragen");
 		assertEquals("Abfragen", findTab("abfragen").getText());
-		
 		WebElement tabpanel = findTabpanel("abfragen");
-		clickButton(tabpanel, "new");
-		
-		clickTab(tabpanel, "parameters");
-		WebElement tabpanelParameters = findTabpanel(tabpanel, "parameters");
-		clickButton(tabpanelParameters, "new");
-		
-		findOptionTextbox(tabpanelParameters, "name").sendKeys("id");
-		findOptionCombobox(tabpanelParameters, "type").sendKeys("Ganzzahl");
-		
-		clickTab(tabpanel, "query");
-		WebElement tabpanelQuery = findTabpanel(tabpanel, "query");
-		findCodeMirror(tabpanelQuery, "content", 1).sendKeys("select * from integrationtest where id={id}");
-		clickButton(tabpanel, "save");
-		findValidationMessage(); // name is empty
-		
-		findTextbox(tabpanel, "name").sendKeys("Testquery");
-		saveDataSource(tabpanel);
+		clickListItem(tabpanel, name);
+		clickButton(tabpanel, "edit");
+		return tabpanel;
 	}
 	
 }

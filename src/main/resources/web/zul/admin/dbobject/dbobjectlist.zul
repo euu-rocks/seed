@@ -91,7 +91,8 @@
 		        </auxheader>
 		    </auxhead>
 		    <template name="model" var="dbobject">
-	            <listitem onDoubleClick="@command('editDBObject')">
+	            <listitem sclass="@init(vm.getListItemTestClass(dbobject))" 
+	            		  onDoubleClick="@command('editDBObject')">
 	            	<listcell sclass="@init(vm.getListItemTestClass(entity))"
 	            			  iconSclass="z-icon-database z-icon-fw alpha-icon-lg">
 	            		<label value="@init(dbobject.name)" style="margin-left:3px"/>

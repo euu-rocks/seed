@@ -19,35 +19,24 @@ package org.seed.test.integration.customcode;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.openqa.selenium.WebElement;
 
-@TestMethodOrder(OrderAnnotation.class)
-public class CreateCustomCodeTest extends AbstractCustomCodeTest {
+import org.seed.test.integration.AbstractIntegrationTest;
+
+abstract class AbstractCustomCodeTest extends AbstractIntegrationTest {
 	
-	@Test
-	@Order(1)
-	void testCreateCustomCode() {
+	protected void saveCustomCode(WebElement tabpanel) {
+		clickButton(tabpanel, "save");
+		findSuccessMessage();
+	}
+	
+	protected WebElement showCustomCode(String name) {
 		clickMenu("administration-quellcode");
 		assertEquals("Quellcode", findTab("quellcode").getText());
 		WebElement tabpanel = findTabpanel("quellcode");
-		clickButton(tabpanel, "new");
-		clickButton(tabpanel, "save");
-		findValidationMessage(); // code is empty
-		
-		findCodeMirror(tabpanel, "content", 1).sendKeys("package test;\n"
-				+ "\n"
-				+ "public class TestCustomCode {\n"
-				+ "\n"
-				+ "	public void dummy() {\n"
-				+ "		System.out.println(\"TestCustomCode\");\n"
-				+ "	}\n"
-				+ "\n"
-				+ "}");
-		
-		saveCustomCode(tabpanel);
+		clickListItem(tabpanel, name);
+		clickButton(tabpanel, "edit");
+		return tabpanel;
 	}
+	
 }

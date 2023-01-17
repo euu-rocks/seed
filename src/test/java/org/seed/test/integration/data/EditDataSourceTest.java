@@ -22,37 +22,48 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 
 @TestMethodOrder(OrderAnnotation.class)
-public class CreateHQLDataSourceTest extends AbstractDataSourceTest {
+public class EditDataSourceTest extends AbstractDataSourceTest {
 	
 	@Test
 	@Order(1)
-	void testCreateHQLDataSource() {
-		clickMenu("administration-abfragen");
+	void testRenameDataSource() {
+		WebElement tabpanel = showDataSource("testquery");
 		assertEquals("Abfragen", findTab("abfragen").getText());
 		
-		WebElement tabpanel = findTabpanel("abfragen");
-		clickButton(tabpanel, "new");
-		clickRadioItem(tabpanel, "hql");
-		
-		clickTab(tabpanel, "parameters");
-		WebElement tabpanelParameters = findTabpanel(tabpanel, "parameters");
-		clickButton(tabpanelParameters, "new");
-		
-		findOptionTextbox(tabpanelParameters, "name").sendKeys("id");
-		findOptionCombobox(tabpanelParameters, "type").sendKeys("Ganzzahl (lang)");
-		
-		
-		clickTab(tabpanel, "query");
+		clearTextbox(tabpanel, "name");
+		findTextbox(tabpanel, "name").sendKeys("TestqueryNew");
+		saveDataSource(tabpanel);
+	}
+	
+	@Test
+	@Order(2)
+	void testEditDataSource() {
+		WebElement tabpanel = showDataSource("testquerynew");
+		assertEquals("SQL-Ausdruck", findTab("query").getText());
 		WebElement tabpanelQuery = findTabpanel(tabpanel, "query");
-		findCodeMirror(tabpanelQuery, "content", 1).sendKeys("select textfield from IntegrationTest it where it.id=:id");
-		clickButton(tabpanel, "save");
-		findValidationMessage(); // name is empty
+		WebElement codeMirror = findCodeMirror(tabpanelQuery, "content", 1);
+		codeMirror.sendKeys(repeatKey(Keys.BACK_SPACE, 36));
+		codeMirror.sendKeys("textfieldnew from integrationtest where id={id}");
+		findTab("query").click(); // lose focus
+		saveDataSource(tabpanel);
+	}
+	
+	@Test
+	@Order(3)
+	void testChangeParameter() {
+		WebElement tabpanel = showDataSource("testquerynew");
+		clickTab(tabpanel, "parameters");
+		assertEquals("Parameter", findTab("parameters").getText());
+		WebElement tabpanelParameters = findTabpanel("parameters");
 		
-		findTextbox(tabpanel, "name").sendKeys("Test HQL query");
+		clickListItem(tabpanelParameters, "id");
+		clearOptionCombobox(tabpanelParameters, "type");
+		findOptionCombobox(tabpanelParameters, "type").sendKeys("Ganzzahl (lang)");
 		saveDataSource(tabpanel);
 	}
 	

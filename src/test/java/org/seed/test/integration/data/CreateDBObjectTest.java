@@ -17,18 +17,14 @@
  */
 package org.seed.test.integration.data;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.openqa.selenium.WebElement;
 
-import org.seed.test.integration.AbstractIntegrationTest;
-
 @TestMethodOrder(OrderAnnotation.class)
-public class CreateDBObjectTest extends AbstractIntegrationTest {
+public class CreateDBObjectTest extends AbstractDBObjectTest {
 	
 	@Test
 	@Order(1)
@@ -158,25 +154,6 @@ public class CreateDBObjectTest extends AbstractIntegrationTest {
 		findTextbox(tabpanel, "name").sendKeys("Testsequence");
 		findCodeMirror(tabpanel, "content", 1).sendKeys("create sequence Testsequence START 100");
 		saveDBObject(tabpanel);
-	}
-	
-	private WebElement newDBObject() {
-		clickMenu("administration-datenbankelemente");
-		findTab("datenbankelemente");
-		WebElement tabpanel = findTabpanel("datenbankelemente");
-		clickButton(tabpanel, "new");
-		return tabpanel;
-	}
-	
-	private WebElement newDBObjectWindow() {
-		final WebElement window = findWindow("new-dbobject");
-		assertEquals("Neues Datenbankelement erstellen", findWindowHeader(window).getText());
-		return window;
-	}
-	
-	private void saveDBObject(WebElement tabpanel) {
-		clickButton(tabpanel, "save");
-		findSuccessMessage();
 	}
 	
 }

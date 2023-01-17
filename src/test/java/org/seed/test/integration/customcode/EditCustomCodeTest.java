@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.test.integration.data;
+package org.seed.test.integration.customcode;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -23,35 +23,22 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 
 @TestMethodOrder(OrderAnnotation.class)
-public class CreateDataSourceTest extends AbstractDataSourceTest {
+public class EditCustomCodeTest extends AbstractCustomCodeTest {
 	
 	@Test
 	@Order(1)
-	void testCreateDataSource() {
-		clickMenu("administration-abfragen");
-		assertEquals("Abfragen", findTab("abfragen").getText());
-		
-		WebElement tabpanel = findTabpanel("abfragen");
-		clickButton(tabpanel, "new");
-		
-		clickTab(tabpanel, "parameters");
-		WebElement tabpanelParameters = findTabpanel(tabpanel, "parameters");
-		clickButton(tabpanelParameters, "new");
-		
-		findOptionTextbox(tabpanelParameters, "name").sendKeys("id");
-		findOptionCombobox(tabpanelParameters, "type").sendKeys("Ganzzahl");
-		
-		clickTab(tabpanel, "query");
-		WebElement tabpanelQuery = findTabpanel(tabpanel, "query");
-		findCodeMirror(tabpanelQuery, "content", 1).sendKeys("select * from integrationtest where id={id}");
-		clickButton(tabpanel, "save");
-		findValidationMessage(); // name is empty
-		
-		findTextbox(tabpanel, "name").sendKeys("Testquery");
-		saveDataSource(tabpanel);
+	void testEditCustomCode() {
+		WebElement tabpanel = showCustomCode("test-testcustomcode");
+		assertEquals("Quellcode", findTab("quellcode").getText());
+		WebElement codeMirror = findCodeMirror(tabpanel, "content", 3);
+		codeMirror.sendKeys(repeatKey(Keys.BACK_SPACE, 2));
+		codeMirror.sendKeys("New {");
+		findTab("quellcode").click(); // lose focus
+		saveCustomCode(tabpanel);
 	}
 	
 }

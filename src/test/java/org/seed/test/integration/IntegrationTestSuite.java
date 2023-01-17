@@ -21,8 +21,11 @@ import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 
 import org.seed.test.integration.customcode.CreateCustomCodeTest;
+import org.seed.test.integration.customcode.EditCustomCodeTest;
 import org.seed.test.integration.data.CreateDataSourceTest;
 import org.seed.test.integration.data.CreateHQLDataSourceTest;
+import org.seed.test.integration.data.EditDBObjectTest;
+import org.seed.test.integration.data.EditDataSourceTest;
 import org.seed.test.integration.data.CreateDBObjectTest;
 import org.seed.test.integration.entity.CreateDerivedEntityTest;
 import org.seed.test.integration.entity.CreateEntityTest;
@@ -56,11 +59,12 @@ import org.seed.test.integration.user.CreateUserTest;
 @SelectClasses({ NavigationTest.class, CreateUserTest.class, CreateUserGroupTest.class, 
 				 CreateModuleTest.class, CreateMenuTest.class, CreateTransferableEntityTest.class,
 				 CreateGenericEntityTest.class, CreateDerivedEntityTest.class, CreateEntityTest.class, 
-				 CreateNestedEntityTest.class,  CreateFilterTest.class, CreateHQLFilterTest.class, 
+				 CreateNestedEntityTest.class, CreateFilterTest.class, CreateHQLFilterTest.class, 
 				 CreateTransferTest.class, CreateTransformerTest.class, CreateFormTest.class, 
 				 CreateDBObjectTest.class, CreateDataSourceTest.class, CreateHQLDataSourceTest.class, 
 				 CreateReportTest.class, CreateCustomCodeTest.class, CreateRestTest.class,
-				 CreateJobTest.class, EditEntityTest.class, EditFilterTest.class, EditTransferTest.class,
-				 EditTransformerTest.class, EditFormTest.class, EditMenuTest.class, EditJobTest.class,
-				 EditModuleTest.class, EditReportTest.class, EditRestTest.class })
+				 CreateJobTest.class, EditEntityTest.class, EditFilterTest.class, EditDBObjectTest.class, 
+				 EditDataSourceTest.class, EditTransferTest.class, EditTransformerTest.class, 
+				 EditFormTest.class, EditMenuTest.class, EditJobTest.class, EditModuleTest.class, 
+				 EditReportTest.class, EditCustomCodeTest.class, EditRestTest.class })
 public class IntegrationTestSuite { }

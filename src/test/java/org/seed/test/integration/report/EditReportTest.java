@@ -44,8 +44,8 @@ public class EditReportTest extends AbstractReportTest {
 		WebElement tabpanel = showReport("testreportnew");
 		findTab(tabpanel, "datasources");
 		WebElement tabpanelDataSources = findTabpanel(tabpanel, "datasources");
-		clickListItem(tabpanelDataSources, "testquery");
-		findOptionTextbox(tabpanelDataSources, "label").sendKeys("TestqueryNew");
+		clickListItem(tabpanelDataSources, "testquerynew");
+		findOptionTextbox(tabpanelDataSources, "label").sendKeys("TestqueryRenamed");
 		clickTab(tabpanel, "datasources"); // lose focus
 		saveReport(tabpanel);
 	}
