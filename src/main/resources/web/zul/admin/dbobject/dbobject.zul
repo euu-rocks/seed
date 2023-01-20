@@ -58,8 +58,9 @@
 						<cell sclass="name-fieldcell"
 							  style="padding: 4px 4px">
 							<textbox value="@bind(vm.object.name) @converter(vm.stringConverter)"
-									 mandatory="true"
+									 readonly="@load(vm.isReadonly(vm.object))"
 									 onChange="@command('flagDirty',notifyObject='internalName')"
+									 mandatory="true"
 									 hflex="1"/> 
 						</cell>
 						<cell style="padding: 4px 10px" align="right">
@@ -99,6 +100,7 @@
 						<borderlayout>
 							<center border="0">
 								<codemirror id="codemirror"
+											style="@load(vm.getCodeMirrorClass(vm.object))"
 											sclass="content-field"
 											value="@load(vm.object.content)" 
 											onChange="@command('setObjectContent',content=codemirror.getText())"

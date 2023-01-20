@@ -39,7 +39,7 @@ public class CreateDBObjectTest extends AbstractDBObjectTest {
 		findValidationMessage(); // name is empty
 		
 		findTextbox(tabpanel, "name").sendKeys("Testview");
-		findCodeMirror(tabpanel, "content", 1).sendKeys("select * from transferabletest");
+		findCodeMirror(tabpanel, "content", 1).sendKeys("* from transferabletest");
 		saveDBObject(tabpanel);
 	}
 	
@@ -56,7 +56,7 @@ public class CreateDBObjectTest extends AbstractDBObjectTest {
 		findValidationMessage(); // name is empty
 		
 		findTextbox(tabpanel, "name").sendKeys("Testprocedure");
-		findCodeMirror(tabpanel, "content", 1).sendKeys("create or replace procedure Testprocedure(\n"
+		findCodeMirror(tabpanel, "content", 1).sendKeys("Testprocedure(\n"
 				+ "	text1 in varchar(100),\n"
 				+ "	text2 in varchar(100),\n"
 				+ "	result inout varchar(200)\n"
@@ -83,7 +83,7 @@ public class CreateDBObjectTest extends AbstractDBObjectTest {
 		findValidationMessage(); // name is empty
 		
 		findTextbox(tabpanel, "name").sendKeys("Testfunction");
-		findCodeMirror(tabpanel, "content", 1).sendKeys("create function Testfunction()\n"
+		findCodeMirror(tabpanel, "content", 1).sendKeys("Testfunction()\n"
 				+ "returns int\n"
 				+ "language plpgsql\n"
 				+ "as\n"
@@ -110,7 +110,7 @@ public class CreateDBObjectTest extends AbstractDBObjectTest {
 		clickButton(window, "create");
 		
 		findTextbox(tabpanel, "name").sendKeys("Triggerfunction");
-		findCodeMirror(tabpanel, "content", 1).sendKeys("create or replace function Triggerfunction()\n"
+		findCodeMirror(tabpanel, "content", 1).sendKeys("Triggerfunction()\n"
 				+ "returns trigger\n"
 				+ "language plpgsql\n"
 				+ "as\n"
@@ -133,7 +133,7 @@ public class CreateDBObjectTest extends AbstractDBObjectTest {
 		clickButton(window, "create");
 	
 		findTextbox(tabpanel, "name").sendKeys("Testtrigger");
-		findCodeMirror(tabpanel, "content", 1).sendKeys("create trigger Testtrigger\n"
+		findCodeMirror(tabpanel, "content", 1).sendKeys("Testtrigger\n"
 				+ "  before update\n"
 				+ "  on sys_user\n"
 				+ "  for each row\n"
@@ -152,7 +152,7 @@ public class CreateDBObjectTest extends AbstractDBObjectTest {
 		clickButton(window, "create");
 		
 		findTextbox(tabpanel, "name").sendKeys("Testsequence");
-		findCodeMirror(tabpanel, "content", 1).sendKeys("create sequence Testsequence START 100");
+		findCodeMirror(tabpanel, "content", 1).sendKeys("Testsequence START 100");
 		saveDBObject(tabpanel);
 	}
 	

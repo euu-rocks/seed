@@ -23,6 +23,8 @@ import org.seed.core.application.ApplicationEntityService;
 
 public interface DBObjectService extends ApplicationEntityService<DBObject> {
 	
+	List<DBObject> findTriggerContains(String name);
+	
 	List<DBObject> findViewsContains(String name);
 	
 }

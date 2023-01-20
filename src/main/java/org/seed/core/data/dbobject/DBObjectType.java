@@ -19,10 +19,20 @@ package org.seed.core.data.dbobject;
 
 public enum DBObjectType {
 	
-	VIEW,
-	PROCEDURE,
-	FUNCTION,
-	TRIGGER,
-	SEQUENCE;
+	VIEW	  (true),
+	PROCEDURE (true),
+	FUNCTION  (true),
+	TRIGGER   (false),
+	SEQUENCE  (false);
+	
+	private final boolean editable;
+	
+	private DBObjectType(boolean editable) {
+		this.editable = editable;
+	}
+
+	public boolean isEditable() {
+		return editable;
+	}
 	
 }

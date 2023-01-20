@@ -17,6 +17,9 @@
  */
 package org.seed.core.data.dbobject;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -38,6 +41,20 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class DBObjectMetadata extends AbstractApplicationEntity 
 	implements DBObject, ContentObject {
+	
+	/*
+	\s = whitespace
+	+  = one or more
+	on = text "on"
+	\s = whitespace
+	+  = one or more
+	(  = start match group
+	[  = one of the following characters
+	^  = not the following character
+	\s = whitespace
+	+  = one or more
+	*/
+	private static final Pattern PATTERN_TRIGGER_TABLE = Pattern.compile("\\s+on\\s+([^\\s]+)");
 	
 	private DBObjectType type;
 	
@@ -94,6 +111,16 @@ public class DBObjectMetadata extends AbstractApplicationEntity
 	public boolean contains(String text) {
 		return content != null && text != null &&
 			   content.toLowerCase().contains(text.toLowerCase());
+	}
+	
+	String getTriggerTable() {
+		if (content != null) {
+			final Matcher matcher = PATTERN_TRIGGER_TABLE.matcher(content.toLowerCase());
+			if (matcher.find()) {
+				return matcher.group(1);
+			}
+		}
+		return null;
 	}
 	
 	@Override

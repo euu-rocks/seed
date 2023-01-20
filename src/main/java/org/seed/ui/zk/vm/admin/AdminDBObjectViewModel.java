@@ -63,6 +63,15 @@ public class AdminDBObjectViewModel extends AbstractAdminViewModel<DBObject> {
 		return DBObjectType.values();
 	}
 	
+	public boolean isReadonly(DBObject dbObject) {
+		return dbObject != null && !dbObject.isNew() && 
+				!dbObject.getType().isEditable();
+	}
+	
+	public String getCodeMirrorClass(DBObject dbObject) {
+		return isReadonly(dbObject) ? "pointer-events:none" : null;
+	}
+	
 	@Init
 	public void init(@ContextParam(ContextType.VIEW) Component view,
 					 @ExecutionArgParam(C.PARAM) Object object) {

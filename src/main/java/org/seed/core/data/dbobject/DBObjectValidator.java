@@ -22,6 +22,7 @@ import javax.persistence.PersistenceException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.seed.C;
+import org.seed.Seed;
 import org.seed.core.config.SessionProvider;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.DataException;
@@ -39,6 +40,9 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 	@Autowired
 	private SessionProvider sessionProvider;
 	
+	@Autowired
+	private DBObjectRepository repository;
+	
 	@Override
 	public void validateCreate(DBObject dbObject) throws ValidationException {
 		Assert.notNull(dbObject, C.DBOBJECT);
@@ -49,9 +53,26 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 	}
 	
 	@Override
+	public void validateDelete(DBObject dbObject) throws ValidationException {
+		Assert.notNull(dbObject, C.DBOBJECT);
+		final var errors = createValidationErrors(dbObject);
+		
+		if (dbObject.getType() == DBObjectType.FUNCTION) {
+			final var service = Seed.getBean(DBObjectService.class); 
+			for (DBObject trigger : service.findTriggerContains(dbObject.getInternalName())) {
+				errors.addError("val.inuse.functiontriggerdelete", trigger.getName());
+			}
+			for (DBObject view : service.findViewsContains(dbObject.getInternalName())) {
+				errors.addError("val.inuse.functionviewdelete", view.getName());
+			}
+		}
+		validate(errors);
+	}
+	
+	@Override
 	public void validateSave(DBObject dbObject) throws ValidationException {
 		Assert.notNull(dbObject, C.DBOBJECT);
-		final ValidationErrors errors = createValidationErrors(dbObject);
+		final var errors = createValidationErrors(dbObject);
 		
 		if (isEmpty(dbObject.getName())) {
 			errors.addEmptyName();
@@ -65,17 +86,36 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 		if (isEmpty(dbObject.getContent())) {
 			errors.addEmptyField("label.sqlstatement");
 		}
-		else if (dbObject.getType() != null && dbObject.getType() != DBObjectType.VIEW && 
-				!dbObject.contains(dbObject.getInternalName())) {
+		else if (!isEmpty(dbObject.getName()) &&
+				 !isEmpty(dbObject.getType()) && 
+				 dbObject.getType() != DBObjectType.VIEW && 
+				 !dbObject.contains(dbObject.getInternalName())) {
 			errors.addNotContains(dbObject.getInternalName());
 		}
 		if (errors.isEmpty()) {
 			validateObjectType(dbObject, errors);
+			validateSaveObjectUsage(dbObject, errors);
 		}
-		if (errors.isEmpty()) {
+		if (errors.isEmpty() && dbObject.isEnabled() && 
+			(dbObject.isNew() || dbObject.getType().isEditable())) {
 			testSQL(dbObject);
 		}
 		validate(errors);
+	}
+	
+	private void validateSaveObjectUsage(DBObject dbObject, ValidationErrors errors) {
+		if (dbObject.getType() == DBObjectType.FUNCTION) {
+			final DBObject currentVersionObject = !dbObject.isNew() ? repository.get(dbObject.getId()) : null;
+			if (currentVersionObject != null && !currentVersionObject.getName().equals(dbObject.getName())) {
+				final var service = Seed.getBean(DBObjectService.class); 
+				for (DBObject trigger : service.findTriggerContains(currentVersionObject.getInternalName())) {
+					errors.addError("val.inuse.functiontriggerrename", trigger.getName());
+				}
+				for (DBObject view : service.findViewsContains(currentVersionObject.getInternalName())) {
+					errors.addError("val.inuse.functionviewrename", view.getName());
+				}
+			}
+		}
 	}
 	
 	private void validateObjectType(DBObject dbObject, ValidationErrors errors) {

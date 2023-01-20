@@ -66,8 +66,47 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 	public List<DBObject> findViewsContains(String name) {
 		Assert.notNull(name, C.NAME);
 		
-		return subList(repository.find(queryParam(C.TYPE, DBObjectType.VIEW)), 
-					   view -> view.isEnabled() && view.contains(' ' + name));
+		return findDBObjectContains(DBObjectType.VIEW, name);
+	}
+	
+	@Override
+	public List<DBObject> findTriggerContains(String name) {
+		Assert.notNull(name, C.NAME);
+		
+		return findDBObjectContains(DBObjectType.TRIGGER, name);
+	}
+	
+	@Override
+	public void initObject(DBObject dbObject) throws ValidationException {
+		Assert.notNull(dbObject, C.DBOBJECT);
+		super.initObject(dbObject);
+		
+		final String content;
+		switch (dbObject.getType()) {
+			case VIEW:
+				content = "select ";
+				break;
+			
+			case PROCEDURE:
+				content = "create or replace procedure ";
+				break;
+				
+			case FUNCTION:
+				content = "create or replace function ";
+				break;
+			
+			case TRIGGER:
+				content = "create trigger ";
+				break;
+			
+			case SEQUENCE:
+				content = "create sequence ";
+				break;	
+				
+			default:
+				throw new UnsupportedOperationException(dbObject.getType().name());
+		}
+		((DBObjectMetadata) dbObject).setContent(content);
 	}
 	
 	@Override
@@ -132,7 +171,7 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 		Assert.notNull(context, C.CONTEXT);
 		Assert.notNull(session, C.SESSION);
 		
-		final List<DBObject> newObjects = new ArrayList<>(context.getNewDBObjects());
+		final var newObjects = new ArrayList<DBObject>(context.getNewDBObjects());
 		newObjects.removeIf(dbObject -> !dbObject.isEnabled());
 		newObjects.sort((DBObject dbObject1, DBObject dbObject2) -> 
 							Integer.compare(dbObject1.getOrder() != null ? dbObject1.getOrder() : 0, 
@@ -144,8 +183,7 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 			}
 		}
 		
-		final List<DBObject> existingObjects = new ArrayList<>(context.getExistingDBObjects());
-		
+		final var existingObjects = new ArrayList<DBObject>(context.getExistingDBObjects());
 		existingObjects.sort((DBObject dbObject1, DBObject dbObject2) -> 
 								Integer.compare(dbObject1.getOrder() != null ? dbObject1.getOrder() : 0, 
 												dbObject2.getOrder() != null ? dbObject2.getOrder() : 0));
@@ -207,7 +245,7 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 				tx = session.beginTransaction();
 				saveObject(dbObject, session);
 				
-				final ChangeLog changeLog = createChangeLog(currentVersionObject, dbObject);
+				final var changeLog = createChangeLog(currentVersionObject, dbObject);
 				if (changeLog != null) {
 					session.saveOrUpdate(changeLog);
 				}
@@ -223,6 +261,11 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 		}
 		
 		updateConfiguration();
+	}
+	
+	private List<DBObject> findDBObjectContains(DBObjectType type, String name) {
+		return subList(repository.find(queryParam(C.TYPE, type)), 
+					   view -> view.isEnabled() && view.contains(name));
 	}
 	
 	private static ChangeLog createChangeLog(DBObject currentVersionObject, DBObject nextVersionObject) {
