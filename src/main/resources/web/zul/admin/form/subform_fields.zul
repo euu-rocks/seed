@@ -93,9 +93,9 @@
 		        <textbox value="@bind(vm.subFormColumn.height)"
 		        		 hflex="1"/>
 	        </vlayout>		 
-	        <vlayout visible="@load(!empty vm.getAvailableFilters(vm.subFormColumn))">
+	        <vlayout visible="@load(!empty vm.getAvailableFiltersSub(vm.subFormColumn))">
 	        	<label value="${labels.label.filter}:"/>
-	        	<combobox model="@load(vm.getAvailableFilters(vm.subFormColumn))"
+	        	<combobox model="@load(vm.getAvailableFiltersSub(vm.subFormColumn))"
 					  	  selectedItem="@bind(vm.subFormColumn.filter)"
 					  	  value="@load(vm.subFormColumn.filter.name)"
 					  	  hflex="1">

@@ -504,7 +504,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 				 								   parameter.layoutRoot);
 	}
 	
-	public List<Filter> getAvailableFilters(SubFormColumn subFormColumn) {
+	public List<Filter> getAvailableFiltersSub(SubFormColumn subFormColumn) {
 		return subFormColumn != null
 				? getAvailableFilters(subFormColumn.subFormField.getEntityField())
 				: Collections.emptyList();
