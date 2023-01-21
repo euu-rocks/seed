@@ -103,8 +103,13 @@ public class EntityRelation extends AbstractOrderedTransferableObject {
 	
 	@JsonIgnore
 	public String getJoinTableName() {
+		return getJoinTableName(relatedEntity);
+	}
+	
+	@JsonIgnore
+	public String getJoinTableName(Entity related) {
 		return entity.getEffectiveTableName() + '_' + 
-			   relatedEntity.getEffectiveTableName();
+			   related.getEffectiveTableName();
 	}
 	
 	@JsonIgnore

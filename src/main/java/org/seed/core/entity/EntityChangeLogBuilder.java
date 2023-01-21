@@ -215,7 +215,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 				final EntityRelation currentVersionRelation = 
 						currentVersionObject.getRelationByUid(relation.getUid());
 				if (currentVersionRelation != null) {
-					renameRelation(currentVersionRelation, relation);
+					renameRelation(null, currentVersionRelation, relation);
 				}
 			}
 		}
@@ -224,16 +224,17 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		if (inverseRelateds != null) {
 			for (Entity inverseRelated : inverseRelateds) {
 				for (EntityRelation inverseRelation : inverseRelated.getRelations()) {
-					renameRelation(inverseRelation, inverseRelation.createInverseRelation(nextVersionObject));
+					renameRelation(currentVersionObject, inverseRelation, 
+								   inverseRelation.createInverseRelation(nextVersionObject));
 				}
 			}
 		}
 	}
 	
-	private void renameRelation(EntityRelation oldRelation, EntityRelation newRelation) {
-		addRenameRelationTableChanges(oldRelation, newRelation, false);
+	private void renameRelation(Entity related, EntityRelation oldRelation, EntityRelation newRelation) {
+		addRenameRelationTableChanges(related, oldRelation, newRelation, false);
 		if (oldRelation.getEntity().isAudited()) {
-			addRenameRelationTableChanges(oldRelation, newRelation, true);
+			addRenameRelationTableChanges(related, oldRelation, newRelation, true);
 		}
 	}
 	
@@ -356,13 +357,13 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		addChange(renameTableChange);
 	}
 	
-	private void addRenameRelationTableChanges(EntityRelation oldRelation, EntityRelation newRelation, boolean isAuditTable) {
+	private void addRenameRelationTableChanges(Entity related, EntityRelation oldRelation, EntityRelation newRelation, boolean isAuditTable) {
 		Assert.notNull(oldRelation, "oldRelation");
 		Assert.notNull(newRelation, "newRelation");
 		
 		// rename table 
 		final RenameTableChange renameTableChange = new RenameTableChange();
-		renameTableChange.setOldTableName(getTableName(oldRelation, isAuditTable));
+		renameTableChange.setOldTableName(getTableName(related, oldRelation, isAuditTable));
 		renameTableChange.setNewTableName(getTableName(newRelation, isAuditTable));
 		addChange(renameTableChange);
 		
@@ -934,7 +935,11 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	}
 	
 	private static String getTableName(EntityRelation relation, boolean isAudit) {
-		final String tableName = relation.getJoinTableName();
+		return getTableName(null, relation, isAudit);
+	}
+	
+	private static String getTableName(Entity related, EntityRelation relation, boolean isAudit) {
+		final String tableName = related != null ? relation.getJoinTableName(related) : relation.getJoinTableName();
 		return isAudit ? tableName.concat(SUFFIX_AUDIT) : tableName;
 	}
 	

@@ -641,6 +641,8 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		cleanup(entity);
 		final boolean isInsert = entity.isNew();
 		final Entity currentVersionEntity = !isInsert ? getObject(entity.getId()) : null;
+		final boolean renamed = !isInsert && !currentVersionEntity.getInternalName().equals(entity.getInternalName());
+		
 		boolean configChanged = false;
 		try (Session session = entityRepository.getSession()) {
 			Transaction tx = null;
@@ -670,8 +672,8 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				handleException(tx, ex);
 			}
 		}
-		if (configChanged) {
-			if (!isInsert && !entity.getInternalName().equals(currentVersionEntity.getInternalName())) {
+		if (configChanged || renamed) {
+			if (renamed) {
 				removeEntityClass(currentVersionEntity);
 			}
 			configuration.updateConfiguration();
