@@ -25,10 +25,8 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.openqa.selenium.WebElement;
 
-import org.seed.test.integration.AbstractIntegrationTest;
-
 @TestMethodOrder(OrderAnnotation.class)
-public class CreateUserGroupTest extends AbstractIntegrationTest {
+public class CreateUserGroupTest extends AbstractUserGroupTest {
 	
 	@Test
 	@Order(1)
@@ -42,8 +40,7 @@ public class CreateUserGroupTest extends AbstractIntegrationTest {
 		findValidationMessage(); // name is empty
 		
 		findTextbox(tabpanel, "name").sendKeys("Testrole");
-		clickButton(tabpanel, "save");
-		findSuccessMessage();
+		saveGroup(tabpanel);
 	}
 	
 	@Test
@@ -54,8 +51,7 @@ public class CreateUserGroupTest extends AbstractIntegrationTest {
 		WebElement tabpanelUsers = findTabpanel(tabpanel, "users");
 		dragAndDrop(tabpanelUsers, "testuser", "selected");
 		dragAndDrop(tabpanelUsers, "seed", "selected");
-		clickButton(tabpanel, "save");
-		findSuccessMessage();
+		saveGroup(tabpanel);
 	}
 	
 	@Test
@@ -67,18 +63,7 @@ public class CreateUserGroupTest extends AbstractIntegrationTest {
 		dragAndDrop(tabpanelPermissions, "admin-entity", "selected");
 		dragAndDrop(tabpanelPermissions, "admin-form", "selected");
 		dragAndDrop(tabpanelPermissions, "admin-menu", "selected");
-		clickButton(tabpanel, "save");
-		findSuccessMessage();
-	}
-	
-	private WebElement showGroup(String name) {
-		openMenu("administration-benutzer");
-		clickMenu("administration-benutzer-rollen");
-		findTab("rollen");
-		WebElement tabpanel = findTabpanel("rollen");
-		clickListItem(tabpanel, name);
-		clickButton(tabpanel, "edit");
-		return tabpanel;
+		saveGroup(tabpanel);
 	}
 	
 }

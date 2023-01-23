@@ -150,6 +150,15 @@ public class EditEntityTest extends AbstractEntityTest {
 	
 	@Test
 	@Order(10)
+	void testRenameRelatedEntity() {
+		WebElement tabpanel = showEntity("transferabletest");
+		clearTextbox(tabpanel, "name");
+		findTextbox(tabpanel, "name").sendKeys("TransferableTestNew");
+		saveEntity(tabpanel);
+	}
+	
+	@Test
+	@Order(11)
 	void testRenameEntityBack() {
 		WebElement tabpanel = showEntity("integrationtestnew");
 		clearTextbox(tabpanel, "name");
@@ -158,7 +167,7 @@ public class EditEntityTest extends AbstractEntityTest {
 	}
 	
 	@Test
-	@Order(11)
+	@Order(12)
 	void testEditCallbackFunction() {
 		WebElement tabpanel = showEntity("integrationtest");
 		clickTab(tabpanel, "callbackfunctions");

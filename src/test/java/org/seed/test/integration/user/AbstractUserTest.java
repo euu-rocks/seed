@@ -17,25 +17,24 @@
  */
 package org.seed.test.integration.user;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import org.junit.jupiter.api.Test;
 import org.openqa.selenium.WebElement;
 
-public class CreateUserTest extends AbstractUserTest {
+import org.seed.test.integration.AbstractIntegrationTest;
+
+abstract class AbstractUserTest extends AbstractIntegrationTest {
 	
-	@Test
-	void testCreateUser() {
-		clickMenu("administration-benutzer");
-		assertEquals("Benutzer", findTab("benutzer").getText());
-		WebElement tabpanel = findTabpanel("benutzer");
-		clickButton(tabpanel, "new");
+	protected void saveUser(WebElement tabpanel) {
 		clickButton(tabpanel, "save");
-		findValidationMessage(); // name is empty
-		
-		findTextbox(tabpanel, "username").sendKeys("Testuser");
-		findTextbox(tabpanel, "email").sendKeys("testuser@euu.rocks");
-		saveUser(tabpanel);
+		findSuccessMessage();
+	}
+	
+	protected WebElement showUser(String name) {
+		clickMenu("administration-benutzer");
+		findTab("benutzer");
+		final WebElement tabpanel = findTabpanel("benutzer");
+		clickListItem(tabpanel, name);
+		clickButton(tabpanel, "edit");
+		return tabpanel;
 	}
 	
 }

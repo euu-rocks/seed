@@ -103,10 +103,11 @@
 			</grid>
 			<tabbox id="mainTabbox" hflex="1" vflex="1" class="alpha-tabbox">
 				<tabs>
-					<tab label="${labels.label.usergroups}"/>
+					<tab sclass="usergroups-tab"
+						 label="${labels.label.usergroups}"/>
 				</tabs>
 				<tabpanels> 
-					<tabpanel>
+					<tabpanel sclass="usergroups-tabpanel">
 						<user-groups/>
 					</tabpanel>
 				</tabpanels>

@@ -26,10 +26,11 @@
 					 model="@load(vm.getListManagerList('usergroups',0))"
 					 droppable="true" onDrop="@command('dropToGroupList',item=event.dragged.attributes.item,list=0)"
 					 hflex="1" vflex="1"
-					 class="alpha-noborder alpha-nobg" 
+					 class="available-items alpha-noborder alpha-nobg" 
 					 oddRowSclass="non-odd">
 				<template name="model" var="group">
-					<listitem attributes.item="@init(group)" 
+					<listitem sclass="@init(vm.getItemTestClass(group))"
+							  attributes.item="@init(group)" 
 							  draggable="true" droppable="true" 
 	 						  onDrop="@command('insertToGroupList',item=event.dragged.attributes.item,base=group,list=0)">
 						<listcell label="@init(group.name)" 
@@ -45,11 +46,12 @@
 			<listbox mold="paging" autopaging="true" 
 					 model="@load(vm.getListManagerList('usergroups',1))"
 					 droppable="true" onDrop="@command('dropToGroupList',item=event.dragged.attributes.item,list=1)"
-					 class="alpha-noborder alpha-nobg"
+					 class="selected-items alpha-noborder alpha-nobg"
 					 hflex="1" vflex="1"
 					 oddRowSclass="non-odd">
 				<template name="model" var="group">
-					<listitem attributes.item="@init(group)" 
+					<listitem sclass="@init(vm.getItemTestClass(group))"
+							  attributes.item="@init(group)" 
 							  draggable="true" droppable="true" 
 							  onDrop="@command('insertToGroupList',item=event.dragged.attributes.item,base=group,list=1)">
 						<listcell label="@init(group.name)" 

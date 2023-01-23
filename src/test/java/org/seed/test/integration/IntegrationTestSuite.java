@@ -54,6 +54,8 @@ import org.seed.test.integration.transformer.CreateTransformerTest;
 import org.seed.test.integration.transformer.EditTransformerTest;
 import org.seed.test.integration.user.CreateUserGroupTest;
 import org.seed.test.integration.user.CreateUserTest;
+import org.seed.test.integration.user.EditUserGroupTest;
+import org.seed.test.integration.user.EditUserTest;
 
 @Suite
 @SelectClasses({ NavigationTest.class, CreateUserTest.class, CreateUserGroupTest.class, 
@@ -66,5 +68,6 @@ import org.seed.test.integration.user.CreateUserTest;
 				 CreateJobTest.class, EditEntityTest.class, EditFilterTest.class, EditDBObjectTest.class, 
 				 EditDataSourceTest.class, EditTransferTest.class, EditTransformerTest.class, 
 				 EditFormTest.class, EditMenuTest.class, EditJobTest.class, EditModuleTest.class, 
-				 EditReportTest.class, EditCustomCodeTest.class, EditRestTest.class })
+				 EditReportTest.class, EditCustomCodeTest.class, EditRestTest.class, EditUserTest.class,
+				 EditUserGroupTest.class })
 public class IntegrationTestSuite { }
