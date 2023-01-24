@@ -17,7 +17,11 @@
  */
 package org.seed.ui.zk.vm.admin;
 
+import static org.seed.core.util.CollectionUtils.convertedList;
+
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -44,6 +48,15 @@ import org.zkoss.zk.ui.select.annotation.WireVariable;
 import org.zkoss.zk.ui.util.Statistic;
 
 public class SystemInfoViewModel extends AbstractApplicationViewModel {
+	
+	private static final Comparator<LogEntry> LOGENTRY_COMPARATOR = new Comparator<>() {
+
+		@Override
+		public int compare(LogEntry entry1, LogEntry entry2) {
+			return entry2.getTime().compareTo(entry1.getTime());
+		}
+		
+	};
 	
 	@WireVariable(value="environment")
 	private Environment environment;
@@ -94,9 +107,11 @@ public class SystemInfoViewModel extends AbstractApplicationViewModel {
 	public void setLogEntry(LogEntry logEntry) {
 		this.logEntry = logEntry;
 	}
-
+	
 	public List<LogEntry> getLogEntries() {
-		return systemLog.getEntries();
+		final var entries = new ArrayList<LogEntry>(systemLog.getEntries());
+		entries.sort(LOGENTRY_COMPARATOR);
+		return entries;
 	}
 	
 	public Date getStartTime() {
@@ -176,6 +191,13 @@ public class SystemInfoViewModel extends AbstractApplicationViewModel {
 	
 	public DatabaseInfo getDbInfo() {
 		return schemaManager.getDatabaseInfo();
+	}
+	
+	public List<String> getRegisteredClassNames() {
+		final var names = convertedList(codeManager.getGeneratedClasses(Object.class), 
+										Class::getName);
+		names.sort(null);
+		return names;
 	}
 	
 	@Command

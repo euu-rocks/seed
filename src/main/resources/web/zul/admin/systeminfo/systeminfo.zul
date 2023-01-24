@@ -20,6 +20,7 @@
 <!DOCTYPE xml>
 <?component name="info-overview" macroURI="~./zul/admin/systeminfo/systeminfo_overview.zul" inline="true"?>
 <?component name="info-events" macroURI="~./zul/admin/systeminfo/systeminfo_events.zul" inline="true"?>
+<?component name="info-classes" macroURI="~./zul/admin/systeminfo/systeminfo_classes.zul" inline="true"?>
 <?component name="info-compilererror" macroURI="~./zul/admin/systeminfo/systeminfo_compilererror.zul" inline="true"?>
 <borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.SystemInfoViewModel')">
 	<north border="0">
@@ -38,6 +39,7 @@
 			<tabs>
 				<tab label="${labels.label.overview}"/>
 				<tab id="tabSystemLog" label="${labels.label.events}"/>
+				<tab id="tabClasses" label="${labels.label.development}"/>
 				<tab id="tabCompilerError" label="${labels.label.compilererror}" iconSclass="z-icon-exclamation"
 					 visible="@load(!empty vm.compilerErrors.errors)"/>
 			</tabs>
@@ -47,6 +49,9 @@
 				</tabpanel>
 				<tabpanel fulfill="tabSystemLog.onSelect">
 					<info-events/>
+				</tabpanel>
+				<tabpanel fulfill="tabClasses.onSelect">
+					<info-classes/>
 				</tabpanel>
 				<tabpanel fulfill="tabCompilerError.onSelect">
 					<info-compilererror/>

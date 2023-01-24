@@ -1,0 +1,38 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout>
+	<center border="0">
+		<listbox model="@load(vm.registeredClassNames)" 
+		         class="alpha-noborder"
+		         hflex="1" vflex="1">
+			<listhead sizable="true">
+	            <listheader label="${labels.label.registeredclasses}"/>
+	        </listhead>
+	        <template name="model" var="name">
+	            <listitem>
+	            	<listcell iconSclass="z-icon-code z-icon-fw alpha-icon-lg">
+	            		<label value="@load(name)" style="margin-left:3px"/>
+	            	</listcell>
+	            </listitem>
+	        </template>         
+		</listbox>
+	</center>
+</borderlayout>
