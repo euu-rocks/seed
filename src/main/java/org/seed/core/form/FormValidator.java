@@ -31,11 +31,13 @@ import org.seed.core.entity.NestedEntity;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class FormValidator extends AbstractSystemEntityValidator<Form> {
 	
+	@Autowired
 	private FormRepository repository;
 	
 	private List<FormDependent<? extends SystemEntity>> formDependents;
