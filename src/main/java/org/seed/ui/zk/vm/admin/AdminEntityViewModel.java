@@ -1118,6 +1118,12 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 				: entitySourceCodeProvider.getEntitySource(getObject());
 	}
 	
+	@Override
+	protected void refreshObject() {
+		reloadObject();
+		internalRefresh(getObject());
+	}
+	
 	private void setDefaultTransition() {
 		if (getObject().hasStatusTransitions()) {
 			statusTransition = getObject().getStatusTransitions().get(0);

@@ -549,6 +549,10 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		internalRefresh(object);
 	}
 	
+	protected void reloadObject() {
+		object = getObjectService().getObject(object.getId(), currentSession());
+	}
+	
 	protected void cmdEditObject() {
 		Assert.stateAvailable(object, C.OBJECT);
 		
