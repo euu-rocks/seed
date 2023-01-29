@@ -19,6 +19,8 @@ package org.seed.ui.zk;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -73,10 +75,24 @@ public class ZKLabelProvider implements LabelProvider {
 	}
 	
 	@Override
+	public Date parseDate(String text) throws ParseException {
+		return text != null
+				? dateFormat().parse(text)
+				: null;
+	}
+	
+	@Override
 	public String formatDateTime(Date date) {
 		return date != null
 				? dateTimeFormat().format(date)
 				: emptyString();
+	}
+	
+	@Override
+	public Date parseDateTime(String text) throws ParseException {
+		return text != null
+				? dateTimeFormat().parse(text)
+				: null;
 	}
 	
 	@Override
@@ -91,6 +107,13 @@ public class ZKLabelProvider implements LabelProvider {
 		return decimal != null
 				? BigDecimals.toLocaleString(decimal, Locales.getCurrent())
 				: emptyString();
+	}
+	
+	@Override
+	public BigDecimal parseBigDecimal(String text) throws ParseException {
+		return text != null
+				? new BigDecimal(NumberFormat.getInstance(Locales.getCurrent()).parse(text).toString())
+				: null;
 	}
 	
 	private DateFormat dateFormat() {
@@ -123,7 +146,7 @@ public class ZKLabelProvider implements LabelProvider {
 	}
 	
 	private static String getEnumLabelKey(Enum<?> enm) {
-		final String[] parts = enm.getClass().getName().toLowerCase().split("\\.");
+		final var parts = enm.getClass().getName().toLowerCase().split("\\.");
 		return parts[parts.length - 2] + '.' + 
 			   parts[parts.length - 1] + '.' + 
 			   enm.name().toLowerCase();

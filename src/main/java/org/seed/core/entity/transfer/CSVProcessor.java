@@ -17,17 +17,19 @@
  */
 package org.seed.core.entity.transfer;
 
+import static org.seed.core.util.CollectionUtils.convertedList;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.Reader;
+import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.LabelProvider;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.entity.value.ValueObjectService;
@@ -35,60 +37,56 @@ import org.seed.core.util.Assert;
 
 import org.springframework.util.FastByteArrayOutputStream;
 
+import com.opencsv.CSVParserBuilder;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
+import com.opencsv.CSVWriterBuilder;
 import com.opencsv.ICSVWriter;
-import com.opencsv.bean.ColumnPositionMappingStrategy;
-import com.opencsv.bean.CsvToBeanBuilder;
-import com.opencsv.bean.MappingStrategy;
-import com.opencsv.bean.StatefulBeanToCsv;
-import com.opencsv.bean.StatefulBeanToCsvBuilder;
-import com.opencsv.exceptions.CsvDataTypeMismatchException;
-import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
 class CSVProcessor extends AbstractTransferProcessor {
 	
 	CSVProcessor(ValueObjectService valueObjectService,
 				 Class<? extends ValueObject> objectClass,
-				 Transfer transfer) {
-		super(valueObjectService, objectClass, transfer);
+				 LabelProvider labelProvider, Transfer transfer) {
+		super(valueObjectService, objectClass, labelProvider, transfer);
 	}
 	
 	@Override
 	public byte[] doExport() {
-		try (FastByteArrayOutputStream out = new FastByteArrayOutputStream()) {
+		try (var out = new FastByteArrayOutputStream()) {
 			doExport(out);
 			return out.toByteArray();
 		}
 	}
 	
 	private void doExport(OutputStream out) {
-		try (PrintWriter writer = new PrintWriter(out, false, getCharset())) {
-			final StatefulBeanToCsvBuilder<ValueObject> builder = 
-				new StatefulBeanToCsvBuilder<ValueObject>(writer)
-					.withMappingStrategy(createMappingStrategy())
-					.withApplyQuotesToAll(getTransfer().isQuoteAll());
-			if (getTransfer().getNewline() != null) {
-				builder.withLineEnd(getTransfer().getNewline().content);
-			}
-			if (getTransfer().getSeparatorChar() != null) {
-				builder.withSeparator(getTransfer().getSeparatorChar().charAt(0));
-			}
-			if (getTransfer().getQuoteChar() != null) {
-				builder.withQuotechar(getTransfer().getQuoteChar().charAt(0));
-			}
-			if (getTransfer().getEscapeChar() != null) {
-				builder.withEscapechar(getTransfer().getEscapeChar().charAt(0));
-			}
-			
-			final StatefulBeanToCsv<ValueObject> beanToCsv = builder.build();
+		final var writer = createWriter(out);
+		try {
+			// header
 			if (getTransfer().isHeader()) {
-				writeHeader(writer);
+				final var names = convertedList(getTransfer().getElements(), 
+							elem -> elem.getEntityField() != null 
+										? elem.getEntityField().getName() 
+										: getEnumLabel(elem.getSystemField()));
+				writer.writeNext(names.toArray(new String[names.size()]), 
+								 getTransfer().isQuoteAll());
 			}
+			// objects
 			while (hasNextObject()) {
-				beanToCsv.write(getNextObject());
+				writer.writeNext(exportObject(getNextObject()), 
+								 getTransfer().isQuoteAll());
 			}
-		} 
-		catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
-			throw new InternalException(e);
+		}
+		catch (Exception ex) {
+			throw new InternalException(ex);
+		}
+		finally {
+			try {
+				writer.close();
+			} 
+			catch (IOException e) {
+				// ignore
+			}
 		}
 	}
 	
@@ -96,96 +94,65 @@ class CSVProcessor extends AbstractTransferProcessor {
 	public TransferResult doImport(ImportOptions options, InputStream inputStream) throws ValidationException {
 		Assert.notNull(options, C.OPTIONS);
 		Assert.notNull(inputStream, "inputStream");
-		final TransferResult result = new TransferResult(options);
+		final var result = new TransferResult(options);
+		final var reader = createReader(inputStream);
+		final var objects = new ArrayList<ValueObject>();
 		
-		try (Reader reader = new InputStreamReader(inputStream, getCharset())) {
-			final CsvToBeanBuilder<ValueObject> builder  =
-					new CsvToBeanBuilder<ValueObject>(reader)
-						.withType(getObjectClass())
-						.withMappingStrategy(createMappingStrategy())
-						.withIgnoreLeadingWhiteSpace(true)
-						.withIgnoreEmptyLine(true);
+		int line = 1;
+		String[] columns;
+	    try {
 			if (getTransfer().isHeader()) {
-				builder.withSkipLines(1);
+				reader.skip(1);
+				line++;
 			}
-			if (getTransfer().getSeparatorChar() != null) {
-				builder.withSeparator(getTransfer().getSeparatorChar().charAt(0));
+	    	while ((columns = reader.readNext()) != null) {
+	    		try {
+	    			objects.add(importObject(columns));
+	    		}
+	    		catch (ParseException pex) {
+	    			result.addError(pex, line);
+	    		}
+	    		line++;
 			}
-			if (getTransfer().getQuoteChar() != null) {
-				builder.withQuoteChar(getTransfer().getQuoteChar().charAt(0));
-			}
-			if (getTransfer().getEscapeChar() != null) {
-				builder.withEscapeChar(getTransfer().getEscapeChar().charAt(0));
-			}
-			saveObjects(builder.build().parse(), options, result);
+	    	saveObjects(objects, options, result);
 		} 
-		catch (IOException ioe) {
-			throw new InternalException(ioe);
+	    catch (Exception ex) {
+			throw new InternalException(ex);
 		}
-
 		return result;
 	}
 	
-	private MappingStrategy<ValueObject> createMappingStrategy() {
-		final ColumnPositionMappingStrategy<ValueObject> mappingStrategy = 
-				new ColumnPositionMappingStrategy<>();
-		mappingStrategy.setType(getObjectClass());
-		if (getTransfer().hasElements()) {
-			final List<String> fieldNames = new ArrayList<>();
-			for (TransferElement element : getTransfer().getElements()) {
-				if (element.getEntityField() != null) {
-					fieldNames.add(element.getEntityField().getInternalName());
-				}
-				else if (element.getSystemField() != null) {
-					fieldNames.add(element.getSystemField().property);
-				}
-			}
-			mappingStrategy.setColumnMapping(fieldNames.toArray(new String[fieldNames.size()]));
+	private CSVReader createReader(InputStream in) {
+		final var parser = new CSVParserBuilder().withIgnoreLeadingWhiteSpace(true);
+		if (getTransfer().getSeparatorChar() != null) {
+			parser.withSeparator(getTransfer().getSeparatorChar().charAt(0));
 		}
-		return mappingStrategy;
+		if (getTransfer().getQuoteChar() != null) {
+			parser.withQuoteChar(getTransfer().getQuoteChar().charAt(0));
+		}
+		if (getTransfer().getEscapeChar() != null) {
+			parser.withEscapeChar(getTransfer().getEscapeChar().charAt(0));
+		}
+		return new CSVReaderBuilder(new InputStreamReader(in, getCharset()))
+					.withCSVParser(parser.build())
+					.build();
 	}
 	
-	private void writeHeader(PrintWriter writer) {
-		if (getTransfer().hasElements()) {
-			writeHeaderFields(writer);
-			if (getTransfer().getNewline() != null) {
-				writer.write(getTransfer().getNewline().content);
-			}
-			else {
-				writer.write(ICSVWriter.DEFAULT_LINE_END);
-			}
+	private ICSVWriter createWriter(OutputStream out) {
+		final var builder = new CSVWriterBuilder(new PrintWriter(out, false, getCharset()));
+		if (getTransfer().getNewline() != null) {
+			builder.withLineEnd(getTransfer().getNewline().content);
 		}
-	}
-	
-	private void writeHeaderFields(PrintWriter writer) {
-		final char separator = getTransfer().getSeparatorChar() != null 
-				? getTransfer().getSeparatorChar().charAt(0)
-				: ICSVWriter.DEFAULT_SEPARATOR;
-		final char quote = getTransfer().getQuoteChar() != null 
-				? getTransfer().getQuoteChar().charAt(0)
-				: ICSVWriter.DEFAULT_QUOTE_CHARACTER;
-		
-		boolean first = true;
-		for (TransferElement element : getTransfer().getElements()) {
-			if (first) {
-				first = false;
-			}
-			else {
-				writer.write(separator);
-			}
-			if (getTransfer().isQuoteAll()) {
-				writer.write(quote);
-			}
-			if (element.getEntityField() != null) {
-				writer.write(element.getEntityField().getName());
-			}
-			else if (element.getSystemField() != null) {
-				writer.write(getEnumLabel(element.getSystemField()));
-			}
-			if (getTransfer().isQuoteAll()) {
-				writer.write(quote);
-			}
+		if (getTransfer().getSeparatorChar() != null) {
+			builder.withSeparator(getTransfer().getSeparatorChar().charAt(0));
 		}
+		if (getTransfer().getQuoteChar() != null) {
+			builder.withQuoteChar(getTransfer().getQuoteChar().charAt(0));
+		}
+		if (getTransfer().getEscapeChar() != null) {
+			builder.withEscapeChar(getTransfer().getEscapeChar().charAt(0));
+		}
+		return builder.build();
 	}
 	
 }

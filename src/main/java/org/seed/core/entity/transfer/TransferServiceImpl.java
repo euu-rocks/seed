@@ -30,6 +30,7 @@ import org.hibernate.Session;
 
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.LabelProvider;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -76,6 +77,9 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	
 	@Autowired
 	private TransferValidator validator;
+	
+	@Autowired
+	private LabelProvider labelProvider;
 	
 	@Override
 	protected TransferRepository getRepository() {
@@ -363,7 +367,7 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 		final Class<? extends ValueObject> valueObjectClass = (Class<? extends ValueObject>) objectClass;
 		
 		if (TransferFormat.CSV == transfer.getFormat()) {
-			return new CSVProcessor(valueObjectService, valueObjectClass, transfer);
+			return new CSVProcessor(valueObjectService, valueObjectClass, labelProvider, transfer);
 		}
 		throw new UnsupportedOperationException(transfer.getFormat().name());
 	}

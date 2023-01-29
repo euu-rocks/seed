@@ -17,7 +17,10 @@
  */
 package org.seed.core.entity.transfer;
 
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.text.ParseException;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,21 +32,26 @@ import org.hibernate.Transaction;
 
 import org.seed.C;
 import org.seed.InternalException;
-import org.seed.Seed;
+import org.seed.LabelProvider;
 import org.seed.core.data.QueryCursor;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.entity.value.ValueObjectService;
 import org.seed.core.util.Assert;
+import org.seed.core.util.BeanUtils;
+import org.seed.core.util.MiscUtils;
+import org.seed.core.util.ObjectAccess;
 
 import org.springframework.util.ObjectUtils;
 
-public abstract class AbstractTransferProcessor implements TransferProcessor {
+abstract class AbstractTransferProcessor implements TransferProcessor {
 	
 	private final ValueObjectService valueObjectService;
 	
 	private final Class<? extends ValueObject> objectClass;
+	
+	private final LabelProvider labelProvider;
 	
 	private final Transfer transfer;
 	
@@ -57,13 +65,16 @@ public abstract class AbstractTransferProcessor implements TransferProcessor {
 	
 	protected AbstractTransferProcessor(ValueObjectService valueObjectService,
 										Class<? extends ValueObject> objectClass,
+										LabelProvider labelProvider,
 										Transfer transfer) {
 		Assert.notNull(valueObjectService, "valueObjectService");
 		Assert.notNull(objectClass, C.OBJECTCLASS);
+		Assert.notNull(transfer, "labelProvider");
 		Assert.notNull(transfer, C.TRANSFER);
 		
 		this.valueObjectService = valueObjectService;
 		this.objectClass = objectClass;
+		this.labelProvider = labelProvider;
 		this.transfer = transfer;
 	}
 	
@@ -90,15 +101,15 @@ public abstract class AbstractTransferProcessor implements TransferProcessor {
 	protected Charset getCharset() {
 		return transfer != null && transfer.getEncoding() != null 
 				? Charset.forName(transfer.getEncoding().charset)
-				: Charset.defaultCharset();
+				: MiscUtils.CHARSET;
 	}
 	
 	protected String getLabel(String key, String ...params) {
-		return Seed.getLabel(key, params);
+		return labelProvider.getLabel(key, params);
 	}
 	
 	protected String getEnumLabel(Enum<?> enm) {
-		return Seed.getEnumLabel(enm);
+		return labelProvider.getEnumLabel(enm);
 	}
 	
 	protected ValueObject getNextObject() {
@@ -109,6 +120,109 @@ public abstract class AbstractTransferProcessor implements TransferProcessor {
 			chunk = valueObjectService.loadChunk(getCursor());
 		}
 		return chunk.get(index++ % getCursor().getChunkSize());
+	}
+	
+	protected ValueObject importObject(String[] columns) throws ParseException {
+		final ValueObject object = BeanUtils.instantiate(objectClass);
+		int idx = 0;
+		for (TransferElement element : transfer.getElements()) {
+			final var column = columns[idx++];
+			if (column != null) {
+				final Object value;
+				switch (element.getEntityField().getType()) {
+					case AUTONUM:
+					case TEXT:
+					case TEXTLONG:
+						value = column;
+						break;
+					
+					case BOOLEAN:
+						value = "1".equals(column);
+						break;
+						
+					case DATE:
+						value = labelProvider.parseDate(column);
+						break;
+						
+					case DATETIME:
+						value = labelProvider.parseDateTime(column);
+						break;
+						
+					case DECIMAL:
+						value = labelProvider.parseBigDecimal(column);
+						break;
+						
+					case DOUBLE:
+						value = Double.parseDouble(column);
+						break;
+						
+					case INTEGER:
+						value = Integer.parseInt(column);
+						break;
+						
+					case LONG:
+						value = Long.parseLong(column);
+						break;
+						
+					default:
+						throw new UnsupportedOperationException(element.getEntityField().getType().name());
+				}
+				if (element.getEntityField() != null) {
+					ObjectAccess.callSetter(object, element.getEntityField().getInternalName(), value);
+				}
+				else {
+					ObjectAccess.callSetter(object, element.getSystemField().property, value);
+				}
+			}
+		}
+		return object;
+	}
+	
+	protected String[] exportObject(ValueObject object) {
+		int idx = 0;
+		final var result = new String[transfer.getElements().size()];
+		for (TransferElement element : transfer.getElements()) {
+			final var value = element.getEntityField() != null
+								? ObjectAccess.callGetter(object, element.getEntityField().getInternalName())
+								: ObjectAccess.callGetter(object, element.getSystemField().property);
+			if (value == null) {
+				idx++;
+				continue;
+			}
+			switch (element.getEntityField().getType()) {
+				case AUTONUM:
+				case TEXT:
+				case TEXTLONG:
+					result[idx++] = (String) value;
+					break;
+					
+				case BOOLEAN:
+					result[idx++] = ((boolean) value) ? "1" : "0";
+					break;
+				
+				case DATE:
+					result[idx++] = labelProvider.formatDate((Date) value);
+					break;
+					
+				case DATETIME:
+					result[idx++] = labelProvider.formatDateTime((Date) value);
+					break;
+				
+				case DECIMAL:
+					result[idx++] = labelProvider.formatBigDecimal((BigDecimal) value);
+					break;
+					
+				case DOUBLE:
+				case INTEGER:
+				case LONG:
+					result[idx++] = value.toString();
+					break;
+				
+				default:
+					throw new UnsupportedOperationException(element.getEntityField().getType().name());
+			}
+		}
+		return result;
 	}
 	
 	protected void saveObjects(List<ValueObject> objects, ImportOptions options, 

@@ -23,6 +23,6 @@ public enum TransferErrorType {
 	UNIQUEKEY,
 	MISSINGKEY,
 	DATABASE,
-	INVALID 	// ValidationErrors
-	
+	INVALID, 	// ValidationErrors
+	UNPARSABLE
 }

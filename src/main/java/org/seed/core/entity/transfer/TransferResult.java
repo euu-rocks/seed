@@ -17,6 +17,7 @@
  */
 package org.seed.core.entity.transfer;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,22 +42,26 @@ public class TransferResult {
 	
 	private int updatedObjects;
 	
-	public TransferResult(ImportOptions options) {
+	TransferResult(ImportOptions options) {
 		this.options = options;
 	}
 
 	public ImportOptions getOptions() {
 		return options;
 	}
+	
+	public boolean hasErrors() {
+		return errors != null;
+	}
+	
+	public List<TransferError> getErrors() {
+		return errors;
+	}
 
 	public int getSuccessfulTransfers() {
 		return successfulTransfers;
 	}
 	
-	public void registerSuccessfulTransfer() {
-		successfulTransfers++;
-	}
-
 	public int getFailedTransfers() {
 		return failedTransfers;
 	}
@@ -65,35 +70,35 @@ public class TransferResult {
 		return createdObjects;
 	}
 
-	public void registerCreatedObject() {
-		this.createdObjects++;
-	}
-
 	public int getUpdatedObjects() {
 		return updatedObjects;
 	}
-
-	public void registerUpdatedObject() {
+	
+	void registerCreatedObject() {
+		this.createdObjects++;
+	}
+	
+	void registerSuccessfulTransfer() {
+		successfulTransfers++;
+	}
+	
+	void registerUpdatedObject() {
 		this.updatedObjects++;
 	}
 
-	public boolean hasErrors() {
-		return errors != null;
-	}
-	
-	public List<TransferError> getErrors() {
-		return errors;
-	}
-	
-	public void addDuplicateError(String fieldName, String value) {
+	void addDuplicateError(String fieldName, String value) {
 		addError(new TransferError(TransferErrorType.DUPLICATE, fieldName, value));
 	}
 	
-	public void addMissingKeyError(String fieldName) {
+	void addMissingKeyError(String fieldName) {
 		addError(new TransferError(TransferErrorType.MISSINGKEY, fieldName, null));
 	}
 	
-	public void addError(PersistenceException pex) {
+	void addError(ParseException pex, int line) {
+		addError(new TransferError(TransferErrorType.UNPARSABLE, pex.getMessage() + " at line " + line));
+	}
+	
+	void addError(PersistenceException pex) {
 		if (pex.getCause() instanceof ConstraintViolationException) {
 			final String message = pex.getCause().getCause().getMessage();
 			if (message.contains("unique constraint")) {
@@ -107,7 +112,7 @@ public class TransferResult {
 		}
 	}
 	
-	public void addError(ValidationException vex) {
+	void addError(ValidationException vex) {
 		for (ValidationError error : vex.getErrors()) {
 			addError(new TransferError(TransferErrorType.INVALID, error));
 		}

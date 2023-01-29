@@ -18,6 +18,7 @@
 package org.seed;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.util.Date;
 
 public interface LabelProvider {
@@ -35,6 +36,12 @@ public interface LabelProvider {
 	String formatTime(Date time);
 	
 	String formatBigDecimal(BigDecimal decimal);
+	
+	Date parseDate(String text) throws ParseException;
+	
+	Date parseDateTime(String text) throws ParseException;
+	
+	BigDecimal parseBigDecimal(String text) throws ParseException;
 	
 	default String emptyString() {
 		return "";
