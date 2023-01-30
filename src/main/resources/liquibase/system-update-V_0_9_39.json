@@ -1,0 +1,39 @@
+    {
+        "changeSet": {
+            "id": "system update 0.9.39",
+            "author": "seed",
+            "changes": [
+               {
+                  "addColumn":  {
+                     "columns":[
+                        {
+                           "column": {
+                              "name": "name",
+                              "type": "VARCHAR(<#IDENT_LEN#>)"
+                           }
+                        },
+                        {
+                           "column": {
+                              "name": "format",
+                              "type": "VARCHAR(<#IDENT_LEN#>)"
+                           }
+                        },
+                        {
+                           "column": {
+                              "name": "valuetrue",
+                              "type": "VARCHAR(<#UID_LEN#>)"
+                           }
+                        },
+                        {
+                           "column": {
+                              "name": "valuefalse",
+                              "type": "VARCHAR(<#UID_LEN#>)"
+                           }
+                        }
+                     ],
+                     "tableName": "sys_entity_transfer_elem"
+                  } 
+               }
+            ]
+        }
+    }

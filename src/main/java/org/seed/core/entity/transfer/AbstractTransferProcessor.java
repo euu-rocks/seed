@@ -20,6 +20,7 @@ package org.seed.core.entity.transfer;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -137,15 +138,15 @@ abstract class AbstractTransferProcessor implements TransferProcessor {
 						break;
 					
 					case BOOLEAN:
-						value = "1".equals(column);
+						value = getTrueValue(element).equals(column);
 						break;
 						
 					case DATE:
-						value = labelProvider.parseDate(column);
+						value = parseDate(element, column);
 						break;
 						
 					case DATETIME:
-						value = labelProvider.parseDateTime(column);
+						value = parseDateTime(element, column);
 						break;
 						
 					case DECIMAL:
@@ -197,15 +198,15 @@ abstract class AbstractTransferProcessor implements TransferProcessor {
 					break;
 					
 				case BOOLEAN:
-					result[idx++] = ((boolean) value) ? "1" : "0";
+					result[idx++] = ((boolean) value) ? getTrueValue(element) : getFalseValue(element);
 					break;
 				
 				case DATE:
-					result[idx++] = labelProvider.formatDate((Date) value);
+					result[idx++] = formatDate(element, (Date) value);
 					break;
 					
 				case DATETIME:
-					result[idx++] = labelProvider.formatDateTime((Date) value);
+					result[idx++] = formatDateTime(element, (Date) value);
 					break;
 				
 				case DECIMAL:
@@ -274,6 +275,50 @@ abstract class AbstractTransferProcessor implements TransferProcessor {
 		if (updateResult == 0 && options.isCreateIfNew()) {
 			saveObject(object, options, result, session);
 		}
+	}
+	
+	private String getTrueValue(TransferElement element) {
+		return element.getValueTrue() != null ? element.getValueTrue() : "1";
+	}
+	
+	private String getFalseValue(TransferElement element) {
+		return element.getValueFalse() != null ? element.getValueFalse() : "0";
+	}
+	
+	private String formatDate(TransferElement element, Date date) {
+		if (element.getFormat() != null) {
+			return formatDate(date, element.getFormat());
+		}
+		return labelProvider.formatDate(date);
+	}
+	
+	private String formatDateTime(TransferElement element, Date date) {
+		if (element.getFormat() != null) {
+			return formatDate(date, element.getFormat());
+		}
+		return labelProvider.formatDateTime(date);
+	}
+	
+	private String formatDate(Date date, String format) {
+		return new SimpleDateFormat(format).format(date);
+	}
+	
+	private Date parseDate(TransferElement element, String text) throws ParseException {
+		if (element.getFormat() != null) {
+			return parseDate(text, element.getFormat());
+		}
+		return labelProvider.parseDate(text);
+	}
+	
+	private Date parseDateTime(TransferElement element, String text) throws ParseException {
+		if (element.getFormat() != null) {
+			return parseDate(text, element.getFormat());
+		}
+		return labelProvider.parseDateTime(text);
+	}
+	
+	private Date parseDate(String text, String format) throws ParseException {
+		return new SimpleDateFormat(format).parse(text);
 	}
 	
 	// -1 = error, 0 = no existing object, 1 = existing object updated

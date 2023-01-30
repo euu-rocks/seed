@@ -76,6 +76,31 @@
 		  width="275px" border="0" collapsible="true" 
 		  class="alpha-properties">
 		<vlayout class="alpha-properties-content">
+			<label value="${labels.label.columnname}:"/>
+        	<textbox value="@bind(vm.element.name) @converter(vm.stringConverter)"
+			       	 placeholder="@load(vm.getElementName(vm.element))"
+			       	 onChange="@command('flagDirty')"
+			       	 hflex="1"/>
+			<vlayout visible="@load(vm.hasFormat(vm.element))">
+				<label value="${labels.label.format}:"/>
+				<textbox value="@bind(vm.element.format) @converter(vm.stringConverter)"
+			       	 onChange="@command('flagDirty')"
+			       	 hflex="1"/>
+			</vlayout>
+			<vlayout visible="@load(vm.element.fieldType.isBoolean())">
+				<label value="${labels.label.valuetrue}:"/>
+				<textbox value="@bind(vm.element.valueTrue) @converter(vm.stringConverter)"
+			       	 placeholder="1"
+			       	 onChange="@command('flagDirty')"
+			       	 hflex="1"/>
+			    <label value="${labels.label.valuefalse}:"/>
+				<textbox value="@bind(vm.element.valueFalse) @converter(vm.stringConverter)"
+			       	 placeholder="0"
+			       	 onChange="@command('flagDirty')"
+			       	 hflex="1"/>
+			</vlayout>
+			<space/>
+	        <label value="${labels.label.options}:"/>	
 			<hlayout>
         		<checkbox checked="@bind(vm.element.identifier)" 
         				  onCheck="@command('flagDirty')"
@@ -84,6 +109,6 @@
         		<helpinfo key="help.transfer.elementidentifier"
         				  visible="@load(!vm.element.entityField.unique)"/>
         	</hlayout>
-		</vlayout>
+        </vlayout>
 	</east>
 </borderlayout>

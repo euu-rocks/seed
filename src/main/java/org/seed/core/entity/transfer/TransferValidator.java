@@ -68,21 +68,45 @@ public class TransferValidator extends AbstractSystemEntityValidator<Transfer> {
 		}
 		
 		if (transfer.hasElements()) {
-			boolean identifierFound = false;
-			for (TransferElement element : transfer.getElements()) {
-				if (element.isIdentifier()) {
-					if (!identifierFound) {
-						identifierFound = true;
-					}
-					else {
-						errors.addError("val.ambiguous.identifier");
-						break;
-					}
-				}
-			}
+			validateElements(transfer, errors);
 		}
 		
 		validate(errors);
+	}
+	
+	private void validateElements(Transfer transfer, ValidationErrors errors) {
+		boolean identifierFound = false;
+		for (TransferElement element : transfer.getElements()) {
+			if (element.isIdentifier()) {
+				if (!identifierFound) {
+					identifierFound = true;
+				}
+				else {
+					errors.addError("val.ambiguous.identifier");
+					break;
+				}
+			}
+			if (!isEmpty(element.getName()) && 
+				!isNameLengthAllowed(element.getName())) {
+				errors.addOverlongObjectName("label.columnname", getMaxNameLength());
+			}
+			if (!isEmpty(element.getFormat()) && 
+				!isNameLengthAllowed(element.getFormat())) {
+				errors.addOverlongObjectName("label.format", getMaxNameLength());
+			}
+			if (!isEmpty(element.getValueTrue()) && 
+				!isLengthAllowed(element.getValueTrue(), getMaxUIDLength())) {
+				errors.addOverlongField("label.valuetrue", getMaxUIDLength());
+			}
+			if (!isEmpty(element.getValueFalse()) && 
+				!isLengthAllowed(element.getValueFalse(), getMaxUIDLength())) {
+				errors.addOverlongField("label.valuefalse", getMaxUIDLength());
+			}
+			if (!isEmpty(element.getValueTrue()) && 
+				element.getValueTrue().equals(element.getValueFalse())) {
+				errors.addError("val.same.truefalsevalue");
+			}
+		}
 	}
 	
 }

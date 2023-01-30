@@ -30,6 +30,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.core.application.AbstractOrderedTransferableObject;
+import org.seed.core.data.FieldType;
 import org.seed.core.data.SystemField;
 import org.seed.core.entity.EntityField;
 
@@ -48,6 +49,14 @@ public class TransferElement extends AbstractOrderedTransferableObject {
 	
 	private boolean isIdentifier;
 	
+	private String name;
+	
+	private String format;
+	
+	private String valueTrue;
+	
+	private String valueFalse;
+	
 	@Transient
 	private SystemField systemField;
 	
@@ -63,6 +72,42 @@ public class TransferElement extends AbstractOrderedTransferableObject {
 		this.isIdentifier = isIdentifier;
 	}
 	
+	@XmlAttribute
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	@XmlAttribute
+	public String getFormat() {
+		return format;
+	}
+
+	public void setFormat(String format) {
+		this.format = format;
+	}
+	
+	@XmlAttribute
+	public String getValueTrue() {
+		return valueTrue;
+	}
+
+	public void setValueTrue(String valueTrue) {
+		this.valueTrue = valueTrue;
+	}
+	
+	@XmlAttribute
+	public String getValueFalse() {
+		return valueFalse;
+	}
+
+	public void setValueFalse(String valueFalse) {
+		this.valueFalse = valueFalse;
+	}
+
 	@XmlTransient
 	public Transfer getTransfer() {
 		return transfer;
@@ -75,6 +120,13 @@ public class TransferElement extends AbstractOrderedTransferableObject {
 	@XmlTransient
 	public EntityField getEntityField() {
 		return entityField;
+	}
+	
+	@XmlTransient
+	public FieldType getFieldType() {
+		return entityField != null
+				? entityField.getType()
+				: systemField.type;
 	}
 	
 	@XmlAttribute
@@ -90,6 +142,7 @@ public class TransferElement extends AbstractOrderedTransferableObject {
 		this.entityField = entityField;
 	}
 	
+	@XmlAttribute
 	public SystemField getSystemField() {
 		return systemField;
 	}
@@ -110,6 +163,10 @@ public class TransferElement extends AbstractOrderedTransferableObject {
 		return new EqualsBuilder()
 			.append(fieldUid, otherElement.getFieldUid())
 			.append(isIdentifier, otherElement.isIdentifier)
+			.append(name, otherElement.name)
+			.append(format, otherElement.format)
+			.append(valueTrue, otherElement.valueTrue)
+			.append(valueFalse, otherElement.valueFalse)
 			.isEquals();
 	}
 

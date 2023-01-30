@@ -64,10 +64,7 @@ class CSVProcessor extends AbstractTransferProcessor {
 		try {
 			// header
 			if (getTransfer().isHeader()) {
-				final var names = convertedList(getTransfer().getElements(), 
-							elem -> elem.getEntityField() != null 
-										? elem.getEntityField().getName() 
-										: getEnumLabel(elem.getSystemField()));
+				final var names = convertedList(getTransfer().getElements(), this::getColumnName);
 				writer.writeNext(names.toArray(new String[names.size()]), 
 								 getTransfer().isQuoteAll());
 			}
@@ -120,6 +117,15 @@ class CSVProcessor extends AbstractTransferProcessor {
 			throw new InternalException(ex);
 		}
 		return result;
+	}
+	
+	private String getColumnName(TransferElement element) {
+		if (element.getName() != null) {
+			return element.getName();
+		}
+		return element.getEntityField() != null 
+				? element.getEntityField().getName() 
+				: getEnumLabel(element.getSystemField());
 	}
 	
 	private CSVReader createReader(InputStream in) {

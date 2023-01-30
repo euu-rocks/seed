@@ -83,14 +83,24 @@ public abstract class AbstractSystemEntityValidator<T extends SystemEntity>
 		return getLimit(Limits.LIMIT_IDENTIFIER_LENGTH);
 	}
 	
+	protected int getMaxUIDLength() {
+		return getLimit(Limits.LIMIT_UID_LENGTH);
+	}
+	
 	protected int getMaxStringLength() {
 		return getLimit(Limits.LIMIT_TEXT_LENGTH);
+	}
+	
+	protected boolean isLengthAllowed(String text, int maxlen) {
+		Assert.notNull(text, C.NAME);
+		
+		return text.length() <= maxlen;
 	}
 	
 	protected boolean isNameLengthAllowed(String name) {
 		Assert.notNull(name, C.NAME);
 		
-		return name.length() <= getMaxNameLength();
+		return isLengthAllowed(name, getMaxNameLength());
 	}
 	
 	protected static ValidationErrors createValidationErrors(SystemEntity systemEntity) {

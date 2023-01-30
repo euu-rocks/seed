@@ -119,6 +119,21 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	public void setElement(TransferElement element) {
 		this.element = element;
 	}
+	
+	public String getElementName(TransferElement element) {
+		if (element != null) {
+			return element.getEntityField() != null
+					? element.getEntityField().getName()
+					: getEnumLabel(element.getSystemField());
+		}
+		return null;
+	}
+	
+	public boolean hasFormat(TransferElement element) {
+		return element != null && 
+				(element.getFieldType().isDate() ||
+				 element.getFieldType().isDateTime());
+	}
 
 	@Override
 	protected TransferService getObjectService() {
@@ -204,8 +219,11 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	public void dropToElementList(@BindingParam(C.ITEM) TransferElement item,
 								  @BindingParam(C.LIST) int listNum) {
 		super.dropToList(ELEMENTS, listNum, item);
-		if (item == element && listNum == LIST_AVAILABLE) {
-			this.element = null;
+		if (listNum == LIST_SELECTED) {
+			element = item;
+		}
+		else if (item == element) {
+			element = null;
 		}
 	}
 	
@@ -215,8 +233,11 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 				  				    @BindingParam(C.ITEM) TransferElement item,
 				  				    @BindingParam(C.LIST) int listNum) {
 		super.insertToList(ELEMENTS, listNum, base, item);
-		if (item == element && listNum == LIST_AVAILABLE) {
-			this.element = null;
+		if (listNum == LIST_SELECTED) {
+			element = item;
+		}
+		else if (item == element) {
+			element = null;
 		}
 	}
 	
