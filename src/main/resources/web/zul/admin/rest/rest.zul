@@ -83,7 +83,8 @@
 					<tab sclass="functions-tab"
 						 label="${labels.label.functions}"/>
 					<tab id="tabPermissions" sclass="permissions-tab"
-						 label="${labels.label.permissions}"/>
+						 label="${labels.label.permissions}"
+						 visible="@load(vm.showPermissions())"/>
 				</tabs>
 				<tabpanels> 
 					<tabpanel sclass="functions-tabpanel">

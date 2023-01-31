@@ -78,7 +78,8 @@
 					<tab sclass="datasources-tab"
 						 label="${labels.label.datasources}"/>
 					<tab id="tabPermissions" sclass="permissions-tab"
-						 label="${labels.label.permissions}"/>
+						 label="${labels.label.permissions}"
+						 visible="@load(vm.showPermissions())"/>
 				</tabs>
 				<tabpanels> 
 					<tabpanel sclass="datasources-tabpanel">

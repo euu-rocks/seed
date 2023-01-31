@@ -103,7 +103,7 @@
 						 visible="@load(!vm.object.isNew())"/>
 					<tab id="tab5" sclass="permissions-tab"
 						 label="${labels.label.permissions}"
-						 visible="@init(vm.existUserGroups())"/>
+						 visible="@load(vm.showPermissions())"/>
 				</tabs>
 				<tabpanels> 
 					<tabpanel sclass="elements-tabpanel">

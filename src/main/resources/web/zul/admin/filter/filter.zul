@@ -81,7 +81,8 @@
 					<tab sclass="criteria-tab"
 						 label="${labels.label.criteria}"/>
 					<tab id="tabFilterPermissions1" sclass="permissions-tab"
-						 label="${labels.label.permissions}"/>
+						 label="${labels.label.permissions}"
+						 visible="@load(vm.showPermissions())"/>
 				</tabs>
 				<tabpanels> 
 					<tabpanel sclass="criteria-tabpanel">
@@ -99,7 +100,8 @@
 					<tab sclass="hql-tab"
 						 label="${labels.label.hqlinput}"/>
 					<tab id="tabFilterPermissions2" sclass="permissions2-tab"
-						 label="${labels.label.permissions}"/>
+						 label="${labels.label.permissions}"
+						 visible="@load(vm.showPermissions())"/>
 				</tabs>
 				<tabpanels> 
 					<tabpanel sclass="hql-tabpanel">

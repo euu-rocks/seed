@@ -37,7 +37,7 @@
 					 onSelect="@command('selectTransitionDependent')"/>
 				<tab id="tabTransitionPermissions" sclass="transitionpermissions-tab" 
 					 label="${labels.label.permissions}"
-					 visible="@load(!empty vm.object.statusTransitions and vm.existUserGroups())"
+					 visible="@load(vm.showPermissions() and !empty vm.object.statusTransitions)"
 					 onSelect="@command('selectTransitionDependent')"/>
 			</tabs>
 			<tabpanels> 

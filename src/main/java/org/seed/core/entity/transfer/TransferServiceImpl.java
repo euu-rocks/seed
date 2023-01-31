@@ -120,7 +120,6 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 		final TransferMetadata transferMeta = (TransferMetadata) transfer;
 		
 		if (TransferFormat.CSV == transfer.getFormat()) {
-			transferMeta.setQuoteAll(true);
 			transferMeta.setEncoding(CharEncoding.UTF8);
 			transferMeta.setNewline(Newline.systemDefault());
 		}

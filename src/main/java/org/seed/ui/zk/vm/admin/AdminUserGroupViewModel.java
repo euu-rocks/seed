@@ -141,8 +141,8 @@ public class AdminUserGroupViewModel extends AbstractAdminViewModel<UserGroup> {
 		switch (key) {
 			case AUTHORISATIONS:
 				return MiscUtils.castList(listNum == LIST_AVAILABLE
-						? userGroupService().getAvailableAuthorisations(getObject())
-						: getObject().getAuthorisations());
+						? sortAuthorisations(userGroupService().getAvailableAuthorisations(getObject()))
+						: sortAuthorisations(getObject().getAuthorisations()));
 				
 			case USERS:
 				return MiscUtils.castList(listNum == LIST_AVAILABLE
@@ -152,6 +152,12 @@ public class AdminUserGroupViewModel extends AbstractAdminViewModel<UserGroup> {
 			default:
 				throw new IllegalStateException("unknown list manager key: " + key);
 		}
+	}
+	
+	private List<UserGroupAuthorisation> sortAuthorisations(List<UserGroupAuthorisation> authorisations) {
+		authorisations.sort((a1, a2) -> 
+			getEnumLabel(a1.getAuthorisation()).compareTo(getEnumLabel(a2.getAuthorisation())));
+		return authorisations;
 	}
 
 	@Override

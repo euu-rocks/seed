@@ -170,7 +170,7 @@
 						 visible="@load(!(vm.object.isNew() or vm.object.generic or vm.object.transferable))"/>
 					<tab id="tabPermissions" sclass="permissions-tab" 
 						 label="${labels.label.permissions}"
-						 visible="@init(vm.existUserGroups() and !(vm.object.generic or vm.object.transferable))"/>
+						 visible="@load(vm.showPermissions() and !(vm.object.generic or vm.object.transferable))"/>
 				</tabs>
 				<tabpanels> 
 					<tabpanel sclass="fields-tabpanel">

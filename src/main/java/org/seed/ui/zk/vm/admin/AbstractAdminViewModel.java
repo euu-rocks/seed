@@ -288,6 +288,11 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		return moduleService.getObjects(currentSession());
 	}
 	
+	public final boolean showPermissions() {
+		return getUser().isAuthorised(Authorisation.ADMIN_PERMISSIONS) &&
+			   existUserGroups();
+	}
+	
 	public final List<UserGroup> getUserGroups() {
 		return userGroupService.findNonSystemGroups(currentSession());
 	}
