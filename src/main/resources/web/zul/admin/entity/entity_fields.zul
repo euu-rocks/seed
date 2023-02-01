@@ -182,7 +182,7 @@
        				<checkbox sclass="mandatory-field"
 	        				  checked="@bind(vm.field.mandatory)"
 	        				  onCheck="@command('flagDirty')"
-	        				  disabled="@load(vm.field.type.isAutonum())"/>
+	        				  disabled="@load(vm.field.type.isAutonum() or (vm.field.isNew() and vm.field.unique and vm.existValueObjects()))"/>
 		        	<label value="${labels.label.mandatoryfield}"/>
 	       		</hlayout>
 	       		<hlayout visible="@load(!vm.field.type.isAutonum() and vm.field.mandatory and vm.existValueObjects() and !vm.isAlreadyMandatory(vm.field))">
@@ -234,7 +234,7 @@
         			<checkbox sclass="unique-field"
         					  checked="@bind(vm.field.unique)" 
 	        				  onCheck="@command('flagDirty')"
-	        				  disabled="@load(vm.field.type.isAutonum())"/>
+	        				  disabled="@load(vm.field.type.isAutonum() or (vm.field.isNew() and vm.field.mandatory and vm.existValueObjects()))"/>
 		        	<label value="${labels.label.unique}"/>
 	       		</hlayout>
 	       		<hlayout visible="@load(!(vm.field.calculated or vm.field.type.isBinary() or vm.field.type.isFile()))">
