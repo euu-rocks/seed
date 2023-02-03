@@ -17,15 +17,13 @@
  */
 package org.seed.core.entity;
 
-import static org.seed.core.util.CollectionUtils.*;
+import static org.seed.core.util.CollectionUtils.subList;
 
 import java.util.List;
 
 import org.hibernate.Session;
 
-import org.seed.C;
 import org.seed.core.data.AbstractSystemEntityRepository;
-import org.seed.core.util.Assert;
 
 import org.springframework.stereotype.Repository;
 
@@ -41,16 +39,18 @@ public class EntityRepository extends AbstractSystemEntityRepository<Entity> {
 		return super.getSession();
 	}
 	
+	boolean areColumnValuesUnique(Entity entity, EntityField field, Session session) {
+		return session.createSQLQuery(
+				String.format("select %s from %s group by %s having count(*) > 1 limit 1",
+							  field.getEffectiveColumnName(), entity.getEffectiveTableName(), 
+							  field.getEffectiveColumnName())).list().isEmpty();
+	}
+	
 	List<Entity> findParentEntities(Entity entity) {
-		Assert.notNull(entity, C.ENTITY);
-		
 		return subList(find(), parent -> parent.isNestedEntity(entity));
 	}
 	
 	List<Entity> findParentEntities(Entity entity, Session session) {
-		Assert.notNull(entity, C.ENTITY);
-		Assert.notNull(entity, C.SESSION);
-		
 		return subList(find(session), parent -> parent.isNestedEntity(entity));
 	}
 	

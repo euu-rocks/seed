@@ -93,7 +93,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		if (entity.hasFields()) {
 			validateFields(entity, errors);
 			if (!entity.isNew()) {
-				validateFieldTypeChange(entity, errors);
+				validateFieldAttributeChange(entity, errors);
 			}
 		}
 		
@@ -276,16 +276,27 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		}
 	}
 	
-	private void validateFieldTypeChange(Entity entity, final ValidationErrors errors) {
-		final Entity currentVersionEntity = repository.get(entity.getId());
-		if (currentVersionEntity != null) {
-			for (EntityField field : subList(entity.getFields(), field -> !field.isNew())) {
-				final EntityField currentVersionField = currentVersionEntity.getFieldById(field.getId());
-				if (currentVersionField != null && field.getType() != currentVersionField.getType()) {
-					for (DBObject view : dbObjectService.findViewsContains(entity.getInternalName())) {
-						errors.addError("val.inuse.entityview", view.getName());
+	private void validateFieldAttributeChange(Entity entity, final ValidationErrors errors) {
+		try (Session session = repository.getSession()) {
+			final Entity currentVersionEntity = repository.get(entity.getId(), session);
+			if (currentVersionEntity != null) {
+				for (EntityField field : subList(entity.getFields(), field -> !field.isNew())) {
+					final EntityField currentVersionField = currentVersionEntity.getFieldById(field.getId());
+					if (currentVersionField == null) {
+						continue;
 					}
-					break;
+					// field type change
+					if (field.getType() != currentVersionField.getType()) {
+						for (DBObject view : dbObjectService.findViewsContains(entity.getInternalName())) {
+							errors.addError("val.inuse.entityview", view.getName());
+						}
+						break;
+					}
+					// change to unique
+					if (field.isUnique() && !currentVersionField.isUnique() &&
+						!repository.areColumnValuesUnique(currentVersionEntity, currentVersionField, session)) {
+						errors.addError("val.illegal.uniquechange", field.getName());
+					}
 				}
 			}
 		}
