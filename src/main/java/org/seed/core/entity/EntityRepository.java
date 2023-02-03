@@ -41,9 +41,25 @@ public class EntityRepository extends AbstractSystemEntityRepository<Entity> {
 	
 	boolean areColumnValuesUnique(Entity entity, EntityField field, Session session) {
 		return session.createSQLQuery(
-				String.format("select %s from %s group by %s having count(*) > 1 limit 1",
+				String.format("select %s from %s where %s is not null group by %s having count(*) > 1 limit 1",
 							  field.getEffectiveColumnName(), entity.getEffectiveTableName(), 
-							  field.getEffectiveColumnName())).list().isEmpty();
+							  field.getEffectiveColumnName(), field.getEffectiveColumnName()))
+					  .list().isEmpty();
+	}
+	
+	int countEmptyColumnValues(Entity entity, EntityField field, Session session) {
+		return ((Number) session.createSQLQuery(
+				String.format("select count(*) from %s where %s is null",
+							  entity.getEffectiveTableName(), field.getEffectiveColumnName()))
+								.getSingleResult()).intValue();
+	}
+	
+	int countColumnValue(Entity entity, EntityField field, Object value, Session session) {
+		return ((Number) session.createSQLQuery(
+				String.format("select count(*) from %s where %s = (:value)",
+							  entity.getEffectiveTableName(), field.getEffectiveColumnName(), value))
+								.setParameter("value", value)
+								.getSingleResult()).intValue();
 	}
 	
 	List<Entity> findParentEntities(Entity entity) {

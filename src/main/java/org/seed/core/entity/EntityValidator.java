@@ -297,6 +297,16 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 						!repository.areColumnValuesUnique(currentVersionEntity, currentVersionField, session)) {
 						errors.addError("val.illegal.uniquechange", field.getName());
 					}
+					// unique and change to mandatory
+					if (field.isUnique() && field.isMandatory() && !currentVersionField.isMandatory()) {
+						if (repository.countEmptyColumnValues(currentVersionEntity, currentVersionField, session) > 1) {
+							errors.addError("val.illegal.mandatorychange", field.getName());
+						}
+						else if (field.getDefaultNumber() != null &&
+								 repository.countColumnValue(currentVersionEntity, currentVersionField, field.getDefaultNumber(), session) > 0) {
+							errors.addError("val.illegal.mandatorydefault", field.getDefaultNumber().toString(), field.getName());
+						}
+					}
 				}
 			}
 		}
