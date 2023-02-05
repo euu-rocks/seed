@@ -21,9 +21,12 @@ import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 
 import org.seed.test.integration.customcode.CreateCustomCodeTest;
+import org.seed.test.integration.customcode.DeleteCustomCodeTest;
 import org.seed.test.integration.customcode.EditCustomCodeTest;
 import org.seed.test.integration.data.CreateDataSourceTest;
 import org.seed.test.integration.data.CreateHQLDataSourceTest;
+import org.seed.test.integration.data.DeleteDBObjectTest;
+import org.seed.test.integration.data.DeleteDataSourcesTest;
 import org.seed.test.integration.data.EditDBObjectTest;
 import org.seed.test.integration.data.EditDataSourceTest;
 import org.seed.test.integration.data.CreateDBObjectTest;
@@ -43,10 +46,13 @@ import org.seed.test.integration.menu.EditMenuTest;
 import org.seed.test.integration.module.CreateModuleTest;
 import org.seed.test.integration.module.EditModuleTest;
 import org.seed.test.integration.report.CreateReportTest;
+import org.seed.test.integration.report.DeleteReportTest;
 import org.seed.test.integration.report.EditReportTest;
 import org.seed.test.integration.rest.CreateRestTest;
+import org.seed.test.integration.rest.DeleteRestTest;
 import org.seed.test.integration.rest.EditRestTest;
 import org.seed.test.integration.task.CreateJobTest;
+import org.seed.test.integration.task.DeleteJobTest;
 import org.seed.test.integration.task.EditJobTest;
 import org.seed.test.integration.transfer.CreateTransferTest;
 import org.seed.test.integration.transfer.EditTransferTest;
@@ -69,5 +75,7 @@ import org.seed.test.integration.user.EditUserTest;
 				 EditDataSourceTest.class, EditTransferTest.class, EditTransformerTest.class, 
 				 EditFormTest.class, EditMenuTest.class, EditJobTest.class, EditModuleTest.class, 
 				 EditReportTest.class, EditCustomCodeTest.class, EditRestTest.class, EditUserTest.class,
-				 EditUserGroupTest.class })
+				 EditUserGroupTest.class, DeleteRestTest.class, DeleteCustomCodeTest.class,
+				 DeleteReportTest.class, DeleteJobTest.class, DeleteDataSourcesTest.class,
+				 DeleteDBObjectTest.class})
 public class IntegrationTestSuite { }

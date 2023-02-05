@@ -136,6 +136,16 @@ public abstract class AbstractIntegrationTest {
 		pause(DELAY_AFTER_DRAG_AND_DROP);
 	}
 	
+	protected WebElement findConfirmDialog() {
+		return findByClass("z-messagebox-window");
+	}
+	
+	protected void confirm(WebElement conformDialog) {
+		final WebElement buttonElement = findByClass(conformDialog, "z-messagebox-button");
+		assertEquals("Ja", buttonElement.getText());
+		buttonElement.click();
+	}
+	
 	protected WebElement findWindow(String className) {
 		return findByClass(className + "-win");
 	}
@@ -222,14 +232,37 @@ public abstract class AbstractIntegrationTest {
 		waitElementDisappear(className + "-win");
 	}
 	
-	private WebElement findByClass(String className) {
-		return new WebDriverWait(driver, Duration.ofMillis(MAX_WAIT_ELEMENT))
-					.until(driver -> driver.findElement(By.className(className)));
+	protected void waitTabDisappear(String className) {
+		waitElementDisappear(className + "-tab");
+	}
+	
+	protected void waitConfirmDialogDisappear() {
+		waitElementDisappear("z-messagebox-window");
+	}
+	
+	protected static Keys[] repeatKey(Keys key, int count) {
+		final Keys[] array = new Keys[count];
+		Arrays.fill(array, key);
+		return array;
+	}
+	
+	protected static void pause(long ms) {
+		try {
+			Thread.sleep(ms);
+		} 
+		catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	private void waitElementDisappear(String className) {
 		new WebDriverWait(driver, Duration.ofMillis(MAX_WAIT_DISAPPEAR))
 					.until(ExpectedConditions.invisibilityOfElementLocated(By.className(className)));
+	}
+	
+	private WebElement findByClass(String className) {
+		return new WebDriverWait(driver, Duration.ofMillis(MAX_WAIT_ELEMENT))
+					.until(driver -> driver.findElement(By.className(className)));
 	}
 	
 	private WebElement findById(String id) {
@@ -248,21 +281,6 @@ public abstract class AbstractIntegrationTest {
 	
 	private Actions actions() {
 		return new Actions(driver);
-	}
-	
-	protected static Keys[] repeatKey(Keys key, int count) {
-		final Keys[] array = new Keys[count];
-		Arrays.fill(array, key);
-		return array;
-	}
-	
-	protected static void pause(long ms) {
-		try {
-			Thread.sleep(ms);
-		} 
-		catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
 	}
 	
 	private static WebElement findByClass(WebElement parent, String className) {

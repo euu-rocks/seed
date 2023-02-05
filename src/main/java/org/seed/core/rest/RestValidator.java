@@ -104,21 +104,26 @@ public class RestValidator extends AbstractSystemEntityValidator<Rest> {
 			
 			// mapping
 			if (!isEmpty(function.getMapping())) {
-				if (!isNameLengthAllowed(function.getMapping())) {
-					errors.addOverlongObjectField(LABEL_MAPPING, LABEL_FUNCTION, getMaxNameLength());
-				}
-				else if (!function.getMapping().startsWith("/")) {
-					errors.addNotStartsWith(LABEL_MAPPING, LABEL_FUNCTION, "/");
-				}
-				else if (!isUnique(function.getMapping(), "mapping", rest.getFunctions())) {
-					errors.addError("val.ambiguous.functionmapping", function.getMapping());
-				}
+				validateFunctionMapping(rest, function, errors);
 			}
 			
 			// content
 			if (function.getContent() != null) {
 				validateFunctionCode(function, errors);
 			}
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void validateFunctionMapping(Rest rest, RestFunction function, ValidationErrors errors) {
+		if (!isNameLengthAllowed(function.getMapping())) {
+			errors.addOverlongObjectField(LABEL_MAPPING, LABEL_FUNCTION, getMaxNameLength());
+		}
+		else if (!function.getMapping().startsWith("/")) {
+			errors.addNotStartsWith(LABEL_MAPPING, LABEL_FUNCTION, "/");
+		}
+		else if (!isUnique(function.getMapping(), "mapping", rest.getFunctions())) {
+			errors.addError("val.ambiguous.functionmapping", function.getMapping());
 		}
 	}
 	
