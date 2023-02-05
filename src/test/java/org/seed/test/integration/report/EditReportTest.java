@@ -42,7 +42,7 @@ public class EditReportTest extends AbstractReportTest {
 	@Order(2)
 	void testRenameDatasource() {
 		WebElement tabpanel = showReport("testreportnew");
-		findTab(tabpanel, "datasources");
+		assertEquals("Abfragen", findTab(tabpanel, "datasources").getText());
 		WebElement tabpanelDataSources = findTabpanel(tabpanel, "datasources");
 		clickListItem(tabpanelDataSources, "testquerynew");
 		findOptionTextbox(tabpanelDataSources, "label").sendKeys("TestqueryRenamed");
@@ -54,6 +54,7 @@ public class EditReportTest extends AbstractReportTest {
 	@Order(3)
 	void testRemovePermission() {
 		WebElement tabpanel = showReport("testreportnew");
+		assertEquals("Berechtigungen", findTab(tabpanel, "permissions").getText());
 		clickTab(tabpanel, "permissions");
 		WebElement tabpanelPermissions = findTabpanel(tabpanel, "permissions");
 		dragAndDrop(tabpanelPermissions, "testrole", "available");

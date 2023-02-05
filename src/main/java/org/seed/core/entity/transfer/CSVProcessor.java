@@ -103,11 +103,9 @@ class CSVProcessor extends AbstractTransferProcessor {
 				line++;
 			}
 	    	while ((columns = reader.readNext()) != null) {
-	    		try {
-	    			objects.add(importObject(columns));
-	    		}
-	    		catch (ParseException pex) {
-	    			result.addError(pex, line);
+	    		final var object = importObject(line, columns, result);
+	    		if (object != null) {
+	    			objects.add(object);
 	    		}
 	    		line++;
 			}
@@ -117,6 +115,16 @@ class CSVProcessor extends AbstractTransferProcessor {
 			throw new InternalException(ex);
 		}
 		return result;
+	}
+	
+	private ValueObject importObject(int line, String[] columns, TransferResult result) {
+		try {
+			return importObject(columns);
+		}
+		catch (ParseException pex) {
+			result.addError(pex, line);
+			return null;
+		}
 	}
 	
 	private String getColumnName(TransferElement element) {

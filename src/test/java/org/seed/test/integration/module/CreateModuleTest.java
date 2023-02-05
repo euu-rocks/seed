@@ -47,7 +47,7 @@ public class CreateModuleTest extends AbstractModuleTest {
 	@Order(2)
 	void testAddParameter() {
 		WebElement tabpanel = showModule("testmodule");
-		findTab(tabpanel, "parameters");
+		assertEquals("Parameter", findTab(tabpanel, "parameters").getText());
 		WebElement tabpanelParameters = findTabpanel(tabpanel, "parameters");
 		clickButton(tabpanelParameters, "new");
 		
@@ -60,6 +60,7 @@ public class CreateModuleTest extends AbstractModuleTest {
 	@Order(3)
 	void testAddUsergroup() {
 		WebElement tabpanel = showModule("testmodule");
+		assertEquals("Rollen", findTab(tabpanel, "usergroups").getText());
 		clickTab(tabpanel, "usergroups");
 		WebElement tabpanelPermissions = findTabpanel(tabpanel, "usergroups");
 		dragAndDrop(tabpanelPermissions, "testrole", "selected");

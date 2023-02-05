@@ -32,6 +32,7 @@ public class CreateGenericEntityTest extends AbstractEntityTest {
 	@Order(1)
 	void testCreateGenericEntity() {
 		WebElement tabpanel = newEntity();
+		assertEquals("Entitäten", findTab("entitaeten").getText());
 		WebElement window = newEntityWindow();
 		
 		clickCheckbox(window, "generic");
@@ -62,7 +63,7 @@ public class CreateGenericEntityTest extends AbstractEntityTest {
 	@Order(3)
 	void testAddField() {
 		WebElement tabpanel = showEntity("generictest");
-		findTab(tabpanel, "fields");
+		assertEquals("Felder", findTab(tabpanel, "fields").getText());
 		WebElement tabpanelFields = findTabpanel(tabpanel, "fields");
 		clickButton(tabpanelFields, "new");
 		
@@ -76,8 +77,9 @@ public class CreateGenericEntityTest extends AbstractEntityTest {
 	@Order(4)
 	void testAddFunction() {
 		WebElement tabpanel = showEntity("generictest");
-		clickTab(tabpanel, "functions");
+		assertEquals("Funktionen", findTab(tabpanel, "functions").getText());
 		WebElement tabpanelFunctions = findTabpanel(tabpanel, "functions");
+		clickTab(tabpanel, "functions");
 		clickButton(tabpanelFunctions, "new");
 		
 		findOptionTextbox(tabpanelFunctions, "functionname").sendKeys("Genericfunction");
@@ -95,6 +97,7 @@ public class CreateGenericEntityTest extends AbstractEntityTest {
 	@Order(5)
 	void testAddFieldConstraint() {
 		WebElement tabpanel = showEntity("generictest");
+		assertEquals("Feldeinschränkungen", findTab(tabpanel, "constraints").getText());
 		clickTab(tabpanel, "constraints");
 		WebElement tabpanelConstraints = findTabpanel(tabpanel, "constraints");
 		clickButton(tabpanelConstraints, "new");

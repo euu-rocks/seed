@@ -24,11 +24,6 @@ import org.junit.jupiter.api.Test;
 class NavigationTest extends AbstractIntegrationTest {
 	
 	@Test
-	void testLogin() {
-		// do nothing more
-	}
-	
-	@Test
 	void testMenu() {
 		clickMenu("administration-entitaeten");
 		assertEquals("Entitäten", findTab("entitaeten").getText());

@@ -46,7 +46,7 @@ public class CreateReportTest extends AbstractReportTest {
 	@Order(2)
 	void testAddDatasource() {
 		WebElement tabpanel = showReport("testreport");
-		findTab(tabpanel, "datasources");
+		assertEquals("Abfragen", findTab(tabpanel, "datasources").getText());
 		WebElement tabpanelDataSources = findTabpanel(tabpanel, "datasources");
 		clickButton(tabpanelDataSources, "new");
 		
@@ -58,6 +58,7 @@ public class CreateReportTest extends AbstractReportTest {
 	@Order(3)
 	void testAddPermission() {
 		WebElement tabpanel = showReport("testreport");
+		assertEquals("Berechtigungen", findTab(tabpanel, "permissions").getText());
 		clickTab(tabpanel, "permissions");
 		WebElement tabpanelPermissions = findTabpanel(tabpanel, "permissions");
 		dragAndDrop(tabpanelPermissions, "testrole", "selected");

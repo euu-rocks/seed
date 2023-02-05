@@ -32,6 +32,7 @@ public class EditEntityTest extends AbstractEntityTest {
 	@Order(1)
 	void testRenameEntity() {
 		WebElement tabpanel = showEntity("integrationtest");
+		assertEquals("Entitäten", findTab("entitaeten").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("IntegrationTestNew");
 		saveEntity(tabpanel);
@@ -54,7 +55,7 @@ public class EditEntityTest extends AbstractEntityTest {
 	@Order(3)
 	void testChangeDataType() {
 		WebElement tabpanel = showEntity("integrationtestnew");
-		findTab(tabpanel, "fields");
+		assertEquals("Felder", findTab(tabpanel, "fields").getText());
 		WebElement tabpanelFields = findTabpanel(tabpanel, "fields");
 		clickListItem(tabpanelFields, "textfieldnew");
 		
@@ -68,6 +69,7 @@ public class EditEntityTest extends AbstractEntityTest {
 	@Order(4)
 	void testRenameFieldGroup() {
 		WebElement tabpanel = showEntity("integrationtestnew");
+		assertEquals("Feldgruppen", findTab(tabpanel, "fieldgroups").getText());
 		clickTab(tabpanel, "fieldgroups");
 		WebElement tabpanelGroups = findTabpanel(tabpanel, "fieldgroups");
 		clickListItem(tabpanelGroups, "testgroup");
@@ -81,6 +83,7 @@ public class EditEntityTest extends AbstractEntityTest {
 	@Order(5)
 	void testEditFunction() {
 		WebElement tabpanel = showEntity("integrationtestnew");
+		assertEquals("Funktionen", findTab(tabpanel, "functions").getText());
 		clickTab(tabpanel, "functions");
 		WebElement tabpanelFunctions = findTabpanel(tabpanel, "functions");
 		clickListItem(tabpanelFunctions, "testfunction");
@@ -97,6 +100,7 @@ public class EditEntityTest extends AbstractEntityTest {
 	@Order(6)
 	void testRenameNested() {
 		WebElement tabpanel = showEntity("integrationtestnew");
+		assertEquals("Unterobjekte", findTab(tabpanel, "nesteds").getText());
 		clickTab(tabpanel, "nesteds");
 		WebElement tabpanelNesteds = findTabpanel(tabpanel, "nesteds");
 		clickListItem(tabpanelNesteds, "nestedtest");
@@ -110,6 +114,7 @@ public class EditEntityTest extends AbstractEntityTest {
 	@Order(7)
 	void testRenameRelation() {
 		WebElement tabpanel = showEntity("integrationtestnew");
+		assertEquals("Beziehungen", findTab(tabpanel, "relations").getText());
 		clickTab(tabpanel, "relations");
 		WebElement tabpanelRelations = findTabpanel(tabpanel, "relations");
 		clickListItem(tabpanelRelations, "transferabletest");
@@ -123,6 +128,7 @@ public class EditEntityTest extends AbstractEntityTest {
 	@Order(8)
 	void testEditFieldConstraint() {
 		WebElement tabpanel = showEntity("integrationtestnew");
+		assertEquals("Feldeinschränkungen", findTab(tabpanel, "constraints").getText());
 		clickTab(tabpanel, "constraints");
 		WebElement tabpanelConstraints = findTabpanel(tabpanel, "constraints");
 		clickListItem(tabpanelConstraints, "textfieldnew");
@@ -137,6 +143,7 @@ public class EditEntityTest extends AbstractEntityTest {
 	@Order(9)
 	void testRenameStatus() {
 		WebElement tabpanel = showEntity("integrationtestnew");
+		assertEquals("Statusmodell", findTab(tabpanel, "statusmodel").getText());
 		clickTab(tabpanel, "statusmodel");
 		findTab(tabpanel, "status");
 		WebElement tabpanelStatus = findTabpanel(tabpanel, "status");
@@ -152,6 +159,7 @@ public class EditEntityTest extends AbstractEntityTest {
 	@Order(10)
 	void testRenameRelatedEntity() {
 		WebElement tabpanel = showEntity("transferabletest");
+		assertEquals("Entitäten", findTab("entitaeten").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TransferableTestNew");
 		saveEntity(tabpanel);
@@ -161,6 +169,7 @@ public class EditEntityTest extends AbstractEntityTest {
 	@Order(11)
 	void testRenameEntityBack() {
 		WebElement tabpanel = showEntity("integrationtestnew");
+		assertEquals("Entitäten", findTab("entitaeten").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("IntegrationTest");
 		saveEntity(tabpanel);
@@ -170,6 +179,7 @@ public class EditEntityTest extends AbstractEntityTest {
 	@Order(12)
 	void testEditCallbackFunction() {
 		WebElement tabpanel = showEntity("integrationtest");
+		assertEquals("Callback-Funktionen", findTab(tabpanel, "callbackfunctions").getText());
 		clickTab(tabpanel, "callbackfunctions");
 		WebElement tabpanelFunctions = findTabpanel(tabpanel, "callbackfunctions");
 		clickListItem(tabpanelFunctions, "testcallback");

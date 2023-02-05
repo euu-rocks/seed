@@ -54,7 +54,7 @@ public class CreateTransferTest extends AbstractTransferTest {
 	@Order(2)
 	void testAddElement() {
 		WebElement tabpanel = showTransfer("testtransfer");
-		findTab(tabpanel, "fields");
+		assertEquals("Felder", findTab(tabpanel, "fields").getText());
 		WebElement tabpanelFields = findTabpanel(tabpanel, "fields");
 		dragAndDrop(tabpanelFields, "textfield", "selected");
 		saveTransfer(tabpanel);

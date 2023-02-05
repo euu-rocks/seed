@@ -21,7 +21,6 @@ import static org.seed.core.util.CollectionUtils.convertedList;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -48,15 +47,6 @@ import org.zkoss.zk.ui.select.annotation.WireVariable;
 import org.zkoss.zk.ui.util.Statistic;
 
 public class SystemInfoViewModel extends AbstractApplicationViewModel {
-	
-	private static final Comparator<LogEntry> LOGENTRY_COMPARATOR = new Comparator<>() {
-
-		@Override
-		public int compare(LogEntry entry1, LogEntry entry2) {
-			return entry2.getTime().compareTo(entry1.getTime());
-		}
-		
-	};
 	
 	@WireVariable(value="environment")
 	private Environment environment;
@@ -110,7 +100,8 @@ public class SystemInfoViewModel extends AbstractApplicationViewModel {
 	
 	public List<LogEntry> getLogEntries() {
 		final var entries = new ArrayList<LogEntry>(systemLog.getEntries());
-		entries.sort(LOGENTRY_COMPARATOR);
+		entries.sort((LogEntry entry1, LogEntry entry2) -> 
+						entry2.getTime().compareTo(entry1.getTime()));
 		return entries;
 	}
 	

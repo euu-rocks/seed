@@ -47,7 +47,7 @@ public class CreateUserGroupTest extends AbstractUserGroupTest {
 	@Order(2)
 	void testAssignUser() {
 		WebElement tabpanel = showGroup("testrole");
-		findTab(tabpanel, "users");
+		assertEquals("Benutzer", findTab(tabpanel, "users").getText());
 		WebElement tabpanelUsers = findTabpanel(tabpanel, "users");
 		dragAndDrop(tabpanelUsers, "testuser", "selected");
 		dragAndDrop(tabpanelUsers, "seed", "selected");
@@ -58,6 +58,7 @@ public class CreateUserGroupTest extends AbstractUserGroupTest {
 	@Order(3)
 	void testAssignPermissions() {
 		WebElement tabpanel = showGroup("testrole");
+		assertEquals("Berechtigungen", findTab(tabpanel, "permissions").getText());
 		clickTab(tabpanel, "permissions");
 		WebElement tabpanelPermissions = findTabpanel(tabpanel, "permissions");
 		dragAndDrop(tabpanelPermissions, "admin-entity", "selected");

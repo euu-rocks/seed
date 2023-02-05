@@ -42,7 +42,7 @@ public class EditUserTest extends AbstractUserTest {
 	@Order(2)
 	void testRemoveRole() {
 		WebElement tabpanel = showUser("testusernew");
-		findTab(tabpanel, "usergroups");
+		assertEquals("Rollen", findTab(tabpanel, "usergroups").getText());
 		WebElement tabpanelUsergroups = findTabpanel(tabpanel, "usergroups");
 		pause(100);
 		dragAndDrop(tabpanelUsergroups, "testrole", "available");

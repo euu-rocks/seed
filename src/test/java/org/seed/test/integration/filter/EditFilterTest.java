@@ -32,6 +32,7 @@ public class EditFilterTest extends AbstractFilterTest {
 	@Order(1)
 	void testRenameFilter() {
 		WebElement tabpanel = showFilter("testfilter");
+		assertEquals("Filter", findTab("filter").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TestfilterNew");
 		saveFilter(tabpanel);
@@ -57,7 +58,7 @@ public class EditFilterTest extends AbstractFilterTest {
 	@Order(3)
 	void testEditHQLFilter() {
 		WebElement tabpanel = showFilter("test-hql-filter");
-		findTab(tabpanel, "hql");
+		assertEquals("HQL-Direkteingabe", findTab(tabpanel, "hql").getText());
 		WebElement tabpanelHQL = findTabpanel(tabpanel, "hql");
 		findCodeMirror(tabpanelHQL, "hql", 1).sendKeys("   --edited");
 		clickTab(tabpanel, "hql"); // lose focus
@@ -68,6 +69,7 @@ public class EditFilterTest extends AbstractFilterTest {
 	@Order(4)
 	void testRemovePermission() {
 		WebElement tabpanel = showFilter("testfilternew");
+		assertEquals("Berechtigungen", findTab(tabpanel, "permissions").getText());
 		clickTab(tabpanel, "permissions");
 		WebElement tabpanelPermissions = findTabpanel(tabpanel, "permissions");
 		dragAndDrop(tabpanelPermissions, "testrole", "available");

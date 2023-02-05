@@ -32,6 +32,7 @@ public class CreateTransferableEntityTest extends AbstractEntityTest {
 	@Order(1)
 	void testCreateTransferableEntity() {
 		WebElement tabpanel = newEntity();
+		assertEquals("Entitäten", findTab("entitaeten").getText());
 		WebElement window = newEntityWindow();
 		
 		clickCheckbox(window, "transferable");

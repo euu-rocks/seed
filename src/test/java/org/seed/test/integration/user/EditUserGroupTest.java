@@ -17,6 +17,8 @@
  */
 package org.seed.test.integration.user;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -30,6 +32,7 @@ public class EditUserGroupTest extends AbstractUserGroupTest {
 	@Order(1)
 	void testRenameUserGroup() {
 		WebElement tabpanel = showGroup("testrole");
+		assertEquals("Rollen", findTab("rollen").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TestroleNew");
 		saveGroup(tabpanel);
@@ -39,7 +42,7 @@ public class EditUserGroupTest extends AbstractUserGroupTest {
 	@Order(2)
 	void testRemoveUser() {
 		WebElement tabpanel = showGroup("testrolenew");
-		findTab(tabpanel, "users");
+		assertEquals("Benutzer", findTab(tabpanel, "users").getText());
 		WebElement tabpanelUsers = findTabpanel(tabpanel, "users");
 		pause(100);
 		dragAndDrop(tabpanelUsers, "seed", "available");
@@ -50,6 +53,7 @@ public class EditUserGroupTest extends AbstractUserGroupTest {
 	@Order(3)
 	void testRemovePermission() {
 		WebElement tabpanel = showGroup("testrolenew");
+		assertEquals("Berechtigungen", findTab(tabpanel, "permissions").getText());
 		clickTab(tabpanel, "permissions");
 		WebElement tabpanelPermissions = findTabpanel(tabpanel, "permissions");
 		pause(100);

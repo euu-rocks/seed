@@ -33,7 +33,8 @@ public class CreateFilterTest extends AbstractFilterTest {
 	void testCreateFilter() {
 		openMenu("administration-entitaeten");
 		clickMenu("administration-entitaeten-filter");
-		findTab("filter");
+		assertEquals("Filter", findTab("filter").getText());
+		
 		WebElement tabpanel = findTabpanel("filter");
 		clickButton(tabpanel, "new");
 		
@@ -53,7 +54,7 @@ public class CreateFilterTest extends AbstractFilterTest {
 	@Order(2)
 	void testAddCriteria() {
 		WebElement tabpanel = showFilter("testfilter");
-		findTab(tabpanel, "criteria");
+		assertEquals("Filterkriterien", findTab(tabpanel, "criteria").getText());
 		WebElement tabpanelCriteria = findTabpanel(tabpanel, "criteria");
 		clickButton(tabpanelCriteria, "new");
 		
@@ -68,6 +69,7 @@ public class CreateFilterTest extends AbstractFilterTest {
 	@Order(3)
 	void testAddPermission() {
 		WebElement tabpanel = showFilter("testfilter");
+		assertEquals("Berechtigungen", findTab(tabpanel, "permissions").getText());
 		clickTab(tabpanel, "permissions");
 		WebElement tabpanelPermissions = findTabpanel(tabpanel, "permissions");
 		dragAndDrop(tabpanelPermissions, "testrole", "selected");

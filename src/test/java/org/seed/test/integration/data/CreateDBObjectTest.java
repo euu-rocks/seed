@@ -17,6 +17,8 @@
  */
 package org.seed.test.integration.data;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -30,6 +32,7 @@ public class CreateDBObjectTest extends AbstractDBObjectTest {
 	@Order(1)
 	void testCreateView() {
 		WebElement tabpanel = newDBObject();
+		assertEquals("Datenbankelemente", findTab("datenbankelemente").getText());
 		WebElement window = newDBObjectWindow();
 		
 		findCombobox(window, "type").sendKeys("View");
@@ -47,6 +50,7 @@ public class CreateDBObjectTest extends AbstractDBObjectTest {
 	@Order(2)
 	void testCreateProcedure() {
 		WebElement tabpanel = newDBObject();
+		assertEquals("Datenbankelemente", findTab("datenbankelemente").getText());
 		WebElement window = newDBObjectWindow();
 		
 		findCombobox(window, "type").sendKeys("Prozedur");
@@ -74,6 +78,7 @@ public class CreateDBObjectTest extends AbstractDBObjectTest {
 	@Order(3)
 	void testCreateFunction() {
 		WebElement tabpanel = newDBObject();
+		assertEquals("Datenbankelemente", findTab("datenbankelemente").getText());
 		WebElement window = newDBObjectWindow();
 		
 		findCombobox(window, "type").sendKeys("Funktion");
@@ -103,6 +108,7 @@ public class CreateDBObjectTest extends AbstractDBObjectTest {
 	@Order(4)
 	void testCreateTriggerFunction() {
 		WebElement tabpanel = newDBObject();
+		assertEquals("Datenbankelemente", findTab("datenbankelemente").getText());
 		WebElement window = newDBObjectWindow();
 		
 		findCombobox(window, "type").sendKeys("Funktion");
@@ -126,6 +132,7 @@ public class CreateDBObjectTest extends AbstractDBObjectTest {
 	@Order(5)
 	void testCreateTrigger() {
 		WebElement tabpanel = newDBObject();
+		assertEquals("Datenbankelemente", findTab("datenbankelemente").getText());
 		WebElement window = newDBObjectWindow();
 		
 		findCombobox(window, "type").sendKeys("Trigger");
@@ -145,6 +152,7 @@ public class CreateDBObjectTest extends AbstractDBObjectTest {
 	@Order(6)
 	void testCreateSequence() {
 		WebElement tabpanel = newDBObject();
+		assertEquals("Datenbankelemente", findTab("datenbankelemente").getText());
 		WebElement window = newDBObjectWindow();
 		
 		findCombobox(window, "type").sendKeys("Sequenz");

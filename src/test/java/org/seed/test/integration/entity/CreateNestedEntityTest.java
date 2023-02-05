@@ -32,6 +32,7 @@ public class CreateNestedEntityTest extends AbstractEntityTest {
 	@Order(1)
 	void testCreateNestedEntity() {
 		WebElement tabpanel = newEntity();
+		assertEquals("Entitäten", findTab("entitaeten").getText());
 		WebElement window = newEntityWindow();
 		
 		clickCheckbox(window, "nested");

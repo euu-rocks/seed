@@ -46,7 +46,7 @@ public class CreateRestTest extends AbstractRestTest {
 	@Order(2)
 	void testAddFunction() {
 		WebElement tabpanel = showRest("testrest");
-		findTab(tabpanel, "functions");
+		assertEquals("Funktionen", findTab(tabpanel, "functions").getText());
 		WebElement tabpanelFunctions = findTabpanel(tabpanel, "functions");
 		clickButton(tabpanelFunctions, "new");
 		
@@ -66,6 +66,7 @@ public class CreateRestTest extends AbstractRestTest {
 	@Order(3)
 	void testAddPermission() {
 		WebElement tabpanel = showRest("testrest");
+		assertEquals("Berechtigungen", findTab(tabpanel, "permissions").getText());
 		clickTab(tabpanel, "permissions");
 		WebElement tabpanelPermissions = findTabpanel(tabpanel, "permissions");
 		dragAndDrop(tabpanelPermissions, "testrole", "selected");

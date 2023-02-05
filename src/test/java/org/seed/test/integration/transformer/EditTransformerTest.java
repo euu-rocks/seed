@@ -32,6 +32,7 @@ public class EditTransformerTest extends AbstractTransformerTest {
 	@Order(1)
 	void testRenameTransformer() {
 		WebElement tabpanel = showTransformer("testtransformer");
+		assertEquals("Transformationen", findTab("transformationen").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TesttransformerNew");
 		saveTransformer(tabpanel);
@@ -57,6 +58,7 @@ public class EditTransformerTest extends AbstractTransformerTest {
 	@Order(3)
 	void testRemoveStatus() {
 		WebElement tabpanel = showTransformer("testtransformernew");
+		assertEquals("Status", findTab(tabpanel, "status").getText());
 		clickTab(tabpanel, "status");
 		WebElement tabpanelStatus = findTabpanel(tabpanel, "status");
 		pause(100);
@@ -68,6 +70,7 @@ public class EditTransformerTest extends AbstractTransformerTest {
 	@Order(4)
 	void testEditFunction() {
 		WebElement tabpanel = showTransformer("testtransformernew");
+		assertEquals("Funktionen", findTab(tabpanel, "functions").getText());
 		clickTab(tabpanel, "functions");
 		WebElement tabpanelFunctions = findTabpanel(tabpanel, "functions");
 		clickListItem(tabpanelFunctions, "testfunction");
@@ -84,6 +87,7 @@ public class EditTransformerTest extends AbstractTransformerTest {
 	@Order(5)
 	void testRemovePermission() {
 		WebElement tabpanel = showTransformer("testtransformernew");
+		assertEquals("Berechtigungen", findTab(tabpanel, "permissions").getText());
 		clickTab(tabpanel, "permissions");
 		WebElement tabpanelPermissions = findTabpanel(tabpanel, "permissions");
 		dragAndDrop(tabpanelPermissions, "testrole", "available");

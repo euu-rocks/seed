@@ -17,6 +17,8 @@
  */
 package org.seed.test.integration.rest;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -31,7 +33,7 @@ public class EditRestTest extends AbstractRestTest {
 	@Order(1)
 	void testRenameRest() {
 		WebElement tabpanel = showRest("testrest");
-		
+		assertEquals("REST-Services", findTab("rest-services").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TestRestNew");
 		saveRest(tabpanel);
@@ -41,7 +43,7 @@ public class EditRestTest extends AbstractRestTest {
 	@Order(2)
 	void testRenameFunction() {
 		WebElement tabpanel = showRest("testrestnew");
-		findTab(tabpanel, "functions");
+		assertEquals("Funktionen", findTab(tabpanel, "functions").getText());
 		WebElement tabpanelFunctions = findTabpanel(tabpanel, "functions");
 		clickListItem(tabpanelFunctions, "test");
 		
@@ -65,6 +67,7 @@ public class EditRestTest extends AbstractRestTest {
 	@Order(3)
 	void testRemovePermission() {
 		WebElement tabpanel = showRest("testrestnew");
+		assertEquals("Berechtigungen", findTab(tabpanel, "permissions").getText());
 		clickTab(tabpanel, "permissions");
 		WebElement tabpanelPermissions = findTabpanel(tabpanel, "permissions");
 		dragAndDrop(tabpanelPermissions, "testrole", "available");

@@ -32,6 +32,7 @@ public class CreateEntityTest extends AbstractEntityTest {
 	@Order(1)
 	void testCreateEntity() {
 		WebElement tabpanel = newEntity();
+		assertEquals("Entitäten", findTab("entitaeten").getText());
 		WebElement window = newEntityWindow();
 		                                      
 		clickCheckbox(window, "audited");
@@ -61,20 +62,26 @@ public class CreateEntityTest extends AbstractEntityTest {
 	
 	@Test
 	@Order(3)
-	void testAddField() {
+	void testAddFields() {
 		WebElement tabpanel = showEntity("integrationtest");
-		findTab(tabpanel, "fields");
+		assertEquals("Felder", findTab(tabpanel, "fields").getText());
 		WebElement tabpanelFields = findTabpanel(tabpanel, "fields");
 		clickButton(tabpanelFields, "new");
 		
 		findOptionCombobox(tabpanelFields, "fieldgroup").sendKeys("Testgroup");
 		findOptionCombobox(tabpanelFields, "datatype").sendKeys("Text");
 		findOptionTextbox(tabpanelFields, "fieldname").sendKeys("Textfield");
+		clickTab(tabpanel, "fields"); // lose focus
 		
-		pause(50);
 		clickCheckbox(tabpanelFields, "mandatory");
 		clickCheckbox(tabpanelFields, "unique");
 		clickCheckbox(tabpanelFields, "indexed");
+		saveEntity(tabpanel);
+		
+		clickButton(tabpanelFields, "new");
+		findOptionCombobox(tabpanelFields, "datatype").sendKeys("Ganzzahl");
+		findOptionTextbox(tabpanelFields, "fieldname").sendKeys("Numberfield");
+		clickTab(tabpanel, "fields"); // lose focus
 		saveEntity(tabpanel);
 	}
 	
@@ -82,7 +89,7 @@ public class CreateEntityTest extends AbstractEntityTest {
 	@Order(4)
 	void testAddReferenceField() {
 		WebElement tabpanel = showEntity("integrationtest");
-		findTab(tabpanel, "fields");
+		assertEquals("Felder", findTab(tabpanel, "fields").getText());
 		WebElement tabpanelFields = findTabpanel(tabpanel, "fields");
 		clickButton(tabpanelFields, "new");
 		
@@ -97,6 +104,7 @@ public class CreateEntityTest extends AbstractEntityTest {
 	@Order(5)
 	void testAddFunction() {
 		WebElement tabpanel = showEntity("integrationtest");
+		assertEquals("Funktionen", findTab(tabpanel, "functions").getText());
 		clickTab(tabpanel, "functions");
 		WebElement tabpanelFunctions = findTabpanel(tabpanel, "functions");
 		clickButton(tabpanelFunctions, "new");
@@ -116,6 +124,7 @@ public class CreateEntityTest extends AbstractEntityTest {
 	@Order(6)
 	void testAddCallbackFunction() {
 		WebElement tabpanel = showEntity("integrationtest");
+		assertEquals("Callback-Funktionen", findTab(tabpanel, "callbackfunctions").getText());
 		clickTab(tabpanel, "callbackfunctions");
 		WebElement tabpanelFunctions = findTabpanel(tabpanel, "callbackfunctions");
 		clickButton(tabpanelFunctions, "new");
@@ -139,6 +148,7 @@ public class CreateEntityTest extends AbstractEntityTest {
 	@Order(7)
 	void testAddStatusmodel() {
 		WebElement tabpanel = showEntity("integrationtest");
+		assertEquals("Statusmodell", findTab(tabpanel, "statusmodel").getText());
 		clickTab(tabpanel, "statusmodel");
 		findTab(tabpanel, "status");
 		WebElement tabpanelStatus = findTabpanel(tabpanel, "status");
@@ -161,6 +171,7 @@ public class CreateEntityTest extends AbstractEntityTest {
 	@Order(8)
 	void testAddStatusTransitions() {
 		WebElement tabpanel = showEntity("integrationtest");
+		assertEquals("Statusmodell", findTab(tabpanel, "statusmodel").getText());
 		clickTab(tabpanel, "statusmodel");
 		clickTab(tabpanel, "transitions");
 		WebElement tabpanelTransitions = findTabpanel(tabpanel, "transitions");
@@ -183,6 +194,7 @@ public class CreateEntityTest extends AbstractEntityTest {
 	@Order(9)
 	void testAddStatusPermission() {
 		WebElement tabpanel = showEntity("integrationtest");
+		assertEquals("Statusmodell", findTab(tabpanel, "statusmodel").getText());
 		clickTab(tabpanel, "statusmodel");
 		clickTab(tabpanel, "transitionpermissions");
 		WebElement tabpanelPermissions = findTabpanel(tabpanel, "transitionpermissions");
@@ -194,6 +206,7 @@ public class CreateEntityTest extends AbstractEntityTest {
 	@Order(10)
 	void testAddStatusFunction() {
 		WebElement tabpanel = showEntity("integrationtest");
+		assertEquals("Statusmodell", findTab(tabpanel, "statusmodel").getText());
 		clickTab(tabpanel, "statusmodel");
 		clickTab(tabpanel, "transitionfunctions");
 		WebElement tabpanelFunctions = findTabpanel(tabpanel, "transitionfunctions");
@@ -205,6 +218,7 @@ public class CreateEntityTest extends AbstractEntityTest {
 	@Order(11)
 	void testAddPermission() {
 		WebElement tabpanel = showEntity("integrationtest");
+		assertEquals("Berechtigungen", findTab(tabpanel, "permissions").getText());
 		clickTab(tabpanel, "permissions");
 		WebElement tabpanelPermissions = findTabpanel(tabpanel, "permissions");
 		dragAndDrop(tabpanelPermissions, "testrole", "selected");
@@ -215,6 +229,7 @@ public class CreateEntityTest extends AbstractEntityTest {
 	@Order(12)
 	void testAddFieldConstraint() {
 		WebElement tabpanel = showEntity("integrationtest");
+		assertEquals("Feldeinschränkungen", findTab(tabpanel, "constraints").getText());
 		clickTab(tabpanel, "constraints");
 		WebElement tabpanelConstraints = findTabpanel(tabpanel, "constraints");
 		clickButton(tabpanelConstraints, "new");
@@ -231,6 +246,7 @@ public class CreateEntityTest extends AbstractEntityTest {
 	@Order(13)
 	void testAddRelation() {
 		WebElement tabpanel = showEntity("integrationtest");
+		assertEquals("Beziehungen", findTab(tabpanel, "relations").getText());
 		clickTab(tabpanel, "relations");
 		WebElement tabpanelRelations = findTabpanel(tabpanel, "relations");
 		clickButton(tabpanelRelations, "new");

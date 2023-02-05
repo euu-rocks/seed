@@ -33,7 +33,7 @@ public class CreateHQLFilterTest extends AbstractFilterTest {
 	void testCreateHQLFilter() {
 		openMenu("administration-entitaeten");
 		clickMenu("administration-entitaeten-filter");
-		findTab("filter");
+		assertEquals("Filter", findTab("filter").getText());
 		WebElement tabpanel = findTabpanel("filter");
 		clickButton(tabpanel, "new");
 		
@@ -54,6 +54,7 @@ public class CreateHQLFilterTest extends AbstractFilterTest {
 	@Order(2)
 	void testAddPermission() {
 		WebElement tabpanel = showFilter("test-hql-filter");
+		assertEquals("Berechtigungen", findTab("permissions2").getText());
 		clickTab(tabpanel, "permissions2");
 		WebElement tabpanelPermissions = findTabpanel(tabpanel, "permissions2");
 		dragAndDrop(tabpanelPermissions, "testrole", "selected");

@@ -59,6 +59,7 @@ public class CreateJobTest extends AbstractJobTest {
 	@Order(2)
 	void testAddParameter() {
 		WebElement tabpanel = showJob("testjob");
+		assertEquals("Parameter", findTab(tabpanel, "parameters").getText());
 		clickTab(tabpanel, "parameters");
 		WebElement tabpanelParameters = findTabpanel(tabpanel, "parameters");
 		clickButton(tabpanelParameters, "new");
@@ -72,6 +73,7 @@ public class CreateJobTest extends AbstractJobTest {
 	@Order(3)
 	void testAddNotification() {
 		WebElement tabpanel = showJob("testjob");
+		assertEquals("Benachrichtigungen", findTab(tabpanel, "notifications").getText());
 		clickTab(tabpanel, "notifications");
 		WebElement tabpanelNotifications = findTabpanel(tabpanel, "notifications");
 		clickButton(tabpanelNotifications, "new");
@@ -84,6 +86,7 @@ public class CreateJobTest extends AbstractJobTest {
 	@Order(4)
 	void testAddPermission() {
 		WebElement tabpanel = showJob("testjob");
+		assertEquals("Berechtigungen", findTab(tabpanel, "permissions").getText());
 		clickTab(tabpanel, "permissions");
 		
 		WebElement tabpanelPermissions = findTabpanel(tabpanel, "permissions");

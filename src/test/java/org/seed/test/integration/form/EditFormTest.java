@@ -32,6 +32,7 @@ public class EditFormTest extends AbstractFormTest {
 	@Order(1)
 	void testRenameForm() {
 		WebElement tabpanel = showForm("testform");
+		assertEquals("Formulare", findTab("formulare").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TestformNew");
 		saveForm(tabpanel);
@@ -52,6 +53,7 @@ public class EditFormTest extends AbstractFormTest {
 	@Order(3)
 	void testRenameField() {
 		WebElement tabpanel = showForm("testformnew");
+		assertEquals("Liste", findTab(tabpanel, "fields").getText());
 		clickTab(tabpanel, "fields");
 		WebElement tabpanelFields = findTabpanel(tabpanel, "fields");
 		clickItem(tabpanelFields, "status");
@@ -64,6 +66,7 @@ public class EditFormTest extends AbstractFormTest {
 	@Order(4)
 	void testRenameAction() {
 		WebElement tabpanel = showForm("testformnew");
+		assertEquals("Aktionen", findTab(tabpanel, "actions").getText());
 		clickTab(tabpanel, "actions");
 		WebElement tabpanelActions = findTabpanel(tabpanel, "actions");
 		clickItem(tabpanelActions, "save");
@@ -76,6 +79,7 @@ public class EditFormTest extends AbstractFormTest {
 	@Order(5)
 	void testRenameTransformer() {
 		WebElement tabpanel = showForm("testformnew");
+		assertEquals("Transformationen", findTab(tabpanel, "transformers").getText());
 		clickTab(tabpanel, "transformers");
 		WebElement tabpanelTransformers = findTabpanel(tabpanel, "transformers");
 		clickItem(tabpanelTransformers, "testtransformernew");

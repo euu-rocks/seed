@@ -54,7 +54,7 @@ public class CreateTransformerTest extends AbstractTransformerTest {
 	@Order(2)
 	void testAddElement() {
 		WebElement tabpanel = showTransformer("testtransformer");
-		findTab(tabpanel, "elements");
+		assertEquals("Elemente", findTab(tabpanel, "elements").getText());
 		WebElement tabpanelElements = findTabpanel(tabpanel, "elements");
 		clickButton(tabpanelElements, "new");
 		
@@ -67,6 +67,7 @@ public class CreateTransformerTest extends AbstractTransformerTest {
 	@Order(3)
 	void testAddNested() {
 		WebElement tabpanel = showTransformer("testtransformer");
+		assertEquals("Unterobjekte", findTab(tabpanel, "nesteds").getText());
 		clickTab(tabpanel, "nesteds");
 		WebElement tabpanelNesteds = findTabpanel(tabpanel, "nesteds");
 		
@@ -88,6 +89,7 @@ public class CreateTransformerTest extends AbstractTransformerTest {
 	@Order(4)
 	void testAddStatus() {
 		WebElement tabpanel = showTransformer("testtransformer");
+		assertEquals("Status", findTab(tabpanel, "status").getText());
 		clickTab(tabpanel, "status");
 		WebElement tabpanelElements = findTabpanel(tabpanel, "status");
 		dragAndDrop(tabpanelElements, "one", "selected");
@@ -98,6 +100,7 @@ public class CreateTransformerTest extends AbstractTransformerTest {
 	@Order(5)
 	void testAddPermission() {
 		WebElement tabpanel = showTransformer("testtransformer");
+		assertEquals("Berechtigungen", findTab(tabpanel, "permissions").getText());
 		clickTab(tabpanel, "permissions");
 		WebElement tabpanelPermissions = findTabpanel(tabpanel, "permissions");
 		dragAndDrop(tabpanelPermissions, "testrole", "selected");
@@ -108,6 +111,7 @@ public class CreateTransformerTest extends AbstractTransformerTest {
 	@Order(6)
 	void testAddFunction() {
 		WebElement tabpanel = showTransformer("testtransformer");
+		assertEquals("Funktionen", findTab(tabpanel, "functions").getText());
 		clickTab(tabpanel, "functions");
 		WebElement tabpanelFunctions = findTabpanel(tabpanel, "functions");
 		clickButton(tabpanelFunctions, "new");

@@ -17,6 +17,8 @@
  */
 package org.seed.test.integration.data;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -31,6 +33,7 @@ public class EditDBObjectTest extends AbstractDBObjectTest {
 	@Order(1)
 	void testEditProcedure() {
 		WebElement tabpanel = showDBObject("testprocedure");
+		assertEquals("Datenbankelemente", findTab("datenbankelemente").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TestprocedureNew");
 		
@@ -44,6 +47,7 @@ public class EditDBObjectTest extends AbstractDBObjectTest {
 	@Order(2)
 	void testEditFunction() {
 		WebElement tabpanel = showDBObject("testfunction");
+		assertEquals("Datenbankelemente", findTab("datenbankelemente").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TestfunctionNew");
 		
@@ -57,6 +61,7 @@ public class EditDBObjectTest extends AbstractDBObjectTest {
 	@Order(3)
 	void testEditView() {
 		WebElement tabpanel = showDBObject("testview");
+		assertEquals("Datenbankelemente", findTab("datenbankelemente").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TestviewNew");
 		
@@ -70,6 +75,7 @@ public class EditDBObjectTest extends AbstractDBObjectTest {
 	@Order(4)
 	void testFailRenameViewFunction() {
 		WebElement tabpanel = showDBObject("testfunctionnew");
+		assertEquals("Datenbankelemente", findTab("datenbankelemente").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("Testfunction");
 		
@@ -84,6 +90,7 @@ public class EditDBObjectTest extends AbstractDBObjectTest {
 	@Order(5)
 	void testFailRenameTriggerFunction() {
 		WebElement tabpanel = showDBObject("triggerfunction");
+		assertEquals("Datenbankelemente", findTab("datenbankelemente").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TriggerfunctionNew");
 		

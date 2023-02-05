@@ -42,6 +42,7 @@ public class EditMenuTest extends AbstractMenuTest {
 	@Order(2)
 	void testRenameMenuEntry() {
 		WebElement tabpanel = showMenu("testmenunew");
+		assertEquals("Menüs", findTab("menues").getText());
 		clickListItem(tabpanel, "testform");
 		
 		clearOptionTextbox(tabpanel, "entryname");

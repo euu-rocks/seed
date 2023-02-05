@@ -32,6 +32,8 @@ public class EditTransferTest extends AbstractTransferTest {
 	@Order(1)
 	void testRenameTransfer() {
 		WebElement tabpanel = showTransfer("testtransfer");
+		assertEquals("Import / Export", findTab("import--export").getText());
+		
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TesttransferNew");
 		saveTransfer(tabpanel);
@@ -43,6 +45,7 @@ public class EditTransferTest extends AbstractTransferTest {
 		WebElement tabpanel = showTransfer("testtransfernew");
 		assertEquals("Felder", findTab(tabpanel, "fields").getText());
 		WebElement tabpanelFields = findTabpanel(tabpanel, "fields");
+		clickTab(tabpanel, "fields");
 		dragAndDrop(tabpanelFields, "textfieldnew", "available");
 		saveTransfer(tabpanel);
 	}

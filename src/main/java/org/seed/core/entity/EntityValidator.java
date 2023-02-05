@@ -28,7 +28,6 @@ import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
-import org.seed.core.data.dbobject.DBObject;
 import org.seed.core.data.dbobject.DBObjectService;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
@@ -93,7 +92,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		if (entity.hasFields()) {
 			validateFields(entity, errors);
 			if (!entity.isNew()) {
-				validateFieldAttributeChange(entity, errors);
+				validateFieldAttributeChanges(entity, errors);
 			}
 		}
 		
@@ -276,37 +275,39 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		}
 	}
 	
-	private void validateFieldAttributeChange(Entity entity, final ValidationErrors errors) {
+	private void validateFieldAttributeChanges(Entity entity, final ValidationErrors errors) {
 		try (Session session = repository.getSession()) {
 			final Entity currentVersionEntity = repository.get(entity.getId(), session);
 			if (currentVersionEntity != null) {
-				for (EntityField field : subList(entity.getFields(), field -> !field.isNew())) {
-					final EntityField currentVersionField = currentVersionEntity.getFieldById(field.getId());
-					if (currentVersionField == null) {
-						continue;
-					}
-					// field type change
-					if (field.getType() != currentVersionField.getType()) {
-						for (DBObject view : dbObjectService.findViewsContains(entity.getInternalName())) {
-							errors.addError("val.inuse.entityview", view.getName());
-						}
-						break;
-					}
-					// change to unique
-					if (field.isUnique() && !currentVersionField.isUnique() &&
-						!repository.areColumnValuesUnique(currentVersionEntity, currentVersionField, session)) {
-						errors.addError("val.illegal.uniquechange", field.getName());
-					}
-					// unique and change to mandatory
-					if (field.isUnique() && field.isMandatory() && !currentVersionField.isMandatory()) {
-						if (repository.countEmptyColumnValues(currentVersionEntity, currentVersionField, session) > 1) {
-							errors.addError("val.illegal.mandatorychange", field.getName());
-						}
-						else if (field.getDefaultNumber() != null &&
-								 repository.countColumnValue(currentVersionEntity, currentVersionField, field.getDefaultNumber(), session) > 0) {
-							errors.addError("val.illegal.mandatorydefault", field.getDefaultNumber().toString(), field.getName());
-						}
-					}
+				validateFieldAttributeChange(entity, currentVersionEntity, session, errors);
+			}
+		}
+	}
+	
+	private void validateFieldAttributeChange(Entity entity, Entity currentVersionEntity, 
+											  Session session, final ValidationErrors errors) {
+		for (EntityField field : subList(entity.getFields(), field -> !field.isNew())) {
+			final EntityField currentVersionField = currentVersionEntity.getFieldById(field.getId());
+			Assert.stateAvailable(currentVersionField, "current version field");
+			
+			// field type change
+			if (field.getType() != currentVersionField.getType()) {
+				dbObjectService.findViewsContains(entity.getInternalName())
+							   .forEach(view -> errors.addError("val.inuse.entityview", view.getName()));
+			}
+			// change to unique
+			if (field.isUnique() && !currentVersionField.isUnique() &&
+				!repository.areColumnValuesUnique(currentVersionEntity, currentVersionField, session)) {
+				errors.addError("val.illegal.uniquechange", field.getName());
+			}
+			// unique and change to mandatory
+			if (field.isUnique() && field.isMandatory() && !currentVersionField.isMandatory()) {
+				if (repository.countEmptyColumnValues(currentVersionEntity, currentVersionField, session) > 1) {
+					errors.addError("val.illegal.mandatorychange", field.getName());
+				}
+				else if (field.getDefaultNumber() != null &&
+						 repository.countColumnValue(currentVersionEntity, currentVersionField, field.getDefaultNumber(), session) > 0) {
+					errors.addError("val.illegal.mandatorydefault", field.getDefaultNumber().toString(), field.getName());
 				}
 			}
 		}
@@ -421,7 +422,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		else if (field.getFormula().length() > getMaxStringLength()) {
 			errors.addOverlongField("label.calculationformula", getMaxStringLength());
 		}
-		else if (!testFormula(entity, field.getFormula())) {
+		else if (!repository.testFormula(entity, field.getFormula())) {
 			errors.addError("val.illegal.formula", field.getName());
 		}
 	}
@@ -676,22 +677,6 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 			entityDependents = MiscUtils.castList(getBeans(EntityDependent.class));
 		}
 		return entityDependents;
-	}
-	
-	private boolean testFormula(Entity entity, String formula) {
-		Assert.notNull(entity, C.ENTITY);
-		Assert.notNull(formula, "formula");
-		
-		final StringBuilder buf = new StringBuilder()
-									.append("select ").append(formula).append(" from ")
-									.append(entity.getEffectiveTableName());
-		try (Session session = repository.getSession()) {
-			session.createSQLQuery(buf.toString()).setMaxResults(0).list();
-			return true;
-		}
-		catch (Exception ex) {
-			return false;
-		}
 	}
 	
 	private static final String AMBIGUOUS_FIELD_OR_NESTED = "val.ambiguous.fieldornested";

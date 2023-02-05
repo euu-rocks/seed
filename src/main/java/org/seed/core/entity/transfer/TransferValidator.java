@@ -32,7 +32,7 @@ public class TransferValidator extends AbstractSystemEntityValidator<Transfer> {
 	@Override
 	public void validateCreate(Transfer transfer) throws ValidationException {
 		Assert.notNull(transfer, C.TRANSFER);
-		final ValidationErrors errors = createValidationErrors(transfer);
+		final var errors = createValidationErrors(transfer);
 		
 		if (isEmpty(transfer.getEntity())) {
 			errors.addEmptyField("label.entity");
@@ -44,21 +44,10 @@ public class TransferValidator extends AbstractSystemEntityValidator<Transfer> {
 		validate(errors);
 	}
 	
-	public void validateImport(FileObject importFile) throws ValidationException {
-		Assert.notNull(importFile, "importFile");
-		final ValidationErrors errors = createValidationErrors(importFile);
-		
-		if (importFile.isEmpty()) {
-			errors.addEmptyField("label.file");
-		}
-		
-		validate(errors);
-	}
-	
 	@Override
 	public void validateSave(Transfer transfer) throws ValidationException {
 		Assert.notNull(transfer, C.TRANSFER);
-		final ValidationErrors errors = createValidationErrors(transfer);
+		final var errors = createValidationErrors(transfer);
 		
 		if (isEmpty(transfer.getName())) {
 			errors.addEmptyName();
@@ -69,6 +58,17 @@ public class TransferValidator extends AbstractSystemEntityValidator<Transfer> {
 		
 		if (transfer.hasElements()) {
 			validateElements(transfer, errors);
+		}
+		
+		validate(errors);
+	}
+	
+	void validateImport(FileObject importFile) throws ValidationException {
+		Assert.notNull(importFile, "importFile");
+		final var errors = createValidationErrors(importFile);
+		
+		if (importFile.isEmpty()) {
+			errors.addEmptyField("label.file");
 		}
 		
 		validate(errors);
@@ -86,26 +86,30 @@ public class TransferValidator extends AbstractSystemEntityValidator<Transfer> {
 					break;
 				}
 			}
-			if (!isEmpty(element.getName()) && 
-				!isNameLengthAllowed(element.getName())) {
-				errors.addOverlongObjectName("label.columnname", getMaxNameLength());
-			}
-			if (!isEmpty(element.getFormat()) && 
-				!isNameLengthAllowed(element.getFormat())) {
-				errors.addOverlongObjectName("label.format", getMaxNameLength());
-			}
-			if (!isEmpty(element.getValueTrue()) && 
-				!isLengthAllowed(element.getValueTrue(), getMaxUIDLength())) {
-				errors.addOverlongField("label.valuetrue", getMaxUIDLength());
-			}
-			if (!isEmpty(element.getValueFalse()) && 
-				!isLengthAllowed(element.getValueFalse(), getMaxUIDLength())) {
-				errors.addOverlongField("label.valuefalse", getMaxUIDLength());
-			}
-			if (!isEmpty(element.getValueTrue()) && 
-				element.getValueTrue().equals(element.getValueFalse())) {
-				errors.addError("val.same.truefalsevalue");
-			}
+			validateElement(element, errors);
+		}
+	}
+	
+	private void validateElement(TransferElement element, ValidationErrors errors) {
+		if (!isEmpty(element.getName()) && 
+			!isNameLengthAllowed(element.getName())) {
+			errors.addOverlongObjectName("label.columnname", getMaxNameLength());
+		}
+		if (!isEmpty(element.getFormat()) && 
+			!isNameLengthAllowed(element.getFormat())) {
+			errors.addOverlongObjectName("label.format", getMaxNameLength());
+		}
+		if (!isEmpty(element.getValueTrue()) && 
+			!isLengthAllowed(element.getValueTrue(), getMaxUIDLength())) {
+			errors.addOverlongField("label.valuetrue", getMaxUIDLength());
+		}
+		if (!isEmpty(element.getValueFalse()) && 
+			!isLengthAllowed(element.getValueFalse(), getMaxUIDLength())) {
+			errors.addOverlongField("label.valuefalse", getMaxUIDLength());
+		}
+		if (!isEmpty(element.getValueTrue()) && 
+			element.getValueTrue().equals(element.getValueFalse())) {
+			errors.addError("val.same.truefalsevalue");
 		}
 	}
 	

@@ -57,9 +57,21 @@ public class EntityRepository extends AbstractSystemEntityRepository<Entity> {
 	int countColumnValue(Entity entity, EntityField field, Object value, Session session) {
 		return ((Number) session.createSQLQuery(
 				String.format("select count(*) from %s where %s = (:value)",
-							  entity.getEffectiveTableName(), field.getEffectiveColumnName(), value))
+							  entity.getEffectiveTableName(), field.getEffectiveColumnName()))
 								.setParameter("value", value)
 								.getSingleResult()).intValue();
+	}
+	
+	boolean testFormula(Entity entity, String formula) {
+		try (Session session = getSession()) {
+			session.createSQLQuery(
+				String.format("select %s from %s limit 1", 
+							  formula, entity.getEffectiveTableName())).list();
+			return true;
+		}
+		catch (Exception ex) {
+			return false;
+		}
 	}
 	
 	List<Entity> findParentEntities(Entity entity) {

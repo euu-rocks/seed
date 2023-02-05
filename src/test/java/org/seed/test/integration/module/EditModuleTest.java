@@ -43,7 +43,7 @@ public class EditModuleTest extends AbstractModuleTest {
 	@Order(2)
 	void testEditParameterValue() {
 		WebElement tabpanel = showModule("testmodulenew");
-		findTab(tabpanel, "parameters");
+		assertEquals("Parameter", findTab(tabpanel, "parameters").getText());
 		WebElement tabpanelParameters = findTabpanel(tabpanel, "parameters");
 		clickListItem(tabpanelParameters, "testparameter");
 		findOptionTextbox(tabpanelParameters, "parametervalue").sendKeys(" new");
@@ -55,6 +55,7 @@ public class EditModuleTest extends AbstractModuleTest {
 	@Order(3)
 	void testAddMenu() {
 		WebElement tabpanel = showModule("testmodulenew");
+		assertEquals("Menüs", findTab(tabpanel, "menus").getText());
 		clickTab(tabpanel, "menus");
 		WebElement tabpanelMenus = findTabpanel(tabpanel, "menus");
 		dragAndDrop(tabpanelMenus, "testmenunew", "selected");

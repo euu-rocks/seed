@@ -57,22 +57,27 @@ public class RestValidator extends AbstractSystemEntityValidator<Rest> {
 		
 		// mapping
 		if (!isEmpty(rest.getMapping())) {
-			if (!isNameLengthAllowed(rest.getMapping())) {
-				errors.addOverlongField(LABEL_MAPPING, getMaxNameLength());
-			}
-			else if (!rest.getMapping().startsWith("/")) {
-				errors.addNotStartsWith(LABEL_MAPPING, "/");
-			}
-			else if (!isRestNameAllowed(rest.getMapping().substring(1))) {
-				errors.addIllegalField(LABEL_MAPPING, rest.getMapping());
-			}
+			validateMapping(rest, errors);
 		}
+		
 		// functions
 		if (rest.hasFunctions()) {
 			validateFunctions(rest, errors);
 		}
 		
 		validate(errors);
+	}
+	
+	private void validateMapping(Rest rest, ValidationErrors errors) {
+		if (!isNameLengthAllowed(rest.getMapping())) {
+			errors.addOverlongField(LABEL_MAPPING, getMaxNameLength());
+		}
+		else if (!rest.getMapping().startsWith("/")) {
+			errors.addNotStartsWith(LABEL_MAPPING, "/");
+		}
+		else if (!isRestNameAllowed(rest.getMapping().substring(1))) {
+			errors.addIllegalField(LABEL_MAPPING, rest.getMapping());
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
