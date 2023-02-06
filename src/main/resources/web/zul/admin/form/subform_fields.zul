@@ -105,9 +105,9 @@
 	                </template>
 				</combobox>
 	        </vlayout>		 
-	        <vlayout visible="@load(!empty vm.getAvailableTransformers(vm.subFormColumn))">
+	        <vlayout visible="@load(!empty vm.getAvailableTransformersSub(vm.subFormColumn))">
 	        	<label value="${labels.label.transformer}:"/>
-	        	<combobox model="@load(vm.getAvailableTransformers(vm.subFormColumn))"
+	        	<combobox model="@load(vm.getAvailableTransformersSub(vm.subFormColumn))"
 					  	  selectedItem="@bind(vm.subFormColumn.transformer)"
 					  	  value="@load(vm.subFormColumn.transformer.name)"
 					  	  hflex="1">

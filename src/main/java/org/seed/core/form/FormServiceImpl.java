@@ -269,7 +269,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		Assert.notNull(session, C.SESSION);
 		
 		return subList(getObjects(session), other -> !form.equals(other) && 
-													 (form.containsForm(other) || 
+													 (other.containsForm(form) || 
 													 anyMatch(other.getSubForms(), subForm -> subForm.containsForm(form))));
 	}
 	

@@ -111,6 +111,9 @@ public class FormValidator extends AbstractSystemEntityValidator<Form> {
 					if (C.FORM.equals(getEntityType(systemEntity))) {
 						errors.addError("val.inuse.formform", systemEntity.getName());
 					}
+					if (C.MENU.equals(getEntityType(systemEntity))) {
+						errors.addError("val.inuse.formmenu", systemEntity.getName());
+					}
 				}
 			}
 		}

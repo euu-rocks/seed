@@ -523,7 +523,7 @@ public class LayoutDialogViewModel extends AbstractAdminViewModel<Form> {
 				: Collections.emptyList();
 	}
 	
-	public List<Transformer> getAvailableTransformers(SubFormColumn subFormColumn) {
+	public List<Transformer> getAvailableTransformersSub(SubFormColumn subFormColumn) {
 		return subFormColumn != null 
 				? getAvailableTransformers(subFormColumn.subFormField.getEntityField())
 				: Collections.emptyList();
