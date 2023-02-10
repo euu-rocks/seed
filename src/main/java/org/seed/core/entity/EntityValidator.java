@@ -24,6 +24,7 @@ import java.util.List;
 import org.hibernate.Session;
 
 import org.seed.C;
+import org.seed.core.codegen.CodeUtils;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationErrors;
@@ -441,6 +442,16 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 			}
 			else if (!isNameUnique(function.getName(), entity.getAllFunctions())) {
 				errors.addError("val.ambiguous.functionname", function.getName());
+			}
+			else if (isEmpty(function.getContent())) {
+				errors.addError("val.empty.functioncode", function.getName());
+			}
+			else if (function.isCallback()) {
+				final String className = CodeUtils.extractClassName(
+						CodeUtils.extractQualifiedName(function.getContent()));
+				if (!function.getGeneratedClass().equals(className)) {
+					errors.addError("val.illegal.functionclassname", function.getName(), function.getGeneratedClass());
+				}
 			}
 		}
 	}

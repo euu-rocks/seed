@@ -58,7 +58,8 @@ class RestCodeBuilder extends AbstractSourceCodeBuilder {
 						  new ParameterMetadata[] {
 							newParameter(C.CONTEXT, newTypeClass(RestFunctionContext.class))
 						  }, 
-						  CODE_PLACEHOLDER, newAnnotation(Override.class));
+						  CODE_PLACEHOLDER + "\n\t\treturn \"TODO\";\n",
+						  newAnnotation(Override.class));
 				return super.build(false);
 				
 			case COMPLETE:

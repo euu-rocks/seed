@@ -39,6 +39,8 @@ import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
+import org.seed.core.codegen.CodeManager;
+import org.seed.core.codegen.CodeUtils;
 import org.seed.core.data.Options;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
@@ -75,6 +77,9 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	
 	@Autowired
 	private UserGroupService userGroupService;
+	
+	@Autowired
+	private CodeManager codeManager;
 	
 	@Override
 	protected TransformerRepository getRepository() {
@@ -244,9 +249,26 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	@Override
 	@Secured("ROLE_ADMIN_ENTITY")
 	public void saveObject(Transformer transformer) throws ValidationException {
+		Assert.notNull(transformer, C.TRANSFORMER);
+		
+		final boolean isNew = transformer.isNew();
+		final Transformer currentVersionTransformer = !isNew ? getObject(transformer.getId()) : null;
+		final boolean renamed = !isNew && !currentVersionTransformer.getInternalName().equals(transformer.getInternalName());
+		
+		if (renamed && transformer.hasFunctions()) {
+			renamePackages(transformer, currentVersionTransformer);
+		}
 		super.saveObject(transformer);
 	
 		if (transformer.hasFunctions()) {
+			if (!isNew) {
+				for (TransformerFunction currentFunction : currentVersionTransformer.getFunctions()) {
+					final TransformerFunction function = transformer.getFunctionByUid(currentFunction.getUid());
+					if (function == null || !function.getName().equals(currentFunction.getName())) {
+						removeFunctionClass(currentFunction);
+					}
+				}
+			}
 			updateConfiguration();
 		}
 	}
@@ -255,6 +277,9 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	@Secured("ROLE_ADMIN_ENTITY")
 	public void deleteObject(Transformer transformer) throws ValidationException {
 		super.deleteObject(transformer);
+		if (transformer.hasFunctions()) {
+			transformer.getFunctions().forEach(this::removeFunctionClass);
+		}
 	}
 
 	@Override
@@ -348,6 +373,17 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 				saveObject(transformer, session);
 			}
 		}
+	}
+	
+	private void renamePackages(Transformer transformer, Transformer currentVersionTransformer) {
+		currentVersionTransformer.getFunctions().forEach(this::removeFunctionClass);
+		filterAndForEach(transformer.getFunctions(), 
+						 function -> function.getContent() != null, 
+						 function -> function.setContent(CodeUtils.renamePackage(function.getContent(), function.getGeneratedPackage())));	
+	}
+	
+	private void removeFunctionClass(TransformerFunction function) {
+		codeManager.removeClass(CodeUtils.getQualifiedName(function));
 	}
 	
 	private void initTransformer(Transformer transformer, TransferContext context, Session session) {

@@ -32,22 +32,21 @@ public abstract class CodeUtils {
 	
 	private static final String[] CLASS_TYPES = { "class ", "interface ", "enum " };
 	
-	private static final String EXT_JAR = ".jar";
-	
-	private static final String JAR_SEPARATOR = "!/"; 
-	
 	private CodeUtils() { }
 	
 	public static URI createJarURI(URL packageURL, String classFileName) {
+		Assert.notNull(packageURL, "package URL");
+		Assert.notNull(classFileName, "class file name");
+		
 		final String packageURLString = packageURL.toExternalForm();
 		final String jarURI = packageURLString.substring(0, packageURLString.lastIndexOf('!'));
-		return URI.create(jarURI + JAR_SEPARATOR + classFileName);
+		return URI.create(jarURI + "!/" + classFileName);
 	}
 	
 	public static URI createSourceURI(String className) {
-		return className != null 
-				? URI.create(className + Kind.SOURCE.extension) 
-				: null;
+		Assert.notNull(className, C.CLASSNAME);
+		
+		return URI.create(className + Kind.SOURCE.extension);
 	}
 	
 	public static boolean isClassFile(String fileName) {
@@ -59,40 +58,73 @@ public abstract class CodeUtils {
 	}
 	
 	public static boolean isJarFile(String fileName) {
-		return fileName != null && fileName.toLowerCase().endsWith(EXT_JAR);
+		Assert.notNull(fileName, "file name");
+		
+		return fileName.toLowerCase().endsWith(".jar");
 	}
 	
 	public static boolean isSubPackage(String path, String packagePath) {
+		Assert.notNull(path, C.PATH);
+		Assert.notNull(packagePath, "package path");
+		
 		return path.indexOf('/', packagePath.length() + 1) != -1;
 	}
 	
 	public static String getPackagePath(String packageName) {
+		Assert.notNull(packageName,C.PACKAGENAME);
+		
 		return packageName.replace('.', '/');
 	}
 	
 	public static String getQualifiedName(String entryName) {
+		Assert.notNull(entryName, "entry name");
+		
 		return removeClassExtension(entryName).replace('/', '.');
 	}
 	
-	public static String getQualifiedName(GeneratedObject object) {
-		return getQualifiedName(object.getGeneratedPackage(), object.getGeneratedClass());
+	public static String getQualifiedName(GeneratedObject generatedObject) {
+		Assert.notNull(generatedObject, "generatedObject");
+		
+		return getQualifiedName(generatedObject.getGeneratedPackage(), 
+								generatedObject.getGeneratedClass());
 	}
 	
 	public static String getQualifiedName(String packageName, String className) {
+		Assert.notNull(packageName,C.PACKAGENAME);
+		Assert.notNull(className, C.CLASSNAME);
+		
 		return packageName + '.' + className;
 	}
 	
 	public static String extractClassName(String qualifiedName) {
+		Assert.notNull(qualifiedName, C.QUALIFIEDNAME);
+		
 		final int idx = qualifiedName.lastIndexOf('.');
 		return idx >= 0 ? qualifiedName.substring(idx + 1) : qualifiedName; 
 	}
 	
 	public static String extractPackageName(String qualifiedName) {
+		Assert.notNull(qualifiedName, C.QUALIFIEDNAME);
+		
 		final int idx = qualifiedName.lastIndexOf('.');
 		return idx >= 0 ? qualifiedName.substring(0, idx) : "java.lang"; // primitives have no package
 	}
 	
+	public static String renamePackage(String code, String packageName) {
+		Assert.notNull(code, C.CODE);
+		Assert.notNull(packageName, C.PACKAGENAME);
+		
+		final int startIdx = code.indexOf("package ");
+		Assert.state(startIdx >= 0, "package not found");
+		final int endIdx = code.indexOf(";", startIdx);
+		Assert.state(endIdx >= 0, "; not found after package");
+		final String oldPackageName = code.substring(startIdx + 8, endIdx).trim();
+		return code.replace(oldPackageName, packageName);
+	}
+	
 	public static String extractQualifiedName(String code) {
+		Assert.notNull(code, C.CODE);
+		
 		// extract package name
 		int startIdx = code.indexOf("package ");
 		Assert.state(startIdx >= 0, "package not found");

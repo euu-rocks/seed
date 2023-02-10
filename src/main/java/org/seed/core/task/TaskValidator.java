@@ -21,6 +21,7 @@ import org.quartz.CronExpression;
 
 import org.seed.C;
 import org.seed.core.codegen.CodeManager;
+import org.seed.core.codegen.CodeUtils;
 import org.seed.core.codegen.compile.CompilerException;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.ValidationErrors;
@@ -67,7 +68,14 @@ public class TaskValidator extends AbstractSystemEntityValidator<Task> {
 				errors.addEmptyField("label.sourcecode");
 			}
 			else {
-				validateCode(task, errors);
+				final String className = CodeUtils.extractClassName(
+						CodeUtils.extractQualifiedName(task.getContent()));
+				if (!task.getGeneratedClass().equals(className)) {
+					errors.addError("val.illegal.jobclassname", task.getName(), task.getGeneratedClass());
+				}
+				else {
+					validateCode(task, errors);
+				}
 			}
 			validateTrigger(task, errors);
 		}

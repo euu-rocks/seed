@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Base64;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterOutputStream;
@@ -32,6 +33,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.util.FastByteArrayOutputStream;
 
 public abstract class StreamUtils {
+	
+	private static final Charset CHARSET = MiscUtils.CHARSET;
 	
 	private StreamUtils() {}
 	
@@ -44,7 +47,7 @@ public abstract class StreamUtils {
 	}
 	
 	public static InputStream getStringAsStream(String string) {
-		return new ByteArrayInputStream(string.getBytes(MiscUtils.CHARSET));
+		return new ByteArrayInputStream(string.getBytes(CHARSET));
 	}
 	
 	public static SafeZipInputStream getZipStream(byte[] bytes) {
@@ -54,7 +57,7 @@ public abstract class StreamUtils {
 	public static String compress(String text) {
 		if (text != null) {
 			try {
-				final byte[] compressedBytes = compress(text.getBytes(MiscUtils.CHARSET));
+				final byte[] compressedBytes = compress(text.getBytes(CHARSET));
 				return MiscUtils.toString(Base64.getEncoder().encode(compressedBytes));
 			} 
 			catch (IOException ex) {
@@ -103,7 +106,7 @@ public abstract class StreamUtils {
 	
 	public static String getStreamAsText(InputStream intputStream) {
 		try (final var stream = intputStream) {
-			return org.springframework.util.StreamUtils.copyToString(stream, MiscUtils.CHARSET);
+			return org.springframework.util.StreamUtils.copyToString(stream, CHARSET);
 		}
 		catch (IOException ex) {
 			throw new InternalException(ex);

@@ -224,6 +224,11 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 		
 		final boolean isNew = rest.isNew();
 		final Rest currentVersionRest = !isNew ? getObject(rest.getId()) : null;
+		final boolean renamed = !isNew && !currentVersionRest.getInternalName().equals(rest.getInternalName());
+		
+		if (renamed && rest.hasFunctions()) {
+			renamePackages(rest, currentVersionRest);
+		}
 		super.saveObject(rest);
 		
 		if (!isNew && currentVersionRest.hasFunctions()) {
@@ -237,7 +242,7 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 		
 		updateConfiguration();
 	}
-
+	
 	@Override
 	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
 		filterAndForEach(currentVersionModule.getRests(), 
@@ -273,6 +278,14 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 	@Override
 	protected RestValidator getValidator() {
 		return validator;
+	}
+	
+	private void renamePackages(Rest rest, Rest currentVersionRest) {
+		currentVersionRest.getFunctions().forEach(this::removeFunctionClass);
+		filterAndForEach(rest.getFunctions(), 
+						 function -> function.getContent() != null, 
+						 function -> function.setContent(CodeUtils.renamePackage(function.getContent(), 
+								 												 function.getGeneratedPackage())));	
 	}
 	
 	private void initRest(Rest rest, Rest currentVersionRest, Session session) {

@@ -56,7 +56,7 @@ public class CreateRestTest extends AbstractRestTest {
 		clickButton(tabpanelFunctions, "editfunction");
 		
 		WebElement window = findWindow("code-dialog");
-		findCodeMirror(window, "content", 10).sendKeys("return \"TestRestfunction\";");
+		findCodeMirror(window, "content", 12).sendKeys("        System.out.println(\"Testrest\");");
 		clickButton(window, "apply");
 		waitWindowDisappear("code-dialog");
 		saveRest(tabpanel);

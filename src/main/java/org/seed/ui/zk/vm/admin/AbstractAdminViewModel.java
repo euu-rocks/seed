@@ -647,7 +647,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		}
 		catch (OptimisticLockException olex) {
 			final String errMsgKey = PRE_ADMIN + objectLabelKey + ".failstale";
-			showError(component, errMsgKey);
+			showError(component, getLabel(errMsgKey));
 		}
 		catch (PersistenceException persitenceException) {
 			if (ExceptionUtils.isUniqueConstraintViolation(persitenceException)) {

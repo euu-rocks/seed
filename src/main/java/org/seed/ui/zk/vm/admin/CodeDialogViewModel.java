@@ -82,6 +82,12 @@ public class CodeDialogViewModel extends AbstractApplicationViewModel {
 	}
 	
 	@Command
+	public void cancel() {
+		contentObject.setContent(originalContent);
+		window.detach();
+	}
+	
+	@Command
 	@NotifyChange({C.CONTENT, "errorMessage"})
 	public void reset() {
 		errorMessage = null;
@@ -92,9 +98,7 @@ public class CodeDialogViewModel extends AbstractApplicationViewModel {
 	@SmartNotifyChange("errorMessage")
 	public void compile(@BindingParam(C.CODE) String code,
 						@BindingParam(C.ELEM) Component component) {
-		if (!StringUtils.hasText(code)) {
-			showNotification(component, true, "admin.compile.nocode");
-			errorMessage = null;
+		if (!validateCode(code, component)) {
 			return;
 		}
 		try {
@@ -111,9 +115,7 @@ public class CodeDialogViewModel extends AbstractApplicationViewModel {
 	@SmartNotifyChange("errorMessage")
 	public void applyCode(@BindingParam(C.CODE) String code,
 						  @BindingParam(C.ELEM) Component component) {
-		if (!StringUtils.hasText(code)) {
-			showNotification(component, true, "admin.compile.nocode");
-			errorMessage = null;
+		if (!validateCode(code, component)) {
 			return;
 		}
 		try {
@@ -129,10 +131,21 @@ public class CodeDialogViewModel extends AbstractApplicationViewModel {
 		}
 	}
 	
-	@Command
-	public void cancel() {
-		contentObject.setContent(originalContent);
-		window.detach();
+	private boolean validateCode(String code, Component component) {
+		if (!StringUtils.hasText(code)) {
+			showNotification(component, true, "admin.compile.nocode");
+			errorMessage = null;
+			return false;
+		}
+		// check package
+		if (originalContent.contains("package ")) {
+			final String packageName = CodeUtils.extractPackageName(CodeUtils.extractQualifiedName(code));
+			if (!packageName.equals(CodeUtils.extractPackageName(CodeUtils.extractQualifiedName(originalContent)))) {
+				showNotification(component, true, "val.illegal.packagerename");
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	private SourceCode createSourceCode(String code) {

@@ -70,10 +70,11 @@
 			</grid>
 			<tabbox id="mainTabbox" hflex="1" vflex="1" class="alpha-tabbox">
 				<tabs>
-					<tab label="${labels.label.entries}"/>
+					<tab sclass="entries-tab"
+						 label="${labels.label.entries}"/>
 				</tabs>
 				<tabpanels> 
-					<tabpanel>
+					<tabpanel sclass="entries-tabpanel">
 						<menu-entries/>
 					</tabpanel>
 				</tabpanels>

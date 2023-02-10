@@ -19,6 +19,7 @@ package org.seed.core.rest;
 
 import org.seed.C;
 import org.seed.core.codegen.CodeManager;
+import org.seed.core.codegen.CodeUtils;
 import org.seed.core.codegen.compile.CompilerException;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.ValidationErrors;
@@ -108,8 +109,18 @@ public class RestValidator extends AbstractSystemEntityValidator<Rest> {
 			}
 			
 			// content
-			if (function.getContent() != null) {
-				validateFunctionCode(function, errors);
+			if (isEmpty(function.getContent())) {
+				errors.addError("val.empty.functioncode", function.getName());
+			}
+			else {
+				final String className = CodeUtils.extractClassName(
+						CodeUtils.extractQualifiedName(function.getContent()));
+				if (!function.getGeneratedClass().equals(className)) {
+					errors.addError("val.illegal.functionclassname", function.getName(), function.getGeneratedClass());
+				}
+				else {
+					validateFunctionCode(function, errors);
+				}
 			}
 		}
 	}
@@ -132,7 +143,7 @@ public class RestValidator extends AbstractSystemEntityValidator<Rest> {
 			codeManager.testCompile(restCodeProvider.getRestSource(function));
 		}
 		catch (CompilerException cex) {
-			errors.addError("val.illegal.restfunctioncode", function.getName());
+			errors.addError("val.illegal.functioncode", function.getName());
 		}
 	}
 	

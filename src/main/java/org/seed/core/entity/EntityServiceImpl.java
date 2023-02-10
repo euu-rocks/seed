@@ -643,7 +643,6 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		final Entity currentVersionEntity = !isInsert ? getObject(entity.getId()) : null;
 		final boolean renamed = !isInsert && !currentVersionEntity.getInternalName().equals(entity.getInternalName());
 		
-		boolean configChanged = false;
 		try (Session session = entityRepository.getSession()) {
 			Transaction tx = null;
 			try {
@@ -654,15 +653,21 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 						autonumService.deleteAutonumber(deletedAutonum, session);
 					}
 				}
+				if (renamed && !entity.getCallbackFunctions().isEmpty()) {
+					renamePackages(entity, currentVersionEntity);
+				}
 				
 				saveObject(entity, session);
 				
 				final ChangeLog changeLog = createChangeLog(currentVersionEntity, entity, session);
 				if (changeLog != null) {
 					session.saveOrUpdate(changeLog);
-					configChanged = true;
 				}
 				tx.commit();
+				
+				if (renamed) {
+					removeEntityClass(currentVersionEntity);
+				}
 			}
 			catch (Exception ex) {
 				if (isInsert) {
@@ -672,12 +677,8 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				handleException(tx, ex);
 			}
 		}
-		if (configChanged || renamed) {
-			if (renamed) {
-				removeEntityClass(currentVersionEntity);
-			}
-			configuration.updateConfiguration();
-		}
+		
+		configuration.updateConfiguration();
 	}
 	
 	@Override
@@ -703,31 +704,6 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		}
 		
 		afterSaveObject(entity, parentEntity, session, isInsert);
-	}
-	
-	private void beforeSaveObject(Entity entity, Session session, boolean isInsert) {
-		if (!isInsert && !entity.isGeneric()) {
-			getChangeAwareObjects().forEach(aware -> aware.notifyBeforeChange(entity, session));
-		}
-	}
-	
-	private void afterSaveObject(Entity entity, Entity parentEntity, Session session, boolean isInsert) {
-		final List<Entity> descendants = entity.isGeneric() ? findDescendants(entity, session) : null;
-		for (EntityChangeAware changeAware : getChangeAwareObjects()) {
-			if (isInsert) {
-				changeAware.notifyCreate(entity, session);
-				// notify nested parent
-				if (parentEntity != null) {
-					changeAware.notifyChange(parentEntity, session);
-				}
-			}
-			else if (descendants != null) {
-				descendants.forEach(desc -> changeAware.notifyChange(desc, session));
-			}
-			else {
-				changeAware.notifyChange(entity, session);
-			}
-		}
 	}
 	
 	@Override
@@ -788,6 +764,38 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 			   processCallbackFunctionChange(sourceCode, session);
 	}
 	
+	private void renamePackages(Entity entity, Entity currentVersionEntity) {
+		currentVersionEntity.getCallbackFunctions().forEach(this::removeEntityFunctionClass);
+		filterAndForEach(entity.getCallbackFunctions(), 
+						 function -> function.getContent() != null, 
+						 function -> function.setContent(CodeUtils.renamePackage(function.getContent(), function.getGeneratedPackage())));
+	}
+	
+	private void beforeSaveObject(Entity entity, Session session, boolean isInsert) {
+		if (!isInsert && !entity.isGeneric()) {
+			getChangeAwareObjects().forEach(aware -> aware.notifyBeforeChange(entity, session));
+		}
+	}
+	
+	private void afterSaveObject(Entity entity, Entity parentEntity, Session session, boolean isInsert) {
+		final List<Entity> descendants = entity.isGeneric() ? findDescendants(entity, session) : null;
+		for (EntityChangeAware changeAware : getChangeAwareObjects()) {
+			if (isInsert) {
+				changeAware.notifyCreate(entity, session);
+				// notify nested parent
+				if (parentEntity != null) {
+					changeAware.notifyChange(parentEntity, session);
+				}
+			}
+			else if (descendants != null) {
+				descendants.forEach(desc -> changeAware.notifyChange(desc, session));
+			}
+			else {
+				changeAware.notifyChange(entity, session);
+			}
+		}
+	}
+	
 	private boolean processCallbackFunctionChange(SourceCode sourceCode, Session session) {
 		final String entityName = sourceCode.getPackageName().substring(CodeManagerImpl.GENERATED_ENTITY_PACKAGE.length() + 1);
 		for (Entity entity : getObjects(session)) {
@@ -809,6 +817,10 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	private void removeEntityClass(Entity entity) {
 		codeManager.removeClass(CodeUtils.getQualifiedName(entity));
+	}
+	
+	private void removeEntityFunctionClass(EntityFunction function) {
+		codeManager.removeClass(CodeUtils.getQualifiedName(function));
 	}
 	
 	private List<Entity> findGeneric(boolean generic, Session session) {
