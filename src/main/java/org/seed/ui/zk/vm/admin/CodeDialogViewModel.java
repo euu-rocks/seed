@@ -79,6 +79,7 @@ public class CodeDialogViewModel extends AbstractApplicationViewModel {
 		parentViewModel = param.parentViewModel;
 		contentObject = param.contentObject;
 		originalContent = contentObject.getContent();
+		Assert.hasText(originalContent, C.CODE);
 	}
 	
 	@Command
@@ -138,7 +139,7 @@ public class CodeDialogViewModel extends AbstractApplicationViewModel {
 			return false;
 		}
 		// check package
-		if (originalContent.contains("package ")) {
+		else if (originalContent.contains("package ")) {
 			final String packageName = CodeUtils.extractPackageName(CodeUtils.extractQualifiedName(code));
 			if (!packageName.equals(CodeUtils.extractPackageName(CodeUtils.extractQualifiedName(originalContent)))) {
 				showNotification(component, true, "val.illegal.packagerename");

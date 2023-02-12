@@ -122,7 +122,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	@Override
 	@Secured("ROLE_ADMIN_ENTITY")
 	public Entity createInstance(@Nullable Options options) {
-		final EntityMetadata instance = (EntityMetadata) super.createInstance(options);
+		final var instance = (EntityMetadata) super.createInstance(options);
 		instance.createLists();
 		return instance;
 	}
@@ -132,7 +132,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	public EntityField createField(Entity entity) {
 		Assert.notNull(entity, C.ENTITY);
 		
-		final EntityField field  = new EntityField();
+		final var field  = new EntityField();
 		entity.addField(field);
 		return field;
 	}
@@ -142,7 +142,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	public EntityFieldGroup createFieldGroup(Entity entity) {
 		Assert.notNull(entity, C.ENTITY);
 		
-		final EntityFieldGroup group = new EntityFieldGroup();
+		final var group = new EntityFieldGroup();
 		entity.addFieldGroup(group);
 		return group;
 	}
@@ -152,7 +152,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	public NestedEntity createNested(Entity entity) {
 		Assert.notNull(entity, C.ENTITY);
 		
-		final NestedEntity nested = new NestedEntity();
+		final var nested = new NestedEntity();
 		entity.addNested(nested);
 		return nested;
 	}
@@ -162,7 +162,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	public EntityFunction createFunction(Entity entity, boolean isCallback) {
 		Assert.notNull(entity, C.ENTITY);
 		
-		final EntityFunction function = new EntityFunction();
+		final var function = new EntityFunction();
 		if (isCallback) {
 			function.setCallback(true);
 			function.setActive(true);
@@ -176,7 +176,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	public EntityRelation createRelation(Entity entity) {
 		Assert.notNull(entity, C.ENTITY);
 		
-		final EntityRelation relation = new EntityRelation();
+		final var relation = new EntityRelation();
 		entity.addRelation(relation);
 		return relation;
 	}
@@ -186,7 +186,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	public EntityStatus createStatus(Entity entity) {
 		Assert.notNull(entity, C.ENTITY);
 		
-		final EntityStatus status = new EntityStatus();
+		final var status = new EntityStatus();
 		if (!entity.hasStatus()) {
 			status.setInitial(true);
 		}
@@ -199,7 +199,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	public EntityFieldConstraint createFieldConstraint(Entity entity) {
 		Assert.notNull(entity, C.ENTITY);
 		
-		final EntityFieldConstraint constraint = new EntityFieldConstraint();
+		final var constraint = new EntityFieldConstraint();
 		entity.addFieldConstraint(constraint);
 		return constraint;
 	}
@@ -209,7 +209,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	public EntityStatusTransition createStatusTransition(Entity entity) {
 		Assert.notNull(entity, C.ENTITY);
 		
-		final EntityStatusTransition transition = new EntityStatusTransition();
+		final var transition = new EntityStatusTransition();
 		transition.createLists();
 		entity.addStatusTransition(transition);
 		return transition;
@@ -384,8 +384,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(currentStatus, "current status");
 		Assert.notNull(user, C.USER);
 		
-		final List<EntityStatus> result =
-				filterAndConvert(entity.getStatusTransitions(), 
+		final var result = filterAndConvert(entity.getStatusTransitions(), 
 								 trans -> trans.getSourceStatus().equals(currentStatus) && trans.isAuthorized(user), 
 								 EntityStatusTransition::getTargetStatus);
 		result.add(0, currentStatus);
@@ -587,8 +586,8 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(context, C.CONTEXT);
 		Assert.notNull(session, C.SESSION);
 		
-		final ReferenceChangeLog referenceChangeLog = new ReferenceChangeLog();
-		final List<ChangeLog> changeLogs = new ArrayList<>();
+		final var referenceChangeLog = new ReferenceChangeLog();
+		final var changeLogs = new ArrayList<ChangeLog>();
 		for (Entity entity : context.getNewEntities()) {
 			if (!entity.isGeneric()) {
 				final ChangeLog changeLog = createChangeLog(null, entity, session, referenceChangeLog);
@@ -628,6 +627,10 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 						autonumService.deleteAutonumber(autonumField, session);
 					}
 					session.delete(currentVersionEntity);
+					if (notEmpty(currentVersionEntity.getCallbackFunctions())) {
+						currentVersionEntity.getCallbackFunctions().forEach(this::removeEntityFunctionClass);
+					}
+					removeEntityClass(currentVersionEntity);
 				}
 			}
 		}
@@ -653,7 +656,10 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 						autonumService.deleteAutonumber(deletedAutonum, session);
 					}
 				}
-				if (renamed && !entity.getCallbackFunctions().isEmpty()) {
+				if (currentVersionEntity != null) { // It's necessary to load function names now
+					convertedList(currentVersionEntity.getCallbackFunctions(), EntityFunction::getName);
+				}
+				if (renamed && notEmpty(entity.getCallbackFunctions())) {
 					renamePackages(entity, currentVersionEntity);
 				}
 				
@@ -667,6 +673,14 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				
 				if (renamed) {
 					removeEntityClass(currentVersionEntity);
+				}
+				if (!isInsert && notEmpty(currentVersionEntity.getCallbackFunctions())) {
+					for (EntityFunction currentFunction : currentVersionEntity.getCallbackFunctions()) {
+						final EntityFunction function = entity.getFunctionByUid(currentFunction.getUid());
+						if (function == null || !function.getName().equals(currentFunction.getName())) {
+							removeEntityFunctionClass(currentFunction);
+						}
+					}
 				}
 			}
 			catch (Exception ex) {
@@ -695,7 +709,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		
 		// add nested to parent
 		if (parentEntity != null) {
-			final NestedEntity nested = new NestedEntity();
+			final var nested = new NestedEntity();
 			nested.setName(entity.getName());
 			nested.setNestedEntity(entity);
 			nested.setReferenceField(entity.getReferenceFields(parentEntity).get(0));
@@ -778,7 +792,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	private void afterSaveObject(Entity entity, Entity parentEntity, Session session, boolean isInsert) {
-		final List<Entity> descendants = entity.isGeneric() ? findDescendants(entity, session) : null;
+		final var descendants = entity.isGeneric() ? findDescendants(entity, session) : null;
 		for (EntityChangeAware changeAware : getChangeAwareObjects()) {
 			if (isInsert) {
 				changeAware.notifyCreate(entity, session);
@@ -832,7 +846,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	private EntityField getDeletedAutonumField(Entity currentVersion, Entity entity) {
-		final EntityField autonumField = currentVersion.findAutonumField();
+		final var autonumField = currentVersion.findAutonumField();
 		if (autonumField != null && !autonumField.equals(entity.findAutonumField())) {
 			return autonumField;
 		}

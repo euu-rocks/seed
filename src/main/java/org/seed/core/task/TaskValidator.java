@@ -44,17 +44,10 @@ public class TaskValidator extends AbstractSystemEntityValidator<Task> {
 	@Override
 	public void validateSave(Task task) throws ValidationException {
 		Assert.notNull(task, C.TASK);
-		final ValidationErrors errors = createValidationErrors(task);
+		final var errors = createValidationErrors(task);
 		
-		if (isEmpty(task.getName())) {
-			errors.addEmptyName();
-		}
-		else if (!isNameLengthAllowed(task.getName())) {
-			errors.addOverlongName(getMaxNameLength());
-		}
-		else if (!isNameAllowed(task.getInternalName())) {
-			errors.addIllegalName(task.getName());
-		}
+		validateName(task, errors);
+		
 		if (!isEmpty(task.getCronExpression())) {
 			if (task.getCronExpression().length() > getMaxStringLength()) {
 				errors.addOverlongField("label.cronexpression", getMaxStringLength());
@@ -86,6 +79,18 @@ public class TaskValidator extends AbstractSystemEntityValidator<Task> {
 			validateNotifications(task, errors);
 		}
 		validate(errors);
+	}
+	
+	private void validateName(Task task, ValidationErrors errors) {
+		if (isEmpty(task.getName())) {
+			errors.addEmptyName();
+		}
+		else if (!isNameLengthAllowed(task.getName())) {
+			errors.addOverlongName(getMaxNameLength());
+		}
+		else if (!isNameAllowed(task.getInternalName())) {
+			errors.addIllegalName(task.getName());
+		}
 	}
 	
 	// check whether a cron expression or interval properties exist but not both

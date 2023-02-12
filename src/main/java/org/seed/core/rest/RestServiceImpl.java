@@ -201,9 +201,7 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 	@Secured("ROLE_ADMIN_REST")
 	public void deleteObject(Rest rest) throws ValidationException {
 		super.deleteObject(rest);
-		if (rest.hasFunctions()) {
-			rest.getFunctions().forEach(this::removeFunctionClass);
-		}
+		removeFunctionClasses(rest);
 	}
 	
 	@Override
@@ -212,20 +210,27 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
-		filterAndForEach(currentVersionModule.getRests(), 
-						 rest -> module.getRestByUid(rest.getUid()) == null, 
-						 session::delete);
+		if (currentVersionModule.getRests() != null) {
+			for (Rest rest : currentVersionModule.getRests()) {
+				if (module.getRestByUid(rest.getUid()) == null) {
+					session.delete(rest);
+					removeFunctionClasses(rest);
+				}
+			}
+		}
 	}
 	
 	@Override
 	@Secured("ROLE_ADMIN_REST")
 	public void saveObject(Rest rest) throws ValidationException {
 		Assert.notNull(rest, C.REST);
-		
 		final boolean isNew = rest.isNew();
 		final Rest currentVersionRest = !isNew ? getObject(rest.getId()) : null;
 		final boolean renamed = !isNew && !currentVersionRest.getInternalName().equals(rest.getInternalName());
 		
+		if (currentVersionRest != null) { // It's necessary to load function names now
+			convertedList(currentVersionRest.getFunctions(), RestFunction::getName);
+		}
 		if (renamed && rest.hasFunctions()) {
 			renamePackages(rest, currentVersionRest);
 		}
@@ -281,7 +286,7 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 	}
 	
 	private void renamePackages(Rest rest, Rest currentVersionRest) {
-		currentVersionRest.getFunctions().forEach(this::removeFunctionClass);
+		removeFunctionClasses(currentVersionRest);
 		filterAndForEach(rest.getFunctions(), 
 						 function -> function.getContent() != null, 
 						 function -> function.setContent(CodeUtils.renamePackage(function.getContent(), 
@@ -317,6 +322,12 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 					: null;
 		if (currentVersionPermission != null) {
 			currentVersionPermission.copySystemFieldsTo(permission);
+		}
+	}
+	
+	private void removeFunctionClasses(Rest rest) {
+		if (rest.hasFunctions()) {
+			rest.getFunctions().forEach(this::removeFunctionClass);
 		}
 	}
 	

@@ -114,6 +114,7 @@ public class CustomCodeServiceImpl extends AbstractApplicationEntityService<Cust
 			for (CustomCode currentVersionCode : currentVersionModule.getCustomCodes()) {
 				if (module.getCustomCodeByUid(currentVersionCode.getUid()) == null) {
 					session.delete(currentVersionCode);
+					removeCustomClass(currentVersionCode);
 				}
 			}
 		}

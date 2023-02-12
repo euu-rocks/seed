@@ -255,13 +255,16 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		final Transformer currentVersionTransformer = !isNew ? getObject(transformer.getId()) : null;
 		final boolean renamed = !isNew && !currentVersionTransformer.getInternalName().equals(transformer.getInternalName());
 		
+		if (currentVersionTransformer != null) { // It's necessary to load function names now
+			convertedList(currentVersionTransformer.getFunctions(), TransformerFunction::getName);
+		}
 		if (renamed && transformer.hasFunctions()) {
 			renamePackages(transformer, currentVersionTransformer);
 		}
 		super.saveObject(transformer);
 	
 		if (transformer.hasFunctions()) {
-			if (!isNew) {
+			if (!isNew && currentVersionTransformer.hasFunctions()) {
 				for (TransformerFunction currentFunction : currentVersionTransformer.getFunctions()) {
 					final TransformerFunction function = transformer.getFunctionByUid(currentFunction.getUid());
 					if (function == null || !function.getName().equals(currentFunction.getName())) {
@@ -277,9 +280,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	@Secured("ROLE_ADMIN_ENTITY")
 	public void deleteObject(Transformer transformer) throws ValidationException {
 		super.deleteObject(transformer);
-		if (transformer.hasFunctions()) {
-			transformer.getFunctions().forEach(this::removeFunctionClass);
-		}
+		removeFunctionClasses(transformer);
 	}
 
 	@Override
@@ -370,7 +371,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		if (context.getModule().getTransformers() != null) {
 			for (Transformer transformer : context.getModule().getTransformers()) {
 				initTransformer(transformer, context, session);
-				saveObject(transformer, session);
+				getRepository().save(transformer, session);
 			}
 		}
 	}
@@ -380,6 +381,12 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		filterAndForEach(transformer.getFunctions(), 
 						 function -> function.getContent() != null, 
 						 function -> function.setContent(CodeUtils.renamePackage(function.getContent(), function.getGeneratedPackage())));	
+	}
+	
+	private void removeFunctionClasses(Transformer transformer) {
+		if (transformer.hasFunctions()) {
+			transformer.getFunctions().forEach(this::removeFunctionClass);
+		}
 	}
 	
 	private void removeFunctionClass(TransformerFunction function) {
@@ -474,9 +481,14 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
-		filterAndForEach(currentVersionModule.getTransformers(), 
-						 trans -> module.getTransformerByUid(trans.getUid()) == null, 
-						 session::delete);
+		if (currentVersionModule.getTransformers() != null) {
+			for (Transformer transformer : currentVersionModule.getTransformers()) {
+				if (module.getTransformerByUid(transformer.getUid()) == null) {
+					session.delete(transformer);
+					removeFunctionClasses(transformer);
+				}
+			}
+		}
 	}
 	
 	@Override

@@ -81,7 +81,6 @@ public class RestValidator extends AbstractSystemEntityValidator<Rest> {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void validateFunctions(Rest rest, ValidationErrors errors) {
 		for (RestFunction function : rest.getFunctions()) {
 			// method
@@ -90,18 +89,7 @@ public class RestValidator extends AbstractSystemEntityValidator<Rest> {
 			}
 			
 			// name
-			if (isEmpty(function.getName())) {
-				errors.addEmptyField(LABEL_FUNCTIONNAME);
-			}
-			else if (!isNameLengthAllowed(function.getName())) {
-				errors.addOverlongObjectName(LABEL_FUNCTION, getMaxNameLength());
-			}
-			else if (!isNameAllowed(function.getInternalName())) {
-				errors.addIllegalField(LABEL_FUNCTIONNAME, function.getName());
-			}
-			else if (!isNameUnique(function.getName(), rest.getFunctions())) {
-				errors.addError("val.ambiguous.functionname", function.getName());
-			}
+			validateFunctionName(rest, function, errors);
 			
 			// mapping
 			if (!isEmpty(function.getMapping())) {
@@ -122,6 +110,22 @@ public class RestValidator extends AbstractSystemEntityValidator<Rest> {
 					validateFunctionCode(function, errors);
 				}
 			}
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void validateFunctionName(Rest rest, RestFunction function, ValidationErrors errors) {
+		if (isEmpty(function.getName())) {
+			errors.addEmptyField(LABEL_FUNCTIONNAME);
+		}
+		else if (!isNameLengthAllowed(function.getName())) {
+			errors.addOverlongObjectName(LABEL_FUNCTION, getMaxNameLength());
+		}
+		else if (!isNameAllowed(function.getInternalName())) {
+			errors.addIllegalField(LABEL_FUNCTIONNAME, function.getName());
+		}
+		else if (!isNameUnique(function.getName(), rest.getFunctions())) {
+			errors.addError("val.ambiguous.functionname", function.getName());
 		}
 	}
 	
