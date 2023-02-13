@@ -36,7 +36,7 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
     - name: Build and analyze with Maven
-      run: mvn -B --fail-at-end verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=euu-rocks_seed -DskipTests 
+      run: mvn -B --fail-at-end package org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=euu-rocks_seed
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

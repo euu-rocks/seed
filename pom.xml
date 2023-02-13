@@ -51,6 +51,8 @@
 		<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
 		<sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
 		<sonar.language>java</sonar.language>
+		<maven.surefire-plugin.version>3.0.0-M4</maven.surefire-plugin.version>
+		<maven.failsafe-plugin.version>3.0.0-M4</maven.failsafe-plugin.version>
 	</properties>
 	
 	<parent>
@@ -347,6 +349,43 @@
 						<phase>package</phase>
 						<goals>
 							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- Unit Tests -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${maven.surefire-plugin.version}</version>
+				<configuration>
+					<includes>
+						<include>**/org.seed.test.unit/**/*Test.java</include>
+					</includes>
+					<forkCount>1</forkCount>
+					<reuseForks>true</reuseForks>
+				</configuration>
+			</plugin>
+			<!-- Integration Tests -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>${maven.failsafe-plugin.version}</version>
+				<configuration>
+					<includes>
+						<include>**/org.seed.test.integration/IntegrationTestSuite.java</include>
+					</includes>
+					<forkCount>1</forkCount>
+					<reuseForks>true</reuseForks>
+					<additionalClasspathElements>
+						<additionalClasspathElement>${basedir}/target/classes</additionalClasspathElement>
+					</additionalClasspathElements>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
 						</goals>
 					</execution>
 				</executions>
