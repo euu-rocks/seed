@@ -95,12 +95,12 @@ public abstract class MiscUtils {
 				: null;
 	}
 	
-	public static String replaceAllIgnoreCase(String text, String replaceable, String replacemnet) {
-		return text != null && replaceable != null && replacemnet != null
+	public static String replaceAllIgnoreCase(String text, String replaceable, String replacement) {
+		return text != null && replaceable != null && replacement != null
 				? Pattern.compile(replaceable, 
 				               Pattern.LITERAL | Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE)
 						 .matcher(text)
-						 .replaceAll(Matcher.quoteReplacement(replacemnet))
+						 .replaceAll(Matcher.quoteReplacement(replacement))
 				: null;
 	}
 	

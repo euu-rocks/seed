@@ -270,10 +270,44 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	@Override
 	public List<Entity> findUsage(EntityFieldGroup fieldGroup) {
 		Assert.notNull(fieldGroup, C.FIELDGROUP);
-		
 		final Entity entity = fieldGroup.getEntity();
+		
 		return (anyMatch(entity.getFields(), field -> fieldGroup.equals(field.getFieldGroup())) ||
 				anyMatch(entity.getFieldConstraints(), constr -> fieldGroup.equals(constr.getFieldGroup())))
+				? Collections.singletonList(entity)
+				: Collections.emptyList();
+	}
+	
+	@Override
+	public List<Entity> findUsage(EntityFunction entityFunction, Session session) {
+		Assert.notNull(entityFunction, C.FUNCTION);
+		Assert.notNull(session, C.SESSION);
+		final Entity entity = entityFunction.getEntity();
+		
+		return anyMatch(entity.getStatusTransitions(), trans -> 
+				   anyMatch(trans.getFunctions(), func -> entityFunction.equals(func.getFunction()))) 
+					? Collections.singletonList(entity)
+					: Collections.emptyList();
+	}
+	
+	@Override
+	public List<Entity> findUsage(EntityStatus entityStatus, Session session) {
+		Assert.notNull(entityStatus, C.STATUS);
+		Assert.notNull(session, C.SESSION);
+		final Entity entity = entityStatus.getEntity();
+		
+		return anyMatch(entity.getFieldConstraints(), constr -> entityStatus.equals(constr.getStatus()))
+				? Collections.singletonList(entity)
+				: Collections.emptyList();
+	}
+	
+	@Override
+	public List<Entity> findUsage(NestedEntity nestedEntity, Session session) {
+		Assert.notNull(nestedEntity, C.NESTEDENTITY);
+		Assert.notNull(session, C.SESSION);
+		final Entity entity = nestedEntity.getParentEntity();
+		
+		return anyMatch(entity.getFieldConstraints(), constr -> constr.isFieldEntity(nestedEntity.getNestedEntity()))
 				? Collections.singletonList(entity)
 				: Collections.emptyList();
 	}
@@ -298,21 +332,6 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				? subList(getObjects(session), entity -> anyMatch(entity.getNesteds(), 
 																  nested -> nested.getReferenceField().equals(entityField)))
 				: Collections.emptyList();
-	}
-	
-	@Override
-	public List<Entity> findUsage(EntityStatus entityStatus, Session session) {
-		return Collections.emptyList();
-	}
-	
-	@Override
-	public List<Entity> findUsage(EntityFunction entityFunction, Session session) {
-		return Collections.emptyList();
-	}
-	
-	@Override
-	public List<Entity> findUsage(NestedEntity nestedEntity, Session session) {
-		return Collections.emptyList();
 	}
 	
 	@Override
@@ -670,18 +689,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 					session.saveOrUpdate(changeLog);
 				}
 				tx.commit();
-				
-				if (renamed) {
-					removeEntityClass(currentVersionEntity);
-				}
-				if (!isInsert && notEmpty(currentVersionEntity.getCallbackFunctions())) {
-					for (EntityFunction currentFunction : currentVersionEntity.getCallbackFunctions()) {
-						final EntityFunction function = entity.getFunctionByUid(currentFunction.getUid());
-						if (function == null || !function.getName().equals(currentFunction.getName())) {
-							removeEntityFunctionClass(currentFunction);
-						}
-					}
-				}
+				removeEntityClasses(entity, currentVersionEntity, isInsert, renamed);
 			}
 			catch (Exception ex) {
 				if (isInsert) {
@@ -735,7 +743,11 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 					autonumService.deleteAutonumber(autonumField, session);
 				}
 				deleteObject(entity, session);
-				session.saveOrUpdate(createChangeLog(entity, null, session));
+				
+				final ChangeLog changeLog = createChangeLog(entity, null, session);
+				if (changeLog != null) {
+					session.saveOrUpdate(changeLog);
+				}
 				tx.commit();
 			}
 			catch (Exception ex) {
@@ -835,6 +847,21 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	private void removeEntityFunctionClass(EntityFunction function) {
 		codeManager.removeClass(CodeUtils.getQualifiedName(function));
+	}
+	
+	private void removeEntityClasses(Entity entity, Entity currentVersionEntity,
+			 boolean isInsert, boolean renamed) {
+		if (renamed) {
+			removeEntityClass(currentVersionEntity);
+		}
+		if (!isInsert && notEmpty(currentVersionEntity.getCallbackFunctions())) {
+			for (EntityFunction currentFunction : currentVersionEntity.getCallbackFunctions()) {
+				final EntityFunction function = entity.getFunctionByUid(currentFunction.getUid());
+				if (function == null || !function.getName().equals(currentFunction.getName())) {
+					removeEntityFunctionClass(currentFunction);
+				}
+			}
+		}
 	}
 	
 	private List<Entity> findGeneric(boolean generic, Session session) {

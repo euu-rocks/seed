@@ -80,7 +80,16 @@ public abstract class StreamUtils {
 		return compressedText;
 	}
 	
-	public static byte[] compress(byte[] bytes) throws IOException {
+	public static String getStreamAsText(InputStream intputStream) {
+		try (final var stream = intputStream) {
+			return org.springframework.util.StreamUtils.copyToString(stream, CHARSET);
+		}
+		catch (IOException ex) {
+			throw new InternalException(ex);
+		}
+	}
+	
+	private static byte[] compress(byte[] bytes) throws IOException {
 		if (bytes != null) {
 			try (final var stream = new FastByteArrayOutputStream()) {
 				try (final var deflaterStream = new DeflaterOutputStream(stream)) {
@@ -92,7 +101,7 @@ public abstract class StreamUtils {
 		return bytes;
 	}
 	
-	public static byte[] decompress(byte[] bytes) throws IOException {
+	private static byte[] decompress(byte[] bytes) throws IOException {
 		if (bytes != null) {
 			try (final var stream = new FastByteArrayOutputStream()) {
 				try (final var inflaterStream = new InflaterOutputStream(stream)) {
@@ -103,14 +112,5 @@ public abstract class StreamUtils {
 		}
 		return bytes;
 	}
-	
-	public static String getStreamAsText(InputStream intputStream) {
-		try (final var stream = intputStream) {
-			return org.springframework.util.StreamUtils.copyToString(stream, CHARSET);
-		}
-		catch (IOException ex) {
-			throw new InternalException(ex);
-		}
-	}
-	
+
 }

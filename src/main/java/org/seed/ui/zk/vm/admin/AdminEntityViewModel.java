@@ -365,10 +365,9 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 
 	public String getFieldName(EntityField field) {
 		if (field != null) {
-			if (field.getEntity().equals(getObject())) {
-				return field.getName();
-			}
-			return field.getName() + " (" + field.getEntity().getName() + ')';
+			return field.getEntity().equals(getObject())
+					? field.getName()
+					: field.getName() + " (" + field.getEntity().getName() + ')';
 		}
 		return null;
 	}
@@ -1119,9 +1118,10 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	@Override
-	protected void refreshObject() {
+	protected boolean refreshObject() {
 		reloadObject();
 		internalRefresh(getObject());
+		return true;
 	}
 	
 	private void setDefaultTransition() {

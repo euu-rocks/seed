@@ -43,7 +43,6 @@ public class EditTransformerTest extends AbstractTransformerTest {
 	void testEditElement() {
 		WebElement tabpanel = showTransformer("testtransformernew");
 		assertEquals("Elemente", findTab("elements").getText());
-		
 		WebElement tabpanelElements = findTabpanel(tabpanel, "elements");
 		clickListItem(tabpanelElements, "textfieldnew-textfieldnew");
 		

@@ -314,7 +314,11 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		
 		return entity.isGeneric()
 				? Collections.emptyList()
-				: findFilters(entity, session);
+				: subList(getObjects(session), 
+						filter -> entity.equals(filter.getEntity()) || 
+						  anyMatch(filter.getCriteria(), 
+							criterion -> criterion.getEntityField() != null && 
+										 entity.equals(criterion.getEntityField().getEntity())));
 	}
 
 	@Override
@@ -325,8 +329,8 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		return entityField.getEntity().isGeneric()
 				? Collections.emptyList()
 				: subList(findFilters(entityField.getEntity(), session), 
-						   filter -> anyMatch(filter.getCriteria(), 
-								   			  criterion -> entityField.equals(criterion.getEntityField())));
+						filter -> anyMatch(filter.getCriteria(), 
+								   			criterion -> entityField.equals(criterion.getEntityField())));
 	}
 	
 	@Override

@@ -262,16 +262,17 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 			renamePackages(transformer, currentVersionTransformer);
 		}
 		super.saveObject(transformer);
-	
-		if (transformer.hasFunctions()) {
-			if (!isNew && currentVersionTransformer.hasFunctions()) {
-				for (TransformerFunction currentFunction : currentVersionTransformer.getFunctions()) {
-					final TransformerFunction function = transformer.getFunctionByUid(currentFunction.getUid());
-					if (function == null || !function.getName().equals(currentFunction.getName())) {
-						removeFunctionClass(currentFunction);
-					}
+		
+		if (!isNew && currentVersionTransformer.hasFunctions()) {
+			for (TransformerFunction currentFunction : currentVersionTransformer.getFunctions()) {
+				final TransformerFunction function = transformer.getFunctionByUid(currentFunction.getUid());
+				if (function == null || !function.getName().equals(currentFunction.getName())) {
+					removeFunctionClass(currentFunction);
 				}
 			}
+		}
+		
+		if (transformer.hasFunctions()) {
 			updateConfiguration();
 		}
 	}
