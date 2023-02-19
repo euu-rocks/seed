@@ -54,7 +54,7 @@ public class SafeZipInputStream extends ZipInputStream {
 	}
 	
 	public byte[] readSafe(ZipEntry zipEntry) throws IOException {
-		try (FastByteArrayOutputStream byteArrayOutputStream = new FastByteArrayOutputStream()) {
+		try (var byteArrayOutputStream = new FastByteArrayOutputStream()) {
 			int totalSizeEntry = 0;
 			int numBytes = -1;
 			while ((numBytes = read(buffer)) > 0) {

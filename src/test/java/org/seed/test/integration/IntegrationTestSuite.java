@@ -48,6 +48,7 @@ import org.seed.test.integration.menu.CreateMenuTest;
 import org.seed.test.integration.menu.DeleteMenuTest;
 import org.seed.test.integration.menu.EditMenuTest;
 import org.seed.test.integration.module.CreateModuleTest;
+import org.seed.test.integration.module.DeleteModuleTest;
 import org.seed.test.integration.module.EditModuleTest;
 import org.seed.test.integration.report.CreateReportTest;
 import org.seed.test.integration.report.DeleteReportTest;
@@ -66,6 +67,8 @@ import org.seed.test.integration.transformer.DeleteTransformerTest;
 import org.seed.test.integration.transformer.EditTransformerTest;
 import org.seed.test.integration.user.CreateUserGroupTest;
 import org.seed.test.integration.user.CreateUserTest;
+import org.seed.test.integration.user.DeleteUserGroupTest;
+import org.seed.test.integration.user.DeleteUserTest;
 import org.seed.test.integration.user.EditUserGroupTest;
 import org.seed.test.integration.user.EditUserTest;
 
@@ -85,5 +88,6 @@ import org.seed.test.integration.user.EditUserTest;
 				 DeleteCustomCodeTest.class, DeleteReportTest.class, DeleteJobTest.class, 
 				 DeleteDataSourcesTest.class, DeleteDBObjectTest.class, DeleteFormTest.class, 
 				 DeleteMenuTest.class, DeleteTransformerTest.class, DeleteTransferTest.class,
-				 DeleteFilterTest.class, DeleteEntityTest.class })
+				 DeleteFilterTest.class, DeleteEntityTest.class, DeleteUserGroupTest.class,
+				 DeleteUserTest.class, DeleteModuleTest.class })
 public class IntegrationTestSuite { }

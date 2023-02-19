@@ -78,6 +78,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	protected static final String LISTMANAGER_LIST = "getListManagerList";
 	protected static final String OBJECT_LIST      = "objectList";
 	protected static final String PRE_ADMIN 	   = "admin.";
+	protected static final String SUF_FAILDELETED = ".faildeleted";
 	
 	private final Authorisation authorisation;
 	
@@ -165,7 +166,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 				}
 			}
 			else {
-				showWarnMessage(getLabel(PRE_ADMIN + objectLabelKey + ".faildeleted"));
+				showWarnMessage(getLabel(PRE_ADMIN + objectLabelKey + SUF_FAILDELETED));
 				showListView();
 			}
 		}
@@ -524,14 +525,13 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 				break;
 			
 			case DETAIL:
-				if (!checkObjectExistence()) {
-					return;
-				}
-				else if (isDirty()) {
-					confirmDirty(CONFIRM_RELOAD);
-				}
-				else if (!refreshObject()) {
-					showListView(); // object no longer exists
+				if (checkObjectExistence()) {
+					if (isDirty()) {
+						confirmDirty(CONFIRM_RELOAD);
+					}
+					else if (!refreshObject()) {
+						showListView(); // object no longer exists
+					}
 				}
 				break;
 			
@@ -565,7 +565,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 			return true;
 		}
 		catch (EntityNotFoundException | UnresolvableObjectException ex) {
-			showWarnMessage(getLabel(PRE_ADMIN + objectLabelKey + ".faildeleted"));
+			showWarnMessage(getLabel(PRE_ADMIN + objectLabelKey + SUF_FAILDELETED));
 			return false;
 		}
 	}
@@ -738,7 +738,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	
 	private boolean checkObjectExistence() {
 		if (object == null || getObjectService().getObject(object.getId()) == null) {
-			showWarnMessage(getLabel(PRE_ADMIN + objectLabelKey + ".faildeleted"));
+			showWarnMessage(getLabel(PRE_ADMIN + objectLabelKey + SUF_FAILDELETED));
 			if (viewMode == ViewMode.DETAIL) {
 				showListView();
 			}
