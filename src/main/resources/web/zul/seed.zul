@@ -19,6 +19,8 @@
 -->
 <!DOCTYPE xml>
 <?page contentType="text/html;charset=UTF-8"?>
+<?link rel="shortcut icon" type="image/x-icon" href="/seed.ico"?>
+<?link rel="icon" type="image/x-icon" href="/seed.ico"?>
 <zk>
 	<style src="/css/style.css"/>
 	<borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.MainViewModel')">
