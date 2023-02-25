@@ -56,4 +56,6 @@ public interface TaskService extends ApplicationEntityService<Task> {
 	
 	void sendNotifications(Task task, TaskRun run);
 	
+	void removeNotifications(User user, Session session);
+	
 }

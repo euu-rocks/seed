@@ -19,7 +19,11 @@ package org.seed.core.user;
 
 import org.hibernate.Session;
 
+import org.seed.C;
+import org.seed.Seed;
 import org.seed.core.data.AbstractSystemEntityRepository;
+import org.seed.core.task.TaskService;
+import org.seed.core.util.Assert;
 
 import org.springframework.stereotype.Repository;
 
@@ -28,6 +32,16 @@ public class UserRepository extends AbstractSystemEntityRepository<User> {
 	
 	protected UserRepository() {
 		super(UserMetadata.class);
+	}
+	
+	@Override
+	public void delete(User user, Session session) {
+		Assert.notNull(user, C.USER);
+		Assert.notNull(session, C.SESSION);
+		
+		((UserMetadata) user).setUserGroups(null);
+		Seed.getBean(TaskService.class).removeNotifications(user, session);
+		super.delete(user, session);
 	}
 	
 	Session openSession() {

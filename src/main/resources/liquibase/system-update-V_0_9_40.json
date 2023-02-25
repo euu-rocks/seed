@@ -1,0 +1,14 @@
+    {
+        "changeSet": {
+            "id": "system update 0.9.40",
+            "author": "seed",
+            "changes": [
+               {
+                  "dropNotNullConstraint":  {
+                    "columnName": "user_id",
+                    "tableName": "sys_task_notification"
+                  }
+               }
+            ]
+        }
+    }

@@ -73,7 +73,8 @@ import org.seed.test.integration.user.EditUserGroupTest;
 import org.seed.test.integration.user.EditUserTest;
 
 @Suite
-@SelectClasses({ NavigationTest.class, CreateUserTest.class, CreateUserGroupTest.class, 
+@SelectClasses({
+				 NavigationTest.class, CreateUserGroupTest.class, CreateUserTest.class, 
 				 CreateModuleTest.class, CreateMenuTest.class, CreateTransferableEntityTest.class,
 				 CreateGenericEntityTest.class, CreateDerivedEntityTest.class, CreateEntityTest.class, 
 				 CreateNestedEntityTest.class, CreateFilterTest.class, CreateHQLFilterTest.class, 

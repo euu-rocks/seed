@@ -338,6 +338,16 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	}
 	
 	@Override
+	public void removeNotifications(User user, Session session) {
+		Assert.notNull(user, C.USER);
+		Assert.notNull(session, C.SESSION);
+		
+		filterAndForEach(getObjects(session), 
+						 task -> task.removeNotifications(user), 
+						 session::saveOrUpdate);
+	}
+	
+	@Override
 	public boolean processCodeChange(SourceCode sourceCode, Session session) {
 		Assert.notNull(sourceCode, "sourceCode");
 		Assert.notNull(session, C.SESSION);

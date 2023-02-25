@@ -17,6 +17,8 @@
  */
 package org.seed.core.user;
 
+import java.util.regex.Pattern;
+
 import org.seed.C;
 import org.seed.core.config.Limits;
 import org.seed.core.data.AbstractSystemEntityValidator;
@@ -29,6 +31,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class UserValidator extends AbstractSystemEntityValidator<User> {
+	
+	private static final Pattern PATTERN_EMAIL = Pattern.compile(
+		"^(?=.{1,64}@)[\\p{L}0-9_-]+(\\.[\\p{L}0-9_-]+)*@[^-][\\p{L}0-9-]+(\\.[\\p{L}0-9-]+)*(\\.[\\p{L}]{2,})$");
 	
 	@Override
 	public void validateSave(User user) throws ValidationException {
@@ -50,6 +55,9 @@ public class UserValidator extends AbstractSystemEntityValidator<User> {
 		else if (user.getEmail().length() > getMaxStringLength()) {
 			errors.addOverlongField("label.email", getMaxStringLength());
 		}
+		else if (!PATTERN_EMAIL.matcher(user.getEmail()).matches()) {
+			errors.addError("val.illegal.email");
+		}
 		if (user.getFirstname() != null &&
 			user.getFirstname().length() > getMaxStringLength()) {
 			errors.addOverlongField("label.firstname", getMaxStringLength());
@@ -57,6 +65,9 @@ public class UserValidator extends AbstractSystemEntityValidator<User> {
 		if (user.getLastname() != null &&
 			user.getLastname().length() > getMaxStringLength()) {
 			errors.addOverlongField("label.lastname", getMaxStringLength());
+		}
+		if (isEmpty(user.getUserGroups())) {
+			errors.addError("val.missing.userrole");
 		}
 		
 		validate(errors);
