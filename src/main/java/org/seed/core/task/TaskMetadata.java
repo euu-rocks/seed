@@ -272,7 +272,9 @@ public class TaskMetadata extends AbstractApplicationEntity
 	public void removeNotification(TaskNotification notification) {
 		Assert.notNull(notification, "notification");
 		
-		getNotifications().remove(notification);
+		if (hasNotifications()) {
+			getNotifications().remove(notification);
+		}
 	}
 
 	public void setNotifications(List<TaskNotification> notifications) {

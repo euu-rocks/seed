@@ -35,10 +35,13 @@ import org.seed.core.data.ValidationException;
 import org.seed.core.mail.MailBuilder;
 import org.seed.core.mail.MailService;
 import org.seed.core.util.Assert;
+import org.seed.core.util.BeanUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
@@ -49,7 +52,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserServiceImpl extends AbstractSystemEntityService<User> 
-	implements UserService, UserGroupDependent<User>, ApplicationListener<AuthenticationSuccessEvent> {
+	implements UserService, UserChangeAware, UserGroupDependent<User>,
+			   ApplicationContextAware, ApplicationListener<AuthenticationSuccessEvent> {
 	
 	private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
 	
@@ -67,6 +71,15 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+	
+	private ApplicationContext applicationContext;
+	
+	private List<UserChangeAware> changeAwareObjects;
+	
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
+	}
 	
 	@Override
 	public void initDefaults() {
@@ -170,7 +183,27 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 	@Override
 	@Secured("ROLE_ADMIN_USER")
 	public void deleteObject(User user) throws ValidationException {
-		super.deleteObject(user);
+		try (Session session = repository.openSession()) {
+			Transaction tx = null;
+			try {
+				tx = session.beginTransaction();
+				getChangeAwareObjects().forEach(
+					aware -> aware.notifyDelete(user, session));
+				deleteObject(user, session);
+				tx.commit();
+			}
+			catch (Exception ex) {
+				if (tx != null) {
+					tx.rollback();
+				}
+				throw new InternalException(ex);
+			}
+		}
+	}
+	
+	@Override
+	public void notifyDelete(User user, Session session) {
+		((UserMetadata) user).setUserGroups(null);
 	}
 	
 	@Override
@@ -239,6 +272,13 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 				throw new InternalException(ex);
 			}
 		}
+	}
+	
+	private List<UserChangeAware> getChangeAwareObjects() {
+		if (changeAwareObjects == null) {
+			changeAwareObjects = BeanUtils.getBeans(applicationContext, UserChangeAware.class);
+		}
+		return changeAwareObjects;
 	}
 	
 }

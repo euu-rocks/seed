@@ -19,19 +19,8 @@ package org.seed.core.user;
 
 import org.hibernate.Session;
 
-import org.seed.core.data.AbstractSystemEntityRepository;
-
-import org.springframework.stereotype.Repository;
-
-@Repository
-public class UserRepository extends AbstractSystemEntityRepository<User> {
+public interface UserChangeAware {
 	
-	protected UserRepository() {
-		super(UserMetadata.class);
-	}
-	
-	Session openSession() {
-		return super.getSession();
-	}
+	void notifyDelete(User user, Session session);
 	
 }

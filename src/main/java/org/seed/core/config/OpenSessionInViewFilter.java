@@ -26,11 +26,15 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import org.hibernate.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class OpenSessionInViewFilter implements Filter {
+	
+	private static final Logger log = LoggerFactory.getLogger(OpenSessionInViewFilter.class);
 	
 	public static final String ATTR_SESSION = "HIBERNATE_SESSION";
 	
@@ -49,6 +53,9 @@ public class OpenSessionInViewFilter implements Filter {
 				// close new session
 				((Session) request.getAttribute(ATTR_SESSION)).close();
 			}
+		}
+		catch (IllegalStateException isex) {
+			log.warn("{} {}", isex.getMessage(), request);
 		}
 	}
 

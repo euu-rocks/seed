@@ -104,6 +104,9 @@ public class CodeDialogViewModel extends AbstractApplicationViewModel {
 		}
 		try {
 			codeManager.testCompile(createSourceCode(code));
+			if (parentViewModel.getObject().isNew()) {
+				removeClass(code);
+			}
 			errorMessage = null;
 			showNotification(component, false, "admin.compile.success");
 		}
@@ -121,6 +124,9 @@ public class CodeDialogViewModel extends AbstractApplicationViewModel {
 		}
 		try {
 			codeManager.testCompile(createSourceCode(code));
+			if (parentViewModel.getObject().isNew()) {
+				removeClass(code);
+			}
 			errorMessage = null;
 			if (!ObjectUtils.nullSafeEquals(code, originalContent)) {
 				parentViewModel.flagDirty();
@@ -160,6 +166,10 @@ public class CodeDialogViewModel extends AbstractApplicationViewModel {
 	   		   		   		   CodeUtils.getLineNumber(code, pattern);
 		}
 		return sourceCode;
+	}
+	
+	private void removeClass(String code) {
+		codeManager.removeClass(CodeUtils.extractQualifiedName(code));
 	}
 	
 	// replace line numbers for member functions

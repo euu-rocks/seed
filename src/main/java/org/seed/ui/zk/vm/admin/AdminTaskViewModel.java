@@ -274,7 +274,7 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	@Command
 	public void editCode() {
 		if (getObject().getContent() == null) {
-			getObject().setContent(taskCodeProvider.getFunctionTemplate(getObject()));
+			getObject().setContent(taskCodeProvider.getTaskTemplate(getObject()));
 		}
 		showCodeDialog(new CodeDialogParameter(this, getObject()));
 	}
