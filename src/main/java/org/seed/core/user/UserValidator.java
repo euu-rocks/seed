@@ -32,6 +32,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserValidator extends AbstractSystemEntityValidator<User> {
 	
+	private static final Pattern PATTERN_USERNAME = Pattern.compile("\\p{Alnum}+");
+	
 	private static final Pattern PATTERN_EMAIL = Pattern.compile(
 		"^(?=.{1,64}@)[\\p{L}0-9_-]+(\\.[\\p{L}0-9_-]+)*@[^-][\\p{L}0-9-]+(\\.[\\p{L}0-9-]+)*(\\.[\\p{L}]{2,})$");
 	
@@ -46,8 +48,11 @@ public class UserValidator extends AbstractSystemEntityValidator<User> {
 		else if (user.getName().length() > getLimit(Limits.LIMIT_USER_LENGTH)) {
 			errors.addOverlongField("label.username", getLimit(Limits.LIMIT_USER_LENGTH));
 		}
-		else if (user.getInternalName().equalsIgnoreCase(MiscUtils.USERNAME_SYSTEM)) {
+		else if (user.getName().equalsIgnoreCase(MiscUtils.USERNAME_SYSTEM)) {
 			errors.addIllegalName(user.getInternalName());
+		}
+		else if (!PATTERN_USERNAME.matcher(user.getName()).matches()) {
+			errors.addError("val.illegal.username");
 		}
 		if (isEmpty(user.getEmail())) {
 			errors.addEmptyField("label.email");
