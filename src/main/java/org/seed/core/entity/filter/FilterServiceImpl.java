@@ -28,7 +28,6 @@ import javax.annotation.Nullable;
 import org.hibernate.Session;
 
 import org.seed.C;
-import org.seed.Seed;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -456,7 +455,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	
 	private TransferableObject getReferenceObject(FilterCriterion criterion, Session session) {
 		return (TransferableObject) 
-				Seed.getBean(ValueObjectService.class)
+				getBean(ValueObjectService.class)
 					.findByUid(criterion.getEntityField().getReferenceEntity(), 
 		 					   criterion.getReferenceUid(), session);
 	}

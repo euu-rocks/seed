@@ -85,10 +85,13 @@ public class UserValidator extends AbstractSystemEntityValidator<User> {
 		if (isEmpty(password)) {
 			errors.addEmptyField("label.password");
 		}
+		else if (password.length() > getLimit(Limits.LIMIT_USER_LENGTH)) {
+			errors.addOverlongField("label.password", getLimit(Limits.LIMIT_USER_LENGTH));
+		}
 		if (isEmpty(passwordRepeated)) {
 			errors.addEmptyField("label.passwordrepeated");
 		}
-		if (errors.isEmpty() && !password.equals(passwordRepeated)) {
+		else if (password != null && !password.equals(passwordRepeated)) {
 			errors.addError("val.ambiguous.password");
 		}
 		

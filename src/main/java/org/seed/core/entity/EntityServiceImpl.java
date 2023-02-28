@@ -57,20 +57,17 @@ import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupDependent;
 import org.seed.core.user.UserGroupService;
 import org.seed.core.util.Assert;
-import org.seed.core.util.BeanUtils;
 import org.seed.core.util.MiscUtils;
 import org.seed.core.util.NameUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EntityServiceImpl extends AbstractApplicationEntityService<Entity> 
 	implements EntityService, EntityDependent<Entity>, UserGroupDependent<Entity>, 
-		CodeChangeAware, ApplicationContextAware { 
+		CodeChangeAware { 
 	
 	@Autowired
 	private EntityValidator entityValidator;
@@ -96,14 +93,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	@Autowired
 	private Limits limits;
 	
-	private ApplicationContext applicationContext;
-	
 	private List<EntityChangeAware> changeAwareObjects;
-	
-	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) {
-		this.applicationContext = applicationContext;
-	}
 	
 	@Override
 	protected EntityRepository getRepository() {
@@ -1249,7 +1239,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	private List<EntityChangeAware> getChangeAwareObjects() {
 		if (changeAwareObjects == null) {
-			changeAwareObjects = BeanUtils.getBeans(applicationContext, EntityChangeAware.class);
+			changeAwareObjects = getBeans(EntityChangeAware.class);
 		}
 		return changeAwareObjects;
 	}

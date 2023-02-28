@@ -22,7 +22,6 @@ import java.util.List;
 import org.hibernate.Session;
 
 import org.seed.C;
-import org.seed.Seed;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -156,7 +155,7 @@ public class CustomLibServiceImpl extends AbstractApplicationEntityService<Custo
 	}
 	
 	private void resetCustomJars() {
-		Seed.getBean(Compiler.class).resetCustomJars();
+		getBean(Compiler.class).resetCustomJars();
 	}
 	
 }

@@ -22,7 +22,6 @@ import java.util.List;
 import org.hibernate.Session;
 
 import org.seed.C;
-import org.seed.Seed;
 import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.ModuleDependent;
@@ -93,7 +92,7 @@ public abstract class AbstractApplicationEntityService<T extends ApplicationEnti
 	}
 	
 	protected void updateConfiguration() {
-		Seed.getBean(UpdatableConfiguration.class).updateConfiguration();
+		getBean(UpdatableConfiguration.class).updateConfiguration();
 	}
 	
 }

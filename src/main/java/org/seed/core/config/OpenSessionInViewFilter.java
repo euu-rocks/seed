@@ -24,6 +24,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
 import org.hibernate.Session;
 import org.slf4j.Logger;
@@ -55,7 +56,7 @@ public class OpenSessionInViewFilter implements Filter {
 			}
 		}
 		catch (IllegalStateException isex) {
-			log.warn("{} {}", isex.getMessage(), request);
+			log.warn("{} {}", ((HttpServletRequest) request).getQueryString(), isex.getMessage());
 		}
 	}
 

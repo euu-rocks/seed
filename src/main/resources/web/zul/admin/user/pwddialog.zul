@@ -19,7 +19,7 @@
 -->
 <!DOCTYPE xml>
 <?page contentType="text/html;charset=UTF-8"?>
-<window id="pwdDialogWin" width="350px" title="${labels.admin.user.setpwd}"
+<window id="pwdDialogWin" width="400px" title="${labels.admin.user.setpwd}"
 		viewModel="@id('vm') @init('org.seed.ui.zk.vm.PwdDialogViewModel')" 
 		mode="modal" closable="true">
 	<div class="alpha-dialog">

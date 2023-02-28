@@ -30,7 +30,6 @@ import org.hibernate.Transaction;
 
 import org.seed.C;
 import org.seed.InternalException;
-import org.seed.Seed;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -59,20 +58,16 @@ import org.seed.core.entity.transform.TransformerService;
 import org.seed.core.form.layout.LayoutService;
 import org.seed.core.user.User;
 import org.seed.core.util.Assert;
-import org.seed.core.util.BeanUtils;
 import org.seed.core.util.MiscUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 
 @Service
 public class FormServiceImpl extends AbstractApplicationEntityService<Form> 
 	implements FormService, EntityChangeAware, EntityDependent<Form>,  
-			   FormDependent<Form>, FilterDependent<Form>, TransformerDependent<Form>,
-			   ApplicationContextAware {
+			   FormDependent<Form>, FilterDependent<Form>, TransformerDependent<Form> {
 	
 	@Autowired
 	private EntityService entityService;
@@ -90,13 +85,6 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	private FormRepository formRepository;
 	
 	private List<FormChangeAware> changeAwareObjects;
-	
-	private ApplicationContext applicationContext;
-	
-	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) {
-		this.applicationContext = applicationContext;
-	}
 	
 	@Override
 	protected FormRepository getRepository() {
@@ -919,12 +907,12 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	private LayoutService getLayoutService() {
-		return Seed.getBean(LayoutService.class);
+		return getBean(LayoutService.class);
 	}
 	
 	private List<FormChangeAware> getChangeAwareObjects() {
 		if (changeAwareObjects == null) {
-			changeAwareObjects = BeanUtils.getBeans(applicationContext, FormChangeAware.class);
+			changeAwareObjects = getBeans(FormChangeAware.class);
 		}
 		return changeAwareObjects;
 	}
