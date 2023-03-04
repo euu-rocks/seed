@@ -176,7 +176,7 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 		Assert.notNull(session, C.SESSION);
 		
 		return filterAndConvert(userGroupService.findNonSystemGroups(session), 
-								group -> !rest.containsPermission(group), 
+								not(rest::containsPermission), 
 								group -> createPermission(rest, group));
 	}
 	

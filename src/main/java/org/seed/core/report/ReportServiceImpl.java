@@ -123,7 +123,7 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 		Assert.notNull(report, C.SESSION);
 		
 		return filterAndConvert(userGroupService.findNonSystemGroups(session), 
-								group -> !report.containsPermission(group), 
+								not(report::containsPermission), 
 								group -> createPermission(report, group));
 	}
 	

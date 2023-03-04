@@ -172,7 +172,7 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 		Assert.notNull(session, C.SESSION);
 		
 		final var newObjects = new ArrayList<DBObject>(context.getNewDBObjects());
-		newObjects.removeIf(dbObject -> !dbObject.isEnabled());
+		newObjects.removeIf(not(DBObject::isEnabled));
 		newObjects.sort((DBObject dbObject1, DBObject dbObject2) -> 
 							Integer.compare(dbObject1.getOrder() != null ? dbObject1.getOrder() : 0, 
 											dbObject2.getOrder() != null ? dbObject2.getOrder() : 0));

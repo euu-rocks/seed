@@ -372,7 +372,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(session, C.SESSION);
 		
 		return filterAndConvert(userGroupService.findNonSystemGroups(session), 
-								group -> !entity.containsPermission(group), 
+								not(entity::containsPermission), 
 								group -> createPermission(entity, group));
 	}
 	
@@ -382,7 +382,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(session, C.SESSION);
 		
 		return filterAndConvert(userGroupService.findNonSystemGroups(session), 
-								group -> !transition.containsPermission(group), 
+								not(transition::containsPermission), 
 								group -> createTransitionPermission(transition, group));
 	}
 	

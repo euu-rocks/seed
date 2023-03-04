@@ -17,7 +17,7 @@
  */
 package org.seed.core.entity;
 
-import static org.seed.core.util.CollectionUtils.subList;
+import static org.seed.core.util.CollectionUtils.*;
 
 import java.util.List;
 
@@ -299,7 +299,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 	
 	private void validateFieldAttributeChange(Entity entity, Entity currentVersionEntity, 
 											  Session session, final ValidationErrors errors) {
-		for (EntityField field : subList(entity.getFields(), field -> !field.isNew())) {
+		for (EntityField field : subList(entity.getFields(), not(EntityField::isNew))) {
 			final EntityField currentVersionField = currentVersionEntity.getFieldById(field.getId());
 			Assert.stateAvailable(currentVersionField, "current version field");
 			

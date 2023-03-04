@@ -26,14 +26,9 @@ import javax.persistence.PersistenceException;
 
 import org.hibernate.exception.ConstraintViolationException;
 
-public abstract class ExceptionUtils {
+public interface ExceptionUtils {
 	
-	private ExceptionUtils() {}
-	
-    @SuppressWarnings("unused")
-	private static final long serialVersionUID = -3338292458819471313L;
-	
-	public static Throwable getRootCause(Throwable throwable) {
+	static Throwable getRootCause(Throwable throwable) {
 		Assert.notNull(throwable, "throwable");
 		
 		if (throwable.getCause() == null || throwable.getCause() == throwable) {
@@ -42,11 +37,11 @@ public abstract class ExceptionUtils {
 		return getRootCause(throwable.getCause());
 	}
 	
-	public static String getRootCauseMessage(Throwable throwable) {
+	static String getRootCauseMessage(Throwable throwable) {
 		return getRootCause(throwable).getLocalizedMessage();
 	}
 	
-	public static String getStackTraceAsString(Throwable throwable) {
+	static String getStackTraceAsString(Throwable throwable) {
 		Assert.notNull(throwable, "throwable");
 		
 		final StringWriter stringWriter = new StringWriter();
@@ -54,14 +49,14 @@ public abstract class ExceptionUtils {
 		return stringWriter.toString();
 	}
 	
-	public static boolean isUniqueConstraintViolation(Exception ex) {
+	static boolean isUniqueConstraintViolation(Exception ex) {
 		return ex instanceof PersistenceException && 
 			   ex.getCause() instanceof ConstraintViolationException &&
 			   ((ConstraintViolationException) ex.getCause()).getSQLException()
 			   	.getMessage().contains("unique constraint");
 	}
 	
-	public static Tupel<String,String> getUniqueConstraintDetails(Exception ex) {
+	static Tupel<String,String> getUniqueConstraintDetails(Exception ex) {
 		final String message = ((ConstraintViolationException) ex.getCause())
 								.getSQLException().getMessage();
 		String column = "?";

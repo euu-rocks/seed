@@ -30,13 +30,9 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.core.type.filter.TypeFilter;
 
-public abstract class BeanUtils {
+public interface BeanUtils {
 	
-	private static final String PACKAGE_SCAN_ROOT = "org.seed";
-	
-	private BeanUtils() {}
-	
-	public static <T> T instantiate(Class<T> clas) {
+	static <T> T instantiate(Class<T> clas) {
 		try {
 			return clas.getDeclaredConstructor().newInstance();
 		} 
@@ -45,20 +41,20 @@ public abstract class BeanUtils {
 		}
 	}
 	
-	public static <T> List<T> getBeans(ApplicationContext applicationContext, Class<T> type) {
+	static <T> List<T> getBeans(ApplicationContext applicationContext, Class<T> type) {
 		Assert.notNull(applicationContext, C.CONTEXT);
 		Assert.notNull(type, C.TYPE);
 		
 		return CollectionUtils.valueList(applicationContext.getBeansOfType(type));
 	}
 	
-	public static <T> List<Class<? extends T>> getImplementingClasses(Class<T> typeClass) {
+	static <T> List<Class<? extends T>> getImplementingClasses(Class<T> typeClass) {
 		Assert.notNull(typeClass, "typeClass");
 		
 		return findClasses(new AssignableTypeFilter(typeClass));
 	}
 	
-	public static List<Class<?>> getAnnotatedClasses(Class<? extends Annotation> annotationClass) {
+	static List<Class<?>> getAnnotatedClasses(Class<? extends Annotation> annotationClass) {
 		Assert.notNull(annotationClass, "annotationClass");
 		
 		return findClasses(new AnnotationTypeFilter(annotationClass));
@@ -70,7 +66,7 @@ public abstract class BeanUtils {
 		final var scanner = new ClassPathScanningCandidateComponentProvider(false);
 		scanner.addIncludeFilter(typeFilter);
 		try {
-			for (final var beanDef : scanner.findCandidateComponents(PACKAGE_SCAN_ROOT)) {
+			for (final var beanDef : scanner.findCandidateComponents("org.seed")) {
 				listClasses.add((Class<? extends T>) Class.forName(beanDef.getBeanClassName()));
 			}
 		}

@@ -403,7 +403,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 	
 	public List<Entity> getParentEntities() {
-		return subList(entityService.findNonGenericEntities(currentSession()), entity -> !entity.isTransferable());
+		return subList(entityService.findNonGenericEntities(currentSession()), not(Entity::isTransferable));
 	}
 	
 	public List<Entity> getRelationEntities() {

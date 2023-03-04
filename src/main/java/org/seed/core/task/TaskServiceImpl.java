@@ -188,7 +188,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		Assert.notNull(task, C.TASK);
 		
 		return filterAndConvert(userGroupService.findNonSystemGroups(session), 
-								group -> !task.containsPermission(group), 
+								not(task::containsPermission), 
 								group -> createPermission(task, group));
 	}
 	

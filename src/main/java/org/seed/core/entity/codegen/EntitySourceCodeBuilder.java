@@ -329,7 +329,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	}
 	
 	private void buildNestedMethods() {
-		for (NestedEntity nested : subList(entity.getNesteds(), nested -> !nested.isReadonly())) {
+		for (NestedEntity nested : subList(entity.getNesteds(), not(NestedEntity::isReadonly))) {
 			addImport(ArrayList.class);
 			final String nestedName = nested.getInternalName();
 			final ParameterMetadata[] parameters = new ParameterMetadata[] { 

@@ -685,8 +685,7 @@ public class ValueObjectServiceImpl
 		Assert.notNull(session, C.SESSION);
 		final List<Entity> result = new ArrayList<>();
 		final Entity entity = repository.getEntity(session, object);
-		for (Entity otherEntity : subList(entityService.findNonGenericEntities(session), 
-										  other -> !entity.equals(other))) {
+		for (Entity otherEntity : subList(entityService.findNonGenericEntities(session), not(entity::equals))) {
 			for (EntityField otherRefField : otherEntity.getReferenceFields(entity)) {
 				final Filter filter = filterService.createFieldFilter(otherEntity, otherRefField, object);
 				if (repository.exist(session, otherEntity, filter)) {

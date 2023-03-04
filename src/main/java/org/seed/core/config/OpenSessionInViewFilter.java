@@ -56,7 +56,7 @@ public class OpenSessionInViewFilter implements Filter {
 			}
 		}
 		catch (IllegalStateException isex) {
-			log.warn("{} {}", ((HttpServletRequest) request).getQueryString(), isex.getMessage());
+			log.warn("{} {}", isex.getMessage(), ((HttpServletRequest) request).getRequestURI());
 		}
 	}
 

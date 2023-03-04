@@ -198,7 +198,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		Assert.notNull(session, C.SESSION);
 		
 		return filterAndConvert(userGroupService.findNonSystemGroups(session), 
-								group -> !filter.containsPermission(group),
+								not(filter::containsPermission),
 								group -> createPermission(filter, group));
 	}
 	
