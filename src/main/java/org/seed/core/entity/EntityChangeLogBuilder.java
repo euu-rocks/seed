@@ -250,9 +250,12 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		createSystemFields(entity, isAuditTable).forEach(createTableChange::addColumn);
 		
 		// uid
-		if (!isAuditTable && entity.isTransferable()) {
-			createTableChange.addColumn(createColumn(SystemField.UID, getLimit(Limits.LIMIT_UID_LENGTH))
-											.setConstraints(notNullConstraint().setUnique(Boolean.TRUE)));
+		if (entity.isTransferable()) {
+			final ColumnConfig columnUid = createColumn(SystemField.UID, getLimit(Limits.LIMIT_UID_LENGTH)); 
+			if (!isAuditTable) {
+				columnUid.setConstraints(notNullConstraint().setUnique(Boolean.TRUE));
+			}
+			createTableChange.addColumn(columnUid);
 		}
 		// status
 		if (entity.hasStatus()) {
