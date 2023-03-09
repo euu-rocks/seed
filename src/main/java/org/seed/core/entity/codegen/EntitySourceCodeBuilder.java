@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -43,6 +42,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Formula;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
 import org.seed.C;
@@ -204,7 +204,13 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	}
 	
 	private void buildUidField() {
-		addMember(SystemField.UID.property, newTypeClass(SystemField.UID.type.typeClass));
+		if (entity.isAudited()) {
+			addMember(SystemField.UID.property, newTypeClass(SystemField.UID.type.typeClass),
+					  newAnnotation(NotAudited.class));
+		}
+		else {
+			addMember(SystemField.UID.property, newTypeClass(SystemField.UID.type.typeClass));
+		}
 	}
 	
 	private void buildEntityIdGetter() {
@@ -216,7 +222,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	private void buildFields() {
 		for (EntityField field : entity.getFields()) {
 			TypeClass typeClass = newTypeClass(field.getType().typeClass); 
-			final List<AnnotationMetadata> annotations = new ArrayList<>(5);
+			final var annotations = new ArrayList<AnnotationMetadata>(5);
 			if (field.getColumnName() != null) {
 				annotations.add(newAnnotation(Column.class, C.NAME, quote(field.getColumnName().toLowerCase())));
 			}
@@ -225,7 +231,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 			}
 			else if (field.getType().isReference() || field.getType().isFile()) {
 				addImport(ReferenceJsonSerializer.class);
-				final Map<String, Object> annotationParamMap = new HashMap<>(4);
+				final var annotationParamMap = new HashMap<String, Object>(4);
 				annotationParamMap.put(C.FETCH, FetchType.LAZY);
 				if (field.getType().isFile()) {
 					annotationParamMap.put(C.CASCADE, CascadeType.ALL);
@@ -292,7 +298,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	
 	private void buildNesteds() {
 		for (NestedEntity nested : entity.getNesteds()) {
-			final Map<String, Object> annotationParamMap = new HashMap<>();
+			final var annotationParamMap = new HashMap<String, Object>();
 			annotationParamMap.put("mappedBy", quote(nested.getReferenceField().getInternalName()));
 			annotationParamMap.put(C.CASCADE, CascadeType.ALL);
 			annotationParamMap.put(C.FETCH, FetchType.LAZY);
@@ -304,20 +310,20 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	}
 	
 	private void buildRelations() {
-		final Map<String, Object> annotationParamMapM2M = new HashMap<>();
+		final var annotationParamMapM2M = new HashMap<String, Object>();
 		annotationParamMapM2M.put(C.FETCH, FetchType.LAZY);
 		annotationParamMapM2M.put(C.CASCADE, CascadeType.ALL);
 		
 		for (EntityRelation relation : entity.getAllRelations()) {
 			final EntityRelation descendantRelation = relation.createDescendantRelation(entity);
-			final AnnotationMetadata[] joinColumns = new AnnotationMetadata[] {
+			final var joinColumns = new AnnotationMetadata[] {
 				createJoinColumnAnnotation(descendantRelation.getJoinColumnName())
 			};
-			final AnnotationMetadata[] inverseJoinColumns = new AnnotationMetadata[] {
+			final var inverseJoinColumns = new AnnotationMetadata[] {
 				createJoinColumnAnnotation(relation.getInverseJoinColumnName())	
 			};
 			
-			final Map<String, Object> annotationParamMapJoin = new HashMap<>();
+			final var annotationParamMapJoin = new HashMap<String, Object>();
 			annotationParamMapJoin.put(C.NAME, quote(descendantRelation.getJoinTableName()));
 			annotationParamMapJoin.put("joinColumns", joinColumns);
 			annotationParamMapJoin.put("inverseJoinColumns", inverseJoinColumns);
@@ -332,12 +338,12 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 		for (NestedEntity nested : subList(entity.getNesteds(), not(NestedEntity::isReadonly))) {
 			addImport(ArrayList.class);
 			final String nestedName = nested.getInternalName();
-			final ParameterMetadata[] parameters = new ParameterMetadata[] { 
+			final var parameters = new ParameterMetadata[] { 
 				newParameter(nestedName, newTypeClass(nested.getNestedEntity())) 
 			}; 
 			
 			// add 
-			final StringBuilder buf = new StringBuilder().append(nestedName).append(".set")
+			final var buf = new StringBuilder().append(nestedName).append(".set")
 			   .append(StringUtils.capitalize(nested.getReferenceField().getInternalName()))
 			   .append("(this);").append(LF) 
 			   .append("\t\tif (this.").append(nestedName).append(" == null) {").append(LF)
@@ -356,12 +362,12 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 		for (EntityRelation relation : entity.getAllRelations()) {
 			addImport(HashSet.class);
 			final String relationName = relation.getInternalName();
-			final ParameterMetadata[] parameters = new ParameterMetadata[] { 
+			final var parameters = new ParameterMetadata[] { 
 				newParameter(relationName, newTypeClass(relation.getRelatedEntity())) 
 			};
 			
 			// add
-			final StringBuilder buf = new StringBuilder()
+			final var buf = new StringBuilder()
 				.append("if (this.").append(relationName).append(" == null) {").append(LF)
 				.append("\t\t\tthis.").append(relationName).append(" = new HashSet<>();").append(LF)
 				.append("\t\t}").append(LF)
@@ -404,7 +410,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	}
 	
 	private static AnnotationMetadata createJoinColumnAnnotation(String name) {
-		final Map<String, Object> annotationParamMap = new HashMap<>();
+		final var annotationParamMap = new HashMap<String, Object>();
 		annotationParamMap.put(C.NAME, quote(name));
 		annotationParamMap.put("nullable", false);
 		annotationParamMap.put("updatable", false);
@@ -421,7 +427,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 		if (entity.isGeneric()) {
 			return MiscUtils.toArray();
 		}
-		final List<TypeClass> interfaces = new ArrayList<>(2);
+		final var interfaces = new ArrayList<TypeClass>(2);
 		interfaces.add(newTypeClass(ValueEntity.class));
 		if (entity.isTransferable()) {
 			interfaces.add(newTypeClass(TransferableObject.class));
@@ -430,7 +436,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	}
 	
 	private static AnnotationMetadata[] getEntityAnnotations(Entity entity) {
-		final List<AnnotationMetadata> annotations = new ArrayList<>(8);
+		final var annotations = new ArrayList<AnnotationMetadata>(8);
 		if (entity.isAudited()) {
 			annotations.add(newAnnotation(Audited.class, "targetAuditMode", RelationTargetAuditMode.NOT_AUDITED));
 		}

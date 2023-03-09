@@ -216,52 +216,60 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	@Command
 	@NotifyChange("getRelationForm")
 	public void removeRelation(@BindingParam("relationId") String relationUid) {
-		final EntityRelation relation = getForm().getEntity().getRelationByUid(relationUid);
-		removeRelationObject(relation);
+		if (checkFormIntegrity()) {
+			final EntityRelation relation = getForm().getEntity().getRelationByUid(relationUid);
+			removeRelationObject(relation);
+		}
 	}
 	
 	@Command
 	public void addRelation(@BindingParam("relationId") String relationUid) {
-		final EntityRelation relation = getForm().getEntity().getRelationByUid(relationUid);
-		showDialog("/form/selectrelation.zul", new SelectRelationParameter(this, relation));
+		if (checkFormIntegrity()) {
+			final EntityRelation relation = getForm().getEntity().getRelationByUid(relationUid);
+			showDialog("/form/selectrelation.zul", new SelectRelationParameter(this, relation));
+		}
 	}
 	
 	@Command
 	public void showDetail(@BindingParam("nestedId") String nestedUid) {
-		final NestedEntity nested = getForm().getEntity().getNestedByUid(nestedUid);
-		final SubForm subForm = getForm().getSubFormByNestedEntityId(nested.getId());
-		final ValueObject valueObject = subForm.getSelectedObject();
-		final List<Form> forms = formService().findForms(nested.getNestedEntity(), currentSession());
-		if (!forms.isEmpty()) {
-			openTab(forms.get(0), valueObject);
+		if (checkFormIntegrity()) {
+			final NestedEntity nested = getForm().getEntity().getNestedByUid(nestedUid);
+			final SubForm subForm = getForm().getSubFormByNestedEntityId(nested.getId());
+			final ValueObject valueObject = subForm.getSelectedObject();
+			final List<Form> forms = formService().findForms(nested.getNestedEntity(), currentSession());
+			if (!forms.isEmpty()) {
+				openTab(forms.get(0), valueObject);
+			}
 		}
 	}
 	
 	@Command
 	public void showReference(@BindingParam("fieldId") String fieldUid) {
-		Form detailForm;
-		ValueObject mainObject;
-		final EntityField entityField = getEntityField(fieldUid);
-		final SubFormField subFormField = getForm().getSubFormField(entityField);
-		if (subFormField != null) {
-			final NestedEntity nested = subFormField.getSubForm().getNestedEntity();
-			detailForm = subFormField.getDetailForm();
-			mainObject = getForm().getSubFormByNestedEntityId(nested.getId()).getSelectedObject();
+		if (checkFormIntegrity()) {
+			Form detailForm;
+			ValueObject mainObject;
+			final EntityField entityField = getEntityField(fieldUid);
+			final SubFormField subFormField = getForm().getSubFormField(entityField);
+			if (subFormField != null) {
+				final NestedEntity nested = subFormField.getSubForm().getNestedEntity();
+				detailForm = subFormField.getDetailForm();
+				mainObject = getForm().getSubFormByNestedEntityId(nested.getId()).getSelectedObject();
+			}
+			else {
+				final FormFieldExtra fieldExtra = getForm().getFieldExtra(entityField);
+				Assert.stateAvailable(fieldExtra, "fieldExtra");
+				detailForm = fieldExtra.getDetailForm();
+				mainObject = getObject();
+			}
+			final ValueObject referenceObject = (ValueObject) valueObjectService().getValue(mainObject, entityField);
+			openTab(detailForm, referenceObject);
 		}
-		else {
-			final FormFieldExtra fieldExtra = getForm().getFieldExtra(entityField);
-			Assert.stateAvailable(fieldExtra, "fieldExtra");
-			detailForm = fieldExtra.getDetailForm();
-			mainObject = getObject();
-		}
-		final ValueObject referenceObject = (ValueObject) valueObjectService().getValue(mainObject, entityField);
-		openTab(detailForm, referenceObject);
 	}
 	
 	@Command
 	public void editImage(@BindingParam("fieldId") String fieldUid,
 			  			  @BindingParam("nestedObject") ValueObject nestedObject) {
-		if (!isFieldReadonly(fieldUid)) {
+		if (checkFormIntegrity() && !isFieldReadonly(fieldUid)) {
 			final EntityField entityField = getEntityField(fieldUid);
 			final ValueObject valueObject = nestedObject != null ? nestedObject : getObject();
 			showDialog("/form/editimage.zul", new EditImageParameter(this, valueObject, entityField));
@@ -271,7 +279,9 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	@Command
 	public void changeStatus(@BindingParam(C.ACTION) FormAction action,
 							 @BindingParam(C.ELEM) Component component) {
-		confirm("question.status", component, action, getStatus().getNumberAndName());
+		if (checkFormIntegrity()) {
+			confirm("question.status", component, action, getStatus().getNumberAndName());
+		}
 	}
 	
 	@Command
@@ -326,7 +336,9 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	@Command
 	public void callAction(@BindingParam(C.ACTION) FormAction action,
 						   @BindingParam(C.ELEM) Component component) {
-		
+		if (!checkFormIntegrity()) {
+			return;
+		}
 		switch (action.getType()) {
 			case OVERVIEW:
 				showListForm();
@@ -337,12 +349,14 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 				break;
 			
 			case REFRESH:
-				if (isDirty()) {
-					confirm("question.dirty", component, action);
-				}
-				else {
-					revision = null;
-					refreshObject();
+				if (checkObjectExistence()) {
+					if (isDirty()) {
+						confirm("question.dirty", component, action);
+					}
+					else {
+						revision = null;
+						refreshObject();
+					}
 				}
 				break;
 				
@@ -356,23 +370,33 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 				break;
 				
 			case TRANSFORM:
-				transformObject();
+				if (checkObjectExistence()) {
+					transformObject();
+				}
 				break;
 				
 			case PRINT:
-				printObject();
+				if (checkObjectExistence()) {
+					printObject();
+				}
 				break;
 				
 			case DELETE:
-				confirm("question.delete", component, action);
+				if (checkObjectExistence()) {
+					confirm("question.delete", component, action);
+				}
 				break;
 				
 			case SAVE:
-				save(component);
+				if (checkObjectExistence()) {
+					save(component);
+				}
 				break;
 				
 			case CUSTOM:
-				callCustomAction(component, action);
+				if (checkObjectExistence()) {
+					callCustomAction(component, action);
+				}
 				break;
 			
 			default:
@@ -385,25 +409,29 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	public void callSubFormAction(@BindingParam("nestedId") String nestedUid,
 								  @BindingParam(C.ACTION) SubFormAction action,
 								  @BindingParam(C.ELEM) Component component) {
-		callSubFormAction(component, getSubForm(nestedUid), action);
-		flagDirty();
+		if (checkFormIntegrity()) {
+			callSubFormAction(component, getSubForm(nestedUid), action);
+			flagDirty();
+		}
 	}
 	
 	@Command
 	public void selectRevision() {
-		// current version
-		if (revisions.indexOf(revision) == revisions.size() - 1) {
-			setObject(valueObjectService().getObject(currentSession(), getForm().getEntity(), getObject().getId()));
-			revision = null;
+		if (checkFormIntegrity()) {
+			// current version
+			if (revisions.indexOf(revision) == revisions.size() - 1) {
+				setObject(valueObjectService().getObject(currentSession(), getForm().getEntity(), getObject().getId()));
+				revision = null;
+			}
+			else {
+				setObject(revisionService.getRevisionObject(getForm().getEntity(), getObject().getId(), revision));
+			}
+			if (hasStatus()) {
+				setStatus(getObject().getEntityStatus());
+			}
+			initFileObjects();
+			reset();
 		}
-		else {
-			setObject(revisionService.getRevisionObject(getForm().getEntity(), getObject().getId(), revision));
-		}
-		if (hasStatus()) {
-			setStatus(getObject().getEntityStatus());
-		}
-		initFileObjects();
-		reset();
 	}
 	
 	@Command

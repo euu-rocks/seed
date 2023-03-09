@@ -20,7 +20,6 @@ package org.seed.core.config.changelog;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.util.Collections;
 import java.util.List;
 
@@ -52,7 +51,7 @@ public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 		
 		@Override
 	    public <T extends ChangeLogChild> void write(List<T> children, OutputStream out) throws IOException {
-	        final Writer writer = new OutputStreamWriter(out, MiscUtils.CHARSET);
+	        final var writer = new OutputStreamWriter(out, MiscUtils.CHARSET);
 	        int i = 0;
 	        for (T child : children) {
 	            String serialized = serialize(child, true);
@@ -126,7 +125,7 @@ public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 	protected void addChange(AbstractCustomChange customChange) {
 		Assert.notNull(customChange, "customChange");
 		try {
-			final CustomChangeWrapper changeWrapper = new CustomChangeWrapper();
+			final var changeWrapper = new CustomChangeWrapper();
 			changeWrapper.setClass(customChange.getClass().getName());
 			changeWrapper.setParam(C.NAME, customChange.getParameterName());
 			changeWrapper.setParam(C.VALUE, customChange.getParameterValue());
@@ -151,13 +150,13 @@ public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 	}
 	
 	static ChangeSet createChangeSet() {
-		return new ChangeSet(UID.createUID(), MiscUtils.getUserName(), 
-					false, false, null, null, null, false, null, null);
+		return new ChangeSet(UID.createUID(), C.SEED, false, false, 
+							 null, null, null, false, null, null);
 	}
 	
 	private static ChangeLog createChangeLog(ChangeSet changeSet) {
-		try (FastByteArrayOutputStream baos = new FastByteArrayOutputStream()) {
-			final ChangeLog changeLog = new ChangeLog();
+		try (var baos = new FastByteArrayOutputStream()) {
+			final var changeLog = new ChangeLog();
 			new JsonChangeLogSerializer().write(Collections.singletonList(changeSet), baos);
 			changeLog.setChangeSet(MiscUtils.toString(baos.toByteArray()));
 			return changeLog;

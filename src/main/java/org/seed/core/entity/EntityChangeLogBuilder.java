@@ -225,10 +225,9 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		// rename inverse relation tables
 		if (inverseRelateds != null) {
 			for (Entity inverseRelated : inverseRelateds) {
-				for (EntityRelation inverseRelation : inverseRelated.getRelations()) {
+				inverseRelated.getRelations().forEach(inverseRelation -> 
 					renameRelation(currentVersionObject, inverseRelation, 
-								   inverseRelation.createInverseRelation(nextVersionObject));
-				}
+								   inverseRelation.createInverseRelation(nextVersionObject)));
 			}
 		}
 	}
@@ -250,12 +249,9 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		createSystemFields(entity, isAuditTable).forEach(createTableChange::addColumn);
 		
 		// uid
-		if (entity.isTransferable()) {
-			final ColumnConfig columnUid = createColumn(SystemField.UID, getLimit(Limits.LIMIT_UID_LENGTH)); 
-			if (!isAuditTable) {
-				columnUid.setConstraints(notNullConstraint().setUnique(Boolean.TRUE));
-			}
-			createTableChange.addColumn(columnUid);
+		if (entity.isTransferable() && !isAuditTable) {
+			createTableChange.addColumn(createColumn(SystemField.UID, getLimit(Limits.LIMIT_UID_LENGTH))
+											.setConstraints(notNullConstraint().setUnique(Boolean.TRUE)));
 		}
 		// status
 		if (entity.hasStatus()) {
@@ -267,10 +263,8 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		}
 		// fields
 		if (entity.hasAllFields()) {
-			for (EntityField field : entity.getAllFields()) {
-				final ColumnConfig column = initColumn(new ColumnConfig(), entity, field, isAuditTable);
-				createTableChange.addColumn(column);
-			}
+			entity.getAllFields().forEach(field -> 
+				createTableChange.addColumn(initColumn(new ColumnConfig(), entity, field, isAuditTable)));
 		}
 		
 		addChange(createTableChange);

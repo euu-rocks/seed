@@ -261,6 +261,7 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 	
 	protected void deleteObject() throws ValidationException {
 		valueObjectService.deleteObject(object);
+		object = null;
 	}
 	
 	protected void printObject() {
@@ -292,6 +293,31 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 		return valueObjectList;
 	}
 	
+	protected boolean checkObjectExistence() {
+		if (object == null || (!object.isNew() && valueObjectService.getObject(currentSession(), form.getEntity(), object.getId()) == null)) {
+			showWarnMessage(getLabel("form.action.faildeleted"));
+			return false;
+		}
+		return true;
+	}
+	
+	protected boolean checkFormIntegrity() {
+		final Form reloadedForm = formService().getObject(form.getId(), currentSession());
+		if (reloadedForm == null) {
+			showWarnMessage(getLabel("form.action.formdeleted"));
+			return false;
+		}
+		else if (reloadedForm.getVersion() != form.getVersion()) {
+			showWarnMessage(getLabel("form.action.formaltered"));
+			return false;
+		}
+		if (form.getEntity().getVersion() != entityService.getObject(form.getEntity().getId(), currentSession()).getVersion()) {
+			showWarnMessage(getLabel("form.action.entityaltered"));
+			return false;
+		}
+		return true;
+	}
+	
 	@SuppressWarnings("serial")
 	protected ListModel<ValueObject> createReferenceListModel(EntityField referenceField, Filter filter) {
 		final QueryCursor<ValueObject> cursor = valueObjectService.createCursor(currentSession(), referenceField.getReferenceEntity(), 
@@ -311,19 +337,25 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 		
 		switch (action.getType()) {
 			case NEWOBJECT:
-				final ValueObject nestedObject = valueObjectService.addNestedInstance(getObject(), subForm.getNestedEntity());
-				valueObjectService.preallocateFileObjects(nestedObject, currentSession());
+				if (checkObjectExistence()) {
+					final ValueObject nestedObject = valueObjectService.addNestedInstance(getObject(), subForm.getNestedEntity());
+					valueObjectService.preallocateFileObjects(nestedObject, currentSession());
+				}
 				break;
 			
 			case DELETE:
-				valueObjectService.removeNestedObject(getObject(), subForm.getNestedEntity(), 
-													  subForm.getSelectedObject());
-				subForm.clearSelectedObject();
-				notifyChange("getSubForm");
+				if (checkObjectExistence()) {
+					valueObjectService.removeNestedObject(getObject(), subForm.getNestedEntity(), 
+														  subForm.getSelectedObject());
+					subForm.clearSelectedObject();
+					notifyChange("getSubForm");
+				}
 				break;
 				
 			case CUSTOM:
-				callEntityFunction(component, subForm.getSelectedObject(), action.getEntityFunction());
+				if (checkObjectExistence()) {
+					callEntityFunction(component, subForm.getSelectedObject(), action.getEntityFunction());
+				}
 				break;
 				
 			default:

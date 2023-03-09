@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -106,11 +105,11 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 			addImport(classMetadata.superClass);
 		}
 		
-		final List<String> importPackageList = new ArrayList<>(importPackages);
+		final var importPackageList = new ArrayList<String>(importPackages);
 		Collections.sort(importPackageList);
 		importPackageList.forEach(i -> buildImportPackage(buildBuffer, i));
 		
-		final List<TypeClass> importList = new ArrayList<>(importTypes);
+		final var importList = new ArrayList<TypeClass>(importTypes);
 		importList.removeIf(type -> importPackages.contains(type.packageName));
 		TypeClass.sort(importList);
 		importList.forEach(i -> buildImport(buildBuffer, i));
@@ -154,7 +153,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		if (annotation.hasParameters()) {
 			for (Object value : annotation.parameterMap.values()) {
 				if (value instanceof AnnotationMetadata[]) {
-					final AnnotationMetadata[] paramAnnotations = (AnnotationMetadata[]) value;
+					final var paramAnnotations = (AnnotationMetadata[]) value;
 					for (AnnotationMetadata paramAnnotation : paramAnnotations) {
 						addImport(paramAnnotation);
 					}
@@ -183,7 +182,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 				addImport(annotation);
 			}
 		}
-		final MemberMetadata member = new MemberMetadata(name, typeClass);
+		final var member = new MemberMetadata(name, typeClass);
 		memberMap.put(name, member);
 		buildMember(codeBuffer, member, annotations);
 	}

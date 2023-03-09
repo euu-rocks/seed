@@ -204,7 +204,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	@Command
 	@NotifyChange({C.STATUS, "availableStatusList", "transformers"})
 	public void selectObject() {
-		if (getForm().getEntity().hasStatus()) {
+		if (checkFormIntegrity() && getForm().getEntity().hasStatus()) {
 			setStatus(getObject().getEntityStatus());
 		}
 	}
@@ -225,20 +225,26 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	@Command
 	public void changeStatus(@BindingParam(C.ACTION) FormAction action,
 							 @BindingParam(C.ELEM) Component component) {
-		confirm("question.status", component, action, getStatus().getNumberAndName());
+		if (checkFormIntegrity()) {
+			confirm("question.status", component, action, getStatus().getNumberAndName());
+		}
 	}
 	
 	@Command
 	public void callAction(@BindingParam(C.ACTION) FormAction action,
 						   @BindingParam(C.ELEM) Component component) {
-		
+		if (!checkFormIntegrity()) {
+			return;
+		}
 		switch (action.getType()) {
 			case NEWOBJECT:
 				showDetailForm((Long)null);
 				break;
 			
 			case DETAIL:
-				showDetailForm(getObject().getId());
+				if (checkObjectExistence()) {
+					showDetailForm(getObject().getId());
+				}
 				break;
 				
 			case SEARCH:
@@ -253,15 +259,21 @@ public class ListFormViewModel extends AbstractFormViewModel {
 				break;
 				
 			case TRANSFORM:
-				transformObject();
+				if (checkObjectExistence()) {
+					transformObject();
+				}
 				break;
 				
 			case PRINT:
-				printObject();
+				if (checkObjectExistence()) {
+					printObject();
+				}
 				break;
 				
 			case DELETE:
-				confirm("question.delete", component, action);
+				if (checkObjectExistence()) {
+					confirm("question.delete", component, action);
+				}
 				break;
 				
 			case SELECTCOLS:
@@ -280,27 +292,29 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	@Command
 	@NotifyChange({"listModel", "getSortIcon"})
 	public void sort(@BindingParam("fieldId") Long fieldId) {
-		if (sortMap == null) {
-			sortMap = new HashMap<>();
+		if (checkFormIntegrity()) {
+			if (sortMap == null) {
+				sortMap = new HashMap<>();
+			}
+			Boolean directionAscending = sortMap.get(fieldId);
+			if (directionAscending != null) {
+				directionAscending = !directionAscending;
+			}
+			else {
+				directionAscending = true;
+				sortMap.clear();
+			}
+			sortMap.put(fieldId, directionAscending);
+			
+			final FormField formField = getForm().getFieldById(fieldId);
+			if (formField.getEntityField() != null) {
+				sort = new Sort(formField.getEntityField().getInternalName(), directionAscending);
+			}
+			else if (formField.getSystemField() != null) {
+				sort = new Sort(formField.getSystemField().property, directionAscending);
+			}
+			listModel = null;
 		}
-		Boolean directionAscending = sortMap.get(fieldId);
-		if (directionAscending != null) {
-			directionAscending = !directionAscending;
-		}
-		else {
-			directionAscending = true;
-			sortMap.clear();
-		}
-		sortMap.put(fieldId, directionAscending);
-		
-		final FormField formField = getForm().getFieldById(fieldId);
-		if (formField.getEntityField() != null) {
-			sort = new Sort(formField.getEntityField().getInternalName(), directionAscending);
-		}
-		else if (formField.getSystemField() != null) {
-			sort = new Sort(formField.getSystemField().property, directionAscending);
-		}
-		listModel = null;
 	}
 	
 	@Override
@@ -344,7 +358,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	
 	private void reload() {
 		listModel = null;
-		notifyChange("listModel");
+		notifyChange(C.OBJECT, "listModel");
 	}
 	
 	private void exportList() {
