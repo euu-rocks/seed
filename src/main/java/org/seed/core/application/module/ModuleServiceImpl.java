@@ -33,19 +33,16 @@ import org.seed.core.data.AbstractSystemEntityService;
 import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
-import org.seed.core.util.BeanUtils;
 import org.seed.core.util.MiscUtils;
 import org.seed.core.util.UID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
-	implements ModuleService, ApplicationContextAware {
+	implements ModuleService {
 	
 	@Autowired
 	private ModuleRepository repository;
@@ -56,14 +53,7 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 	@Autowired
 	private ModuleTransfer transfer;
 	
-	private ApplicationContext applicationContext;
-	
 	private List<ModuleDependent<? extends ApplicationEntity>> moduleDependents;
-	
-	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) {
-		this.applicationContext = applicationContext;
-	}
 	
 	@Override
 	protected ModuleRepository getRepository() {
@@ -219,8 +209,7 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 	
 	private List<ModuleDependent<? extends ApplicationEntity>> getModuleDependents() {
 		if (moduleDependents == null) {
-			moduleDependents = MiscUtils.castList(
-					BeanUtils.getBeans(applicationContext, ModuleDependent.class));
+			moduleDependents = MiscUtils.castList(getBeans(ModuleDependent.class));
 		}
 		return moduleDependents;
 	}

@@ -35,15 +35,20 @@ import org.seed.test.integration.entity.CreateEntityTest;
 import org.seed.test.integration.entity.CreateGenericEntityTest;
 import org.seed.test.integration.entity.CreateNestedEntityTest;
 import org.seed.test.integration.entity.CreateTransferableEntityTest;
+import org.seed.test.integration.entity.DeleteEntityTest;
 import org.seed.test.integration.entity.EditEntityTest;
 import org.seed.test.integration.filter.CreateFilterTest;
 import org.seed.test.integration.filter.CreateHQLFilterTest;
+import org.seed.test.integration.filter.DeleteFilterTest;
 import org.seed.test.integration.filter.EditFilterTest;
 import org.seed.test.integration.form.CreateFormTest;
+import org.seed.test.integration.form.DeleteFormTest;
 import org.seed.test.integration.form.EditFormTest;
 import org.seed.test.integration.menu.CreateMenuTest;
+import org.seed.test.integration.menu.DeleteMenuTest;
 import org.seed.test.integration.menu.EditMenuTest;
 import org.seed.test.integration.module.CreateModuleTest;
+import org.seed.test.integration.module.DeleteModuleTest;
 import org.seed.test.integration.module.EditModuleTest;
 import org.seed.test.integration.report.CreateReportTest;
 import org.seed.test.integration.report.DeleteReportTest;
@@ -55,27 +60,35 @@ import org.seed.test.integration.task.CreateJobTest;
 import org.seed.test.integration.task.DeleteJobTest;
 import org.seed.test.integration.task.EditJobTest;
 import org.seed.test.integration.transfer.CreateTransferTest;
+import org.seed.test.integration.transfer.DeleteTransferTest;
 import org.seed.test.integration.transfer.EditTransferTest;
 import org.seed.test.integration.transformer.CreateTransformerTest;
+import org.seed.test.integration.transformer.DeleteTransformerTest;
 import org.seed.test.integration.transformer.EditTransformerTest;
 import org.seed.test.integration.user.CreateUserGroupTest;
 import org.seed.test.integration.user.CreateUserTest;
+import org.seed.test.integration.user.DeleteUserGroupTest;
+import org.seed.test.integration.user.DeleteUserTest;
 import org.seed.test.integration.user.EditUserGroupTest;
 import org.seed.test.integration.user.EditUserTest;
 
 @Suite
-@SelectClasses({ NavigationTest.class, CreateUserTest.class, CreateUserGroupTest.class, 
+@SelectClasses({
+				 NavigationTest.class, CreateUserGroupTest.class, CreateUserTest.class, 
 				 CreateModuleTest.class, CreateMenuTest.class, CreateTransferableEntityTest.class,
 				 CreateGenericEntityTest.class, CreateDerivedEntityTest.class, CreateEntityTest.class, 
 				 CreateNestedEntityTest.class, CreateFilterTest.class, CreateHQLFilterTest.class, 
 				 CreateTransferTest.class, CreateTransformerTest.class, CreateFormTest.class, 
 				 CreateDBObjectTest.class, CreateDataSourceTest.class, CreateHQLDataSourceTest.class, 
 				 CreateReportTest.class, CreateCustomCodeTest.class, CreateRestTest.class,
-				 CreateJobTest.class, EditEntityTest.class, EditFilterTest.class, EditDBObjectTest.class, 
-				 EditDataSourceTest.class, EditTransferTest.class, EditTransformerTest.class, 
-				 EditFormTest.class, EditMenuTest.class, EditJobTest.class, EditModuleTest.class, 
-				 EditReportTest.class, EditCustomCodeTest.class, EditRestTest.class, EditUserTest.class,
-				 EditUserGroupTest.class, DeleteRestTest.class, DeleteCustomCodeTest.class,
-				 DeleteReportTest.class, DeleteJobTest.class, DeleteDataSourcesTest.class,
-				 DeleteDBObjectTest.class})
+				 CreateJobTest.class, EditEntityTest.class, EditFilterTest.class, 
+				 EditDBObjectTest.class, EditDataSourceTest.class, EditTransferTest.class, 
+				 EditTransformerTest.class, EditFormTest.class, EditMenuTest.class, EditJobTest.class, 
+				 EditModuleTest.class, EditReportTest.class, EditCustomCodeTest.class, 
+				 EditRestTest.class, EditUserTest.class, EditUserGroupTest.class, DeleteRestTest.class, 
+				 DeleteCustomCodeTest.class, DeleteReportTest.class, DeleteJobTest.class, 
+				 DeleteDataSourcesTest.class, DeleteDBObjectTest.class, DeleteFormTest.class, 
+				 DeleteMenuTest.class, DeleteTransformerTest.class, DeleteTransferTest.class,
+				 DeleteFilterTest.class, DeleteEntityTest.class, DeleteUserGroupTest.class,
+				 DeleteUserTest.class, DeleteModuleTest.class })
 public class IntegrationTestSuite { }

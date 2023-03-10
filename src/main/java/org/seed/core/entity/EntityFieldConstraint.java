@@ -162,10 +162,14 @@ public class EntityFieldConstraint extends AbstractPermissionObject {
 		if (field != null) {
 			return field.getInternalName();
 		}
-		if (fieldGroup != null) {
+		else if (fieldGroup != null) {
 			return fieldGroup.getInternalName();
 		}
 		return null;
+	}
+	
+	public boolean isFieldEntity(Entity entity) {
+		return field != null && field.getEntity().equals(entity);
 	}
 	
 	@Override

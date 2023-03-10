@@ -38,10 +38,7 @@ public final class BatchCursor implements BatchOperation {
 	}
 	
 	public boolean flushNeeded() {
-		boolean result = false;
-		if (counter > 0 && counter % batchSize == 0) {
-			result = true;
-		}
+		final boolean result = counter > 0 && counter % batchSize == 0;
 		counter++;
 		return result;
 	}

@@ -42,8 +42,7 @@
 						   visible="@load(!vm.object.isNew())"/>
 			<toolbarbutton iconSclass="setpwd-button z-icon-key alpha-icon-lg" 
 						   label="${labels.admin.user.setpwd}" 
-						   onClick="@command('setPwd', elem=self)"
-						   visible="@load(!vm.object.isNew())"/>
+						   onClick="@command('setPwd', elem=self)"/>
 		</toolbar>
 	</north>
 	<center border="0">

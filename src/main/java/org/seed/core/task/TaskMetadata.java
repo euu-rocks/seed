@@ -43,6 +43,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.codegen.CodeManagerImpl;
+import org.seed.core.user.User;
 import org.seed.core.util.Assert;
 import org.seed.core.util.CDATAXmlAdapter;
 
@@ -271,11 +272,21 @@ public class TaskMetadata extends AbstractApplicationEntity
 	public void removeNotification(TaskNotification notification) {
 		Assert.notNull(notification, "notification");
 		
-		getNotifications().remove(notification);
+		if (hasNotifications()) {
+			getNotifications().remove(notification);
+		}
 	}
 
 	public void setNotifications(List<TaskNotification> notifications) {
 		this.notifications = notifications;
+	}
+	
+	@Override
+	public boolean removeNotifications(User user) {
+		Assert.notNull(user, C.USER);
+		
+		return hasNotifications() && 
+			   getNotifications().removeIf(notif -> user.equals(notif.getUser()));
 	}
 
 	@Override

@@ -21,8 +21,8 @@ import javax.persistence.PersistenceException;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+
 import org.seed.C;
-import org.seed.Seed;
 import org.seed.core.config.SessionProvider;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.DataException;
@@ -58,7 +58,7 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 		final var errors = createValidationErrors(dbObject);
 		
 		if (dbObject.getType() == DBObjectType.FUNCTION) {
-			final var service = Seed.getBean(DBObjectService.class); 
+			final var service = getBean(DBObjectService.class); 
 			for (DBObject trigger : service.findTriggerContains(dbObject.getInternalName())) {
 				errors.addError("val.inuse.functiontriggerdelete", trigger.getName());
 			}
@@ -107,7 +107,7 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 		if (dbObject.getType() == DBObjectType.FUNCTION) {
 			final DBObject currentVersionObject = !dbObject.isNew() ? repository.get(dbObject.getId()) : null;
 			if (currentVersionObject != null && !currentVersionObject.getName().equals(dbObject.getName())) {
-				final var service = Seed.getBean(DBObjectService.class); 
+				final var service = getBean(DBObjectService.class); 
 				for (DBObject trigger : service.findTriggerContains(currentVersionObject.getInternalName())) {
 					errors.addError("val.inuse.functiontriggerrename", trigger.getName());
 				}
@@ -162,14 +162,14 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 				tx = session.beginTransaction();
 				switch (dbObject.getType()) {
 					case VIEW:
-						session.createSQLQuery(dbObject.getContent()).setMaxResults(0).list();
+						session.createNativeQuery(dbObject.getContent()).setMaxResults(0).list();
 						break;
 						
 					case PROCEDURE:
 					case FUNCTION:
 					case TRIGGER:
 					case SEQUENCE:
-						session.createSQLQuery(dbObject.getContent()).executeUpdate();
+						session.createNativeQuery(dbObject.getContent()).executeUpdate();
 						break;
 						
 					default:

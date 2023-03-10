@@ -33,6 +33,8 @@ class TaskCodeBuilder extends AbstractSourceCodeBuilder {
 	
 	private final Task task;
 	
+	private boolean entitiesExist;
+	
 	TaskCodeBuilder(Task task) {
 		super(task,
 			  false,
@@ -40,7 +42,12 @@ class TaskCodeBuilder extends AbstractSourceCodeBuilder {
 			  null);
 		this.task = task;
 	}
-
+	
+	TaskCodeBuilder setEntitiesExist(boolean entitiesExist) {
+		this.entitiesExist = entitiesExist;
+		return this;
+	}
+	
 	@Override
 	public Date getLastModified() {
 		return task.getLastModified();
@@ -53,7 +60,9 @@ class TaskCodeBuilder extends AbstractSourceCodeBuilder {
 		switch (buildMode) {
 			case TEMPLATE:
 				addImportPackage(CodeManagerImpl.API_PACKAGE);
-				addImportPackage(CodeManagerImpl.GENERATED_ENTITY_PACKAGE);
+				if (entitiesExist) {
+					addImportPackage(CodeManagerImpl.GENERATED_ENTITY_PACKAGE);
+				}
 				addMethod(null, "execute", 
 						  new ParameterMetadata[] {
 							newParameter(C.CONTEXT, newTypeClass(JobContext.class))

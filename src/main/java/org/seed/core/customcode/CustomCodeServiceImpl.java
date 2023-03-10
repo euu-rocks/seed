@@ -20,7 +20,6 @@ package org.seed.core.customcode;
 import org.hibernate.Session;
 
 import org.seed.C;
-import org.seed.Seed;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -173,7 +172,7 @@ public class CustomCodeServiceImpl extends AbstractApplicationEntityService<Cust
 	}
 	
 	private void removeCustomClass(CustomCode customCode) {
-		Seed.getBean(CodeManager.class).removeClass(customCode.getQualifiedName());
+		getBean(CodeManager.class).removeClass(customCode.getQualifiedName());
 	}
 
 }

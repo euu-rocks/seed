@@ -21,14 +21,9 @@ import javax.annotation.Nullable;
 
 import org.springframework.util.StringUtils;
 
-public abstract class Assert {
+public interface Assert {
 	
-	@SuppressWarnings("unused")
-	private static final long serialVersionUID = 8838296458819421316L;
-	
-	private Assert() {}
-	
-	public static void notNull(@Nullable Object object, @Nullable String name) {
+	static void notNull(@Nullable Object object, @Nullable String name) {
 		if (object == null) {
 			throw new IllegalArgumentException(name != null 
 												? name + " is null" 
@@ -36,7 +31,7 @@ public abstract class Assert {
 		}
 	}
 	
-	public static void hasText(@Nullable String text, @Nullable String name) {
+	static void hasText(@Nullable String text, @Nullable String name) {
 		if (!StringUtils.hasText(text)) {
 			throw new IllegalArgumentException(name != null 
 												? name + " has no content" 
@@ -44,19 +39,19 @@ public abstract class Assert {
 		}
 	}
 	
-	public static void greaterThanZero(int number, @Nullable String name) {
+	static void greaterThanZero(int number, @Nullable String name) {
 		if (number <= 0) {
 			stateIllegal("Illegal " + (name != null ? name : "number") + ' ' + number);
 		}
 	}
 	
-	public static void state(boolean expression, @Nullable String message) {
+	static void state(boolean expression, @Nullable String message) {
 		if (!expression) {
 			stateIllegal(message);
 		}
 	}
 	
-	public static void stateAvailable(@Nullable Object object, @Nullable String name) {
+	static void stateAvailable(@Nullable Object object, @Nullable String name) {
 		if (object == null) {
 			stateIllegal(name != null 
 							? name + " not available" 
@@ -64,7 +59,7 @@ public abstract class Assert {
 		}
 	}
 	
-	public static void stateIllegal(@Nullable String message) {
+	static void stateIllegal(@Nullable String message) {
 		throw new IllegalStateException(message != null 
 											? message 
 											: "An invalid state has occurred");

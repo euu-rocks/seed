@@ -143,8 +143,7 @@ public class SearchFormViewModel extends AbstractFormViewModel {
 	
 	@Override
 	public List<SubFormAction> getSubFormActions(String nestedEntityUid) {
-		return subList(super.getSubFormActions(nestedEntityUid), 
-					   action -> !action.isCustom());
+		return subList(super.getSubFormActions(nestedEntityUid), not(SubFormAction::isCustom));
 	}
 	
 	@Command

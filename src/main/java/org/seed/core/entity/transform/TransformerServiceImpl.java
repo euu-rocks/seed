@@ -157,7 +157,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		Assert.notNull(session, C.SESSION);
 		
 		return filterAndConvert(userGroupService.findNonSystemGroups(session), 
-								group -> !transformer.containsPermission(group), 
+								not(transformer::containsPermission),
 								group -> createPermission(transformer, group));
 	}
 	
@@ -168,7 +168,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		Assert.notNull(transformer, C.TRANSFORMER);
 		
 		return filterAndConvert(transformer.getSourceEntity().getStatusList(), 
-								status -> !transformer.containsStatus(status), 
+								not(transformer::containsStatus),
 								status -> createStatus(transformer, status));
 	}
 	
@@ -262,16 +262,17 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 			renamePackages(transformer, currentVersionTransformer);
 		}
 		super.saveObject(transformer);
-	
-		if (transformer.hasFunctions()) {
-			if (!isNew && currentVersionTransformer.hasFunctions()) {
-				for (TransformerFunction currentFunction : currentVersionTransformer.getFunctions()) {
-					final TransformerFunction function = transformer.getFunctionByUid(currentFunction.getUid());
-					if (function == null || !function.getName().equals(currentFunction.getName())) {
-						removeFunctionClass(currentFunction);
-					}
+		
+		if (!isNew && currentVersionTransformer.hasFunctions()) {
+			for (TransformerFunction currentFunction : currentVersionTransformer.getFunctions()) {
+				final TransformerFunction function = transformer.getFunctionByUid(currentFunction.getUid());
+				if (function == null || !function.getName().equals(currentFunction.getName())) {
+					removeFunctionClass(currentFunction);
 				}
 			}
+		}
+		
+		if (transformer.hasFunctions()) {
 			updateConfiguration();
 		}
 	}

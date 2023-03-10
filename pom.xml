@@ -5,7 +5,7 @@
 
 	<groupId>org.seed</groupId>
 	<artifactId>seed</artifactId>
-	<version>0.9.39-SNAPSHOT</version>
+	<version>0.9.40-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>seed</name>
@@ -58,7 +58,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.8</version>
+		<version>2.7.9</version>
 		<relativePath/>
 	</parent>
 

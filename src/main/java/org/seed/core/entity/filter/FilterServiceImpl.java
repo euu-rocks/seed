@@ -28,7 +28,6 @@ import javax.annotation.Nullable;
 import org.hibernate.Session;
 
 import org.seed.C;
-import org.seed.Seed;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -199,7 +198,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		Assert.notNull(session, C.SESSION);
 		
 		return filterAndConvert(userGroupService.findNonSystemGroups(session), 
-								group -> !filter.containsPermission(group),
+								not(filter::containsPermission),
 								group -> createPermission(filter, group));
 	}
 	
@@ -314,7 +313,11 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		
 		return entity.isGeneric()
 				? Collections.emptyList()
-				: findFilters(entity, session);
+				: subList(getObjects(session), 
+						filter -> entity.equals(filter.getEntity()) || 
+						  anyMatch(filter.getCriteria(), 
+							criterion -> criterion.getEntityField() != null && 
+										 entity.equals(criterion.getEntityField().getEntity())));
 	}
 
 	@Override
@@ -325,8 +328,8 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		return entityField.getEntity().isGeneric()
 				? Collections.emptyList()
 				: subList(findFilters(entityField.getEntity(), session), 
-						   filter -> anyMatch(filter.getCriteria(), 
-								   			  criterion -> entityField.equals(criterion.getEntityField())));
+						filter -> anyMatch(filter.getCriteria(), 
+								   			criterion -> entityField.equals(criterion.getEntityField())));
 	}
 	
 	@Override
@@ -452,7 +455,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	
 	private TransferableObject getReferenceObject(FilterCriterion criterion, Session session) {
 		return (TransferableObject) 
-				Seed.getBean(ValueObjectService.class)
+				getBean(ValueObjectService.class)
 					.findByUid(criterion.getEntityField().getReferenceEntity(), 
 		 					   criterion.getReferenceUid(), session);
 	}

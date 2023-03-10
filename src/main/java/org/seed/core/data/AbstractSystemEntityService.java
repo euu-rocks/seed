@@ -29,7 +29,8 @@ import org.seed.InternalException;
 import org.seed.core.util.Assert;
 import org.seed.core.util.BeanUtils;
 
-public abstract class AbstractSystemEntityService<T extends SystemEntity> 
+public abstract class AbstractSystemEntityService<T extends SystemEntity>
+	extends AbstractSystemEntityComponent
 	implements SystemEntityService<T> {
 	
 	protected abstract SystemEntityRepository<T> getRepository();

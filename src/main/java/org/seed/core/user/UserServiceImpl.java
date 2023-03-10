@@ -49,7 +49,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserServiceImpl extends AbstractSystemEntityService<User> 
-	implements UserService, UserGroupDependent<User>, ApplicationListener<AuthenticationSuccessEvent> {
+	implements UserService, UserChangeAware, UserGroupDependent<User>,
+			   ApplicationListener<AuthenticationSuccessEvent> {
 	
 	private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
 	
@@ -67,6 +68,8 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+	
+	private List<UserChangeAware> changeAwareObjects;
 	
 	@Override
 	public void initDefaults() {
@@ -170,7 +173,27 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 	@Override
 	@Secured("ROLE_ADMIN_USER")
 	public void deleteObject(User user) throws ValidationException {
-		super.deleteObject(user);
+		try (Session session = repository.openSession()) {
+			Transaction tx = null;
+			try {
+				tx = session.beginTransaction();
+				getChangeAwareObjects().forEach(
+					aware -> aware.notifyDelete(user, session));
+				deleteObject(user, session);
+				tx.commit();
+			}
+			catch (Exception ex) {
+				if (tx != null) {
+					tx.rollback();
+				}
+				throw new InternalException(ex);
+			}
+		}
+	}
+	
+	@Override
+	public void notifyDelete(User user, Session session) {
+		((UserMetadata) user).setUserGroups(null);
 	}
 	
 	@Override
@@ -239,6 +262,13 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 				throw new InternalException(ex);
 			}
 		}
+	}
+	
+	private List<UserChangeAware> getChangeAwareObjects() {
+		if (changeAwareObjects == null) {
+			changeAwareObjects = getBeans(UserChangeAware.class);
+		}
+		return changeAwareObjects;
 	}
 	
 }

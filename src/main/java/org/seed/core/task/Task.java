@@ -24,6 +24,7 @@ import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApprovableObject;
 import org.seed.core.application.ContentObject;
 import org.seed.core.codegen.GeneratedObject;
+import org.seed.core.user.User;
 
 public interface Task 
 	extends ApplicationEntity, ContentObject, GeneratedObject, ApprovableObject<TaskPermission> {
@@ -55,6 +56,8 @@ public interface Task
 	void addNotification(TaskNotification notification);
 	
 	void removeNotification(TaskNotification notification);
+	
+	boolean removeNotifications(User user);
 	
 	boolean hasRuns();
 	

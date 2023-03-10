@@ -22,28 +22,19 @@ import java.util.List;
 import org.seed.C;
 import org.seed.core.config.Limits;
 import org.seed.core.util.Assert;
-import org.seed.core.util.BeanUtils;
 import org.seed.core.util.NameUtils;
 import org.seed.core.util.ObjectAccess;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 public abstract class AbstractSystemEntityValidator<T extends SystemEntity> 
-	implements SystemEntityValidator<T>, ApplicationContextAware {
+	extends AbstractSystemEntityComponent
+	implements SystemEntityValidator<T> {
 	
 	@Autowired
 	private Limits limits;
-	
-	private ApplicationContext applicationContext;
-	
-	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) {
-		this.applicationContext = applicationContext;
-	}
 	
 	@Override
 	public void validateCreate(T object) throws ValidationException {
@@ -67,10 +58,6 @@ public abstract class AbstractSystemEntityValidator<T extends SystemEntity>
 			errors.addOverlongName(getMaxNameLength());
 		}
 		validate(errors);
-	}
-	
-	protected <B> List<B> getBeans(Class<B> type) {
-		return BeanUtils.getBeans(applicationContext, type);
 	}
 	
 	protected int getLimit(String key) {

@@ -232,10 +232,12 @@ public class ValueObjectRepository {
 		if (filter != null) {
 			checkFilter(entity, filter);
 		}
-		return !session.createQuery(buildQuery(session, entity, filter))
-					   .setCacheable(true)
-					   .setMaxResults(1)
-					   .getResultList().isEmpty();
+		final var result = session.createQuery(buildQuery(session, entity, filter))
+								  .setCacheable(true)
+								  .setMaxResults(1)
+								  .getResultList();
+		result.forEach(session::detach);
+		return !result.isEmpty();
 	}
 	
 	ValueObject findUnique(Entity entity, Filter filter) {

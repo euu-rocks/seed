@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.Base64;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterOutputStream;
@@ -32,32 +31,28 @@ import org.seed.InternalException;
 import org.springframework.core.io.Resource;
 import org.springframework.util.FastByteArrayOutputStream;
 
-public abstract class StreamUtils {
+public interface StreamUtils {
 	
-	private static final Charset CHARSET = MiscUtils.CHARSET;
-	
-	private StreamUtils() {}
-	
-	public static String getResourceAsText(Resource resource) throws IOException {
+	static String getResourceAsText(Resource resource) throws IOException {
 		return getStreamAsText(resource.getInputStream());
 	}
 	
-	public static String getFileAsText(File file) throws IOException {
+	static String getFileAsText(File file) throws IOException {
 		return getStreamAsText(new FileInputStream(file));
 	}
 	
-	public static InputStream getStringAsStream(String string) {
-		return new ByteArrayInputStream(string.getBytes(CHARSET));
+	static InputStream getStringAsStream(String string) {
+		return new ByteArrayInputStream(string.getBytes(MiscUtils.CHARSET));
 	}
 	
-	public static SafeZipInputStream getZipStream(byte[] bytes) {
+	static SafeZipInputStream getZipStream(byte[] bytes) {
 		return new SafeZipInputStream(new ByteArrayInputStream(bytes));
 	}
 	
-	public static String compress(String text) {
+	static String compress(String text) {
 		if (text != null) {
 			try {
-				final byte[] compressedBytes = compress(text.getBytes(CHARSET));
+				final byte[] compressedBytes = compress(text.getBytes(MiscUtils.CHARSET));
 				return MiscUtils.toString(Base64.getEncoder().encode(compressedBytes));
 			} 
 			catch (IOException ex) {
@@ -67,7 +62,7 @@ public abstract class StreamUtils {
 		return text;
 	}
 	
-	public static String decompress(String compressedText) {
+	static String decompress(String compressedText) {
 		if (compressedText != null) {
 			try {
 				final byte[] decompressedBytes = decompress(Base64.getDecoder().decode(compressedText));
@@ -80,7 +75,16 @@ public abstract class StreamUtils {
 		return compressedText;
 	}
 	
-	public static byte[] compress(byte[] bytes) throws IOException {
+	public static String getStreamAsText(InputStream intputStream) {
+		try (final var stream = intputStream) {
+			return org.springframework.util.StreamUtils.copyToString(stream, MiscUtils.CHARSET);
+		}
+		catch (IOException ex) {
+			throw new InternalException(ex);
+		}
+	}
+	
+	private static byte[] compress(byte[] bytes) throws IOException {
 		if (bytes != null) {
 			try (final var stream = new FastByteArrayOutputStream()) {
 				try (final var deflaterStream = new DeflaterOutputStream(stream)) {
@@ -92,7 +96,7 @@ public abstract class StreamUtils {
 		return bytes;
 	}
 	
-	public static byte[] decompress(byte[] bytes) throws IOException {
+	private static byte[] decompress(byte[] bytes) throws IOException {
 		if (bytes != null) {
 			try (final var stream = new FastByteArrayOutputStream()) {
 				try (final var inflaterStream = new InflaterOutputStream(stream)) {
@@ -103,14 +107,5 @@ public abstract class StreamUtils {
 		}
 		return bytes;
 	}
-	
-	public static String getStreamAsText(InputStream intputStream) {
-		try (final var stream = intputStream) {
-			return org.springframework.util.StreamUtils.copyToString(stream, CHARSET);
-		}
-		catch (IOException ex) {
-			throw new InternalException(ex);
-		}
-	}
-	
+
 }

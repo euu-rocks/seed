@@ -878,7 +878,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	@Override
 	@JsonIgnore
 	public List<EntityFunction> getMemberFunctions() {
-		return subList(getFunctions(), function -> !function.isCallback());
+		return subList(getFunctions(), not(EntityFunction::isCallback));
 	}
 	
 	@Override
@@ -1096,17 +1096,11 @@ public class EntityMetadata extends AbstractApplicationEntity
 				  						ObjectUtils.nullSafeEquals(status, constraint.getStatus()));
 	}
 
-	private boolean checkUserGroupConstraints(EntityField field, User user, EntityStatus status, 
-			  FieldAccess ...fieldAccess) {
-		if (user.hasUserGroups()) {
-			for (UserGroup group : user.getUserGroups()) {
-				if (group.isSystemGroup()) {
-					continue;
-				}
-				final EntityFieldConstraint constraint = getGroupConstraint(field, group, status);
-				if (constraint == null || checkAccess(constraint, fieldAccess)) {
-					return true;
-				}
+	private boolean checkUserGroupConstraints(EntityField field, User user, EntityStatus status, FieldAccess ...fieldAccess) {
+		for (UserGroup group : subList(user.getUserGroups(), not(UserGroup::isSystemGroup))) {
+			final var constraint = getGroupConstraint(field, group, status);
+			if (constraint == null || checkAccess(constraint, fieldAccess)) {
+				return true;
 			}
 		}
 		return false;

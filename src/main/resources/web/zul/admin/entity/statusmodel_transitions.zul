@@ -53,7 +53,8 @@
 	            			sort="auto(targetStatus.numberAndName)" hflex="1"/>
 	        </listhead>      
 		    <template name="model" var="transition">
-	            <listitem attributes.item="@load(transition)" 
+	            <listitem sclass="@init(vm.getListItemTestClass(transition))" 
+	            		  attributes.item="@load(transition)" 
 	            		  draggable="true" droppable="true" 
 	            		  onDrop="@command('swapStatusTransition',item=event.dragged.attributes.item,base=transition)">
 	            	<listcell>

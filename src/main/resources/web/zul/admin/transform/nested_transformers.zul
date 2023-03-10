@@ -44,7 +44,7 @@
 	            			sort="auto(targetNested.name)" hflex="1"/>
 	        </listhead> 
 	        <template name="model" var="nested">
-	            <listitem>
+	            <listitem sclass="@init(vm.getListItemTestClass(nested.sourceNested))">
 	            	<listcell iconSclass="@load(empty nested.sourceNested ? '' : 'z-icon-table alpha-icon-lg')">
 	            		<label value="@load(nested.sourceNested.name)" 
 	            			   style="margin-left:3px"/>

@@ -120,9 +120,10 @@ public class AdminUserViewModel extends AbstractAdminViewModel<User> {
 	}
 	
 	@Override
-	protected void refreshObject() {
+	protected boolean refreshObject() {
 		((UserMetadata) getObject()).setPasswordChange(false);
 		super.refreshObject();
+		return true;
 	}
 
 	@Override

@@ -96,7 +96,7 @@ public class UserGroupServiceImpl extends AbstractApplicationEntityService<UserG
 		Assert.notNull(userGroup, C.USERGROUP);
 		
 		return filterAndConvert(Authorisation.values(), 
-								auth -> !userGroup.isAuthorised(auth), 
+								not(userGroup::isAuthorised), 
 								auth -> createAuthorization(userGroup, auth));
 	}
 	

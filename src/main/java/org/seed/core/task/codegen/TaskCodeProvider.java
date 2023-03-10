@@ -27,6 +27,7 @@ import org.seed.core.codegen.SourceCode;
 import org.seed.core.codegen.SourceCodeBuilder;
 import org.seed.core.codegen.SourceCodeBuilder.BuildMode;
 import org.seed.core.codegen.SourceCodeProvider;
+import org.seed.core.entity.EntityRepository;
 import org.seed.core.task.Task;
 import org.seed.core.task.TaskRepository;
 
@@ -37,10 +38,15 @@ import org.springframework.stereotype.Component;
 public class TaskCodeProvider implements SourceCodeProvider {
 	
 	@Autowired
+	private EntityRepository entityRepository;
+	
+	@Autowired
 	private TaskRepository taskRepository;
 	
-	public String getFunctionTemplate(Task task) {
-		return new TaskCodeBuilder(task).build(BuildMode.TEMPLATE).getContent();
+	public String getTaskTemplate(Task task) {
+		return new TaskCodeBuilder(task)
+				.setEntitiesExist(entityRepository.exist())
+				.build(BuildMode.TEMPLATE).getContent();
 	}
 	
 	public SourceCode getTaskSource(Task task) {

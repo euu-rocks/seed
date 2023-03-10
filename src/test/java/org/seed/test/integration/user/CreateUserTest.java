@@ -35,6 +35,10 @@ public class CreateUserTest extends AbstractUserTest {
 		
 		findTextbox(tabpanel, "username").sendKeys("Testuser");
 		findTextbox(tabpanel, "email").sendKeys("testuser@euu.rocks");
+		
+		WebElement tabpanelGroups = findTabpanel(tabpanel, "usergroups");
+		dragAndDrop(tabpanelGroups, "testrole", "selected");
+		dragAndDrop(tabpanelGroups, "administration", "selected");
 		saveUser(tabpanel);
 	}
 	

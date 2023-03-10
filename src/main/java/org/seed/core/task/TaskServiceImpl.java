@@ -47,6 +47,7 @@ import org.seed.core.mail.MailBuilder;
 import org.seed.core.mail.MailService;
 import org.seed.core.task.job.AbstractSystemJob;
 import org.seed.core.user.User;
+import org.seed.core.user.UserChangeAware;
 import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupDependent;
 import org.seed.core.user.UserGroupService;
@@ -59,7 +60,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TaskServiceImpl extends AbstractApplicationEntityService<Task> 
-	implements TaskService, UserGroupDependent<Task>, CodeChangeAware {
+	implements TaskService, UserGroupDependent<Task>, UserChangeAware, CodeChangeAware {
 	
 	@Autowired
 	private TaskRepository taskRepository;
@@ -187,7 +188,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		Assert.notNull(task, C.TASK);
 		
 		return filterAndConvert(userGroupService.findNonSystemGroups(session), 
-								group -> !task.containsPermission(group), 
+								not(task::containsPermission), 
 								group -> createPermission(task, group));
 	}
 	
@@ -338,6 +339,16 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	}
 	
 	@Override
+	public void notifyDelete(User user, Session session) {
+		Assert.notNull(user, C.USER);
+		Assert.notNull(session, C.SESSION);
+		
+		filterAndForEach(getObjects(session), 
+						 task -> task.removeNotifications(user), 
+						 session::saveOrUpdate);
+	}
+	
+	@Override
 	public boolean processCodeChange(SourceCode sourceCode, Session session) {
 		Assert.notNull(sourceCode, "sourceCode");
 		Assert.notNull(session, C.SESSION);
@@ -375,12 +386,11 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 					labelProvider.getEnumLabel(result))
 			.setText(getRunLogText(run));
 		
-		for (TaskNotification notification : task.getNotifications()) {
-			if (result.ordinal() >= notification.getResult().ordinal()) {
-				mailService.sendMail(mailBuilder.setToAddress(notification.getUser().getEmail())
-												.build());
-			}
-		}
+		filterAndForEach(task.getNotifications(), 
+						 notif -> result.ordinal() >= notif.getResult().ordinal(), 
+						 notif -> mailService.sendMail(mailBuilder
+														.setToAddress(notif.getUser().getEmail())
+														.build()));
 	}
 	
 	@Override
@@ -412,5 +422,5 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		permission.setUserGroup(group);
 		return permission;
 	}
-	
+
 }

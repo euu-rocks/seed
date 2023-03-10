@@ -22,8 +22,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.OptimisticLockException;
 import javax.persistence.PersistenceException;
+
+import org.hibernate.UnresolvableObjectException;
 
 import org.seed.C;
 import org.seed.core.application.ApplicationEntity;
@@ -75,6 +78,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	protected static final String LISTMANAGER_LIST = "getListManagerList";
 	protected static final String OBJECT_LIST      = "objectList";
 	protected static final String PRE_ADMIN 	   = "admin.";
+	protected static final String SUF_FAILDELETED = ".faildeleted";
 	
 	private final Authorisation authorisation;
 	
@@ -141,8 +145,6 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		checkAuthorisation();
 		// window
 		if (view != null && view.getClass() == Window.class) {
-			Assert.state(object instanceof DialogParameter, "object is not DialogParameter: " + object);
-			
 			this.viewMode = ViewMode.CREATE;
 			this.dialogParameter = (DialogParameter) object;
 			this.object = (T) dialogParameter.parameter;
@@ -157,10 +159,15 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 			else {
 				this.object = (T) object;
 			}
-			Assert.stateAvailable(this.object, C.OBJECT);
-			initObject(this.object);
-			if (this.object.isNew()) {
-				flagDirty();
+			if (this.object != null) {
+				initObject(this.object);
+				if (this.object.isNew()) {
+					flagDirty();
+				}
+			}
+			else {
+				showWarnMessage(getLabel(PRE_ADMIN + objectLabelKey + SUF_FAILDELETED));
+				showListView();
 			}
 		}
 		// list
@@ -518,11 +525,13 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 				break;
 			
 			case DETAIL:
-				if (isDirty()) {
-					confirmDirty(CONFIRM_RELOAD);
-				}
-				else {
-					refreshObject();
+				if (checkObjectExistence()) {
+					if (isDirty()) {
+						confirmDirty(CONFIRM_RELOAD);
+					}
+					else if (!refreshObject()) {
+						showListView(); // object no longer exists
+					}
 				}
 				break;
 			
@@ -548,10 +557,17 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		}
 	}
 	
-	protected void refreshObject() {
-		object.removeNewObjects();
-		getObjectService().reloadObject(object, currentSession());
-		internalRefresh(object);
+	protected boolean refreshObject() {
+		try {
+			object.removeNewObjects();
+			getObjectService().reloadObject(object, currentSession());
+			internalRefresh(object);
+			return true;
+		}
+		catch (EntityNotFoundException | UnresolvableObjectException ex) {
+			showWarnMessage(getLabel(PRE_ADMIN + objectLabelKey + SUF_FAILDELETED));
+			return false;
+		}
 	}
 	
 	protected void reloadObject() {
@@ -568,8 +584,10 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		Assert.notNull(component, C.COMPONENT);
 		Assert.stateAvailable(object, C.OBJECT);
 		
-		final String msgKey = PRE_ADMIN + objectLabelKey + ".confirmdelete";
-		confirm(msgKey, component, CONFIRM_DELETE, object.getName());
+		if (checkObjectExistence()) {
+			final String msgKey = PRE_ADMIN + objectLabelKey + ".confirmdelete";
+			confirm(msgKey, component, CONFIRM_DELETE, object.getName());
+		}
 	}
 	
 	protected void deleteObject(Component component) {
@@ -630,8 +648,11 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	
 	protected boolean cmdSaveObject(Component component) {
 		Assert.notNull(component, C.COMPONENT);
-		
 		final String msgKey = PRE_ADMIN + objectLabelKey + ".save";
+		
+		if (!object.isNew() && !checkObjectExistence()) {
+			return false;
+		}
 		try {
 			getObjectService().saveObject(object);
 			showNotification(component, false, msgKey + KEY_SUCCESS);
@@ -713,6 +734,20 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		if (!getUser().isAuthorised(authorisation)) {
 			throw new AccessDeniedException(getLabel("label.accessdenied"));
 		}
+	}
+	
+	private boolean checkObjectExistence() {
+		if (object == null || getObjectService().getObject(object.getId()) == null) {
+			showWarnMessage(getLabel(PRE_ADMIN + objectLabelKey + SUF_FAILDELETED));
+			if (viewMode == ViewMode.DETAIL) {
+				showListView();
+			}
+			else {
+				refreshList();
+			}
+			return false;
+		}
+		return true;
 	}
 	
 	private void resetMainTabbox() {

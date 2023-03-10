@@ -32,120 +32,120 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
-public abstract class CollectionUtils {
+public interface CollectionUtils {
 	
-	private static final String ERROR_DUPLICATE_KEY = "Duplicate map key: ";
-	
-	private CollectionUtils() {}
-	
-	public static <T> boolean anyMatch(@Nullable T[] array, Predicate<T> predicate) {
+	static <T> boolean anyMatch(@Nullable T[] array, Predicate<T> predicate) {
 		return array != null && Arrays.stream(array).anyMatch(predicate);
 	}
 	
-	public static <T> boolean anyMatch(@Nullable Collection<T> collection, Predicate<T> predicate) {
+	static <T> boolean anyMatch(@Nullable Collection<T> collection, Predicate<T> predicate) {
 		return collection != null && collection.stream().anyMatch(predicate);
 	}
 	
-	public static <T> boolean containsObject(@Nullable Collection<T> collection, T object) {
+	static <T> boolean containsObject(@Nullable Collection<T> collection, T object) {
 		return collection != null && object != null && collection.contains(object);
 	}
 	
-	public static <T,R> List<R> convertedList(@Nullable Collection<T> collection, Function<T,R> function) {
+	static <T,R> List<R> convertedList(@Nullable Collection<T> collection, Function<T,R> function) {
 		return collection != null
 				? collection.stream().map(function).collect(Collectors.toList())
 				: Collections.emptyList();
 	}
 	
-	public static <T,K,V> Map<K,V> convertedMap(@Nullable Collection<T> collection,
-												Function<? super T,? extends K> keyFunction,
-												Function<? super T,? extends V> valueFunction) {
+	static <T,K,V> Map<K,V> convertedMap(@Nullable Collection<T> collection,
+										 Function<? super T,? extends K> keyFunction,
+										 Function<? super T,? extends V> valueFunction) {
 		return collection != null
 				? collection.stream().collect(Collectors.toMap(keyFunction, valueFunction))
 				: Collections.emptyMap();
 	}
 	
-	public static <T,R> List<R> filterAndConvert(@Nullable Collection<T> collection, 
-												 Predicate<T> predicate, 
-												 Function<T,R> function) {
+	static <T,R> List<R> filterAndConvert(@Nullable Collection<T> collection, 
+										  Predicate<T> predicate, 
+										  Function<T,R> function) {
 		return collection != null
 				? filterAndConvert(collection.stream(), predicate, function)
 				: Collections.emptyList();
 	}
 	
-	public static <T,R> List<R> filterAndConvert(@Nullable T[] array, 
-			 									 Predicate<T> predicate, 
-			 									 Function<T,R> function) {
+	static <T,R> List<R> filterAndConvert(@Nullable T[] array, 
+			 							  Predicate<T> predicate, 
+			 							  Function<T,R> function) {
 		return array != null
 				? filterAndConvert(Arrays.stream(array), predicate, function)
 				: Collections.emptyList();
 	}
 	
-	public static <T> long filterAndCount(@Nullable Collection<T> collection, Predicate<T> predicate) {
+	static <T> long filterAndCount(@Nullable Collection<T> collection, Predicate<T> predicate) {
 		return collection != null
 				? collection.stream().filter(predicate).count()
 				: 0;
 	}
 	
-	public static <T> void filterAndForEach(@Nullable Collection<T> collection, 
-			  								Predicate<T> predicate,
-			  								Consumer<T> action) {
+	static <T> void filterAndForEach(@Nullable Collection<T> collection, 
+			  						 Predicate<T> predicate,
+			  						 Consumer<T> action) {
 		if (collection != null) {
 			filterAndForEach(collection.stream(), predicate, action);
 		}
 	}
 	
-	public static <T> void filterAndForEach(@Nullable T[] array, 
-											Predicate<T> predicate,
-											Consumer<T> action) {
+	static <T> void filterAndForEach(@Nullable T[] array, 
+									 Predicate<T> predicate,
+									 Consumer<T> action) {
 		if (array != null) {
 			filterAndForEach(Arrays.stream(array), predicate, action);
 		}
 	}
 	
-	public static <T> T firstMatch(@Nullable Collection<T> collection, Predicate<T> predicate) {
+	static <T> T firstMatch(@Nullable Collection<T> collection, Predicate<T> predicate) {
 		return collection != null 
 				? firstMatch(collection.stream(), predicate)
 				: null;
 	}
 	
-	public static <T> T firstMatch(@Nullable T[] array, Predicate<T> predicate) {
+	static <T> T firstMatch(@Nullable T[] array, Predicate<T> predicate) {
 		return array != null 
 				? firstMatch(Arrays.stream(array), predicate)
 				: null;
 	}
 	
-	public static <T,K,V> Collector<T,?, Map<K,V>> linkedMapCollector(Function<? super T,? extends K> keyFunction,
+	static <T,K,V> Collector<T,?, Map<K,V>> linkedMapCollector(Function<? super T,? extends K> keyFunction,
 																	  Function<? super T,? extends V> valueFunction) {
         return Collectors.toMap(keyFunction, valueFunction, 
-        						(u, v) -> { throw new IllegalStateException(ERROR_DUPLICATE_KEY + u); }, 
+        						(u, v) -> { throw new IllegalStateException("Duplicate map key: " + u); }, 
         						LinkedHashMap::new);
     }
 	
-	public static <T> boolean noneMatch(@Nullable Collection<T> collection, Predicate<T> predicate) {
+	static <T> boolean noneMatch(@Nullable Collection<T> collection, Predicate<T> predicate) {
 		return collection == null || collection.stream().noneMatch(predicate);
 	}
 	
-	public static boolean notEmpty(@Nullable Collection<?> collection) {
+	static <T> Predicate<T> not(Predicate<? super T> target) {
+		return Predicate.not(target);
+	}
+	
+	static boolean notEmpty(@Nullable Collection<?> collection) {
 		return collection != null && !collection.isEmpty();
 	}
 	
-	public static boolean notEmpty(@Nullable Map<?,?> map) {
+	static boolean notEmpty(@Nullable Map<?,?> map) {
 		return map != null && !map.isEmpty();
 	}
 	
-	public static <T> List<T> subList(@Nullable T[] array, Predicate<T> predicate) {
+	static <T> List<T> subList(@Nullable T[] array, Predicate<T> predicate) {
 		return array != null
 				? subList(Arrays.stream(array), predicate)
 				: Collections.emptyList();
 	}
 	
-	public static <T> List<T> subList(@Nullable Collection<T> collection, Predicate<T> predicate) {
+	static <T> List<T> subList(@Nullable Collection<T> collection, Predicate<T> predicate) {
 		return collection != null
 				? subList(collection.stream(), predicate)
 				: Collections.emptyList();
 	}
 	
-	public static <T> List<T> valueList(@Nullable Map<?,T> map) {
+	static <T> List<T> valueList(@Nullable Map<?,T> map) {
 		return map != null
 				? map.values().stream().collect(Collectors.toList())
 				: Collections.emptyList();

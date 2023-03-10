@@ -131,7 +131,7 @@ public class DataSourceRepository extends AbstractSystemEntityRepository<IDataSo
 		final String queryString = buildQuery(dataSource, parameters);
 		switch (dataSource.getType()) {
 			case SQL:
-				final NativeQuery<?> sqlQuery = session.createSQLQuery(queryString);
+				final NativeQuery<?> sqlQuery = session.createNativeQuery(queryString);
 				if (testQuery) {
 					sqlQuery.setMaxResults(1);
 				}

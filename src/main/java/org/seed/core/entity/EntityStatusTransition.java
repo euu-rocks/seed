@@ -235,6 +235,18 @@ public class EntityStatusTransition extends AbstractTransferableObject {
 		return buf.toString();
 	}
 	
+	public String getInternalName() {
+		final StringBuilder buf = new StringBuilder();
+		if (sourceStatus != null) {
+			buf.append(sourceStatus.getInternalName());
+		}
+		buf.append("-");
+		if (targetStatus != null) {
+			buf.append(targetStatus.getInternalName());
+		}
+		return buf.toString();
+	}
+	
 	@Override
 	public boolean isEqual(Object other) {
 		if (!isInstance(other)) {

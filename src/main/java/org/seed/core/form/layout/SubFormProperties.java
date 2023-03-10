@@ -82,7 +82,7 @@ public class SubFormProperties {
 	
 	public List<SubFormColumn> getAvailableColumns() {
 		return filterAndConvert(subForm.getNestedEntity().getFields(true), 
-								field -> !existColumn(field), 
+								not(this::existColumn), 
 								this::createSubFormColumn);
 	}
 	

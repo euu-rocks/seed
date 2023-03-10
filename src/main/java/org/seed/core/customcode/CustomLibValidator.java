@@ -23,12 +23,10 @@ import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
 
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CustomLibValidator extends AbstractSystemEntityValidator<CustomLib>
-	implements ApplicationContextAware {
+public class CustomLibValidator extends AbstractSystemEntityValidator<CustomLib> {
 	
 	@Override
 	public void validateSave(CustomLib lib) throws ValidationException {
