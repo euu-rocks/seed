@@ -1,0 +1,1892 @@
+{
+	"info": {
+		"_postman_id": "b16f2eb4-9c5f-4df4-8aa1-973566dc8bc2",
+		"name": "Seed Integration Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "API Base Tests",
+			"item": [
+				{
+					"name": "Get Seed Startpage",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jSessionId = pm.cookies.get('JSESSIONID');\r",
+									"pm.environment.set(\"JSESSIONID\", jSessionId);\r",
+									"\r",
+									"pm.test(\"API Base Tests - Get Seed Startpage - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"API Base Tests - Get Seed Startpage - Cookie is not undefined\", function () {\r",
+									"    pm.expect(jSessionId).not.eq(undefined);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followRedirects": true,
+						"strictSSL": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Cookie Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jSessionId = pm.cookies.get('JSESSIONID');\r",
+									"pm.environment.set(\"JSESSIONID\", jSessionId);\r",
+									"\r",
+									"pm.test(\"API Base Tests - Get Cookie - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"API Base Tests - Get Cookie - Cookie is not undefined\", function () {\r",
+									"    pm.expect(jSessionId).not.eq(undefined);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followRedirects": false
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/login",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Do Login Failed",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"API Base Tests - Do Login Failed - Status code is 302\", function () {\r",
+									"    pm.response.to.have.status(302);\r",
+									"});\r",
+									"\r",
+									"var params = pm.response.headers.get('Location').split('?')\r",
+									"pm.test(\"API Base Tests - Do Login Failed - Forward Location contain error\", function () {\r",
+									"    pm.expect(params[1]).eq(\"error\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followOriginalHttpMethod": false,
+						"followAuthorizationHeader": false,
+						"removeRefererHeaderOnRedirect": false,
+						"insecureHTTPParser": true,
+						"disableUrlEncoding": false,
+						"disableCookies": false,
+						"tlsPreferServerCiphers": false,
+						"followRedirects": false,
+						"strictSSL": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "seed",
+									"type": "default"
+								},
+								{
+									"key": "password",
+									"value": "wrong",
+									"type": "default"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/login",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Do Login Success",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"API Base Tests - Do Login Success - Status code is 302\", function () {\r",
+									"    pm.response.to.have.status(302);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"API Base Tests - Do Login Failed - Forward Location contain error\", function () {\r",
+									"    pm.expect(pm.response.headers.get('Location')).not.contains(\"error\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followRedirects": false
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "seed",
+									"type": "default"
+								},
+								{
+									"key": "password",
+									"value": "seed",
+									"type": "default"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/login",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Swagger UI",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"API Base Tests - Get Swagger UI - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/swagger-ui/index.html",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"swagger-ui",
+								"index.html"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Open API Docs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"API Base Tests - Get Open API Docs - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/v3/api-docs",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"v3",
+								"api-docs"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Modul Endpoint Tests",
+			"item": [
+				{
+					"name": "Import Module",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "multipart/form-data",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "Seed_Integration_Rest_API_Test_Modul_10-03-2023_11-54-18.seed"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/module/import",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"module",
+								"import"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Entity Endpoint Tests",
+			"item": [
+				{
+					"name": "Get Entity List",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Entity Endpoint Tests - Get Entity List - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"var returnVal = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Entity Endpoint Tests - Get Entity List - Finds First Name - returned\", function () {\r",
+									"    pm.expect(returnVal[0].name).to.eql(\"Test01\");\r",
+									"});\r",
+									"\r",
+									"pm.collectionVariables.set(\"ENTITY_TEST01_ID\", returnVal[0].id);\r",
+									"pm.collectionVariables.set(\"ENTITY_TEST02_ID\", returnVal[1].id);\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/entity",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"entity"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Entity Details Test01",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Entity Endpoint Tests - Get Entity Details Test01 - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"}); \r",
+									" pm.test(\"Entity Endpoint Tests - Get Entity ID is not equal \", function () { \r",
+									"    const jsonData = pm.response.json()\r",
+									"     pm.expect(jsonData.id).to.not.eql(pm.environment.replaceIn(\"{{ENTITY_TEST01_ID}}\"));\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/entity/{{ENTITY_TEST01_ID}}",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"entity",
+								"{{ENTITY_TEST01_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Entity Details Test02",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Entity Endpoint Tests - Get Entity Details Test02 - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"}); \r",
+									" pm.test(\"Entity Endpoint Tests - Get Entity ID is not equal \", function () { \r",
+									"    const jsonData = pm.response.json()\r",
+									"     pm.expect(jsonData.id).to.not.eql(pm.environment.replaceIn(\"{{ENTITY_TEST01_ID}}\"));\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/entity/{{ENTITY_TEST02_ID}}",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"entity",
+								"{{ENTITY_TEST02_ID}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Filter Endpoint Test",
+			"item": [
+				{
+					"name": "Get Filter List",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Filter Endpoint Tests - Get Filter List - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"var returnVal = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Filter Endpoint Tests - Get Filter List - Finds First Name - returned\", function () {\r",
+									"    pm.expect(returnVal[0].name).to.eql(\"TextFeldFilter\");\r",
+									"    pm.collectionVariables.set(\"Filter_Test01_ID\", returnVal[1].id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/filter",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"filter"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Filter Details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Filter Endpoint Tests - Get Filter Details - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Filter Endpoint Tests - Get Filter List - Finds First Name - returned\", function () {\r",
+									"    pm.expect(responseJson.name).to.eql(\"JaNeinFilter\");\r",
+									"});   "
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/filter/{{Filter_Test01_ID}}",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"filter",
+								"{{Filter_Test01_ID}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Job Endpoint Test",
+			"item": [
+				{
+					"name": "Get Job List",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Job Endpoint Tests - Get Job List - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									"var returnVal = pm.response.json();\r",
+									"pm.test(\"Job Endpoint Tests - Get Job List - Finds First Name - returned\", function () {\r",
+									"    pm.expect(returnVal[0].name).to.eql(\"NewEmailNotification\");\r",
+									"pm.collectionVariables.set(\"Job_Test01_ID\", returnVal[0].id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/job",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"job"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Job Details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Job Endpoint Tests - Get Job Details - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Job Endpoint Tests - Get Job List - Finds First Name - returned\", function () {\r",
+									"    pm.expect(responseJson.name).to.eql(\"NewEmailNotification\");\r",
+									"});   "
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/job/{{Job_Test01_ID}}",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"job",
+								"{{Job_Test01_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Job start",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Job Endpoint Tests - Get Job run - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/job/{{Job_Test01_ID}}/run",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"job",
+								"{{Job_Test01_ID}}",
+								"run"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Transformation Endpoint Test",
+			"item": [
+				{
+					"name": "Get Transformation List",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Transformation Endpoint Tests - Get Transformation List - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"var returnVal = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Transformation Endpoint Tests - Get Transformation List - Finds First Name - returned\", function () {\r",
+									"    pm.expect(returnVal[0].name).to.eql(\"Transformation01\");\r",
+									"});\r",
+									"\r",
+									"pm.collectionVariables.set(\"Entity_Transformation_ID\", returnVal[0].id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/transform",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"transform"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Transformation Details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Transformation Endpoint Tests - Get Transformation List - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									"pm.test(\"Body contains sourceEntity and targetEntity\",() => {\r",
+									"  pm.expect(pm.response.text()).to.include(\"sourceEntity\");\r",
+									"  pm.expect(pm.response.text()).to.include(\"targetEntity\");\r",
+									"});\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/transform/{{Entity_Transformation_ID}}",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"transform",
+								"{{Entity_Transformation_ID}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Value Object Endpoint Tests",
+			"item": [
+				{
+					"name": "Value Object Test01 INSERT Textfield",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Get Value Object Test01 List - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"janeinfeld\": true,\r\n\r\n    \"textfeld\": \"TEXT01\",\r\n\r\n\r\n    \"textlandfeld\": \"TEST1\\nTEST2\"\r\n  \r\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test01"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Value Object Test02 INSERT Textfield",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Post Value Object Test01 Textfield - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\r\n    \"nachname\": \"Meier\",\r\n    \"vorname\": \"Dieter\"\r\n\r\n\r\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test02",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test02"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Value Object Test01 List",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Get Value Object Test01 List - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"var returnVal = pm.response.json();\r",
+									"pm.collectionVariables.set(\"NewObject_Test01_ID\", returnVal[0].id);\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test01"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Value Object Test02 List",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Get Value Object Test02 List - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"var returnVal = pm.response.json();\r",
+									"pm.collectionVariables.set(\"NewObject_Test02_ID\", returnVal[0].id);\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test02",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test02"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Value Object Test01 Get ObjectByNameandID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Get Value Object Test01 ByNameandId - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									" pm.test(\"Entity Endpoint Tests - Get Entity ID is not equal \", function () { \r",
+									"    const jsonData = pm.response.json()\r",
+									"     pm.expect(jsonData.id).to.not.eql(pm.environment.replaceIn(\"{{NewObject_TEST01_ID}}\"));\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01/{{NewObject_Test01_ID}}",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test01",
+								"{{NewObject_Test01_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Value Object Test02 Get ObjectByNameandID Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Get Value Object Test02 ByNameandId - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test02/{{NewObject_Test02_ID}}",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test02",
+								"{{NewObject_Test02_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Value Object Test01 ObjectStatus Change",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Value Object Test01 Change Status - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"EntityStatus is changed to 1045\", () => {\r",
+									"  const expectedObject = {\r",
+									"    \"entityStatus\": {\r",
+									"        \"id\": 1045\r",
+									"    },\r",
+									"  };\r",
+									"  pm.expect(pm.response.json()).to.deep.include(expectedObject);\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01/{{NewObject_Test01_ID}}/status/1045",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test01",
+								"{{NewObject_Test01_ID}}",
+								"status",
+								"1045"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Value Object Test01 INSERT Textlangfeld",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Post Value Object Test01 Textlangfeld - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"textfeld\": \"Text07\",\r\n\r\n    \"textlandfeld\": \"TEST4\\nTEST5\\nTEST6\"\r\n  \r\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test01"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Value Object Test01 INSERT Ja/Nein Feld",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Post Value Object Test01 Ja/Nein Feld - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"janeinfeld\": false,\r\n\r\n    \"textfeld\": \"TEXT02\",\r\n\r\n\r\n    \"textlandfeld\": \"TEST1\\nTEST2\"\r\n  \r\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test01"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Value Object Test01 INSERT Dezimalzahl",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Post Value Object Test01 Dezimalzahl - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\r\n    \"textfeld\": \"TEXT03\",\r\n    \"dezimalzahlfeld\": \"1,456\",\r\n    \"datumfeld\": null,\r\n    \"doublefeld\": null\r\n\r\n\r\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test01"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Value Object Test01 INSERT Double",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Post Value Object Test01 Double - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\r\n    \"textfeld\": \"TEXT04\",\r\n    \"dezimalzahlfeld\": null,\r\n    \"datumfeld\": null,\r\n    \"doublefeld\": \"2,55\"\r\n\r\n\r\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test01"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Value Object Test01 INSERT Date",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Post Value Object Test01 Date - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\r\n    \"textfeld\": \"TEXT05\",\r\n    \"dezimalzahlfeld\": null,\r\n    \"datumfeld\": \"2023-05-06T23:00:00.000+00:00\",\r\n    \"doublefeld\": null\r\n\r\n\r\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test01"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Value Object Test01 SAVE Textfield",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Post Value Object Test01 Save Textfield - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"textfeld\": \"TEXT_GEÄNDERT3\"\r\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01/{{NewObject_Test01_ID}}",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test01",
+								"{{NewObject_Test01_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Value Object Test01 SAVE TextlangFeld",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Post Value Object Test01 Save TextlangFeld - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"textlandfeld\": \"Text angepasst\"\r\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01/{{NewObject_Test01_ID}}",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test01",
+								"{{NewObject_Test01_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Value Object Test01 SAVE Date",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Post Value Object Test01 Save Date - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\r\n    \"datumfeld\": \"2023-04-05T23:00:00.000+00:00\"\r\n\r\n\r\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01/{{NewObject_Test01_ID}}",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test01",
+								"{{NewObject_Test01_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Value Object Test01 SAVE Dezimalzahl",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Post Value Object Test01 Save Dezimalzahl - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n \"dezimalzahlfeld\": \"1,2345\"\r\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01/{{NewObject_Test01_ID}}",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test01",
+								"{{NewObject_Test01_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Value Object Test01 callCustomFunction",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Post Value Object Test01 Function - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01/{{NewObject_Test01_ID}}/function/1043",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test01",
+								"{{NewObject_Test01_ID}}",
+								"function",
+								"1043"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST Transformation Object",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Transformation Endpoint Tests - POST Transformation Object - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\r\n\r\n\r\n\r\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01/{{NewObject_Test01_ID}}/transform/{{Entity_Transformation_ID}}",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test01",
+								"{{NewObject_Test01_ID}}",
+								"transform",
+								"{{Entity_Transformation_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Value Object Test01 Get FilterbyEntityName",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Get Value Object Test01 findFilteredByEntityName - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const schema = {\r",
+									"  \"janeinfeld\": false \r",
+									"};\r",
+									"pm.test('Schema is valid ', function() {\r",
+									"  pm.response.to.have.jsonSchema(schema);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01/filter/{{Filter_Test01_ID}}",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test01",
+								"filter",
+								"{{Filter_Test01_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Value Object Test02 DELETE",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Delte Value Object Test02  - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test02/{{NewObject_Test02_ID}}",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test02",
+								"{{NewObject_Test02_ID}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "ENTITY_TEST01_ID",
+			"value": "1000",
+			"type": "default"
+		},
+		{
+			"key": "Filter_Test01_ID",
+			"value": ""
+		},
+		{
+			"key": "Job_Test01_ID",
+			"value": ""
+		},
+		{
+			"key": "NewObject_Test01_ID",
+			"value": ""
+		},
+		{
+			"key": "ENTITY_TEST02_ID",
+			"value": ""
+		},
+		{
+			"key": "NewObject_Test02_ID",
+			"value": ""
+		},
+		{
+			"key": "Entity_Transformation_ID",
+			"value": ""
+		}
+	]
+}
