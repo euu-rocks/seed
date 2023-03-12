@@ -118,6 +118,7 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 				element.removeAttribute(A_VISIBLE);
 				element.removeAttribute(A_VALUE);
 				element.removeAttribute(A_ONCHANGE);
+				element.removeAttribute(A_ONCHANGING);
 				if (element.getId() != null) {
 					element.setContext(newContextId())
 						   .setAttribute(A_TOOLTIPTEXT, getEntityField(element).getName());

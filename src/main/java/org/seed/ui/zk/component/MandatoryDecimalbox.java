@@ -17,6 +17,10 @@
  */
 package org.seed.ui.zk.component;
 
+import org.seed.C;
+
+import org.zkoss.zk.au.AuRequest;
+import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zul.Decimalbox;
 
 public class MandatoryDecimalbox extends Decimalbox {
@@ -28,8 +32,15 @@ public class MandatoryDecimalbox extends Decimalbox {
 	public void setMandatory(boolean mandatory) {
 		this.mandatory = mandatory;
 		if (mandatory) {
-			setInstant(true);
 			ComponentUtils.setMandatoryStatus(this);
+		}
+	}
+	
+	@Override
+	public void service(AuRequest request, boolean everError) {
+		super.service(request, everError);
+		if (mandatory && Events.ON_CHANGING.equals(request.getCommand())) {
+			ComponentUtils.setMandatoryStatus(this, (String) request.getData().get(C.VALUE));
 		}
 	}
 	

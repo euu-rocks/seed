@@ -126,6 +126,9 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 				if (!(entityField.isCalculated() || entityField.getType().isAutonum())) {
 					element.setAttribute(A_ONCHANGE, command(onChange(entityField)));
 				}
+				if (element.is(LayoutElement.DECIMALBOX) || element.is(LayoutElement.DOUBLEBOX)) {
+					element.setAttribute(A_ONCHANGING, command("'flagDirty'"));
+				}
 				if (element.is(LayoutElement.RICHTEXTAREA)) {
 					element.removeAttribute(A_CLASS);
 				}

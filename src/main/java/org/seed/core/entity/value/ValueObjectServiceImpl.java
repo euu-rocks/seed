@@ -21,18 +21,15 @@ import static org.seed.core.util.CollectionUtils.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.Nullable;
 import javax.persistence.criteria.CriteriaQuery;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.query.Query;
 
 import org.seed.C;
 import org.seed.InternalException;
@@ -75,9 +72,6 @@ public class ValueObjectServiceImpl
 	
 	// dummy object; only last part of package name is important ("value")
 	private static final SystemEntity VALUE_ENTITY = new AbstractSystemEntity() {};
-	
-	private final Comparator<ValueObject> objectComparator =
-			(ValueObject vo1, ValueObject vo2) -> getIdentifier(vo1).compareTo(getIdentifier(vo2));
 	
 	@Autowired
 	private EntityService entityService;
@@ -210,7 +204,7 @@ public class ValueObjectServiceImpl
 	public QueryCursor<FullTextResult> createFullTextSearchCursor(String fullTextQueryString) {
 		Assert.notNull(fullTextQueryString, "fullTextQueryString");
 		
-		final List<Tupel<Long,Long>> fullTextSearchResult = fullTextSearch.query(fullTextQueryString, null);
+		final var fullTextSearchResult = fullTextSearch.query(fullTextQueryString, null);
 		return new QueryCursor<>(fullTextQueryString, fullTextSearchResult, ValueObjectRepository.DEFAULT_CHUNK_SIZE);
 	}
 	
@@ -219,7 +213,7 @@ public class ValueObjectServiceImpl
 	public QueryCursor<ValueObject> createFullTextSearchCursor(String fullTextQueryString, Entity entity) {
 		Assert.notNull(fullTextQueryString, "fullTextQueryString");
 		
-		final List<Tupel<Long,Long>> fullTextSearchResult = fullTextSearch.query(fullTextQueryString, entity);
+		final var fullTextSearchResult = fullTextSearch.query(fullTextQueryString, entity);
 		return new QueryCursor<>(fullTextQueryString, fullTextSearchResult, ValueObjectRepository.DEFAULT_CHUNK_SIZE);
 	}
 	
@@ -278,7 +272,7 @@ public class ValueObjectServiceImpl
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<ValueObject> loadChunk(Session session, QueryCursor<ValueObject> cursor) {
-		final Query<ValueObject> query = cursor.getQueryText() != null
+		final var query = cursor.getQueryText() != null
 							? session.createQuery(cursor.getQueryText())
 							: session.createQuery(cursor.getQuery());
 		query.setFirstResult(cursor.getStartIndex());
@@ -291,10 +285,9 @@ public class ValueObjectServiceImpl
 	public List<FullTextResult> loadFullTextChunk(QueryCursor<FullTextResult> cursor) {
 		Assert.notNull(cursor, C.CURSOR);
 		
-		final List<ValueObject> listObjects = loadFullTextObjects(cursor);
-		final Map<Long, String> mapTexts = fullTextSearch.getTextMap(listObjects, cursor.getQueryText());
-		return convertedList(listObjects, 
-				obj -> new FullTextResult(obj, getIdentifier(obj), mapTexts.get(obj.getId())));
+		final var listObjects = loadFullTextObjects(cursor);
+		final var mapTexts = fullTextSearch.getTextMap(listObjects, cursor.getQueryText());
+		return convertedList(listObjects, obj -> new FullTextResult(obj, getIdentifier(obj), mapTexts.get(obj.getId())));
 	}
 	
 	@Override
@@ -302,7 +295,7 @@ public class ValueObjectServiceImpl
 		Assert.notNull(object, C.OBJECT);
 		Assert.notNull(session, C.SESSION);
 		
-		final List<FileObject> fileObjects = new ArrayList<>();
+		final var fileObjects = new ArrayList<FileObject>();
 		final Entity entity = repository.getEntity(session, object);
 		collectFileObjects(object, entity, fileObjects);
 		if (entity.hasNesteds()) {
@@ -414,7 +407,7 @@ public class ValueObjectServiceImpl
 		Assert.notNull(object, C.OBJECT);
 		Assert.notNull(relation, C.RELATION);
 		
-		final List<ValueObject> result = getAllObjects(session, relation.getRelatedEntity());
+		final var result = getAllObjects(session, relation.getRelatedEntity());
 		if (objectAccess.hasRelatedObjects(object, relation)) {
 			result.removeAll(objectAccess.getRelatedObjects(object, relation));
 		}
@@ -683,7 +676,7 @@ public class ValueObjectServiceImpl
 	@Override
 	public List<Entity> findUsage(Session session, ValueObject object) {
 		Assert.notNull(session, C.SESSION);
-		final List<Entity> result = new ArrayList<>();
+		final var result = new ArrayList<Entity>();
 		final Entity entity = repository.getEntity(session, object);
 		for (Entity otherEntity : subList(entityService.findNonGenericEntities(session), not(entity::equals))) {
 			for (EntityField otherRefField : otherEntity.getReferenceFields(entity)) {
@@ -701,15 +694,15 @@ public class ValueObjectServiceImpl
 	public void sortObjects(List<ValueObject> objectList) {
 		Assert.notNull(objectList, "object list");
 		
-		objectList.sort(objectComparator);
+		objectList.sort((ValueObject vo1, ValueObject vo2) -> getIdentifier(vo1).compareTo(getIdentifier(vo2)));
 	}
 	
 	private List<ValueObject> loadFullTextObjects(QueryCursor<?> cursor) {
-		final List<ValueObject> result = new ArrayList<>(cursor.getChunkSize());
+		final var result = new ArrayList<ValueObject>(cursor.getChunkSize());
 		try (Session session = repository.getSession()) {
 			Entity entity = null;
 			for (int i = cursor.getStartIndex(); i < Math.min(cursor.getStartIndex() + cursor.getChunkSize(), cursor.getTotalCount()); i++) {
-				final Tupel<Long, Long> fullTextResult = cursor.getFullTextResult(i);
+				final var fullTextResult = cursor.getFullTextResult(i);
 				if (entity == null || !entity.getId().equals(fullTextResult.x)) {
 					entity = repository.getEntity(fullTextResult.x, session);
 				}
@@ -734,8 +727,7 @@ public class ValueObjectServiceImpl
 		if (entity.hasNesteds()) {
 			for (NestedEntity nested : entity.getNesteds()) {
 				// get nested maps
-				final List<Map<String, Object>> listNestedMaps = 
-						(List<Map<String, Object>>) valueMap.get(nested.getInternalName());
+				final var listNestedMaps = (List<Map<String, Object>>) valueMap.get(nested.getInternalName());
 				if (!ObjectUtils.isEmpty(listNestedMaps) && 
 					setNestedObjectValues(session, nested, object, listNestedMaps)) {
 					isModified = true;
@@ -754,7 +746,7 @@ public class ValueObjectServiceImpl
 			Object value = valueMap.get(field.getInternalName());
 			if (value != null && field.getType().isReference()) {
 				Assert.state(value instanceof Map, "value of '" + field.getInternalName() + "' is not a map");
-				final Map<String, Object> objectMap = (Map<String, Object>) value;
+				final var objectMap = (Map<String, Object>) value;
 				final Integer referenceId = (Integer) objectMap.get(C.ID);
 				Assert.stateAvailable(referenceId, "reference id of " + field.getInternalName());
 				value = getObject(session, field.getReferenceEntity(), referenceId.longValue());
@@ -769,11 +761,11 @@ public class ValueObjectServiceImpl
 										  List<Map<String, Object>> listNestedMaps) {
 		boolean isModified = false;
 		// get existing nested value objects as map
-		final Map<Long, ValueObject> nestedObjectMap = convertedMap(objectAccess.getNestedObjects(object, nested), 
-																	ValueObject::getId, obj -> obj);
+		final var nestedObjectMap = convertedMap(objectAccess.getNestedObjects(object, nested), 
+												 ValueObject::getId, obj -> obj);
 		// iterate over nested maps
-		final Set<Long> nestedIds = new HashSet<>();
-		for (Map<String, Object> nestedValueMap : listNestedMaps) {
+		final var nestedIds = new HashSet<Long>();
+		for (var nestedValueMap : listNestedMaps) {
 			final Integer nestedId = (Integer) nestedValueMap.get(C.ID);
 			// update existing nested object
 			if (nestedId != null && nestedObjectMap != null && 

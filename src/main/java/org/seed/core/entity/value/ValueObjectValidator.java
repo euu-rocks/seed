@@ -72,7 +72,7 @@ public class ValueObjectValidator implements ApplicationContextAware {
 		Assert.notNull(targetStatus, "targetStatus");
 		
 		final Entity entity = entityRepository.get(object.getEntityId(), session);
-		final ValidationErrors errors = new ValidationErrors();
+		final var errors = new ValidationErrors();
 		if (entity.hasFieldConstraints()) {
 			for (EntityFieldConstraint constraint : entity.getFieldConstraints()) {
 				if (targetStatus.equals(constraint.getStatus()) && 
@@ -92,8 +92,8 @@ public class ValueObjectValidator implements ApplicationContextAware {
 		Assert.notNull(object, C.OBJECT);
 		
 		final Entity objectEntity = entityRepository.get(object.getEntityId(), session);
-		final ValidationErrors errors = new ValidationErrors();
-		for (ValueObjectDependent<? extends SystemEntity> dependent : getValueObjectDependents()) {
+		final var errors = new ValidationErrors();
+		for (var dependent : getValueObjectDependents()) {
 			for (SystemEntity systemEntity : dependent.findUsage(session, object)) {
 				if (systemEntity instanceof Entity) {
 					final Entity entity = (Entity) systemEntity;
@@ -103,6 +103,9 @@ public class ValueObjectValidator implements ApplicationContextAware {
 				}
 				else if (systemEntity instanceof Filter) {
 					errors.addError("val.inuse.valueobjectfilter", systemEntity.getName());
+				}
+				else {
+					throw new UnsupportedOperationException(systemEntity.getName());
 				}
 			}
 		}
@@ -116,7 +119,7 @@ public class ValueObjectValidator implements ApplicationContextAware {
 		Assert.notNull(object, C.OBJECT);
 	
 		final Entity entity = entityRepository.get(object.getEntityId(), session);
-		final ValidationErrors errors = new ValidationErrors();
+		final var errors = new ValidationErrors();
 		
 		// fields
 		if (entity.hasAllFields()) {
@@ -127,7 +130,7 @@ public class ValueObjectValidator implements ApplicationContextAware {
 		if (entity.hasNesteds()) {
 			for (NestedEntity nested : entity.getNesteds()) {
 				if (nested.getNestedEntity().hasFields()) {
-					final List<ValueObject> nestedObjects = objectAccess.getNestedObjects(object, nested);
+					final var nestedObjects = objectAccess.getNestedObjects(object, nested);
 					if (nestedObjects != null) {
 						validateNestedObjects(nested, nestedObjects, errors);
 					}
@@ -161,11 +164,9 @@ public class ValueObjectValidator implements ApplicationContextAware {
 			errors.addError("val.empty.statusfield", constraint.getField().getName());
 		}
 		else if (constraint.getFieldGroup() != null) {
-			for (EntityField groupField : entity.getAllFieldsByGroup(constraint.getFieldGroup())) {
-				if (isEmpty(objectAccess.getValue(object, groupField))) {
-					errors.addError("val.empty.statusfield", groupField.getName());
-				}
-			}
+			filterAndForEach(entity.getAllFieldsByGroup(constraint.getFieldGroup()), 
+							 field -> isEmpty(objectAccess.getValue(object, field)), 
+							 field -> errors.addError("val.empty.statusfield", field.getName()));
 		}
 		else {
 			throw new IllegalStateException("constraint has no field or group");

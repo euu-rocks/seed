@@ -25,10 +25,13 @@ public class MandatoryLongbox extends Longbox {
 	
 	private boolean mandatory;
 	
+	public MandatoryLongbox() {
+		setInstant(true);
+	}
+	
 	public void setMandatory(boolean mandatory) {
 		this.mandatory = mandatory;
 		if (mandatory) {
-			setInstant(true);
 			ComponentUtils.setMandatoryStatus(this);
 		}
 	}

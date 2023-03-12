@@ -50,6 +50,7 @@ public class LayoutElementAttributes {
 	public static final String A_MOLD          = "mold";
 	public static final String A_NAME          = "name";
 	public static final String A_ONCHANGE      = "onChange";
+	public static final String A_ONCHANGING    = "onChanging";
 	public static final String A_ONCHECK       = "onCheck";
 	public static final String A_ONCLICK       = "onClick";
 	public static final String A_ONDOUBLECLICK = "onDoubleClick";

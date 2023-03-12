@@ -25,10 +25,13 @@ public class MandatoryIntbox extends Intbox {
 	
 	private boolean mandatory;
 	
+	public MandatoryIntbox() {
+		setInstant(true);
+	}
+	
 	public void setMandatory(boolean mandatory) {
 		this.mandatory = mandatory;
 		if (mandatory) {
-			setInstant(true);
 			ComponentUtils.setMandatoryStatus(this);
 		}
 	}

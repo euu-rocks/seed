@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -50,6 +51,12 @@ public interface CollectionUtils {
 		return collection != null
 				? collection.stream().map(function).collect(Collectors.toList())
 				: Collections.emptyList();
+	}
+	
+	static <T,R> Set<R> convertedSet(@Nullable Collection<T> collection, Function<T,R> function) {
+		return collection != null
+				? collection.stream().map(function).collect(Collectors.toSet())
+				: Collections.emptySet();
 	}
 	
 	static <T,K,V> Map<K,V> convertedMap(@Nullable Collection<T> collection,

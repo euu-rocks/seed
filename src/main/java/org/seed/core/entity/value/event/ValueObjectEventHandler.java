@@ -17,6 +17,8 @@
  */
 package org.seed.core.entity.value.event;
 
+import static org.seed.core.util.CollectionUtils.subList;
+
 import org.hibernate.Session;
 
 import org.seed.InternalException;
@@ -24,12 +26,10 @@ import org.seed.core.api.ApplicationException;
 import org.seed.core.api.CallbackEventType;
 import org.seed.core.api.CallbackFunction;
 import org.seed.core.codegen.CodeManager;
-import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityFunction;
 import org.seed.core.entity.EntityRepository;
 import org.seed.core.entity.EntityStatusTransition;
-import org.seed.core.entity.EntityStatusTransitionFunction;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.util.Assert;
 import org.seed.core.util.BeanUtils;
@@ -74,93 +74,82 @@ public class ValueObjectEventHandler {
 	}
 	
 	private boolean processStatusTransitionEvent(ValueObjectEvent event) {
-		boolean functionExecuted = false;
 		final EntityStatusTransition statusTransition = event.statusTransition;
 		Assert.stateAvailable(statusTransition, "status transition");
 		final Entity entity = statusTransition.getEntity();
 		
-		if (statusTransition.hasFunctions()) {
-			for (EntityStatusTransitionFunction transitionFunction : statusTransition.getFunctions()) {
-				if (!transitionFunction.getFunction().isActive()) {
-					continue;
-				}
-				boolean execute = false;
-				switch (event.type) {
-					case BEFORETRANSITION:
-						execute = transitionFunction.isActiveBeforeTransition();
-						break;
-						
-					case AFTERTRANSITION:
-						execute = transitionFunction.isActiveAfterTransition();
-						break;
-						
-					default:
-						throw new UnsupportedOperationException(event.type.name());
-				}
-				if (execute) {
-					callFunction(entity, transitionFunction.getFunction(), event.type, event.object, 
-								 event.session, event.functionContext, statusTransition);
-					functionExecuted = true;
-				}
+		for (var transitionFunction : subList(statusTransition.getFunctions(), 
+											  function -> function.getFunction().isActive())) {
+			boolean execute = false;
+			switch (event.type) {
+				case BEFORETRANSITION:
+					execute = transitionFunction.isActiveBeforeTransition();
+					break;
+					
+				case AFTERTRANSITION:
+					execute = transitionFunction.isActiveAfterTransition();
+					break;
+					
+				default:
+					throw new UnsupportedOperationException(event.type.name());
+			}
+			if (execute) {
+				callFunction(entity, transitionFunction.getFunction(), event.type, event.object, 
+							 event.session, event.functionContext, statusTransition);
+				return true;
 			}
 		}
-		return functionExecuted;
+		return false;
 	}
 	
 	private boolean processEntityEvent(ValueObjectEvent event) {
-		boolean functionExecuted = false;
 		final Entity entity = entityRepository.get(event.object.getEntityId(), event.getSession());
 		
-		if (entity.hasFunctions()) {
-			for (EntityFunction function : entity.getFunctions()) {
-				if (!function.isActive()) {
-					continue;
-				}
-				boolean execute = false;
-				switch (event.type) {
-					case CREATE:
-						execute = function.isActiveOnCreate();
-						break;
-						
-					case MODIFY:
-						execute = function.isActiveOnModify();
-						break;
-						
-					case BEFOREINSERT:
-						execute = function.isActiveBeforeInsert();
-						break;
-						
-					case AFTERINSERT:
-						execute = function.isActiveAfterInsert();
-						break;
-						
-					case BEFOREUPDATE:
-						execute = function.isActiveBeforeUpdate();
-						break;
-						
-					case AFTERUPDATE:
-						execute = function.isActiveAfterUpdate();
-						break;
-						
-					case BEFOREDELETE:
-						execute = function.isActiveBeforeDelete();
-						break;
-						
-					case AFTERDELETE:
-						execute = function.isActiveAfterDelete();
-						break;
-						
-					default:
-						throw new UnsupportedOperationException(event.type.name());
-				}
-				if (execute) {
-					callFunction(entity, function, event.type, event.object, event.session, 
-								 event.functionContext, null);
-					functionExecuted = true;
-				}
+		for (EntityFunction function : subList(entity.getFunctions(), EntityFunction::isActive)) {
+			boolean execute = false;
+			switch (event.type) {
+				case CREATE:
+					execute = function.isActiveOnCreate();
+					break;
+					
+				case MODIFY:
+					execute = function.isActiveOnModify();
+					break;
+					
+				case BEFOREINSERT:
+					execute = function.isActiveBeforeInsert();
+					break;
+					
+				case AFTERINSERT:
+					execute = function.isActiveAfterInsert();
+					break;
+					
+				case BEFOREUPDATE:
+					execute = function.isActiveBeforeUpdate();
+					break;
+					
+				case AFTERUPDATE:
+					execute = function.isActiveAfterUpdate();
+					break;
+					
+				case BEFOREDELETE:
+					execute = function.isActiveBeforeDelete();
+					break;
+					
+				case AFTERDELETE:
+					execute = function.isActiveAfterDelete();
+					break;
+					
+				default:
+					throw new UnsupportedOperationException(event.type.name());
+			}
+			if (execute) {
+				callFunction(entity, function, event.type, event.object, 
+							 event.session, event.functionContext, null);
+				return true;
 			}
 		}
-		return functionExecuted;
+		return false;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -170,19 +159,17 @@ public class ValueObjectEventHandler {
 		Assert.state(!(session == null && functionContext == null), "no session or functionContext provided");
 		Assert.state(!(session != null && functionContext != null), "only session or functionContext allowed");
 		
-		final Class<GeneratedCode> functionClass = codeManager.getGeneratedClass(function);
+		final var functionClass = codeManager.getGeneratedClass(function);
 		Assert.stateAvailable(functionClass, "function class: " + function.getGeneratedPackage() + '.' + 
 																  function.getGeneratedClass());
 		try {
-			final CallbackFunction<ValueObject> callbackFunction = 
-					(CallbackFunction<ValueObject>) BeanUtils.instantiate(functionClass);
+			final var callbackFunction = (CallbackFunction<ValueObject>) BeanUtils.instantiate(functionClass);
 			if (functionContext == null) {
 				functionContext = new ValueObjectFunctionContext(session, entity.getModule(), statusTransition);
 			}
 			functionContext.setEventType(eventType);
 			if (log.isDebugEnabled()) {
-				log.debug("Execute function '{}' on {} id:{}", function.getName(), 
-															   function.getEntity().getName(), object.getId());
+				log.debug("Execute function '{}' on {} id:{}", function.getName(), function.getEntity().getName(), object.getId());
 			}
 			callbackFunction.call(object, functionContext);
 			return functionContext.getSuccessMessage();

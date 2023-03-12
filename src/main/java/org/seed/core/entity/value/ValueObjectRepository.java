@@ -24,9 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -121,8 +119,8 @@ public class ValueObjectRepository {
 		checkGeneric(entity);
 		checkSessionAndContext(session, functionContext);
 		try {
-			final Class<?> entityClass = getEntityClass(session != null ? session : functionContext.getSession(), entity);
-			final AbstractValueObject object = (AbstractValueObject) BeanUtils.instantiate(entityClass);
+			final var entityClass = getEntityClass(session != null ? session : functionContext.getSession(), entity);
+			final var object = (AbstractValueObject) BeanUtils.instantiate(entityClass);
 			if (entity.hasStatus()) {
 				object.setEntityStatus(entity.getInitialStatus());
 			}
@@ -161,8 +159,8 @@ public class ValueObjectRepository {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(entityClass, C.ENTITYCLASS);
 		
-		final CriteriaBuilder builder = session.getCriteriaBuilder();
-		final CriteriaQuery<Long> query = builder.createQuery(Long.class);
+		final var builder = session.getCriteriaBuilder();
+		final var query = builder.createQuery(Long.class);
 		query.select(builder.count(query.from(entityClass)));
 		return session.createQuery(query).getSingleResult();
 	}
@@ -176,8 +174,7 @@ public class ValueObjectRepository {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(entityClass, C.ENTITYCLASS);
 		
-		final CriteriaQuery<ValueObject> query = (CriteriaQuery<ValueObject>) 
-				session.getCriteriaBuilder().createQuery(entityClass);
+		final var query = (CriteriaQuery<ValueObject>) session.getCriteriaBuilder().createQuery(entityClass);
 		return find(session, query.select((Selection<? extends ValueObject>) query.from(entityClass)));
 	}
 	
@@ -327,7 +324,7 @@ public class ValueObjectRepository {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(entity, C.ENTITY);
 		
-		final CriteriaBuilder builder = session.getCriteriaBuilder();
+		final var builder = session.getCriteriaBuilder();
 		final CriteriaQuery<Long> query = createQuery(builder, entity, session);
 		return query.select(builder.count(buildQuery(builder, entity, session, filter, query)));
 	}
@@ -336,7 +333,7 @@ public class ValueObjectRepository {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(entity, C.ENTITY);
 		
-		final CriteriaBuilder builder = session.getCriteriaBuilder();
+		final var builder = session.getCriteriaBuilder();
 		final CriteriaQuery<ValueObject> query = createQuery(builder, entity, session);
 		return query.select(buildQuery(builder, entity, session, filter, query, sorts));
 	}
@@ -347,7 +344,7 @@ public class ValueObjectRepository {
 		Assert.notNull(searchObject, "searchObject");
 		
 		final Entity entity = getEntity(searchObject.getEntityId(), session);
-		final CriteriaBuilder builder = session.getCriteriaBuilder();
+		final var builder = session.getCriteriaBuilder();
 		final CriteriaQuery<Long> query = createQuery(builder, entity, session);
 		return query.select(builder.count(buildQuery(builder, entity, session, searchObject, query, criteriaMap)));
 	}
@@ -358,7 +355,7 @@ public class ValueObjectRepository {
 		Assert.notNull(searchObject, "searchObject");
 		
 		final Entity entity = getEntity(searchObject.getEntityId(), session);
-		final CriteriaBuilder builder = session.getCriteriaBuilder();
+		final var builder = session.getCriteriaBuilder();
 		final CriteriaQuery<ValueObject> query = createQuery(builder, entity, session);
 		return query.select(buildQuery(builder, entity, session, searchObject, query, criteriaMap, sorts));
 	}
@@ -389,7 +386,7 @@ public class ValueObjectRepository {
 		checkSessionAndContext(session, functionContext);
 		
 		final Entity entity = getEntity(session != null ? session : functionContext.getSession(), object);
-		final EntityStatusTransition statusTransition = entity.getStatusTransition(object.getEntityStatus(), targetStatus);
+		final var statusTransition = entity.getStatusTransition(object.getEntityStatus(), targetStatus);
 		if (statusTransition != null) {
 			// fire before-event
 			fireEvent(CallbackEventType.BEFORETRANSITION, object, statusTransition, session, functionContext);
@@ -508,14 +505,9 @@ public class ValueObjectRepository {
 	private static Set<NestedEntity> getNestedEntities(Filter filter) {
 		Assert.notNull(filter, C.FILTER);
 		
-		if (filter.hasCriteria()) {
-			return filter.getCriteria().stream()
-						 .filter(criterion -> criterion.getEntityField() != null && 
-								 !criterion.getEntityField().getEntity().equals(filter.getEntity()))
-						 .map(criterion -> filter.getEntity().getNestedByEntityId(criterion.getEntityField().getEntity().getId()))
-						 .collect(Collectors.toSet());
-		}
-		return Collections.emptySet();
+		return convertedSet(subList(filter.getCriteria(), criterion -> criterion.getEntityField() != null && 
+				 													   !criterion.getEntityField().getEntity().equals(filter.getEntity())), 
+							criterion -> filter.getEntity().getNestedByEntityId(criterion.getEntityField().getEntity().getId()));
 	}
 	
 	private static <T> void applySorting(CriteriaBuilder builder, CriteriaQuery<T> query, Root<ValueObject> root, Sort ...sorts) {
@@ -534,7 +526,7 @@ public class ValueObjectRepository {
 	
 	// set null-values for operators EMPTY and NOT_EMPTY
 	private static void initNullValues(Map<String, Object> valueMap, Map<Long, Map<String, CriterionOperator>> criteriaMap, Long tmpId) {
-		final Map<String, CriterionOperator> operatorMap = criteriaMap.get(tmpId);
+		final var operatorMap = criteriaMap.get(tmpId);
 		if (operatorMap != null) {
 			for (String fieldUid : operatorMap.keySet()) {
 				if (!valueMap.containsKey(fieldUid)) {
@@ -556,7 +548,7 @@ public class ValueObjectRepository {
 			operator = CriterionOperator.LIKE;
 		}
 		
-		final FilterCriterion criterion = new FilterCriterion();
+		final var criterion = new FilterCriterion();
 		criterion.setEntityField(field);
 		criterion.setOperator(operator);
 		if (value != null) {
@@ -566,20 +558,20 @@ public class ValueObjectRepository {
 	}
 
 	private static CriterionOperator getOperator(Map<Long, Map<String, CriterionOperator>> criteriaMap, Long tmpId, String fieldUid) {
-		final Map<String, CriterionOperator> operatorMap = criteriaMap.get(tmpId);
-		final CriterionOperator operator = operatorMap != null ? operatorMap.get(fieldUid) : null;
+		final var operatorMap = criteriaMap.get(tmpId);
+		final var operator = operatorMap != null ? operatorMap.get(fieldUid) : null;
 		return operator != null ? operator : CriterionOperator.EQUAL;
 	}
 	
 	private Map<String, Object> getValueMap(ValueObject object, NestedEntity nestedEntity) {
-		final Map<String, Object> valueMap = getValueMap(object, nestedEntity.getNestedEntity());
+		final var valueMap = getValueMap(object, nestedEntity.getNestedEntity());
 		// remove ref to parent
 		valueMap.remove(nestedEntity.getReferenceField().getUid());
 		return valueMap;
 	}
 	
 	private Map<String, Object> getValueMap(ValueObject object, Entity entity) {
-		final Map<String, Object> valueMap = new HashMap<>();
+		final var valueMap = new HashMap<String, Object>();
 		if (entity.hasAllFields()) {
 			for (EntityField field : entity.getAllFields()) {
 				final Object value = objectAccess.getValue(object, field);
@@ -593,9 +585,9 @@ public class ValueObjectRepository {
 	
 	QueryCursor<ValueObject> createCursor(Entity entity, int chuckSize) {
 		try (Session session = getSession()) {
-			final CriteriaQuery<Long> countQuery = buildCountQuery(session, entity, null); 
+			final var countQuery = buildCountQuery(session, entity, null); 
 			final Long totalSize = querySingleResult(session, countQuery);
-			final CriteriaQuery<ValueObject> query = buildQuery(session, entity, null);
+			final var query = buildQuery(session, entity, null);
 			return new QueryCursor<>(query, totalSize.intValue(), chuckSize);
 		}
 	}
@@ -615,16 +607,16 @@ public class ValueObjectRepository {
 			return new QueryCursor<>(filter.getHqlQuery(), totalSize.intValue(), chuckSize);
 		}
 		
-		final CriteriaQuery<Long> countQuery = buildCountQuery(session, entity, filter); 
+		final var countQuery = buildCountQuery(session, entity, filter); 
 		final Long totalSize = querySingleResult(session, countQuery);
-		final CriteriaQuery<ValueObject> query = buildQuery(session, entity, filter, sort);
+		final var query = buildQuery(session, entity, filter, sort);
 		return new QueryCursor<>(query, totalSize.intValue(), chuckSize);
 	}
 	
 	QueryCursor<ValueObject> createCursor(Session session, ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sort) {
-		final CriteriaQuery<Long> countQuery = buildCountQuery(session, searchObject, criteriaMap);
+		final var countQuery = buildCountQuery(session, searchObject, criteriaMap);
 		final Long totalSize = querySingleResult(session, countQuery);
-		final CriteriaQuery<ValueObject> query = buildQuery(session, searchObject, criteriaMap, sort);
+		final var query = buildQuery(session, searchObject, criteriaMap, sort);
 		return new QueryCursor<>(query, totalSize.intValue(), DEFAULT_CHUNK_SIZE);
 	}
 	
@@ -636,12 +628,12 @@ public class ValueObjectRepository {
 	@SuppressWarnings("unchecked")
 	private <T> Root<ValueObject> buildQuery(CriteriaBuilder builder, Entity entity, Session session, 
 											 Filter filter, CriteriaQuery<T> query, Sort ...sorts) {
-		final Root<ValueObject> root = (Root<ValueObject>) query.from(getEntityClass(session, entity));
+		final var root = (Root<ValueObject>) query.from(getEntityClass(session, entity));
 		// criteria
 		if (filter != null) {
 			Assert.state(entity.equals(filter.getEntity()), "entity not match filter entity");
 			if (filter.hasCriteria()) {
-				final Map<Long, Join<Object, Object>> joins = buildJoinMap(filter, root);
+				final var joins = buildJoinMap(filter, root);
 				if (filter.getCriteria().size() == 1) {
 					query.where(createRestriction(builder, root, filter.getCriteria().get(0), joins));
 				}
@@ -661,15 +653,15 @@ public class ValueObjectRepository {
 	private <T> Root<ValueObject> buildQuery(CriteriaBuilder builder, Entity entity, Session session,
 											 ValueObject searchObject, CriteriaQuery<T> query, 
 											 Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sorts) {
-		final Root<ValueObject> root = (Root<ValueObject>) query.from(getEntityClass(session, entity));
-		final List<Predicate> restrictions = new ArrayList<>();
+		final var root = (Root<ValueObject>) query.from(getEntityClass(session, entity));
+		final var restrictions = new ArrayList<Predicate>();
 		
 		// main object
-		final Map<String, Object> valueMap = getValueMap(searchObject, entity);
+		final var valueMap = getValueMap(searchObject, entity);
 		initNullValues(valueMap, criteriaMap, 0L);
-		for (Entry<String, Object> entry : valueMap.entrySet()) {
-			final CriterionOperator operator = getOperator(criteriaMap, 0L, entry.getKey());
-			final FilterCriterion criterion = createCriterion(entity, entry.getKey(), operator, entry.getValue());
+		for (var entry : valueMap.entrySet()) {
+			final var operator = getOperator(criteriaMap, 0L, entry.getKey());
+			final var criterion = createCriterion(entity, entry.getKey(), operator, entry.getValue());
 			restrictions.add(createRestriction(builder, root, criterion, null));
 		}
 		
@@ -699,9 +691,9 @@ public class ValueObjectRepository {
 	private <T> List<Predicate> createNestedsRestrictions(CriteriaBuilder builder, Entity entity, Session session,
 														  ValueObject searchObject, Map<Long, Map<String, CriterionOperator>> criteriaMap,
 														  CriteriaQuery<T> query, Root<ValueObject> root) {
-		final List<Predicate> restrictions = new ArrayList<>();
+		final var restrictions = new ArrayList<Predicate>();
 		for (NestedEntity nestedEntity : entity.getNesteds()) {
-			final List<ValueObject> nesteds = objectAccess.getNestedObjects(searchObject, nestedEntity);
+			final var nesteds = objectAccess.getNestedObjects(searchObject, nestedEntity);
 			if (!ObjectUtils.isEmpty(nesteds)) {
 				restrictions.addAll(createNestedRestrictions(builder, nestedEntity, session, nesteds, criteriaMap, query, root));
 			}
@@ -713,25 +705,25 @@ public class ValueObjectRepository {
 	private <T> List<Predicate> createNestedRestrictions(CriteriaBuilder builder, NestedEntity nestedEntity, Session session, 
 														 List<ValueObject> nesteds, Map<Long, Map<String, CriterionOperator>> criteriaMap,
 														 CriteriaQuery<T> query, Root<ValueObject> root) {
-		final List<Predicate> restrictions = new ArrayList<>();
+		final var restrictions = new ArrayList<Predicate>();
 		final Entity entityNested = nestedEntity.getNestedEntity();
-		final Class<?> nestedEntityClass = getEntityClass(session, entityNested);
+		final var nestedEntityClass = getEntityClass(session, entityNested);
 		for (ValueObject nestedObject : nesteds) {
 			final Long tmpId = ((AbstractValueObject) nestedObject).getTmpId();
-			final Map<String, Object> valueMap = getValueMap(nestedObject, nestedEntity);
+			final var valueMap = getValueMap(nestedObject, nestedEntity);
 			initNullValues(valueMap, criteriaMap, tmpId);
 			if (valueMap.isEmpty()) {
 				continue;
 			}
 			
-			final Subquery<ValueObject> subQuery = (Subquery<ValueObject>) query.subquery(nestedEntityClass);
-			final Root<ValueObject> subRoot = subQuery.correlate(root);
-			final Join<Object, Object> join = subRoot.join(nestedEntity.getInternalName());
-			final Map<Long, Join<Object, Object>> joins = Collections.singletonMap(entityNested.getId(), join);
-			final Predicate[] subRestrictions = new Predicate[valueMap.size()];
+			final var subQuery = (Subquery<ValueObject>) query.subquery(nestedEntityClass);
+			final var subRoot = subQuery.correlate(root);
+			final var join = subRoot.join(nestedEntity.getInternalName());
+			final var joins = Collections.singletonMap(entityNested.getId(), join);
+			final var subRestrictions = new Predicate[valueMap.size()];
 			
 			int idx = 0;
-			for (Entry<String, Object> entry : valueMap.entrySet()) {
+			for (var entry : valueMap.entrySet()) {
 				final CriterionOperator operator = getOperator(criteriaMap, tmpId, entry.getKey());
 				final FilterCriterion criterion = createCriterion(entityNested, entry.getKey(), operator, entry.getValue());
 				subRestrictions[idx++] = createRestriction(builder, subRoot, criterion, joins);
@@ -750,9 +742,9 @@ public class ValueObjectRepository {
 	
 	private List<Predicate> createRelationsRestrictions(CriteriaBuilder builder, Entity entity, 
 														ValueObject searchObject, Root<ValueObject> root) {
-		final List<Predicate> restrictions = new ArrayList<>();
+		final var restrictions = new ArrayList<Predicate>();
 		for (EntityRelation relation : entity.getAllRelations()) {
-			final Set<ValueObject> relatedObjects = objectAccess.getRelatedObjects(searchObject, relation);
+			final var relatedObjects = objectAccess.getRelatedObjects(searchObject, relation);
 			if (!ObjectUtils.isEmpty(relatedObjects)) {
 				for (ValueObject relatedObject : relatedObjects) {
 					restrictions.add(builder.equal(root.join(relation.getInternalName()), relatedObject));
@@ -809,7 +801,7 @@ public class ValueObjectRepository {
 
 	private static Predicate[] buildCriteria(Filter filter, CriteriaBuilder builder, Root<ValueObject> root, 
 											 Map<Long, Join<Object, Object>> joins) {
-		final Predicate[] restrictions = new Predicate[filter.getCriteria().size()];
+		final var restrictions = new Predicate[filter.getCriteria().size()];
 		for (int i = 0; i < restrictions.length; i++) {
 			restrictions[i] = createRestriction(builder, root, filter.getCriteria().get(i), joins);
 		}
