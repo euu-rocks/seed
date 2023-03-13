@@ -405,7 +405,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	}
 	
 	@Command
-	@NotifyChange(C.OBJECT)
+	@NotifyChange({C.OBJECT, "getSubForm"})
 	public void callSubFormAction(@BindingParam("nestedId") String nestedUid,
 								  @BindingParam(C.ACTION) SubFormAction action,
 								  @BindingParam(C.ELEM) Component component) {

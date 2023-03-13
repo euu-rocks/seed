@@ -129,7 +129,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 				if (element.is(LayoutElement.DECIMALBOX) || element.is(LayoutElement.DOUBLEBOX)) {
 					element.setAttribute(A_ONCHANGING, command("'flagDirty'"));
 				}
-				if (element.is(LayoutElement.RICHTEXTAREA)) {
+				else if (element.is(LayoutElement.RICHTEXTAREA)) {
 					element.removeAttribute(A_CLASS);
 				}
 				break;
@@ -337,6 +337,11 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 				elemField.setAttribute(A_VALUE, value(nestedEntityField, subFormPropertyName));
 				elemField.setAttribute(A_READONLY, V_TRUE);
 				break;
+			
+			case TEXT:
+			case TEXTLONG:	
+				elemField.setAttribute(A_INSTANT, V_TRUE);
+				/* falls through */
 				
 			case DATE:
 			case DATETIME:
@@ -344,15 +349,16 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 			case DOUBLE:
 			case INTEGER:
 			case LONG:
-			case TEXT:
-			case TEXTLONG:
 				elemField.setAttribute(A_VALUE, value(nestedEntityField, subFormPropertyName));
 				elemField.setAttribute(A_READONLY, load(isReadonly(nestedEntityField)));
 				elemField.setAttribute(A_MANDATORY, load(isMandatory(nestedEntityField)));
-				elemField.setAttribute(A_INPLACE, load(not(nestedName + ".isNew()")));
+				elemField.setAttribute(A_INPLACE, load(not(nestedName + ".isNew() and !" + nestedName + 
+													   ".equals(" + selectedSubFormObject(subForm) + ')')));
 				if (!nestedEntityField.isCalculated()) {
-					elemField.setAttribute(A_INSTANT, V_TRUE);
 					elemField.setAttribute(A_ONCHANGE, command(onNestedChange(nestedName, nestedEntityField)));
+				}
+				if (elemField.is(LayoutElement.DECIMALBOX) || elemField.is(LayoutElement.DOUBLEBOX)) {
+					elemField.setAttribute(A_ONCHANGING, command("'flagDirty'"));
 				}
 				break;
 			

@@ -340,6 +340,7 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 				if (checkObjectExistence()) {
 					final ValueObject nestedObject = valueObjectService.addNestedInstance(getObject(), subForm.getNestedEntity());
 					valueObjectService.preallocateFileObjects(nestedObject, currentSession());
+					subForm.setSelectedObject(nestedObject);
 				}
 				break;
 			
