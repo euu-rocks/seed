@@ -64,7 +64,11 @@ abstract class ComponentUtils {
 	}
 	
 	static void setMandatoryStatusStyle(InputElement inputElement) {
-		inputElement.setStyle(StringUtils.hasText(inputElement.getText()) ? null : STYLE_MANDATORY);
+		setMandatoryStatusStyle(inputElement, inputElement.getText());
+	}
+	
+	static void setMandatoryStatusStyle(InputElement inputElement, String value) {
+		inputElement.setStyle(StringUtils.hasText(value) ? null : STYLE_MANDATORY);
 	}
 	
 	static void postOnChangeEvent(Component component, Object data) {

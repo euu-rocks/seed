@@ -17,7 +17,6 @@
  */
 package org.seed.ui.zk.component;
 
-import org.seed.core.data.SystemObject;
 import org.seed.core.util.Assert;
 
 import org.zkoss.zk.au.AuRequest;
@@ -50,9 +49,9 @@ public class NullableCombobox extends Combobox {
 	public void setReadonly(boolean readonly) {
 		super.setReadonly(readonly);
 		// if model set before readonly and is nullable -> remove null value
-		final ListModel<SystemObject> model = getModel();
+		final var model = getModel();
 		if (readonly && model != null && model.getSize() > 0 && model.getElementAt(0) == null) {
-			final ListModelList<SystemObject> newModel = new ListModelList<>(model.getSize() - 1);
+			final var newModel = new ListModelList<>(model.getSize() - 1);
 			for (int i = 1; i < model.getSize(); i++) {
 				newModel.add(model.getElementAt(i));
 			}
@@ -64,7 +63,7 @@ public class NullableCombobox extends Combobox {
 	public void setModel(ListModel<?> model) {
 		Assert.notNull(model, "model");
 		if (nullable && !isReadonly()) {
-			final ListModelList<Object> newModel = new ListModelList<>(model.getSize() + 1);
+			final var newModel = new ListModelList<>(model.getSize() + 1);
 			newModel.add(null);
 			for (int i = 0; i < model.getSize(); i++) {
 				newModel.add(model.getElementAt(i));

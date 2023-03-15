@@ -224,7 +224,7 @@ public abstract class LayoutUtils {
 		elemField.setAttribute(A_ID, field.getUid())
 				 .setAttribute(A_SCLASS, NameUtils.getInternalName(field.getName().trim()).replace('_', '-').toLowerCase() + "-field");
 		if (field.getType().isDateTime()) {
-			elemField.setAttribute("format", "long+medium");
+			elemField.setAttribute("format", "medium+medium");
 		}
 		else if (field.getType().isTextLong()) {
 			elemField.setAttribute(A_ROWS, "3");

@@ -17,6 +17,10 @@
  */
 package org.seed.ui.zk.component;
 
+import org.seed.C;
+
+import org.zkoss.zk.au.AuRequest;
+import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zul.Datebox;
 
 public class MandatoryDatebox extends Datebox {
@@ -36,6 +40,14 @@ public class MandatoryDatebox extends Datebox {
 	public void setReadonly(boolean readonly) {
 		super.setReadonly(readonly);
 		setButtonVisible(!readonly);
+	}
+	
+	@Override
+	public void service(AuRequest request, boolean everError) {
+		super.service(request, everError);
+		if (mandatory && Events.ON_CHANGING.equals(request.getCommand())) {
+			ComponentUtils.setMandatoryStatusStyle(this, (String) request.getData().get(C.VALUE));
+		}
 	}
 	
 	@Override

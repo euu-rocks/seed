@@ -125,11 +125,13 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 				element.setAttribute(A_VALUE, value(entityField, propertyName(entityField)));
 				if (!(entityField.isCalculated() || entityField.getType().isAutonum())) {
 					element.setAttribute(A_ONCHANGE, command(onChange(entityField)));
+					if (element.is(LayoutElement.DATEBOX) || 
+						element.is(LayoutElement.DECIMALBOX) || 
+						element.is(LayoutElement.DOUBLEBOX)) {
+						element.setAttribute(A_ONCHANGING, command("'flagDirty'"));
+					}
 				}
-				if (element.is(LayoutElement.DECIMALBOX) || element.is(LayoutElement.DOUBLEBOX)) {
-					element.setAttribute(A_ONCHANGING, command("'flagDirty'"));
-				}
-				else if (element.is(LayoutElement.RICHTEXTAREA)) {
+				if (element.is(LayoutElement.RICHTEXTAREA)) {
 					element.removeAttribute(A_CLASS);
 				}
 				break;
@@ -356,9 +358,11 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 													   ".equals(" + selectedSubFormObject(subForm) + ')')));
 				if (!nestedEntityField.isCalculated()) {
 					elemField.setAttribute(A_ONCHANGE, command(onNestedChange(nestedName, nestedEntityField)));
-				}
-				if (elemField.is(LayoutElement.DECIMALBOX) || elemField.is(LayoutElement.DOUBLEBOX)) {
-					elemField.setAttribute(A_ONCHANGING, command("'flagDirty'"));
+					if (elemField.is(LayoutElement.DATEBOX) || 
+						elemField.is(LayoutElement.DECIMALBOX) || 
+						elemField.is(LayoutElement.DOUBLEBOX)) {
+						elemField.setAttribute(A_ONCHANGING, command("'flagDirty'"));
+					}
 				}
 				break;
 			
