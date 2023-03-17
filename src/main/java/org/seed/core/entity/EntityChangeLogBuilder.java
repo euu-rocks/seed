@@ -622,14 +622,15 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 			buildFieldDropChanges(entity, field);
 			return;
 		}
+
+		// rename column
+		if (!field.getEffectiveColumnName().equals(nextVersionField.getEffectiveColumnName())) {
+			buildFieldNameChanges(entity, field, nextVersionField);
+		}
 		// change data type
 		if (field.getType() != nextVersionField.getType() ||
 		    !ObjectUtils.nullSafeEquals(field.getLength(), nextVersionField.getLength())) {
 			buildFieldTypeChanges(entity, nextVersionField);
-		}
-		// rename column
-		if (!field.getEffectiveColumnName().equals(nextVersionField.getEffectiveColumnName())) {
-			buildFieldNameChanges(entity, field, nextVersionField);
 		}
 		// mandatory state changed
 		if (!field.isMandatory() && nextVersionField.isMandatory()) {

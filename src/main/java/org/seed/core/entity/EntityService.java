@@ -60,7 +60,7 @@ public interface EntityService extends ApplicationEntityService<Entity> {
 	
 	List<Entity> getAvailableNestedEntities(Entity entity, Session session);
 	
-	FieldType[] getAvailableFieldTypes(Entity entity, EntityField field, boolean existObjects);
+	FieldType[] getAvailableFieldTypes(Entity entity, EntityField field);
 	
 	List<EntityPermission> getAvailablePermissions(Entity entity, Session session);
 	

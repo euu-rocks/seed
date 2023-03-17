@@ -373,7 +373,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	}
 
 	public FieldType[] getFieldTypes() {
-		return entityService.getAvailableFieldTypes(getObject(), field, existValueObjects());
+		return entityService.getAvailableFieldTypes(getObject(), field);
 	}
 	
 	public FieldAccess[] getFieldAccesses() {

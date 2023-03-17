@@ -39,6 +39,7 @@ import org.seed.core.entity.EntityStatusTransition;
 import org.seed.core.entity.EntityStatusTransitionFunction;
 import org.seed.core.user.User;
 import org.seed.core.user.UserMetadata;
+import org.seed.core.util.MiscUtils;
 
 class EntityServiceTest {
 	
@@ -147,22 +148,50 @@ class EntityServiceTest {
 		assertSame(entity, service.findUsage(group).get(0));
 	}
 	
-	@Test
+	@Test 
 	void testGetAvailableFieldTypes() {
-		final EntityServiceImpl service = (EntityServiceImpl) createService();
+		final EntityService service = createService();
 		final EntityMetadata entity = new EntityMetadata();
-		assertArrayEquals(FieldType.values(), service.getAvailableFieldTypes(entity, null, false));
-		
-		entity.setTransferable(true);
-		assertArrayEquals(FieldType.transferableTypes(), service.getAvailableFieldTypes(entity, null, false));
-		assertArrayEquals(FieldType.transferableTypes(), service.getAvailableFieldTypes(entity, null, true));
-		
-		entity.setTransferable(false);
-		assertArrayEquals(FieldType.nonAutonumTypes(), service.getAvailableFieldTypes(entity, null, true));
+		final EntityField field = new EntityField();
+		entity.addField(field);
+		assertArrayEquals(MiscUtils.toArray(), service.getAvailableFieldTypes(entity, null));
+		assertArrayEquals(FieldType.values(), service.getAvailableFieldTypes(entity, field));
 		
 		entity.setGeneric(true);
-		assertArrayEquals(FieldType.nonAutonumTypes(), service.getAvailableFieldTypes(entity, null, true));
-		assertArrayEquals(FieldType.nonAutonumTypes(), service.getAvailableFieldTypes(entity, null, false));
+		assertArrayEquals(FieldType.nonAutonumTypes(), service.getAvailableFieldTypes(entity, field));
+		entity.setGeneric(false);
+		
+		entity.setTransferable(true);
+		assertArrayEquals(FieldType.transferableTypes(), service.getAvailableFieldTypes(entity, field));
+		entity.setTransferable(false);
+		
+		field.setId(23L);
+		field.setType(FieldType.AUTONUM);
+		assertArrayEquals(MiscUtils.toArray(FieldType.AUTONUM), service.getAvailableFieldTypes(entity, field));
+		field.setType(FieldType.BINARY);
+		assertArrayEquals(MiscUtils.toArray(FieldType.BINARY), service.getAvailableFieldTypes(entity, field));
+		field.setType(FieldType.BOOLEAN);
+		assertArrayEquals(MiscUtils.toArray(FieldType.BOOLEAN, FieldType.TEXT, FieldType.TEXTLONG), service.getAvailableFieldTypes(entity, field));
+		field.setType(FieldType.DATE);
+		assertArrayEquals(MiscUtils.toArray(FieldType.DATE, FieldType.DATETIME), service.getAvailableFieldTypes(entity, field));
+		field.setType(FieldType.DATETIME);
+		assertArrayEquals(MiscUtils.toArray(FieldType.DATETIME, FieldType.DATE), service.getAvailableFieldTypes(entity, field));
+		field.setType(FieldType.DECIMAL);
+		assertArrayEquals(MiscUtils.toArray(FieldType.DECIMAL, FieldType.LONG, FieldType.DOUBLE), service.getAvailableFieldTypes(entity, field));
+		field.setType(FieldType.DOUBLE);
+		assertArrayEquals(MiscUtils.toArray(FieldType.DOUBLE, FieldType.LONG, FieldType.DECIMAL), service.getAvailableFieldTypes(entity, field));
+		field.setType(FieldType.FILE);
+		assertArrayEquals(MiscUtils.toArray(FieldType.FILE), service.getAvailableFieldTypes(entity, field));
+		field.setType(FieldType.INTEGER);
+		assertArrayEquals(MiscUtils.toArray(FieldType.INTEGER, FieldType.LONG, FieldType.DOUBLE, FieldType.DECIMAL), service.getAvailableFieldTypes(entity, field));
+		field.setType(FieldType.LONG);
+		assertArrayEquals(MiscUtils.toArray(FieldType.LONG, FieldType.DOUBLE, FieldType.DECIMAL), service.getAvailableFieldTypes(entity, field));
+		field.setType(FieldType.REFERENCE);
+		assertArrayEquals(MiscUtils.toArray(FieldType.REFERENCE), service.getAvailableFieldTypes(entity, field));
+		field.setType(FieldType.TEXT);
+		assertArrayEquals(MiscUtils.toArray(FieldType.TEXT, FieldType.TEXTLONG), service.getAvailableFieldTypes(entity, field));
+		field.setType(FieldType.TEXTLONG);
+		assertArrayEquals(MiscUtils.toArray(FieldType.TEXTLONG), service.getAvailableFieldTypes(entity, field));
 	}
 	
 	@Test

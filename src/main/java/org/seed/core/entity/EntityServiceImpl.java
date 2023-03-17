@@ -330,28 +330,60 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	@Override
-	public FieldType[] getAvailableFieldTypes(Entity entity, EntityField field, boolean existObjects) {
+	public FieldType[] getAvailableFieldTypes(Entity entity, @Nullable EntityField field) {
 		Assert.notNull(entity, C.ENTITY);
 		
-		if (entity.isGeneric()) {
-			return FieldType.nonAutonumTypes();
+		if (field == null) {
+			return MiscUtils.toArray();
 		}
-		else if (existObjects) {
-			if (field != null && !field.isNew() && field.getType() != null) {
-				return getAvailableFieldTypesIfObjectsExist(entity, field);
+		else if (field.isNew()) {
+			if (entity.isGeneric()) {
+				return FieldType.nonAutonumTypes();
 			}
 			else if (entity.isTransferable()) {
 				return FieldType.transferableTypes();
 			}
 			else {
-				return FieldType.nonAutonumTypes();
+				return FieldType.values();
 			}
 		}
-		else if (entity.isTransferable()) {
-			return FieldType.transferableTypes();
-		}
 		else {
-			return FieldType.values();
+			Assert.stateAvailable(field.getType(), "field type");
+			switch (field.getType()) {
+				case BOOLEAN:
+					return MiscUtils.toArray(field.getType(), FieldType.TEXT, FieldType.TEXTLONG);
+					
+				case DATE:
+					return MiscUtils.toArray(field.getType(), FieldType.DATETIME);
+					
+				case DATETIME:
+					return MiscUtils.toArray(field.getType(), FieldType.DATE);
+					
+				case DECIMAL:
+					return MiscUtils.toArray(field.getType(), FieldType.LONG, FieldType.DOUBLE);
+					
+				case DOUBLE:
+					return MiscUtils.toArray(field.getType(), FieldType.LONG, FieldType.DECIMAL);
+				
+				case INTEGER:
+					return MiscUtils.toArray(field.getType(), FieldType.LONG, FieldType.DOUBLE, FieldType.DECIMAL);	
+				
+				case LONG:	
+					return MiscUtils.toArray(field.getType(), FieldType.DOUBLE, FieldType.DECIMAL);	
+					
+				case TEXT:
+					return MiscUtils.toArray(field.getType(), FieldType.TEXTLONG);
+					
+				case AUTONUM:
+				case BINARY:
+				case FILE:
+				case TEXTLONG:
+				case REFERENCE:
+					return MiscUtils.toArray(field.getType());
+					
+				default:
+					throw new UnsupportedOperationException(field.getType().name());
+			}
 		}
 	}
 	
@@ -818,8 +850,8 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 			if (entity.getName().equalsIgnoreCase(entityName)) {
 				final EntityFunction function = firstMatch(entity.getFunctions(), 
 						func -> func.isCallback() && 
-						func.getName().equalsIgnoreCase(sourceCode.getClassName()) &&
-						!func.getContent().equals(sourceCode.getContent()));
+								func.getName().equalsIgnoreCase(sourceCode.getClassName()) &&
+								!func.getContent().equals(sourceCode.getContent()));
 				if (function != null) {
 					function.setContent(sourceCode.getContent());
 					session.saveOrUpdate(function);
@@ -868,47 +900,6 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 			return autonumField;
 		}
 		return null;
-	}
-	
-	private static FieldType[] getAvailableFieldTypesIfObjectsExist(Entity entity, EntityField field) {
-		switch (field.getType()) {
-			case BOOLEAN:
-				if (entity.isTransferable()) {
-					return MiscUtils.toArray(field.getType(),
-							 				 FieldType.INTEGER,
-							 				 FieldType.LONG,
-							 				 FieldType.TEXT);
-				}
-				return MiscUtils.toArray(field.getType(),
-										 FieldType.INTEGER,
-										 FieldType.LONG,
-										 FieldType.TEXT,
-										 FieldType.TEXTLONG);
-			case INTEGER:
-				if (entity.isTransferable()) {
-					return MiscUtils.toArray(field.getType(),
-											 FieldType.LONG,
-											 FieldType.TEXT);
-				}
-				return MiscUtils.toArray(field.getType(),
-										 FieldType.LONG,
-										 FieldType.TEXT,
-										 FieldType.TEXTLONG);
-			case BINARY:
-			case FILE:
-			case TEXTLONG:
-			case REFERENCE:
-				return MiscUtils.toArray(field.getType());
-				
-			default:
-				if (entity.isTransferable()) {
-					return MiscUtils.toArray(field.getType(),
-											 FieldType.TEXT);
-				}
-				return MiscUtils.toArray(field.getType(),
-									 	 FieldType.TEXT,
-									 	 FieldType.TEXTLONG);
-		}
 	}
 	
 	private void initEntity(Entity entity, Entity currentVersionEntity, Session session) {
