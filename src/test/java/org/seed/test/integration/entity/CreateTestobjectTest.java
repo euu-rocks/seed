@@ -34,6 +34,8 @@ public class CreateTestobjectTest extends AbstractEntityTest {
 		WebElement tabpanel = newEntity();
 		assertEquals("Entitäten", findTab("entitaeten").getText());
 		WebElement window = newEntityWindow();
+		
+		clickCheckbox(window, "audited");
 		findCombobox(window, "module").sendKeys("Testmodule");
 		findCombobox(window, "menu").sendKeys("Testmenu");
 		clickButton(window, "create");
@@ -165,6 +167,35 @@ public class CreateTestobjectTest extends AbstractEntityTest {
 		clickButton(tabpanelTransitions, "new");
 		findOptionCombobox(tabpanelTransitions, "sourcestatus").sendKeys("20 Status B");
 		findOptionCombobox(tabpanelTransitions, "targetstatus").sendKeys("30 Status C");
+		saveEntity(tabpanel);
+	}
+	
+	@Test
+	@Order(5)
+	void testAddNested() {
+		WebElement tabpanel = newEntity();
+		assertEquals("Entitäten", findTab("entitaeten").getText());
+		WebElement window = newEntityWindow();
+		
+		clickCheckbox(window, "nested");
+		findCombobox(window, "parententity").sendKeys("Testobject");
+		findCombobox(window, "module").sendKeys("Testmodule");
+		clickButton(window, "create");
+		
+		findTextbox(tabpanel, "name").sendKeys("TestobjectNested");
+		WebElement tabpanelFields = findTabpanel(tabpanel, "fields");
+		
+		clickButton(tabpanelFields, "new");
+		findOptionCombobox(tabpanelFields, "datatype").sendKeys("Text");
+		findOptionTextbox(tabpanelFields, "fieldname").sendKeys("NestedText");
+		
+		clickButton(tabpanelFields, "new");
+		findOptionCombobox(tabpanelFields, "datatype").sendKeys("Dezimalzahl");
+		findOptionTextbox(tabpanelFields, "fieldname").sendKeys("NestedDecimal");
+		
+		clickButton(tabpanelFields, "new");
+		findOptionCombobox(tabpanelFields, "datatype").sendKeys("Gleitkommazahl");
+		findOptionTextbox(tabpanelFields, "fieldname").sendKeys("NestedFloat");
 		saveEntity(tabpanel);
 	}
 	

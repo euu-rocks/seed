@@ -97,6 +97,36 @@ public abstract class AbstractIntegrationTest {
 		pause(DELAY_AFTER_CLEAR_FIELD);
 	}
 	
+	protected void clearIntbox(WebElement parent, String className) {
+		findIntbox(parent, className).clear();
+		pause(DELAY_AFTER_CLEAR_FIELD);
+	}
+	
+	protected void clearLongbox(WebElement parent, String className) {
+		findLongbox(parent, className).clear();
+		pause(DELAY_AFTER_CLEAR_FIELD);
+	}
+	
+	protected void clearDecimalbox(WebElement parent, String className) {
+		findDecimalbox(parent, className).clear();
+		pause(DELAY_AFTER_CLEAR_FIELD);
+	}
+	
+	protected void clearDoublebox(WebElement parent, String className) {
+		findDoublebox(parent, className).clear();
+		pause(DELAY_AFTER_CLEAR_FIELD);
+	}
+	
+	protected void clearDatebox(WebElement parent, String className) {
+		findDatebox(parent, className).clear();
+		pause(DELAY_AFTER_CLEAR_FIELD);
+	}
+	
+	protected void clearNestedField(WebElement parent, String className) {
+		findNestedField(parent, className).clear();
+		pause(DELAY_AFTER_CLEAR_FIELD);
+	}
+	
 	protected void clickButton(WebElement parent, String className) {
 		findByClass(parent, className + "-button").click();
 	}
@@ -184,6 +214,22 @@ public abstract class AbstractIntegrationTest {
 		return findField(parent, className, "z-datebox-input");
 	}
 	
+	protected WebElement findDecimalbox(WebElement parent, String className) {
+		return findField(parent, className, "z-decimalbox");
+	}
+	
+	protected WebElement findDoublebox(WebElement parent, String className) {
+		return findField(parent, className, "z-doublebox");
+	}
+	
+	protected WebElement findIntbox(WebElement parent, String className) {
+		return findField(parent, className, "z-intbox");
+	}
+	
+	protected WebElement findLongbox(WebElement parent, String className) {
+		return findField(parent, className, "z-longbox");
+	}
+	
 	protected WebElement findTextbox(WebElement parent, String className) {
 		return findField(parent, className, "z-textbox");
 	}
@@ -194,6 +240,24 @@ public abstract class AbstractIntegrationTest {
 		line = Math.max(line, 1);
 		codeMirror.findElements(By.className("CodeMirror-line")).get(line - 1).click();
 		return codeMirror.findElement(By.cssSelector("textarea"));
+	}
+	
+	protected void openToolbarCombobox(WebElement parent, String className) {
+		final WebElement spanElement = findByClass(parent, className + "-toolbarcombo");
+		findByClass(spanElement, "z-combobox-icon").click();
+	}
+	
+	protected String getToolbarComboValue(WebElement parent, String className) {
+		final WebElement spanElement = findByClass(parent, className + "-toolbarcombo");
+		return findByClass(spanElement, "z-combobox-input").getAttribute("value");
+	}
+	
+	protected void clickToolbarComboItem(String className) {
+		findByClass(className + "-comboitem").click();
+	}
+	
+	protected WebElement findNestedField(WebElement parent, String className) {
+		return findByClass(parent, className + "-field");
 	}
 	
 	protected WebElement findOptionTextbox(WebElement parent, String className) {
