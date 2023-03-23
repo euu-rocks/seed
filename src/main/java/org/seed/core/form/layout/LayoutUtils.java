@@ -84,6 +84,12 @@ public abstract class LayoutUtils {
 		return "@load(" + property + ')';
  	}
 	
+	public static String init(String property) {
+		Assert.notNull(property, C.PROPERTY);
+		
+		return "@init(" + property + ')';
+ 	}
+	
 	public static LayoutElement createZK() {
 		return new LayoutElement(LayoutElement.ZK);
 	}
@@ -116,11 +122,10 @@ public abstract class LayoutUtils {
 	public static LayoutElement createBandbox(EntityField field) {
 		Assert.notNull(field, C.FIELD);
 		
-		final LayoutElement elemBandbox = new LayoutElement(LayoutElement.BANDBOX);
-		elemBandbox.setAttribute(A_ID, field.getUid())
-				   .setAttribute(A_HFLEX, V_1)
-				   .setOrRemoveAttribute(A_MANDATORY, field.isMandatory());
-		return elemBandbox;
+		return new LayoutElement(LayoutElement.BANDBOX)
+					.setAttribute(A_ID, field.getUid())
+					.setAttribute(A_HFLEX, V_1)
+					.setOrRemoveAttribute(A_MANDATORY, field.isMandatory());
 	}
 	
 	public static LayoutElement createBandpopup() {
@@ -168,9 +173,8 @@ public abstract class LayoutUtils {
 	public static LayoutElement createBorderLayoutArea(BorderLayoutArea area) {
 		Assert.notNull(area, "area");
 		
-		final LayoutElement element = new LayoutElement(mapBorderLayoutArea.get(area));
-		element.setAttribute(A_BORDER, V_0);
-		return element;
+		return new LayoutElement(mapBorderLayoutArea.get(area))
+					.setAttribute(A_BORDER, V_0);
 	}
 	
 	public static LayoutElement createRow(int columns) {
@@ -188,9 +192,8 @@ public abstract class LayoutUtils {
 	public static LayoutElement createComboitem(String label) {
 		Assert.notNull(label, C.LABEL);
 		
-		final LayoutElement elemComboitem = new LayoutElement(LayoutElement.COMBOITEM);
-		elemComboitem.setLabel(label);
-		return elemComboitem;
+		return new LayoutElement(LayoutElement.COMBOITEM)
+					.setLabel(label);
 	}
 	
 	public static LayoutElement createLabel(String text) {
@@ -211,10 +214,9 @@ public abstract class LayoutUtils {
 	public static LayoutElement createLabelAttribute(String text) {
 		Assert.notNull(text, C.TEXT);
 		
-		final LayoutElement elemAttr = new LayoutElement(LayoutElement.ATTRIBUTE);
-		elemAttr.setAttribute(A_NAME, C.VALUE)
-				.setText(text);
-		return elemAttr;
+		return new LayoutElement(LayoutElement.ATTRIBUTE)
+					.setAttribute(A_NAME, C.VALUE)
+					.setText(text);
 	}
 	
 	public static LayoutElement createFormField(EntityField field) {
@@ -238,17 +240,15 @@ public abstract class LayoutUtils {
 	public static LayoutElement createRichTextField(EntityField field) {
 		Assert.notNull(field, C.FIELD);
 		
-		final LayoutElement elemField = new LayoutElement(LayoutElement.RICHTEXTAREA);
-		elemField.setAttribute(A_ID, field.getUid());
-		return elemField;
+		return new LayoutElement(LayoutElement.RICHTEXTAREA)
+					.setAttribute(A_ID, field.getUid());
 	}
 	
 	public static LayoutElement createButton(String icon) {
 		Assert.notNull(icon, C.ICON);
 		
-		final LayoutElement elemButton = new LayoutElement(LayoutElement.BUTTON);
-		elemButton.setIcon(icon);
-		return elemButton;
+		return new LayoutElement(LayoutElement.BUTTON)
+					.setIcon(icon);
 	}
 	
 	public static LayoutElement createColumn() {
@@ -304,26 +304,27 @@ public abstract class LayoutUtils {
 	}
 	
 	public static LayoutElement createTabbox(String title) {
-		final LayoutElement elemTabbox = new LayoutElement(LayoutElement.TABBOX);
-		elemTabbox.setAttribute(A_HFLEX, V_1)
-				  .setAttribute(A_VFLEX, V_1)
-				  .setClass(LayoutElementClass.TABBOX);
-		elemTabbox.addChild(createTabs()).addChild(createTab(title));
-		elemTabbox.addChild(createTabpanels()).addChild(createTabpanel());
-		return elemTabbox;
+		return new LayoutElement(LayoutElement.TABBOX)
+				.setAttribute(A_HFLEX, V_1)
+				.setAttribute(A_VFLEX, V_1)
+				.setClass(LayoutElementClass.TABBOX)
+				.addChild(createTabs()).addChild(createTab(title))
+				.addChild(createTabpanels()).addChild(createTabpanel(title));
 	}
 	
 	public static LayoutElement createTab(String title) {
 		Assert.notNull(title, "title");
 		
-		final LayoutElement elemTab = new LayoutElement(LayoutElement.TAB);
-		elemTab.setLabel(title)
-			   .setAttribute(A_SCLASS, NameUtils.getInternalName(title).replace('_', '-').toLowerCase() + "-tab");
-		return elemTab;
+		return new LayoutElement(LayoutElement.TAB)
+				.setLabel(title)
+				.setAttribute(A_SCLASS, NameUtils.getInternalName(title).replace('_', '-').toLowerCase() + "-tab");
 	}
 	
-	public static LayoutElement createTabpanel() {
-		return new LayoutElement(LayoutElement.TABPANEL);
+	public static LayoutElement createTabpanel(String title) {
+		Assert.notNull(title, "title");
+		
+		return new LayoutElement(LayoutElement.TABPANEL)
+				.setAttribute(A_SCLASS, NameUtils.getInternalName(title).replace('_', '-').toLowerCase() + "-tabpanel");
 	}
 	
 	public static LayoutElement createListBox() {
@@ -333,9 +334,8 @@ public abstract class LayoutUtils {
 	public static LayoutElement createToolbar(String children) {
 		Assert.notNull(children, "children");
 		
-		final LayoutElement elemToolbar = new LayoutElement(LayoutElement.TOOLBAR);
-		elemToolbar.setAttribute("children", children);
-		return elemToolbar;
+		return new LayoutElement(LayoutElement.TOOLBAR)
+				.setAttribute("children", children);
 	}
 	
 	public static LayoutElement createToolbarButton(String label, String command, String icon) {

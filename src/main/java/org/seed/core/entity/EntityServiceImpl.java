@@ -1209,8 +1209,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	private ChangeLog createChangeLog(Entity currentVersionEntity, Entity nextVersionEntity,
 									  Session session, @Nullable ReferenceChangeLog referenceChangeLog) {
-		final EntityChangeLogBuilder builder = 
-				new EntityChangeLogBuilder(schemaManager.getDatabaseInfo(), limits);
+		final var builder = new EntityChangeLogBuilder(schemaManager.getDatabaseInfo(), limits);
 		builder.setCurrentVersionObject(currentVersionEntity);
 		builder.setNextVersionObject(nextVersionEntity);
 		builder.setReferenceChangeLog(referenceChangeLog);

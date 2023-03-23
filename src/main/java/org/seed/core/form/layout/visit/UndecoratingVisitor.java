@@ -277,15 +277,16 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 	private void createSubForm(LayoutElement element) {
 		final SubForm subForm = getSubForm(element);
 		element.setAttribute(A_VISIBLE, load("vm.isSubFormVisible('" + subForm.getNestedEntity().getUid() + "')"));
-		final LayoutElement elemListBox = element.getChild(LayoutElement.CENTER).getChild(LayoutElement.LISTBOX);
-		elemListBox.setAttribute(A_MODEL, load(objectProperty(subForm.getNestedEntity().getInternalName())));
-		elemListBox.setAttribute(A_SELECTEDITEM, bind(selectedSubFormObject(subForm)));
-		elemListBox.setAttribute(A_ONSELECT, command("'selectSubFormObject'"));
-		elemListBox.setAttribute("nonselectableTags", "");
-		elemListBox.setAttribute(A_AUTOPAGING, V_TRUE);
-		elemListBox.setAttribute(A_MOLD, "paging");
+		final LayoutElement elemListBox = element.getChild(LayoutElement.CENTER).getChild(LayoutElement.LISTBOX)
+				.setAttribute(A_MODEL, load(objectProperty(subForm.getNestedEntity().getInternalName())))
+				.setAttribute(A_SELECTEDITEM, bind(selectedSubFormObject(subForm)))
+				.setAttribute(A_ONSELECT, command("'selectSubFormObject'"))
+				.setAttribute("nonselectableTags", "")
+				.setAttribute(A_AUTOPAGING, V_TRUE)
+				.setAttribute(A_MOLD, "paging");
 		final LayoutElement elemListitem = elemListBox.addChild(createTemplate(A_MODEL, subForm.getNestedEntity().getInternalName()))
 													  .addChild(createListItem(null));
+		elemListitem.setAttribute(A_SCLASS, "@init(vm.getListItemTestClass(" + subForm.getNestedEntity().getInternalName() + "))");
 		if (subForm.getNestedEntity().isReadonly()) {
 			elemListitem.setContext(subFormContext(subForm, subForm.getNestedEntityUid()));
 			addRootChild(createDetailPopup(elemListitem.getContext(), subForm.getNestedEntityUid()));
@@ -298,9 +299,10 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 			final LayoutElement elemActionTemplateSelect = elemToolbar.addChild(createTemplate("select", C.ACTION));
 			final LayoutElement elemToolbarButton = createToolbarButton("@init(vm.getActionLabel(action))", // label
 					"'callSubFormAction',nestedId='" + subForm.getNestedEntity().getUid() + "',action=action,elem=self", // command
-					"@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"); // icon
-			elemToolbarButton.setAttribute("enable", load("vm.isActionEnabled(action)"));
-			elemToolbarButton.setAttribute(A_DISABLED, load("vm.isActionDisabled(action)"));
+					"@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))") // icon
+					.setAttribute("enable", load("vm.isActionEnabled(action)"))
+					.setAttribute(A_DISABLED, load("vm.isActionDisabled(action)"))
+					.setAttribute(A_SCLASS, "@init(action.testClass)");
 			final LayoutElement elemToolbarButtonSelect = elemToolbarButton.copy();
 			elemToolbarButtonSelect.setAttribute(A_VISIBLE, load("!empty " + selectedSubFormObject(subForm)));
 			elemActionTemplate.addChild(elemToolbarButton);

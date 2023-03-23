@@ -47,7 +47,7 @@ import org.seed.core.form.SubForm;
 import org.seed.core.form.SubFormAction;
 import org.seed.core.form.printout.PrintoutService;
 import org.seed.core.util.Assert;
-
+import org.seed.core.util.NameUtils;
 import org.seed.ui.FormParameter;
 import org.seed.ui.Tab;
 import org.seed.ui.zk.LoadOnDemandListModel;
@@ -159,6 +159,12 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 	
 	public boolean isRelationFormVisible(String relationEntityUid) {
 		return form.isRelationFormVisible(relationEntityUid, getUser());
+	}
+	
+	public String getListItemTestClass(ValueObject object) {
+		return object != null
+				? NameUtils.getInternalName(getIdentifier(object)).replace('_', '-').toLowerCase().concat("-listitem")
+				: null;
 	}
 	
 	public List<SubFormAction> getSubFormActions(String nestedEntityUid) {

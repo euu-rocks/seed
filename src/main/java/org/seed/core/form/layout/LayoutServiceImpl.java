@@ -420,7 +420,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		
 		final LayoutElement elemTab = getElementByContextId(layoutRoot, contextId);
 		elemTab.getParent().addChild(createTab(title));
-		elemTab.getParent().getParent().getChild(LayoutElement.TABPANELS).addChild(createTabpanel());
+		elemTab.getParent().getParent().getChild(LayoutElement.TABPANELS).addChild(createTabpanel(title));
 		redecorateLayout(form, layoutRoot);
 	}
 	
@@ -805,7 +805,8 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		final LayoutElement elemListbox = createListFormList();
 		final LayoutElement elemListhead = elemListbox.addChild(createListHead(true));
 		final LayoutElement elemTemplate = elemListbox.addChild(createTemplate(A_MODEL, "obj"));
-		final LayoutElement elemListitem = elemTemplate.addChild(createListItem("'callAction',action=vm.editAction,elem=self"));
+		final LayoutElement elemListitem = elemTemplate.addChild(createListItem("'callAction',action=vm.editAction,elem=self"))
+													   .setAttribute(A_SCLASS, init("vm.getListItemTestClass(obj)"));
 		if (form.hasFields()) {
 			formSettings.sortFields(form.getFields());
 			for (FormField field : form.getFields()) {

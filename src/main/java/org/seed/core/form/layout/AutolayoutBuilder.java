@@ -126,14 +126,14 @@ class AutolayoutBuilder extends LayoutUtils {
 		if (form.hasSubForms()) {
 			for (SubForm subForm : form.getSubForms()) {
 				elemTabs.addChild(createTab(subForm.getNestedEntity().getName()));
-				LayoutServiceImpl.buildSubForm(subForm, elemPanels.addChild(createTabpanel()));
+				LayoutServiceImpl.buildSubForm(subForm, elemPanels.addChild(createTabpanel(subForm.getNestedEntity().getName())));
 			}
 		}
 		// relations
 		if (entity.hasAllRelations()) {
 			for (EntityRelation relation : entity.getAllRelations()) {
 				elemTabs.addChild(createTab(relation.getName()));
-				LayoutServiceImpl.buildRelationForm(relation, elemPanels.addChild(createTabpanel()));
+				LayoutServiceImpl.buildRelationForm(relation, elemPanels.addChild(createTabpanel(relation.getName())));
 			}
 		}
 		return elemLayout;

@@ -26,7 +26,6 @@ import org.hibernate.Session;
 import org.seed.C;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.config.Limits;
-import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
@@ -94,18 +93,18 @@ public class ValueObjectValidator implements ApplicationContextAware {
 		final Entity objectEntity = entityRepository.get(object.getEntityId(), session);
 		final var errors = new ValidationErrors();
 		for (var dependent : getValueObjectDependents()) {
-			for (SystemEntity systemEntity : dependent.findUsage(session, object)) {
-				if (systemEntity instanceof Entity) {
-					final Entity entity = (Entity) systemEntity;
+			for (var dependentEntity : dependent.findUsage(session, object)) {
+				if (dependentEntity instanceof Entity) {
+					final Entity entity = (Entity) dependentEntity;
 					if (!objectEntity.isNestedEntity(entity)) {
 						errors.addError("val.inuse.valueobject", entity.getName());
 					}
 				}
-				else if (systemEntity instanceof Filter) {
-					errors.addError("val.inuse.valueobjectfilter", systemEntity.getName());
+				else if (dependentEntity instanceof Filter) {
+					errors.addError("val.inuse.valueobjectfilter", dependentEntity.getName());
 				}
 				else {
-					throw new UnsupportedOperationException(systemEntity.getName());
+					throw new UnsupportedOperationException(dependentEntity.getName());
 				}
 			}
 		}

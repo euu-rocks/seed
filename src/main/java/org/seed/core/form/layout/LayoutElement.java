@@ -126,8 +126,9 @@ public final class LayoutElement {
 		return text;
 	}
 
-	public void setText(String text) {
+	public LayoutElement setText(String text) {
 		this.text = text;
+		return this;
 	}
 	
 	public LayoutElement copy() {
@@ -255,7 +256,7 @@ public final class LayoutElement {
 		Assert.notNull(value, C.VALUE);
 		
 		if (attributes == null) {
-			attributes = new HashMap<>();
+			attributes = new HashMap<>(8);
 		}
 		attributes.put(name, value.toString());
 		return this;
@@ -463,7 +464,7 @@ public final class LayoutElement {
 		parent = null;
 	}
 	
-	void setOrRemoveAttribute(String name, Object value) {
+	LayoutElement setOrRemoveAttribute(String name, Object value) {
 		Assert.notNull(name, C.NAME);
 		
 		if (ObjectUtils.isEmpty(value) || Boolean.FALSE.equals(value)) {
@@ -475,6 +476,7 @@ public final class LayoutElement {
 			}
 			setAttribute(name, value);
 		}
+		return this;
 	}
 	
 	private void checkChildren() {

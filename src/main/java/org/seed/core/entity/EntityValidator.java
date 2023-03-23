@@ -135,9 +135,14 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		Assert.notNull(entity, C.ENTITY);
 		final var errors = createValidationErrors(entity);
 		
-		try (Session session = repository.getSession()) {
-			for (var dependent : getEntityDependents()) {
-				validateDeleteEntityDependent(entity, dependent, errors, session);
+		if (entity.hasNesteds()) {
+			errors.addError("val.delete.nestedexist");
+		}
+		else {
+			try (Session session = repository.getSession()) {
+				for (var dependent : getEntityDependents()) {
+					validateDeleteEntityDependent(entity, dependent, errors, session);
+				}
 			}
 		}
 		validate(errors);

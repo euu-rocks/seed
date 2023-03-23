@@ -67,7 +67,8 @@
 						  style="padding-left:10px"
 						  nullable="false" readonly="true">
 					<template name="model" var="status">
-	                    <comboitem label="@init(status.numberAndName)"/>
+	                    <comboitem label="@init(status.numberAndName)"
+	                    		   sclass="@init(status.statusNumber.toString().concat('-comboitem'))"/>
 	                </template>
 				</combobox>
 			</template>

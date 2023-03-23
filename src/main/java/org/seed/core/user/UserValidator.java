@@ -22,7 +22,6 @@ import java.util.regex.Pattern;
 import org.seed.C;
 import org.seed.core.config.Limits;
 import org.seed.core.data.AbstractSystemEntityValidator;
-import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
@@ -35,12 +34,12 @@ public class UserValidator extends AbstractSystemEntityValidator<User> {
 	private static final Pattern PATTERN_USERNAME = Pattern.compile("\\p{Alnum}+");
 	
 	private static final Pattern PATTERN_EMAIL = Pattern.compile(
-		"^(?=.{1,64}@)[\\p{L}0-9_-]+(\\.[\\p{L}0-9_-]+)*@[^-][\\p{L}0-9-]+(\\.[\\p{L}0-9-]+)*(\\.[\\p{L}]{2,})$");
+		"^(?=.{1,64}@)[\\p{L}0-9_-]+(\\.[\\p{L}0-9_-]+){0,}@[^-][\\p{L}0-9-]+(\\.[\\p{L}0-9-]+){0,}(\\.[\\p{L}]{2,})$");
 	
 	@Override
 	public void validateSave(User user) throws ValidationException {
 		Assert.notNull(user, C.USER);
-		final ValidationErrors errors = createValidationErrors(user);
+		final var errors = createValidationErrors(user);
 		
 		if (isEmpty(user.getName())) {
 			errors.addEmptyName();
@@ -80,7 +79,7 @@ public class UserValidator extends AbstractSystemEntityValidator<User> {
 	
 	void validatePassword(User user, String password, String passwordRepeated) throws ValidationException {
 		Assert.notNull(user, C.USER);
-		final ValidationErrors errors = createValidationErrors(user);
+		final var errors = createValidationErrors(user);
 		
 		if (isEmpty(password)) {
 			errors.addEmptyField("label.password");

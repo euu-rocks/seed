@@ -215,7 +215,7 @@ public class AdminFilterViewModel extends AbstractAdminViewModel<Filter> {
 	
 	public Object getReferenceValue(FilterCriterion criterion) {
 		return criterion != null 
-				? getReferenceValue((SystemObject) criterion.getReference(), criterion.getElement())
+				? getReferenceValue(criterion.getReference(), criterion.getElement())
 				: null;
 	}
 	
