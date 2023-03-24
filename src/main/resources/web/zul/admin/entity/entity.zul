@@ -86,7 +86,6 @@
 									 visible="@load(!vm.object.generic)"
 									 placeholder="@load(vm.object.defaultIdentifierPattern)"
 									 onChange="@command('flagDirty')"
-									 instant="true"
 									 hflex="1"/>
 							<checkbox checked="@load(vm.object.generic)"
 									  visible="@load(vm.object.generic)"
@@ -119,7 +118,6 @@
 									 placeholder="@load(vm.object.internalName.toLowerCase())"
 									 visible="@load(vm.object.transferable)"
 									 onChange="@command('flagDirty')"
-									 instant="true"
 									 hflex="1"/>
 						</cell>
 						<cell style="padding: 4px 10px" align="right">
@@ -133,7 +131,6 @@
 									 placeholder="@load(vm.object.internalName.toLowerCase())"
 									 visible="@load(!(vm.object.generic or vm.object.transferable))"
 									 onChange="@command('flagDirty')"
-									 instant="true"
 									 hflex="1"/>
 							<checkbox checked="@load(vm.object.transferable)"
 									  visible="@load(vm.object.transferable)"

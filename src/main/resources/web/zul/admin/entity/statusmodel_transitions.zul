@@ -102,7 +102,7 @@
 	     	<div sclass="description-field">
 	            <textbox hflex="1" rows="5"
 	               		 value="@bind(vm.statusTransition.description) @converter(vm.stringConverter)"
-	               		 onChanging="@command('flagDirty')"/>
+	               		 onChange="@command('flagDirty')"/>
             </div>
 		</vlayout>
 	</east>

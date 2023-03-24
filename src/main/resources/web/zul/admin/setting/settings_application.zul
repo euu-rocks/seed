@@ -42,7 +42,6 @@
 	                    			<textbox value="@bind(vm.getSetting('APPLICATION_NAME').value) @converter(vm.stringConverter)"
 	                    					 placeholder="@init(vm.defaultApplicationName)"
 	                    					 onChange="@command('flagDirty')"
-	                    					 instant="true"
 	                    					 hflex="1"/>
 	                    		</cell>
 	                    	</row>
@@ -54,7 +53,6 @@
 	                    			<textbox value="@bind(vm.getSetting('APPLICATION_TIMEZONE').value) @converter(vm.stringConverter)"
 	                    					 placeholder="@init(vm.defaultApplicationTimeZone)"
 	                    					 onChange="@command('flagDirty')"
-	                    					 instant="true"
 	                    					 hflex="1"/>
 	                    		</cell>
 	                    	</row>

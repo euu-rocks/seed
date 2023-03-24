@@ -226,7 +226,7 @@ public final class LayoutElement {
 	}
 	
 	public boolean isEmpty() {
-		return !hasChildren() && text == null;
+		return text == null && !hasChildren();
 	}
 	
 	public boolean hasAttributes() {

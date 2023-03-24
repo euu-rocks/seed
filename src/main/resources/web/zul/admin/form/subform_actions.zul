@@ -106,8 +106,8 @@
 	        <textbox value="@bind(vm.subFormAction.label)
 	        				@converter(vm.stringConverter)"
 	        		 placeholder="@load(vm.getActionLabel(vm.subFormAction))"
-	        		 onChanging="@command('flagDirty')" 
-	        		 instant="true" hflex="1"/>
+	        		 onChange="@command('flagDirty')" 
+	        		 hflex="1"/>
 	    </vlayout>
 	</east>
 </borderlayout>

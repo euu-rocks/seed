@@ -78,7 +78,7 @@
 						</cell>
 						<cell style="padding: 4px 4px">
 							<intbox value="@bind(vm.object.order)"
-									onChanging="@command('flagDirty')"
+									onChange="@command('flagDirty')"
 									hflex="1"/> 
 						</cell>
 						<cell style="padding: 4px 10px" align="right">

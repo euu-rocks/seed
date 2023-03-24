@@ -101,8 +101,8 @@
 		        <textbox value="@bind(vm.action.label)
 		        				@converter(vm.stringConverter)"
 		        		 placeholder="@load(vm.getActionLabel(vm.action))"
-		        		 onChanging="@command('flagDirty')" 
-		        		 instant="true" hflex="1"/>
+		        		 onChange="@command('flagDirty')" 
+		        		 hflex="1"/>
 		    </div>
 		</vlayout>
 	</east>

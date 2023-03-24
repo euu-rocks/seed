@@ -67,7 +67,7 @@
 		<vlayout class="alpha-properties-content">
         	<label value="${labels.label.label}:"/>
         	<div sclass="label-field">
-	            <textbox hflex="1" instant="true"
+	            <textbox hflex="1"
 	            		 value="@bind(vm.dataSource.label) @converter(vm.stringConverter)"
 	            		 placeholder="@load(vm.dataSource.dataSource.name)"
 	            		 onChange="@command('flagDirty')"/>

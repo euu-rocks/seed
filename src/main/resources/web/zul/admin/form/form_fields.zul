@@ -76,37 +76,37 @@
 	        <div sclass="fieldlabel-field">
 		        <textbox value="@bind(vm.field.label)
 		        				@converter(vm.stringConverter)"
-		        		 onChanging="@command('flagDirty')"
+		        		 onChange="@command('flagDirty')"
 		        		 placeholder="@load(vm.field.system ? vm.getEnumLabel(vm.field.systemField) : vm.field.entityField.name)"
-		        		 instant="true" hflex="1"/>
+		        		 hflex="1"/>
 		    </div>
 	        <vlayout visible="@load(!vm.field.entityField.type.isBinary())">
 		        <label value="${labels.label.style}:"/>
 		        <textbox value="@bind(vm.field.style)
 		        				@converter(vm.stringConverter)"
-		        		 onChanging="@command('flagDirty')"
+		        		 onChange="@command('flagDirty')"
 		        		 hflex="1"/>
 	        </vlayout>
 	        <label value="${labels.label.labelstyle}:"/>
 	        <textbox value="@bind(vm.field.labelStyle)
 	        				@converter(vm.stringConverter)" 
-	        		 onChanging="@command('flagDirty')"
+	        		 onChange="@command('flagDirty')"
 	        		 hflex="1"/>
 	        <label value="${labels.label.width}:"/>
 	        <textbox value="@bind(vm.field.width)
 	        				@converter(vm.stringConverter)" 
-	        		 onChanging="@command('flagDirty')"
+	        		 onChange="@command('flagDirty')"
 	        		 hflex="1"/>
 	        <label value="${labels.label.hflex}:"/>
 	        <textbox value="@bind(vm.field.hflex)
 	        				@converter(vm.stringConverter)" 
-	        		 onChanging="@command('flagDirty')"
+	        		 onChange="@command('flagDirty')"
 	        		 placeholder="1"
 	        		 hflex="1"/>		 
 	        <vlayout visible="@load(vm.field.entityField.type.isBinary())">
 		        <label value="${labels.label.thumbnailwidth}:"/>
 		        <intbox value="@bind(vm.field.thumbnailWidth)"
-		        		onChanging="@command('flagDirty')"
+		        		onChange="@command('flagDirty')"
 		        		hflex="1"/>
 	        </vlayout>
 		</vlayout>

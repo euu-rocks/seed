@@ -94,8 +94,7 @@
 	            <textbox hflex="1"
 	            		 value="@bind(vm.function.mapping) @converter(vm.stringConverter)"
 	            		 placeholder="@load(vm.function.nameMapping)"
-	            		 onChange="@command('flagDirty')"
-	            		 instant="true"/>
+	            		 onChange="@command('flagDirty')"/>
            	</div>
             <button label="${labels.admin.entity.editsource}..."
             		sclass="editfunction-button"

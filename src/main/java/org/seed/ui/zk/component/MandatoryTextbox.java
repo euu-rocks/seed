@@ -25,10 +25,13 @@ public class MandatoryTextbox extends Textbox {
 	
 	private boolean mandatory;
 	
+	public MandatoryTextbox() {
+		setInstant(true);
+	}
+	
 	public void setMandatory(boolean mandatory) {
 		this.mandatory = mandatory;
 		if (mandatory) {
-			setInstant(true);
 			ComponentUtils.setMandatoryStatus(this);
 		}
 	}

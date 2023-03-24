@@ -59,11 +59,11 @@
 		    <auxhead visible="@load(vm.listViewFilterGroup.visible)">
 		    	<auxheader>
 		            <textbox value="@bind(vm.getFilter('list','name').value)" 
-		            		 instant="true" hflex="1"/>
+		            		 hflex="1"/>
 		        </auxheader>
 		        <auxheader>
 		            <textbox value="@bind(vm.getFilter('list','filename').value)" 
-		            		 instant="true" hflex="1"/>
+		            		 hflex="1"/>
 		        </auxheader>
 		        <auxheader>
 		        	<combobox model="@load(vm.getFilter('list','module').values) @template(empty each ? 'empty' : 'module')"

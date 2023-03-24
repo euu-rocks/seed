@@ -94,7 +94,6 @@
 	            		 sclass="columnname-field"
 	            		 placeholder="@load(vm.field.internalName)"
 	            		 onChange="@command('flagDirty')"
-	            		 instant="true"
 	            		 hflex="1"/>
             </div>
             <vlayout visible="@load(!empty vm.object.allFieldGroups)">
@@ -145,7 +144,7 @@
             	<div sclass="autonumpattern-field"> 
 	            	<textbox hflex="1"
 	            		 	 value="@bind(vm.field.autonumPattern)"
-	            		 	 onChanging="@command('flagDirty')"/>
+	            		 	 onChange="@command('flagDirty')"/>
             	</div>
             	<label value="${labels.label.startvalue}:"/>
             	<div sclass="autonumstart-field"> 

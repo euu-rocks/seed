@@ -70,7 +70,7 @@
 	        </div>
             <label value="${labels.label.value}:"/>
             <div sclass="value-field">
-	            <textbox hflex="1" instant="true"
+	            <textbox hflex="1"
 	            		 value="@bind(vm.parameter.value) @converter(vm.stringConverter)"
 	            		 onChange="@command('flagDirty')"/>
 	        </div>

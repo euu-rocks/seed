@@ -59,7 +59,7 @@
 		    <auxhead visible="@load(vm.listViewFilterGroup.visible)">
 		    	<auxheader>
 		            <textbox value="@bind(vm.getFilter('list','name').value)" 
-		            		 instant="true" hflex="1"/>
+		            		 hflex="1"/>
 		        </auxheader>
 		        <auxheader>
 		        	<combobox model="@load(vm.getFilter('list','entity').values) @template(empty each ? 'empty' : 'entity')"

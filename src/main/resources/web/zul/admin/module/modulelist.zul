@@ -70,7 +70,7 @@
 		    <auxhead visible="@load(vm.listViewFilterGroup.visible)">
 		    	<auxheader>
 		            <textbox value="@bind(vm.getFilter('list','name').value)" 
-		            		 instant="true" hflex="1"/>
+		            		 hflex="1"/>
 		        </auxheader>
 		    </auxhead>
 		    <template name="model" var="module">

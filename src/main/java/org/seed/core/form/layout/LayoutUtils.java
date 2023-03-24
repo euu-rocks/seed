@@ -109,7 +109,7 @@ public abstract class LayoutUtils {
 	}
 	
 	public static LayoutElement createGroupbox(String title, LayoutElement elemGrid) {
-		Assert.notNull(title, "title");
+		Assert.notNull(title, C.TITLE);
 		Assert.notNull(elemGrid, "elemGrid");
 		
 		final LayoutElement elemGoupbox = new LayoutElement(LayoutElement.GROUPBOX);
@@ -313,7 +313,7 @@ public abstract class LayoutUtils {
 	}
 	
 	public static LayoutElement createTab(String title) {
-		Assert.notNull(title, "title");
+		Assert.notNull(title, C.TITLE);
 		
 		return new LayoutElement(LayoutElement.TAB)
 				.setLabel(title)
@@ -321,7 +321,7 @@ public abstract class LayoutUtils {
 	}
 	
 	public static LayoutElement createTabpanel(String title) {
-		Assert.notNull(title, "title");
+		Assert.notNull(title, C.TITLE);
 		
 		return new LayoutElement(LayoutElement.TABPANEL)
 				.setAttribute(A_SCLASS, NameUtils.getInternalName(title).replace('_', '-').toLowerCase() + "-tabpanel");

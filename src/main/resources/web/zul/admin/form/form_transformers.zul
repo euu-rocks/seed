@@ -75,8 +75,8 @@
 		        <textbox value="@bind(vm.transformer.label)
 		        				@converter(vm.stringConverter)"
 		        		 placeholder="@load(vm.transformer.transformer.name)"
-		        		 onChanging="@command('flagDirty')" 
-		        		 instant="true" hflex="1"/>
+		        		 onChange="@command('flagDirty')" 
+		        		 hflex="1"/>
 			</div>
 	        <label value="${labels.label.targetform}:"/>
 	        <div sclass="targetform-field">

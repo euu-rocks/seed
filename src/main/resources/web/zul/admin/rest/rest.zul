@@ -72,7 +72,6 @@
 							<textbox value="@bind(vm.object.mapping) @converter(vm.stringConverter)" 
 									 placeholder="@load(vm.object.nameMapping)"
 									 onChange="@command('flagDirty')"
-									 instant="true"
 									 hflex="1"/>
 						</cell>
 					</row>

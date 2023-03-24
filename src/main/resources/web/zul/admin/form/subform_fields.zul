@@ -74,7 +74,7 @@
 	        <textbox value="@bind(vm.subFormColumn.label)
 	        				@converter(vm.stringConverter)"
 	        		 placeholder="@load(vm.subFormColumn.entityField.name)"
-	        		 instant="true" hflex="1"/>
+	        		 hflex="1"/>
 	        <vlayout visible="@load(!vm.subFormColumn.entityField.type.isBinary())">
 		        <label value="${labels.label.style}:"/>
 		        <textbox value="@bind(vm.subFormColumn.style)"

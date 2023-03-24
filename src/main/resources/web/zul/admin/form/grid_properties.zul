@@ -65,7 +65,7 @@
 		  	  class="alpha-properties">
 			<vlayout class="alpha-properties-content">
 	        	<label value="${labels.label.caption}:"/>
-	            <textbox value="@bind(vm.selectedColumn.label)" instant="true" hflex="1"/>
+	            <textbox value="@bind(vm.selectedColumn.label)" hflex="1"/>
 	            <label value="${labels.label.width}:"/>
 	            <textbox value="@bind(vm.selectedColumn.width)"/>
 	            <label value="${labels.label.hflex}:"/>

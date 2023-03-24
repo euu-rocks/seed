@@ -93,6 +93,7 @@ public final class C {
 	public static final String TASK             = "task";
 	public static final String TARGETENTITY     = "targetEntity";
 	public static final String TEXT             = "text";
+	public static final String TITLE            = "title";
 	public static final String TRANSFER         = "transfer";
 	public static final String TRANSFERABLE     = "transferable";
 	public static final String TRANSFORMER      = "transformer";
