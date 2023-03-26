@@ -39,8 +39,8 @@ import org.seed.core.form.FormAction;
 import org.seed.core.form.FormActionType;
 import org.seed.core.form.FormField;
 import org.seed.core.util.MiscUtils;
-import org.seed.ui.FormParameter;
 import org.seed.ui.SearchParameter;
+import org.seed.ui.Tab;
 import org.seed.ui.settings.ViewSettings;
 import org.seed.ui.zk.LoadOnDemandListModel;
 import org.seed.ui.zk.ViewUtils;
@@ -87,8 +87,8 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	
 	@Init
 	@Override
-	public void init(@ExecutionArgParam(C.PARAM) FormParameter param) {
-		super.init(param);
+	public void init(@ExecutionArgParam(C.PARAM) Tab tab) {
+		super.init(tab);
 		
 		filterList = filterService.getFilters(getForm().getEntity(), getUser(), currentSession());
 		editAction = getForm().getActionByType(FormActionType.DETAIL);
@@ -133,7 +133,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 
 	public ListModel<ValueObject> getListModel() {
 		if (listModel == null) {
-			final SearchParameter searchParam = getTab().getSearchParameter();
+			final SearchParameter searchParam = getTab().getProperty(SEARCH_PARAMETER);
 			QueryCursor<ValueObject> cursor;
 			if (searchParam != null) {
 				cursor = valueObjectService().createCursor(currentSession(), searchParam.searchObject, searchParam.mapOperators);
@@ -198,7 +198,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	}
 	
 	public boolean isResultList() {
-		return getTab().getSearchParameter() != null;
+		return getTab().getProperty(SEARCH_PARAMETER) != null;
 	}
 
 	@Command
@@ -248,7 +248,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 				break;
 				
 			case SEARCH:
-				getTab().clearSearch();
+				getTab().removeProperty(SEARCH_PARAMETER);
 				/* falls through */
 			case BACKSEARCH:
 				showSearchForm();

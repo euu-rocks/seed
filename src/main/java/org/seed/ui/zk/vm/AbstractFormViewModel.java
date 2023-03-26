@@ -64,6 +64,7 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 	
 	protected static final String FIELD_UID           = "fieldUid";
 	protected static final String REFERENCE_FIELD_UID = "referenceFieldUid";
+	protected static final String SEARCH_PARAMETER    = "searchParameter";
 	
 	@WireVariable(value="entityServiceImpl")
 	private EntityService entityService;
@@ -217,30 +218,30 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 	
 	protected abstract String getLayoutPath();
 	
-	protected void init(FormParameter formParameter) {
-		Assert.notNull(formParameter, "formParameter");
-		this.formParameter = formParameter;
+	protected void init(Tab tab) {
+		Assert.notNull(tab, C.TAB);
+		this.tab = tab;
+		this.formParameter = (FormParameter) tab.getParameter();
+		Assert.stateAvailable(formParameter, "form parameter");
 		form = formParameter.form;
-		tab = formParameter.getTab();
 		Assert.stateAvailable(form, C.FORM);
-		Assert.stateAvailable(tab, C.TAB);
 		form = formService.getObject(form.getId(), currentSession());
 	}
 	
 	protected void showListForm() {
-		showView("/form/listform.zul", new FormParameter(form, tab));
+		showView("/form/listform.zul", new FormParameter(form));
 	}
 	
 	protected void showSearchForm() {
-		showView("/form/searchform.zul", new FormParameter(form, tab));
+		showView("/form/searchform.zul", new FormParameter(form));
 	}
 	
 	protected void showDetailForm(Long objectId) {
-		showView("/form/detailform.zul", new FormParameter(form, tab, objectId));
+		showView("/form/detailform.zul", new FormParameter(form, objectId));
 	}
 	
 	protected void showDetailForm(Form form, ValueObject object) {
-		showView("/form/detailform.zul", new FormParameter(form, tab, object));
+		showView("/form/detailform.zul", new FormParameter(form, object));
 	}
 	
 	protected void showSelectFieldsDialog() {

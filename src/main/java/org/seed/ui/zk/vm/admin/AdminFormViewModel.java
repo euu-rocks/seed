@@ -42,6 +42,7 @@ import org.seed.core.form.navigation.MenuService;
 import org.seed.core.user.Authorisation;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
+import org.seed.core.util.UID;
 import org.seed.ui.ListFilter;
 
 import org.zkoss.bind.annotation.BindingParam;
@@ -65,7 +66,8 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	private static final String TRANSFORMERS   = "transformers";
 	private static final String PRINTOUTS      = "printouts";
 	private static final String LAYOUT_INCLUDE = "layoutInclude";
-	private static final String CONTEXT_ID     = "contextid"; 
+	private static final String CONTEXT_ID     = "contextid";
+	private static final String EDITFORM_UID   = "editFormUid";
 	
 	@Wire("#newFormWin")
 	private Window window;
@@ -110,11 +112,19 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	@Override
 	protected void initObject(Form form) {
 		super.initObject(form);
+		final LayoutElement editLayout = layoutService.getEditLayout(getEditFormUid());
+		
 		if (form.getLayout() != null) {
-			initLayout(layoutService.parseLayout(form.getLayout()));
+			if (editLayout != null) {
+				this.layoutRoot = editLayout;
+				flagDirty();
+			}
+			else {
+				initLayout(layoutService.parseLayout(form.getLayout()));
+			}
 		}
-		else if (layoutService.getEditLayout(getUserName()) != null) {
-			layoutService.resetEditLayout(getUserName());
+		else if (editLayout != null) {
+			layoutService.resetEditLayout(getEditFormUid());
 			notifyChange(LAYOUT_INCLUDE);
 		}
 	}
@@ -200,7 +210,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	public String getLayoutInclude() {
-		return "/generated/edit/" + getUserName() + '/' + System.currentTimeMillis();
+		return "/generated/edit/" + getEditFormUid() + '/' + System.currentTimeMillis();
 	}
 	
 	public boolean existTransformers() {
@@ -687,6 +697,15 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 		notifyChange(LAYOUT_INCLUDE);
 	}
 	
+	private String getEditFormUid() {
+		String editFormUid = getTab().getProperty(EDITFORM_UID);
+		if (editFormUid == null) {
+			editFormUid = UID.createUID();
+			getTab().setProperty(EDITFORM_UID, editFormUid);
+		}
+		return editFormUid;
+	}
+	
 	private List<FormField> getAllAndMarkSelectedFields() {
 		final List<FormField> availabaleFields = MiscUtils.castList(getListManagerList(FIELDS, LIST_AVAILABLE));
 		availabaleFields.forEach(f -> f.setSelected(false));
@@ -699,7 +718,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 		Assert.notNull(layoutRoot, C.LAYOUTROOT);
 		
 		this.layoutRoot = layoutRoot;
-		layoutService.registerEditLayout(getObject(), getUserName(), layoutRoot);
+		layoutService.registerEditLayout(getObject(), getEditFormUid(), layoutRoot);
 	}
 	
 	private LayoutDialogParameter newDialogParameter(String command, String contextId) {

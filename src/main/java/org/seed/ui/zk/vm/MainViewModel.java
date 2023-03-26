@@ -135,7 +135,7 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	}
 	
 	public TreeModel getMenuTree() {
-		final TreeNode root = new TreeNode("root", null, null);
+		final var root = new TreeNode("root", null, null);
 		getMenuList().forEach(root::addChild);
 		return new TreeModel(root);
 	}
@@ -279,7 +279,6 @@ public class MainViewModel extends AbstractApplicationViewModel {
 			selectedTab = new Tab(name, getZulPath(view), icon, parameter);
 		}
 		if (parameter != null) {
-			parameter.setTab(selectedTab);
 			selectedTab.setObjectId(parameter.getObjectId());
 		}
 		tabs.add(selectedTab);

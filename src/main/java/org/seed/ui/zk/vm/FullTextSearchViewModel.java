@@ -42,6 +42,9 @@ import org.zkoss.zk.ui.select.annotation.WireVariable;
 import org.zkoss.zul.ListModel;
 
 public class FullTextSearchViewModel extends AbstractApplicationViewModel {
+	
+	private static final String FULLTEXTSEARCH_TERM = "fullTextSearchTerm";
+	private static final String FULLTEXTSEARCH_CURSOR = "fullTextSearchCursor";
 
 	@WireVariable(value="valueObjectServiceImpl")
 	private ValueObjectService valueObjectService;
@@ -55,11 +58,16 @@ public class FullTextSearchViewModel extends AbstractApplicationViewModel {
 	private Tab tab;
 	
 	public String getSearchTerm() {
-		return tab.getFullTextSearchTerm();
+		return tab.getProperty(FULLTEXTSEARCH_TERM);
 	}
 
 	public void setSearchTerm(String searchTerm) {
-		tab.setFullTextSearchTerm(searchTerm);
+		if (searchTerm != null) {
+			tab.setProperty(FULLTEXTSEARCH_TERM, searchTerm);
+		}
+		else {
+			tab.removeProperty(FULLTEXTSEARCH_TERM);
+		}
 	}
 	
 	@Init
@@ -73,10 +81,10 @@ public class FullTextSearchViewModel extends AbstractApplicationViewModel {
 		if (StringUtils.hasText(getSearchTerm())) {
 			
 			// get or create cursor
-			QueryCursor<FullTextResult> cursor = tab.getFullTextSearchCursor();
+			QueryCursor<FullTextResult> cursor = tab.getProperty(FULLTEXTSEARCH_CURSOR);
 			if (cursor == null) {
 				cursor = valueObjectService.createFullTextSearchCursor(getSearchTerm());
-				tab.setFullTextSearchCursor(cursor);
+				tab.setProperty(FULLTEXTSEARCH_CURSOR, cursor);
 			}
 			
 			// create model
@@ -95,7 +103,7 @@ public class FullTextSearchViewModel extends AbstractApplicationViewModel {
 	@Command
 	@NotifyChange("listModel")
 	public void search() {
-		tab.setFullTextSearchCursor(null);
+		tab.removeProperty(FULLTEXTSEARCH_CURSOR);
 	}
 	
 	@Command

@@ -76,6 +76,8 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	private static final String PATH_EDIT   = "/edit/";		//NOSONAR
 	private static final String PATH_SEARCH = "/search/";	//NOSONAR
 	
+	private static final String EDITLAYOUT_UID = "editLayoutUid";
+	
 	@Autowired
 	private FormService formService;
 	
@@ -89,13 +91,13 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	private final Map<String, LayoutElement> editLayoutMap = new ConcurrentHashMap<>();
 	
 	@Override
-	public void registerEditLayout(Form form, String username, LayoutElement layoutRoot) {
+	public void registerEditLayout(Form form, String editLayoutUid, LayoutElement layoutRoot) {
 		Assert.notNull(form, C.FORM);
-		Assert.notNull(username, C.USERNAME);
+		Assert.notNull(editLayoutUid, EDITLAYOUT_UID);
 		Assert.notNull(layoutRoot, C.LAYOUTROOT);
 		
 		decorateLayout(form, layoutRoot);
-		editLayoutMap.put(username, layoutRoot);
+		editLayoutMap.put(editLayoutUid, layoutRoot);
 	}
 	
 	@Override
@@ -112,8 +114,8 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 			content = getForm(formId).getLayout().getContent();
 		}
 		else if (path.startsWith(PATH_EDIT)) {
-			final String username = path.substring(PATH_EDIT.length(), path.lastIndexOf('/'));
-			final LayoutElement layout = getEditLayout(username);
+			final String editLayoutUid = path.substring(PATH_EDIT.length(), path.lastIndexOf('/'));
+			final LayoutElement layout = getEditLayout(editLayoutUid);
 			if (layout != null) {
 				content = buildLayout(layout);
 			}
@@ -135,18 +137,18 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	}
 	
 	@Override
-	public LayoutElement getEditLayout(String username) {
-		Assert.notNull(username, C.USERNAME);
+	public LayoutElement getEditLayout(String editLayoutUid) {
+		Assert.notNull(editLayoutUid, EDITLAYOUT_UID);
 		
-		return editLayoutMap.get(username);
+		return editLayoutMap.get(editLayoutUid);
 	}
 	
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
-	public void resetEditLayout(String username) {
-		Assert.notNull(username, C.USERNAME);
+	public void resetEditLayout(String editLayoutUid) {
+		Assert.notNull(editLayoutUid, EDITLAYOUT_UID);
 		
-		editLayoutMap.remove(username);
+		editLayoutMap.remove(editLayoutUid);
 	}
 	
 	@Override

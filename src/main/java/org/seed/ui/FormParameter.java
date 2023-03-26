@@ -30,47 +30,28 @@ public final class FormParameter {
 	
 	public final ValueObject object;
 	
-	private Tab tab;
-	
 	public FormParameter(Form form) {
-		this(form, null, null, null);
+		this(form, null, null);
 	}
 	
-	public FormParameter(Form form, Tab tab) {
-		this(form, null, null, tab);
-	}
-	
-	public FormParameter(Form form, Tab tab, Long objectId) {
-		this(form, objectId, null, tab);
+	public FormParameter(Form form, Long objectId) {
+		this(form, objectId, null);
 	}
 	
 	public FormParameter(Form form, ValueObject object) {
-		this(form, null, object, null);
+		this(form, null, object);
 	}
 	
-	public FormParameter(Form form, Tab tab, ValueObject object) {
-		this(form, null, object, tab);
-	}
-	
-	private FormParameter(Form form, Long objectId, ValueObject object, Tab tab) {
+	private FormParameter(Form form, Long objectId, ValueObject object) {
 		Assert.notNull(form, C.FORM);
 		
 		this.form = form;
 		this.objectId = objectId;
 		this.object = object;
-		this.tab = tab;
 	}
 	
 	public Long getObjectId() {
 		return object != null ? object.getId() : objectId;
 	}
 
-	public Tab getTab() {
-		return tab;
-	}
-
-	public void setTab(Tab tab) {
-		this.tab = tab;
-	}
-	
 }

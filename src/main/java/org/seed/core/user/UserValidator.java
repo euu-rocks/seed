@@ -34,7 +34,7 @@ public class UserValidator extends AbstractSystemEntityValidator<User> {
 	private static final Pattern PATTERN_USERNAME = Pattern.compile("\\p{Alnum}+");
 	
 	private static final Pattern PATTERN_EMAIL = Pattern.compile(
-		"^(?=.{1,64}@)[\\p{L}0-9_-]+(\\.[\\p{L}0-9_-]+){0,}@[^-][\\p{L}0-9-]+(\\.[\\p{L}0-9-]+){0,}(\\.[\\p{L}]{2,})$");
+		"^(?=.{1,64}@)[\\p{L}0-9_-]+(\\.[\\p{L}0-9_-]+){0,256}@[^-][\\p{L}0-9-]+(\\.[\\p{L}0-9-]+){0,256}(\\.[\\p{L}]{2,})$");
 	
 	@Override
 	public void validateSave(User user) throws ValidationException {

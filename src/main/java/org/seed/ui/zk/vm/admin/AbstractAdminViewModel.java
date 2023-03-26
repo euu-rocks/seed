@@ -49,6 +49,7 @@ import org.seed.ui.DragDropListSorter;
 import org.seed.ui.ListFilter;
 import org.seed.ui.ListFilterGroup;
 import org.seed.ui.ListFilterListener;
+import org.seed.ui.Tab;
 import org.seed.ui.ViewMode;
 import org.seed.ui.zk.vm.AbstractApplicationViewModel;
 
@@ -97,6 +98,8 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	
 	private ViewMode viewMode;
 	
+	private Tab tab;
+	
 	private T object;
 	
 	private List<T> objectList;
@@ -139,6 +142,11 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		this.detailViewZul = detailViewZul;
 		this.createDialogZul = createDialogZul;
 	}
+	
+	protected Tab getTab() {
+		Assert.stateAvailable(tab, C.TAB);
+		return tab;
+	}
 
 	@SuppressWarnings("unchecked")
 	protected T init(Object object, Component view) {
@@ -150,36 +158,44 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 			this.object = (T) dialogParameter.parameter;
 			wireComponents(view);
 		}
-		// detail
-		else if (object != null) {
-			this.viewMode = ViewMode.DETAIL;
-			if (object instanceof Long) {
-				this.object = getObjectService().getObject((Long) object, currentSession());
-			}
-			else {
-				this.object = (T) object;
-			}
-			if (this.object != null) {
-				initObject(this.object);
-				if (this.object.isNew()) {
-					flagDirty();
-				}
-			}
-			else {
-				showWarnMessage(getLabel(PRE_ADMIN + objectLabelKey + SUF_FAILDELETED));
-				showListView();
-			}
-		}
-		// list
 		else {
-			this.viewMode = ViewMode.LIST;
-			initFilterGroup(FILTERGROUP_LIST, OBJECT_LIST);
-			if (getObjectService().isEntityType(ApplicationEntity.class)) {
-				createModuleFilter();
+			tab = (Tab) object;
+			// detail
+			if (tab.getParameter() != null) {
+				this.viewMode = ViewMode.DETAIL;
+				initDetail(tab.getParameter());
 			}
-			initFilters();
+			// list
+			else {
+				this.viewMode = ViewMode.LIST;
+				initFilterGroup(FILTERGROUP_LIST, OBJECT_LIST);
+				if (getObjectService().isEntityType(ApplicationEntity.class)) {
+					createModuleFilter();
+				}
+				initFilters();
+			}
 		}
 		return this.object;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void initDetail(Object object) {
+		if (object instanceof Long) {
+			this.object = getObjectService().getObject((Long) object, currentSession());
+		}
+		else {
+			this.object = (T) object;
+		}
+		if (this.object != null) {
+			initObject(this.object);
+			if (this.object.isNew()) {
+				flagDirty();
+			}
+		}
+		else {
+			showWarnMessage(getLabel(PRE_ADMIN + objectLabelKey + SUF_FAILDELETED));
+			showListView();
+		}
 	}
 	
 	protected void initObject(T object) {
@@ -210,7 +226,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		resetProperties();
 		
 		final T obj = (T) object;
-		init(obj.isNew() ? obj : obj.getId(), null);
+		initDetail(obj.isNew() ? obj : obj.getId());
 		notifyChangeAll();
 	}
 	
@@ -362,8 +378,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 	
 	@SuppressWarnings("unchecked")
 	private void createModuleFilter() {
-		final ListFilter<? extends ApplicationEntity> filterModule = 
-			(ListFilter<ApplicationEntity>) getFilter(FILTERGROUP_LIST, C.MODULE);
+		final var filterModule = (ListFilter<ApplicationEntity>) getFilter(FILTERGROUP_LIST, C.MODULE);
 		filterModule.setValueFunction(o -> o.getModule() != null 
 											? o.getModule().getName() 
 											: null);
@@ -451,7 +466,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		if (listManager == null) {
 			listManager = new DragDropListManager();
 			for (int listNum = 0; listNum < 2; listNum++) {
-				final List<? extends SystemObject> list = getListManagerSource(key, listNum);
+				final var list = getListManagerSource(key, listNum);
 				if (list != null) {
 					listManager.getList(listNum).addAll(list);
 				}
@@ -466,7 +481,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		Assert.notNull(objectList, OBJECT_LIST);
 		Assert.notNull(viewList, "viewList");
 		
-		final Collection<Object> dest = (Collection<Object>) objectList;
+		final var dest = (Collection<Object>) objectList;
 		dest.clear();
 		dest.addAll(viewList);
 	}
@@ -656,7 +671,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		try {
 			getObjectService().saveObject(object);
 			showNotification(component, false, msgKey + KEY_SUCCESS);
-			notifyChange(C.OBJECT, "title");
+			notifyChange(C.OBJECT, C.TITLE);
 			resetDirty();
 			return true;
 		}

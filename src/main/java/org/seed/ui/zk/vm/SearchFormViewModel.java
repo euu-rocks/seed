@@ -34,8 +34,8 @@ import org.seed.core.form.SubForm;
 import org.seed.core.form.SubFormAction;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MultiKey;
-import org.seed.ui.FormParameter;
 import org.seed.ui.SearchParameter;
+import org.seed.ui.Tab;
 
 import org.springframework.util.StringUtils;
 import org.zkoss.bind.annotation.BindingParam;
@@ -55,10 +55,10 @@ public class SearchFormViewModel extends AbstractFormViewModel {
 	
 	@Init
 	@Override
-	public void init(@ExecutionArgParam(C.PARAM) FormParameter param) {
-		super.init(param);
+	public void init(@ExecutionArgParam(C.PARAM) Tab tab) {
+		super.init(tab);
+		final SearchParameter searchParam = getTab().getProperty(SEARCH_PARAMETER);
 		
-		final SearchParameter searchParam = getTab().getSearchParameter();
 		if (searchParam != null) {
 			setObject(searchParam.searchObject);
 			fieldOperatorsMap = searchParam.mapOperators;
@@ -223,13 +223,13 @@ public class SearchFormViewModel extends AbstractFormViewModel {
 	@Command
 	@NotifyChange("*")
 	public void clearSearch() {
-		getTab().clearSearch();
+		getTab().removeProperty(SEARCH_PARAMETER);
 		initNewSearch();
 	}
 	
 	@Command
 	public void search() {
-		getTab().setSearchParameter(new SearchParameter(getObject(), fieldOperatorsMap));
+		getTab().setProperty(SEARCH_PARAMETER, new SearchParameter(getObject(), fieldOperatorsMap));
 		showListForm();
 	}
 	

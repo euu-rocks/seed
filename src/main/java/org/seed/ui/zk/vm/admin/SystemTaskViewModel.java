@@ -33,7 +33,9 @@ import org.seed.core.task.TaskResult;
 import org.seed.core.task.TaskService;
 import org.seed.core.task.job.AbstractSystemJob;
 import org.seed.core.task.job.JobScheduler;
+import org.seed.core.util.Assert;
 import org.seed.core.util.NameUtils;
+import org.seed.ui.Tab;
 import org.seed.ui.zk.vm.AbstractApplicationViewModel;
 
 import org.zkoss.bind.annotation.Command;
@@ -67,8 +69,9 @@ public class SystemTaskViewModel extends AbstractApplicationViewModel
 	
 	@Init
 	public void init(@ContextParam(ContextType.VIEW) Component view,
-					 @ExecutionArgParam(C.PARAM) Object object) {
-		systemTask = (SystemTask) object;
+					 @ExecutionArgParam(C.PARAM) Tab tab) {
+		Assert.notNull(tab, C.TAB);
+		systemTask = (SystemTask) tab.getParameter();
 		if (systemTask == null) { 			// list view
 			mapLastRun = new ConcurrentHashMap<>();
 		}

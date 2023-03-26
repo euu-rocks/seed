@@ -19,12 +19,7 @@ package org.seed.core.util;
 
 import java.util.UUID;
 
-public abstract class UID {
-	
-	@SuppressWarnings("unused")
-	private static final long serialVersionUID = 1132262452819578315L;
-	
-	private UID() {}
+public interface UID {
 	
 	public static String createUID() {
 		return UUID.randomUUID().toString().replace("-", "");

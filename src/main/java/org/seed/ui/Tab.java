@@ -17,15 +17,16 @@
  */
 package org.seed.ui;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.seed.C;
-import org.seed.core.data.QueryCursor;
-import org.seed.core.entity.value.FullTextResult;
 import org.seed.core.util.Assert;
 import org.seed.core.util.NameUtils;
 
 import org.zkoss.util.resource.Labels;
 
-public class Tab {
+public final class Tab {
 	
 	private String tabName;
 	
@@ -39,11 +40,7 @@ public class Tab {
 	
 	private Long objectId;
 	
-	private String fullTextSearchTerm;
-	
-	private QueryCursor<FullTextResult> fullTextSearchCursor;
-	
-	private SearchParameter searchParameter;
+	private Map<String, Object> properties;
 	
 	public Tab(String name, Object parameter) {
 		this(name, null, null, parameter);
@@ -65,6 +62,31 @@ public class Tab {
 
 	public String getName() {
 		return name;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> T getProperty(String name) {
+		Assert.notNull(name, C.NAME);
+		
+		return properties != null ? (T) properties.get(name) : null;
+	}
+	
+	public void setProperty(String name, Object value) {
+		Assert.notNull(name, C.NAME);
+		Assert.notNull(value, C.VALUE);
+		
+		if (properties == null) {
+			properties = new HashMap<>(8);
+		}
+		properties.put(name, value);
+	}
+	
+	public void removeProperty(String name) {
+		Assert.notNull(name, C.NAME);
+		
+		if (properties != null) {
+			properties.remove(name);
+		}
 	}
 
 	public void setName(String name) {
@@ -109,34 +131,6 @@ public class Tab {
 
 	public void setObjectId(Long objectId) {
 		this.objectId = objectId;
-	}
-
-	public String getFullTextSearchTerm() {
-		return fullTextSearchTerm;
-	}
-
-	public void setFullTextSearchTerm(String fullTextSearchTerm) {
-		this.fullTextSearchTerm = fullTextSearchTerm;
-	}
-
-	public QueryCursor<FullTextResult> getFullTextSearchCursor() {
-		return fullTextSearchCursor;
-	}
-
-	public void setFullTextSearchCursor(QueryCursor<FullTextResult> fullTextSearchCursor) {
-		this.fullTextSearchCursor = fullTextSearchCursor;
-	}
-
-	public SearchParameter getSearchParameter() {
-		return searchParameter;
-	}
-
-	public void setSearchParameter(SearchParameter searchParameter) {
-		this.searchParameter = searchParameter;
-	}
-	
-	public void clearSearch() {
-		searchParameter = null;
 	}
 
 }

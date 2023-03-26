@@ -44,6 +44,7 @@ import org.seed.core.form.SubFormField;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MultiKey;
 import org.seed.ui.FormParameter;
+import org.seed.ui.Tab;
 
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
@@ -193,9 +194,9 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	}
 	
 	@Init
-	@Override
-	public void init(@ExecutionArgParam(C.PARAM) FormParameter param) {
-		super.init(param);
+	public void init(@ExecutionArgParam(C.PARAM) Tab tab) {
+		super.init(tab);
+		final FormParameter param = (FormParameter) tab.getParameter();
 		
 		if (param.object != null) {
 			setObject(param.object);
