@@ -17,8 +17,6 @@
  */
 package org.seed.core.form.layout;
 
-import java.util.Map.Entry;
-
 import org.seed.core.util.Assert;
 
 class LayoutBuilder {
@@ -26,7 +24,7 @@ class LayoutBuilder {
 	String build(LayoutElement rootElement) {
 		Assert.notNull(rootElement, "rootElement");
 		
-		final StringBuilder buf = new StringBuilder();
+		final var buf = new StringBuilder();
 		build(buf, rootElement, 0);
 		return buf.toString();
 	}
@@ -35,7 +33,7 @@ class LayoutBuilder {
 		indent(buf, depth);
 		buf.append('<').append(element.getName());
 		if (element.hasAttributes()) {
-			for (Entry<String, String> entry : element.getAttributes().entrySet()) {
+			for (var entry : element.getAttributes().entrySet()) {
 				buf.append(' ').append(entry.getKey()).append("=\"")
 				   .append(entry.getValue())
 				   .append('\"');
@@ -45,7 +43,7 @@ class LayoutBuilder {
 			buf.append('>');
 			if (element.hasChildren()) {
 				buf.append(System.lineSeparator());
-				for (LayoutElement child : element.getChildren()) {
+				for (var child : element.getChildren()) {
 					build(buf, child, depth + 1);
 				}
 				indent(buf, depth);
@@ -53,7 +51,8 @@ class LayoutBuilder {
 			else if (element.getText() != null) {
 				buf.append(element.getText());
 			}
-			buf.append("</").append(element.getName()).append('>').append(System.lineSeparator());
+			buf.append("</").append(element.getName()).append('>')
+			   .append(System.lineSeparator());
 		}
 		else {
 			buf.append("/>").append(System.lineSeparator());

@@ -74,11 +74,7 @@ public class SearchDecoratingVisitor extends AbstractLayoutVisitor {
 			case LayoutElement.IMAGE:
 			case LayoutElement.INTBOX:
 			case LayoutElement.LONGBOX:
-				createPopup(element);
-				break;
-				
 			case LayoutElement.TEXTBOX:
-				element.removeAttribute(A_INSTANT);
 				createPopup(element);
 				break;
 				

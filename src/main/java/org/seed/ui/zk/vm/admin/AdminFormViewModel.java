@@ -124,7 +124,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 			}
 		}
 		else if (editLayout != null) {
-			layoutService.resetEditLayout(getEditFormUid());
+			layoutService.removeEditLayout(getEditFormUid());
 			notifyChange(LAYOUT_INCLUDE);
 		}
 	}
@@ -284,6 +284,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	
 	@Command
 	public void refreshForm(@BindingParam(C.ELEM) Component component) {
+		discardEditForm();
 		cmdRefresh();
 	}
 	
@@ -685,6 +686,17 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 		refreshObject(objectId);
 	}
 	
+	@Override
+	protected void showListView() {
+		discardEditForm();
+		super.showListView();
+	}
+	
+	@Override
+	protected void afterInitObject() { 
+		discardEditForm();
+	}
+	
 	void setLayout(LayoutElement layoutRoot) {
 		Assert.notNull(layoutRoot, C.LAYOUTROOT);
 		
@@ -704,6 +716,13 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 			getTab().setProperty(EDITFORM_UID, editFormUid);
 		}
 		return editFormUid;
+	}
+	
+	private void discardEditForm() {
+		final String editFormUid = getTab().removeProperty(EDITFORM_UID);
+		if (editFormUid != null) {
+			layoutService.removeEditLayout(editFormUid);
+		}
 	}
 	
 	private List<FormField> getAllAndMarkSelectedFields() {

@@ -42,7 +42,6 @@ public class LayoutElementAttributes {
 	public static final String A_ICONSCLASS    = "iconSclass";
 	public static final String A_ID            = "id";
 	public static final String A_INPLACE       = "inplace";
-	public static final String A_INSTANT       = "instant";
 	public static final String A_LABEL         = "label";
 	public static final String A_MANDATORY     = "mandatory";
 	public static final String A_MAXLENGTH     = "maxlength";

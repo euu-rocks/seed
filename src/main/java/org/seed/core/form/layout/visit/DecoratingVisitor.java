@@ -112,7 +112,6 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 			case LayoutElement.DOUBLEBOX:
 			case LayoutElement.INTBOX:
 			case LayoutElement.LONGBOX:
-				element.removeAttribute(A_INSTANT);
 				element.removeAttribute(A_READONLY);
 				element.removeAttribute(A_MANDATORY);
 				element.removeAttribute(A_VISIBLE);

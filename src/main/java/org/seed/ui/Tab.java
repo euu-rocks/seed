@@ -68,7 +68,18 @@ public final class Tab {
 	public <T> T getProperty(String name) {
 		Assert.notNull(name, C.NAME);
 		
-		return properties != null ? (T) properties.get(name) : null;
+		return properties != null 
+				? (T) properties.get(name) 
+				: null;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> T removeProperty(String name) {
+		Assert.notNull(name, C.NAME);
+		
+		return properties != null
+				? (T) properties.remove(name)
+				: null;
 	}
 	
 	public void setProperty(String name, Object value) {
@@ -81,14 +92,6 @@ public final class Tab {
 		properties.put(name, value);
 	}
 	
-	public void removeProperty(String name) {
-		Assert.notNull(name, C.NAME);
-		
-		if (properties != null) {
-			properties.remove(name);
-		}
-	}
-
 	public void setName(String name) {
 		this.name = tabName + ": " + (name != null ? name : Labels.getLabel("label.new"));
 	}

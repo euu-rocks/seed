@@ -108,16 +108,13 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 				visitBandbox(element);
 				break;
 			
-			case LayoutElement.TEXTBOX:	
-				element.setAttribute(A_INSTANT, V_TRUE);
-				/* falls through */
-				
 			case LayoutElement.DATEBOX:
 			case LayoutElement.DECIMALBOX:
 			case LayoutElement.DOUBLEBOX:
 			case LayoutElement.INTBOX:
 			case LayoutElement.LONGBOX:
 			case LayoutElement.RICHTEXTAREA:
+			case LayoutElement.TEXTBOX:	
 				final EntityField entityField = getEntityField(element);
 				element.setAttribute(A_VISIBLE, load(isVisible(entityField)));
 				element.setAttribute(A_READONLY, load(isReadonly(entityField)));
@@ -344,9 +341,6 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 			
 			case TEXT:
 			case TEXTLONG:	
-				elemField.setAttribute(A_INSTANT, V_TRUE);
-				/* falls through */
-				
 			case DATE:
 			case DATETIME:
 			case DECIMAL:

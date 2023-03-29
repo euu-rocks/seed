@@ -215,6 +215,10 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		return (AbstractAdminViewModel<E>) dialogParameter.parentViewModel;
 	}
 	
+	protected void afterInitObject() {
+		// do nothing by default
+	}
+	
 	@SuppressWarnings("unchecked")
 	protected void internalRefresh(Object object) {
 		Assert.notNull(object, C.OBJECT);
@@ -648,6 +652,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 					
 				case DETAIL:
 					getParentVM().resetMainTabbox();
+					getParentVM().afterInitObject();
 					getParentVM().internalRefresh(object);
 					break;
 					

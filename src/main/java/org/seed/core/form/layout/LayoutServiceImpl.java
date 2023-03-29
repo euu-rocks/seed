@@ -24,9 +24,7 @@ import static org.seed.core.util.CollectionUtils.*;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -88,7 +86,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	
 	private final LayoutBuilder layoutBuilder = new LayoutBuilder();
 	
-	private final Map<String, LayoutElement> editLayoutMap = new ConcurrentHashMap<>();
+	private final LayoutCache editLayoutCache = new LayoutCache();
 	
 	@Override
 	public void registerEditLayout(Form form, String editLayoutUid, LayoutElement layoutRoot) {
@@ -97,7 +95,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(layoutRoot, C.LAYOUTROOT);
 		
 		decorateLayout(form, layoutRoot);
-		editLayoutMap.put(editLayoutUid, layoutRoot);
+		editLayoutCache.registerLayout(editLayoutUid, layoutRoot);
 	}
 	
 	@Override
@@ -140,15 +138,15 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	public LayoutElement getEditLayout(String editLayoutUid) {
 		Assert.notNull(editLayoutUid, EDITLAYOUT_UID);
 		
-		return editLayoutMap.get(editLayoutUid);
+		return editLayoutCache.getLayout(editLayoutUid);
 	}
 	
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
-	public void resetEditLayout(String editLayoutUid) {
+	public void removeEditLayout(String editLayoutUid) {
 		Assert.notNull(editLayoutUid, EDITLAYOUT_UID);
 		
-		editLayoutMap.remove(editLayoutUid);
+		editLayoutCache.removeLayout(editLayoutUid);
 	}
 	
 	@Override

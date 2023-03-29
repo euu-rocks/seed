@@ -38,15 +38,15 @@ public interface LayoutService {
 	
 	String buildLayout(LayoutElement layoutRoot);
 	
-	LayoutElement getEditLayout(String username);
+	LayoutElement getEditLayout(String editLayoutUid);
 	
 	LayoutElement parseLayout(FormLayout layout);
 	
 	LayoutElement parseLayout(String content) throws SAXException, IOException, ParserConfigurationException;
 	
-	void registerEditLayout(Form form, String username, LayoutElement layout);
+	void registerEditLayout(Form form, String editLayoutUid, LayoutElement layout);
 	
-	void resetEditLayout(String username);
+	void removeEditLayout(String editLayoutUid);
 	
 	void decorateLayout(Form form, LayoutElement layoutRoot);
 	
