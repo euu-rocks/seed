@@ -194,6 +194,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	}
 	
 	@Init
+	@Override
 	public void init(@ExecutionArgParam(C.PARAM) Tab tab) {
 		super.init(tab);
 		final FormParameter param = (FormParameter) tab.getParameter();
@@ -350,24 +351,11 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 				break;
 			
 			case REFRESH:
-				if (checkObjectExistence()) {
-					if (isDirty()) {
-						confirm("question.dirty", component, action);
-					}
-					else {
-						revision = null;
-						refreshObject();
-					}
-				}
+				callActionRefresh(action, component);
 				break;
 				
 			case NEWOBJECT:
-				if (isDirty()) {
-					confirm("question.dirty", component, action);
-				}
-				else {
-					newObject();
-				}
+				callActionNew(action, component);
 				break;
 				
 			case TRANSFORM:
@@ -402,6 +390,27 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 			
 			default:
 				throw new UnsupportedOperationException(action.getType().name());
+		}
+	}
+	
+	private void callActionRefresh(FormAction action, Component component) {
+		if (checkObjectExistence()) {
+			if (isDirty()) {
+				confirm("question.dirty", component, action);
+			}
+			else {
+				revision = null;
+				refreshObject();
+			}
+		}
+	}
+	
+	private void callActionNew(FormAction action, Component component) {
+		if (isDirty()) {
+			confirm("question.dirty", component, action);
+		}
+		else {
+			newObject();
 		}
 	}
 	
@@ -517,7 +526,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	
 	private void save(Component component) {
 		try {
-			final List<FileObject> deletedFileObjects = new ArrayList<>(fileObjects);
+			final var deletedFileObjects = new ArrayList<>(fileObjects);
 			// removes all file objects that still exist, only deleted ones remain
 			deletedFileObjects.removeAll(valueObjectService().getFileObjects(getObject(), currentSession()));
 			valueObjectService().saveObject(getObject(), deletedFileObjects);

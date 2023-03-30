@@ -26,10 +26,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 class LayoutCache {
 	
-	private static final long TIMER_CHECK_INTERVAL		 =  60 * 60 * 1000; // 1h
-	private static final long MAX_TIME_SINCE_LAST_ACCESS = 180 * 60 * 1000; // 3h
+	private static final long TIMER_CHECK_INTERVAL		 =  60 * 60 * 1000l; // 1h
+	private static final long MAX_TIME_SINCE_LAST_ACCESS = 180 * 60 * 1000l; // 3h
 	
 	private final Map<String, Long> timestampMap = new ConcurrentHashMap<>();
+	
 	private final Map<String, LayoutElement> layoutMap = new ConcurrentHashMap<>();
 	
 	LayoutCache() {

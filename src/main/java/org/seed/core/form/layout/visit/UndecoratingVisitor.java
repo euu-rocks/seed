@@ -58,6 +58,11 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 		if (element.hasChildren() && element.getText() != null) {
 			element.setText(null);
 		}
+		visitElement(element);
+		element.setDecorated(false);
+	}
+	
+	private void visitElement(LayoutElement element) {
 		switch (element.getName()) {
 			case LayoutElement.ZK:
 				setRootElement(element);
@@ -137,7 +142,6 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 				// do nothing
 				break;
 		}
-		element.setDecorated(false);
 	}
 	
 	private void visitBorderLayout(LayoutElement element) {
@@ -307,9 +311,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 		}
 		if (subForm.hasFields()) {
 			final String nestedName = subForm.getNestedEntity().getInternalName();
-			for (SubFormField subFormField : subForm.getFields()) {
-				createSubFormField(subFormField, nestedName, elemListitem);
-			}
+			subForm.getFields().forEach(field -> createSubFormField(field, nestedName, elemListitem));
 		}
 	}
 	
@@ -328,7 +330,11 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 			createSubFormBandboxField(subFormField, nestedName, subFormPropertyName, nestedEntityField, elemListitem);
 			return;
 		}
-		
+		createSubFormField(subForm, subFormField, nestedName, subFormPropertyName, nestedEntityField, elemListitem);
+	}
+	
+	private void createSubFormField(SubForm subForm, SubFormField subFormField, String nestedName, String subFormPropertyName, 
+									EntityField nestedEntityField, LayoutElement elemListitem) {
 		final LayoutElement elemField = elemListitem.addChild(new LayoutElement(LayoutElement.LISTCELL))
 													.addChild(createFormField(nestedEntityField));
 		elemField.setContext(subFormContext(subForm, elemField));
@@ -338,7 +344,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 				elemField.setAttribute(A_VALUE, value(nestedEntityField, subFormPropertyName));
 				elemField.setAttribute(A_READONLY, V_TRUE);
 				break;
-			
+	
 			case TEXT:
 			case TEXTLONG:	
 			case DATE:
@@ -351,7 +357,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 				elemField.setAttribute(A_READONLY, load(isReadonly(nestedEntityField)));
 				elemField.setAttribute(A_MANDATORY, load(isMandatory(nestedEntityField)));
 				elemField.setAttribute(A_INPLACE, load(not(nestedName + ".isNew() and !" + nestedName + 
-													   ".equals(" + selectedSubFormObject(subForm) + ')')));
+														   ".equals(" + selectedSubFormObject(subForm) + ')')));
 				if (!nestedEntityField.isCalculated()) {
 					elemField.setAttribute(A_ONCHANGE, command(onNestedChange(nestedName, nestedEntityField)));
 					if (elemField.is(LayoutElement.DATEBOX) || 
@@ -361,7 +367,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 					}
 				}
 				break;
-			
+	
 			case BINARY:
 				elemField.removeAttribute(A_HFLEX);
 				elemField.setAttribute(A_CONTENT, load(subFormPropertyName) + ' ' + CONVERTER_IMAGE);
@@ -369,24 +375,24 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 				elemField.setAttribute(A_HEIGHT, subFormField.getHeight());
 				if (!nestedEntityField.isCalculated()) {
 					elemField.setOnClick(command("'editImage', fieldId='" + nestedEntityField.getUid() + 
-														    "', nestedObject=" + nestedName));
+												 "', nestedObject=" + nestedName));
 				}
 				break;
-				
+	
 			case BOOLEAN:
 				elemField.setAttribute(A_CHECKED, nestedEntityField.isCalculated() 
-																			? load(subFormPropertyName) 
-																			: bind(subFormPropertyName));
+													? load(subFormPropertyName) 
+													: bind(subFormPropertyName));
 				elemField.setAttribute(A_DISABLED, load(isReadonly(nestedEntityField)));
 				if (!nestedEntityField.isCalculated()) {
 					elemField.setAttribute(A_ONCHECK, command(onNestedChange(nestedName, nestedEntityField)));
 				}
 				break;
-			
+	
 			case REFERENCE:
 				elemField.setAttribute(A_MODEL, load("vm.getNestedReferenceValues('" + 
-																		subForm.getNestedEntity().getUid() + "','" + 
-																		nestedEntityField.getUid() + "')"));
+													 subForm.getNestedEntity().getUid() + "','" + 
+													 nestedEntityField.getUid() + "')"));
 				elemField.setAttribute(A_ONSELECT, command(onNestedChange(nestedName, nestedEntityField)));
 				elemField.setAttribute(A_SELECTEDITEM, bind(subFormPropertyName));
 				elemField.setAttribute(A_VALUE, load(identifier(subFormPropertyName)));
@@ -394,11 +400,11 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 				elemField.setAttribute(A_MANDATORY, load(isMandatory(nestedEntityField)));
 				elemField.addChild(createTemplate(A_MODEL, nestedEntityField.getInternalName()))
 						 .addChild(createComboitem(load(identifier(nestedEntityField.getInternalName()))));
-	            if (subFormField.getDetailForm() != null) {
+				if (subFormField.getDetailForm() != null) {
 					addRootChild(createReferencePopup(elemField.getContext(), nestedEntityField.getUid()));
 				}
 				break;
-				
+	
 			case FILE:
 				elemField.setAttribute(A_CONTENT, bind(subFormPropertyName + ".content"));
 				elemField.setAttribute(A_CONTENTTYPE, bind(subFormPropertyName + ".contentType"));
@@ -407,7 +413,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 				elemField.setAttribute(A_MANDATORY, load(isMandatory(nestedEntityField)));
 				elemField.setAttribute(A_ONCHANGE, command(onNestedChange(nestedName, nestedEntityField)));
 				break;
-			
+	
 			default:
 				throw new UnsupportedOperationException(nestedEntityField.getType().name());
 		}
@@ -453,7 +459,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 	private void createSubFormBandboxField(SubFormField subFormField, String nestedName,String subFormPropertyName, 
 										   EntityField nestedEntityField, LayoutElement elemListitem) {
 		final LayoutElement elemField = elemListitem.addChild(new LayoutElement(LayoutElement.LISTCELL))
-				.addChild(createBandbox(nestedEntityField));
+													.addChild(createBandbox(nestedEntityField));
 		elemField.setContext(subFormContext(subFormField.getSubForm(), elemField));
 		elemField.removeAttribute(A_ID);
 		elemField.setAttribute(A_VALUE, load(identifier(subFormPropertyName))); 
@@ -461,21 +467,20 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 		elemField.setAttribute(A_MANDATORY, load(isMandatory(nestedEntityField)));
 		elemField.setAttribute(A_BUTTONVISIBLE, load(not(isReadonly(nestedEntityField))));
 
-		final LayoutElement elemList = elemField.addChild(createBandpopup())
-				.addChild(createListBox());
+		final LayoutElement elemList = elemField.addChild(createBandpopup()).addChild(createListBox());
 		elemList.setAttribute(A_MODEL, load("vm.getNestedReferenceListModel('" + subFormField.getSubForm().getNestedEntity().getUid() + "','" + 
-				nestedEntityField.getUid() + '\'') + ") @template(empty each ? 'empty' : 'model')");
+											nestedEntityField.getUid() + '\'') + ") @template(empty each ? 'empty' : 'model')");
 		elemList.setAttribute(A_SELECTEDITEM, bind(subFormPropertyName));
 		elemList.setAttribute(A_ONSELECT, command(onNestedChange(nestedName, nestedEntityField)));
 		elemList.setAttribute(A_HEIGHT, "300px");
 		elemList.setAttribute(A_WIDTH, "350px");
 		elemList.addChild(createListHead(true));
 		elemList.addChild(createTemplate("empty", nestedEntityField.getReferenceEntity().getInternalName()))
-			.addChild(createListItem(null))		   
-			.addChild(createListCell('[' + Seed.getLabel(LABEL_EMPTY) + ']', null, null, null));
+				.addChild(createListItem(null))		   
+				.addChild(createListCell('[' + Seed.getLabel(LABEL_EMPTY) + ']', null, null, null));
 		elemList.addChild(createTemplate(A_MODEL, nestedEntityField.getReferenceEntity().getInternalName()))
-			.addChild(createListItem(null))		   
-			.addChild(createListCell(load(identifier(nestedEntityField.getReferenceEntity().getInternalName())), null, null, null));
+				.addChild(createListItem(null))		   
+				.addChild(createListCell(load(identifier(nestedEntityField.getReferenceEntity().getInternalName())), null, null, null));
 		if (subFormField.getDetailForm() != null) {
 			addRootChild(createReferencePopup(elemField.getContext(), nestedEntityField.getUid()));
 		}
