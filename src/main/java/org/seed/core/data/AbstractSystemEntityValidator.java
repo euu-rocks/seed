@@ -125,7 +125,7 @@ public abstract class AbstractSystemEntityValidator<T extends SystemEntity>
 	protected static boolean isNameAllowed(String name) {
 		Assert.notNull(name, C.NAME);
 		
-		return !Character.isDigit(name.charAt(0)) && 
+		return !NameUtils.startsWithNumber(name) && 
 			   !NameUtils.isKeyword(name);
 	}
 	

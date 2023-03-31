@@ -361,6 +361,9 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		else if (!isNameLengthAllowed(entity.getName())) {
 			errors.addOverlongName(getMaxNameLength());
 		}
+		else if (NameUtils.startsWithNumber(entity.getName())) {
+			errors.addError("val.illegal.namestartswithnumber");
+		}
 	}
 	
 	private void validateTableName(Entity entity, final ValidationErrors errors) {

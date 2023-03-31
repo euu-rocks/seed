@@ -118,7 +118,17 @@ class NameUtilsTest {
 	}
 	
 	@Test
-	void getRandomName() {
+	void testStartsWithNumber() {
+		assertFalse(NameUtils.startsWithNumber(null));
+		assertFalse(NameUtils.startsWithNumber(""));
+		assertTrue(NameUtils.startsWithNumber("0"));
+		assertTrue(NameUtils.startsWithNumber("1abc"));
+		assertFalse(NameUtils.startsWithNumber("a"));
+		assertFalse(NameUtils.startsWithNumber("abc"));
+	}
+	
+	@Test
+	void testGetRandomName() {
 		assertNotNull(NameUtils.getRandomName());
 		assertFalse(NameUtils.getRandomName().isEmpty());
 		

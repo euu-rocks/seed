@@ -80,6 +80,10 @@ public abstract class NameUtils {
 		return value != null && find(TRUE_VALUES, value);
 	}
 	
+	public static boolean startsWithNumber(String name) {
+		return name != null && name.length() > 0 && Character.isDigit(name.charAt(0));
+	}
+	
 	public static String getInternalName(String name) {
 		if (name == null) {
 			return null;
