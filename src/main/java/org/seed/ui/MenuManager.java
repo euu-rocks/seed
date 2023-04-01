@@ -34,6 +34,7 @@ import org.seed.core.util.Assert;
 import org.seed.core.util.NameUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -57,6 +58,7 @@ public class MenuManager {
 		return menuService.getDefaultMenuName();
 	}
 	
+	@Secured("ROLE_LOGIN")
 	public List<TreeNode> getMenuList(User user, Session session,
 									  boolean reportsExist, boolean tasksExist, 
 									  boolean fullTextSearchAvailable) {

@@ -175,7 +175,7 @@ public class UserMetadata extends AbstractSystemEntity implements User {
 	
 	@Override
 	public boolean hasAdminAuthorisations() {
-		return anyMatch(Authorisation.values(), auth -> auth.name().startsWith("ADMIN") && 
+		return anyMatch(Authorisation.values(), auth -> auth.isAdminAuthorisation() && 
 														isAuthorised(auth));
 	}
 	

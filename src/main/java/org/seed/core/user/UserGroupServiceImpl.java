@@ -221,31 +221,21 @@ public class UserGroupServiceImpl extends AbstractApplicationEntityService<UserG
 			try {
 				tx = session.beginTransaction();
 				saveObject(userGroup, session);
-
-				if (userGroup.hasUsers()) {
-					for (User user : userGroup.getUsers()) {
-						if (!user.getUserGroups().contains(userGroup)) {
-							user.getUserGroups().add(userGroup);
-							userRepository.save(user, session);
-						}
-					}
-				}
-				
-				for (Long userId : originalUserIds) {
-					boolean found = false;
-					for (User user : userGroup.getUsers()) {
-						if (userId.equals(user.getId())) {
-							found = true;
-							break;
-						}
-					}
-					if (!found) {
-						final User user = userRepository.get(userId, session);
-						user.getUserGroups().remove(userGroup);
-						userRepository.save(user, session);
-					}
-				}
-				
+				// add users
+				filterAndForEach(userGroup.getUsers(), 
+								 user -> !user.getUserGroups().contains(userGroup), 
+								 user -> { 
+									 user.getUserGroups().add(userGroup);
+								 	 userRepository.save(user, session); 
+								 });
+				// remove users
+				filterAndForEach(originalUserIds, 
+								 userId -> noneMatch(userGroup.getUsers(), user -> userId.equals(user.getId())), 
+								 userId -> {
+									 User user = userRepository.get(userId, session);
+									 user.getUserGroups().remove(userGroup);
+									 userRepository.save(user, session);
+								 });
 				tx.commit();
 			}
 			catch (Exception ex) {
@@ -259,7 +249,7 @@ public class UserGroupServiceImpl extends AbstractApplicationEntityService<UserG
 	}
 	
 	private static UserGroupAuthorisation createAuthorization(UserGroup userGroup, Authorisation authorisation) {
-		final UserGroupAuthorisation groupAuthorisation = new UserGroupAuthorisation();
+		final var groupAuthorisation = new UserGroupAuthorisation();
 		groupAuthorisation.setUserGroup(userGroup);
 		groupAuthorisation.setAuthorisation(authorisation);
 		return groupAuthorisation;

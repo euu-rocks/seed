@@ -41,6 +41,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
 @Entity
 @Table(name = "sys_usergroup")
@@ -116,10 +117,8 @@ public class UserGroupMetadata extends AbstractApplicationEntity implements User
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public Set<User> getUsers() {
-		final Set<?> usrs = users;
-		return (Set<User>) usrs;
+		return MiscUtils.castSet(users);
 	}
 	
 	public void setUsers(Set<UserMetadata> users) {

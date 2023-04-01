@@ -42,10 +42,15 @@ public enum Authorisation {
 	
 	ADMIN_PERMISSIONS;
 	
+	private static final String ADMIN_PREFIX = "ADMIN_";
 	private static final String ROLE_PREFIX = "ROLE_";
 	
 	String roleName() {
 		return ROLE_PREFIX.concat(name());
+	}
+	
+	boolean isAdminAuthorisation() {
+		return name().startsWith(ADMIN_PREFIX);
 	}
 	
 }

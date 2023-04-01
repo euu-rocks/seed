@@ -45,7 +45,7 @@ public class SecurityConfig {
 		auth.jdbcAuthentication()
 			.dataSource(dataSource)
 			.usersByUsernameQuery("select name, password, isenabled from sys_user where name = ?")
-			.authoritiesByUsernameQuery("select distinct u.name, a.rolename from sys_user u join sys_user_group g on g.user_id = u.id join sys_usergroup_auth a on a.group_id = g.group_id where u.name = ?")
+			.authoritiesByUsernameQuery("select distinct u.name, a.rolename from sys_user u join sys_user_group g on g.user_id = u.id join sys_usergroup_auth a on a.group_id = g.group_id where u.name = ? union select 'user', 'ROLE_LOGIN'")
 			.passwordEncoder(passwordEncoder);
 	}
 	
