@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -61,6 +62,11 @@ public abstract class MiscUtils {
 	@SuppressWarnings("unchecked")
 	public static <T> List<T> castList(List<?> list) {
 		return (List<T>) list;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static <T> Set<T> castSet(Set<?> set) {
+		return (Set<T>) set;
 	}
 	
 	@SuppressWarnings("unchecked")

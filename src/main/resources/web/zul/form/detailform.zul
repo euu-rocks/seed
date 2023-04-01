@@ -25,36 +25,32 @@
 				 vflex="1">
 			<template name="default" var="action">
 				<toolbarbutton label="@init(vm.getActionLabel(action))"
-							   enable="@init(vm.isActionEnabled(action))"
 							   sclass="@init(action.testClass)"
 						   	   onClick="@command('callAction',action=action,elem=self)"
 						   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
-						   	   disabled="@load(vm.isActionDisabled(action))"/>
+						   	   disabled="@load(!vm.isActionEnabled(action) or vm.isActionDisabled(action))"/>
 			</template>
 			<template name="dirty" var="action">
 				<toolbarbutton label="@init(vm.getActionLabel(action))"
-							   enable="@init(vm.isActionEnabled(action))"
 							   sclass="@init(action.testClass)"
 						   	   onClick="@command('callAction',action=action,elem=self)"
 						   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
-						   	   disabled="@load(!vm.isDirty() or vm.isActionDisabled(action))"/>
+						   	   disabled="@load(!vm.isDirty() or !vm.isActionEnabled(action) or vm.isActionDisabled(action))"/>
 			</template>
 			<template name="notnew" var="action">
 				<toolbarbutton label="@init(vm.getActionLabel(action))"
-							   enable="@init(vm.isActionEnabled(action))"
 							   sclass="@init(action.testClass)"
 						   	   onClick="@command('callAction',action=action,elem=self)"
 						   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
-						   	   disabled="@load(vm.isActionDisabled(action))"
+						   	   disabled="@load(!vm.isActionEnabled(action) or vm.isActionDisabled(action))"
 						   	   visible="@load(!vm.object.isNew())"/>
 			</template>
 			<template name="print" var="action">
 				<toolbarbutton label="@init(vm.getActionLabel(action))"
-							   enable="@init(vm.isActionEnabled(action))"
 							   sclass="@init(action.testClass)"
 						   	   onClick="@command('callAction',action=action,elem=self)"
 						   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
-						   	   disabled="@load(vm.isActionDisabled(action))"
+						   	   disabled="@load(!vm.isActionEnabled(action) or vm.isActionDisabled(action))"
 						   	   visible="@load(vm.form.hasPrintouts())"/>
 			</template>
 			<template name="status" var="action">

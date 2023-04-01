@@ -17,8 +17,7 @@
  */
 package org.seed.core.application;
 
-import static org.seed.core.util.CollectionUtils.anyMatch;
-import static org.seed.core.util.CollectionUtils.firstMatch;
+import static org.seed.core.util.CollectionUtils.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -83,26 +82,26 @@ public abstract class AbstractApplicationEntity extends AbstractSystemEntity
 	@Override
 	public final boolean checkPermissions(User user, @Nullable Enum<?> access) {
 		Assert.notNull(user, C.USER);
-		Assert.state(this instanceof ApprovableObject, "object is not approvable");
-		final ApprovableObject<?> approvable = (ApprovableObject<?>) this;
+		checkApprovable();
+		final var approvable = (ApprovableObject<?>) this;
 		
-		if (approvable.hasPermissions()) {
-			return anyMatch(approvable.getPermissions(), permission -> 
-							user.belongsTo(permission.getUserGroup()) && 
-							(access == null || // access doesn't exist or granted
-							 permission.getAccess().ordinal() >= access.ordinal()));
+		if (user.belongsToSystemGroup() || !approvable.hasPermissions()) {
+			return true;
 		}
-		// as long as there are no permissions, every access is permitted
-		return true; 
+		return anyMatch(approvable.getPermissions(), permission -> 
+						user.belongsTo(permission.getUserGroup()) && 
+						(access == null || // access doesn't exist or granted
+						permission.getAccess().ordinal() >= access.ordinal()));
 	}
 	
 	@Override
 	public final boolean containsPermission(UserGroup group) {
 		Assert.notNull(group, C.USERGROUP);
-		Assert.state(this instanceof ApprovableObject, "object is not approvable");
-		final ApprovableObject<?> approvable = (ApprovableObject<?>) this;
+		checkApprovable();
+		final var approvable = (ApprovableObject<?>) this;
 		
-		return anyMatch(approvable.getPermissions(), perm -> group.equals(perm.getUserGroup()));
+		return anyMatch(approvable.getPermissions(), permission -> 
+						group.equals(permission.getUserGroup()));
 	}
 	
 	public static <T extends TransferableObject> T getObjectByUid(Collection<T> list, String uid) {
@@ -113,6 +112,10 @@ public abstract class AbstractApplicationEntity extends AbstractSystemEntity
 	
 	protected void initUid() {
 		initUid(this);
+	}
+	
+	private void checkApprovable() {
+		Assert.state(this instanceof ApprovableObject, "object is not approvable");
 	}
 	
 	protected static void initUids(List<? extends TransferableObject> transferableList) {

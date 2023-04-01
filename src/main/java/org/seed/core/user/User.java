@@ -39,6 +39,8 @@ public interface User extends SystemEntity {
 	
 	boolean hasUserGroups();
 	
+	boolean belongsToSystemGroup();
+	
 	boolean belongsTo(UserGroup userGroup);
 	
 	boolean belongsToOneOf(Collection<? extends UserGroup> userGroups);

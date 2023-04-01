@@ -28,14 +28,14 @@
 					 height="30px">
 				<template name="default" var="action">
 					<toolbarbutton label="@init(vm.getActionLabel(action))"
-								   enable="@init(vm.isActionEnabled(action))"
+								   disabled="@init(!vm.isActionEnabled(action))"
 							   	   onClick="@command('callAction',action=action,elem=self)"
 							   	   sclass="@init(action.testClass)"
 							   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"/>
 				</template>
 				<template name="select" var="action">
 					<toolbarbutton label="@init(vm.getActionLabel(action))"
-								   enable="@init(vm.isActionEnabled(action))"
+								   disabled="@init(!vm.isActionEnabled(action))"
 							   	   onClick="@command('callAction',action=action,elem=self)"
 							   	   sclass="@init(action.testClass)"
 							   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
@@ -43,7 +43,7 @@
 				</template>
 				<template name="search" var="action">
 					<toolbarbutton label="@init(vm.getActionLabel(action))"
-								   enable="@init(vm.isActionEnabled(action))"
+								   disabled="@init(!vm.isActionEnabled(action))"
 							   	   onClick="@command('callAction',action=action,elem=self)"
 							   	   sclass="@init(action.testClass)"
 							   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"
@@ -51,7 +51,7 @@
 				</template>
 				<template name="print" var="action">
 					<toolbarbutton label="@init(vm.getActionLabel(action))"
-								   enable="@init(vm.isActionEnabled(action))"
+								   disabled="@init(!vm.isActionEnabled(action))"
 							   	   onClick="@command('callAction',action=action,elem=self)"
 							   	   sclass="@init(action.testClass)"
 							   	   iconSclass="@init(action.type.icon.concat(' z-icon-fw alpha-icon-lg'))"

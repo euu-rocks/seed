@@ -39,6 +39,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.seed.C;
 import org.seed.core.data.AbstractSystemEntity;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
 @Entity
 @Table(name = "sys_user")
@@ -140,7 +141,12 @@ public class UserMetadata extends AbstractSystemEntity implements User {
 	public boolean belongsTo(UserGroup userGroup) {
 		Assert.notNull(userGroup, C.USERGROUP);
 		
-		return hasUserGroups() && getUserGroups().contains(userGroup);
+		return containsObject(getUserGroups(), userGroup);
+	}
+	
+	@Override
+	public boolean belongsToSystemGroup() {
+		return anyMatch(getUserGroups(), UserGroup::isSystemGroup);
 	}
 	
 	@Override
@@ -151,10 +157,8 @@ public class UserMetadata extends AbstractSystemEntity implements User {
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public Set<UserGroup> getUserGroups() {
-		final Set<?> groups = userGroups;
-		return (Set<UserGroup>) groups;
+		return MiscUtils.castSet(userGroups);
 	}
 	
 	public void setUserGroups(Set<UserGroupMetadata> userGroups) {
@@ -165,12 +169,14 @@ public class UserMetadata extends AbstractSystemEntity implements User {
 	public boolean isAuthorised(Authorisation authorisation) {
 		Assert.notNull(authorisation, "authorisation");
 		
-		return isEnabled && anyMatch(userGroups, group -> group.isAuthorised(authorisation));
+		return isEnabled && 
+			   anyMatch(getUserGroups(), group -> group.isAuthorised(authorisation));
 	}
 	
 	@Override
 	public boolean hasAdminAuthorisations() {
-		return anyMatch(Authorisation.values(), auth -> auth.name().startsWith("ADMIN") && isAuthorised(auth));
+		return anyMatch(Authorisation.values(), auth -> auth.name().startsWith("ADMIN") && 
+														isAuthorised(auth));
 	}
 	
 	void createLists() {
