@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.seed.C;
+import org.seed.core.api.ApplicationException;
 import org.seed.core.data.QueryCursor;
 import org.seed.core.data.Sort;
 import org.seed.core.data.ValidationException;
@@ -323,24 +324,13 @@ public class ListFormViewModel extends AbstractFormViewModel {
 		switch (action.getType()) {
 			case DELETE:
 				if (confirmed) {
-					try {
-						deleteObject();
-						reload();
-					}
-					catch (ValidationException vex) {
-						showValidationErrors(component, "form.action.deletefail", vex.getErrors());
-					}
+					delete(component);
 				}
 				break;
 				
 			case STATUS:
 				if (confirmed) {
-					try {
-						valueObjectService().changeStatus(getObject(), getStatus(), currentSession());
-					}
-					catch (ValidationException vex) {
-						showValidationErrors(component, "form.action.statusfail", vex.getErrors());
-					}
+					changeStatus(component);
 				}
 				setStatus(getObject().getEntityStatus());
 				notifyChange(C.STATUS, "availableStatusList", "transformers");
@@ -359,6 +349,37 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	private void reload() {
 		listModel = null;
 		notifyChange(C.OBJECT, "listModel");
+	}
+	
+	private void changeStatus(Component component) {
+		try {
+			valueObjectService().changeStatus(getObject(), getStatus(), currentSession());
+		}
+		catch (ApplicationException apex) {
+			showValidationMessage(component, apex.getMessage());
+		}
+		catch (ValidationException vex) {
+			showValidationErrors(component, "form.action.statusfail", vex.getErrors());
+		}
+		catch (Exception aex) {
+			showErrorMessage(aex.getMessage());
+		}
+	}
+	
+	private void delete(Component component) {
+		try {
+			deleteObject();
+			reload();
+		}
+		catch (ApplicationException apex) {
+			showValidationMessage(component, apex.getMessage());
+		}
+		catch (ValidationException vex) {
+			showValidationErrors(component, "form.action.deletefail", vex.getErrors());
+		}
+		catch (Exception aex) {
+			showErrorMessage(aex.getMessage());
+		}
 	}
 	
 	private void exportList() {

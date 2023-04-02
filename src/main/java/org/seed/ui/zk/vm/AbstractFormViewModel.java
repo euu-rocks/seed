@@ -433,7 +433,10 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 			notifyChangeAll();
 		}
 		catch (ApplicationException applicationException) {
-			showErrorMessage(applicationException.getMessage());
+			showValidationMessage(component, applicationException.getMessage());
+		}
+		catch (Exception aex) {
+			showErrorMessage(aex.getMessage());
 		}
 	}
 	

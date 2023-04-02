@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.persistence.OptimisticLockException;
 
 import org.seed.C;
+import org.seed.core.api.ApplicationException;
 import org.seed.core.data.FileObject;
 import org.seed.core.data.ValidationException;
 import org.seed.core.data.revision.Revision;
@@ -467,24 +468,13 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 		switch (action.getType()) {
 			case DELETE:
 				if (confirmed) {
-					try {
-						deleteObject();
-						showListForm();
-					}
-					catch (ValidationException vex) {
-						showValidationErrors(component, "form.action.deletefail", vex.getErrors());
-					}
+					delete(component);
 				}
 				break;
 			
 			case STATUS:
 				if (confirmed) {
-					try {
-						valueObjectService().changeStatus(getObject(), getStatus(), currentSession());
-					}
-					catch (ValidationException vex) {
-						showValidationErrors(component, "form.action.statusfail", vex.getErrors());
-					}
+					changeStatus(component);
 				}
 				setStatus(getObject().getEntityStatus());
 				revisions = null;
@@ -524,6 +514,37 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 		reset();
 	}
 	
+	private void changeStatus(Component component) {
+		try {
+			valueObjectService().changeStatus(getObject(), getStatus(), currentSession());
+		}
+		catch (ApplicationException apex) {
+			showValidationMessage(component, apex.getMessage());
+		}
+		catch (ValidationException vex) {
+			showValidationErrors(component, "form.action.statusfail", vex.getErrors());
+		}
+		catch (Exception aex) {
+			showErrorMessage(aex.getMessage());
+		}
+	}
+	
+	private void delete(Component component) {
+		try {
+			deleteObject();
+			showListForm();
+		}
+		catch (ApplicationException apex) {
+			showValidationMessage(component, apex.getMessage());
+		}
+		catch (ValidationException vex) {
+			showValidationErrors(component, "form.action.deletefail", vex.getErrors());
+		}
+		catch (Exception aex) {
+			showErrorMessage(aex.getMessage());
+		}
+	}
+	
 	private void save(Component component) {
 		try {
 			final var deletedFileObjects = new ArrayList<>(fileObjects);
@@ -534,11 +555,17 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 			revision = null;
 			reset();
 		}
+		catch (ApplicationException apex) {
+			showValidationMessage(component, apex.getMessage());
+		}
 		catch (ValidationException vex) {
 			showValidationErrors(component, "form.action.savefail", vex.getErrors());
 		}
 		catch (OptimisticLockException olex) {
 			showError(component, "form.action.stalefail");
+		}
+		catch (Exception aex) {
+			showErrorMessage(aex.getMessage());
 		}
 	}
 	

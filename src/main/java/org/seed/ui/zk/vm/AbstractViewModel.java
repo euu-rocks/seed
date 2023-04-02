@@ -113,11 +113,20 @@ abstract class AbstractViewModel extends UIUtils {
 						 NOBR_START + getLabel(errorKey) + NOBR_END);
 	}
 	
+	protected final void showValidationMessage(Component component, String message) {
+		Assert.notNull(message, "message");
+		
+		showNotification(component, 
+				 Clients.NOTIFICATION_TYPE_WARNING, 
+				 message.length() * 175, 
+				 NOBR_START + message + NOBR_END);
+	}
+	
 	protected final void showValidationErrors(Component component, String errorKey, Set<ValidationError> validationErrors) {
 		Assert.notNull(validationErrors, "validationErrors");
 		
 		final boolean isList = errorKey != null || validationErrors.size() > 1;
-		final StringBuilder buf = new StringBuilder();
+		final var buf = new StringBuilder();
 		if (errorKey != null) {
 			buf.append(getLabel("val.error.header", getLabel(errorKey)));
 		}
