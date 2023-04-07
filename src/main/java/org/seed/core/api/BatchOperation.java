@@ -17,8 +17,19 @@
  */
 package org.seed.core.api;
 
+/**
+ * A <code>BatchOperation</code> is a bulk database operation.
+ * It can be used to improve performance of save and delete functions
+ * 
+ * @author seed-master
+ *
+ */
 public interface BatchOperation {
 	
+	/**
+	 * Returns the size of a batch
+	 * @return the size of a batch
+	 */
 	int getBatchSize();
 	
 }

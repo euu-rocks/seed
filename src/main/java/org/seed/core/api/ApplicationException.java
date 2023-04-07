@@ -17,14 +17,35 @@
  */
 package org.seed.core.api;
 
+/**
+ * An <code>ApplicationException</code> can be used to abort an operation with an error message.
+ * ApplicationExceptions are treated specially in forms and displayed as a warning message 
+ * below the triggering button.
+ * 
+ * This exception is not thrown by Seed itself. It is intended for use in custom code only.
+ * 
+ * @author seed-master
+ *
+ */
 public class ApplicationException extends RuntimeException {
 
 	private static final long serialVersionUID = -717383974887740304L;
-
+	
+	/** 
+     * Constructs a new <code>ApplicationException</code> exception 
+     * with the message and cause.
+     * @param message the detail message.
+     * @param cause the cause.
+     */
 	public ApplicationException(String message, Throwable cause) {
 		super(message, cause);
 	}
-
+	
+	/** 
+     * Constructs a new <code>ApplicationException</code> exception 
+     * with the message.
+     * @param message the detail message.
+     */
 	public ApplicationException(String message) {
 		super(message);
 	}

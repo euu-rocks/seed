@@ -17,8 +17,19 @@
  */
 package org.seed.core.api;
 
+/**
+ * <code>RestProvider</code> provides access to {@link RestClient} instances.
+ * 
+ * @author seed-master
+ *
+ */
 public interface RestProvider {
 	
+	/**
+	 * Creates a new {@link RestClient} for the given url
+	 * @param url the url to use
+	 * @return the new <code>RestClient</code>
+	 */
 	RestClient getClient(String url);
 	
 }

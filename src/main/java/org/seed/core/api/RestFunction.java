@@ -17,14 +17,32 @@
  */
 package org.seed.core.api;
 
+/**
+ * <code>RestFunction</code> is the base interface of all rest functions.
+ * A rest function is triggered by a request to a specific rest service mapping. 
+ * 
+ * @author seed-master
+ *
+ */
 public interface RestFunction {
 	
+	/**
+	 * Enumeration of all HTTP request method types.
+	 * 
+	 * @author seed-master
+	 *
+	 */
 	public enum MethodType {
 		
 		GET,
 		POST
 	}
 	
+	/**
+	 * Exceutes the function and returns the response object
+	 * @param context the context of the function
+	 * @return the response object
+	 */
 	Object call(RestFunctionContext context);
 	
 }

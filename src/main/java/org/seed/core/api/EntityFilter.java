@@ -17,8 +17,18 @@
  */
 package org.seed.core.api;
 
+/**
+ * An <code>EntityFilter</code> represents a named predefined {@link EntityObject} filter.
+ * 
+ * @author seed-master
+ *
+ */
 public interface EntityFilter {
 	
+	/**
+	 * Returns the name of the filter.
+	 * @return the name of the filter
+	 */
 	String getName();
 	
 }

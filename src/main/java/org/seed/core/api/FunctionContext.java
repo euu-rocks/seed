@@ -17,16 +17,48 @@
  */
 package org.seed.core.api;
 
+import javax.annotation.Nullable;
+
+/**
+ * <code>FunctionContext</code> is the base interface of all function contexts.
+ * It provides basic functionality for setting and reading context properties.
+ * 
+ * @author seed-master
+ *
+ */
 public interface FunctionContext {
 	
+	/**
+	 * Checks if there is a context property with the given name
+	 * @param name the name of the context property
+	 * @return <code>true</code> if there is a property with the given name
+	 */
 	boolean hasProperty(String name);
 	
-	Object getProperty(String name);
+	/**
+	 * Returns the value of a context property with the given name or null if the property doesn't exist
+	 * @param name the name of the context property
+	 * @return the value of a context property with the given name or null if the property doesn't exist
+	 */
+	<T> T getProperty(String name);
 	
-	void setProperty(String name, Object object);
+	/**
+	 * Sets the value of a context property. By setting it to null, the property can be removed.
+	 * @param name the name of the context property
+	 * @param value the value of a context property. Can also be null
+	 */
+	void setProperty(String name, @Nullable Object value);
 	
+	/**
+	 * Returns the success message or null if none
+	 * @return the success message or null if none
+	 */
 	String getSuccessMessage();
 	
+	/**
+	 * Sets the success message
+	 * @param successMessage the success message
+	 */
 	void setSuccessMessage(String successMessage);
 	
 }

@@ -17,13 +17,35 @@
  */
 package org.seed.core.api;
 
+/**
+ * A <code>Status</code> represents the status of an {@link EntityObject}.
+ * 
+ * @author seed-master
+ *
+ */
 public interface Status {
 	
+	/**
+	 * Returns the name of the status
+	 * @return the name of the status
+	 */
 	String getName();
 	
+	/**
+	 * Returns the description of the status
+	 * @return the description of the status
+	 */
 	String getDescription();
 	
+	/**
+	 * Returns the number of the status
+	 * @return the number of the status
+	 */
 	Integer getStatusNumber();
 	
+	/**
+	 * Returns the name and number of the status
+	 * @return the name and number of the status
+	 */
 	String getNumberAndName();
 }

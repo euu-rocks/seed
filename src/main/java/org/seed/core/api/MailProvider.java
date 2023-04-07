@@ -17,12 +17,30 @@
  */
 package org.seed.core.api;
 
+/**
+ * <code>MailProvider</code> provides access to e-mail functionalities.
+ * 
+ * @author seed-master
+ *
+ */
 public interface MailProvider {
 	
+	/**
+	 * Checks if mailing is enabled
+	 * @return <code>true</code> if mailing is enabled
+	 */
 	boolean isMailingEnabled();
 	
+	/**
+	 * Creates a new {@link Mail} template.
+	 * @return a new mail template
+	 */
 	Mail createMail();
 	
+	/**
+	 * Sends an email
+	 * @param mail the mail to send
+	 */
 	void sendMail(Mail mail);
 	
 }

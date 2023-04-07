@@ -20,10 +20,28 @@ package org.seed.core.api;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * <code>DataSourceProvider</code> provides access to {@link DataSource} objects.
+ * 
+ * @author seed-master
+ *
+ */
 public interface DataSourceProvider {
 	
+	/**
+	 * Returns the <code>DataSource</code> with the given name.
+	 * @param dataSourceName the name of the data source
+	 * @return the <code>DataSource</code> with the given name or null if it doesn't exist
+	 */
 	DataSource getDataSource(String dataSourceName);
-	
+
+	/**
+	 * Executes the data source query and returns the list of results.
+	 * @param dataSource the <code>DataSource</code> to use
+	 * @param parameters a map of named parameter objects
+	 * @return the result list as list of arrays
+	 * 		   Each array element represents a column value
+	 */
 	List<Object[]> query(DataSource dataSource, Map<String, Object> parameters);
 	
 }

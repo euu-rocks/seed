@@ -17,8 +17,18 @@
  */
 package org.seed.core.api;
 
+/**
+ * An <code>EntityTransformer</code> represents a named predefined {@link EntityObject} transformation.
+ * 
+ * @author seed-master
+ *
+ */
 public interface EntityTransformer {
 	
+	/**
+	 * Returns the name of the transformation.
+	 * @return the name of the transformation
+	 */
 	String getName();
 	
 }

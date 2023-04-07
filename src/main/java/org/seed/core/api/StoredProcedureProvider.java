@@ -17,8 +17,19 @@
  */
 package org.seed.core.api;
 
+/**
+ * <code>StoredProcedureProvider</code> provides access to stored procedures.
+ * 
+ * @author seed-master
+ *
+ */
 public interface StoredProcedureProvider {
 	
+	/**
+	 * Creates a new {@link StoredProcedureCall} for the given procedure name
+	 * @param procedureName the name of the procedure
+	 * @return the new <code>StoredProcedureCall</code>
+	 */
 	StoredProcedureCall createCall(String procedureName);
 	
 }

@@ -19,16 +19,49 @@ package org.seed.core.api;
 
 import java.io.InputStream;
 
+/**
+ * A <code>Mail</code>  is a template that can be used to create an email.
+ * 
+ * @author seed-master
+ *
+ */
 public interface Mail {
 	
+	/**
+	 * Set on ore more TO adresses
+	 * @param toAddress on ore more TO adresses
+	 * @return this mail
+	 */
 	Mail setToAddress(String ...toAddress);
 	
+	/**
+	 * Set on ore more CC adresses
+	 * @param toAddress on ore more CC adresses
+	 * @return this mail
+	 */
 	Mail setCcAddress(String ...ccAddress);
 	
+	/**
+	 * Set the subject of the mail
+	 * @param subject the subject of the mail
+	 * @return this mail
+	 */
 	Mail setSubject(String subject);
 	
+	/**
+	 * Set the text of the mail
+	 * @param text the text of the mail
+	 * @return this mail
+	 */
 	Mail addText(String text);
 	
+	/**
+	 * Adds a file attachment as <code>InputStream</code>
+	 * @param fileName the file name
+	 * @param contentType the content type
+	 * @param inputStream the input stream
+	 * @return this mail
+	 */
 	Mail addAttachment(String fileName, String contentType, final InputStream inputStream);
 	
 }

@@ -19,8 +19,21 @@ package org.seed.core.api;
 
 import org.seed.core.codegen.GeneratedCode;
 
+/**
+ * <code>CallbackFunction</code> is the base interface of all callback functions.
+ * A callback function is triggered by a callback event. 
+ * @See {@link CallbackEventType}
+ * 
+ * @author seed-master
+ *
+ */
 public interface CallbackFunction<T extends EntityObject> extends GeneratedCode {
 	
+	/**
+	 * Calls the function
+	 * @param object the object on which the function is called
+	 * @param context the context of the function
+	 */
 	void call(T object, CallbackFunctionContext context);
 	
 }

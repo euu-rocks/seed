@@ -19,12 +19,31 @@ package org.seed.core.api;
 
 import org.seed.core.api.RestFunction.MethodType;
 
+/**
+ * A <code>RestFunctionContext</code> is the context in which a {@link RestFunction} is executed.
+ * 
+ * @author seed-master
+ *
+ */
 public interface RestFunctionContext extends CallbackFunctionContext {
 	
+	/**
+	 * Returns the HTTP request method type
+	 * @return the HTTP request method type
+	 */
 	MethodType getMethodType();
 	
+	/**
+	 * Returns the request body object
+	 * @return the request body object or <code>null</code> if no body object exist
+	 */
 	Object getBody();
 	
+	/**
+	 * Returns an array of parameter values parsed from path elements.
+	 * Example: /a/b/123 -> ["a","b","123"]
+	 * @return an array of parameter values parsed from path elements
+	 */
 	String[] getParameters();
 	
 }

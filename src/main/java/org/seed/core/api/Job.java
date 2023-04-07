@@ -17,8 +17,18 @@
  */
 package org.seed.core.api;
 
+/**
+ * <code>Job</code> is the base interface of all jobs.
+ * 
+ * @author seed-master
+ *
+ */
 public interface Job {
 	
+	/**
+	 * Runs the job in the given context.
+	 * @param context the context of the job
+	 */
 	void execute(JobContext context);
 	
 }

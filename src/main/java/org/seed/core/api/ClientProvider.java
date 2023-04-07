@@ -17,18 +17,51 @@
  */
 package org.seed.core.api;
 
+/**
+ * <code>ClientProvider</code> provides access to client-side (UI) functionalities.
+ * 
+ * @author seed-master
+ *
+ */
 public interface ClientProvider {
 	
+	/**
+	 * Shows an info message dialog
+	 * @param message the message to show
+	 */
 	void showInfoMessage(String message);
 	
+	/**
+	 * Shows an info message dialog
+	 * @param message the message to show
+	 * @param title the title of the dialog
+	 */
 	void showInfoMessage(String message, String title);
 	
+	/**
+	 * Shows a warning message dialog
+	 * @param message the message to show
+	 */
 	void showWarnMessage(String message);
 	
+	/**
+	 * Shows a warning message dialog
+	 * @param message the message to show
+	 * @param title the title of the dialog
+	 */
 	void showWarnMessage(String message, String title);
 	
+	/**
+	 * Shows an error message dialog
+	 * @param message the message to show
+	 */
 	void showErrorMessage(String message);
 	
+	/**
+	 * Shows an error message dialog
+	 * @param message the message to show
+	 * @param title the title of the dialog
+	 */
 	void showErrorMessage(String message, String title);
 	
 }

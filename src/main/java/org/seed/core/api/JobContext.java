@@ -17,22 +17,75 @@
  */
 package org.seed.core.api;
 
+/**
+ * A <code>JobContext</code> is the context in which a {@link Job} is executed.
+ * 
+ * @author seed-master
+ *
+ */
 public interface JobContext extends CallbackFunctionContext {
 	
+	/**
+	 * Checks if there is a job parameter with the given name
+	 * @param name the name of the job parameter
+	 * @return  <code>true</code> if there is a parameter with the given name
+	 */
 	boolean hasJobParameter(String name);
 	
+	/**
+	 * Returns the job parameter with the given name
+	 * @param name the name of the job parameter
+	 * @return the value of the parameter or <code>null</code> if the parameter doesn't exist
+	 */
 	String getJobParameter(String name);
 	
+	/**
+	 * Returns the job parameter with the given name as <code>Integer</code>
+	 * @param name the name of the job parameter
+	 * @return the value of the parameter as <code>Integer</code> or <code>null</code> if the parameter doesn't exist
+	 * @throws IllegalStateException if the parameter is not an integer value
+	 */
 	Integer getJobParameterAsInt(String name);
-		
+	
+	/**
+	 * Returns the job parameter with the given name or a default value if the parameter doesn't exist
+	 * @param name the name of the job parameter
+	 * @param defaultValue the default value that is used if the parameter doesn't exist
+	 * @return the value of the parameter or the default value if the parameter doesn't exist
+	 */
 	String getJobParameter(String name, String defaultValue);
 	
+	/**
+	 * Returns the job parameter with the given name as <code>Integer</code> or a default value if the parameter doesn't exist
+	 * @param name the name of the job parameter
+	 * @param defaultValue the default value that is used if the parameter doesn't exist
+	 * @return the value of the parameter as <code>Integer</code> or the default value if the parameter doesn't exist
+	 * @throws IllegalStateException if the parameter is not an integer value
+	 */
 	Integer getJobParameterAsInt(String name, Integer defaultValue);
 	
-	void logInfo(String content);
+	/**
+	 * Writes a message (info) to the job run log
+	 * @param message the message to write to the job run log
+	 */
+	void log(String message);
 	
-	void logWarning(String content);
+	/**
+	 * Writes an info message to the job run log
+	 * @param message the message to write to the job run log
+	 */
+	void logInfo(String message);
 	
-	void logError(String content);
+	/**
+	 * Writes an warning message to the job run log
+	 * @param message the message to write to the job run log
+	 */
+	void logWarn(String message);
+	
+	/**
+	 * Writes an error message to the job run log
+	 * @param message the message to write to the job run log
+	 */
+	void logError(String message);
 	
 }

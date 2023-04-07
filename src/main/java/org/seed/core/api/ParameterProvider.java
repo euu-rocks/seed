@@ -17,12 +17,34 @@
  */
 package org.seed.core.api;
 
+/**
+ * <code>ParameterProvider</code> provides access to parameters.
+ * 
+ * @author seed-master
+ *
+ */
 public interface ParameterProvider {
 	
+	/**
+	 * Checks if there is a module parameter with the given name
+	 * @param name the name of the parameter
+	 * @return <code>true</code> if there is a parameter with the given name
+	 */
 	boolean hasModuleParameter(String name);
 	
+	/**
+	 * Returns the value of a module parameter with the given name
+	 * @param name the name of the parameter
+	 * @return the value of the parameter or null if the parameter doesn't exist
+	 */
 	String getModuleParameter(String name);
-		
+	
+	/**
+	 * Returns the value of a module parameter with the given name or a default value if the parameter doesn't exist 
+	 * @param name the name of the parameter
+	 * @param defaultValue the default value
+	 * @return the value of the parameter or the default value if the parameter doesn't exist 
+	 */
 	String getModuleParameter(String name, String defaultValue);
 	
 }

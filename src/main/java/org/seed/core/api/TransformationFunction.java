@@ -19,8 +19,23 @@ package org.seed.core.api;
 
 import org.seed.core.codegen.GeneratedCode;
 
+/**
+ * <code>TransformationFunction</code> is the base interface of all transformation functions.
+ * It is triggered when a transformation is performed.
+ * 
+ * @author seed-master
+ *
+ * @param <S> the type of the source {@link EntityObject}
+ * @param <T> the type of the target {@link EntityObject}
+ */
 public interface TransformationFunction<S extends EntityObject, T extends EntityObject> extends GeneratedCode {
 	
+	/**
+	 * Excecutes the function.
+	 * @param sourceObject the source {@link EntityObject}
+	 * @param targetObject the target {@link EntityObject}
+	 * @param context the context of the function
+	 */
 	void transform(S sourceObject, T targetObject, CallbackFunctionContext context);
 	
 }

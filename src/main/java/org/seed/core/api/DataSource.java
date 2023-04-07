@@ -17,8 +17,18 @@
  */
 package org.seed.core.api;
 
+/**
+ * A <code>DataSource</code> represents a named predefined SQL or HQL query.
+ * 
+ * @author seed-master
+ *
+ */
 public interface DataSource {
 	
+	/**
+	 * Returns the name of the data source.
+	 * @return the name of the data source
+	 */
 	String getName();
 	
 }

@@ -17,10 +17,24 @@
  */
 package org.seed.core.api;
 
+/**
+ * <code>EntityObject</code> is the base interface of all entity objects.
+ * 
+ * @author seed-master
+ *
+ */
 public interface EntityObject {
 	
+	/**
+	 * Return the primary key of the entity object
+	 * @return the primary key or null if the object has not yet been saved
+	 */
 	Long getId();
 	
+	/**
+	 * Return the current status of the entity object, if any
+	 * @return the current status or null if no status model exists
+	 */
 	Status getEntityStatus();
 	
 }

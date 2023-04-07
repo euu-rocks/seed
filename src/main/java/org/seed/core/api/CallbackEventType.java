@@ -17,6 +17,12 @@
  */
 package org.seed.core.api;
 
+/**
+ * Enumeration of all callback event types
+ * 
+ * @author seed-master
+ *
+ */
 public enum CallbackEventType {
 	
 	CREATE,
