@@ -58,7 +58,7 @@ class DefaultJobContext extends ValueObjectFunctionContext
 	
 	@Override
 	public ClientProvider getClientProvider() {
-		throw new UnsupportedOperationException("client not available in job context");
+		throw new UnsupportedOperationException("client provider not available in job context");
 	}
 	
 	@Override
@@ -77,8 +77,7 @@ class DefaultJobContext extends ValueObjectFunctionContext
 				return Integer.parseInt(param);
 			}
 			catch (NumberFormatException nfe) {
-				throw new IllegalStateException("value of parameter '" + name + 
-												"' is not an integer: " + param);
+				throw new IllegalStateException("parameter '" + name + "' is not an integer: " + param);
 			}
 		}
 		return null;
@@ -102,29 +101,34 @@ class DefaultJobContext extends ValueObjectFunctionContext
 	}
 	
 	@Override
-	public void logInfo(String content) {
-		log(LogLevel.INFO, content);
+	public void log(String message) {
+		logInfo(message);
 	}
 	
 	@Override
-	public void logWarning(String content) {
-		log(LogLevel.WARNING, content);
+	public void logInfo(String message) {
+		log(LogLevel.INFO, message);
 	}
 	
 	@Override
-	public void logError(String content) {
-		log(LogLevel.ERROR, content);
+	public void logWarn(String message) {
+		log(LogLevel.WARNING, message);
 	}
 	
-	private void log(LogLevel level, String content) {
-		if (content != null) {
-			final TaskRunLog log = new TaskRunLog();
+	@Override
+	public void logError(String message) {
+		log(LogLevel.ERROR, message);
+	}
+	
+	private void log(LogLevel level, String message) {
+		if (message != null) {
+			final var log = new TaskRunLog();
 			log.setMoment(new Date());
 			log.setLevel(level);
-			if (content.length() > 1024) {
-				content = content.substring(0, 1020) + "...";
+			if (message.length() > 1024) {
+				message = message.substring(0, 1020) + "...";
 			}
-			log.setContent(content);
+			log.setContent(message);
 			logs.add(log);
 		}
 	}
