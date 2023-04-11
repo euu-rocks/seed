@@ -212,6 +212,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 		if (getForm().getEntity().hasStatus()) {
 			setStatus(getObject().getEntityStatus());
 		}
+		updateTabName();
 		initFileObjects();
 		resetRelationForms();
 	}
@@ -504,6 +505,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 		initFileObjects();
 		revision = null;
 		reset();
+		updateTabName();
 		flagDirty(); // new object is always dirty
 	}
 	
@@ -553,6 +555,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 			valueObjectService().saveObject(getObject(), deletedFileObjects);
 			initFileObjects();
 			revision = null;
+			updateTabName();
 			reset();
 		}
 		catch (ApplicationException apex) {
@@ -572,6 +575,12 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	private void initFileObjects() {
 		fileObjects = valueObjectService().getFileObjects(getObject(), currentSession());
 		valueObjectService().preallocateFileObjects(getObject(), currentSession());
+	}
+	
+	private void updateTabName() {
+		final String identifier = getIdentifier(getObject());
+		getTab().setName(identifier != null ? identifier : getLabel("label.new"));
+		notifyObjectChange(getTab(), C.NAME);
 	}
 	
 	private void reset() {

@@ -28,6 +28,7 @@ import org.seed.core.form.Form;
 import org.seed.core.form.FormService;
 import org.seed.core.task.TaskService;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 import org.seed.ui.FormParameter;
 import org.seed.ui.MenuManager;
 import org.seed.ui.Tab;
@@ -146,7 +147,7 @@ public class MainViewModel extends AbstractApplicationViewModel {
 		Clients.confirmClose(getLabel("question.quit"));
 		openNodes.add(getLabel("label.administration"));
 		openNodes.add(menuManager.getDefaultMenuName());
-		openNodes.add(getUserName());
+		openNodes.add(MiscUtils.getUserName());
 	}
 	
 	@Command // called on open and close

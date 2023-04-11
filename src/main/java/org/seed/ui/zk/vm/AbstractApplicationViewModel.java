@@ -51,7 +51,6 @@ import org.seed.core.task.Task;
 import org.seed.core.user.User;
 import org.seed.core.user.UserService;
 import org.seed.core.util.Assert;
-import org.seed.core.util.MiscUtils;
 import org.seed.ui.DoubleClickDetector;
 import org.seed.ui.FormParameter;
 import org.seed.ui.TabParameterMap;
@@ -294,10 +293,6 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 		Sessions.getCurrent().invalidate();
 		SecurityContextHolder.clearContext();
 		redirect("/seed");
-	}
-	
-	protected static String getUserName() {
-		return MiscUtils.getUserName();
 	}
 	
 }

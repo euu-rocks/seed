@@ -188,6 +188,8 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		}
 		if (this.object != null) {
 			initObject(this.object);
+			tab.setName(this.object.getName());
+			notifyObjectChange(tab, C.NAME);
 			if (this.object.isNew()) {
 				flagDirty();
 			}
