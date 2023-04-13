@@ -32,7 +32,7 @@ public class DeleteTestobjectTest extends AbstractEntityTest {
 	@Order(1)
 	void testRemoveNested() {
 		WebElement tabpanel = showEntity("testobject");
-		assertEquals("Entitäten", findTab("entitaeten").getText());
+		assertEquals("Entitäten: Testobject", findTab("entitaeten").getText());
 		clickTab(tabpanel, "nesteds");
 		WebElement tabpanelNesteds = findTabpanel(tabpanel, "nesteds");
 		clickListItem(tabpanelNesteds, "testobjectnested");
@@ -44,7 +44,7 @@ public class DeleteTestobjectTest extends AbstractEntityTest {
 	@Order(2)
 	void testDeleteNestedEntity() {
 		WebElement tabpanel = showEntity("testobjectnested");
-		assertEquals("Entitäten", findTab("entitaeten").getText());
+		assertEquals("Entitäten: TestobjectNested", findTab("entitaeten").getText());
 		clickButton(tabpanel, "delete");
 		
 		WebElement dialogConfirm = findConfirmDialog();
@@ -56,7 +56,7 @@ public class DeleteTestobjectTest extends AbstractEntityTest {
 	@Order(3)
 	void testDeleteTestEntity() {
 		WebElement tabpanel = showEntity("testobject");
-		assertEquals("Entitäten", findTab("entitaeten").getText());
+		assertEquals("Entitäten: Testobject", findTab("entitaeten").getText());
 		clickButton(tabpanel, "delete");
 		
 		WebElement dialogConfirm = findConfirmDialog();

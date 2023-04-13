@@ -32,7 +32,7 @@ public class EditUserTest extends AbstractUserTest {
 	@Order(1)
 	void testRenameUser() {
 		WebElement tabpanel = showUser("testuser");
-		assertEquals("Benutzer", findTab("benutzer").getText());
+		assertEquals("Benutzer: Testuser", findTab("benutzer").getText());
 		clearTextbox(tabpanel, "username");
 		findTextbox(tabpanel, "username").sendKeys("TestuserNew");
 		saveUser(tabpanel);

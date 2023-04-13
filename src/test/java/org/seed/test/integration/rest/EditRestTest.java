@@ -33,7 +33,7 @@ public class EditRestTest extends AbstractRestTest {
 	@Order(1)
 	void testRenameRest() {
 		WebElement tabpanel = showRest("testrest");
-		assertEquals("REST-Services", findTab("rest-services").getText());
+		assertEquals("REST-Services: TestRest", findTab("rest-services").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TestRestNew");
 		saveRest(tabpanel);

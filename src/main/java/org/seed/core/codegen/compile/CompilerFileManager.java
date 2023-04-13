@@ -24,13 +24,11 @@ import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.jar.JarEntry;
 import java.util.zip.ZipEntry;
 
 import javax.tools.FileObject;
@@ -44,7 +42,6 @@ import javax.tools.StandardJavaFileManager;
 import org.seed.C;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.util.Assert;
-import org.seed.core.util.SafeZipInputStream;
 import org.seed.core.util.StreamUtils;
 
 import static org.seed.core.codegen.CodeUtils.*;
@@ -135,7 +132,7 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 		final List<JavaFileObject> result = new ArrayList<>();
 		
 		// list class loader resources 
-		final Enumeration<URL> urlEnum = getClass().getClassLoader().getResources(getPackagePath(packageName));
+		final var urlEnum = getClass().getClassLoader().getResources(getPackagePath(packageName));
 		while (urlEnum.hasMoreElements()) {
 			final URL packageURL = urlEnum.nextElement();
 			final File packageURLFile = new File(packageURL.getFile());
@@ -162,9 +159,9 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	}
 	
 	private void listJar(List<JavaFileObject> result, URL packageURL) throws IOException {
-		final JarURLConnection jarCon = (JarURLConnection) packageURL.openConnection();
-		final String packagePath = jarCon.getEntryName();
-		final Enumeration<JarEntry> entryEnum = jarCon.getJarFile().entries();
+		final var jarCon = (JarURLConnection) packageURL.openConnection();
+		final var packagePath = jarCon.getEntryName();
+		final var entryEnum = jarCon.getJarFile().entries();
 		while (entryEnum.hasMoreElements()) {
 			final String entryName = entryEnum.nextElement().getName();
 			if (isClassFile(entryName) &&
@@ -178,7 +175,7 @@ class CompilerFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 	
 	private void listCustomJar(List<JavaFileObject> result, String packageName, CustomJarInfo customJar) {
 		final String packagePath = getPackagePath(packageName);
-		try (SafeZipInputStream zis = StreamUtils.getZipStream(customJar.getContent())) {
+		try (var zis = StreamUtils.getZipStream(customJar.getContent())) {
 			ZipEntry entry;
 			while ((entry = zis.getNextEntrySafe()) != null) {
 				final String entryName = entry.getName();

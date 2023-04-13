@@ -69,7 +69,7 @@ public class TestobjectFormTest extends AbstractIntegrationTest {
 	@Order(3)
 	void testEditTestobject() {
 		final WebElement tabpanel = showObject("test-1");
-		assertEquals("Testobject", findTab("testobject").getText());
+		assertEquals("Testobject: Test-1", findTab("testobject").getText());
 		findTextbox(tabpanel, "text").sendKeys(" renamed");
 		clearTextbox(tabpanel, "description");
 		findTextbox(tabpanel, "description").sendKeys("new description");
@@ -134,7 +134,7 @@ public class TestobjectFormTest extends AbstractIntegrationTest {
 	@Order(7)
 	void testDeleteTestobject() {
 		final WebElement tabpanel = showObject("test-1");
-		assertEquals("Testobject", findTab("testobject").getText());
+		assertEquals("Testobject: Test-1", findTab("testobject").getText());
 		
 		clickButton(tabpanel, "loeschen");
 		final WebElement confirmDialog = findConfirmDialog();

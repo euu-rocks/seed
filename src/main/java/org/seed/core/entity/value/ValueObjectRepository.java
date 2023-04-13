@@ -467,7 +467,9 @@ public class ValueObjectRepository {
 			return value.toString();
 		}
 		else {
-			return entity.getName() + " (" + object.getId() + ')';
+			return !object.isNew()
+					? entity.getName() + " (" + object.getId() + ')'
+					: null;
 		}
 	}
 	

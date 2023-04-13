@@ -56,7 +56,7 @@ public class DeleteJobTest extends AbstractJobTest {
 	@Order(3)
 	void testDeleteJob() {
 		WebElement tabpanel = showJob("testjobnew");
-		assertEquals("Jobs", findTab("jobs").getText());
+		assertEquals("Jobs: TestjobNew", findTab("jobs").getText());
 		clickButton(tabpanel, "delete");
 		
 		WebElement dialogConfirm = findConfirmDialog();

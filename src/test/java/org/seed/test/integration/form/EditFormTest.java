@@ -32,7 +32,7 @@ public class EditFormTest extends AbstractFormTest {
 	@Order(1)
 	void testRenameForm() {
 		WebElement tabpanel = showForm("testform");
-		assertEquals("Formulare", findTab("formulare").getText());
+		assertEquals("Formulare: Testform", findTab("formulare").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TestformNew");
 		saveForm(tabpanel);

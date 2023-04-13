@@ -167,11 +167,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	private void addFunction(String code, AnnotationMetadata ...annotations) {
 		Assert.notNull(code, C.CODE);
 		
-		if (annotations != null) {
-			for (AnnotationMetadata annotation : annotations) {
-				addAnnotation(annotation);
-			}
-		}
+		forEach(annotations, this::addAnnotation);
 		try (Scanner scanner = new Scanner(code)) {
 			boolean comment = false;
 			while (scanner.hasNextLine()) {
@@ -410,7 +406,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	}
 	
 	private static AnnotationMetadata createJoinColumnAnnotation(String name) {
-		final var annotationParamMap = new HashMap<String, Object>();
+		final var annotationParamMap = new HashMap<String, Object>(4, 1f);
 		annotationParamMap.put(C.NAME, quote(name));
 		annotationParamMap.put("nullable", false);
 		annotationParamMap.put("updatable", false);

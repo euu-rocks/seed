@@ -188,8 +188,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		}
 		if (this.object != null) {
 			initObject(this.object);
-			tab.setName(this.object.getName());
-			notifyObjectChange(tab, C.NAME);
+			updateTabName();
 			if (this.object.isNew()) {
 				flagDirty();
 			}
@@ -679,6 +678,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 			getObjectService().saveObject(object);
 			showNotification(component, false, msgKey + KEY_SUCCESS);
 			notifyChange(C.OBJECT, C.TITLE);
+			updateTabName();
 			resetDirty();
 			return true;
 		}
@@ -777,6 +777,11 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		if (tabbox != null) {
 			tabbox.setSelectedIndex(0);
 		}
+	}
+	
+	private void updateTabName() {
+		tab.setName(this.object.getName());
+		notifyObjectChange(tab, C.NAME);
 	}
 	
 	private void confirmDirty(String action) {

@@ -17,6 +17,8 @@
  */
 package org.seed.core.codegen;
 
+import static org.seed.core.util.CollectionUtils.forEach;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,6 +26,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import javax.annotation.Nullable;
 
 import org.seed.C;
 import org.seed.core.util.Assert;
@@ -40,9 +44,6 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		final String name;
 		
 		MemberMetadata(String name, TypeClass typeClass) {
-			Assert.notNull(name, C.NAME);
-			Assert.notNull(typeClass, C.TYPECLASS);
-			
 			this.typeClass = typeClass;
 			this.name = name;
 		}
@@ -91,28 +92,20 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		if (isGenerated) {
 			addImport(GeneratedCode.class);
 		}
-		if (classMetadata.annotations != null) {
-			for (AnnotationMetadata annotation : classMetadata.annotations) {
-				addImport(annotation);
-			}
-		}
-		if (classMetadata.interfaceClasses != null) {
-			for (TypeClass interfaceClass : classMetadata.interfaceClasses) {
-				addImport(interfaceClass);
-			}
-		}
+		forEach(classMetadata.annotations, this::addImport);
+		forEach(classMetadata.interfaceClasses, this::addImport);
 		if (classMetadata.superClass != null) {
 			addImport(classMetadata.superClass);
 		}
 		
 		final var importPackageList = new ArrayList<String>(importPackages);
 		Collections.sort(importPackageList);
-		importPackageList.forEach(i -> buildImportPackage(buildBuffer, i));
+		importPackageList.forEach(imprt -> buildImportPackage(buildBuffer, imprt));
 		
 		final var importList = new ArrayList<TypeClass>(importTypes);
 		importList.removeIf(type -> importPackages.contains(type.packageName));
 		TypeClass.sort(importList);
-		importList.forEach(i -> buildImport(buildBuffer, i));
+		importList.forEach(imprt -> buildImport(buildBuffer, imprt));
 		buildBuffer.append(LF);
 		
 		// class
@@ -132,13 +125,9 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 	protected void addImport(TypeClass typeClass) {
 		Assert.notNull(typeClass, C.TYPECLASS);
 		
+		forEach(typeClass.typeClasses, this::addImport);
 		if (typeClass.genericClass != null) {
 			addImport(typeClass.genericClass);
-		}
-		if (typeClass.typeClasses != null) {
-			for (TypeClass type : typeClass.typeClasses) {
-				addImport(type);
-			}
 		}
 		if (!(typeClass.packageName.startsWith("java.lang") ||
 			  typeClass.packageName.equals(classMetadata.packageName))) {
@@ -153,10 +142,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		if (annotation.hasParameters()) {
 			for (Object value : annotation.parameterMap.values()) {
 				if (value instanceof AnnotationMetadata[]) {
-					final var paramAnnotations = (AnnotationMetadata[]) value;
-					for (AnnotationMetadata paramAnnotation : paramAnnotations) {
-						addImport(paramAnnotation);
-					}
+					forEach((AnnotationMetadata[]) value, this::addImport);
 				}
 				else {
 					addImport(value.getClass());
@@ -177,11 +163,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		Assert.state(!memberMap.containsKey(name), "duplicate member definition for: " + name);
 		
 		addImport(typeClass);
-		if (annotations != null) {
-			for (AnnotationMetadata annotation : annotations) {
-				addImport(annotation);
-			}
-		}
+		forEach(annotations, this::addImport);
 		final var member = new MemberMetadata(name, typeClass);
 		memberMap.put(name, member);
 		buildMember(codeBuffer, member, annotations);
@@ -193,11 +175,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 	}
 	
 	protected void addGetter(String memberName, AnnotationMetadata ...annotations) {
-		if (annotations != null) {
-			for (AnnotationMetadata annotation : annotations) {
-				addImport(annotation);
-			}
-		}
+		forEach(annotations, this::addImport);
 		buildGetter(codeBuffer, getMember(memberName), annotations);
 	}
 	
@@ -205,21 +183,20 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		buildSetter(codeBuffer, getMember(memberName));
 	}
 	
-	protected void addMethod(TypeClass returnType, String methodName, 
-							 ParameterMetadata[] parameters, 
+	protected void addMethod(@Nullable TypeClass returnType, String methodName, 
+							 @Nullable ParameterMetadata[] parameters, 
 							 String content, AnnotationMetadata ...annotations) {
 		Assert.notNull(methodName, "method name");
 		Assert.notNull(content, C.CONTENT);
 		
 		// annotations
-		if (annotations != null) {
-			for (AnnotationMetadata annotation : annotations) {
-				addImport(annotation);
-				codeBuffer.append('\t');
-				buildAnnotation(codeBuffer, annotation);
-				codeBuffer.append(LF);
-			}
-		}
+		forEach(annotations, annotation -> {
+			addImport(annotation);
+			codeBuffer.append('\t');
+			buildAnnotation(codeBuffer, annotation);
+			codeBuffer.append(LF);
+		});
+
 		codeBuffer.append("\tpublic ");
 		
 		// return type
@@ -286,12 +263,10 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 	
 	private void buildClassDefinition(StringBuilder buf, boolean isGenerated) {
 		// annotations
-		if (classMetadata.annotations != null) {
-			for (AnnotationMetadata annotation : classMetadata.annotations) {
-				buildAnnotation(buf, annotation);
-				buf.append(LF);
-			}
-		}
+		forEach(classMetadata.annotations, annotation -> {
+			buildAnnotation(buf, annotation);
+			buf.append(LF);
+		});
 		
 		// class
 		buf.append("public");
@@ -336,39 +311,35 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 	}
 	
 	private static void buildMember(StringBuilder buf, MemberMetadata member, AnnotationMetadata ...annotations) {
-		if (annotations != null) {
-			for (AnnotationMetadata annotation : annotations) {
-				buf.append('\t');
-				buildAnnotation(buf, annotation);
-				buf.append(LF);
-			}
-		}
+		forEach(annotations, annotation -> {
+			buf.append('\t');
+			buildAnnotation(buf, annotation);
+			buf.append(LF);
+		});
 		buf.append("\tprivate ");
 		buildTypeClass(buf, member.typeClass);
 		buf.append(' ').append(member.name).append(';').append(LFLF);
 	}
 	
 	private static void buildGetter(StringBuilder buf, MemberMetadata member, AnnotationMetadata ...annotations) {
-		if (annotations != null) {
-			for (AnnotationMetadata annotation : annotations) {
-				buf.append('\t');
-				buildAnnotation(buf, annotation);
-				buf.append(LF);
-			}
-		}
+		forEach(annotations, annotation -> {
+			buf.append('\t');
+			buildAnnotation(buf, annotation);
+			buf.append(LF);
+		});
 		buf.append("\tpublic ");
 		buildTypeClass(buf, member.typeClass);
 	    buf.append(" get").append(StringUtils.capitalize(member.name)).append("() {").append(LF)
-			.append("\t\treturn ").append(member.name).append(';').append(LF)
-			.append("\t}").append(LFLF);
+		   .append("\t\treturn ").append(member.name).append(';').append(LF)
+		   .append("\t}").append(LFLF);
 	}
 	
 	private static void buildSetter(StringBuilder buf, MemberMetadata member) {
 		buf.append("\tpublic void set").append(StringUtils.capitalize(member.name)).append('(');
 		buildTypeClass(buf, member.typeClass);
 		buf.append(' ').append(member.name).append(") {").append(LF)
-			.append("\t\tthis.").append(member.name).append(" = ").append(member.name).append(';').append(LF)
-			.append("\t}").append(LFLF);
+		   .append("\t\tthis.").append(member.name).append(" = ").append(member.name).append(';').append(LF)
+		   .append("\t}").append(LFLF);
 	}
 	
 	private static void buildAnnotation(StringBuilder buf, AnnotationMetadata annotation) {

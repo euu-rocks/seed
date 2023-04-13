@@ -63,7 +63,7 @@ public class DeleteFormTest extends AbstractFormTest {
 	@Order(4)
 	void testDeleteForm() {
 		WebElement tabpanel = showForm("testformnew");
-		assertEquals("Formulare", findTab("formulare").getText());
+		assertEquals("Formulare: TestformNew", findTab("formulare").getText());
 		clickButton(tabpanel, "delete");
 		
 		WebElement dialogConfirm = findConfirmDialog();

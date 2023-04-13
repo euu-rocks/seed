@@ -32,7 +32,7 @@ public class DeleteTransferTest extends AbstractTransferTest {
 	@Order(1)
 	void testDeleteTransformer() {
 		WebElement tabpanel = showTransfer("testtransfernew");
-		assertEquals("Import / Export", findTab("import--export").getText());
+		assertEquals("Import / Export: TesttransferNew", findTab("import--export").getText());
 		clickButton(tabpanel, "delete");
 		
 		WebElement dialogConfirm = findConfirmDialog();

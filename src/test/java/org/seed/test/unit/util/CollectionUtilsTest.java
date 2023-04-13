@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -74,6 +75,20 @@ class CollectionUtilsTest {
 		list.add("test");
 		assertFalse(CollectionUtils.convertedList(list, Wrapper::new).isEmpty());
 		assertTrue(CollectionUtils.convertedList(list, Wrapper::new).get(0) instanceof Wrapper);
+		assertEquals(CollectionUtils.convertedList(list, Wrapper::new).get(0).string, "test");
+	}
+	
+	@Test
+	void testConvertedSet() {
+		final List<String> list = new ArrayList<>();
+		assertTrue(CollectionUtils.convertedList(null, null).isEmpty());
+		assertTrue(CollectionUtils.convertedList(list, Wrapper::new).isEmpty());
+		
+		list.add("test");
+		assertFalse(CollectionUtils.convertedSet(list, Wrapper::new).isEmpty());
+		assertTrue(CollectionUtils.convertedSet(list, Wrapper::new) instanceof Set);
+		assertTrue(CollectionUtils.convertedSet(list, Wrapper::new).iterator().next() instanceof Wrapper);
+		assertEquals(CollectionUtils.convertedSet(list, Wrapper::new).iterator().next().string, "test");
 	}
 	
 	@Test
@@ -111,6 +126,17 @@ class CollectionUtilsTest {
 		assertSame(2, CollectionUtils.filterAndConvert(array, str -> str.length() > 4, Wrapper::new).size());
 		assertTrue(CollectionUtils.filterAndConvert(array, str -> str.length() > 4, Wrapper::new).get(0) instanceof Wrapper);
 		assertEquals("alpha", CollectionUtils.filterAndConvert(array, str -> str.length() > 4, Wrapper::new).get(0).getString());
+	}
+	
+	@Test
+	void testForEach() {
+		final Integer ints[] = new Integer[] {1,2,3};
+		final List<Integer> result = new ArrayList<>();
+		
+		CollectionUtils.forEach(null, i -> result.add((Integer) i));
+		assertTrue(result.isEmpty());
+		CollectionUtils.forEach(ints, i -> result.add(i));
+		assertSame(3, result.size());
 	}
 	
 	@Test

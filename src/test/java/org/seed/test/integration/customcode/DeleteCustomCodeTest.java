@@ -32,7 +32,7 @@ public class DeleteCustomCodeTest extends AbstractCustomCodeTest {
 	@Order(1)
 	void testDeleteCustomCode() {
 		WebElement tabpanel = showCustomCode("test-testcustomcodenew");
-		assertEquals("Quellcode", findTab("quellcode").getText());
+		assertEquals("Quellcode: test.TestCustomCodeNew", findTab("quellcode").getText());
 		clickButton(tabpanel, "delete");
 		
 		WebElement dialogConfirm = findConfirmDialog();

@@ -32,7 +32,7 @@ public class DeleteEntityTest extends AbstractEntityTest {
 	@Order(1)
 	void testRemoveReferenceField() {
 		WebElement tabpanel = showEntity("integrationtest");
-		assertEquals("Entitäten", findTab("entitaeten").getText());
+		assertEquals("Entitäten: IntegrationTest", findTab("entitaeten").getText());
 		WebElement tabpanelFields = findTabpanel(tabpanel, "fields");
 		clickListItem(tabpanelFields, "derivedtest");
 		clickButton(tabpanelFields, "remove");
@@ -110,7 +110,7 @@ public class DeleteEntityTest extends AbstractEntityTest {
 	@Order(7)
 	void testRemoveNested() {
 		WebElement tabpanel = showEntity("integrationtest");
-		assertEquals("Entitäten", findTab("entitaeten").getText());
+		assertEquals("Entitäten: IntegrationTest", findTab("entitaeten").getText());
 		clickTab(tabpanel, "nesteds");
 		WebElement tabpanelNesteds = findTabpanel(tabpanel, "nesteds");
 		clickListItem(tabpanelNesteds, "nestedtestnew");
@@ -169,7 +169,7 @@ public class DeleteEntityTest extends AbstractEntityTest {
 	@Order(12)
 	void testDeleteDerivedEntity() {
 		WebElement tabpanel = showEntity("derivedtest");
-		assertEquals("Entitäten", findTab("entitaeten").getText());
+		assertEquals("Entitäten: DerivedTest", findTab("entitaeten").getText());
 		clickButton(tabpanel, "delete");
 		
 		WebElement dialogConfirm = findConfirmDialog();
@@ -181,7 +181,7 @@ public class DeleteEntityTest extends AbstractEntityTest {
 	@Order(13)
 	void testDeleteGenericEntity() {
 		WebElement tabpanel = showEntity("generictest");
-		assertEquals("Entitäten", findTab("entitaeten").getText());
+		assertEquals("Entitäten: GenericTest", findTab("entitaeten").getText());
 		clickButton(tabpanel, "delete");
 		
 		WebElement dialogConfirm = findConfirmDialog();
@@ -193,7 +193,7 @@ public class DeleteEntityTest extends AbstractEntityTest {
 	@Order(14)
 	void testDeleteTransferableEntity() {
 		WebElement tabpanel = showEntity("transferabletestnew");
-		assertEquals("Entitäten", findTab("entitaeten").getText());
+		assertEquals("Entitäten: TransferableTestNew", findTab("entitaeten").getText());
 		clickButton(tabpanel, "delete");
 		
 		WebElement dialogConfirm = findConfirmDialog();
@@ -205,7 +205,7 @@ public class DeleteEntityTest extends AbstractEntityTest {
 	@Order(15)
 	void testDeleteNestedEntity() {
 		WebElement tabpanel = showEntity("nestedtest");
-		assertEquals("Entitäten", findTab("entitaeten").getText());
+		assertEquals("Entitäten: NestedTest", findTab("entitaeten").getText());
 		clickButton(tabpanel, "delete");
 		
 		WebElement dialogConfirm = findConfirmDialog();
@@ -217,7 +217,7 @@ public class DeleteEntityTest extends AbstractEntityTest {
 	@Order(16)
 	void testDeleteEntity() {
 		WebElement tabpanel = showEntity("integrationtest");
-		assertEquals("Entitäten", findTab("entitaeten").getText());
+		assertEquals("Entitäten: IntegrationTest", findTab("entitaeten").getText());
 		clickButton(tabpanel, "delete");
 		
 		WebElement dialogConfirm = findConfirmDialog();

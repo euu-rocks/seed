@@ -32,7 +32,7 @@ public class EditFilterTest extends AbstractFilterTest {
 	@Order(1)
 	void testRenameFilter() {
 		WebElement tabpanel = showFilter("testfilter");
-		assertEquals("Filter", findTab("filter").getText());
+		assertEquals("Filter: Testfilter", findTab("filter").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TestfilterNew");
 		saveFilter(tabpanel);

@@ -43,7 +43,7 @@ public class DeleteModuleTest extends AbstractModuleTest {
 	@Order(2)
 	void testDeleteModule() {
 		WebElement tabpanel = showModule("testmodulenew");
-		assertEquals("Module", findTab("module").getText());
+		assertEquals("Module: TestmoduleNew", findTab("module").getText());
 		clickButton(tabpanel, "delete");
 		
 		WebElement dialogConfirm = findConfirmDialog();

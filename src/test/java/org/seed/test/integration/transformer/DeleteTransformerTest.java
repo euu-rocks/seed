@@ -67,7 +67,7 @@ public class DeleteTransformerTest extends AbstractTransformerTest {
 	@Order(4)
 	void testDeleteTransformer() {
 		WebElement tabpanel = showTransformer("testtransformernew");
-		assertEquals("Transformationen", findTab("transformationen").getText());
+		assertEquals("Transformationen: TesttransformerNew", findTab("transformationen").getText());
 		clickButton(tabpanel, "delete");
 		
 		WebElement dialogConfirm = findConfirmDialog();

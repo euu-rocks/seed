@@ -32,7 +32,7 @@ public class EditReportTest extends AbstractReportTest {
 	@Order(1)
 	void testRenameReport() {
 		WebElement tabpanel = showReport("testreport");
-		assertEquals("Reporte", findTab("reporte").getText());
+		assertEquals("Reporte: Testreport", findTab("reporte").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TestreportNew");
 		saveReport(tabpanel);

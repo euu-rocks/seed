@@ -32,7 +32,7 @@ public class DeleteMenuTest extends AbstractMenuTest {
 	@Order(1)
 	void testRemoveEntry() {
 		WebElement tabpanel = showMenu("testmenunew");
-		assertEquals("Menüs", findTab("menues").getText());
+		assertEquals("Menüs: TestmenuNew", findTab("menues").getText());
 		findTab("entries");
 		WebElement tabpanelEntries = findTabpanel(tabpanel, "entries");
 		clickListItem(tabpanelEntries, "transferabletest");
@@ -44,7 +44,7 @@ public class DeleteMenuTest extends AbstractMenuTest {
 	@Order(2)
 	void testDeleteMenu() {
 		WebElement tabpanel = showMenu("testmenunew");
-		assertEquals("Menüs", findTab("menues").getText());
+		assertEquals("Menüs: TestmenuNew", findTab("menues").getText());
 		clickButton(tabpanel, "delete");
 		
 		WebElement dialogConfirm = findConfirmDialog();

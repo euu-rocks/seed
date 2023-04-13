@@ -33,7 +33,7 @@ public class EditJobTest extends AbstractJobTest {
 	@Order(1)
 	void testRenameJob() {
 		WebElement tabpanel = showJob("testjob");
-		assertEquals("Jobs", findTab("jobs").getText());
+		assertEquals("Jobs: Testjob", findTab("jobs").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TestjobNew");
 		clickButton(tabpanel, "save");

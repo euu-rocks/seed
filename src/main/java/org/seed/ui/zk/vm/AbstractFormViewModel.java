@@ -163,9 +163,13 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 	}
 	
 	public String getListItemTestClass(ValueObject object) {
-		return object != null
-				? NameUtils.getInternalName(getIdentifier(object)).replace('_', '-').toLowerCase().concat("-listitem")
-				: null;
+		if (object != null) {
+			final String identifier = getIdentifier(object);
+			if (identifier != null) {
+				return NameUtils.getInternalName(identifier).replace('_', '-').toLowerCase().concat("-listitem");
+			}
+		}
+		return null;
 	}
 	
 	public List<SubFormAction> getSubFormActions(String nestedEntityUid) {

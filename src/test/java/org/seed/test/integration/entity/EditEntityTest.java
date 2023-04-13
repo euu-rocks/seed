@@ -32,7 +32,7 @@ public class EditEntityTest extends AbstractEntityTest {
 	@Order(1)
 	void testRenameEntity() {
 		WebElement tabpanel = showEntity("integrationtest");
-		assertEquals("Entitäten", findTab("entitaeten").getText());
+		assertEquals("Entitäten: IntegrationTest", findTab("entitaeten").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("IntegrationTestNew");
 		saveEntity(tabpanel);
@@ -159,7 +159,7 @@ public class EditEntityTest extends AbstractEntityTest {
 	@Order(10)
 	void testRenameRelatedEntity() {
 		WebElement tabpanel = showEntity("transferabletest");
-		assertEquals("Entitäten", findTab("entitaeten").getText());
+		assertEquals("Entitäten: TransferableTest", findTab("entitaeten").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TransferableTestNew");
 		saveEntity(tabpanel);
@@ -169,7 +169,7 @@ public class EditEntityTest extends AbstractEntityTest {
 	@Order(11)
 	void testRenameEntityBack() {
 		WebElement tabpanel = showEntity("integrationtestnew");
-		assertEquals("Entitäten", findTab("entitaeten").getText());
+		assertEquals("Entitäten: IntegrationTestNew", findTab("entitaeten").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("IntegrationTest");
 		saveEntity(tabpanel);
@@ -189,6 +189,15 @@ public class EditEntityTest extends AbstractEntityTest {
 		findCodeMirror(window, "content", 9).sendKeys("//test edit");
 		clickButton(window, "apply");
 		waitWindowDisappear("code-dialog");
+		saveEntity(tabpanel);
+	}
+	
+	@Test
+	@Order(13)
+	void testDisableVersioning() {
+		WebElement tabpanel = showEntity("derivedtest");
+		assertEquals("Entitäten: DerivedTest", findTab("entitaeten").getText());
+		findCheckbox(tabpanel, "audited").click();
 		saveEntity(tabpanel);
 	}
 }

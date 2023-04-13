@@ -33,7 +33,7 @@ public class EditDBObjectTest extends AbstractDBObjectTest {
 	@Order(1)
 	void testEditProcedure() {
 		WebElement tabpanel = showDBObject("testprocedure");
-		assertEquals("Datenbankelemente", findTab("datenbankelemente").getText());
+		assertEquals("Datenbankelemente: Testprocedure", findTab("datenbankelemente").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TestprocedureNew");
 		
@@ -47,7 +47,7 @@ public class EditDBObjectTest extends AbstractDBObjectTest {
 	@Order(2)
 	void testEditFunction() {
 		WebElement tabpanel = showDBObject("testfunction");
-		assertEquals("Datenbankelemente", findTab("datenbankelemente").getText());
+		assertEquals("Datenbankelemente: Testfunction", findTab("datenbankelemente").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TestfunctionNew");
 		
@@ -61,7 +61,7 @@ public class EditDBObjectTest extends AbstractDBObjectTest {
 	@Order(3)
 	void testEditView() {
 		WebElement tabpanel = showDBObject("testview");
-		assertEquals("Datenbankelemente", findTab("datenbankelemente").getText());
+		assertEquals("Datenbankelemente: Testview", findTab("datenbankelemente").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TestviewNew");
 		
@@ -75,7 +75,7 @@ public class EditDBObjectTest extends AbstractDBObjectTest {
 	@Order(4)
 	void testFailRenameViewFunction() {
 		WebElement tabpanel = showDBObject("testfunctionnew");
-		assertEquals("Datenbankelemente", findTab("datenbankelemente").getText());
+		assertEquals("Datenbankelemente: TestfunctionNew", findTab("datenbankelemente").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("Testfunction");
 		
@@ -90,7 +90,7 @@ public class EditDBObjectTest extends AbstractDBObjectTest {
 	@Order(5)
 	void testFailRenameTriggerFunction() {
 		WebElement tabpanel = showDBObject("triggerfunction");
-		assertEquals("Datenbankelemente", findTab("datenbankelemente").getText());
+		assertEquals("Datenbankelemente: Triggerfunction", findTab("datenbankelemente").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TriggerfunctionNew");
 		

@@ -32,7 +32,7 @@ public class DeleteUserTest extends AbstractUserTest {
 	@Order(1)
 	void testDeleteUser() {
 		WebElement tabpanel = showUser("testusernew");
-		assertEquals("Benutzer", findTab("benutzer").getText());
+		assertEquals("Benutzer: TestuserNew", findTab("benutzer").getText());
 		clickButton(tabpanel, "remove");
 		
 		WebElement dialogConfirm = findConfirmDialog();

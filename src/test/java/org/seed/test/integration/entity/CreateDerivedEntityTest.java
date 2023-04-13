@@ -60,4 +60,14 @@ public class CreateDerivedEntityTest extends AbstractEntityTest {
 		saveEntity(tabpanel);
 	}
 	
+	@Test
+	@Order(3)
+	void testEnableVersioning() {
+		WebElement tabpanel = showEntity("derivedtest");
+		assertEquals("Entitäten: DerivedTest", findTab("entitaeten").getText());
+		
+		findCheckbox(tabpanel, "audited").click();
+		saveEntity(tabpanel);
+	}
+	
 }

@@ -32,7 +32,7 @@ public class EditModuleTest extends AbstractModuleTest {
 	@Order(1)
 	void testRenameModule() {
 		WebElement tabpanel = showModule("testmodule");
-		assertEquals("Module", findTab("module").getText());
+		assertEquals("Module: Testmodule", findTab("module").getText());
 		
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TestmoduleNew");

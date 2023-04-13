@@ -32,7 +32,7 @@ public class EditMenuTest extends AbstractMenuTest {
 	@Order(1)
 	void testRenameMenu() {
 		WebElement tabpanel = showMenu("testmenu");
-		assertEquals("Menüs", findTab("menues").getText());
+		assertEquals("Menüs: Testmenu", findTab("menues").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TestmenuNew");
 		saveMenu(tabpanel);
@@ -42,7 +42,7 @@ public class EditMenuTest extends AbstractMenuTest {
 	@Order(2)
 	void testRenameMenuEntry() {
 		WebElement tabpanel = showMenu("testmenunew");
-		assertEquals("Menüs", findTab("menues").getText());
+		assertEquals("Menüs: TestmenuNew", findTab("menues").getText());
 		clickListItem(tabpanel, "testform");
 		
 		clearOptionTextbox(tabpanel, "entryname");

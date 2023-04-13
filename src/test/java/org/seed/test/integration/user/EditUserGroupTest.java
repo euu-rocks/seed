@@ -32,7 +32,7 @@ public class EditUserGroupTest extends AbstractUserGroupTest {
 	@Order(1)
 	void testRenameUserGroup() {
 		WebElement tabpanel = showGroup("testrole");
-		assertEquals("Rollen", findTab("rollen").getText());
+		assertEquals("Rollen: Testrole", findTab("rollen").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TestroleNew");
 		saveGroup(tabpanel);

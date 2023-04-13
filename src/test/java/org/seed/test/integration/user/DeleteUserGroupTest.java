@@ -32,7 +32,7 @@ public class DeleteUserGroupTest extends AbstractUserGroupTest {
 	@Order(1)
 	void testDeleteUserGroup() {
 		WebElement tabpanel = showGroup("testrolenew");
-		assertEquals("Rollen", findTab("rollen").getText());
+		assertEquals("Rollen: TestroleNew", findTab("rollen").getText());
 		clickButton(tabpanel, "delete");
 		
 		WebElement dialogConfirm = findConfirmDialog();

@@ -33,7 +33,7 @@ public class EditCustomCodeTest extends AbstractCustomCodeTest {
 	@Order(1)
 	void testEditCustomCode() {
 		WebElement tabpanel = showCustomCode("test-testcustomcode");
-		assertEquals("Quellcode", findTab("quellcode").getText());
+		assertEquals("Quellcode: test.TestCustomCode", findTab("quellcode").getText());
 		WebElement codeMirror = findCodeMirror(tabpanel, "content", 3);
 		codeMirror.sendKeys(repeatKey(Keys.BACK_SPACE, 2));
 		codeMirror.sendKeys("New {");

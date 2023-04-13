@@ -33,7 +33,7 @@ public class EditDataSourceTest extends AbstractDataSourceTest {
 	@Order(1)
 	void testRenameDataSource() {
 		WebElement tabpanel = showDataSource("testquery");
-		assertEquals("Abfragen", findTab("abfragen").getText());
+		assertEquals("Abfragen: Testquery", findTab("abfragen").getText());
 		
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TestqueryNew");

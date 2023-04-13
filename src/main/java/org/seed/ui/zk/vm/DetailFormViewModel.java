@@ -319,7 +319,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 		closeComponent(component);
 		final SubFormField subFormField = getSubFormByEntityId(valueObject.getEntityId())
 											.getFieldByEntityFieldUid(fieldUid);
-		Assert.state(subFormField != null, "subFormField not available " + fieldUid);
+		Assert.stateAvailable(subFormField, "subFormField " + fieldUid);
 		boolean notifyChange = false;
 		if (subFormField.getTransformer() != null) {
 			valueObjectService().transform(subFormField.getTransformer(), 
@@ -496,7 +496,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	
 	private EntityField getEntityField(String fieldUid) {
 		final EntityField entityField = getForm().getEntity().findFieldByUid(fieldUid);
-		Assert.state(entityField != null, "entityField not available: " + fieldUid);
+		Assert.stateAvailable(entityField, "entity field " + fieldUid);
 		return entityField;
 	}
 	
@@ -542,8 +542,8 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 		catch (ValidationException vex) {
 			showValidationErrors(component, "form.action.deletefail", vex.getErrors());
 		}
-		catch (Exception aex) {
-			showErrorMessage(aex.getMessage());
+		catch (Exception ex) {
+			showErrorMessage(ex.getMessage());
 		}
 	}
 	
@@ -567,8 +567,8 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 		catch (OptimisticLockException olex) {
 			showError(component, "form.action.stalefail");
 		}
-		catch (Exception aex) {
-			showErrorMessage(aex.getMessage());
+		catch (Exception ex) {
+			showErrorMessage(ex.getMessage());
 		}
 	}
 	
@@ -578,8 +578,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	}
 	
 	private void updateTabName() {
-		final String identifier = getIdentifier(getObject());
-		getTab().setName(identifier != null ? identifier : getLabel("label.new"));
+		getTab().setName(getIdentifier(getObject()));
 		notifyObjectChange(getTab(), C.NAME);
 	}
 	

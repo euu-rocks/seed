@@ -32,7 +32,7 @@ public class EditTransformerTest extends AbstractTransformerTest {
 	@Order(1)
 	void testRenameTransformer() {
 		WebElement tabpanel = showTransformer("testtransformer");
-		assertEquals("Transformationen", findTab("transformationen").getText());
+		assertEquals("Transformationen: Testtransformer", findTab("transformationen").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TesttransformerNew");
 		saveTransformer(tabpanel);

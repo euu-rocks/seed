@@ -206,6 +206,10 @@ public abstract class AbstractIntegrationTest {
 		return findByClass(parent, className + "-tabpanel");
 	}
 	
+	protected WebElement findCheckbox(WebElement parent, String className) {
+		return findField(parent, className, "z-checkbox");
+	}
+	
 	protected WebElement findCombobox(WebElement parent, String className) {
 		return findField(parent, className, "z-combobox-input");
 	}

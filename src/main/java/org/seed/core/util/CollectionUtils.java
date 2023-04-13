@@ -117,8 +117,14 @@ public interface CollectionUtils {
 				: null;
 	}
 	
+	static <T> void forEach(@Nullable T[] array, Consumer<T> action) {
+		if (array != null) {
+			Arrays.stream(array).forEach(action);
+		}
+	}
+	
 	static <T,K,V> Collector<T,?, Map<K,V>> linkedMapCollector(Function<? super T,? extends K> keyFunction,
-																	  Function<? super T,? extends V> valueFunction) {
+															   Function<? super T,? extends V> valueFunction) {
         return Collectors.toMap(keyFunction, valueFunction, 
         						(u, v) -> { throw new IllegalStateException("Duplicate map key: " + u); }, 
         						LinkedHashMap::new);

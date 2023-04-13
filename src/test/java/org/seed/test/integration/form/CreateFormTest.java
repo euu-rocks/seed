@@ -51,7 +51,7 @@ public class CreateFormTest extends AbstractFormTest {
 	@Order(2)
 	void testAssignFilter() {
 		WebElement tabpanel = showForm("testform");
-		assertEquals("Formulare", findTab("formulare").getText());
+		assertEquals("Formulare: Testform", findTab("formulare").getText());
 		findCombobox(tabpanel, "filter").sendKeys("Testfilter");
 		clickTab(tabpanel, "fields"); // lose focus
 		saveForm(tabpanel);
