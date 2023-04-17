@@ -18,12 +18,12 @@
 package org.seed.core.util;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.seed.C;
 import org.seed.InternalException;
 
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
@@ -32,50 +32,48 @@ import org.springframework.core.type.filter.TypeFilter;
 
 public interface BeanUtils {
 	
-	static <T> T instantiate(Class<T> typeClass) {
-		Assert.notNull(typeClass, C.TYPECLASS);
+	static <T> T instantiate(Class<T> clas) {
 		try {
-			return typeClass.getDeclaredConstructor().newInstance();
+			return clas.getDeclaredConstructor().newInstance();
 		} 
 		catch (Exception ex) {
 			throw new InternalException(ex);
 		}
 	}
 	
-	static <T> List<T> getBeans(ApplicationContext applicationContext, Class<T> typeClass) {
+	static <T> List<T> getBeans(ApplicationContext applicationContext, Class<T> type) {
 		Assert.notNull(applicationContext, C.CONTEXT);
-		Assert.notNull(typeClass, C.TYPECLASS);
+		Assert.notNull(type, C.TYPE);
 		
-		return CollectionUtils.valueList(applicationContext.getBeansOfType(typeClass));
+		return CollectionUtils.valueList(applicationContext.getBeansOfType(type));
 	}
 	
 	static <T> List<Class<? extends T>> getImplementingClasses(Class<T> typeClass) {
-		Assert.notNull(typeClass, C.TYPECLASS);
+		Assert.notNull(typeClass, "typeClass");
 		
 		return findClasses(new AssignableTypeFilter(typeClass));
 	}
 	
-	static <T> List<Class<? extends T>> getAnnotatedClasses(Class<? extends Annotation> annotationClass) {
+	static List<Class<?>> getAnnotatedClasses(Class<? extends Annotation> annotationClass) {
 		Assert.notNull(annotationClass, "annotationClass");
 		
 		return findClasses(new AnnotationTypeFilter(annotationClass));
 	}
 	
+	@SuppressWarnings("unchecked")
 	private static <T> List<Class<? extends T>> findClasses(TypeFilter typeFilter) {
+		final var listClasses = new ArrayList<Class<? extends T>>();
 		final var scanner = new ClassPathScanningCandidateComponentProvider(false);
 		scanner.addIncludeFilter(typeFilter);
-		return CollectionUtils.convertedList(scanner.findCandidateComponents("org.seed"), 
-											 BeanUtils::toClass);
-	}
-	
-	@SuppressWarnings("unchecked")
-	private static <T> Class<? extends T> toClass(BeanDefinition beanDef) {
 		try {
-			return (Class<? extends T>) Class.forName(beanDef.getBeanClassName());
-		} 
-		catch (Exception ex) {
-			throw new InternalException(ex);
+			for (final var beanDef : scanner.findCandidateComponents("org.seed")) {
+				listClasses.add((Class<? extends T>) Class.forName(beanDef.getBeanClassName()));
+			}
 		}
+		catch (ClassNotFoundException cnfex) {
+			throw new InternalException(cnfex);
+		}
+		return listClasses;
 	}
 	
 }
