@@ -75,7 +75,7 @@ class CollectionUtilsTest {
 		list.add("test");
 		assertFalse(CollectionUtils.convertedList(list, Wrapper::new).isEmpty());
 		assertTrue(CollectionUtils.convertedList(list, Wrapper::new).get(0) instanceof Wrapper);
-		assertEquals(CollectionUtils.convertedList(list, Wrapper::new).get(0).string, "test");
+		assertEquals("test", CollectionUtils.convertedList(list, Wrapper::new).get(0).string);
 	}
 	
 	@Test
@@ -88,7 +88,7 @@ class CollectionUtilsTest {
 		assertFalse(CollectionUtils.convertedSet(list, Wrapper::new).isEmpty());
 		assertTrue(CollectionUtils.convertedSet(list, Wrapper::new) instanceof Set);
 		assertTrue(CollectionUtils.convertedSet(list, Wrapper::new).iterator().next() instanceof Wrapper);
-		assertEquals(CollectionUtils.convertedSet(list, Wrapper::new).iterator().next().string, "test");
+		assertEquals("test", CollectionUtils.convertedSet(list, Wrapper::new).iterator().next().string);
 	}
 	
 	@Test

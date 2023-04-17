@@ -46,8 +46,6 @@ public interface FormService extends ApplicationEntityService<Form> {
 	
 	List<Form> findForms(Entity entity, Session session);
 	
-	List<FormField> getAvailableFields(Form form);
-	
 	List<FormTransformer> getAvailableTransformers(Form form, Session session);
 	
 	List<FormTransformer> getFormTransformers(Form form, User user, EntityStatus status);

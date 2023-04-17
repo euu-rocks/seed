@@ -18,6 +18,7 @@
 package org.seed.core.form.layout;
 
 import static org.seed.core.form.layout.LayoutElementAttributes.*;
+import static org.seed.core.util.CollectionUtils.forEach;
 
 import java.util.EnumMap;
 import java.util.List;
@@ -95,8 +96,8 @@ public abstract class LayoutUtils {
 	}
 	
 	public static LayoutElement createGrid(int numColumns, int numRows, String title) {
-		final LayoutElement elemGrid = new LayoutElement(LayoutElement.GRID);
-		final LayoutElement elemRows = elemGrid.addChild(createRows());
+		final var elemGrid = new LayoutElement(LayoutElement.GRID);
+		final var elemRows = elemGrid.addChild(createRows());
 		elemGrid.setClass(LayoutElementClass.NO_BORDER)
 				.addChild(createColumns(numColumns));
 		for (int i = 0; i < numRows; i++) {
@@ -112,8 +113,8 @@ public abstract class LayoutUtils {
 		Assert.notNull(title, C.TITLE);
 		Assert.notNull(elemGrid, "elemGrid");
 		
-		final LayoutElement elemGoupbox = new LayoutElement(LayoutElement.GROUPBOX);
-		final LayoutElement elemCaption = elemGoupbox.addChild(new LayoutElement(LayoutElement.CAPTION));
+		final var elemGoupbox = new LayoutElement(LayoutElement.GROUPBOX);
+		final var elemCaption = elemGoupbox.addChild(new LayoutElement(LayoutElement.CAPTION));
 		elemCaption.setLabel(title);
 		elemGoupbox.addChild(elemGrid);
 		return elemGoupbox;
@@ -178,7 +179,7 @@ public abstract class LayoutUtils {
 	}
 	
 	public static LayoutElement createRow(int columns) {
-		final LayoutElement elemRow = new LayoutElement(LayoutElement.ROW);
+		final var elemRow = new LayoutElement(LayoutElement.ROW);
 		for (int i = 0; i < columns; i++) {
 			elemRow.addChild(createCell());
 		}
@@ -199,7 +200,7 @@ public abstract class LayoutUtils {
 	public static LayoutElement createLabel(String text) {
 		Assert.notNull(text, C.TEXT);
 		
-		final LayoutElement elemLabel = new LayoutElement(LayoutElement.LABEL);
+		final var elemLabel = new LayoutElement(LayoutElement.LABEL);
 		elemLabel.setAttribute(A_SCLASS, NameUtils.getInternalName(text.trim()).replace('_', '-').toLowerCase() + "-label");
 		if (text.contains("\n")) {
 			elemLabel.setAttribute(A_PRE, V_TRUE)
@@ -222,7 +223,7 @@ public abstract class LayoutUtils {
 	public static LayoutElement createFormField(EntityField field) {
 		Assert.notNull(field, C.FIELD);
 		
-		final LayoutElement elemField = createElement(field.getType());
+		final var elemField = createElement(field.getType());
 		elemField.setAttribute(A_ID, field.getUid())
 				 .setAttribute(A_SCLASS, NameUtils.getInternalName(field.getName().trim()).replace('_', '-').toLowerCase() + "-field");
 		if (field.getType().isDateTime()) {
@@ -256,7 +257,7 @@ public abstract class LayoutUtils {
 	}
 	
 	public static LayoutElement createColumns(int columns) {
-		final LayoutElement elemColumns = new LayoutElement(LayoutElement.COLUMNS);
+		final var elemColumns = new LayoutElement(LayoutElement.COLUMNS);
 		for (int i = 0; i < columns; i++) {
 			elemColumns.addChild(createColumn());
 		}
@@ -267,26 +268,22 @@ public abstract class LayoutUtils {
 		Assert.notNull(contextId, "contextId");
 		Assert.notNull(menus, "menus");
 		
-		final LayoutElement elemPopup = new LayoutElement(LayoutElement.MENUPOPUP);
+		final var elemPopup = new LayoutElement(LayoutElement.MENUPOPUP);
 		elemPopup.setAttribute(A_ID, contextId);
-		for (LayoutElement menu : menus) {
-			elemPopup.addChild(menu);
-		}
+		menus.forEach(elemPopup::addChild);
 		return elemPopup;
 	}
 	
 	public static LayoutElement createMenu(String label, String icon, LayoutElement ...menuItems) {
 		Assert.notNull(label, C.LABEL);
 		
-		final LayoutElement elemMenu = new LayoutElement(LayoutElement.MENU);
+		final var elemMenu = new LayoutElement(LayoutElement.MENU);
 		elemMenu.setLabel(Seed.getLabel(label));
 		if (icon != null) {
 			elemMenu.setIcon(icon);
 		}
-		final LayoutElement elemPopup = elemMenu.addChild(new LayoutElement(LayoutElement.MENUPOPUP));
-		for (LayoutElement menuItem : menuItems) {
-			elemPopup.addChild(menuItem);
-		}
+		final var elemPopup = elemMenu.addChild(new LayoutElement(LayoutElement.MENUPOPUP));
+		forEach(menuItems, elemPopup::addChild);
 		return elemMenu;
 	}
 	
@@ -294,9 +291,9 @@ public abstract class LayoutUtils {
 		Assert.notNull(label, C.LABEL);
 		Assert.notNull(command, C.COMMAND);
 		
-		final LayoutElement elemMenuItem = new LayoutElement(LayoutElement.MENUITEM)
-												.setLabel(Seed.getLabel(label))
-												.setOnClick(command(command));
+		final var elemMenuItem = new LayoutElement(LayoutElement.MENUITEM)
+										.setLabel(Seed.getLabel(label))
+										.setOnClick(command(command));
 		if (icon != null) {
 			elemMenuItem.setIcon(icon);
 		}
@@ -342,7 +339,7 @@ public abstract class LayoutUtils {
 		Assert.notNull(label, C.LABEL);
 		Assert.notNull(command, C.COMMAND);
 		
-		final LayoutElement elemButton = new LayoutElement(LayoutElement.TOOLBARBUTTON);
+		final var elemButton = new LayoutElement(LayoutElement.TOOLBARBUTTON);
 		elemButton.setLabel(label)
 				  .setOnClick(command(command));
 		if (icon != null) {
@@ -352,7 +349,7 @@ public abstract class LayoutUtils {
 	}
 	
 	public static LayoutElement createListFormList() {
-		final LayoutElement elemListbox = createListBox();
+		final var elemListbox = createListBox();
 		elemListbox.setAttribute(A_MODEL, load("vm.listModel"))
 				   .setAttribute(A_SELECTEDITEM, bind("vm.object"))
 				   .setAttribute(A_ONSELECT, command("'selectObject'"))
@@ -362,7 +359,7 @@ public abstract class LayoutUtils {
 	}
 	
 	public static LayoutElement createListHead(boolean sizable) {
-		final LayoutElement elemListhead = new LayoutElement(LayoutElement.LISTHEAD);
+		final var elemListhead = new LayoutElement(LayoutElement.LISTHEAD);
 		if (sizable) {
 			elemListhead.setAttribute(A_SIZABLE, V_TRUE);
 		}
@@ -372,7 +369,7 @@ public abstract class LayoutUtils {
 	public static LayoutElement createListHeader(String label, String hflex, String style) {
 		Assert.notNull(label, C.LABEL);
 		
-		final LayoutElement elemListheader = new LayoutElement(LayoutElement.LISTHEADER);
+		final var elemListheader = new LayoutElement(LayoutElement.LISTHEADER);
 		elemListheader.setLabel(label);
 		if (hflex != null) {
 			elemListheader.setAttribute(A_HFLEX, hflex);
@@ -384,7 +381,7 @@ public abstract class LayoutUtils {
 	}
 	
 	public static LayoutElement createListItem(String doubleClickAction) {
-		final LayoutElement elemListitem = new LayoutElement(LayoutElement.LISTITEM);
+		final var elemListitem = new LayoutElement(LayoutElement.LISTITEM);
 		if (doubleClickAction != null) {
 			elemListitem.setAttribute(A_ONDOUBLECLICK, command(doubleClickAction));
 		}
@@ -394,12 +391,12 @@ public abstract class LayoutUtils {
 	public static LayoutElement createListCell(String property, String icon, String style, String testClass) {
 		Assert.notNull(property, C.PROPERTY);
 		
-		final LayoutElement elemListcell = new LayoutElement(LayoutElement.LISTCELL);
+		final var elemListcell = new LayoutElement(LayoutElement.LISTCELL);
 		elemListcell.setAttribute(A_SCLASS, testClass);
 		if (icon != null) {
 			elemListcell.setAttribute(A_ICONSCLASS, icon);
 		}
-		final LayoutElement elemLabel = elemListcell.addChild(createLabel(property));
+		final var elemLabel = elemListcell.addChild(createLabel(property));
 		elemLabel.removeAttribute(A_SCLASS);
 		if (style != null) {
 			elemLabel.setAttribute(A_STYLE, style);
@@ -410,8 +407,8 @@ public abstract class LayoutUtils {
 	public static LayoutElement createImageListCell(String property) {
 		Assert.notNull(property, C.PROPERTY);
 		
-		final LayoutElement elemListcell = new LayoutElement(LayoutElement.LISTCELL);
-		final LayoutElement elemImage = elemListcell.addChild(new LayoutElement(LayoutElement.IMAGE));
+		final var elemListcell = new LayoutElement(LayoutElement.LISTCELL);
+		final var elemImage = elemListcell.addChild(new LayoutElement(LayoutElement.IMAGE));
 		elemImage.setAttribute(A_CONTENT, property);
 		return elemListcell;
 	}

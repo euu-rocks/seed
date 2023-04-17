@@ -289,30 +289,6 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	@Override
-	public List<FormField> getAvailableFields(Form form) {
-		Assert.notNull(form, C.FORM);
-		
-		final Entity entity = form.getEntity();
-		final List<FormField> result = new ArrayList<>();
-		// entity fields
-		if (entity.hasAllFields()) {
-			for (EntityField entityField : entity.getAllFields()) {
-				if (!form.containsEntityField(entityField)) {
-					result.add(createFormField(form, entityField));
-				}
-			}
-		}
-		// system fields
-		for (SystemField systemField : SystemField.publicSystemFields()) {
-			if ((systemField != SystemField.ENTITYSTATUS || entity.hasStatus()) && 
-				!form.containsSystemField(systemField)) {
-				result.add(createSystemFormField(form, systemField));
-			}
-		}
-		return result;
-	}
-	
-	@Override
 	public List<FormTransformer> getAvailableTransformers(Form form, Session session) {
 		Assert.notNull(form, C.FORM);
 		
@@ -945,7 +921,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	private static List<FormField> createEntityFields(Form form) {
-		final List<FormField> result = new ArrayList<>();
+		final var result = new ArrayList<FormField>();
 		final Entity entity = form.getEntity();
 		if (entity.hasAllFields()) {
 			for (EntityField entityField : entity.getAllFields()) {
@@ -963,50 +939,49 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	private static List<FormField> createSystemFields(Form form) {
-		final Entity entity = form.getEntity();
 		return filterAndConvert(SystemField.publicSystemFields(), 
-								field -> (field != SystemField.ENTITYSTATUS || entity.hasStatus()) && 
+								field -> (field != SystemField.ENTITYSTATUS || form.getEntity().hasStatus()) && 
 										 !form.containsSystemField(field), 
 								field-> createSystemFormField(form, field));
 	}
 	
 	private static FormAction createAction(Form form, FormActionType actionType) {
-		final FormAction action = new FormAction();
+		final var action = new FormAction();
 		action.setForm(form);
 		action.setType(actionType);
 		return action;
 	}
 	
 	private static SubFormAction createAction(SubForm subForm, FormActionType actionType) {
-		final SubFormAction action = new SubFormAction();
+		final var action = new SubFormAction();
 		action.setSubForm(subForm);
 		action.setType(actionType);
 		return action;
 	}
 	
 	private static FormField createFormField(Form form, EntityField entityField) {
-		final FormField formField = new FormField();
+		final var formField = new FormField();
 		formField.setForm(form);
 		formField.setEntityField(entityField);
 		return formField;
 	}
 	
 	private static FormField createSystemFormField(Form form, SystemField systemField) {
-		final FormField formField = new FormField();
+		final var formField = new FormField();
 		formField.setForm(form);
 		formField.setSystemField(systemField);
 		return formField;
 	}
 	
 	private static FormTransformer createTransformer(Form form, Transformer transformer) {
-		final FormTransformer formTransformer = new FormTransformer();
+		final var formTransformer = new FormTransformer();
 		formTransformer.setForm(form);
 		formTransformer.setTransformer(transformer);
 		return formTransformer;
 	}
 	
 	private static SubFormField createSubFormField(SubForm subForm, EntityField entityField) {
-		final SubFormField subFormField = new SubFormField();
+		final var subFormField = new SubFormField();
 		subFormField.setSubForm(subForm);
 		subFormField.setEntityField(entityField);
 		

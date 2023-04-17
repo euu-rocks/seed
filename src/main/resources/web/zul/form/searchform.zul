@@ -21,10 +21,10 @@
 <borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.SearchFormViewModel')">
 	<north border="0">
 		<toolbar>
-			<toolbarbutton iconSclass="z-icon-search alpha-icon-lg" 
-						   label="${labels.button.searching}" 
+			<toolbarbutton iconSclass="search-button z-icon-search alpha-icon-lg" 
+						   label="${labels.button.searching}"
 						   onClick="@command('search')"/>
-			<toolbarbutton iconSclass="z-icon-eraser alpha-icon-lg" 
+			<toolbarbutton iconSclass="clear-button z-icon-eraser alpha-icon-lg" 
 						   label="${labels.button.clearsearch}" 
 						   onClick="@command('clearSearch')"/>
 		</toolbar>

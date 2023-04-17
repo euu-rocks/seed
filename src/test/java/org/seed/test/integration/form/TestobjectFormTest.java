@@ -121,6 +121,20 @@ public class TestobjectFormTest extends AbstractIntegrationTest {
 	
 	@Test
 	@Order(6)
+	void testSearchTestobject() {
+		openMenu("testmenu");
+		clickMenu("testmenu-testobject");
+		assertEquals("Testobject", findTab("testobject").getText());
+		final WebElement tabpanel = findTabpanel("testobject");
+		clickButton(tabpanel, "suche");
+		findTextbox(tabpanel, "autonum").sendKeys("Test-1");
+		clickButton(tabpanel, "search");
+		clickListItem(tabpanel, "test-1");
+		clickButton(tabpanel, "bearbeiten");
+	}
+	
+	@Test
+	@Order(7)
 	void testRemoveNestedobject() {
 		final WebElement tabpanel = showObject("test-1");
 		assertEquals("TestobjectNested", findTab(tabpanel, "testobjectnested").getText());
@@ -131,7 +145,7 @@ public class TestobjectFormTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
-	@Order(7)
+	@Order(8)
 	void testDeleteTestobject() {
 		final WebElement tabpanel = showObject("test-1");
 		assertEquals("Testobject: Test-1", findTab("testobject").getText());

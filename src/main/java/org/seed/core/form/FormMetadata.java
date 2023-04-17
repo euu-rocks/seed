@@ -558,17 +558,10 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	@Override
 	public SubFormField getSubFormField(EntityField entityField) {
-		Assert.notNull(entityField, "entity field");
+		Assert.notNull(entityField, C.ENTITYFIELD);
 		
-		if (hasSubForms()) {
-			for (SubForm subForm : getSubForms()) {
-				final SubFormField subField = subForm.getFieldByEntityField(entityField);
-				if (subField != null) {
-					return subField;
-				}
-			}
-		}
-		return null;
+		final SubForm subForm = firstMatch(getSubForms(), sub -> sub.getFieldByEntityField(entityField) != null);
+		return subForm != null ? subForm.getFieldByEntityField(entityField) : null;
 	}
 	
 	@Override

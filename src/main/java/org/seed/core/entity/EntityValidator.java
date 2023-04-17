@@ -626,36 +626,36 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 			 ValidationErrors errors, Session session) {
 		for (SystemEntity systemEntity : dependent.findUsage(entity, session)) {
 			switch (getEntityType(systemEntity)) {
-			case "datasource":
-				errors.addError("val.inuse.entitydatasource", systemEntity.getName());
-				break;
-
-			case C.ENTITY:
-				errors.addError("val.inuse.entityentity", systemEntity.getName());
-				break;
-
-			case C.FILTER:
-				errors.addError("val.inuse.entityfilter", systemEntity.getName());
-				break;
-
-			case C.FORM:
-				errors.addError("val.inuse.entityform", systemEntity.getName());
-				break;
-				
-			case C.TRANSFER:
-				errors.addError("val.inuse.entitytransfer", systemEntity.getName());
-				break;
-
-			case "transform":
-				errors.addError("val.inuse.entitytransform", systemEntity.getName());
-				break;
-
-			case C.VALUE:
-				errors.addError("val.inuse.entityvalue");
-				break;
-
-			default:
-				unhandledEntity(systemEntity);
+				case "datasource":
+					errors.addError("val.inuse.entitydatasource", systemEntity.getName());
+					break;
+	
+				case C.ENTITY:
+					errors.addError("val.inuse.entityentity", systemEntity.getName());
+					break;
+	
+				case C.FILTER:
+					errors.addError("val.inuse.entityfilter", systemEntity.getName());
+					break;
+	
+				case C.FORM:
+					errors.addError("val.inuse.entityform", systemEntity.getName());
+					break;
+					
+				case C.TRANSFER:
+					errors.addError("val.inuse.entitytransfer", systemEntity.getName());
+					break;
+	
+				case "transform":
+					errors.addError("val.inuse.entitytransform", systemEntity.getName());
+					break;
+	
+				case C.VALUE:
+					errors.addError("val.inuse.entityvalue");
+					break;
+	
+				default:
+					unhandledEntity(systemEntity);
 			}
 		}
 	}
@@ -664,24 +664,24 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 			  ValidationErrors errors, Session session) {
 		for (SystemEntity systemEntity : dependent.findUsage(field, session)) {
 			switch (getEntityType(systemEntity)) {
-			case C.ENTITY:
-				errors.addError("val.inuse.fieldentity", systemEntity.getName());
-				break;
-
-			case C.FILTER:
-				errors.addError("val.inuse.fieldfilter", systemEntity.getName());
-				break;
-
-			case C.FORM:
-				errors.addError("val.inuse.fieldform", systemEntity.getName());
-				break;
-
-			case "transform":
-				errors.addError("val.inuse.fieldtransform", systemEntity.getName());
-				break;
-
-			default:
-				unhandledEntity(systemEntity);
+				case C.ENTITY:
+					errors.addError("val.inuse.fieldentity", systemEntity.getName());
+					break;
+	
+				case C.FILTER:
+					errors.addError("val.inuse.fieldfilter", systemEntity.getName());
+					break;
+	
+				case C.FORM:
+					errors.addError("val.inuse.fieldform", systemEntity.getName());
+					break;
+	
+				case "transform":
+					errors.addError("val.inuse.fieldtransform", systemEntity.getName());
+					break;
+	
+				default:
+					unhandledEntity(systemEntity);
 			}
 		}
 	}

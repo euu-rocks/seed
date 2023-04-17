@@ -195,10 +195,10 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(layoutRoot, C.LAYOUTROOT);
 		Assert.notNull(contextId, "contextId");
 		
-		final FindElementVisitor visitor = new FindElementVisitor(contextId);
+		final var visitor = new FindElementVisitor(contextId);
 		layoutRoot.accept(visitor);
-		final LayoutElement element = visitor.getElement();
-		Assert.state(element != null, "element not found for contextId: " + contextId);
+		final var element = visitor.getElement();
+		Assert.stateAvailable(element, "element contextId: " + contextId);
 		return element;
 	}
 	
@@ -207,7 +207,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(formLayout, C.FORMLAYOUT);
 		
 		if (formLayout.getContent() != null) {
-			final CollectIdVisitor visitor = new CollectIdVisitor();
+			final var visitor = new CollectIdVisitor();
 			parseLayout(formLayout).accept(visitor);
 			return visitor.getIdSet();
 		}
@@ -235,7 +235,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(form, C.FORM);
 		Assert.notNull(layoutRoot, C.LAYOUTROOT);
 		
-		final CollectIdVisitor visitor = new CollectIdVisitor();
+		final var visitor = new CollectIdVisitor();
 		layoutRoot.accept(visitor);
 		return subList(form.getEntity().getAllFields(), 
 					   field -> !visitor.containsId(field.getUid()));
@@ -261,7 +261,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(form, C.FORM);
 		Assert.notNull(layoutRoot, C.LAYOUTROOT);
 		
-		final CollectIdVisitor visitor = new CollectIdVisitor();
+		final var visitor = new CollectIdVisitor();
 		layoutRoot.accept(visitor);
 		return subList(form.getEntity().getAllRelations(), 
 					   relation -> !visitor.containsId(LayoutElementAttributes.PRE_RELATION + relation.getUid()));
@@ -273,7 +273,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(form, C.FORM);
 		layoutValidator.validateNewGrid(form, columns, rows);
 		
-		final LayoutElement elemZK = createZK();
+		final var elemZK = createZK();
 		elemZK.addChild(createGrid(columns, rows, null));
 		return elemZK;
 	}
@@ -281,7 +281,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Override
 	@Secured("ROLE_ADMIN_FORM")
 	public LayoutElement createBorderLayout(BorderLayoutProperties layoutProperties) {
-		final LayoutElement elemZK = createZK();
+		final var elemZK = createZK();
 		elemZK.addChild(LayoutUtils.createBorderLayout(layoutProperties));
 		return elemZK;
 	}
@@ -292,7 +292,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(form, C.FORM);
 		layoutValidator.validateText(form, text);
 		
-		final LayoutElement elemCell = getElementByContextId(layoutRoot, contextId);
+		final var elemCell = getElementByContextId(layoutRoot, contextId);
 		elemCell.removeAttribute(A_ALIGN);
 		elemCell.removeAttribute(C.TEXT);
 		elemCell.addChild(createLabel(text));
@@ -304,7 +304,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	public void removeText(Form form, LayoutElement layoutRoot, String contextId) {
 		Assert.notNull(form, C.FORM);
 		
-		final LayoutElement elemCell = getElementByContextId(layoutRoot, contextId);
+		final var elemCell = getElementByContextId(layoutRoot, contextId);
 		elemCell.removeFromParent();
 		redecorateLayout(form, layoutRoot);
 	}
@@ -319,14 +319,14 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 			layoutValidator.validateBinaryField(form, width, height);
 		}
 		
-		final LayoutElement elemCell = getElementByContextId(layoutRoot, contextId);
-		final LayoutElement elemField = createFormField(entityField);
+		final var elemCell = getElementByContextId(layoutRoot, contextId);
+		final var elemField = createFormField(entityField);
 		elemCell.addChild(elemField);
 		
 		// image field
 		if (entityField.getType().isBinary()) {
-			elemField.setAttribute(A_WIDTH, width);
-			elemField.setAttribute(A_HEIGHT, height);
+			elemField.setAttribute(A_WIDTH, width)
+					 .setAttribute(A_HEIGHT, height);
 		}
 		
 		// add label
@@ -343,8 +343,8 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(form, C.FORM);
 		
 		layoutValidator.validateEntityField(form, entityField);
-		final LayoutElement elemCell = getElementByContextId(layoutRoot, contextId);
-		final LayoutElement elemField = createRichTextField(entityField);
+		final var elemCell = getElementByContextId(layoutRoot, contextId);
+		final var elemField = createRichTextField(entityField);
 		elemCell.addChild(elemField);
 		redecorateLayout(form, layoutRoot);
 	}
@@ -354,7 +354,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	public void removeField(Form form, LayoutElement layoutRoot, String contextId) {
 		Assert.notNull(form, C.FORM);
 		
-		final LayoutElement elemField = getElementByContextId(layoutRoot, contextId);
+		final var elemField = getElementByContextId(layoutRoot, contextId);
 		elemField.removeFromParent();
 		redecorateLayout(form, layoutRoot);
 	}
@@ -364,12 +364,12 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	public LayoutElement replaceCombobox(Form form, EntityField entityField, LayoutElement layoutRoot, String contextId) {
 		Assert.notNull(form, C.FORM);
 		
-		final LayoutElement elemField = getElementByContextId(layoutRoot, contextId);
-		final LayoutElement elemParent = elemField.getParent();
+		final var elemField = getElementByContextId(layoutRoot, contextId);
+		final var elemParent = elemField.getParent();
 		elemField.removeFromParent();
-		final LayoutElement elemReplacement = elemField.is(LayoutElement.COMBOBOX)
-												? createBandbox(entityField)
-												: createFormField(entityField);
+		final var elemReplacement = elemField.is(LayoutElement.COMBOBOX)
+											? createBandbox(entityField)
+											: createFormField(entityField);
 		elemParent.addChild(elemReplacement);
 		redecorateLayout(form, layoutRoot);
 		return elemReplacement;
@@ -381,7 +381,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(form, C.FORM);
 		layoutValidator.validateNewGrid(form, columns, rows);
 		
-		final LayoutElement element = getElementByContextId(layoutRoot, contextId);
+		final var element = getElementByContextId(layoutRoot, contextId);
 		element.addChild(createGrid(columns, rows, title));
 		redecorateLayout(form, layoutRoot);
 	}
@@ -391,7 +391,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	public void removeGrid(Form form, LayoutElement layoutRoot, String contextId) {
 		Assert.notNull(form, C.FORM);
 		
-		final LayoutElement elemGrid = getElementByContextId(layoutRoot, contextId).getGrid();
+		final var elemGrid = getElementByContextId(layoutRoot, contextId).getGrid();
 		if (elemGrid.parentIs(LayoutElement.GROUPBOX)) {
 			elemGrid.getParent().removeFromParent();
 		}
@@ -407,7 +407,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(form, C.FORM);
 		layoutValidator.validateText(form, title, "label.title");
 		
-		final LayoutElement element = getElementByContextId(layoutRoot, contextId);
+		final var element = getElementByContextId(layoutRoot, contextId);
 		element.addChild(createTabbox(title));
 		redecorateLayout(form, layoutRoot);
 	}
@@ -418,9 +418,10 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(form, C.FORM);
 		layoutValidator.validateText(form, title, "label.title");
 		
-		final LayoutElement elemTab = getElementByContextId(layoutRoot, contextId);
+		final var elemTab = getElementByContextId(layoutRoot, contextId);
 		elemTab.getParent().addChild(createTab(title));
-		elemTab.getParent().getParent().getChild(LayoutElement.TABPANELS).addChild(createTabpanel(title));
+		elemTab.getParent().getParent().getChild(LayoutElement.TABPANELS)
+									   .addChild(createTabpanel(title));
 		redecorateLayout(form, layoutRoot);
 	}
 	
@@ -429,8 +430,8 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	public void removeTab(Form form, LayoutElement layoutRoot, String contextId) {
 		Assert.notNull(form, C.FORM);
 		
-		final LayoutElement elemTab = getElementByContextId(layoutRoot, contextId);
-		final LayoutElement elemTabbox = elemTab.getParent().getParent();
+		final var elemTab = getElementByContextId(layoutRoot, contextId);
+		final var elemTabbox = elemTab.getParent().getParent();
 		if (elemTab.getParent().getChildren().size() == 1) { // last tab -> remove tabbox
 			elemTabbox.removeFromParent();
 		}
@@ -449,7 +450,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(form, C.FORM);
 		Assert.notNull(layoutProperties, "layout properties");
 		
-		final LayoutElement elemArea = getElementByContextId(layoutRoot, contextId);
+		final var elemArea = getElementByContextId(layoutRoot, contextId);
 		elemArea.addChild(LayoutUtils.createBorderLayout(layoutProperties));
 		redecorateLayout(form, layoutRoot);
 	}
@@ -459,7 +460,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	public void removeBorderLayout(Form form, LayoutElement layoutRoot, String contextId) {
 		Assert.notNull(form, C.FORM);
 		
-		final LayoutElement elemLayout = getElementByContextId(layoutRoot, contextId).getParent();
+		final var elemLayout = getElementByContextId(layoutRoot, contextId).getParent();
 		elemLayout.removeFromParent();
 		redecorateLayout(form, layoutRoot);
 	}
@@ -489,8 +490,8 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	public void removeSubForm(Form form, LayoutElement layoutRoot, String contextId) {
 		Assert.notNull(form, C.FORM);
 		
-		final LayoutElement elemListbox = getElementByContextId(layoutRoot, contextId);
-		final LayoutElement elemBorderlayout = elemListbox.getParent().getParent();
+		final var elemListbox = getElementByContextId(layoutRoot, contextId);
+		final var elemBorderlayout = elemListbox.getParent().getParent();
 		final String nestedEntityUid = elemBorderlayout.getId().substring(LayoutElementAttributes.PRE_SUBFORM.length());
 		final SubForm subForm = form.getSubFormByNestedEntityUid(nestedEntityUid);
 		form.removeSubForm(subForm);
@@ -503,8 +504,8 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	public void removeRelationForm(Form form, LayoutElement layoutRoot, String contextId) {
 		Assert.notNull(form, C.FORM);
 		
-		final LayoutElement elemListbox = getElementByContextId(layoutRoot, contextId);
-		final LayoutElement elemBorderlayout = elemListbox.getParent().getParent();
+		final var elemListbox = getElementByContextId(layoutRoot, contextId);
+		final var elemBorderlayout = elemListbox.getParent().getParent();
 		final RelationForm relationForm = form.getRelationFormByUid(elemBorderlayout.getId().substring(LayoutElementAttributes.PRE_RELATION.length()));
 		form.removeRelationForm(relationForm);
 		elemBorderlayout.removeFromParent();
@@ -540,8 +541,8 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	public void removeColumn(Form form, LayoutElement layoutRoot, String contextId) {
 		Assert.notNull(form, C.FORM);
 		
-		final LayoutElement elemCell = getElementByContextId(layoutRoot, contextId);
-		final LayoutElement elemRows = elemCell.getParent().getParent();
+		final var elemCell = getElementByContextId(layoutRoot, contextId);
+		final var elemRows = elemCell.getParent().getParent();
 		final int index = elemCell.getParent().getChildIndex(elemCell);
 		for (LayoutElement elemRow : elemRows.getChildren()) {
 			final LayoutElement cell = elemRow.getChildAt(index);
@@ -556,7 +557,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	public void removeRow(Form form, LayoutElement layoutRoot, String contextId) {
 		Assert.notNull(form, C.FORM);
 		
-		final LayoutElement elemRow = getElementByContextId(layoutRoot, contextId).getParent();
+		final var elemRow = getElementByContextId(layoutRoot, contextId).getParent();
 		elemRow.removeFromParent();
 		redecorateLayout(form, layoutRoot);
 	}
@@ -566,7 +567,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	public void removeBorderLayoutArea(Form form, LayoutElement layoutRoot, String contextId) {
 		Assert.notNull(form, C.FORM);
 		
-		final LayoutElement elemArea = getElementByContextId(layoutRoot, contextId);
+		final var elemArea = getElementByContextId(layoutRoot, contextId);
 		elemArea.removeFromParent();
 		redecorateLayout(form, layoutRoot);
 	}
@@ -636,7 +637,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.state(element.is(LayoutElement.LISTBOX), "element is no listbox");
 		
 		properties.applyToSubForm();
-		final LayoutElement elemArea = element.getParent().getParent().getParent();
+		final var elemArea = element.getParent().getParent().getParent();
 		elemArea.removeChildren();
 		buildSubForm(properties.subForm, elemArea);
 		redecorateLayout(form, layoutRoot);
@@ -681,15 +682,15 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 								   .setAttribute(A_LABEL, title);
 			}
 			else {
-				final LayoutElement parent = element.getParent();
+				final var parent = element.getParent();
 				parent.removeChild(element);
 				parent.addChild(createGroupbox(title, element));
 				hasStructureChanged = true;
 			}
 		}
 		else if (hasGroupbox) {
-			final LayoutElement elemGroupbox = element.getParent();
-			final LayoutElement elemContainer = elemGroupbox.getParent();
+			final var elemGroupbox = element.getParent();
+			final var elemContainer = elemGroupbox.getParent();
 			element.removeParent();
 			elemContainer.removeChild(elemGroupbox);
 			elemContainer.addChild(element);
@@ -702,6 +703,9 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	
 	@Override
 	public String buildAutoLayout(Entity entity, Form form) {
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(form, C.FORM);
+		
 		for (EntityField entityField : entity.getAllFields()) {
 			if (entityField.getType().isReference()) {
 				final List<Form> forms = formService.findForms(entityField.getReferenceEntity());
@@ -747,7 +751,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(form, C.FORM);
 		
 		if (form.getLayout() != null) {
-			final LayoutElement layoutRoot = parseLayout(form.getLayout());
+			final var layoutRoot = parseLayout(form.getLayout());
 			layoutRoot.accept(new SearchDecoratingVisitor(form));
 			return layoutRoot;
 		}
@@ -755,7 +759,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	}
 	
 	private void addFieldLabel(EntityField entityField, LabelProperties labelProperties, LayoutElement elemCell) {
-		final LayoutElement neighborCell = elemCell.getCellNeighbor(labelProperties.orient);
+		final var neighborCell = elemCell.getCellNeighbor(labelProperties.orient);
 		if (neighborCell != null && !neighborCell.hasChildren()) {
 			neighborCell.setOrRemoveAttribute(A_ALIGN, labelProperties.align);
 			neighborCell.setOrRemoveAttribute(A_VALIGN, labelProperties.valign);
@@ -769,7 +773,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.stateAvailable(form.getLayout(), C.LAYOUT);
 		
 		final FormLayout formLayout = form.getLayout();
-		final LayoutElement layoutRoot = parseLayout(formLayout);
+		final var layoutRoot = parseLayout(formLayout);
 		decorateLayout(form, layoutRoot);
 		undecorateLayout(form, layoutRoot);
 		formLayout.setContent(buildLayout(layoutRoot));
@@ -778,8 +782,8 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	private void newColumn(Form form, LayoutElement layoutRoot, String contextId, boolean right) {
 		Assert.notNull(form, C.FORM);
 		
-		final LayoutElement elemCell = getElementByContextId(layoutRoot, contextId);
-		final LayoutElement elemRow = elemCell.getParent();
+		final var elemCell = getElementByContextId(layoutRoot, contextId);
+		final var elemRow = elemCell.getParent();
 		final int index = elemRow.getChildIndex(elemCell) + (right ? 1 : 0);
 		for (LayoutElement row : elemRow.getParent().getChildren()) {
 			row.addChild(createCell(), index);
@@ -791,8 +795,8 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	private void newRow(Form form, LayoutElement layoutRoot, String contextId, boolean below) {
 		Assert.notNull(form, C.FORM);
 		
-		final LayoutElement elemRow = getElementByContextId(layoutRoot, contextId).getParent();
-		final LayoutElement elemRows = elemRow.getParent();
+		final var elemRow = getElementByContextId(layoutRoot, contextId).getParent();
+		final var elemRows = elemRow.getParent();
 		elemRows.addChild(createRow(elemRow.getChildCount()), 
 						  elemRows.getChildIndex(elemRow) + (below ? 1 : 0));
 		redecorateLayout(form, layoutRoot);
@@ -802,27 +806,23 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(form, C.FORM);
 		Assert.notNull(formSettings, "form settings");
 		
-		final LayoutElement elemListbox = createListFormList();
-		final LayoutElement elemListhead = elemListbox.addChild(createListHead(true));
-		final LayoutElement elemTemplate = elemListbox.addChild(createTemplate(A_MODEL, "obj"));
-		final LayoutElement elemListitem = elemTemplate.addChild(createListItem("'callAction',action=vm.editAction,elem=self"))
+		final var elemListbox = createListFormList();
+		final var elemListhead = elemListbox.addChild(createListHead(true));
+		final var elemTemplate = elemListbox.addChild(createTemplate(A_MODEL, "obj"));
+		final var elemListitem = elemTemplate.addChild(createListItem("'callAction',action=vm.editAction,elem=self"))
 													   .setAttribute(A_SCLASS, init("vm.getListItemTestClass(obj)"));
 		if (form.hasFields()) {
 			formSettings.sortFields(form.getFields());
-			for (FormField field : form.getFields()) {
-				// check visibility
-				if (!formSettings.isFormFieldVisible(field)) {
-					continue;
-				}
+			for (FormField field : subList(form.getFields(), formSettings::isFormFieldVisible)) {
 				// header
 				final LayoutElement elemListheader = createListHeader(field.getName(), 
 																	  field.getHflex() != null 
 																	  	? field.getHflex() 
 																	  	: V_1, 
 																	  field.getLabelStyle());
-				elemListheader.setAttribute(A_STYLE, "cursor:pointer");
-				elemListheader.setAttribute(A_ICONSCLASS, load("vm.getSortIcon(" + field.getId() + ")"));
-				elemListheader.setAttribute(A_ONCLICK, command("'sort',fieldId=" + field.getId()));
+				elemListheader.setAttribute(A_STYLE, "cursor:pointer")
+							  .setAttribute(A_ICONSCLASS, load("vm.getSortIcon(" + field.getId() + ')'))
+							  .setAttribute(A_ONCLICK, command("'sort',fieldId=" + field.getId()));
 				elemListhead.addChild(elemListheader);
 				// field
 				elemListitem.addChild(buildListFormField(field));
@@ -873,16 +873,15 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(relation, C.RELATION);
 		Assert.notNull(elemArea, "elemArea");
 		
-		final LayoutElement elemLayout = elemArea.addChild(LayoutUtils.createBorderLayout());
+		final var elemLayout = elemArea.addChild(LayoutUtils.createBorderLayout());
 		elemLayout.setAttribute(A_ID, PRE_RELATION + relation.getUid());
-		final LayoutElement elemCenter = elemLayout.addChild(createBorderLayoutArea(BorderLayoutArea.CENTER));
-		final LayoutElement elemListbox = elemCenter.addChild(createListBox());
-		final LayoutElement elemListhead = elemListbox.addChild(createListHead(true));
-		elemListbox.setClass(LayoutElementClass.NO_BORDER);
-		elemListbox.setAttribute(A_HFLEX, V_1);
-		elemListbox.setAttribute(A_VFLEX, V_1);
-		final LayoutElement header =  elemListhead.addChild(
-				createListHeader(relation.getRelatedEntity().getName(), V_1, null));
+		final var elemCenter = elemLayout.addChild(createBorderLayoutArea(BorderLayoutArea.CENTER));
+		final var elemListbox = elemCenter.addChild(createListBox());
+		final var elemListhead = elemListbox.addChild(createListHead(true));
+		elemListbox.setClass(LayoutElementClass.NO_BORDER)
+				   .setAttribute(A_HFLEX, V_1)
+				   .setAttribute(A_VFLEX, V_1);
+		final var header =  elemListhead.addChild(createListHeader(relation.getRelatedEntity().getName(), V_1, null));
 		header.setAttribute(A_SORT, "sort(" + relation.getRelatedEntity().getName() + ')');
 	}
 	
@@ -890,15 +889,14 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(subForm, C.SUBFORM);
 		Assert.notNull(elemArea, "elemArea");
 		
-		final LayoutElement elemLayout = elemArea.addChild(LayoutUtils.createBorderLayout());
+		final var elemLayout = elemArea.addChild(LayoutUtils.createBorderLayout());
 		elemLayout.setAttribute(A_ID, PRE_SUBFORM + subForm.getNestedEntity().getUid());
-		final LayoutElement elemCenter = elemLayout.addChild(createBorderLayoutArea(BorderLayoutArea.CENTER));
-		final LayoutElement elemListbox = elemCenter.addChild(createListBox());
-		final LayoutElement elemListhead = elemListbox.addChild(createListHead(true));
-		elemListbox.setClass(LayoutElementClass.NO_BORDER);
-		elemListbox.setAttribute(A_HFLEX, V_1);
-		elemListbox.setAttribute(A_VFLEX, V_1);
-		
+		final var elemCenter = elemLayout.addChild(createBorderLayoutArea(BorderLayoutArea.CENTER));
+		final var elemListbox = elemCenter.addChild(createListBox());
+		final var elemListhead = elemListbox.addChild(createListHead(true));
+		elemListbox.setClass(LayoutElementClass.NO_BORDER)
+				   .setAttribute(A_HFLEX, V_1)
+				   .setAttribute(A_VFLEX, V_1);
 		if (subForm.hasFields()) {
 			for (SubFormField field : subForm.getFields()) {
 				final LayoutElement header =  elemListhead.addChild(
