@@ -37,7 +37,7 @@ public interface EntityObjectProvider {
 	 * Starts a new {@link BatchOperation}. 
 	 * Use the returned <code>BatchOperation</code> in save and delete functions
 	 * to execute them as bulk operations.
-	 * @return
+	 * @return the new batch operation
 	 */
 	BatchOperation startBatchOperation();
 	
@@ -161,22 +161,103 @@ public interface EntityObjectProvider {
 	 */
 	<T extends EntityObject, U extends EntityObject> EntityTransformer getTransformer(Class<T> sourceClass, Class<U> targetClass, String transformerName);
 	
+	/**
+	 * Inserts or updates the given {@link EntityObject} in the database
+	 * @param <T> the type of the entity object
+	 * @param entityObject the entity object to save
+	 * @throws ValidationException
+	 * 		   If there are validation errors that prevent saving
+	 */
 	<T extends EntityObject> void save(T entityObject) throws ValidationException;
 	
+	/**
+	 * Inserts or updates the given {@link EntityObject} in the database
+	 * as part of a bulk operation.
+	 * @See {@link BatchOperation}
+	 * @param <T> the type of the entity object
+	 * @param entityObject the entity object to save
+	 * @param batchOperation the batch operation to use
+	 * @throws ValidationException
+	 * 		   If there are validation errors that prevent saving
+	 */
 	<T extends EntityObject> void save(T entityObject, BatchOperation batchOperation) throws ValidationException;
 	
+	/**
+	 * Deletes the given {@link EntityObject} in the database
+	 * @param <T> the type of the entity object
+	 * @param entityObject the entity object to delete
+	 * @throws ValidationException
+	 * 		   If there are validation errors that prevent deletion
+	 */
 	<T extends EntityObject> void delete(T entityObject) throws ValidationException;
 	
+	/**
+	 * Deletes the given {@link EntityObject} in the database
+	 * as part of a bulk operation.
+	 * @param <T> the type of the entity object
+	 * @param entityObject the entity object to delete
+	 * @param batchOperation the batch operation to use
+	 * @throws ValidationException
+	 * 		   If there are validation errors that prevent deletion
+	 */
 	<T extends EntityObject> void delete(T entityObject, BatchOperation batchOperation) throws ValidationException;
 	
+	/**
+	 * Returns the {@link Status} of the given entity object and status number
+	 * @param <T> the type of the entity object
+	 * @param entityObject the entity object
+	 * @param statusNumber the number of the status
+	 * @return the status
+	 * @throws IllegalStateException
+	 * 		   If there is no status for the given number
+	 */
 	<T extends EntityObject> Status getStatus(T entityObject, Integer statusNumber);
 	
+	/**
+	 * Changes the status of the given {@link EntityObject}
+	 * to the target status with the given number
+	 * @param <T> the type of the entity object
+	 * @param entityObject the entity object
+	 * @param statusNumber the number of the target status
+	 * @throws ValidationException
+	 * 		   If there are validation errors that prevent changing
+	 * @throws IllegalStateException
+	 * 		   If there is no status for the given number or
+	 *         no transition between the current status and the given status
+	 */
 	<T extends EntityObject> void changeStatus(T entityObject, Integer statusNumber) throws ValidationException;
 	
+	/**
+	 * Changes the status of the given {@link EntityObject} to the given target {@link Status} 
+	 * @param <T> the type of the entity object
+	 * @param entityObject the entity object
+	 * @param targetStatus the target status
+	 * @throws ValidationException
+	 * 		   If there are validation errors that prevent changing
+	 * @throws IllegalStateException
+	 * 		   If there is no transition between the current status and the target status 
+	 */
 	<T extends EntityObject> void changeStatus(T entityObject, Status targetStatus) throws ValidationException;
 	
+	/**
+	 * Performs a predefined {@link EntityTransformer} transformation on the given source {@link EntityObject}
+	 * and returns the newly created target {@link EntityObject}
+	 * @param <T> the type of the source entity object
+	 * @param <U> the type of the target entity object
+	 * @param transformer the transformer to use
+	 * @param sourceObject the source entity object
+	 * @return the target entity object
+	 */
 	<T extends EntityObject, U extends EntityObject> U transform(EntityTransformer transformer, T sourceObject);
 	
+	/**
+	 * Performs a predefined {@link EntityTransformer} transformation between the given source and target {@link EntityObject}
+	 * @param <T> the type of the source entity object
+	 * @param <U> the type of the target entity object
+	 * @param transformer the transformer to use
+	 * @param sourceObject the source entity object
+	 * @param targetObject the target entity object
+	 */
 	<T extends EntityObject, U extends EntityObject> void transform(EntityTransformer transformer, T sourceObject, U targetObject);
 	
 }
