@@ -19,6 +19,9 @@ package org.seed.core.entity.value;
 
 import static org.seed.core.util.CollectionUtils.*;
 
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -33,6 +36,9 @@ import org.hibernate.Transaction;
 
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.Seed;
+import org.seed.core.application.setting.ApplicationSettingService;
+import org.seed.core.application.setting.Setting;
 import org.seed.core.data.AbstractSystemEntity;
 import org.seed.core.data.QueryCursor;
 import org.seed.core.data.FieldType;
@@ -59,6 +65,7 @@ import org.seed.core.entity.value.event.ValueObjectEventHandler;
 import org.seed.core.entity.value.event.ValueObjectFunctionContext;
 import org.seed.core.util.Assert;
 import org.seed.core.util.ExceptionUtils;
+import org.seed.core.util.NameUtils;
 import org.seed.core.util.Tupel;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +79,9 @@ public class ValueObjectServiceImpl
 	
 	// dummy object; only last part of package name is important ("value")
 	private static final SystemEntity VALUE_ENTITY = new AbstractSystemEntity() {};
+	
+	@Autowired
+	private ApplicationSettingService settingService;
 	
 	@Autowired
 	private EntityService entityService;
@@ -747,11 +757,11 @@ public class ValueObjectServiceImpl
 			if (value != null && field.getType().isReference()) {
 				Assert.state(value instanceof Map, "value of '" + field.getInternalName() + "' is not a map");
 				final var objectMap = (Map<String, Object>) value;
-				final Integer referenceId = (Integer) objectMap.get(C.ID);
+				final Integer referenceId = ((Number) objectMap.get(C.ID)).intValue();
 				Assert.stateAvailable(referenceId, "reference id of " + field.getInternalName());
 				value = getObject(session, field.getReferenceEntity(), referenceId.longValue());
 			}
-			objectAccess.setValue(object, field, value);
+			objectAccess.setValue(object, field, formatFieldValue(field, value));
 			return true;
 		}
 		return false;
@@ -826,6 +836,110 @@ public class ValueObjectServiceImpl
 				setValue(object, fileField, new FileObject());
 			}
 		}
+	}
+	
+	private Object formatFieldValue(EntityField field, Object value) {
+		if (value == null) {
+			return null;
+		}
+		switch (field.getType()) {
+			case BOOLEAN:
+				if (value instanceof String) {
+					return NameUtils.booleanValue(value.toString());
+				}
+				else if (value instanceof Number) {
+					return ((Number) value).intValue() > 0;
+				}
+				break;
+			
+			case DATE:
+				if (value instanceof String) {
+					try {
+						return new SimpleDateFormat(getRestDateFormat()).parseObject(value.toString());
+					} 
+					catch (ParseException e) {
+						throw new InternalException(e);
+					}
+				}
+				break;
+				
+			case DATETIME:
+				if (value instanceof String) {
+					try {
+						return new SimpleDateFormat(getRestDateTimeFormat()).parseObject(value.toString());
+					} 
+					catch (ParseException e) {
+						throw new InternalException(e);
+					}
+				}
+				break;
+				
+			case DECIMAL:
+				if (value instanceof BigDecimal) {
+					return value;
+				}
+				else if (value instanceof Number) {
+					return new BigDecimal(((Number) value).toString());
+				}
+				else if (value instanceof String) {
+					return new BigDecimal(value.toString());
+				}
+				break;
+			
+			case DOUBLE:
+				if (value instanceof Double) {
+					return value;
+				}
+				else if (value instanceof Number) {
+					return ((Number) value).doubleValue();
+				}
+				else if (value instanceof String) {
+					return Double.parseDouble(value.toString());
+				}
+				break;
+				
+			case INTEGER:
+				if (value instanceof Integer) {
+					return value;
+				}
+				else if (value instanceof Number) {
+					return ((Number) value).intValue();
+				}
+				else if (value instanceof String) {
+					return Integer.parseInt(value.toString());
+				}
+				break;
+				
+			case LONG:
+				if (value instanceof Long) {
+					return value;
+				}
+				else if (value instanceof Number) {
+					return ((Number) value).longValue();
+				}
+				else if (value instanceof String) {
+					return Long.parseLong(value.toString());
+				}
+				break;
+				
+			default:
+				// do nothing
+		}
+		return value;
+	}
+	
+	private String getRestDateFormat() {
+		if (settingService.hasSetting(Setting.REST_FORMAT_DATE)) {
+			return settingService.getSetting(Setting.REST_FORMAT_DATE);
+		}
+		return Seed.DEFAULT_REST_FORMAT_DATE;
+	}
+	
+	private String getRestDateTimeFormat() {
+		if (settingService.hasSetting(Setting.REST_FORMAT_DATETIME)) {
+			return settingService.getSetting(Setting.REST_FORMAT_DATETIME);
+		}
+		return Seed.DEFAULT_REST_FORMAT_DATETIME;
 	}
 
 }

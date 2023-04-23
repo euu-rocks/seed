@@ -30,6 +30,8 @@ import org.seed.core.application.AbstractOrderedTransferableObject;
 import org.seed.core.entity.EntityFunction;
 import org.seed.core.util.NameUtils;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @MappedSuperclass
 public abstract class AbstractFormAction extends AbstractOrderedTransferableObject {
 	
@@ -80,17 +82,20 @@ public abstract class AbstractFormAction extends AbstractOrderedTransferableObje
 		this.type = type;
 	}
 	
+	@JsonIgnore
 	public String getInternalName() {
 		return label != null 
 				? NameUtils.getInternalName(label)
 				: type.name().toLowerCase();
 	}
 	
+	@JsonIgnore
 	public String getTestClass() {
 		return NameUtils.getInternalName(Seed.getLabel("button." + type.name().toLowerCase()))
 				.replace('_','-').toLowerCase() + "-button";
 	}
 	
+	@JsonIgnore
 	public boolean isCustom() {
 		return type == FormActionType.CUSTOM;
 	}

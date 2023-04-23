@@ -68,9 +68,12 @@ public class ValueObjectEventHandler {
 		Assert.notNull(event, "event");
 		final EntityFunction entityFunction = event.entityFunction;
 		Assert.stateAvailable(entityFunction, "entity function");
+		Assert.state(event.type == CallbackEventType.USERACTION, "event is no user event");
 		
-		return callFunction(entityFunction.getEntity(), entityFunction, 
-							event.type, event.object, event.session, null, null);
+		return entityFunction.isActiveOnUserAction() 
+				? callFunction(entityFunction.getEntity(), entityFunction, 
+							   event.type, event.object, event.session, null, null)
+				: null;
 	}
 	
 	private boolean processStatusTransitionEvent(ValueObjectEvent event) {
@@ -158,6 +161,7 @@ public class ValueObjectEventHandler {
 								EntityStatusTransition statusTransition) {
 		Assert.state(!(session == null && functionContext == null), "no session or functionContext provided");
 		Assert.state(!(session != null && functionContext != null), "only session or functionContext allowed");
+		Assert.state(function.isCallback(), "function is not a callback function");
 		
 		final var functionClass = codeManager.getGeneratedClass(function);
 		Assert.stateAvailable(functionClass, "function class: " + function.getGeneratedPackage() + '.' + 

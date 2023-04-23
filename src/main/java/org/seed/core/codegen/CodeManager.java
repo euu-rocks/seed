@@ -25,7 +25,7 @@ public interface CodeManager {
 	
 	CompilerErrors getCompilerErrors();
 	
-	void generateClasses();
+	void generateClasses(boolean all);
 	
 	ClassLoader getClassLoader();
 	

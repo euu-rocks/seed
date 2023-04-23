@@ -66,12 +66,19 @@ import org.seed.core.util.ReferenceJsonSerializer;
 
 import org.springframework.util.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	
 	private final Entity entity;
+	
+	private String timeZone;
+	
+	private String formatRestDate;
+	
+	private String formatRestDateTime;
 	
 	EntitySourceCodeBuilder(Entity entity) {
 		super (entity,			
@@ -82,6 +89,18 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 		this.entity = entity;
 	}
 	
+	public void setTimeZone(String timeZone) {
+		this.timeZone = timeZone;
+	}
+
+	public void setFormatRestDate(String formatRestDate) {
+		this.formatRestDate = formatRestDate;
+	}
+
+	public void setFormatRestDateTime(String formatRestDateTime) {
+		this.formatRestDateTime = formatRestDateTime;
+	}
+
 	@Override
 	public Date getLastModified() {
 		Date timestamp = entity.getLastModified();
@@ -218,12 +237,24 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	private void buildFields() {
 		for (EntityField field : entity.getFields()) {
 			TypeClass typeClass = newTypeClass(field.getType().typeClass); 
-			final var annotations = new ArrayList<AnnotationMetadata>(5);
+			final var annotations = new ArrayList<AnnotationMetadata>(8);
 			if (field.getColumnName() != null) {
 				annotations.add(newAnnotation(Column.class, C.NAME, quote(field.getColumnName().toLowerCase())));
 			}
 			if (field.isCalculated()) {
 				annotations.add(newAnnotation(Formula.class, field.getFormula()));
+			}
+			if (field.getType().isDate()) {
+				final var annotationParamMap = new HashMap<String, Object>(4);
+				annotationParamMap.put("pattern", quote(formatRestDate));
+				annotationParamMap.put("timezone", quote(timeZone));
+				annotations.add(newAnnotation(JsonFormat.class, annotationParamMap));
+			}
+			else if (field.getType().isDateTime()) {
+				final var annotationParamMap = new HashMap<String, Object>(4);
+				annotationParamMap.put("pattern", quote(formatRestDateTime));
+				annotationParamMap.put("timezone", quote(timeZone));
+				annotations.add(newAnnotation(JsonFormat.class, annotationParamMap));
 			}
 			else if (field.getType().isReference() || field.getType().isFile()) {
 				addImport(ReferenceJsonSerializer.class);

@@ -131,11 +131,11 @@ public class CodeManagerImpl implements CodeManager {
 	}
 	
 	@Override
-	public void generateClasses() {
+	public void generateClasses(boolean all) {
 		compilerError = false;
 		compilerErrors = null;
 		
-		final List<SourceCode> sourceCodeList = buildSources(collectCodeBuilders(false));
+		final var sourceCodeList = buildSources(collectCodeBuilders(all));
 		if (sourceCodeList.isEmpty()) {
 			return;
 		}
@@ -283,7 +283,7 @@ public class CodeManagerImpl implements CodeManager {
 	}
 	
 	private List<SourceCodeBuilder> collectCodeBuilders(boolean all) {
-		final List<SourceCodeBuilder> builderList = new ArrayList<>();
+		final var builderList = new ArrayList<SourceCodeBuilder>();
 		try (Session session = sessionProvider.getSession()) {
 			for (SourceCodeProvider codeProvider : codeProviders) {
                 // compile only if code has changed since last compiler run
@@ -296,7 +296,7 @@ public class CodeManagerImpl implements CodeManager {
 	}
 	
 	private static List<SourceCode> buildSources(List<SourceCodeBuilder> builderList) {
-		final List<SourceCode> sourceCodeList = convertedList(builderList, SourceCodeBuilder::build);
+		final var sourceCodeList = convertedList(builderList, SourceCodeBuilder::build);
 		if (log.isDebugEnabled()) {
 			sourceCodeList.forEach(sourceCode -> 
 				log.debug("generated source: {}", System.lineSeparator() + sourceCode.getContent()));

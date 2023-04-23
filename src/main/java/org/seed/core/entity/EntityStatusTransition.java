@@ -235,6 +235,7 @@ public class EntityStatusTransition extends AbstractTransferableObject {
 		return buf.toString();
 	}
 	
+	@JsonIgnore
 	public String getInternalName() {
 		final StringBuilder buf = new StringBuilder();
 		if (sourceStatus != null) {

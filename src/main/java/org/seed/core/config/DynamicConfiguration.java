@@ -114,11 +114,11 @@ public class DynamicConfiguration implements UpdatableConfiguration, Integrator 
 	private void initConfiguration() {
 		if (updateSchemaConfiguration()) {
 			systemLog.logInfo("systemlog.info.schemaupdated", SchemaVersion.currentVersion().name());
-			updateConfiguration();
+			updateConfiguration(false);
 			userService.initDefaults();
 		}
 		else {
-			buildConfiguration();
+			buildConfiguration(false);
 			systemLog.logInfo("systemlog.info.configcreated");
 		}
 	}
@@ -137,12 +137,17 @@ public class DynamicConfiguration implements UpdatableConfiguration, Integrator 
 	}
 	
 	@Override
-	public synchronized void updateConfiguration() {
+	public void updateConfiguration() {
+		updateConfiguration(false);
+	}
+	
+	@Override
+	public synchronized void updateConfiguration(boolean compileAllClasses) {
 		log.info("Updating configuration...");
 		sessionProvider.close();
 		jobScheduler.unscheduleAllTasks();
 		buildBootSessionFactory();
-		buildConfiguration();
+		buildConfiguration(compileAllClasses);
 		systemLog.logInfo("systemlog.info.configupdated");
 	}
 	
@@ -156,10 +161,10 @@ public class DynamicConfiguration implements UpdatableConfiguration, Integrator 
 		}
 	}
 	
-	private void buildConfiguration() {
+	private void buildConfiguration(boolean buildAllClasses) {
 		log.info("Creating configuration...");
 		final long startTime = System.currentTimeMillis();
-		codeManager.generateClasses();
+		codeManager.generateClasses(buildAllClasses);
 		classLoader = codeManager.getClassLoader();
 		final var sessionFactoryBuilder = createSessionFactoryBuilder(false);
 		sessionProvider.close();

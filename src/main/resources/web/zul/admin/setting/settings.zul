@@ -20,6 +20,7 @@
 <!DOCTYPE xml>
 <?component name="settings-application" macroURI="~./zul/admin/setting/settings_application.zul" inline="true"?>
 <?component name="settings-mail" macroURI="~./zul/admin/setting/settings_mail.zul" inline="true"?>
+<?component name="settings-rest" macroURI="~./zul/admin/setting/settings_rest.zul" inline="true"?>
 <borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminSettingViewModel')">
 	<north border="0">
 		<toolbar>
@@ -38,6 +39,7 @@
 			<tabs>
 				<tab label="${labels.settings.application}"/>
 				<tab id="tabMail" label="${labels.settings.mail}"/>
+				<tab id="tabRest" label="${labels.settings.rest}"/>
 			</tabs>
 			<tabpanels> 
 				<tabpanel>
@@ -45,6 +47,9 @@
 				</tabpanel>
 				<tabpanel fulfill="tabMail.onSelect">
 					<settings-mail/>
+				</tabpanel>
+				<tabpanel fulfill="tabRest.onSelect">
+					<settings-rest/>
 				</tabpanel>
 			</tabpanels>
 		</tabbox>

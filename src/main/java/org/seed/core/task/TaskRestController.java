@@ -67,7 +67,7 @@ public class TaskRestController extends AbstractRestController<Task> {
 	public Task get(@RequestAttribute(OpenSessionInViewFilter.ATTR_SESSION) Session session,
 					@PathVariable(C.ID) Long id) {
 		final Task task = super.get(session, id);
-		if (task != null &&!checkPermissions(session, task)) {
+		if (task != null && !checkPermissions(session, task)) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN);
 		}
 		return task;
@@ -78,10 +78,12 @@ public class TaskRestController extends AbstractRestController<Task> {
 	public Task run(@RequestAttribute(OpenSessionInViewFilter.ATTR_SESSION) Session session,
 					@PathVariable(C.ID) Long id) {
 		final Task task = get(session, id);
-		if (task != null && !isAuthorised(session, Authorisation.RUN_JOBS)) {
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+		if (task != null) {
+			if (!isAuthorised(session, Authorisation.RUN_JOBS)) {
+				throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+			}
+			jobScheduler.startJob(task);
 		}
-		jobScheduler.startJob(task);
 		return task;
 	}
 

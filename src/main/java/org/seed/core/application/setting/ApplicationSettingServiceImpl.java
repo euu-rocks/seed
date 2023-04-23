@@ -17,6 +17,8 @@
  */
 package org.seed.core.application.setting;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,8 @@ import org.hibernate.Transaction;
 
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.Seed;
+import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
 
@@ -108,9 +112,9 @@ public class ApplicationSettingServiceImpl implements ApplicationSettingService 
 			try {
 				tx = session.beginTransaction();
 				// read current settings
-				final Map<Setting, ApplicationSetting> appSettings = getCurrentSettings(settings, session);
+				final var appSettings = getCurrentSettings(settings, session);
 				// save settings
-				for (Map.Entry<Setting, String> entry : settings.entrySet()) {
+				for (var entry : settings.entrySet()) {
 					ApplicationSetting appSetting = appSettings.get(entry.getKey());
 					if (entry.getValue() != null) {
 						if (appSetting == null) {
@@ -126,9 +130,7 @@ public class ApplicationSettingServiceImpl implements ApplicationSettingService 
 					}
 				}
 				// notify listeners
-				for (SettingChangeAware changeAware : changeAwareObjects) {
-					changeAware.notifyChange(null, session);
-				}
+				changeAwareObjects.forEach(aware -> aware.notifyChange(null, session));
 				tx.commit();
 				resetSettingMap(settings);
 			}
@@ -142,10 +144,11 @@ public class ApplicationSettingServiceImpl implements ApplicationSettingService 
 				throw new InternalException(ex);
 			}
 		}
+		Seed.getBean(UpdatableConfiguration.class).updateConfiguration(true);
 	}
 	
 	private Map<Setting, ApplicationSetting> getCurrentSettings(Map<Setting, String> settings, Session session) {
-		final Map<Setting, ApplicationSetting> appSettings = new EnumMap<>(Setting.class);
+		final var appSettings = new EnumMap<Setting, ApplicationSetting>(Setting.class);
 		for (ApplicationSetting setting : repository.find(session)) {
 			// delete no longer existing setting
 			if (!settings.containsKey(setting.getSetting())) {
@@ -160,20 +163,17 @@ public class ApplicationSettingServiceImpl implements ApplicationSettingService 
 	
 	private void resetSettingMap(Map<Setting, String> settings) {
 		this.getSettingMap().clear();
-		for (Map.Entry<Setting, String> entry : settings.entrySet()) {
-			if (entry.getValue() != null) {
-				this.getSettingMap().put(entry.getKey(), entry.getValue());
-			}
-		}
+		filterAndForEach(settings.entrySet(), 
+						 entry -> entry.getValue() != null, 
+						 entry -> this.getSettingMap().put(entry.getKey(), entry.getValue()));
 	}
 	
 	private Map<Setting, String> getSettingMap() {
 		if (settingMap == null) {
-			final Map<Setting, String> map = new EnumMap<>(Setting.class);
+			final var map = convertedMap(repository.find(), 
+										 setting -> setting.getSetting(), 
+										 setting -> setting.getValue());
 			map.computeIfAbsent(Setting.MENU_MODE, mode -> "NAVIGATION");
-			for (ApplicationSetting setting : repository.find()) {
-				map.put(setting.getSetting(), setting.getValue());
-			}
 			settingMap = new ConcurrentHashMap<>(map);
 		}
 		return settingMap;

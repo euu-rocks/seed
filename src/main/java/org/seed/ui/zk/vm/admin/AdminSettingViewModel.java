@@ -24,6 +24,7 @@ import java.util.Map;
 import javax.persistence.OptimisticLockException;
 
 import org.seed.C;
+import org.seed.Seed;
 import org.seed.core.application.setting.Setting;
 import org.seed.core.data.ValidationException;
 import org.seed.ui.zk.vm.AbstractApplicationViewModel;
@@ -56,12 +57,13 @@ public class AdminSettingViewModel extends AbstractApplicationViewModel {
 			notifyChange("getSetting");
 		}
 		
-		public void setBooleanValue(boolean b) {
-			setValue(b ? "true" : "false");
+		public void setBooleanValue(boolean bool) {
+			setValue(bool ? "true" : "false");
 		}
 	}
 	
-	private final Map<Setting, SettingAdapter> adapterMap = Collections.synchronizedMap(new EnumMap<>(Setting.class));
+	private final Map<Setting, SettingAdapter> adapterMap = 
+		Collections.synchronizedMap(new EnumMap<>(Setting.class));
 	
 	private Map<Setting, String> settings;
 	
@@ -69,6 +71,14 @@ public class AdminSettingViewModel extends AbstractApplicationViewModel {
 		final Setting setting = Setting.valueOf(settingName.toUpperCase());
 		adapterMap.computeIfAbsent(setting, s -> new SettingAdapter(setting));
 		return adapterMap.get(setting);
+	}
+	
+	public String getDefaultRestDateFormat() {
+		return Seed.DEFAULT_REST_FORMAT_DATE;
+	}
+	
+	public String getDefaultRestDateTimeFormat() {
+		return Seed.DEFAULT_REST_FORMAT_DATETIME;
 	}
 	
 	@Init
@@ -81,6 +91,7 @@ public class AdminSettingViewModel extends AbstractApplicationViewModel {
 		try {
 			settingService.saveSettings(settings);
 			showNotification(component, false, "settings.savesuccess");
+			resetCurrentSession();
 			resetDirty();
 			refreshMenu();
 		}
@@ -88,8 +99,7 @@ public class AdminSettingViewModel extends AbstractApplicationViewModel {
 			showValidationErrors(component, "settings.savefail", vex.getErrors());
 		}
 		catch (OptimisticLockException olex) {
-			final String errMsgKey = "settings.failstale";
-			showError(component, errMsgKey);
+			showError(component, "settings.failstale");
 		}
 	}
 	

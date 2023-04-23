@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import org.seed.C;
 import org.seed.core.config.OpenSessionInViewFilter;
@@ -149,13 +150,19 @@ public class ValueObjectRestController {
 		
 		final Entity entity = getEntity(session, name);
 		checkEntityAccess(session, entity, EntityAccess.WRITE);
+		Transaction tx = null;
 		try {
+			tx = session.beginTransaction();
 			service.changeStatus(getObject(session, name, id), 
 								 entity.getStatusById(statusid),
 								 session, null);
+			tx.commit();
 			return getObject(session, name, id);
 		}
-		catch (ValidationException vex) {
+		catch (Exception vex) {
+			if (tx != null) {
+				tx.rollback();
+			}
 			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, name + ' ' + id);
 		}
 	}
@@ -199,10 +206,16 @@ public class ValueObjectRestController {
 		Assert.notNull(session, C.SESSION);
 		
 		checkEntityAccess(session, getEntity(session, name), EntityAccess.DELETE);
+		Transaction tx = null;
 		try {
+			tx = session.beginTransaction();
 			service.deleteObject(getObject(session, name, id), session, null);
+			tx.commit();
 		} 
-		catch (ValidationException vex) {
+		catch (Exception vex) {
+			if (tx != null) {
+				tx.rollback();
+			}
 			throw new ResponseStatusException(HttpStatus.LOCKED, name + ' ' + id);
 		}
 	}

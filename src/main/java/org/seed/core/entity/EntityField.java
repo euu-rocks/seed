@@ -278,11 +278,6 @@ public class EntityField extends AbstractOrderedTransferableObject {
 	}
 	
 	@XmlTransient
-	public boolean isUidField() {
-		return SystemField.UID.property.equals(getName());
-	}
-
-	@XmlTransient
 	public String getDefaultString() {
 		return defaultString;
 	}
@@ -326,6 +321,11 @@ public class EntityField extends AbstractOrderedTransferableObject {
 	@JsonIgnore
 	public boolean isJsonSerializable() {
 		return type != null && !(type.isBinary() || type.isFile());
+	}
+	
+	@JsonIgnore
+	public boolean isUidField() {
+		return SystemField.UID.property.equals(getName());
 	}
 	
 	@JsonIgnore

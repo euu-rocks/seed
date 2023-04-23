@@ -20,5 +20,7 @@ package org.seed.core.config;
 public interface UpdatableConfiguration {
 	
 	void updateConfiguration();
+	
+	void updateConfiguration(boolean compileAllClasses);
 
 }

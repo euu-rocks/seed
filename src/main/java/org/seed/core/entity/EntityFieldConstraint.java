@@ -158,6 +158,7 @@ public class EntityFieldConstraint extends AbstractPermissionObject {
 		this.isMandatory = isMandatory;
 	}
 	
+	@JsonIgnore
 	public String getInternalName() {
 		if (field != null) {
 			return field.getInternalName();

@@ -1,0 +1,66 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<grid class="alpha-noborder">
+	<columns>
+        <column/>
+        <column/>
+    </columns>
+	<rows>
+    	<row>
+    		<cell>
+    			<groupbox>
+					<caption label="${labels.settings.restservices}"/>
+					<grid class="alpha-noborder">
+						<columns>
+							<column hflex="min"/>
+							<column/>
+	                    </columns>
+	                    <rows>
+	                    	<row>
+	                    		<cell>
+	                    			<label value="${labels.settings.restdateformat}"/>
+	                    		</cell>
+	                    		<cell>
+	                    			<textbox value="@bind(vm.getSetting('REST_FORMAT_DATE').value) @converter(vm.stringConverter)"
+	                    					 placeholder="@init(vm.defaultRestDateFormat)"
+	                    					 onChange="@command('flagDirty')"
+	                    					 hflex="1"/>
+	                    		</cell>
+	                    	</row>
+	                    	<row>
+	                    		<cell>
+	                    			<label value="${labels.settings.restdatetimeformat}"/>
+	                    		</cell>
+	                    		<cell>
+	                    			<textbox value="@bind(vm.getSetting('REST_FORMAT_DATETIME').value) @converter(vm.stringConverter)"
+	                    					 placeholder="@init(vm.defaultRestDateTimeFormat)"
+	                    					 onChange="@command('flagDirty')"
+	                    					 hflex="1"/>
+	                    		</cell>
+	                    	</row>
+	                    </rows>				
+					</grid>
+				</groupbox>
+			</cell>
+    		<cell/>	
+    	</row>
+    </rows>
+</grid>
