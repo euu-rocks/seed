@@ -269,6 +269,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		int numAutonums = 0;
 		for (EntityField field : entity.getFields()) {
 			validateFieldName(entity, field, errors);
+			validateValidationPattern(field, errors);
 			if (field.getColumnName() != null) {
 				validateColumnName(entity, field, errors);
 			}
@@ -433,6 +434,13 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 	private void validateDerivedColumnName(EntityField field, final ValidationErrors errors) {
 		if (NameUtils.isIllegalColumnName(field.getInternalName())) {
 			errors.addError("val.illegal.columnname", field.getName(), field.getInternalName());
+		}
+	}
+	
+	private void validateValidationPattern(EntityField field, final ValidationErrors errors) {
+		if (field.getType() != null && field.getType().supportsValidation() && 
+			field.getValidationPattern() != null && field.getValidationPattern().length() > getMaxStringLength()) {
+			errors.addOverlongField(field.getName(), getMaxStringLength());
 		}
 	}
 	

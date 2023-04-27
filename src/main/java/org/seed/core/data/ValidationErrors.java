@@ -72,6 +72,10 @@ public final class ValidationErrors {
 		return addError("val.illegal.field", name, value);
 	}
 	
+	public ValidationErrors addIllegalFieldValue(String name) {
+		return addError("val.illegal.fieldvalue", name);
+	}
+	
 	public ValidationErrors addIllegalName(String value) {
 		return addIllegalField(LABEL_NAME, value);
 	}

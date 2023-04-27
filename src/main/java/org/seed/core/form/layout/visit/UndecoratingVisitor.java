@@ -316,12 +316,11 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 	}
 	
 	private void createSubFormField(SubFormField subFormField, String nestedName, LayoutElement elemListitem) {
-		final SubForm subForm = subFormField.getSubForm();
 		final EntityField nestedEntityField = subFormField.getEntityField();
 		final String subFormPropertyName = nestedName + '.' + nestedEntityField.getInternalName();
 		
 		// readonly
-		if (subForm.getNestedEntity().isReadonly()) {
+		if (subFormField.getSubForm().getNestedEntity().isReadonly()) {
 			createReadonlySubFormField(subFormField, subFormPropertyName, nestedEntityField, elemListitem);
 			return;
 		}
@@ -330,14 +329,14 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 			createSubFormBandboxField(subFormField, nestedName, subFormPropertyName, nestedEntityField, elemListitem);
 			return;
 		}
-		createSubFormField(subForm, subFormField, nestedName, subFormPropertyName, nestedEntityField, elemListitem);
+		createSubFormField(subFormField, nestedName, subFormPropertyName, nestedEntityField, elemListitem);
 	}
 	
-	private void createSubFormField(SubForm subForm, SubFormField subFormField, String nestedName, String subFormPropertyName, 
+	private void createSubFormField(SubFormField subFormField, String nestedName, String subFormPropertyName, 
 									EntityField nestedEntityField, LayoutElement elemListitem) {
 		final LayoutElement elemField = elemListitem.addChild(new LayoutElement(LayoutElement.LISTCELL))
 													.addChild(createFormField(nestedEntityField));
-		elemField.setContext(subFormContext(subForm, elemField));
+		elemField.setContext(subFormContext(subFormField.getSubForm(), elemField));
 		elemField.removeAttribute(A_ID);
 		switch (nestedEntityField.getType()) {
 			case AUTONUM:
@@ -357,7 +356,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 				elemField.setAttribute(A_READONLY, load(isReadonly(nestedEntityField)));
 				elemField.setAttribute(A_MANDATORY, load(isMandatory(nestedEntityField)));
 				elemField.setAttribute(A_INPLACE, load(not(nestedName + ".isNew() and !" + nestedName + 
-														   ".equals(" + selectedSubFormObject(subForm) + ')')));
+														   ".equals(" + selectedSubFormObject(subFormField.getSubForm()) + ')')));
 				if (!nestedEntityField.isCalculated()) {
 					elemField.setAttribute(A_ONCHANGE, command(onNestedChange(nestedName, nestedEntityField)));
 					if (elemField.is(LayoutElement.DATEBOX) || 
@@ -391,7 +390,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 	
 			case REFERENCE:
 				elemField.setAttribute(A_MODEL, load("vm.getNestedReferenceValues('" + 
-													 subForm.getNestedEntity().getUid() + "','" + 
+													 subFormField.getSubForm().getNestedEntity().getUid() + "','" + 
 													 nestedEntityField.getUid() + "')"));
 				elemField.setAttribute(A_ONSELECT, command(onNestedChange(nestedName, nestedEntityField)));
 				elemField.setAttribute(A_SELECTEDITEM, bind(subFormPropertyName));

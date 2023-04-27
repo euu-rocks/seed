@@ -236,40 +236,10 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	
 	private void buildFields() {
 		for (EntityField field : entity.getFields()) {
-			TypeClass typeClass = newTypeClass(field.getType().typeClass); 
-			final var annotations = new ArrayList<AnnotationMetadata>(8);
-			if (field.getColumnName() != null) {
-				annotations.add(newAnnotation(Column.class, C.NAME, quote(field.getColumnName().toLowerCase())));
-			}
-			if (field.isCalculated()) {
-				annotations.add(newAnnotation(Formula.class, field.getFormula()));
-			}
-			if (field.getType().isDate()) {
-				final var annotationParamMap = new HashMap<String, Object>(4);
-				annotationParamMap.put("pattern", quote(formatRestDate));
-				annotationParamMap.put("timezone", quote(timeZone));
-				annotations.add(newAnnotation(JsonFormat.class, annotationParamMap));
-			}
-			else if (field.getType().isDateTime()) {
-				final var annotationParamMap = new HashMap<String, Object>(4);
-				annotationParamMap.put("pattern", quote(formatRestDateTime));
-				annotationParamMap.put("timezone", quote(timeZone));
-				annotations.add(newAnnotation(JsonFormat.class, annotationParamMap));
-			}
-			else if (field.getType().isReference() || field.getType().isFile()) {
-				addImport(ReferenceJsonSerializer.class);
-				final var annotationParamMap = new HashMap<String, Object>(4);
-				annotationParamMap.put(C.FETCH, FetchType.LAZY);
-				if (field.getType().isFile()) {
-					annotationParamMap.put(C.CASCADE, CascadeType.ALL);
-				}
-				annotations.add(newAnnotation(ManyToOne.class, annotationParamMap));
-				annotations.add(newAnnotation(JoinColumn.class, C.NAME, quote(field.getInternalName())));
-				annotations.add(newAnnotation(JsonSerialize.class, "using", "ReferenceJsonSerializer.class"));
-				if (field.getType().isReference()) {
-					typeClass = newTypeClass(field.getReferenceEntity());
-				}
-			}
+			final TypeClass typeClass = field.getType().isReference()
+											? newTypeClass(field.getReferenceEntity())
+											: newTypeClass(field.getType().typeClass);
+			final var annotations = getFieldAnnotations(field);
 			addMember(field.getInternalName(), typeClass, 
 					  annotations.isEmpty() 
 					  	? null 
@@ -463,7 +433,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	}
 	
 	private static AnnotationMetadata[] getEntityAnnotations(Entity entity) {
-		final var annotations = new ArrayList<AnnotationMetadata>(8);
+		final var annotations = new ArrayList<AnnotationMetadata>(4);
 		if (entity.isAudited()) {
 			annotations.add(newAnnotation(Audited.class, "targetAuditMode", RelationTargetAuditMode.NOT_AUDITED));
 		}
@@ -480,6 +450,40 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 			annotations.add(newAnnotation(javax.persistence.Entity.class));
 		}
 		return annotations.toArray(new AnnotationMetadata[annotations.size()]);
+	}
+	
+	private List<AnnotationMetadata> getFieldAnnotations(EntityField field) {
+		final var annotations = new ArrayList<AnnotationMetadata>(6);
+		if (field.getColumnName() != null) {
+			annotations.add(newAnnotation(Column.class, C.NAME, quote(field.getColumnName().toLowerCase())));
+		}
+		if (field.isCalculated()) {
+			annotations.add(newAnnotation(Formula.class, field.getFormula()));
+		}
+		if (field.getType().isDate()) {
+			final var annotationParamMap = new HashMap<String, Object>(4);
+			annotationParamMap.put("pattern", quote(formatRestDate));
+			annotationParamMap.put("timezone", quote(timeZone));
+			annotations.add(newAnnotation(JsonFormat.class, annotationParamMap));
+		}
+		else if (field.getType().isDateTime()) {
+			final var annotationParamMap = new HashMap<String, Object>(4);
+			annotationParamMap.put("pattern", quote(formatRestDateTime));
+			annotationParamMap.put("timezone", quote(timeZone));
+			annotations.add(newAnnotation(JsonFormat.class, annotationParamMap));
+		}
+		else if (field.getType().isReference() || field.getType().isFile()) {
+			addImport(ReferenceJsonSerializer.class);
+			final var annotationParamMap = new HashMap<String, Object>(4);
+			annotationParamMap.put(C.FETCH, FetchType.LAZY);
+			if (field.getType().isFile()) {
+				annotationParamMap.put(C.CASCADE, CascadeType.ALL);
+			}
+			annotations.add(newAnnotation(ManyToOne.class, annotationParamMap));
+			annotations.add(newAnnotation(JoinColumn.class, C.NAME, quote(field.getInternalName())));
+			annotations.add(newAnnotation(JsonSerialize.class, "using", "ReferenceJsonSerializer.class"));
+		}
+		return annotations;
 	}
 
 }

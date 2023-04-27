@@ -74,6 +74,8 @@ public class EntityField extends AbstractOrderedTransferableObject {
 	
 	private String autonumPattern;
 	
+	private String validationPattern;
+	
 	private Long autonumStart;
 	
 	private boolean isCalculated;
@@ -224,6 +226,15 @@ public class EntityField extends AbstractOrderedTransferableObject {
 	}
 	
 	@XmlAttribute
+	public String getValidationPattern() {
+		return validationPattern;
+	}
+
+	public void setValidationPattern(String validationPattern) {
+		this.validationPattern = validationPattern;
+	}
+
+	@XmlAttribute
 	public Long getAutonumStart() {
 		return autonumStart;
 	}
@@ -372,6 +383,7 @@ public class EntityField extends AbstractOrderedTransferableObject {
 			.append(getType(), otherField.getType())
 			.append(getLength(), otherField.getLength())
 			.append(getFormula(), otherField.getFormula())
+			.append(getValidationPattern(), otherField.getValidationPattern())
 			.append(getAutonumPattern(), otherField.getAutonumPattern())
 			.append(getAutonumStart(), otherField.getAutonumStart())
 			.append(isCalculated(), otherField.isCalculated())

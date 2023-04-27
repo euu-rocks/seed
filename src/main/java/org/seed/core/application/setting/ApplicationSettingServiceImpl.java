@@ -171,8 +171,8 @@ public class ApplicationSettingServiceImpl implements ApplicationSettingService 
 	private Map<Setting, String> getSettingMap() {
 		if (settingMap == null) {
 			final var map = convertedMap(repository.find(), 
-										 setting -> setting.getSetting(), 
-										 setting -> setting.getValue());
+										 ApplicationSetting::getSetting, 
+										 ApplicationSetting::getValue);
 			map.computeIfAbsent(Setting.MENU_MODE, mode -> "NAVIGATION");
 			settingMap = new ConcurrentHashMap<>(map);
 		}

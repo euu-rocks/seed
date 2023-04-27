@@ -8,6 +8,19 @@
                     "columnName": "user_id",
                     "tableName": "sys_task_notification"
                   }
+               },
+               {
+                  "addColumn":  {
+                     "columns":[
+                        {
+                           "column": {
+                              "name": "validationpattern",
+                              "type": "VARCHAR(<#STRING_LEN#>)"
+                           }
+                        }
+                     ],
+                     "tableName": "sys_entity_field"
+                  } 
                }
             ]
         }

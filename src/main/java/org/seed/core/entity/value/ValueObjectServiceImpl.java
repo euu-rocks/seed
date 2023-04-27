@@ -839,91 +839,118 @@ public class ValueObjectServiceImpl
 	}
 	
 	private Object formatFieldValue(EntityField field, Object value) {
-		if (value == null) {
-			return null;
+		if (value != null) {
+			switch (field.getType()) {
+				case BOOLEAN:
+					return formatBooleanValue(value);
+				
+				case DATE:
+					return formatDateValue(value);
+					
+				case DATETIME:
+					return formatDateTimeValue(value);
+					
+				case DECIMAL:
+					return formatDecimalValue(value);
+				
+				case DOUBLE:
+					return formatDoubleValue(value);
+					
+				case INTEGER:
+					return formatIntegerValue(value);
+					
+				case LONG:
+					return formatLongValue(value);
+					
+				default:
+					// do nothing
+			}
 		}
-		switch (field.getType()) {
-			case BOOLEAN:
-				if (value instanceof String) {
-					return NameUtils.booleanValue(value.toString());
-				}
-				else if (value instanceof Number) {
-					return ((Number) value).intValue() > 0;
-				}
-				break;
-			
-			case DATE:
-				if (value instanceof String) {
-					try {
-						return new SimpleDateFormat(getRestDateFormat()).parseObject(value.toString());
-					} 
-					catch (ParseException e) {
-						throw new InternalException(e);
-					}
-				}
-				break;
-				
-			case DATETIME:
-				if (value instanceof String) {
-					try {
-						return new SimpleDateFormat(getRestDateTimeFormat()).parseObject(value.toString());
-					} 
-					catch (ParseException e) {
-						throw new InternalException(e);
-					}
-				}
-				break;
-				
-			case DECIMAL:
-				if (value instanceof BigDecimal) {
-					return value;
-				}
-				else if (value instanceof Number) {
-					return new BigDecimal(((Number) value).toString());
-				}
-				else if (value instanceof String) {
-					return new BigDecimal(value.toString());
-				}
-				break;
-			
-			case DOUBLE:
-				if (value instanceof Double) {
-					return value;
-				}
-				else if (value instanceof Number) {
-					return ((Number) value).doubleValue();
-				}
-				else if (value instanceof String) {
-					return Double.parseDouble(value.toString());
-				}
-				break;
-				
-			case INTEGER:
-				if (value instanceof Integer) {
-					return value;
-				}
-				else if (value instanceof Number) {
-					return ((Number) value).intValue();
-				}
-				else if (value instanceof String) {
-					return Integer.parseInt(value.toString());
-				}
-				break;
-				
-			case LONG:
-				if (value instanceof Long) {
-					return value;
-				}
-				else if (value instanceof Number) {
-					return ((Number) value).longValue();
-				}
-				else if (value instanceof String) {
-					return Long.parseLong(value.toString());
-				}
-				break;
-				
-			default:
-				// do nothing
+		return value;
+	}
+	
+	private Object formatBooleanValue(Object value) {
+		if (value instanceof String) {
+			return NameUtils.booleanValue(value.toString());
+		}
+		else if (value instanceof Number) {
+			return ((Number) value).intValue() > 0;
+		}
+		return value;
+	}
+	
+	private Object formatDateValue(Object value) {
+		if (value instanceof String) {
+			try {
+				return new SimpleDateFormat(getRestDateFormat()).parseObject(value.toString());
+			} 
+			catch (ParseException e) {
+				throw new InternalException(e);
+			}
+		}
+		return value;
+	}
+	
+	private Object formatDateTimeValue(Object value) {
+		if (value instanceof String) {
+			try {
+				return new SimpleDateFormat(getRestDateTimeFormat()).parseObject(value.toString());
+			} 
+			catch (ParseException e) {
+				throw new InternalException(e);
+			}
+		}
+		return value;
+	}
+	
+	private Object formatDecimalValue(Object value) {
+		if (value instanceof BigDecimal) {
+			return value;
+		}
+		else if (value instanceof Number) {
+			return new BigDecimal(((Number) value).toString());
+		}
+		else if (value instanceof String) {
+			return new BigDecimal(value.toString());
+		}
+		return value;
+	}
+	
+	private Object formatDoubleValue(Object value) {
+		if (value instanceof Double) {
+			return value;
+		}
+		else if (value instanceof Number) {
+			return ((Number) value).doubleValue();
+		}
+		else if (value instanceof String) {
+			return Double.parseDouble(value.toString());
+		}
+		return value;
+	}
+	
+	private Object formatIntegerValue(Object value) {
+		if (value instanceof Integer) {
+			return value;
+		}
+		else if (value instanceof Number) {
+			return ((Number) value).intValue();
+		}
+		else if (value instanceof String) {
+			return Integer.parseInt(value.toString());
+		}
+		return value;
+	}
+	
+	private Object formatLongValue(Object value) {
+		if (value instanceof Long) {
+			return value;
+		}
+		else if (value instanceof Number) {
+			return ((Number) value).longValue();
+		}
+		else if (value instanceof String) {
+			return Long.parseLong(value.toString());
 		}
 		return value;
 	}

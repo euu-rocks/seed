@@ -1197,8 +1197,17 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				field.setAutonumPattern(null);
 				field.setAutonumStart(null);
 			}
+			// only some field types support validation
+			if (!field.getType().supportsValidation()) {
+				field.setValidationPattern(null);
+			}
 		}
-		if (!field.isCalculated()) {
+		if (field.isCalculated()) {
+			field.setAutonumPattern(null);
+			field.setAutonumStart(null);
+			field.setValidationPattern(null);
+		}
+		else {
 			field.setFormula(null);
 		}
 	}

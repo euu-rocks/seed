@@ -128,7 +128,15 @@
 	                </template>
 	            </combobox>
 	        </div>
-            <vlayout visible="@load(vm.field.type.isText())">
+	        <vlayout visible="@load(!vm.field.calculated and vm.field.type.supportsValidation())">
+            	<label value="${labels.label.validation}:"/>
+            	<div sclass="pattern-field"> 
+	            	<textbox hflex="1"
+	            		 	 value="@bind(vm.field.validationPattern) @converter(vm.stringConverter)"
+	            		 	 onChange="@command('flagDirty')"/>
+	            </div>	
+            </vlayout>
+	        <vlayout visible="@load(vm.field.type.isText())">
             	<label value="${labels.label.length}:"/>
             	<div sclass="length-field"> 
 	            	<intbox value="@bind(vm.field.length)"
@@ -143,7 +151,7 @@
             	</hlayout>
             	<div sclass="autonumpattern-field"> 
 	            	<textbox hflex="1"
-	            		 	 value="@bind(vm.field.autonumPattern)"
+	            		 	 value="@bind(vm.field.autonumPattern) @converter(vm.stringConverter)"
 	            		 	 onChange="@command('flagDirty')"/>
             	</div>
             	<label value="${labels.label.startvalue}:"/>

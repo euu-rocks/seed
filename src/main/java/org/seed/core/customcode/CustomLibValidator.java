@@ -42,8 +42,8 @@ public class CustomLibValidator extends AbstractSystemEntityValidator<CustomLib>
 		else if (isEmpty(lib.getContent()) || isEmpty(lib.getFilename())) {
 			errors.addError("val.empty.upload");
 		}
-		else if (lib.getFilename().length() > 255) {
-			errors.addOverlongField("label.filename", 255);
+		else if (lib.getFilename().length() > getMaxStringLength()) {
+			errors.addOverlongField("label.filename", getMaxStringLength());
 		}
 		else if (!CodeUtils.isJarFile(lib.getFilename())) {
 			errors.addError("val.illegal.fileformat", "JAR");

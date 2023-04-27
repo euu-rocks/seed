@@ -115,6 +115,10 @@ public enum FieldType {
 		return this == TEXTLONG;
 	}
 	
+	public boolean supportsValidation() {
+		return isDecimal() || isDouble() || isInteger() || isLong() || isText() || isTextLong();
+	}
+	
 	public static FieldType[] nonAutonumTypes() {
 		return NON_AUTONUM_TYPES;
 	}

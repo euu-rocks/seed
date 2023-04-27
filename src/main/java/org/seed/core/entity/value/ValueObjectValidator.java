@@ -177,12 +177,17 @@ public class ValueObjectValidator implements ApplicationContextAware {
 			final Object value = objectAccess.getValue(object, field);
 			if (field.isMandatory() && !field.getType().isAutonum() && isEmpty(value)) {
 				errors.addEmptyField(field.getName());
+				continue;
 			}
 			if (field.getType().isText()) {
 				final String text = (String) value;
 				if (text != null && text.length() > getMaxFieldLength(field)) {
 					errors.addOverlongField(field.getName(), getMaxFieldLength(field));
 				}
+			}
+			if (field.getType().supportsValidation() && field.getValidationPattern() != null && 
+				value != null && !value.toString().matches(field.getValidationPattern())) {
+				errors.addIllegalFieldValue(field.getName());
 			}
 		}
 	}
