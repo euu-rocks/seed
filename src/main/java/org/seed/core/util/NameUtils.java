@@ -80,6 +80,10 @@ public abstract class NameUtils {
 		return value != null && find(TRUE_VALUES, value);
 	}
 	
+	public static boolean containsAlphabet(String name) {
+		return name != null && name.chars().anyMatch(Character::isAlphabetic);
+	}
+	
 	public static boolean startsWithNumber(String name) {
 		return name != null && name.length() > 0 && Character.isDigit(name.charAt(0));
 	}

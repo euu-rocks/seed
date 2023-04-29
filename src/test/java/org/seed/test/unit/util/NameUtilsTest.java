@@ -128,6 +128,17 @@ class NameUtilsTest {
 	}
 	
 	@Test
+	void testContainsAlphabet() {
+		assertFalse(NameUtils.containsAlphabet(null));
+		assertFalse(NameUtils.containsAlphabet(""));
+		assertFalse(NameUtils.containsAlphabet("_"));
+		assertFalse(NameUtils.containsAlphabet("1_2"));
+		assertTrue(NameUtils.containsAlphabet("a"));
+		assertTrue(NameUtils.containsAlphabet("ABC"));
+		assertTrue(NameUtils.containsAlphabet("_a_"));
+	}
+	
+	@Test
 	void testGetRandomName() {
 		assertNotNull(NameUtils.getRandomName());
 		assertFalse(NameUtils.getRandomName().isEmpty());

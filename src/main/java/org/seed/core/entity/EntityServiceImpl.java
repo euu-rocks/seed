@@ -1173,35 +1173,6 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	private void cleanupField(EntityField field) {
-		if (field.getType() != null) {
-			// boolean and calculated fields cannot have options
-			if (field.getType().isBoolean() || field.isCalculated()) {
-				field.setMandatory(false);
-				field.setIndexed(false);
-				field.setUnique(false);
-			}
-			// only text fields can have length
-			if (!field.getType().isText()) {
-				field.setLength(null);
-			}
-			// only some fields can be fulltext indexed
-			if (!(field.isTextField() || field.getType().isAutonum() || field.getType().isReference())) {
-				field.setFullTextSearch(false);
-			}
-			// only reference fields can have reference entity or field
-			if (!field.getType().isReference()) {
-				field.setReferenceEntity(null);
-			}
-			// only autonum fields can have pattern and start
-			if (!field.getType().isAutonum()) {
-				field.setAutonumPattern(null);
-				field.setAutonumStart(null);
-			}
-			// only some field types support validation
-			if (!field.getType().supportsValidation()) {
-				field.setValidationPattern(null);
-			}
-		}
 		if (field.isCalculated()) {
 			field.setAutonumPattern(null);
 			field.setAutonumStart(null);
@@ -1209,6 +1180,37 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		}
 		else {
 			field.setFormula(null);
+		}
+		if (field.getType() == null) {
+			return;
+		}
+		
+		// boolean and calculated fields cannot have options
+		if (field.getType().isBoolean() || field.isCalculated()) {
+			field.setMandatory(false);
+			field.setIndexed(false);
+			field.setUnique(false);
+		}
+		// only text fields can have length
+		if (!field.getType().isText()) {
+			field.setLength(null);
+		}
+		// only some fields can be fulltext indexed
+		if (!(field.isTextField() || field.getType().isAutonum() || field.getType().isReference())) {
+			field.setFullTextSearch(false);
+		}
+		// only reference fields can have reference entity or field
+		if (!field.getType().isReference()) {
+			field.setReferenceEntity(null);
+		}
+		// only autonum fields can have pattern and start
+		if (!field.getType().isAutonum()) {
+			field.setAutonumPattern(null);
+			field.setAutonumStart(null);
+		}
+		// only some field types support validation
+		if (!field.getType().supportsValidation()) {
+			field.setValidationPattern(null);
 		}
 	}
 	
