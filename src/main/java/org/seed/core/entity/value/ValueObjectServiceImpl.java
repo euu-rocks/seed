@@ -40,6 +40,7 @@ import org.seed.Seed;
 import org.seed.core.application.setting.ApplicationSettingService;
 import org.seed.core.application.setting.Setting;
 import org.seed.core.data.AbstractSystemEntity;
+import org.seed.core.data.FieldAccess;
 import org.seed.core.data.QueryCursor;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.FileObject;
@@ -48,6 +49,7 @@ import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationError;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
+import org.seed.core.entity.EntityAccess;
 import org.seed.core.entity.EntityDependent;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityFieldGroup;
@@ -63,8 +65,11 @@ import org.seed.core.entity.transform.Transformer;
 import org.seed.core.entity.value.event.ValueObjectEvent;
 import org.seed.core.entity.value.event.ValueObjectEventHandler;
 import org.seed.core.entity.value.event.ValueObjectFunctionContext;
+import org.seed.core.user.User;
+import org.seed.core.user.UserService;
 import org.seed.core.util.Assert;
 import org.seed.core.util.ExceptionUtils;
+import org.seed.core.util.MiscUtils;
 import org.seed.core.util.NameUtils;
 import org.seed.core.util.Tupel;
 
@@ -88,6 +93,9 @@ public class ValueObjectServiceImpl
 	
 	@Autowired
 	private FilterService filterService;
+	
+	@Autowired
+	private UserService userService;
 	
 	@Autowired
 	private ValueObjectRepository repository;
@@ -123,6 +131,11 @@ public class ValueObjectServiceImpl
 	@Override
 	public long count(Session session, Class<?> entityClass) {
 		return repository.count(session, entityClass);
+	}
+	
+	@Override
+	public long count(Entity entity, Session session) {
+		return count(session, repository.getEntityClass(session, entity));
 	}
 	
 	@Override
@@ -195,7 +208,7 @@ public class ValueObjectServiceImpl
 		try {
 			tx = session.beginTransaction();
 			final ValueObject object = repository.createInstance(entity, session, null);
-			if (setObjectValues(session, entity, object, valueMap)) {
+			if (setObjectValues(session, entity, object, getUser(session), valueMap)) {
 				saveObject(object, session, null);
 			}
 			tx.commit();
@@ -257,7 +270,7 @@ public class ValueObjectServiceImpl
 			if (entity.hasFullTextSearchFields()) {
 				int idx = 0;
 				int chunkIdx = 0;
-				final QueryCursor<ValueObject> cursor = createCursor(entity, 500);
+				final var cursor = createCursor(entity, 500);
 				while (idx < cursor.getTotalCount()) {
 					cursor.setChunkIndex(chunkIdx++);
 					fullTextSearch.indexChunk(entity, loadChunk(cursor));
@@ -514,7 +527,7 @@ public class ValueObjectServiceImpl
 		try {
 			tx = session.beginTransaction();
 			final ValueObject object = repository.get(session, entity, objectId);
-			if (setObjectValues(session, entity, object, valueMap)) {
+			if (setObjectValues(session, entity, object, getUser(session), valueMap)) {
 				saveObject(object, session, null);
 			}
 			tx.commit();
@@ -526,6 +539,23 @@ public class ValueObjectServiceImpl
 			}
 			throw ex;
 		}
+	}
+	
+	@Override
+	public List<String> validateObject(Session session, Entity entity, @Nullable Long objectId, Map<String,Object> valueMap) {
+		final ValueObject object = objectId != null
+				? repository.get(session, entity, objectId)
+				: repository.createInstance(entity, session, null);
+		if (setObjectValues(session, entity, object, getUser(session), valueMap)) {
+			try {
+				validator.validateSave(session, object);
+			}
+			catch (ValidationException vex) {
+				return convertedList(vex.getErrors(), 
+									 error -> MiscUtils.removeHTMLTags(MiscUtils.formatValidationError(error)));
+			}
+		}
+		return Collections.emptyList();
 	}
 	
 	@Override
@@ -707,6 +737,55 @@ public class ValueObjectServiceImpl
 		objectList.sort((ValueObject vo1, ValueObject vo2) -> getIdentifier(vo1).compareTo(getIdentifier(vo2)));
 	}
 	
+	@Override
+	public ValueObject removeInvisibleFields(ValueObject object, Entity entity, User user) {
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(user, C.USER);
+		
+		if (object != null) {
+			filterAndForEach(entity.getAllFields(), 
+							 field -> !entity.checkFieldAccess(field, user, object.getEntityStatus(), FieldAccess.READ), 
+							 field -> objectAccess.setValue(object, field, field.getType().nullValue()));
+			if (entity.hasNesteds()) {
+				entity.getNesteds().forEach(nested -> removeInvisibleFields(object, nested, user));
+			}
+			if (entity.hasRelations()) {
+				entity.getRelations().forEach(relation -> removeInvisibleFields(object, relation, user));
+			}
+		}
+		return object;
+	}
+	
+	private User getUser(Session session) {
+		return userService.getCurrentUser(session);
+	}
+	
+	private void removeInvisibleFields(ValueObject object, NestedEntity nested, User user) {
+		if (nested.getNestedEntity().checkPermissions(user)) {
+			for (ValueObject nestedObject : objectAccess.getNestedObjects(object, nested)) {
+				filterAndForEach(nested.getNestedEntity().getAllFields(), 
+				 		 		 field -> !nested.getNestedEntity().checkFieldAccess(field, user, nestedObject.getEntityStatus(), FieldAccess.READ), 
+				 		 		 field -> objectAccess.setValue(nestedObject, field, field.getType().nullValue()));
+			}
+		}
+		else {
+			objectAccess.setNestedObjects(object, nested, null);
+		}
+	}
+	
+	private void removeInvisibleFields(ValueObject object, EntityRelation relation, User user) {
+		if (relation.getRelatedEntity().checkPermissions(user)) {
+			for (ValueObject relatedObject : objectAccess.getRelatedObjects(object, relation)) {
+				filterAndForEach(relation.getRelatedEntity().getAllFields(), 
+								 field -> !relation.getRelatedEntity().checkFieldAccess(field, user, relatedObject.getEntityStatus(), FieldAccess.READ), 
+								 field -> objectAccess.setValue(relatedObject, field, field.getType().nullValue()));
+			}
+		}
+		else {
+			objectAccess.setRelatedObjects(object, relation, null);
+		}
+	}
+	
 	private List<ValueObject> loadFullTextObjects(QueryCursor<?> cursor) {
 		final var result = new ArrayList<ValueObject>(cursor.getChunkSize());
 		try (Session session = repository.getSession()) {
@@ -725,11 +804,15 @@ public class ValueObjectServiceImpl
 	}
 	
 	@SuppressWarnings("unchecked")
-	private boolean setObjectValues(Session session, Entity entity, ValueObject object, Map<String, Object> valueMap) {
+	private boolean setObjectValues(Session session, Entity entity, ValueObject object, User user, Map<String, Object> valueMap) {
+		if (!entity.checkPermissions(user, EntityAccess.WRITE)) {
+			return false;
+		}
+		
 		boolean isModified = false;
 		if (entity.hasAllFields()) {
 			for (EntityField field : entity.getAllFields()) {
-				if (setObjectFieldValue(session, field, object, valueMap)) {
+				if (setObjectFieldValue(session, field, object, user, valueMap)) {
 					isModified = true;
 				}
 			}
@@ -739,7 +822,7 @@ public class ValueObjectServiceImpl
 				// get nested maps
 				final var listNestedMaps = (List<Map<String, Object>>) valueMap.get(nested.getInternalName());
 				if (!ObjectUtils.isEmpty(listNestedMaps) && 
-					setNestedObjectValues(session, nested, object, listNestedMaps)) {
+					setNestedObjectValues(session, nested, object, user, listNestedMaps)) {
 					isModified = true;
 				}
 			}
@@ -748,10 +831,10 @@ public class ValueObjectServiceImpl
 	}
 	
 	@SuppressWarnings("unchecked")
-	private boolean setObjectFieldValue(Session session, EntityField field, ValueObject object, Map<String, Object> valueMap) {
-		if (field.isJsonSerializable() && 
-			!field.getType().isAutonum() &&
-			valueMap.containsKey(field.getInternalName())) {
+	private boolean setObjectFieldValue(Session session, EntityField field, ValueObject object, User user, Map<String, Object> valueMap) {
+		if (field.isJsonSerializable() && !field.getType().isAutonum() && 
+			valueMap.containsKey(field.getInternalName()) &&
+			field.getEntity().checkFieldAccess(field, user, object.getEntityStatus(), FieldAccess.WRITE)) {
 			
 			Object value = valueMap.get(field.getInternalName());
 			if (value != null && field.getType().isReference()) {
@@ -768,7 +851,7 @@ public class ValueObjectServiceImpl
 	}
 	
 	private boolean setNestedObjectValues(Session session, NestedEntity nested, ValueObject object, 
-										  List<Map<String, Object>> listNestedMaps) {
+										  User user, List<Map<String, Object>> listNestedMaps) {
 		boolean isModified = false;
 		// get existing nested value objects as map
 		final var nestedObjectMap = convertedMap(objectAccess.getNestedObjects(object, nested), 
@@ -781,7 +864,7 @@ public class ValueObjectServiceImpl
 			if (nestedId != null && nestedObjectMap != null && 
 				nestedObjectMap.containsKey(nestedId.longValue())) {
 				final ValueObject nestedObject = nestedObjectMap.get(nestedId.longValue());
-				if (setObjectValues(session, nested.getNestedEntity(), nestedObject, nestedValueMap)) {
+				if (setObjectValues(session, nested.getNestedEntity(), nestedObject, user, nestedValueMap)) {
 					isModified = true;
 				}
 				nestedIds.add(nestedId.longValue());
@@ -789,7 +872,7 @@ public class ValueObjectServiceImpl
 			// create new nested object
 			else {
 				final ValueObject nestedObject = objectAccess.addNestedInstance(object, nested);
-				setObjectValues(session, nested.getNestedEntity(), nestedObject, nestedValueMap);
+				setObjectValues(session, nested.getNestedEntity(), nestedObject, user, nestedValueMap);
 				isModified = true;
 			}
 		}
@@ -968,5 +1051,5 @@ public class ValueObjectServiceImpl
 		}
 		return Seed.DEFAULT_REST_FORMAT_DATETIME;
 	}
-
+	
 }

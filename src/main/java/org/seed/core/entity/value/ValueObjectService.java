@@ -40,6 +40,7 @@ import org.seed.core.entity.filter.CriterionOperator;
 import org.seed.core.entity.filter.Filter;
 import org.seed.core.entity.transform.Transformer;
 import org.seed.core.entity.value.event.ValueObjectFunctionContext;
+import org.seed.core.user.User;
 
 public interface ValueObjectService extends EntityUsage {
 	
@@ -112,6 +113,8 @@ public interface ValueObjectService extends EntityUsage {
 	
 	long count(Session session, Class<?> entityClass);
 	
+	long count(Entity entity, Session session);
+	
 	ValueObject getObject(Session session, Entity entity, Long id);
 	
 	ValueObject getObject(Session session, Class<?> entityClass, Long id);
@@ -156,4 +159,7 @@ public interface ValueObjectService extends EntityUsage {
 	
 	void sortObjects(List<ValueObject> objectList);
 	
+	ValueObject removeInvisibleFields(ValueObject object, Entity entity, User user);
+	
+	List<String> validateObject(Session session, Entity entity, @Nullable Long objectId, Map<String,Object> valueMap);
 }

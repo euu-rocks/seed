@@ -209,11 +209,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 		else {
 			newObject();
 		}
-		if (getForm().getEntity().hasStatus()) {
-			setStatus(getObject().getEntityStatus());
-		}
-		updateTabName();
-		initFileObjects();
+		initObject();
 		resetRelationForms();
 	}
 	
@@ -511,7 +507,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	
 	private void refreshObject() {
 		setObject(valueObjectService().getObject(currentSession(), getForm().getEntity(), getObject().getId()));
-		initFileObjects();
+		initObject();
 		revision = null;
 		reset();
 	}
@@ -570,6 +566,14 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 		catch (Exception ex) {
 			showErrorMessage(ex.getMessage());
 		}
+	}
+	
+	private void initObject() {
+		if (getForm().getEntity().hasStatus()) {
+			setStatus(getObject().getEntityStatus());
+		}
+		updateTabName();
+		initFileObjects();
 	}
 	
 	private void initFileObjects() {

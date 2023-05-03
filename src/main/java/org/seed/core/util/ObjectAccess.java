@@ -17,6 +17,8 @@
  */
 package org.seed.core.util;
 
+import static org.seed.core.util.CollectionUtils.firstMatch;
+
 import java.lang.reflect.Method;
 
 import org.springframework.util.ReflectionUtils;
@@ -44,10 +46,10 @@ public abstract class ObjectAccess {
 	
 	@SuppressWarnings("unchecked")
 	protected static <T> T callMethod(Object object, String methodName, Object ...parameters) {
-		for (Method method : object.getClass().getMethods()) {
-			if (method.getName().equals(methodName)) {
-				return (T) ReflectionUtils.invokeMethod(method, object, parameters);
-			}
+		final Method method = firstMatch(object.getClass().getMethods(), 
+										 methd -> methd.getName().equals(methodName));
+		if (method != null) {
+			return (T) ReflectionUtils.invokeMethod(method, object, parameters);
 		}
         throw new IllegalStateException("method not found: " + object.getClass().getName() + '.' + methodName);
 	}

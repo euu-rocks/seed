@@ -119,6 +119,10 @@ public enum FieldType {
 		return isDecimal() || isDouble() || isInteger() || isLong() || isText() || isTextLong();
 	}
 	
+	public Object nullValue() {
+		return isBoolean() ? false : null;
+	}
+	
 	public static FieldType[] nonAutonumTypes() {
 		return NON_AUTONUM_TYPES;
 	}

@@ -120,6 +120,13 @@ public final class QueryCursor<T extends SystemObject> {
 		Assert.state(startIndex < totalCount, "chunk index too big: " + chunkIndex);
 	}
 	
+	public void setIndex(int index) {
+		Assert.state(index >= 0, "illegal index: " + index);
+		
+		startIndex = index;
+		Assert.state(startIndex < totalCount, "index too big: " + index);
+	}
+	
 	public QueryCursor<T> newCursorFromStart() {
 		return new QueryCursor<>(query, queryText, fullTextResult, totalCount, chunkSize);
 	}

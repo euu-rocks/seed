@@ -28,9 +28,9 @@ import org.seed.LabelProvider;
 import org.seed.core.data.ValidationError;
 import org.seed.core.util.Assert;
 import org.seed.core.util.ExceptionUtils;
+import org.seed.core.util.MiscUtils;
 import org.seed.ui.zk.UIUtils;
 
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.zkoss.util.media.Media;
 import org.zkoss.zk.ui.Component;
@@ -172,23 +172,9 @@ abstract class AbstractViewModel extends UIUtils {
 		showWarnMessage(getLabel("label.warning"), message);
 	}
 	
-	protected final String formatValidationError(ValidationError error) {
-		if (ObjectUtils.isEmpty(error.getParameters())) {
-			return getLabel(error.getError());
-		}
-		else {
-			final String[] params = error.getParameters();
-			for (int i = 0; i < params.length; i++) {
-				if (params[i].startsWith("label.")) {
-					params[i] = getLabel(params[i]);
-				}
-			}
-			return getLabel(error.getError(), params);
-		}
-	}
-	
 	private void buildError(StringBuilder buf, ValidationError error) {
-		buf.append(NOBR_START).append(formatValidationError(error)).append(NOBR_END);
+		buf.append(NOBR_START).append(MiscUtils.formatValidationError(error))
+		   .append(NOBR_END);
 	}
 	
 	protected static int getChildIndex(Component component) {

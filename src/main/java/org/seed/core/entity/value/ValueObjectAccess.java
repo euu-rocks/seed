@@ -85,6 +85,13 @@ public class ValueObjectAccess extends ObjectAccess {
 		return (List<ValueObject>) callGetter(object, nested.getInternalName());
 	}
 	
+	public void setNestedObjects(ValueObject object, NestedEntity nested, List<ValueObject> nestedList) {
+		Assert.notNull(object, C.OBJECT);
+		Assert.notNull(nested, C.NESTED);
+		
+		callSetter(object, nested.getInternalName(), nestedList);
+	}
+	
 	public ValueObject addNestedInstance(ValueObject object, NestedEntity nested) {
 		Assert.notNull(object, C.OBJECT);
 		Assert.notNull(nested, C.NESTED);
@@ -114,6 +121,13 @@ public class ValueObjectAccess extends ObjectAccess {
 		Assert.notNull(relation, C.RELATION);
 		
 		return (Set<ValueObject>) callGetter(object, relation.getInternalName());
+	}
+	
+	public void setRelatedObjects(ValueObject object, EntityRelation relation, Set<ValueObject> relatedList) {
+		Assert.notNull(object, C.OBJECT);
+		Assert.notNull(relation, C.RELATION);
+		
+		callSetter(object, relation.getInternalName(), relatedList);
 	}
 	
 	public void addRelatedObject(ValueObject object, EntityRelation relation, ValueObject relatedObject) {

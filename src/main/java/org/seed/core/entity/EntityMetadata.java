@@ -1013,11 +1013,11 @@ public class EntityMetadata extends AbstractApplicationEntity
 		if (hasFieldConstraints()) {
 			// check universal status constraints (no user group)
 			if (status != null) {
-				for (EntityFieldConstraint constraint : getFieldConstraints(field)) {
-					if (constraint.getUserGroup() == null &&
-						constraint.getStatus().equals(status)) {
-						return checkAccess(constraint, fieldAccess);
-					}
+				final var constraint = firstMatch(getFieldConstraints(field), 
+												  constr -> constr.getUserGroup() == null &&
+												  			constr.getStatus().equals(status));
+				if (constraint != null) {
+					return checkAccess(constraint, fieldAccess);
 				}
 			}
 			

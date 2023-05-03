@@ -31,7 +31,11 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 
+import org.seed.Seed;
+import org.seed.core.data.ValidationError;
+
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.ObjectUtils;
 
 public abstract class MiscUtils {
 	
@@ -108,6 +112,21 @@ public abstract class MiscUtils {
 						 .matcher(text)
 						 .replaceAll(Matcher.quoteReplacement(replacement))
 				: null;
+	}
+	
+	public static String formatValidationError(ValidationError error) {
+		if (ObjectUtils.isEmpty(error.getParameters())) {
+			return Seed.getLabel(error.getError());
+		}
+		else {
+			final String[] params = error.getParameters();
+			for (int i = 0; i < params.length; i++) {
+				if (params[i].startsWith("label.")) {
+					params[i] = Seed.getLabel(params[i]);
+				}
+			}
+			return Seed.getLabel(error.getError(), params);
+		}
 	}
 	
 	public static String getTimestampString() {

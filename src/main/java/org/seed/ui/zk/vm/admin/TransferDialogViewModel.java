@@ -167,7 +167,9 @@ public class TransferDialogViewModel extends AbstractApplicationViewModel {
 	}
 	
 	public String formatError(ValidationError error) {
-		return error != null ? MiscUtils.removeHTMLTags(formatValidationError(error)) : null;
+		return error != null 
+				? MiscUtils.removeHTMLTags(MiscUtils.formatValidationError(error)) 
+				: null;
 	}
 	
 	public String getErrorObject(ValidationError error) {
