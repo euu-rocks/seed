@@ -93,7 +93,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	
 	@Override
 	public Filter createInstance(@Nullable Options options) {
-		final FilterMetadata filter = (FilterMetadata) super.createInstance(options);
+		final var filter = (FilterMetadata) super.createInstance(options);
 		filter.createLists();
 		return filter;
 	}
@@ -103,7 +103,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		Assert.notNull(filter, C.FILTER);
 		
 		super.initObject(filter);
-		final FilterMetadata filterMeta = (FilterMetadata) filter;
+		final var filterMeta = (FilterMetadata) filter;
 		if (filterMeta.isHqlInput()) {
 			filterMeta.setHqlQuery("from " + filter.getEntity().getInternalName());
 		}
@@ -133,12 +133,17 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		Assert.notNull(entityField, C.ENTITYFIELD);
 		Assert.notNull(value, C.VALUE);
 		
-		final FilterMetadata filter = new FilterMetadata();
+		final var filter = new FilterMetadata();
 		filter.setEntity(entity);
-		final FilterCriterion criterion = new FilterCriterion();
+		final var criterion = new FilterCriterion();
 		criterion.setEntityField(entityField);
 		criterion.setOperator(CriterionOperator.EQUAL);
-		criterion.setValue(value);
+		if (entityField.getType().isReference()) {
+			criterion.setValueObject((ValueObject) value);
+		}
+		else {
+			criterion.setValue(value);
+		}
 		filter.addCriterion(criterion);
 		return filter;
 	}
@@ -148,9 +153,9 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(status, C.STATUS);
 		
-		final FilterMetadata filter = new FilterMetadata();
+		final var filter = new FilterMetadata();
 		filter.setEntity(entity);
-		final FilterCriterion criterion = new FilterCriterion();
+		final var criterion = new FilterCriterion();
 		criterion.setSystemField(SystemField.ENTITYSTATUS);
 		criterion.setOperator(CriterionOperator.EQUAL);
 		criterion.setValue(status);
@@ -163,16 +168,14 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 												 @Nullable NestedEntity nestedEntity) {
 		Assert.notNull(filter, C.FILTER);
 		
-		final List<FilterElement> elements = new ArrayList<>();
+		final var elements = new ArrayList<FilterElement>();
 		// main object
 		if (nestedEntity == null) {
 			createEntityElements(filter.getEntity(), elements);
 		}
 		// nested
 		else {
-			for (EntityField nestedField : nestedEntity.getFields(true)) {
-				elements.add(createElement(nestedField, null));
-			}
+			nestedEntity.getFields(true).forEach(field -> elements.add(createElement(field, null)));
  		}
 		return elements;
 	}
@@ -479,25 +482,18 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	
 	private static void createEntityElements(Entity entity, List<FilterElement> elements) {
 		// entity fields
-		if (entity.hasAllFields()) {
-			for (EntityField entityField : entity.getAllFields()) {
-				// allow reference fields only for module entities
-				if (!entityField.getType().isReference() || 
-					entityField.getReferenceEntity().isTransferable()) {
-						elements.add(createElement(entityField, null));
-				}
-			}
-		}
+		filterAndForEach(entity.getAllFields(), 
+						 field -> !field.getType().isReference() || // allow reference fields only for module entities
+								  field.getReferenceEntity().isTransferable(), 
+						 field -> elements.add(createElement(field, null)));
 		// system fields
-		for (SystemField systemField : SystemField.publicSystemFields()) {
-			if (systemField != SystemField.ENTITYSTATUS || entity.hasStatus()) {
-				elements.add(createElement(null, systemField));
-			}
-		}
+		filterAndForEach(SystemField.publicSystemFields(), 
+						 field -> field != SystemField.ENTITYSTATUS || entity.hasStatus(), 
+						 field -> elements.add(createElement(null, field)));
 	}
 	
 	private static FilterElement createElement(EntityField entityField, SystemField systemField)  {
-		final FilterElement element = new FilterElement();
+		final var element = new FilterElement();
 		if (entityField != null) {
 			element.setEntityField(entityField);
 		}
@@ -509,7 +505,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	}
 	
 	private static FilterPermission createPermission(Filter filter, UserGroup group) {
-		final FilterPermission permission = new FilterPermission();
+		final var permission = new FilterPermission();
 		permission.setFilter(filter);
 		permission.setUserGroup(group);
 		return permission;
