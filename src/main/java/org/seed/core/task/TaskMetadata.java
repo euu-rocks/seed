@@ -70,6 +70,7 @@ public class TaskMetadata extends AbstractApplicationEntity
 	
 	private boolean isActive;
 	
+	@JsonIgnore
 	@Transient
 	private boolean contentChanged;
 	

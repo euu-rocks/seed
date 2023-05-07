@@ -28,11 +28,7 @@ import javax.tools.JavaFileObject.Kind;
 import org.seed.C;
 import org.seed.core.util.Assert;
 
-public abstract class CodeUtils {
-	
-	private static final String[] CLASS_TYPES = { "class ", "interface ", "enum " };
-	
-	private CodeUtils() { }
+public interface CodeUtils {
 	
 	public static URI createJarURI(URL packageURL, String classFileName) {
 		Assert.notNull(packageURL, "package URL");
@@ -133,8 +129,8 @@ public abstract class CodeUtils {
 		Assert.state(endIdx >= 0, "; not found after package");
 		final String packageName = code.substring(startIdx, endIdx).trim();
 		
-		// determine class / interface / enum
-		for (String classType : CLASS_TYPES) {
+		// determine class type
+		for (String classType : new String[]{"class ", "interface ", "enum "}) {
 			startIdx = code.indexOf(classType, endIdx);
 			if (startIdx >= 0) {
 				startIdx += classType.length();
@@ -144,7 +140,7 @@ public abstract class CodeUtils {
 		Assert.state(startIdx > 0, "class, interface or enum not found");
 		
 		// extract class / interface / enum name
-		final StringBuilder nameBuf = new StringBuilder();
+		final var nameBuf = new StringBuilder();
 		while (startIdx < code.length()) {
 			final char ch = code.charAt(startIdx++);
 			if (Character.isLetterOrDigit(ch) || ch == '_') {
@@ -191,7 +187,7 @@ public abstract class CodeUtils {
 		Assert.notNull(pattern, "pattern");
 		
 		int line = 0;
-		final Scanner scanner = new Scanner(code);
+		final var scanner = new Scanner(code);
 		while (scanner.hasNextLine()) {
 			if (pattern.matcher(scanner.nextLine()).matches()) {
 				line = -line;

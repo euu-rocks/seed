@@ -20,6 +20,8 @@ package org.seed.core.data;
 import java.util.Collections;
 import java.util.Set;
 
+import org.seed.core.util.MiscUtils;
+
 public class ValidationException extends Exception {
 	
 	private static final long serialVersionUID = -8839158339815075607L;
@@ -41,6 +43,23 @@ public class ValidationException extends Exception {
 	
 	public Set<ValidationError> getErrors() {
 		return errors;
+	}
+	
+	@Override
+	public String getMessage() {
+		if (errors.size() == 1) {
+			return MiscUtils.formatValidationError(errors.iterator().next());
+		}
+		else {
+			final var buf = new StringBuilder();
+			for (ValidationError error : errors) {
+				if (buf.length() > 0) {
+					buf.append('\n');
+				}
+				buf.append(MiscUtils.formatValidationError(error));
+			}
+			return buf.toString();
+		}
 	}
 	
 }

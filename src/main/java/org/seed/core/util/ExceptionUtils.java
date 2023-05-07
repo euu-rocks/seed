@@ -38,7 +38,7 @@ public interface ExceptionUtils {
 	}
 	
 	static String getRootCauseMessage(Throwable throwable) {
-		return getRootCause(throwable).getLocalizedMessage();
+		return getRootCause(throwable).getMessage();
 	}
 	
 	static String getStackTraceAsString(Throwable throwable) {

@@ -25,6 +25,7 @@ import org.hibernate.Transaction;
 
 import org.seed.C;
 import org.seed.core.config.OpenSessionInViewFilter;
+import org.seed.core.data.QueryCursor;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityAccess;
@@ -41,7 +42,6 @@ import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -79,11 +79,17 @@ public class ValueObjectRestController {
 										@PathVariable(C.NAME) String name) {
 		Assert.notNull(session, C.SESSION);
 		final Entity entity = getEntity(session, name);
+		final User user = getUser(session);
 		
-		return removeInvisibleFields(service.getAllObjects(session, entity), entity, getUser(session));
+		try {
+			return removeInvisibleFields(service.getAllObjects(session, entity), entity, user);
+		}
+		catch (Exception ex) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+		}
 	}
 	
-	@ApiOperation(value = "loadByEntityName", 
+	@ApiOperation(value = "loadChunkByEntityName", 
 				  notes = "returns a chunk of objects of entity with the specified name starting from the specified index with the specified size")
 	@GetMapping(value = "/{name}/{index}/{size}")
 	public List<ValueObject> getObjectChunk(@RequestAttribute(OpenSessionInViewFilter.ATTR_SESSION) Session session,
@@ -92,13 +98,25 @@ public class ValueObjectRestController {
 											@PathVariable("size") Integer size) {
 		Assert.notNull(session, C.SESSION);
 		final Entity entity = getEntity(session, name);
-		final var cursor = service.createCursor(entity, size);
+		final User user = getUser(session);
 		
+		QueryCursor<ValueObject> cursor;
+		try {
+			cursor = service.createCursor(entity, size);
+		}
+		catch (Exception ex) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+		}
 		if (index >= cursor.getTotalCount()) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Index is too big " + index);
 		}
 		cursor.setIndex(index);
-		return removeInvisibleFields(service.loadChunk(cursor), entity, getUser(session));
+		try {
+			return removeInvisibleFields(service.loadChunk(cursor), entity, user);
+		}
+		catch (Exception ex) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+		}
 	}
 	
 	@ApiOperation(value = "countByEntityName", 
@@ -109,7 +127,12 @@ public class ValueObjectRestController {
 		Assert.notNull(session, C.SESSION);
 		final Entity entity = getEntity(session, name);
 		
-		return service.count(entity, session);
+		try {
+			return service.count(entity, session);
+		}
+		catch (Exception ex) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+		}
 	}
 	
 	@ApiOperation(value = "findFilteredByEntityName", 
@@ -121,8 +144,14 @@ public class ValueObjectRestController {
 		Assert.notNull(session, C.SESSION);
 		final Entity entity = getEntity(session, name);
 		final Filter filter = getFilter(session, filterid);
+		final User user = getUser(session);
 		
-		return removeInvisibleFields(service.find(session, entity, filter), entity, getUser(session));
+		try {
+			return removeInvisibleFields(service.find(session, entity, filter), entity, user);
+		}
+		catch (Exception ex) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+		}
 	}
 	
 	@ApiOperation(value = "insertObject", 
@@ -135,7 +164,15 @@ public class ValueObjectRestController {
 		final Entity entity = getEntity(session, name);
 		checkEntityAccess(session, entity, EntityAccess.CREATE);
 		
-		return service.createObject(session, entity, valueMap);
+		try {
+			return service.createObject(session, entity, valueMap);
+		}
+		catch (ValidationException vex) {
+			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, vex.getMessage());
+		}
+		catch (Exception ex) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+		}
 	}
 	
 	@ApiOperation(value = "validateObject", 
@@ -148,7 +185,12 @@ public class ValueObjectRestController {
 		final Entity entity = getEntity(session, name);
 		checkEntityAccess(session, entity, EntityAccess.CREATE);
 		
-		return service.validateObject(session, entity, null, valueMap);
+		try {
+			return service.validateObject(session, entity, null, valueMap);
+		}
+		catch (Exception ex) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+		}
 	}
 	
 	@ApiOperation(value = "getByNameAndId", 
@@ -159,8 +201,14 @@ public class ValueObjectRestController {
 								 @PathVariable(C.ID) Long id) {
 		Assert.notNull(session, C.SESSION);
 		final Entity entity = getEntity(session, name);
-		
-		return service.removeInvisibleFields(getObjectByNameAndId(session, name, id), entity, getUser(session));
+		final User user = getUser(session);
+		final ValueObject object = getObjectByNameAndId(session, name, id);
+		try {
+			return service.removeInvisibleFields(object, entity, user);
+		}
+		catch (Exception ex) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+		}
 	}
 	
 	@ApiOperation(value = "saveObject", 
@@ -172,13 +220,14 @@ public class ValueObjectRestController {
 									@RequestBody Map<String, Object> valueMap) {
 		Assert.notNull(session, C.SESSION);
 		final Entity entity = getEntity(session, name);
+		final User user = getUser(session);
 		checkEntityAccess(session, entity, EntityAccess.WRITE);
 		
 		try {
-			return service.removeInvisibleFields(service.updateObject(session, entity, id, valueMap), entity, getUser(session));
+			return service.removeInvisibleFields(service.updateObject(session, entity, id, valueMap), entity, user);
 		}
 		catch (ValidationException vex) {
-			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE);
+			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, vex.getMessage());
 		}
 		catch (Exception ex) {
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
@@ -196,7 +245,12 @@ public class ValueObjectRestController {
 		final Entity entity = getEntity(session, name);
 		checkEntityAccess(session, entity, EntityAccess.WRITE);
 		
-		return service.validateObject(session, entity, id, valueMap);
+		try {
+			return service.validateObject(session, entity, id, valueMap);
+		}
+		catch (Exception ex) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+		}
 	}
 	
 	@ApiOperation(value = "changeObjectStatus", 
@@ -227,7 +281,7 @@ public class ValueObjectRestController {
 				throw (ResponseStatusException) ex;
 			}
 			else if (ex instanceof ValidationException) {
-				throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE);
+				throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, ex.getMessage());
 			}
 			else {
 				throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
@@ -245,12 +299,18 @@ public class ValueObjectRestController {
 		Assert.notNull(session, C.SESSION);
 		
 		final var transformer = getTransformer(session, transformationid);
-		final ValueObject object = service.transform(getTransformer(session, transformationid), 
-								 					 getObjectByNameAndId(session, name, id),
-								 					 session);
-		return transformer.getTargetEntity().checkPermissions(getUser(session), EntityAccess.READ)
-				? service.removeInvisibleFields(object, transformer.getTargetEntity(), getUser(session))
-				: null;
+		final User user = getUser(session);
+		final ValueObject sourceObject = getObjectByNameAndId(session, name, id);
+		
+		try {
+			final var targetObject = service.transform(transformer, sourceObject, session);
+			return transformer.getTargetEntity().checkPermissions(user, EntityAccess.READ)
+					? service.removeInvisibleFields(targetObject, transformer.getTargetEntity(), user)
+					: null;
+		}
+		catch (Exception ex) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+		}
 	}
 	
 	@ApiOperation(value = "callCustomFunction", 
@@ -262,14 +322,22 @@ public class ValueObjectRestController {
 			   						@PathVariable("functionid") Long functionid) {
 		Assert.notNull(session, C.SESSION);
 		final Entity entity = getEntity(session, name);
+		final EntityFunction function = getFunction(session, name, functionid);
 		final ValueObject object = getObjectByNameAndId(session, name, id);
-		service.callUserActionFunction(session, object, getFunction(session, name, functionid));
-		return service.removeInvisibleFields(object, entity, getUser(session));
+		final User user = getUser(session);
+		
+		try {
+			service.callUserActionFunction(session, object, function);
+			return service.removeInvisibleFields(object, entity, user);
+		}
+		catch (Exception ex) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+		}
 	}
 	
 	@ApiOperation(value = "deleteObject", 
 				  notes = "deletes the entity object with specified id and entity name")
-	@DeleteMapping(value = "/{name}/{id}")
+	@PostMapping(value = "/{name}/{id}/delete")
 	public void deleteObject(@RequestAttribute(OpenSessionInViewFilter.ATTR_SESSION) Session session,
 							 @PathVariable(C.NAME) String name, 
 			 				 @PathVariable(C.ID) Long id) {
@@ -289,30 +357,13 @@ public class ValueObjectRestController {
 			if (ex instanceof ResponseStatusException) {
 				throw (ResponseStatusException) ex;
 			}
+			else if (ex instanceof ValidationException) {
+				throw new ResponseStatusException(HttpStatus.LOCKED, ex.getMessage());
+			}
 			else {
-				throw new ResponseStatusException(HttpStatus.LOCKED, name + ' ' + id);
+				throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
 			}
 		}
-	}
-	
-	private Entity getEntity(Session session, String name) {
-		final Entity entity = entityService.findByName(name, session);
-		if (entity == null) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, C.ENTITY + ' ' + name);
-		}
-		checkEntityAccess(session, entity, EntityAccess.READ);
-		return entity;
-	}
-	
-	private Filter getFilter(Session session, Long id) {
-		final Filter filter = filterService.getObject(id, session);
-		if (filter == null) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, C.FILTER + ' ' + id);
-		}
-		if (!filter.checkPermissions(getUser(session))) {
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, C.FILTER + ' ' + id);
-		}
-		return filter;
 	}
 	
 	private EntityFunction getFunction(Session session, String name, Long functionId) {
@@ -331,8 +382,46 @@ public class ValueObjectRestController {
 		return status;
 	}
 	
+	private Entity getEntity(Session session, String name) {
+		Entity entity = null;
+		try {
+			entity = entityService.findByName(name, session);
+		}
+		catch (Exception ex) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+		}
+		if (entity == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, C.ENTITY + ' ' + name);
+		}
+		checkEntityAccess(session, entity, EntityAccess.READ);
+		return entity;
+	}
+	
+	private Filter getFilter(Session session, Long id) {
+		Filter filter = null;
+		try {
+			filter = filterService.getObject(id, session);
+		}
+		catch (Exception ex) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+		}
+		if (filter == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, C.FILTER + ' ' + id);
+		}
+		if (!filter.checkPermissions(getUser(session))) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, C.FILTER + ' ' + id);
+		}
+		return filter;
+	}
+	
 	private Transformer getTransformer(Session session, Long id) {
-		final Transformer transformer = transformerService.getObject(id, session);
+		Transformer transformer = null;
+		try {
+			transformer = transformerService.getObject(id, session);
+		}
+		catch (Exception ex) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+		}
 		if (transformer == null) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, C.TRANSFORMER + ' ' + id);
 		}
@@ -343,25 +432,38 @@ public class ValueObjectRestController {
 	}
 	
 	private ValueObject getObjectByNameAndId(Session session, String name, Long id) {
-		final ValueObject object = service.getObject(session, getEntity(session, name), id);
+		final Entity entity = getEntity(session, name);
+		ValueObject object = null;
+		try {
+			object = service.getObject(session, entity, id);
+		}
+		catch (Exception ex) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+		}
 		if (object == null) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, name + ' ' + id);
 		}
 		return object;
 	}
 	
+	private User getUser(Session session) {
+		User user = null;
+		try {
+			user = userService.getCurrentUser(session);
+		}
+		catch (Exception ex) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+		}
+		if (user == null) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "user not authorized");
+		}
+		return user;
+	}
+	
 	private void checkEntityAccess(Session session, Entity entity, EntityAccess access) {
 		if (!entity.checkPermissions(getUser(session), access)) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, entity.getName());
 		}
-	}
-	
-	private User getUser(Session session) {
-		final User user = userService.getCurrentUser(session);
-		if (user == null) {
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-		}
-		return user;
 	}
 	
 	private List<ValueObject> removeInvisibleFields(List<ValueObject> objects, Entity entity, User user) {

@@ -200,7 +200,8 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public ValueObject createObject(Session session, Entity entity, Map<String,Object> valueMap) {
+	public ValueObject createObject(Session session, Entity entity, Map<String,Object> valueMap) 
+			throws ValidationException {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(entity, C.ENTITY);
 		
@@ -217,6 +218,9 @@ public class ValueObjectServiceImpl
 		catch (Exception ex) {
 			if (tx != null) {
 				tx.rollback();
+			}
+			if (ex instanceof ValidationException) {
+				throw (ValidationException) ex;
 			}
 			throw new InternalException(ex);
 		}

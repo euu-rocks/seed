@@ -50,7 +50,7 @@ public interface ValueObjectService extends EntityUsage {
 	
 	ValueObject createInstance(Entity entity, Session session, ValueObjectFunctionContext functionContext);
 	
-	ValueObject createObject(Session session, Entity entity, Map<String,Object> valueMap);
+	ValueObject createObject(Session session, Entity entity, Map<String,Object> valueMap) throws ValidationException;
 	
 	QueryCursor<ValueObject> createCursor(Entity entity, int chunkSize);
 	

@@ -17,6 +17,8 @@
  */
 package org.seed.core.application.module;
 
+import static org.seed.core.util.CollectionUtils.filterAndForEach;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -135,7 +137,7 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 	public ModuleParameter createParameter(Module module) {
 		Assert.notNull(module, C.MODULE);
 		
-		final ModuleParameter parameter = new ModuleParameter();
+		final var parameter = new ModuleParameter();
 		module.addParameter(parameter);
 		return parameter;
 	}
@@ -145,11 +147,10 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 	public void deleteObject(Module module) throws ValidationException {
 		Assert.notNull(module, C.MODULE);
 		
-		final List<SystemEntity> moduleObjects = new ArrayList<>();
+		final var moduleObjects = new ArrayList<SystemEntity>();
 		try (Session session = repository.openSession()) {
-			for (ModuleDependent<? extends ApplicationEntity> dependent : getModuleDependents()) {
-				moduleObjects.addAll(dependent.findUsage(module, session));
-			}
+			getModuleDependents().forEach(dependent -> 
+				moduleObjects.addAll(dependent.findUsage(module, session)));
 			Transaction tx = null;
 			try {
 				tx = session.beginTransaction();
@@ -157,7 +158,6 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 					((AbstractApplicationEntity) entity).setModule(null);
 					session.update(entity);
 				}
-				
 				deleteObject(module, session);
 				tx.commit();
 			}
@@ -179,17 +179,13 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 				if (module.getUid() == null) {
 					((ModuleMetadata) module).setUid(UID.createUID());
 				}
-				if (module.getParameters() != null) {
-					for (ModuleParameter param : module.getParameters()) {
-						if (param.getUid() == null) {
-							param.setUid(UID.createUID());
-						}
-					}
-				}
+				filterAndForEach(module.getParameters(), 
+								 param -> param.getUid() == null, 
+								 param -> param.setUid(UID.createUID()));
 				saveObject(module, session);
 				
 				if (((ModuleMetadata) module).getChangedObjects() != null) {
-					for (ApplicationEntity changedObject : ((ModuleMetadata)module).getChangedObjects()) {
+					for (ApplicationEntity changedObject : ((ModuleMetadata) module).getChangedObjects()) {
 						if (changedObject.getModule() == null) {
 							((AbstractApplicationEntity) changedObject).setModule(module);
 						}

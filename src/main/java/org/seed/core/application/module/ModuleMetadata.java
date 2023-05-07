@@ -75,6 +75,8 @@ import org.seed.core.user.UserGroupMetadata;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @javax.persistence.Entity
 @Table(name = "sys_module")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -147,14 +149,16 @@ public class ModuleMetadata extends AbstractSystemEntity
 	
 	private String uid;
 	
+	@JsonIgnore
 	@Transient
 	private SchemaVersion schemaVersion;
 	
-	@Transient
-	private Map<String, byte[]> mapTransferContent;
-	
+	@JsonIgnore
 	@Transient
 	private List<ApplicationEntity> changedObjects;
+	
+	@Transient
+	private Map<String, byte[]> mapTransferContent;
 	
 	@Override
 	@XmlAttribute
@@ -178,11 +182,13 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 
 	@Override
+	@JsonIgnore
 	@XmlTransient
 	public List<Entity> getEntities() {
 		return MiscUtils.castList(getEntityMetadata());
 	}
 	
+	@JsonIgnore
 	@XmlElement(name="entity")
 	@XmlElementWrapper(name="entities")
 	public List<EntityMetadata> getEntityMetadata() {
@@ -194,11 +200,13 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
+	@JsonIgnore
 	@XmlTransient
 	public List<Filter> getFilters() {
 		return MiscUtils.castList(getFilterMetadata());
 	}
 	
+	@JsonIgnore
 	@XmlElement(name="filter")
 	@XmlElementWrapper(name="filters")
 	public List<FilterMetadata> getFilterMetadata() {
@@ -210,11 +218,13 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
+	@JsonIgnore
 	@XmlTransient
 	public List<Transformer> getTransformers() {
 		return MiscUtils.castList(getTransformerMetadata());
 	}
 	
+	@JsonIgnore
 	@XmlElement(name="transformer")
 	@XmlElementWrapper(name="transformers")
 	public List<TransformerMetadata> getTransformerMetadata() {
@@ -226,11 +236,13 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
+	@JsonIgnore
 	@XmlTransient
 	public List<Transfer> getTransfers() {
 		return MiscUtils.castList(getTransferMetadata());
 	}
 	
+	@JsonIgnore
 	@XmlElement(name="transfer")
 	@XmlElementWrapper(name="transfers")
 	public List<TransferMetadata> getTransferMetadata() {
@@ -242,11 +254,13 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 
 	@Override
+	@JsonIgnore
 	@XmlTransient
 	public List<Form> getForms() {
 		return MiscUtils.castList(getFormMetadata());
 	}
 	
+	@JsonIgnore
 	@XmlElement(name="form")
 	@XmlElementWrapper(name="forms")
 	public List<FormMetadata> getFormMetadata() {
@@ -258,11 +272,13 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
+	@JsonIgnore
 	@XmlTransient
 	public List<Menu> getMenus() {
 		return MiscUtils.castList(getMenuMetadata());
 	}
 	
+	@JsonIgnore
 	@XmlElement(name="menu")
 	@XmlElementWrapper(name="menus")
 	public List<MenuMetadata> getMenuMetadata() {
@@ -274,11 +290,13 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
+	@JsonIgnore
 	@XmlTransient
 	public List<Task> getTasks() {
 		return MiscUtils.castList(getTaskMetadata());
 	}
 	
+	@JsonIgnore
 	@XmlElement(name="task")
 	@XmlElementWrapper(name="tasks")
 	public List<TaskMetadata> getTaskMetadata() {
@@ -290,11 +308,13 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
+	@JsonIgnore
 	@XmlTransient
 	public List<UserGroup> getUserGroups() {
 		return MiscUtils.castList(getUserGroupMetadata());
 	}
 	
+	@JsonIgnore
 	@XmlElement(name="usergroup")
 	@XmlElementWrapper(name="usergroups")
 	public List<UserGroupMetadata> getUserGroupMetadata() {
@@ -306,10 +326,13 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
+	@JsonIgnore
+	@XmlTransient
 	public List<DBObject> getDBObjects() {
 		return MiscUtils.castList(getDbObjectMetadata());
 	}
 	
+	@JsonIgnore
 	@XmlElement(name="dbobject")
 	@XmlElementWrapper(name="dbobjects")
 	public List<DBObjectMetadata> getDbObjectMetadata() {
@@ -321,10 +344,13 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
+	@JsonIgnore
+	@XmlTransient
 	public List<IDataSource> getDataSources() {
 		return MiscUtils.castList(getDataSourceMetadata());
 	}
-
+	
+	@JsonIgnore
 	@XmlElement(name="datasource")
 	@XmlElementWrapper(name="datasources")
 	public List<DataSourceMetadata> getDataSourceMetadata() {
@@ -336,10 +362,13 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
+	@JsonIgnore
+	@XmlTransient
 	public List<Report> getReports() {
 		return MiscUtils.castList(getReportMetadata());
 	}
 	
+	@JsonIgnore
 	@XmlElement(name="report")
 	@XmlElementWrapper(name="reports")
 	public List<ReportMetadata> getReportMetadata() {
@@ -351,10 +380,13 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
+	@JsonIgnore
+	@XmlTransient
 	public List<CustomCode> getCustomCodes() {
 		return MiscUtils.castList(getCustomCodeMetadata());
 	}
 	
+	@JsonIgnore
 	@XmlElement(name="customcode")
 	@XmlElementWrapper(name="customcodes")
 	public List<CustomCodeMetadata> getCustomCodeMetadata() {
@@ -366,10 +398,13 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
+	@JsonIgnore
+	@XmlTransient
 	public List<CustomLib> getCustomLibs() {
 		return MiscUtils.castList(getCustomLibMetadata());
 	}
 	
+	@JsonIgnore
 	@XmlElement(name="customlib")
 	@XmlElementWrapper(name="customlibs")
 	public List<CustomLibMetadata> getCustomLibMetadata() {
@@ -381,10 +416,13 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 
 	@Override
+	@JsonIgnore
+	@XmlTransient
 	public List<Rest> getRests() {
 		return MiscUtils.castList(getRestMetadata());
 	}
 	
+	@JsonIgnore
 	@XmlElement(name="restservice")
 	@XmlElementWrapper(name="restservices")
 	public List<RestMetadata> getRestMetadata() {
@@ -396,6 +434,7 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 
 	@Override
+	@JsonIgnore
 	@XmlElement(name="parameter")
 	@XmlElementWrapper(name="parameters")
 	public List<ModuleParameter> getParameters() {
@@ -407,6 +446,7 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
+	@JsonIgnore
 	public boolean hasParameters() {
 		return notEmpty(getParameters());
 	}
@@ -435,12 +475,14 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
+	@JsonIgnore
 	public String getFileName() {
 		return getInternalName() + '_' +
 				   MiscUtils.getTimestampString() +
 				   ModuleTransfer.MODULE_FILE_EXTENSION;
 	}
-
+	
+	@JsonIgnore
 	@XmlTransient
 	public List<ApplicationEntity> getChangedObjects() {
 		return changedObjects;
@@ -456,6 +498,8 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
+	@JsonIgnore
+	@XmlTransient
 	public List<Entity> getTransferableEntities() {
 		return MiscUtils.castList(subList(getEntityMetadata(), Entity::isTransferable));
 	}

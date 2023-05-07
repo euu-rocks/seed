@@ -498,10 +498,9 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	
 	private void newObject() {
 		setObject(valueObjectService().createInstance(getForm().getEntity()));
-		initFileObjects();
+		initObject();
 		revision = null;
 		reset();
-		updateTabName();
 		flagDirty(); // new object is always dirty
 	}
 	

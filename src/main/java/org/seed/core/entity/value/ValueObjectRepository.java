@@ -489,7 +489,9 @@ public class ValueObjectRepository {
 				}
 			}
 		}
-		return pattern;
+		return StringUtils.hasText(pattern) 
+				? pattern 
+				: object.isNew() ? null : "";
 	}
 	
 	protected Class<?> getEntityClass(Session session, Entity entity) {

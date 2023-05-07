@@ -497,9 +497,11 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		if (entityField != null) {
 			element.setEntityField(entityField);
 		}
-		else {
-			Assert.state(systemField != null, "neither entity nor system field");
+		else if (systemField != null) {
 			element.setSystemField(systemField);
+		}
+		else {
+			Assert.stateIllegal("neither entity nor system field");
 		}
 		return element;
 	}
