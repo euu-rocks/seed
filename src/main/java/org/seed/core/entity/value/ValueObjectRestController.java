@@ -42,6 +42,7 @@ import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -337,7 +338,7 @@ public class ValueObjectRestController {
 	
 	@ApiOperation(value = "deleteObject", 
 				  notes = "deletes the entity object with specified id and entity name")
-	@PostMapping(value = "/{name}/{id}/delete")
+	@DeleteMapping(value = "/{name}/{id}")
 	public void deleteObject(@RequestAttribute(OpenSessionInViewFilter.ATTR_SESSION) Session session,
 							 @PathVariable(C.NAME) String name, 
 			 				 @PathVariable(C.ID) Long id) {
@@ -358,7 +359,7 @@ public class ValueObjectRestController {
 				throw (ResponseStatusException) ex;
 			}
 			else if (ex instanceof ValidationException) {
-				throw new ResponseStatusException(HttpStatus.LOCKED, ex.getMessage());
+				throw new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage());
 			}
 			else {
 				throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
