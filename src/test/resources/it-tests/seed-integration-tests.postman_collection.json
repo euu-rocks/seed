@@ -1,8 +1,9 @@
 {
 	"info": {
-		"_postman_id": "b16f2eb4-9c5f-4df4-8aa1-973566dc8bc2",
+		"_postman_id": "066668d3-ac18-4e3c-aee5-2f9f02d7aa85",
 		"name": "Seed Integration Tests",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15087938"
 	},
 	"item": [
 		{
@@ -319,6 +320,19 @@
 			"item": [
 				{
 					"name": "Import Module",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"API Base Tests - Get Open API Docs - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"protocolProfileBehavior": {
 						"disabledSystemHeaders": {}
 					},
@@ -337,7 +351,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "Seed_Integration_Rest_API_Test_Modul_10-03-2023_11-54-18.seed"
+									"src": "Seed_Integration_Rest_API_Test_Modul.seed"
 								}
 							]
 						},
@@ -356,6 +370,43 @@
 								"rest",
 								"module",
 								"import"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Module List",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"API Base Tests - Get Open API Docs - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/module",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"module"
 							]
 						}
 					},
@@ -732,7 +783,7 @@
 						"auth": {
 							"type": "noauth"
 						},
-						"method": "GET",
+						"method": "POST",
 						"header": [],
 						"url": {
 							"raw": "http://127.0.0.1:8080/seed/rest/job/{{Job_Test01_ID}}/run",
@@ -862,6 +913,101 @@
 			"name": "Value Object Endpoint Tests",
 			"item": [
 				{
+					"name": "Value Object Test01 INSERT Failed",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Get Value Object Test01 List - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(406);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n    \"textfeld\": null\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test01"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Value Object Test01 INSERT Validate",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Get Value Object Test01 List - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n    \"textfeld\": null\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01/validate",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test01",
+								"validate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Value Object Test01 INSERT Textfield",
 					"event": [
 						{
@@ -888,7 +1034,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"janeinfeld\": true,\r\n\r\n    \"textfeld\": \"TEXT01\",\r\n\r\n\r\n    \"textlandfeld\": \"TEST1\\nTEST2\"\r\n  \r\n}"
+							"raw": "{\r\n    \"janeinfeld\": true,\r\n\r\n    \"textfeld\": \"TEXT01\",\r\n\r\n\r\n    \"textlangfeld\": \"TEST1\\nTEST2\"\r\n  \r\n}"
 						},
 						"url": {
 							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01",
@@ -1143,10 +1289,10 @@
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"EntityStatus is changed to 1045\", () => {\r",
+									"pm.test(\"EntityStatus is changed to 1050\", () => {\r",
 									"  const expectedObject = {\r",
 									"    \"entityStatus\": {\r",
-									"        \"id\": 1045\r",
+									"        \"id\": 1050\r",
 									"    },\r",
 									"  };\r",
 									"  pm.expect(pm.response.json()).to.deep.include(expectedObject);\r",
@@ -1171,7 +1317,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01/{{NewObject_Test01_ID}}/status/1045",
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01/{{NewObject_Test01_ID}}/status/1050",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -1187,7 +1333,7 @@
 								"Test01",
 								"{{NewObject_Test01_ID}}",
 								"status",
-								"1045"
+								"1050"
 							]
 						}
 					},
@@ -1220,7 +1366,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"textfeld\": \"Text07\",\r\n\r\n    \"textlandfeld\": \"TEST4\\nTEST5\\nTEST6\"\r\n  \r\n}"
+							"raw": "{\r\n    \"textfeld\": \"Text07\",\r\n\r\n    \"textlangfeld\": \"TEST4\\nTEST5\\nTEST6\"\r\n  \r\n}"
 						},
 						"url": {
 							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01",
@@ -1269,7 +1415,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"janeinfeld\": false,\r\n\r\n    \"textfeld\": \"TEXT02\",\r\n\r\n\r\n    \"textlandfeld\": \"TEST1\\nTEST2\"\r\n  \r\n}"
+							"raw": "{\r\n    \"janeinfeld\": true,\r\n\r\n    \"textfeld\": \"TEXT02\",\r\n\r\n\r\n    \"textlangfeld\": \"TEST1\\nTEST2\"\r\n  \r\n}"
 						},
 						"url": {
 							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01",
@@ -1318,7 +1464,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n\r\n    \"textfeld\": \"TEXT03\",\r\n    \"dezimalzahlfeld\": \"1,456\",\r\n    \"datumfeld\": null,\r\n    \"doublefeld\": null\r\n\r\n\r\n}"
+							"raw": "{\r\n\r\n    \"textfeld\": \"TEXT03\",\r\n    \"dezimalzahlfeld\": \"2.34\",\r\n    \"datumfeld\": null,\r\n    \"doublefeld\": null\r\n\r\n\r\n}"
 						},
 						"url": {
 							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01",
@@ -1367,7 +1513,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n\r\n    \"textfeld\": \"TEXT04\",\r\n    \"dezimalzahlfeld\": null,\r\n    \"datumfeld\": null,\r\n    \"doublefeld\": \"2,55\"\r\n\r\n\r\n}"
+							"raw": "{\r\n\r\n    \"textfeld\": \"TEXT04\",\r\n    \"dezimalzahlfeld\": null,\r\n    \"datumfeld\": null,\r\n    \"doublefeld\": 2.556677\r\n\r\n\r\n}"
 						},
 						"url": {
 							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01",
@@ -1416,7 +1562,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n\r\n    \"textfeld\": \"TEXT05\",\r\n    \"dezimalzahlfeld\": null,\r\n    \"datumfeld\": \"2023-05-06T23:00:00.000+00:00\",\r\n    \"doublefeld\": null\r\n\r\n\r\n}"
+							"raw": "{\r\n\r\n    \"textfeld\": \"TEXT05\",\r\n    \"dezimalzahlfeld\": null,\r\n    \"datumfeld\": \"01.01.2024\",\r\n    \"doublefeld\": null\r\n\r\n\r\n}"
 						},
 						"url": {
 							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01",
@@ -1433,6 +1579,274 @@
 								"rest",
 								"object",
 								"Test01"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Value Object Test01 INSERT DateTime",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Post Value Object Test01 Date - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\r\n    \"textfeld\": \"TEXT06\",\r\n    \"dezimalzahlfeld\": null,\r\n    \"datumzeitfeld\": \"31.12.2023 23:59:59\",\r\n    \"doublefeld\": null\r\n\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test01"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Value Object Test01 INSERT Integerfeld",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Post Value Object Test01 Date - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\r\n    \"textfeld\": \"TEXT07\",\r\n    \"dezimalzahlfeld\": null,\r\n    \"datumzeitfeld\": null,\r\n    \"integerfeld\": 12345678\r\n\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test01"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Value Object Test01 INSERT Longfeld",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Post Value Object Test01 Date - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\r\n    \"textfeld\": \"TEXT08\",\r\n    \"dezimalzahlfeld\": null,\r\n    \"datumzeitfeld\": null,\r\n    \"longfeld\": 1234567890123456789\r\n\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test01"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Value Object Test01 INSERT Referenzfeld",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Post Value Object Test01 Date - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\r\n    \"textfeld\": \"TEXT09\",\r\n    \"dezimalzahlfeld\": null,\r\n    \"datumzeitfeld\": null,\r\n    \"doublefeld\": null,\r\n    \"test02referenzfeld\": {\r\n        \"id\": 1119\r\n    }\r\n\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test01"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Value Object Test01 Count",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Get Value Object Test01 Count - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01/count",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test01",
+								"count"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Value Object Test01 List Chunk",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Get Value Object Test01 Count - Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01/2/4",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test01",
+								"2",
+								"4"
 							]
 						}
 					},
@@ -1515,7 +1929,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"textlandfeld\": \"Text angepasst\"\r\n}"
+							"raw": "{\r\n    \"textlangfeld\": \"Text angepasst\"\r\n}"
 						},
 						"url": {
 							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01/{{NewObject_Test01_ID}}",
@@ -1565,7 +1979,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n\r\n    \"datumfeld\": \"2023-04-05T23:00:00.000+00:00\"\r\n\r\n\r\n}"
+							"raw": "{\r\n\r\n    \"datumfeld\": \"31.12.2023\"\r\n\r\n\r\n}"
 						},
 						"url": {
 							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01/{{NewObject_Test01_ID}}",
@@ -1615,7 +2029,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n \"dezimalzahlfeld\": \"1,2345\"\r\n}"
+							"raw": "{\r\n \"dezimalzahlfeld\": 2.34\r\n}"
 						},
 						"url": {
 							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01/{{NewObject_Test01_ID}}",
@@ -1664,7 +2078,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01/{{NewObject_Test01_ID}}/function/1043",
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01/{{NewObject_Test01_ID}}/function/1048",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -1680,7 +2094,7 @@
 								"Test01",
 								"{{NewObject_Test01_ID}}",
 								"function",
-								"1043"
+								"1048"
 							]
 						}
 					},
@@ -1710,7 +2124,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n\r\n\r\n\r\n\r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01/{{NewObject_Test01_ID}}/transform/{{Entity_Transformation_ID}}",
@@ -1783,7 +2197,7 @@
 					"response": []
 				},
 				{
-					"name": "Value Object Test02 DELETE",
+					"name": "Value Object Test01 DELETE",
 					"event": [
 						{
 							"listen": "test",
@@ -1814,6 +2228,51 @@
 							"mode": "raw",
 							"raw": ""
 						},
+						"url": {
+							"raw": "http://127.0.0.1:8080/seed/rest/object/Test01/{{NewObject_Test01_ID}}",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"seed",
+								"rest",
+								"object",
+								"Test01",
+								"{{NewObject_Test01_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Value Object Test02 DELETE Failed",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Value Object Endpoint Tests - Delte Value Object Test02  - Status code is 405\", function () {\r",
+									"    pm.response.to.have.status(405);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "http://127.0.0.1:8080/seed/rest/object/Test02/{{NewObject_Test02_ID}}",
 							"protocol": "http",
