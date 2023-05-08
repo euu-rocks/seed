@@ -30,6 +30,8 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Version;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.hibernate.Hibernate;
+
 import org.seed.C;
 import org.seed.core.util.Assert;
 
@@ -153,14 +155,15 @@ public abstract class AbstractSystemObject implements SystemObject {
 	
 	public final void copySystemFieldsTo(SystemObject object) {
 		Assert.notNull(object, C.OBJECT);
+		final AbstractSystemObject thisObject = (AbstractSystemObject) Hibernate.unproxy(this);
+		final AbstractSystemObject targetObject = (AbstractSystemObject) object;
 		
-		final AbstractSystemObject other = (AbstractSystemObject) object;
-		other.id = id;
-		other.version = version;
-		other.createdBy = createdBy;
-		other.createdOn = createdOn;
-		other.modifiedBy = modifiedBy;
-		other.modifiedOn = modifiedOn;
+		targetObject.id = thisObject.id;
+		targetObject.version = thisObject.version;
+		targetObject.createdBy = thisObject.createdBy;
+		targetObject.createdOn = thisObject.createdOn;
+		targetObject.modifiedBy = thisObject.modifiedBy;
+		targetObject.modifiedOn = thisObject.modifiedOn;
 	}
 	
 	public final void resetId() {
