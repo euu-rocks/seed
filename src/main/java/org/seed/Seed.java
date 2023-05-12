@@ -58,9 +58,6 @@ public class Seed {
 	
 	public static final String PROP_MODULE_EXT_ROOT_DIR          = "module.external.rootdir";
 	
-	public static final String DEFAULT_REST_FORMAT_DATE			 = "dd.MM.yyyy";
-	public static final String DEFAULT_REST_FORMAT_DATETIME 	 = "dd.MM.yyyy HH:mm:ss";
-	
 	private static ApplicationContext applicationContext;
 	
 	private static LabelProvider labelProvider;

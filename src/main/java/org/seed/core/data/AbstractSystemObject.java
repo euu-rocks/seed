@@ -43,8 +43,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public abstract class AbstractSystemObject implements SystemObject {
 	
 	@Id
-	@SequenceGenerator(name="seqGen", sequenceName="seed_id_seq", initialValue=1000, allocationSize=1)
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seqGen")
+	@SequenceGenerator(name = "seqGen", sequenceName = "seed_id_seq", 
+					   initialValue = 1000, allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seqGen")
 	private Long id;
 	
 	@Version
@@ -155,8 +156,8 @@ public abstract class AbstractSystemObject implements SystemObject {
 	
 	public final void copySystemFieldsTo(SystemObject object) {
 		Assert.notNull(object, C.OBJECT);
-		final AbstractSystemObject thisObject = (AbstractSystemObject) Hibernate.unproxy(this);
-		final AbstractSystemObject targetObject = (AbstractSystemObject) object;
+		final var thisObject = (AbstractSystemObject) Hibernate.unproxy(this);
+		final var targetObject = (AbstractSystemObject) object;
 		
 		targetObject.id = thisObject.id;
 		targetObject.version = thisObject.version;

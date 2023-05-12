@@ -25,7 +25,6 @@ import java.util.TimeZone;
 import org.hibernate.Session;
 
 import org.seed.C;
-import org.seed.Seed;
 import org.seed.core.application.setting.ApplicationSettingService;
 import org.seed.core.application.setting.Setting;
 import org.seed.core.codegen.SourceCode;
@@ -33,6 +32,7 @@ import org.seed.core.codegen.SourceCodeBuilder;
 import org.seed.core.codegen.SourceCodeProvider;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityRepository;
+import org.seed.core.rest.RestHelper;
 import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,8 +61,8 @@ public class EntitySourceCodeProvider implements SourceCodeProvider {
 	private EntitySourceCodeBuilder createBuilder(Entity entity) {
 		final var builder = new EntitySourceCodeBuilder(entity);
 		builder.setTimeZone(getTimeZone());
-		builder.setFormatRestDate(getRestDateFormat());
-		builder.setFormatRestDateTime(getRestDateTimeFormat());
+		builder.setFormatRestDate(RestHelper.getRestDateFormat());
+		builder.setFormatRestDateTime(RestHelper.getRestDateTimeFormat());
 		return builder;
 	}
 	
@@ -71,20 +71,6 @@ public class EntitySourceCodeProvider implements SourceCodeProvider {
 			return settingService.getSetting(Setting.APPLICATION_TIMEZONE);
 		}
 		return TimeZone.getDefault().getID();
-	}
-	
-	private String getRestDateFormat() {
-		if (settingService.hasSetting(Setting.REST_FORMAT_DATE)) {
-			return settingService.getSetting(Setting.REST_FORMAT_DATE);
-		}
-		return Seed.DEFAULT_REST_FORMAT_DATE;
-	}
-	
-	private String getRestDateTimeFormat() {
-		if (settingService.hasSetting(Setting.REST_FORMAT_DATETIME)) {
-			return settingService.getSetting(Setting.REST_FORMAT_DATETIME);
-		}
-		return Seed.DEFAULT_REST_FORMAT_DATETIME;
 	}
 	
 }

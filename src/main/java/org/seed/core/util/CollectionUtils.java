@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -156,6 +157,14 @@ public interface CollectionUtils {
 		return collection != null
 				? subList(collection.stream(), predicate)
 				: Collections.emptyList();
+	}
+	
+	static <V> Map<String, V> toCaseInsensitiveKeyMap(@Nullable Map<String, V> map) {
+		final var caseInsensitiveKeyMap = new TreeMap<String, V>(String.CASE_INSENSITIVE_ORDER);
+		if (map != null) {
+			caseInsensitiveKeyMap.putAll(map);
+		}
+		return caseInsensitiveKeyMap;
 	}
 	
 	static <T> List<T> valueList(@Nullable Map<?,T> map) {

@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -61,6 +62,8 @@ import org.seed.core.entity.NestedEntity;
 import org.seed.core.entity.value.AbstractValueObject;
 import org.seed.core.entity.value.ValueEntity;
 import org.seed.core.util.Assert;
+import org.seed.core.util.ByteArrayJsonSerializer;
+import org.seed.core.util.FileObjectJsonSerializer;
 import org.seed.core.util.MiscUtils;
 import org.seed.core.util.ReferenceJsonSerializer;
 
@@ -255,47 +258,28 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 			addGetterAndSetter(SystemField.ENTITYSTATUS.property);
 		}
 		if (entity.hasFields()) {
-			buildEntityGetterAndSetter();
+			entity.getFields().forEach(field -> 
+				addGetterAndSetter(field.getInternalName()));
 		}
 		if (entity.hasNesteds()) {
-			buildNestedGetterAndSetter();
+			entity.getNesteds().forEach(nested -> {
+				if (nested.isReadonly()) {
+					addGetter(nested.getInternalName());
+				}
+				else {
+					addGetterAndSetter(nested.getInternalName());
+				}
+			});
 		}
 		if (!entity.isGeneric() && entity.hasAllRelations()) {
-			buildRelationGetterAndSetter();
-		}
-	}
-	
-	private void buildEntityGetterAndSetter() {
-		for (EntityField field : entity.getFields()) {
-			if (field.isJsonSerializable()) {
-				addGetterAndSetter(field.getInternalName());
-			}
-			else {
-				addGetterAndSetter(field.getInternalName(), 
-								   newAnnotation(JsonIgnore.class));
-			}
-		}
-	}
-	
-	private void buildNestedGetterAndSetter() {
-		for (NestedEntity nested : entity.getNesteds()) {
-			if (nested.isReadonly()) {
-				addGetter(nested.getInternalName());
-			}
-			else {
-				addGetterAndSetter(nested.getInternalName());
-			}
-		}
-	}
-	
-	private void buildRelationGetterAndSetter() {
-		entity.getAllRelations().forEach(relation -> 
+			entity.getAllRelations().forEach(relation -> 
 				addGetterAndSetter(relation.getInternalName()));
+		}
 	}
 	
 	private void buildNesteds() {
 		for (NestedEntity nested : entity.getNesteds()) {
-			final var annotationParamMap = new HashMap<String, Object>();
+			final var annotationParamMap = new HashMap<String, Object>(8);
 			annotationParamMap.put("mappedBy", quote(nested.getReferenceField().getInternalName()));
 			annotationParamMap.put(C.CASCADE, CascadeType.ALL);
 			annotationParamMap.put(C.FETCH, FetchType.LAZY);
@@ -320,7 +304,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 				createJoinColumnAnnotation(relation.getInverseJoinColumnName())	
 			};
 			
-			final var annotationParamMapJoin = new HashMap<String, Object>();
+			final var annotationParamMapJoin = new HashMap<String, Object>(8);
 			annotationParamMapJoin.put(C.NAME, quote(descendantRelation.getJoinTableName()));
 			annotationParamMapJoin.put("joinColumns", joinColumns);
 			annotationParamMapJoin.put("inverseJoinColumns", inverseJoinColumns);
@@ -453,35 +437,53 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	}
 	
 	private List<AnnotationMetadata> getFieldAnnotations(EntityField field) {
-		final var annotations = new ArrayList<AnnotationMetadata>(6);
+		final var annotations = new ArrayList<AnnotationMetadata>(8);
 		if (field.getColumnName() != null) {
 			annotations.add(newAnnotation(Column.class, C.NAME, quote(field.getColumnName().toLowerCase())));
 		}
 		if (field.isCalculated()) {
 			annotations.add(newAnnotation(Formula.class, field.getFormula()));
 		}
-		if (field.getType().isDate()) {
-			final var annotationParamMap = new HashMap<String, Object>(4);
-			annotationParamMap.put("pattern", quote(formatRestDate));
-			annotationParamMap.put("timezone", quote(timeZone));
-			annotations.add(newAnnotation(JsonFormat.class, annotationParamMap));
-		}
-		else if (field.getType().isDateTime()) {
-			final var annotationParamMap = new HashMap<String, Object>(4);
-			annotationParamMap.put("pattern", quote(formatRestDateTime));
-			annotationParamMap.put("timezone", quote(timeZone));
-			annotations.add(newAnnotation(JsonFormat.class, annotationParamMap));
-		}
-		else if (field.getType().isReference() || field.getType().isFile()) {
-			addImport(ReferenceJsonSerializer.class);
-			final var annotationParamMap = new HashMap<String, Object>(4);
-			annotationParamMap.put(C.FETCH, FetchType.LAZY);
-			if (field.getType().isFile()) {
+		
+		Map<String, Object> annotationParamMap;
+		switch (field.getType()) {
+			case BINARY:
+				addImport(ByteArrayJsonSerializer.class);
+				annotations.add(newAnnotation(JsonSerialize.class, "using", "ByteArrayJsonSerializer.class"));
+				break;
+				
+			case DATE:
+				annotationParamMap = new HashMap<>(4);
+				annotationParamMap.put("pattern", quote(formatRestDate));
+				annotationParamMap.put("timezone", quote(timeZone));
+				annotations.add(newAnnotation(JsonFormat.class, annotationParamMap));
+				break;
+				
+			case DATETIME:
+				annotationParamMap = new HashMap<>(4);
+				annotationParamMap.put("pattern", quote(formatRestDateTime));
+				annotationParamMap.put("timezone", quote(timeZone));
+				annotations.add(newAnnotation(JsonFormat.class, annotationParamMap));
+				break;
+				
+			case FILE:
+				addImport(FileObjectJsonSerializer.class);
+				annotationParamMap = new HashMap<>(4);
+				annotationParamMap.put(C.FETCH, FetchType.LAZY);
 				annotationParamMap.put(C.CASCADE, CascadeType.ALL);
-			}
-			annotations.add(newAnnotation(ManyToOne.class, annotationParamMap));
-			annotations.add(newAnnotation(JoinColumn.class, C.NAME, quote(field.getInternalName())));
-			annotations.add(newAnnotation(JsonSerialize.class, "using", "ReferenceJsonSerializer.class"));
+				annotations.add(newAnnotation(ManyToOne.class, annotationParamMap));
+				annotations.add(newAnnotation(JoinColumn.class, C.NAME, quote(field.getInternalName())));
+				annotations.add(newAnnotation(JsonSerialize.class, "using", "FileObjectJsonSerializer.class"));
+				break;
+				
+			case REFERENCE:
+				addImport(ReferenceJsonSerializer.class);
+				annotations.add(newAnnotation(ManyToOne.class, C.FETCH, FetchType.LAZY));
+				annotations.add(newAnnotation(JoinColumn.class, C.NAME, quote(field.getInternalName())));
+				annotations.add(newAnnotation(JsonSerialize.class, "using", "ReferenceJsonSerializer.class"));
+				break;
+				
+			default:	// no annotation
 		}
 		return annotations;
 	}

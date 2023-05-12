@@ -19,43 +19,48 @@ package org.seed.core.util;
 
 import java.io.IOException;
 
-import org.seed.core.data.SystemObject;
+import org.seed.core.data.FileObject;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
-public class ReferenceJsonSerializer extends StdSerializer<SystemObject> {
+public class FileObjectJsonSerializer extends StdSerializer<FileObject> {
 	
-	private static final long serialVersionUID = -597156653430418805L;
+	private static final long serialVersionUID = 5371512164413305793L;
 	
-	private class ReferenceInfo {
+	private class FileObjectInfo {
 		
-		private final SystemObject object;
-		
-		private ReferenceInfo(SystemObject object) {
-			this.object = object;
+		private final FileObject fileObject;
+
+		private FileObjectInfo(FileObject fileObject) {
+			this.fileObject = fileObject;
 		}
 		
 		@SuppressWarnings("unused")
-		public Long getId() {
-			return object.getId();
+		public String getName() {
+			return fileObject.getName();
+		}
+		
+		@SuppressWarnings("unused")
+		public String getContentType() {
+			return fileObject.getContentType();
+		}
+		
+		@SuppressWarnings("unused")
+		public int getSize() {
+			return fileObject.getContent().length;
 		}
 	}
-	
-	protected ReferenceJsonSerializer() {
-		this(null);
-	}
-	
-	protected ReferenceJsonSerializer(Class<SystemObject> typeClass) {
-		super(typeClass);
+
+	protected FileObjectJsonSerializer() {
+		super(FileObject.class);
 	}
 
 	@Override
-	public void serialize(SystemObject value, JsonGenerator generator, 
-						  SerializerProvider provider) throws IOException {
+	public void serialize(FileObject value, JsonGenerator generator, SerializerProvider provider) throws IOException {
 		if (value != null) {
-			generator.writeObject(new ReferenceInfo(value));
+			generator.writeObject(new FileObjectInfo(value));
 		}
 		else {
 			generator.writeNull();

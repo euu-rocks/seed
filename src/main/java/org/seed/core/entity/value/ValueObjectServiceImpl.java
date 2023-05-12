@@ -19,9 +19,6 @@ package org.seed.core.entity.value;
 
 import static org.seed.core.util.CollectionUtils.*;
 
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -36,9 +33,6 @@ import org.hibernate.Transaction;
 
 import org.seed.C;
 import org.seed.InternalException;
-import org.seed.Seed;
-import org.seed.core.application.setting.ApplicationSettingService;
-import org.seed.core.application.setting.Setting;
 import org.seed.core.data.AbstractSystemEntity;
 import org.seed.core.data.FieldAccess;
 import org.seed.core.data.QueryCursor;
@@ -65,12 +59,12 @@ import org.seed.core.entity.transform.Transformer;
 import org.seed.core.entity.value.event.ValueObjectEvent;
 import org.seed.core.entity.value.event.ValueObjectEventHandler;
 import org.seed.core.entity.value.event.ValueObjectFunctionContext;
+import org.seed.core.rest.RestHelper;
 import org.seed.core.user.User;
 import org.seed.core.user.UserService;
 import org.seed.core.util.Assert;
 import org.seed.core.util.ExceptionUtils;
 import org.seed.core.util.MiscUtils;
-import org.seed.core.util.NameUtils;
 import org.seed.core.util.Tupel;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,9 +78,6 @@ public class ValueObjectServiceImpl
 	
 	// dummy object; only last part of package name is important ("value")
 	private static final SystemEntity VALUE_ENTITY = new AbstractSystemEntity() {};
-	
-	@Autowired
-	private ApplicationSettingService settingService;
 	
 	@Autowired
 	private EntityService entityService;
@@ -209,9 +200,8 @@ public class ValueObjectServiceImpl
 		try {
 			tx = session.beginTransaction();
 			final ValueObject object = repository.createInstance(entity, session, null);
-			if (setObjectValues(session, entity, object, getUser(session), valueMap)) {
-				saveObject(object, session, null);
-			}
+			setObjectValues(session, entity, object, getUser(session), valueMap);
+			saveObject(object, session, null);
 			tx.commit();
 			return object;
 		}
@@ -541,7 +531,10 @@ public class ValueObjectServiceImpl
 			if (tx != null) {
 				tx.rollback();
 			}
-			throw ex;
+			if (ex instanceof ValidationException) {
+				throw (ValidationException) ex;
+			}
+			throw new InternalException(ex);
 		}
 	}
 	
@@ -550,14 +543,13 @@ public class ValueObjectServiceImpl
 		final ValueObject object = objectId != null
 				? repository.get(session, entity, objectId)
 				: repository.createInstance(entity, session, null);
-		if (setObjectValues(session, entity, object, getUser(session), valueMap)) {
-			try {
-				validator.validateSave(session, object);
-			}
-			catch (ValidationException vex) {
-				return convertedList(vex.getErrors(), 
-									 error -> MiscUtils.removeHTMLTags(MiscUtils.formatValidationError(error)));
-			}
+		try {
+			setObjectValues(session, entity, object, getUser(session), valueMap);
+			validator.validateSave(session, object);
+		}
+		catch (ValidationException vex) {
+			return convertedList(vex.getErrors(), 
+								 error -> MiscUtils.removeHTMLTags(MiscUtils.formatValidationError(error)));
 		}
 		return Collections.emptyList();
 	}
@@ -580,9 +572,7 @@ public class ValueObjectServiceImpl
 				saveObject(object, session, null);
 				
 				if (deletedFiles != null) {
-					for (FileObject file : deletedFiles) {
-						session.delete(file);
-					}
+					deletedFiles.forEach(session::delete);
 				}
 				tx.commit();
 			}
@@ -594,14 +584,15 @@ public class ValueObjectServiceImpl
 				if (tx != null) {
 					tx.rollback();
 				}
-				if (ExceptionUtils.isUniqueConstraintViolation(ex)) {
+				if (ex instanceof ValidationException) {
+					throw (ValidationException) ex;
+				}
+				else if (ExceptionUtils.isUniqueConstraintViolation(ex)) {
 					final Tupel<String, String> details = ExceptionUtils.getUniqueConstraintDetails(ex);
 					throw new ValidationException(
 							new ValidationError(null, "val.ambiguous.unique", details.x, details.y));
 				}
-				else {
-					throw ex;
-				}
+				throw new InternalException(ex);
 			}
 		}
 	}
@@ -808,15 +799,17 @@ public class ValueObjectServiceImpl
 	}
 	
 	@SuppressWarnings("unchecked")
-	private boolean setObjectValues(Session session, Entity entity, ValueObject object, User user, Map<String, Object> valueMap) {
+	private boolean setObjectValues(Session session, Entity entity, ValueObject object, 
+									User user, Map<String, Object> valueMap) throws ValidationException {
 		if (!entity.checkPermissions(user, EntityAccess.WRITE)) {
 			return false;
 		}
 		
 		boolean isModified = false;
+		final var caseInsensitiveKeyMap = toCaseInsensitiveKeyMap(valueMap);
 		if (entity.hasAllFields()) {
 			for (EntityField field : entity.getAllFields()) {
-				if (setObjectFieldValue(session, field, object, user, valueMap)) {
+				if (setObjectFieldValue(session, field, object, user, caseInsensitiveKeyMap)) {
 					isModified = true;
 				}
 			}
@@ -824,7 +817,7 @@ public class ValueObjectServiceImpl
 		if (entity.hasNesteds()) {
 			for (NestedEntity nested : entity.getNesteds()) {
 				// get nested maps
-				final var listNestedMaps = (List<Map<String, Object>>) valueMap.get(nested.getInternalName());
+				final var listNestedMaps = (List<Map<String, Object>>) caseInsensitiveKeyMap.get(nested.getInternalName());
 				if (!ObjectUtils.isEmpty(listNestedMaps) && 
 					setNestedObjectValues(session, nested, object, user, listNestedMaps)) {
 					isModified = true;
@@ -834,28 +827,25 @@ public class ValueObjectServiceImpl
 		return isModified;
 	}
 	
-	@SuppressWarnings("unchecked")
-	private boolean setObjectFieldValue(Session session, EntityField field, ValueObject object, User user, Map<String, Object> valueMap) {
+	private boolean setObjectFieldValue(Session session, EntityField field, ValueObject object, 
+										User user, Map<String, Object> valueMap) throws ValidationException {
 		if (field.isJsonSerializable() && !field.getType().isAutonum() && 
 			valueMap.containsKey(field.getInternalName()) &&
 			field.getEntity().checkFieldAccess(field, user, object.getEntityStatus(), FieldAccess.WRITE)) {
 			
 			Object value = valueMap.get(field.getInternalName());
 			if (value != null && field.getType().isReference()) {
-				Assert.state(value instanceof Map, "value of '" + field.getInternalName() + "' is not a map");
-				final var objectMap = (Map<String, Object>) value;
-				final Integer referenceId = ((Number) objectMap.get(C.ID)).intValue();
-				Assert.stateAvailable(referenceId, "reference id of " + field.getInternalName());
-				value = getObject(session, field.getReferenceEntity(), referenceId.longValue());
+				final Long referenceId = RestHelper.parseReferenceId(value, field.getInternalName());
+				value = getObject(session, field.getReferenceEntity(), referenceId);
 			}
-			objectAccess.setValue(object, field, formatFieldValue(field, value));
+			objectAccess.setValue(object, field, parseFieldValue(field, value));
 			return true;
 		}
 		return false;
 	}
 	
 	private boolean setNestedObjectValues(Session session, NestedEntity nested, ValueObject object, 
-										  User user, List<Map<String, Object>> listNestedMaps) {
+										  User user, List<Map<String, Object>> listNestedMaps) throws ValidationException {
 		boolean isModified = false;
 		// get existing nested value objects as map
 		final var nestedObjectMap = convertedMap(objectAccess.getNestedObjects(object, nested), 
@@ -925,135 +915,35 @@ public class ValueObjectServiceImpl
 		}
 	}
 	
-	private Object formatFieldValue(EntityField field, Object value) {
+	private static Object parseFieldValue(EntityField field, Object value) throws ValidationException {
 		if (value != null) {
 			switch (field.getType()) {
 				case BOOLEAN:
-					return formatBooleanValue(value);
+					return RestHelper.parseBooleanValue(value, field.getInternalName());
 				
 				case DATE:
-					return formatDateValue(value);
+					return RestHelper.parseDateValue(value, field.getInternalName());
 					
 				case DATETIME:
-					return formatDateTimeValue(value);
+					return RestHelper.parseDateTimeValue(value, field.getInternalName());
 					
 				case DECIMAL:
-					return formatDecimalValue(value);
+					return RestHelper.parseDecimalValue(value, field.getInternalName());
 				
 				case DOUBLE:
-					return formatDoubleValue(value);
+					return RestHelper.parseDoubleValue(value, field.getInternalName());
 					
 				case INTEGER:
-					return formatIntegerValue(value);
+					return RestHelper.parseIntegerValue(value, field.getInternalName());
 					
 				case LONG:
-					return formatLongValue(value);
+					return RestHelper.parseLongValue(value, field.getInternalName());
 					
 				default:
 					// do nothing
 			}
 		}
 		return value;
-	}
-	
-	private Object formatBooleanValue(Object value) {
-		if (value instanceof String) {
-			return NameUtils.booleanValue(value.toString());
-		}
-		else if (value instanceof Number) {
-			return ((Number) value).intValue() > 0;
-		}
-		return value;
-	}
-	
-	private Object formatDateValue(Object value) {
-		if (value instanceof String) {
-			try {
-				return new SimpleDateFormat(getRestDateFormat()).parseObject(value.toString());
-			} 
-			catch (ParseException e) {
-				throw new InternalException(e);
-			}
-		}
-		return value;
-	}
-	
-	private Object formatDateTimeValue(Object value) {
-		if (value instanceof String) {
-			try {
-				return new SimpleDateFormat(getRestDateTimeFormat()).parseObject(value.toString());
-			} 
-			catch (ParseException e) {
-				throw new InternalException(e);
-			}
-		}
-		return value;
-	}
-	
-	private Object formatDecimalValue(Object value) {
-		if (value instanceof BigDecimal) {
-			return value;
-		}
-		else if (value instanceof Number) {
-			return new BigDecimal(((Number) value).toString());
-		}
-		else if (value instanceof String) {
-			return new BigDecimal(value.toString());
-		}
-		return value;
-	}
-	
-	private Object formatDoubleValue(Object value) {
-		if (value instanceof Double) {
-			return value;
-		}
-		else if (value instanceof Number) {
-			return ((Number) value).doubleValue();
-		}
-		else if (value instanceof String) {
-			return Double.parseDouble(value.toString());
-		}
-		return value;
-	}
-	
-	private Object formatIntegerValue(Object value) {
-		if (value instanceof Integer) {
-			return value;
-		}
-		else if (value instanceof Number) {
-			return ((Number) value).intValue();
-		}
-		else if (value instanceof String) {
-			return Integer.parseInt(value.toString());
-		}
-		return value;
-	}
-	
-	private Object formatLongValue(Object value) {
-		if (value instanceof Long) {
-			return value;
-		}
-		else if (value instanceof Number) {
-			return ((Number) value).longValue();
-		}
-		else if (value instanceof String) {
-			return Long.parseLong(value.toString());
-		}
-		return value;
-	}
-	
-	private String getRestDateFormat() {
-		if (settingService.hasSetting(Setting.REST_FORMAT_DATE)) {
-			return settingService.getSetting(Setting.REST_FORMAT_DATE);
-		}
-		return Seed.DEFAULT_REST_FORMAT_DATE;
-	}
-	
-	private String getRestDateTimeFormat() {
-		if (settingService.hasSetting(Setting.REST_FORMAT_DATETIME)) {
-			return settingService.getSetting(Setting.REST_FORMAT_DATETIME);
-		}
-		return Seed.DEFAULT_REST_FORMAT_DATETIME;
 	}
 	
 }

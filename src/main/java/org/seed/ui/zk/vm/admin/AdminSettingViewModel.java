@@ -24,9 +24,9 @@ import java.util.Map;
 import javax.persistence.OptimisticLockException;
 
 import org.seed.C;
-import org.seed.Seed;
 import org.seed.core.application.setting.Setting;
 import org.seed.core.data.ValidationException;
+import org.seed.core.rest.RestHelper;
 import org.seed.ui.zk.vm.AbstractApplicationViewModel;
 
 import org.zkoss.bind.annotation.BindingParam;
@@ -74,11 +74,11 @@ public class AdminSettingViewModel extends AbstractApplicationViewModel {
 	}
 	
 	public String getDefaultRestDateFormat() {
-		return Seed.DEFAULT_REST_FORMAT_DATE;
+		return RestHelper.DEFAULT_REST_FORMAT_DATE;
 	}
 	
 	public String getDefaultRestDateTimeFormat() {
-		return Seed.DEFAULT_REST_FORMAT_DATETIME;
+		return RestHelper.DEFAULT_REST_FORMAT_DATETIME;
 	}
 	
 	@Init

@@ -19,43 +19,36 @@ package org.seed.core.util;
 
 import java.io.IOException;
 
-import org.seed.core.data.SystemObject;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
-public class ReferenceJsonSerializer extends StdSerializer<SystemObject> {
+public class ByteArrayJsonSerializer extends StdSerializer<byte[]> { 
 	
-	private static final long serialVersionUID = -597156653430418805L;
+	private static final long serialVersionUID = -1836195036111672703L;
 	
-	private class ReferenceInfo {
+	private class ByteArrayInfo {
 		
-		private final SystemObject object;
+		private final byte[] bytes;
 		
-		private ReferenceInfo(SystemObject object) {
-			this.object = object;
+		private ByteArrayInfo(byte[] bytes)  {
+			this.bytes = bytes;
 		}
 		
 		@SuppressWarnings("unused")
-		public Long getId() {
-			return object.getId();
+		public int getSize() {
+			return bytes.length;
 		}
 	}
-	
-	protected ReferenceJsonSerializer() {
-		this(null);
-	}
-	
-	protected ReferenceJsonSerializer(Class<SystemObject> typeClass) {
-		super(typeClass);
-	}
 
+	protected ByteArrayJsonSerializer() {
+		super(byte[].class);
+	}
+	
 	@Override
-	public void serialize(SystemObject value, JsonGenerator generator, 
-						  SerializerProvider provider) throws IOException {
+	public void serialize(byte[] value, JsonGenerator generator, SerializerProvider provider) throws IOException {
 		if (value != null) {
-			generator.writeObject(new ReferenceInfo(value));
+			generator.writeObject(new ByteArrayInfo(value));
 		}
 		else {
 			generator.writeNull();

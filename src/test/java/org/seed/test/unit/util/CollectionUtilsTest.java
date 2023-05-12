@@ -260,6 +260,23 @@ class CollectionUtilsTest {
 		assertSame(3, CollectionUtils.valueList(map).size());
 	}
 	
+	@Test
+	void testToCaseInsensitiveKeyMap() {
+		final Map<String,String> map = new HashMap<>();
+		assertNotNull(CollectionUtils.toCaseInsensitiveKeyMap(null));
+		assertNotNull(CollectionUtils.toCaseInsensitiveKeyMap(map));
+		assertTrue(CollectionUtils.toCaseInsensitiveKeyMap(map).isEmpty());
+		
+		map.put("a", "1");
+		map.put("B", "2");
+		
+		assertFalse(CollectionUtils.toCaseInsensitiveKeyMap(map).isEmpty());
+		assertEquals("1", CollectionUtils.toCaseInsensitiveKeyMap(map).get("A"));
+		assertEquals("1", CollectionUtils.toCaseInsensitiveKeyMap(map).get("a"));
+		assertEquals("2", CollectionUtils.toCaseInsensitiveKeyMap(map).get("b"));
+		assertEquals("2", CollectionUtils.toCaseInsensitiveKeyMap(map).get("B"));
+	}
+	
 	class Wrapper {
 		String string;
 		
