@@ -106,6 +106,7 @@ public final class C {
 	public static final String USER             = "user";
 	public static final String USERGROUP        = "userGroup";
 	public static final String USERNAME         = "username";
+	public static final String USING			= "using";
 	public static final String VALUE            = "value";
 	public static final String VIEW             = "view";
 	

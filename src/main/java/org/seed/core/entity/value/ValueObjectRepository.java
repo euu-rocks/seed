@@ -217,12 +217,6 @@ public class ValueObjectRepository {
 		return MiscUtils.castList(session.byMultipleIds(entityClass).multiLoad(idList));
 	}
 	
-	boolean exist(Entity entity, @Nullable Filter filter) {
-		try (Session session = getSession()) {
-			return exist(session, entity, filter);
-		}
-	}
-	
 	boolean exist(Session session, Entity entity, @Nullable Filter filter) {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(entity, C.ENTITY);
@@ -443,6 +437,18 @@ public class ValueObjectRepository {
 		return entity;
 	}
 	
+	protected Class<?> getEntityClass(Session session, Entity entity) {
+		Assert.notNull(session, C.SESSION);
+		Assert.notNull(entity, C.ENTITY);
+		Assert.state(!entity.isNew(), "entity is new");
+		
+		// entity reload is necessary because entity could be renamed but not saved yet
+		entity = getEntity(entity.getId(), session);
+		final Class<?> entityClass = codeManager.getGeneratedClass(entity);
+		Assert.stateAvailable(entityClass, "class for entity: " + entity.getName());
+		return entityClass;
+	}
+	
 	protected String getIdentifier(ValueObject object) {
 		return getIdentifier(object, null);
 	}
@@ -478,34 +484,30 @@ public class ValueObjectRepository {
 		pattern = pattern.replace("{entity}", entity.getName());
 		if (entity.hasAllFields()) {
 			for (EntityField field : entity.getAllFields()) {
-				final String key = '{' + field.getName() + '}';
-				if (pattern.contains(key)) {
-					Object value = objectAccess.getValue(object, field);
-					if (value != null && field.getType().isReference()) {
-						value = getIdentifier((ValueObject) value);
-					}
-					// replace key -> value
-					pattern = pattern.replace(key, value != null ? value.toString() : "");
-				}
+				pattern = resolveFieldPattern(field, pattern, object);
 			}
 		}
-		return StringUtils.hasText(pattern) 
-				? pattern 
-				: object.isNew() ? null : "";
+		if (StringUtils.hasText(pattern)) {
+			return pattern;
+		}
+		else {
+			return object.isNew() ? null : "";
+		}
 	}
 	
-	protected Class<?> getEntityClass(Session session, Entity entity) {
-		Assert.notNull(session, C.SESSION);
-		Assert.notNull(entity, C.ENTITY);
-		Assert.state(!entity.isNew(), "entity is new");
-		
-		// entity reload is necessary because entity could be renamed but not saved yet
-		entity = getEntity(entity.getId(), session);
-		final Class<?> entityClass = codeManager.getGeneratedClass(entity);
-		Assert.stateAvailable(entityClass, "class for entity: " + entity.getName());
-		return entityClass;
+	private String resolveFieldPattern(EntityField field, String pattern, ValueObject object) {
+		final String key = '{' + field.getName() + '}';
+		if (pattern.contains(key)) {
+			Object value = objectAccess.getValue(object, field);
+			if (value != null && field.getType().isReference()) {
+				value = getIdentifier((ValueObject) value);
+			}
+			// replace key -> value
+			pattern = pattern.replace(key, value != null ? value.toString() : "");
+		}
+		return pattern;
 	}
-	
+			
 	private static Set<NestedEntity> getNestedEntities(Filter filter) {
 		Assert.notNull(filter, C.FILTER);
 		
@@ -593,12 +595,6 @@ public class ValueObjectRepository {
 			final Long totalSize = querySingleResult(session, countQuery);
 			final var query = buildQuery(session, entity, null);
 			return new QueryCursor<>(query, totalSize.intValue(), chuckSize);
-		}
-	}
-	
-	QueryCursor<ValueObject> createCursor(Entity entity, @Nullable Filter filter, int chuckSize, Sort ...sort) {
-		try (Session session = getSession()) {
-			return createCursor(session, entity, filter, chuckSize, sort);
 		}
 	}
 	

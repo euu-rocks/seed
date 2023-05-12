@@ -218,7 +218,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 		addMember(SystemField.ENTITYSTATUS.property, newTypeClass(EntityStatus.class), 
 				  newAnnotation(JoinColumn.class, C.NAME, quote(SystemField.ENTITYSTATUS.columName)),
 				  newAnnotation(ManyToOne.class, C.FETCH, FetchType.LAZY),
-				  newAnnotation(JsonSerialize.class, "using", "ReferenceJsonSerializer.class"));
+				  newAnnotation(JsonSerialize.class, C.USING, "ReferenceJsonSerializer.class"));
 	}
 	
 	private void buildUidField() {
@@ -449,7 +449,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 		switch (field.getType()) {
 			case BINARY:
 				addImport(ByteArrayJsonSerializer.class);
-				annotations.add(newAnnotation(JsonSerialize.class, "using", "ByteArrayJsonSerializer.class"));
+				annotations.add(newAnnotation(JsonSerialize.class, C.USING, "ByteArrayJsonSerializer.class"));
 				break;
 				
 			case DATE:
@@ -473,19 +473,19 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 				annotationParamMap.put(C.CASCADE, CascadeType.ALL);
 				annotations.add(newAnnotation(ManyToOne.class, annotationParamMap));
 				annotations.add(newAnnotation(JoinColumn.class, C.NAME, quote(field.getInternalName())));
-				annotations.add(newAnnotation(JsonSerialize.class, "using", "FileObjectJsonSerializer.class"));
+				annotations.add(newAnnotation(JsonSerialize.class, C.USING, "FileObjectJsonSerializer.class"));
 				break;
 				
 			case REFERENCE:
 				addImport(ReferenceJsonSerializer.class);
 				annotations.add(newAnnotation(ManyToOne.class, C.FETCH, FetchType.LAZY));
 				annotations.add(newAnnotation(JoinColumn.class, C.NAME, quote(field.getInternalName())));
-				annotations.add(newAnnotation(JsonSerialize.class, "using", "ReferenceJsonSerializer.class"));
+				annotations.add(newAnnotation(JsonSerialize.class, C.USING, "ReferenceJsonSerializer.class"));
 				break;
 				
 			default:	// no annotation
 		}
 		return annotations;
 	}
-
+	
 }
