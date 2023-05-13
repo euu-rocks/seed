@@ -570,6 +570,17 @@ public class EntityMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
+	public EntityField getFieldByName(String fieldName) {
+		Assert.notNull(fieldName, "field name");
+		EntityField field = null;
+		if (genericEntity != null) {
+			field = genericEntity.getFieldByName(fieldName);
+		}
+		return field != null ? field : 
+			firstMatch(getFields(), fld -> fieldName.equalsIgnoreCase(fld.getInternalName()));
+	}
+	
+	@Override
 	public EntityStatus getStatusById(Long id) {
 		return getObjectById(getStatusList(), id);
 	}

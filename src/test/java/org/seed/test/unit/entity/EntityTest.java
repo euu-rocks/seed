@@ -643,6 +643,20 @@ class EntityTest {
 	}
 	
 	@Test
+	void testGetFieldByName() {
+		final Entity entity = new EntityMetadata();
+		final EntityField field = new EntityField();
+		field.setName("other");
+		entity.addField(field);
+		
+		assertNull(entity.getFieldByName("test"));
+		
+		field.setName("test");
+		
+		assertSame(field, entity.getFieldByName("test"));
+	}
+	
+	@Test
 	void testGetFieldGroupById() {
 		final Entity entity = new EntityMetadata();
 		final EntityFieldGroup fieldGroup = new EntityFieldGroup();

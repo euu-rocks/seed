@@ -17,6 +17,7 @@
  */
 package org.seed.core.entity.value;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -25,10 +26,13 @@ import org.hibernate.Transaction;
 
 import org.seed.C;
 import org.seed.core.config.OpenSessionInViewFilter;
+import org.seed.core.data.FieldAccess;
+import org.seed.core.data.FileObject;
 import org.seed.core.data.QueryCursor;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityAccess;
+import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityFunction;
 import org.seed.core.entity.EntityService;
 import org.seed.core.entity.EntityStatus;
@@ -41,7 +45,12 @@ import org.seed.core.user.UserService;
 import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -212,6 +221,22 @@ public class ValueObjectRestController {
 		}
 	}
 	
+	@GetMapping(value = "/{name}/{id}/content/{fieldname}")
+	public ResponseEntity<?> getContent(@RequestAttribute(OpenSessionInViewFilter.ATTR_SESSION) Session session,
+			 							@PathVariable(C.NAME) String name, 
+			 							@PathVariable(C.ID) Long id,
+			 							@PathVariable("fieldname") String fieldName) {
+		return stream(session, name, id, fieldName, false);
+	}
+	
+	@GetMapping(value = "/{name}/{id}/file/{fieldname}")
+	public ResponseEntity<?> getFile(@RequestAttribute(OpenSessionInViewFilter.ATTR_SESSION) Session session,
+			 						 @PathVariable(C.NAME) String name, 
+			 						 @PathVariable(C.ID) Long id,
+			 						 @PathVariable("fieldname") String fieldName) {
+		return stream(session, name, id, fieldName, true);
+	}
+	
 	@ApiOperation(value = "saveObject", 
 				  notes = "updates an entity object with specified name and id based on value map")
 	@PostMapping(value = "/{name}/{id}")
@@ -367,6 +392,40 @@ public class ValueObjectRestController {
 		}
 	}
 	
+	private ResponseEntity<?> stream(Session session, String name, Long id, String fieldName, boolean download) {
+		final Entity entity = getEntity(session, name);
+		final EntityField field = getEntityField(session, name, fieldName);
+		if (!field.getType().isFile()) {
+			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE);
+		}
+		final ValueObject object = getObjectByNameAndId(session, name, id);
+		final User user = getUser(session);
+		checkFieldAccess(entity, field, object, user, FieldAccess.READ);
+		
+		final FileObject file = service.getFieldContent(object, field);
+		if (file == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "no file available");
+		}
+		
+		final BodyBuilder builder = ResponseEntity.ok();
+		if (download) {
+			builder.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
+				   .contentType(MediaType.APPLICATION_OCTET_STREAM);
+		}
+		else {
+			builder.contentType(MediaType.parseMediaType(file.getContentType()));
+		}
+		return builder.body(new InputStreamResource(new ByteArrayInputStream(file.getContent())));
+	}
+	
+	private EntityField getEntityField(Session session, String name, String fieldName) {
+		final EntityField field = getEntity(session, name).getFieldByName(fieldName);
+		if (field == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, C.FIELD + ' ' + fieldName);
+		}
+		return field;
+	}
+	
 	private EntityFunction getFunction(Session session, String name, Long functionId) {
 		final EntityFunction function = getEntity(session, name).getFunctionById(functionId);
 		if (function == null) {
@@ -464,6 +523,12 @@ public class ValueObjectRestController {
 	private void checkEntityAccess(Session session, Entity entity, EntityAccess access) {
 		if (!entity.checkPermissions(getUser(session), access)) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, entity.getName());
+		}
+	}
+	
+	private void checkFieldAccess(Entity entity, EntityField field, ValueObject object, User user, FieldAccess access) {
+		if (!entity.checkFieldAccess(field, user, object.getEntityStatus(), access)) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, entity.getName() + '.' + field.getInternalName());
 		}
 	}
 	

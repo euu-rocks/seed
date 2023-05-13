@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.Nullable;
@@ -347,7 +346,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		if (annotation.hasParameters()) {
 			buf.append('(');
 			boolean first = true;
-			for (Entry<String, Object> entry : annotation.parameterMap.entrySet()) {
+			for (var entry : annotation.parameterMap.entrySet()) {
 				if (first) {
 					first = false;
 				}

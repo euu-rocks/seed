@@ -99,6 +99,8 @@ public interface Entity
 	
 	EntityField getFieldByUid(String uid);
 	
+	EntityField getFieldByName(String fieldName);
+	
 	EntityField findFieldByUid(String uid); // search in nestends too
 	
 	EntityField findAutonumField();

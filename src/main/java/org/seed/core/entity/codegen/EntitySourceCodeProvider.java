@@ -61,8 +61,12 @@ public class EntitySourceCodeProvider implements SourceCodeProvider {
 	private EntitySourceCodeBuilder createBuilder(Entity entity) {
 		final var builder = new EntitySourceCodeBuilder(entity);
 		builder.setTimeZone(getTimeZone());
-		builder.setFormatRestDate(RestHelper.getRestDateFormat());
-		builder.setFormatRestDateTime(RestHelper.getRestDateTimeFormat());
+		builder.setFormatRestDate(settingService.hasSetting(Setting.REST_FORMAT_DATE)
+									? settingService.getSetting(Setting.REST_FORMAT_DATE)
+									: RestHelper.DEFAULT_REST_FORMAT_DATE);
+		builder.setFormatRestDateTime(settingService.hasSetting(Setting.REST_FORMAT_DATETIME)
+										? settingService.getSetting(Setting.REST_FORMAT_DATETIME)
+										: RestHelper.DEFAULT_REST_FORMAT_DATETIME);
 		return builder;
 	}
 	

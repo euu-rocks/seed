@@ -103,6 +103,8 @@ public interface ValueObjectService extends EntityUsage {
 	
 	void removeRelation(ValueObject object, EntityRelation relation, ValueObject relatedObject);
 	
+	<T> T getFieldContent(ValueObject object, EntityField field);
+	
 	List<FileObject> getFileObjects(ValueObject object, Session session);
 	
 	void preallocateFileObjects(ValueObject object, Session session);

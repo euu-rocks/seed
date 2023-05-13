@@ -732,6 +732,15 @@ public class ValueObjectServiceImpl
 		objectList.sort((ValueObject vo1, ValueObject vo2) -> getIdentifier(vo1).compareTo(getIdentifier(vo2)));
 	}
 	
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T getFieldContent(ValueObject object, EntityField field) {
+		if (field.getType().isFile()) {
+			return (T) objectAccess.getValue(object, field);
+		}
+		return null;
+	}
+	
 	@Override
 	public ValueObject removeInvisibleFields(ValueObject object, Entity entity, User user) {
 		Assert.notNull(entity, C.ENTITY);
