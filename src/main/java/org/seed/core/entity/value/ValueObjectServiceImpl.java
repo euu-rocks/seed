@@ -358,9 +358,10 @@ public class ValueObjectServiceImpl
 		return getValue(object, field) == null;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
-	public Object getValue(ValueObject object, EntityField field) {
-		return objectAccess.getValue(object, field);
+	public <T> T getValue(ValueObject object, EntityField field) {
+		return (T) objectAccess.getValue(object, field);
 	}
 	
 	@Override
@@ -732,13 +733,32 @@ public class ValueObjectServiceImpl
 		objectList.sort((ValueObject vo1, ValueObject vo2) -> getIdentifier(vo1).compareTo(getIdentifier(vo2)));
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T getFieldContent(ValueObject object, EntityField field) {
-		if (field.getType().isFile()) {
-			return (T) objectAccess.getValue(object, field);
+	public ValueObject saveFieldContent(ValueObject object, EntityField field, Object value, Session session) 
+			throws ValidationException {
+		Assert.notNull(session, C.SESSION);
+		
+		final FileObject oldFile = getValue(object, field);
+		setValue(object, field, value);
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			saveObject(object, session, null);
+			if (oldFile != null) {
+				session.delete(oldFile);
+			}
+			tx.commit();
+			return object;
 		}
-		return null;
+		catch (Exception ex) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			if (ex instanceof ValidationException) {
+				throw (ValidationException) ex;
+			}
+			throw new InternalException(ex);
+		}
 	}
 	
 	@Override
@@ -894,7 +914,7 @@ public class ValueObjectServiceImpl
 	
 	private void collectFileObjects(ValueObject object, Entity entity, List<FileObject> fileObjects) {
 		for (EntityField fileField : entity.getAllFieldsByType(FieldType.FILE)) {
-			final FileObject fileObject = (FileObject) getValue(object, fileField);
+			final FileObject fileObject = getValue(object, fileField);
 			if (fileObject != null && fileObject.getContent() != null && !fileObject.isNew()) {
 				fileObjects.add(fileObject);
 			}
@@ -913,7 +933,7 @@ public class ValueObjectServiceImpl
 	private void setFileFields(ValueObject object, Entity entity, boolean createObject) {
 		for (EntityField fileField : entity.getAllFieldsByType(FieldType.FILE)) {
 			if (!createObject) {
-				final FileObject fileObject = (FileObject) getValue(object, fileField);
+				final FileObject fileObject = getValue(object, fileField);
 				if (fileObject != null && fileObject.getContent() == null) {
 					setValue(object, fileField, null);
 				}

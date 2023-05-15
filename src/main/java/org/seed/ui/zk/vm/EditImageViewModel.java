@@ -54,7 +54,7 @@ public class EditImageViewModel extends AbstractApplicationViewModel {
     				 @ExecutionArgParam(C.PARAM) EditImageParameter param) {
 		Assert.notNull(param, C.PARAM);
 		parameter = param;
-		image = (byte[]) valueObjectService.getValue(parameter.valueObject, parameter.entityField);
+		image = valueObjectService.getValue(parameter.valueObject, parameter.entityField);
 		wireComponents(view);
 	}
 	

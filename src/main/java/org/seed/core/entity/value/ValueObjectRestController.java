@@ -57,8 +57,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import io.swagger.annotations.ApiOperation;
@@ -221,20 +223,60 @@ public class ValueObjectRestController {
 		}
 	}
 	
+	@ApiOperation(value = "getObjectContent",
+			      notes = "streams the file contents of the field with the specified field name of the entity with the specified name and id")
 	@GetMapping(value = "/{name}/{id}/content/{fieldname}")
-	public ResponseEntity<?> getContent(@RequestAttribute(OpenSessionInViewFilter.ATTR_SESSION) Session session,
-			 							@PathVariable(C.NAME) String name, 
-			 							@PathVariable(C.ID) Long id,
-			 							@PathVariable("fieldname") String fieldName) {
+	public ResponseEntity<?> getFieldContent(@RequestAttribute(OpenSessionInViewFilter.ATTR_SESSION) Session session,
+			 								 @PathVariable(C.NAME) String name, 
+			 								 @PathVariable(C.ID) Long id,
+			 								 @PathVariable("fieldname") String fieldName) {
 		return stream(session, name, id, fieldName, false);
 	}
 	
+	@ApiOperation(value = "downloadObjectFile", 
+				  notes = "downloads the file of the field with the specified field name of the entity with the specified name and id")
 	@GetMapping(value = "/{name}/{id}/file/{fieldname}")
-	public ResponseEntity<?> getFile(@RequestAttribute(OpenSessionInViewFilter.ATTR_SESSION) Session session,
-			 						 @PathVariable(C.NAME) String name, 
-			 						 @PathVariable(C.ID) Long id,
-			 						 @PathVariable("fieldname") String fieldName) {
+	public ResponseEntity<?> getFieldFile(@RequestAttribute(OpenSessionInViewFilter.ATTR_SESSION) Session session,
+			 							  @PathVariable(C.NAME) String name, 
+			 							  @PathVariable(C.ID) Long id,
+			 							  @PathVariable("fieldname") String fieldName) {
 		return stream(session, name, id, fieldName, true);
+	}
+	
+	@ApiOperation(value = "uploadObjectFile", 
+		  	  	  notes = "uploads the file specified by parameter 'file' in the field with specific field name of the entity with specified name and id")
+	@PostMapping(value = "/{name}/{id}/file/{fieldname}")
+	public ValueObject saveFieldFile(@RequestAttribute(OpenSessionInViewFilter.ATTR_SESSION) Session session,
+									 @PathVariable(C.NAME) String name, 
+									 @PathVariable(C.ID) Long id,
+									 @PathVariable("fieldname") String fieldName,
+									 @RequestParam("file") MultipartFile file) {
+		if (file == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "no file");
+		}
+		final EntityField field = getEntityField(session, name, fieldName);
+		checkEntityAccess(session, field.getEntity(), EntityAccess.WRITE);
+		if (!field.getType().isFile()) {
+			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "field type is not FILE");
+		}
+		
+		final User user = getUser(session);
+		final ValueObject object = getObjectByNameAndId(session, name, id);
+		checkFieldAccess(field.getEntity(), field, object, user, FieldAccess.WRITE);
+		
+		final FileObject fileObject = new FileObject();
+		fileObject.setName(file.getOriginalFilename());
+		fileObject.setContentType(file.getContentType());
+		try {
+			fileObject.setContent(file.getBytes());
+			return service.saveFieldContent(object, field, fileObject, session);
+		}
+		catch (ValidationException vex) {
+			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, vex.getMessage());
+		}
+		catch (Exception ex) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+		}
 	}
 	
 	@ApiOperation(value = "saveObject", 
@@ -392,17 +434,43 @@ public class ValueObjectRestController {
 		}
 	}
 	
+	@ApiOperation(value = "deleteObjectFile", 
+			  	  notes = "deletes the file of the field with specific field name of the entity object with specified id and entity name")
+	@DeleteMapping(value = "/{name}/{id}/file/{fieldname}")
+	public ValueObject deleteFieldFile(@RequestAttribute(OpenSessionInViewFilter.ATTR_SESSION) Session session,
+									   @PathVariable(C.NAME) String name, 
+									   @PathVariable(C.ID) Long id,
+									   @PathVariable("fieldname") String fieldName) {
+		final EntityField field = getEntityField(session, name, fieldName);
+		checkEntityAccess(session, field.getEntity(), EntityAccess.WRITE);
+		if (!field.getType().isFile()) {
+			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "field type is not FILE");
+		}
+		final User user = getUser(session);
+		final ValueObject object = getObjectByNameAndId(session, name, id);
+		checkFieldAccess(field.getEntity(), field, object, user, FieldAccess.WRITE);
+		
+		try {
+			return service.saveFieldContent(object, field, null, session);
+		}
+		catch (ValidationException vex) {
+			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, vex.getMessage());
+		}
+		catch (Exception ex) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+		}
+	}
+	
 	private ResponseEntity<?> stream(Session session, String name, Long id, String fieldName, boolean download) {
-		final Entity entity = getEntity(session, name);
 		final EntityField field = getEntityField(session, name, fieldName);
 		if (!field.getType().isFile()) {
 			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE);
 		}
 		final ValueObject object = getObjectByNameAndId(session, name, id);
 		final User user = getUser(session);
-		checkFieldAccess(entity, field, object, user, FieldAccess.READ);
+		checkFieldAccess(field.getEntity(), field, object, user, FieldAccess.READ);
 		
-		final FileObject file = service.getFieldContent(object, field);
+		final FileObject file = service.getValue(object, field);
 		if (file == null) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "no file available");
 		}

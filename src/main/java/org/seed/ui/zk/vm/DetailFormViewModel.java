@@ -174,7 +174,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 		checkReferenceField(referenceField, referenceFieldUid);
 		
 		if (isFieldReadonly(referenceFieldUid)) {
-			return Collections.singletonList((ValueObject) valueObjectService().getValue(getObject(), referenceField));
+			return Collections.singletonList(valueObjectService().getValue(getObject(), referenceField));
 		}
 		final FormFieldExtra fieldExtra = getForm().getFieldExtra(referenceField);
 		return getReferenceValues(referenceField, fieldExtra != null ? fieldExtra.getFilter() : null);
@@ -188,7 +188,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 		final EntityField referenceField = subForm.getNestedEntity().getNestedEntity().getFieldByUid(referenceFieldUid);
 		checkReferenceField(referenceField, referenceFieldUid);
 		if (isFieldReadonly(referenceFieldUid)) {
-			return Collections.singletonList((ValueObject) valueObjectService().getValue(getObject(), referenceField));
+			return Collections.singletonList(valueObjectService().getValue(getObject(), referenceField));
 		}
 		final SubFormField subFormField = subForm.getFieldByEntityFieldUid(referenceField.getUid());
 		return getReferenceValues(referenceField, subFormField.getFilter());
@@ -261,7 +261,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 				detailForm = fieldExtra.getDetailForm();
 				mainObject = getObject();
 			}
-			final ValueObject referenceObject = (ValueObject) valueObjectService().getValue(mainObject, entityField);
+			final ValueObject referenceObject = valueObjectService().getValue(mainObject, entityField);
 			openTab(detailForm, referenceObject);
 		}
 	}

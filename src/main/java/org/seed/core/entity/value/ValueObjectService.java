@@ -87,7 +87,7 @@ public interface ValueObjectService extends EntityUsage {
 	
 	boolean isEmpty(ValueObject object, EntityField field);
 	
-	Object getValue(ValueObject object, EntityField field);
+	<T> T getValue(ValueObject object, EntityField field);
 	
 	void setValue(ValueObject object, EntityField field, Object value);
 	
@@ -102,8 +102,6 @@ public interface ValueObjectService extends EntityUsage {
 	void addRelation(ValueObject object, EntityRelation relation, ValueObject relatedObject);
 	
 	void removeRelation(ValueObject object, EntityRelation relation, ValueObject relatedObject);
-	
-	<T> T getFieldContent(ValueObject object, EntityField field);
 	
 	List<FileObject> getFileObjects(ValueObject object, Session session);
 	
@@ -154,6 +152,8 @@ public interface ValueObjectService extends EntityUsage {
 	
 	void saveObject(ValueObject object, Session session, ValueObjectFunctionContext functionContext) 
 			throws ValidationException;
+	
+	ValueObject saveFieldContent(ValueObject object, EntityField field, Object value, Session session) throws ValidationException;
 	
 	String callUserActionFunction(Session session, ValueObject object, EntityFunction function);
 	
