@@ -17,7 +17,6 @@
  */
 package org.seed.core.entity.value;
 
-import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +44,7 @@ import org.seed.core.user.UserService;
 import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -226,20 +225,20 @@ public class ValueObjectRestController {
 	@ApiOperation(value = "getObjectContent",
 			      notes = "streams the file contents of the field with the specified field name of the entity with the specified name and id")
 	@GetMapping(value = "/{name}/{id}/content/{fieldname}")
-	public ResponseEntity<?> getFieldContent(@RequestAttribute(OpenSessionInViewFilter.ATTR_SESSION) Session session,
-			 								 @PathVariable(C.NAME) String name, 
-			 								 @PathVariable(C.ID) Long id,
-			 								 @PathVariable("fieldname") String fieldName) {
+	public ResponseEntity<ByteArrayResource> getFieldContent(@RequestAttribute(OpenSessionInViewFilter.ATTR_SESSION) Session session,
+			 												 @PathVariable(C.NAME) String name, 
+			 												 @PathVariable(C.ID) Long id,
+			 												 @PathVariable("fieldname") String fieldName) {
 		return stream(session, name, id, fieldName, false);
 	}
 	
 	@ApiOperation(value = "downloadObjectFile", 
 				  notes = "downloads the file of the field with the specified field name of the entity with the specified name and id")
 	@GetMapping(value = "/{name}/{id}/file/{fieldname}")
-	public ResponseEntity<?> getFieldFile(@RequestAttribute(OpenSessionInViewFilter.ATTR_SESSION) Session session,
-			 							  @PathVariable(C.NAME) String name, 
-			 							  @PathVariable(C.ID) Long id,
-			 							  @PathVariable("fieldname") String fieldName) {
+	public ResponseEntity<ByteArrayResource> getFieldFile(@RequestAttribute(OpenSessionInViewFilter.ATTR_SESSION) Session session,
+			 											  @PathVariable(C.NAME) String name, 
+			 											  @PathVariable(C.ID) Long id,
+			 											  @PathVariable("fieldname") String fieldName) {
 		return stream(session, name, id, fieldName, true);
 	}
 	
@@ -306,9 +305,9 @@ public class ValueObjectRestController {
 			  	  notes = "validates an entity object with specified name and id based on value map")
 	@PostMapping(value = "/{name}/{id}/validate")
 	public List<String> validateObject(@RequestAttribute(OpenSessionInViewFilter.ATTR_SESSION) Session session,
-									  @PathVariable(C.NAME) String name, 
-									  @PathVariable(C.ID) Long id,
-									  @RequestBody Map<String, Object> valueMap) {
+									   @PathVariable(C.NAME) String name, 
+									   @PathVariable(C.ID) Long id,
+									   @RequestBody Map<String, Object> valueMap) {
 		Assert.notNull(session, C.SESSION);
 		final Entity entity = getEntity(session, name);
 		checkEntityAccess(session, entity, EntityAccess.WRITE);
@@ -461,7 +460,7 @@ public class ValueObjectRestController {
 		}
 	}
 	
-	private ResponseEntity<?> stream(Session session, String name, Long id, String fieldName, boolean download) {
+	private ResponseEntity<ByteArrayResource> stream(Session session, String name, Long id, String fieldName, boolean download) {
 		final EntityField field = getEntityField(session, name, fieldName);
 		if (!field.getType().isFile()) {
 			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE);
@@ -483,7 +482,7 @@ public class ValueObjectRestController {
 		else {
 			builder.contentType(MediaType.parseMediaType(file.getContentType()));
 		}
-		return builder.body(new InputStreamResource(new ByteArrayInputStream(file.getContent())));
+		return builder.body(new ByteArrayResource(file.getContent()));
 	}
 	
 	private EntityField getEntityField(Session session, String name, String fieldName) {

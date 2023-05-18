@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
+import org.seed.C;
 import org.seed.Seed;
 import org.seed.core.application.setting.ApplicationSettingService;
 import org.seed.core.application.setting.Setting;
@@ -57,10 +58,10 @@ public abstract class RestHelper {
 			return (boolean) value;
 		}
 		else if (value instanceof String) {
-			if ("true".equalsIgnoreCase((String) value)) {
+			if (Boolean.TRUE.toString().equalsIgnoreCase((String) value)) {
 				return true;
 			}
-			else if ("false".equalsIgnoreCase((String) value)) {
+			else if (Boolean.FALSE.toString().equalsIgnoreCase((String) value)) {
 				return false;
 			}
 		}
@@ -169,7 +170,7 @@ public abstract class RestHelper {
 			throw new ValidationException(buildError(fieldName, value));
 		}
 		@SuppressWarnings("unchecked")
-		final Object object = ((Map<String, Object>) value).get("id");
+		final Object object = ((Map<String, Object>) value).get(C.ID);
 		if (!(object instanceof Number)) {
 			throw new ValidationException(buildError(fieldName, value));
 		}

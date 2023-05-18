@@ -28,7 +28,6 @@ import org.seed.InternalException;
 import org.seed.core.api.CallbackEventType;
 import org.seed.core.api.TransformationFunction;
 import org.seed.core.codegen.CodeManager;
-import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.data.FileObject;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.transform.NestedTransformer;
@@ -68,7 +67,7 @@ public class ValueObjectTransformer {
 		for (NestedTransformer nestedTransformer : transformerService.getNestedTransformers(transformer)) {
 			if (objectAccess.hasNestedObjects(sourceObject, nestedTransformer.getSourceNested())) {
 				for (ValueObject sourceNested : objectAccess.getNestedObjects(sourceObject, nestedTransformer.getSourceNested())) {
-					final ValueObject targetNested = objectAccess.addNestedInstance(targetObject, nestedTransformer.getTargetNested());
+					final var targetNested = objectAccess.addNestedInstance(targetObject, nestedTransformer.getTargetNested());
 					transformElements(nestedTransformer.getElements(), sourceNested, targetNested);
 				}
 			}
@@ -82,13 +81,13 @@ public class ValueObjectTransformer {
 		Assert.notNull(sourceObjectField, "source object field");
 		Assert.state(targetObject.getEntityId().equals(transformer.getTargetEntity().getId()), "illegal target object");
 
-		final ValueObject sourceObject = (ValueObject) objectAccess.getValue(targetObject, sourceObjectField);
+		final var sourceObject = (ValueObject) objectAccess.getValue(targetObject, sourceObjectField);
 		callFunctions(transformer, sourceObject, targetObject, session, true);
 		if (transformer.hasElements()) {
 			for (TransformerElement element : transformer.getElements()) {
-				final Object value = sourceObject != null 
-										? objectAccess.getValue(sourceObject, element.getSourceField())
-										: null;
+				final var value = sourceObject != null 
+									? objectAccess.getValue(sourceObject, element.getSourceField())
+									: null;
 				objectAccess.setValue(targetObject, element.getTargetField(), value);
 			}
 		}
@@ -99,7 +98,7 @@ public class ValueObjectTransformer {
 								   ValueObject sourceObject, ValueObject targetObject) {
 		if (elements != null) {
 			for (TransformerElement element : elements) {
-				Object value = objectAccess.getValue(sourceObject, element.getSourceField());
+				var value = objectAccess.getValue(sourceObject, element.getSourceField());
 				if (value instanceof FileObject) {
 					value = ((FileObject) value).copy();
 				}
@@ -112,8 +111,7 @@ public class ValueObjectTransformer {
 							   ValueObject sourceObject, ValueObject targetObject,
 							   Session session, boolean beforeTransformation) {
 		if (transformer.hasFunctions()) {
-			final ValueObjectFunctionContext functionContext = 
-					new ValueObjectFunctionContext(session, transformer.getModule());
+			final var functionContext = new ValueObjectFunctionContext(session, transformer.getModule());
 			functionContext.setEventType(beforeTransformation 
 											? CallbackEventType.BEFORETRANSFORMATION 
 											: CallbackEventType.AFTERTRANSFORMATION);
@@ -128,13 +126,12 @@ public class ValueObjectTransformer {
 	private void callFunction(TransformerFunction function,
 							  ValueObject sourceObject, ValueObject targetObject,
 							  ValueObjectFunctionContext functionContext) {
-		final Class<GeneratedCode> functionClass = codeManager.getGeneratedClass(function);
+		final var functionClass = codeManager.getGeneratedClass(function);
 		Assert.stateAvailable(functionClass, "function class " + function.getGeneratedClass());
 		
 		try {
-			final TransformationFunction<ValueObject, ValueObject> transformationFunction = 
-					(TransformationFunction<ValueObject, ValueObject>) BeanUtils.instantiate(functionClass);
-			transformationFunction.transform(sourceObject, targetObject, functionContext);
+			final var functionInstance = (TransformationFunction<ValueObject, ValueObject>) BeanUtils.instantiate(functionClass);
+			functionInstance.transform(sourceObject, targetObject, functionContext);
 		}
 		catch (Exception ex) {
 			throw new InternalException(ex);

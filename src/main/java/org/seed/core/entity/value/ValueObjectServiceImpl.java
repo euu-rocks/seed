@@ -882,15 +882,15 @@ public class ValueObjectServiceImpl
 		// iterate over nested maps
 		final var nestedIds = new HashSet<Long>();
 		for (var nestedValueMap : listNestedMaps) {
-			final Integer nestedId = (Integer) nestedValueMap.get(C.ID);
+			final Long nestedId = RestHelper.parseLongValue(nestedValueMap.get(C.ID), C.ID);
 			// update existing nested object
 			if (nestedId != null && nestedObjectMap != null && 
-				nestedObjectMap.containsKey(nestedId.longValue())) {
-				final ValueObject nestedObject = nestedObjectMap.get(nestedId.longValue());
+				nestedObjectMap.containsKey(nestedId)) {
+				final ValueObject nestedObject = nestedObjectMap.get(nestedId);
 				if (setObjectValues(session, nested.getNestedEntity(), nestedObject, user, nestedValueMap)) {
 					isModified = true;
 				}
-				nestedIds.add(nestedId.longValue());
+				nestedIds.add(nestedId);
 			}
 			// create new nested object
 			else {
