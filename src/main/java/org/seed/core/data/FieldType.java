@@ -39,8 +39,8 @@ public enum FieldType {
 	TEXT 		(String.class,		DataType.VARCHAR),
 	TEXTLONG 	(String.class,		DataType.CLOB);
 	
-	private static final FieldType[] TRANSFERABLE_TYPES = MiscUtils.toArray(
-				
+	private static final FieldType[] TRANSFERABLE_TYPES = 
+			MiscUtils.toArray(
 				FieldType.BOOLEAN,
 				FieldType.DATE,
 				FieldType.DATETIME,
@@ -52,7 +52,8 @@ public enum FieldType {
 				FieldType.TEXTLONG
 	); 
 	
-	private static final FieldType[] NON_AUTONUM_TYPES = Arrays.copyOfRange(values(), 1, values().length);
+	private static final FieldType[] NON_AUTONUM_TYPES = 
+			Arrays.copyOfRange(values(), 1, values().length);
 	
 	public final Class<?> typeClass;
 	
@@ -115,12 +116,17 @@ public enum FieldType {
 		return this == TEXTLONG;
 	}
 	
+	public boolean supportsMinMaxValues() {
+		return isDate() || isDateTime() || isDecimal() || 
+			   isDouble() || isInteger() || isLong();
+	}
+	
 	public boolean supportsValidation() {
-		return isDecimal() || isDouble() || isInteger() || isLong() || isText() || isTextLong();
+		return isText() || isTextLong();
 	}
 	
 	public Object nullValue() {
-		return isBoolean() ? false : null;
+		return isBoolean() ? Boolean.FALSE : null;
 	}
 	
 	public static FieldType[] nonAutonumTypes() {

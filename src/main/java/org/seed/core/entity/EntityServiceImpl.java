@@ -1212,6 +1212,21 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		if (!field.getType().supportsValidation()) {
 			field.setValidationPattern(null);
 		}
+		// only some field types support min / max values
+		if (!field.getType().supportsMinMaxValues()) {
+			field.setMinDate(null);
+			field.setMinDateTime(null);
+			field.setMinDecimal(null);
+			field.setMinDouble(null);
+			field.setMinInt(null);
+			field.setMinLong(null);
+			field.setMaxDate(null);
+			field.setMaxDateTime(null);
+			field.setMaxDecimal(null);
+			field.setMaxDouble(null);
+			field.setMaxInt(null);
+			field.setMaxLong(null);
+		}
 	}
 	
 	private ChangeLog createChangeLog(Entity currentVersionEntity, Entity nextVersionEntity, Session session) {

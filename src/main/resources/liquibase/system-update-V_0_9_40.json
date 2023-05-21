@@ -17,6 +17,78 @@
                               "name": "validationpattern",
                               "type": "VARCHAR(<#STRING_LEN#>)"
                            }
+                        },
+                        {
+                           "column": {
+                              "name": "mindate",
+                              "type": "DATE"
+                           }
+                        },
+                        {
+                           "column": {
+                              "name": "mindatetime",
+                              "type": "DATETIME"
+                           }
+                        },
+                        {
+                           "column": {
+                              "name": "mindecimal",
+                              "type": "DECIMAL"
+                           }
+                        },
+                        {
+                           "column": {
+                              "name": "mindouble",
+                              "type": "DOUBLE"
+                           }
+                        },
+                        {
+                           "column": {
+                              "name": "minint",
+                              "type": "INT"
+                           }
+                        },
+                        {
+                           "column": {
+                              "name": "minlong",
+                              "type": "BIGINT"
+                           }
+                        },
+                        {
+                           "column": {
+                              "name": "maxdate",
+                              "type": "DATE"
+                           }
+                        },
+                        {
+                           "column": {
+                              "name": "maxdatetime",
+                              "type": "DATETIME"
+                           }
+                        },
+                        {
+                           "column": {
+                              "name": "maxdecimal",
+                              "type": "DECIMAL"
+                           }
+                        },
+                        {
+                           "column": {
+                              "name": "maxdouble",
+                              "type": "DOUBLE"
+                           }
+                        },
+                        {
+                           "column": {
+                              "name": "maxint",
+                              "type": "INT"
+                           }
+                        },
+                        {
+                           "column": {
+                              "name": "maxlong",
+                              "type": "BIGINT"
+                           }
                         }
                      ],
                      "tableName": "sys_entity_field"

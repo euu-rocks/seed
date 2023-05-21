@@ -270,6 +270,8 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		for (EntityField field : entity.getFields()) {
 			validateFieldName(entity, field, errors);
 			validateValidationPattern(field, errors);
+			validateMinMaxValues(field, errors);
+			
 			if (field.getColumnName() != null) {
 				validateColumnName(entity, field, errors);
 			}
@@ -444,6 +446,13 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		if (field.getType() != null && field.getType().supportsValidation() && 
 			field.getValidationPattern() != null && field.getValidationPattern().length() > getMaxStringLength()) {
 			errors.addOverlongField(field.getName(), getMaxStringLength());
+		}
+	}
+	
+	private void validateMinMaxValues(EntityField field, final ValidationErrors errors) {
+		if (field.getType() != null && field.getType().supportsMinMaxValues() &&
+			!checkMinMaxValues(field)) {
+			errors.addError("val.illegal.minmaxvalue", field.getName());
 		}
 	}
 	
@@ -723,6 +732,37 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 			entityDependents = MiscUtils.castList(getBeans(EntityDependent.class));
 		}
 		return entityDependents;
+	}
+	
+	private static boolean checkMinMaxValues(EntityField field) {
+		switch (field.getType()) {
+			case DATE:
+				return field.getMinDate() == null || field.getMaxDate() == null ||
+					   !field.getMaxDate().before(field.getMinDate());
+				
+			case DATETIME:
+				return field.getMinDateTime() == null || field.getMaxDateTime() == null ||
+					   !field.getMaxDateTime().before(field.getMinDateTime());
+				
+			case DECIMAL:
+				return field.getMinDecimal() == null || field.getMaxDecimal() == null ||
+					   field.getMinDecimal().compareTo(field.getMaxDecimal()) <= 0;
+				
+			case DOUBLE:
+				return field.getMinDouble() == null || field.getMaxDouble() == null ||
+					   field.getMinDouble().compareTo(field.getMaxDouble()) <= 0;
+				
+			case INTEGER:
+				return field.getMinInt() == null || field.getMaxInt() == null ||
+					   field.getMinInt().compareTo(field.getMaxInt()) <= 0;
+				
+			case LONG:
+				return field.getMinLong() == null || field.getMaxLong() == null ||
+					   field.getMinLong().compareTo(field.getMaxLong()) <= 0;
+				
+			default:
+				throw new UnsupportedOperationException(field.getType().name());
+		}
 	}
 	
 	private static final String AMBIGUOUS_FIELD_OR_NESTED = "val.ambiguous.fieldornested";

@@ -136,6 +136,52 @@
 	            		 	 onChange="@command('flagDirty')"/>
 	            </div>	
             </vlayout>
+            <vlayout visible="@load(!vm.field.calculated and vm.field.type.supportsMinMaxValues())">
+				<label value="${labels.label.minvalue}:"/>	
+				<div sclass="minvalue-field"> 
+            		<intbox visible="@load(vm.field.type.isInteger())"
+            				value="@bind(vm.field.minInt)"
+            				onChange="@command('flagDirty')" hflex="1"/>
+            		<longbox visible="@load(vm.field.type.isLong())"
+		      				 value="@bind(vm.field.minLong)"
+							 onChange="@command('flagDirty')" hflex="1"/>
+					<datebox visible="@load(vm.field.type.isDate())"
+		      				 value="@bind(vm.field.minDate)"
+							 onChange="@command('flagDirty')" hflex="1"/>
+					<datebox visible="@load(vm.field.type.isDateTime())"
+		      				 value="@bind(vm.field.minDateTime)"
+		      				 format="medium+medium"
+							 onChange="@command('flagDirty')" hflex="1"/>
+					<decimalbox visible="@load(vm.field.type.isDecimal())"
+		      					value="@bind(vm.field.minDecimal)"
+								onChange="@command('flagDirty')" hflex="1"/>
+					<doublebox visible="@load(vm.field.type.isDouble())"
+		      				   value="@bind(vm.field.minDouble)"
+							   onChange="@command('flagDirty')" hflex="1"/>
+            	</div>
+            	<label value="${labels.label.maxvalue}:"/>	
+				<div sclass="maxvalue-field"> 
+            		<intbox visible="@load(vm.field.type.isInteger())"
+            				value="@bind(vm.field.maxInt)"
+            				onChange="@command('flagDirty')" hflex="1"/>
+            		<longbox visible="@load(vm.field.type.isLong())"
+		      				 value="@bind(vm.field.maxLong)"
+							 onChange="@command('flagDirty')" hflex="1"/>
+					<datebox visible="@load(vm.field.type.isDate())"
+		      				 value="@bind(vm.field.maxDate)"
+							 onChange="@command('flagDirty')" hflex="1"/>
+					<datebox visible="@load(vm.field.type.isDateTime())"
+		      				 value="@bind(vm.field.maxDateTime)"
+		      				 format="medium+medium"
+							 onChange="@command('flagDirty')" hflex="1"/>
+					<decimalbox visible="@load(vm.field.type.isDecimal())"
+		      					value="@bind(vm.field.maxDecimal)"
+								onChange="@command('flagDirty')" hflex="1"/>
+					<doublebox visible="@load(vm.field.type.isDouble())"
+		      				   value="@bind(vm.field.maxDouble)"
+							   onChange="@command('flagDirty')" hflex="1"/>
+            	</div>
+            </vlayout>
 	        <vlayout visible="@load(vm.field.type.isText())">
             	<label value="${labels.label.length}:"/>
             	<div sclass="length-field"> 
@@ -215,7 +261,7 @@
 		       			<datebox visible="@load(vm.field.type.isDateTime())"
 		       					 value="@bind(vm.field.defaultDate)"
 		       					 onChange="@command('flagDirty')"
-		       					 format="long+medium"
+		       					 format="medium+medium"
 		       					 mandatory="true" hflex="1"/>		 
 		       			<decimalbox visible="@load(vm.field.type.isDecimal())"
 		       					    value="@bind(vm.field.defaultNumber)"

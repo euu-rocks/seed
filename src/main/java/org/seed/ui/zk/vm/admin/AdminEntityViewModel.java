@@ -849,6 +849,18 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 				resetMandatory = false;
 			}
 		}
+		field.setMinDate(null);
+		field.setMinDateTime(null);
+		field.setMinDecimal(null);
+		field.setMinDouble(null);
+		field.setMinInt(null);
+		field.setMinLong(null);
+		field.setMaxDate(null);
+		field.setMaxDateTime(null);
+		field.setMaxDecimal(null);
+		field.setMaxDouble(null);
+		field.setMaxInt(null);
+		field.setMaxLong(null);
 		flagDirty();
 	}
 	

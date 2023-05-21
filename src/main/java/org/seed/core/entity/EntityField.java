@@ -17,6 +17,7 @@
  */
 package org.seed.core.entity;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 import javax.persistence.FetchType;
@@ -77,6 +78,30 @@ public class EntityField extends AbstractOrderedTransferableObject {
 	private String validationPattern;
 	
 	private Long autonumStart;
+	
+	private Date minDate;
+	
+	private Date maxDate;
+	
+	private Date minDateTime;
+	
+	private Date maxDateTime;
+	
+	private BigDecimal minDecimal;
+	
+	private BigDecimal maxDecimal;
+	
+	private Double minDouble;
+	
+	private Double maxDouble;
+	
+	private Integer minInt;
+	
+	private Integer maxInt;
+	
+	private Long minLong;
+	
+	private Long maxLong;
 	
 	private boolean isCalculated;
 	
@@ -233,7 +258,7 @@ public class EntityField extends AbstractOrderedTransferableObject {
 	public void setValidationPattern(String validationPattern) {
 		this.validationPattern = validationPattern;
 	}
-
+	
 	@XmlAttribute
 	public Long getAutonumStart() {
 		return autonumStart;
@@ -241,6 +266,114 @@ public class EntityField extends AbstractOrderedTransferableObject {
 
 	public void setAutonumStart(Long autonumStart) {
 		this.autonumStart = autonumStart;
+	}
+	
+	@XmlAttribute
+	public Date getMinDate() {
+		return minDate;
+	}
+
+	public void setMinDate(Date minDate) {
+		this.minDate = minDate;
+	}
+	
+	@XmlAttribute
+	public Date getMaxDate() {
+		return maxDate;
+	}
+
+	public void setMaxDate(Date maxDate) {
+		this.maxDate = maxDate;
+	}
+	
+	@XmlAttribute
+	public Date getMinDateTime() {
+		return minDateTime;
+	}
+
+	public void setMinDateTime(Date minDateTime) {
+		this.minDateTime = minDateTime;
+	}
+	
+	@XmlAttribute
+	public Date getMaxDateTime() {
+		return maxDateTime;
+	}
+
+	public void setMaxDateTime(Date maxDateTime) {
+		this.maxDateTime = maxDateTime;
+	}
+
+	@XmlAttribute
+	public BigDecimal getMinDecimal() {
+		return minDecimal;
+	}
+
+	public void setMinDecimal(BigDecimal minDecimal) {
+		this.minDecimal = minDecimal;
+	}
+	
+	@XmlAttribute
+	public BigDecimal getMaxDecimal() {
+		return maxDecimal;
+	}
+
+	public void setMaxDecimal(BigDecimal maxDecimal) {
+		this.maxDecimal = maxDecimal;
+	}
+	
+	@XmlAttribute
+	public Double getMinDouble() {
+		return minDouble;
+	}
+
+	public void setMinDouble(Double minDouble) {
+		this.minDouble = minDouble;
+	}
+	
+	@XmlAttribute
+	public Double getMaxDouble() {
+		return maxDouble;
+	}
+
+	public void setMaxDouble(Double maxDouble) {
+		this.maxDouble = maxDouble;
+	}
+	
+	@XmlAttribute
+	public Integer getMinInt() {
+		return minInt;
+	}
+
+	public void setMinInt(Integer minInt) {
+		this.minInt = minInt;
+	}
+	
+	@XmlAttribute
+	public Integer getMaxInt() {
+		return maxInt;
+	}
+
+	public void setMaxInt(Integer maxInt) {
+		this.maxInt = maxInt;
+	}
+	
+	@XmlAttribute
+	public Long getMinLong() {
+		return minLong;
+	}
+
+	public void setMinLong(Long minLong) {
+		this.minLong = minLong;
+	}
+	
+	@XmlAttribute
+	public Long getMaxLong() {
+		return maxLong;
+	}
+
+	public void setMaxLong(Long maxLong) {
+		this.maxLong = maxLong;
 	}
 
 	@XmlAttribute
@@ -326,12 +459,12 @@ public class EntityField extends AbstractOrderedTransferableObject {
 	
 	@JsonIgnore
 	public boolean isTextField() {
-		return type != null && (type.isText() || type.isTextLong());
+		return getType() != null && (getType().isText() || getType().isTextLong());
 	}
 	
 	@JsonIgnore
 	public boolean isJsonSerializable() {
-		return type != null && !(type.isBinary() || type.isFile());
+		return getType() != null && !(getType().isBinary() || getType().isFile());
 	}
 	
 	@JsonIgnore
@@ -341,10 +474,10 @@ public class EntityField extends AbstractOrderedTransferableObject {
 	
 	@JsonIgnore
 	public boolean hasDefaultValue() {
-		if (type == null) {
+		if (getType() == null) {
 			return false;
 		}
-		switch (type) {
+		switch (getType()) {
 			case TEXT:
 			case TEXTLONG:
 				return StringUtils.hasText(getDefaultString());
@@ -362,7 +495,7 @@ public class EntityField extends AbstractOrderedTransferableObject {
 			case DOUBLE:
 				return getDefaultNumber() != null;
 			default:
-				throw new UnsupportedOperationException(type.name());
+				throw new UnsupportedOperationException(getType().name());
 		}
 	}
 	
@@ -386,6 +519,20 @@ public class EntityField extends AbstractOrderedTransferableObject {
 			.append(getValidationPattern(), otherField.getValidationPattern())
 			.append(getAutonumPattern(), otherField.getAutonumPattern())
 			.append(getAutonumStart(), otherField.getAutonumStart())
+			.append(getMinDate(), otherField.getMinDate())
+			.append(getMinDateTime(), otherField.getMinDateTime())
+			.append(getMinDecimal(), otherField.getMinDecimal())
+			.append(getMinDouble(), otherField.getMinDouble())
+			.append(getMinDecimal(), otherField.getMinDecimal())
+			.append(getMinInt(), otherField.getMinInt())
+			.append(getMinLong(), otherField.getMinLong())
+			.append(getMaxDate(), otherField.getMaxDate())
+			.append(getMaxDateTime(), otherField.getMaxDateTime())
+			.append(getMaxDecimal(), otherField.getMaxDecimal())
+			.append(getMaxDouble(), otherField.getMaxDouble())
+			.append(getMaxDecimal(), otherField.getMaxDecimal())
+			.append(getMaxInt(), otherField.getMaxInt())
+			.append(getMaxLong(), otherField.getMaxLong())
 			.append(isCalculated(), otherField.isCalculated())
 			.append(isMandatory(), otherField.isMandatory())
 			.append(isIndexed(), otherField.isIndexed())

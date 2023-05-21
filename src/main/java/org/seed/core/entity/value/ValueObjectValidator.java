@@ -19,6 +19,8 @@ package org.seed.core.entity.value;
 
 import static org.seed.core.util.CollectionUtils.filterAndForEach;
 
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -67,20 +69,15 @@ public class ValueObjectValidator implements ApplicationContextAware {
 	}
 	
 	public void validateChangeStatus(ValueObject object, EntityStatus targetStatus, Session session) throws ValidationException {
+		Assert.notNull(session, C.SESSION);
 		Assert.notNull(object, C.OBJECT);
 		Assert.notNull(targetStatus, "targetStatus");
-		
 		final Entity entity = entityRepository.get(object.getEntityId(), session);
 		final var errors = new ValidationErrors();
-		if (entity.hasFieldConstraints()) {
-			for (EntityFieldConstraint constraint : entity.getFieldConstraints()) {
-				if (targetStatus.equals(constraint.getStatus()) && 
-					constraint.isMandatory()) {
-					validateMandatoryConstraints(entity, constraint, object, errors);
-				}
-			}
-		}
 		
+		filterAndForEach(entity.getFieldConstraints(), 
+						 constraint -> constraint.isMandatory() && targetStatus.equals(constraint.getStatus()), 
+						 constraint -> validateMandatoryConstraints(entity, constraint, object, errors));
 		if (!errors.isEmpty()) {
 			throw new ValidationException(errors);
 		}
@@ -89,9 +86,9 @@ public class ValueObjectValidator implements ApplicationContextAware {
 	public void validateDelete(Session session, ValueObject object) throws ValidationException {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(object, C.OBJECT);
-		
 		final Entity objectEntity = entityRepository.get(object.getEntityId(), session);
 		final var errors = new ValidationErrors();
+		
 		for (var dependent : getValueObjectDependents()) {
 			for (var dependentEntity : dependent.findUsage(session, object)) {
 				if (dependentEntity instanceof Entity) {
@@ -116,7 +113,6 @@ public class ValueObjectValidator implements ApplicationContextAware {
 	public void validateSave(Session session, ValueObject object) throws ValidationException {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(object, C.OBJECT);
-	
 		final Entity entity = entityRepository.get(object.getEntityId(), session);
 		final var errors = new ValidationErrors();
 		
@@ -128,7 +124,7 @@ public class ValueObjectValidator implements ApplicationContextAware {
 		// nesteds
 		if (entity.hasNesteds()) {
 			for (NestedEntity nested : entity.getNesteds()) {
-				if (nested.getNestedEntity().hasFields()) {
+				if (nested.getNestedEntity().hasAllFields()) {
 					final var nestedObjects = objectAccess.getNestedObjects(object, nested);
 					if (nestedObjects != null) {
 						validateNestedObjects(nested, nestedObjects, errors);
@@ -140,7 +136,6 @@ public class ValueObjectValidator implements ApplicationContextAware {
 		if (!errors.isEmpty()) {
 			throw new ValidationException(errors);
 		}
-		
 	}
 	
 	private int getMaxFieldLength(EntityField field) {
@@ -149,17 +144,9 @@ public class ValueObjectValidator implements ApplicationContextAware {
 				: limits.getLimit(Limits.LIMIT_TEXT_LENGTH);
 	}
 	
-	private static boolean isEmpty(Object object) {
-		if (object instanceof String) {
-			return !StringUtils.hasText((String) object);
-		}
-		return object == null;
-	}
-	
 	private void validateMandatoryConstraints(Entity entity, EntityFieldConstraint constraint, 
 			  								  ValueObject object, ValidationErrors errors) {
-		if (constraint.getField() != null &&
-			isEmpty(objectAccess.getValue(object, constraint.getField()))) {
+		if (constraint.getField() != null && isEmpty(objectAccess.getValue(object, constraint.getField()))) {
 			errors.addError("val.empty.statusfield", constraint.getField().getName());
 		}
 		else if (constraint.getFieldGroup() != null) {
@@ -177,17 +164,9 @@ public class ValueObjectValidator implements ApplicationContextAware {
 			final Object value = objectAccess.getValue(object, field);
 			if (field.isMandatory() && !field.getType().isAutonum() && isEmpty(value)) {
 				errors.addEmptyField(field.getName());
-				continue;
 			}
-			if (field.getType().isText()) {
-				final String text = (String) value;
-				if (text != null && text.length() > getMaxFieldLength(field)) {
-					errors.addOverlongField(field.getName(), getMaxFieldLength(field));
-				}
-			}
-			if (field.getType().supportsValidation() && field.getValidationPattern() != null && 
-				value != null && !value.toString().matches(field.getValidationPattern())) {
-				errors.addIllegalFieldValue(field.getName());
+			else if (!isEmpty(value)) {
+				validateField(field, value, errors);
 			}
 		}
 	}
@@ -204,14 +183,11 @@ public class ValueObjectValidator implements ApplicationContextAware {
 	private void validateNestedObjectField(ValueObject nestedObject, NestedEntity nested, EntityField field, 
 										   ValidationErrors errors) {
 		final Object value = objectAccess.getValue(nestedObject, field);
-		if (field.isMandatory() && isEmpty(value)) {
+		if (field.isMandatory() && !field.getType().isAutonum() && isEmpty(value)) {
 			errors.addError("val.empty.subfield", field.getName(), nested.getName());
 		}
-		else if (field.getType().isText()) {
-			final String stringValue = (String) value;
-			if (stringValue != null && stringValue.length() > getMaxFieldLength(field)) {
-				errors.addOverlongObjectField(field.getName(), nested.getName(), getMaxFieldLength(field));
-			}
+		else if (!isEmpty(value)) {
+			validateField(field, value, errors);
 		}
 	}
 	
@@ -221,6 +197,70 @@ public class ValueObjectValidator implements ApplicationContextAware {
 					BeanUtils.getBeans(applicationContext, ValueObjectDependent.class));
 		}
 		return valueObjectDependents;
+	}
+	
+	private void validateField(EntityField field, Object value, ValidationErrors errors) {
+		if (field.getType().isText() && ((String) value).length() > getMaxFieldLength(field)) {
+			errors.addOverlongField(field.getName(), getMaxFieldLength(field));
+		}
+		if (field.getType().supportsValidation() && field.getValidationPattern() != null && 
+			!value.toString().matches(field.getValidationPattern())) {
+			errors.addIllegalFieldValue(field.getName());
+		}
+		if (field.getType().supportsMinMaxValues()) {
+			validateMinMaxValue(field, value, errors);
+		}
+	}
+	
+	private static boolean isEmpty(Object object) {
+		return object instanceof String
+				? !StringUtils.hasText((String) object)
+				: object == null;
+	}
+	
+	private static void validateMinMaxValue(EntityField field, Object value, ValidationErrors errors) {
+		boolean tooLow;
+		boolean tooBig;
+		switch (field.getType()) {
+			case DATE:
+				tooLow = field.getMinDate() != null && field.getMinDate().after((Date) value); 
+				tooBig = field.getMaxDate() != null && field.getMaxDate().before((Date) value);
+				break;
+			
+			case DATETIME:
+				tooLow = field.getMinDateTime() != null && field.getMinDateTime().after((Date) value); 
+				tooBig = field.getMaxDateTime() != null && field.getMaxDateTime().before((Date) value);
+				break;
+				
+			case DECIMAL:
+				tooLow = field.getMinDecimal() != null && field.getMinDecimal().compareTo((BigDecimal) value) > 0; 
+				tooBig = field.getMaxDecimal() != null && field.getMaxDecimal().compareTo((BigDecimal) value) < 0;
+				break;
+				
+			case DOUBLE:
+				tooLow = field.getMinDouble() != null && field.getMinDouble().compareTo((Double) value) > 0; 
+				tooBig = field.getMaxDouble() != null && field.getMaxDouble().compareTo((Double) value) < 0;
+				break;
+				
+			case INTEGER:
+				tooLow = field.getMinInt() != null && field.getMinInt().compareTo((Integer) value) > 0; 
+				tooBig = field.getMaxInt() != null && field.getMaxInt().compareTo((Integer) value) < 0;
+				break;
+				
+			case LONG:
+				tooLow = field.getMinLong() != null && field.getMinLong().compareTo((Long) value) > 0; 
+				tooBig = field.getMaxLong() != null && field.getMaxLong().compareTo((Long) value) < 0;
+				break;
+				
+			default:
+				throw new UnsupportedOperationException(field.getType().name());
+		}
+		if (tooLow) {
+			errors.addError("val.toolow.fieldvalue", field.getName());
+		}
+		else if (tooBig) {
+			errors.addError("val.toobig.fieldvalue", field.getName());
+		}
 	}
 	
 }
