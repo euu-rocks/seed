@@ -1,5 +1,10 @@
 # Seed
 
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+![Build and Deploy](https://github.com/euu-rocks/seed/actions/workflows/build-and-push-main.yml/badge.svg)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=euu-rocks_seed&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=euu-rocks_seed)
+[![Javadoc](https://img.shields.io/badge/JavaDoc-Online-green)](https://euu-rocks.github.io/seed/javadoc/)
+
 ## How to run
 
 ### Try with DOCKER 
