@@ -22,7 +22,7 @@ import org.seed.core.codegen.GeneratedCode;
 /**
  * <code>CallbackFunction</code> is the base interface of all callback functions.
  * A callback function is triggered by a callback event. 
- * @See {@link CallbackEventType}
+ * See {@link CallbackEventType}
  * 
  * @author seed-master
  *

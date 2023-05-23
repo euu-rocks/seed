@@ -36,7 +36,7 @@ public interface Mail {
 	
 	/**
 	 * Set on ore more CC adresses
-	 * @param toAddress on ore more CC adresses
+	 * @param ccAddress on ore more CC adresses
 	 * @return this mail
 	 */
 	Mail setCcAddress(String ...ccAddress);

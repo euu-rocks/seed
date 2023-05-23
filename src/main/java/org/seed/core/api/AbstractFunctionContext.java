@@ -88,7 +88,7 @@ public abstract class AbstractFunctionContext implements FunctionContext {
 	/**
 	 * Sets the value of a context property. By setting it to null, the property can be removed.
 	 * @param name the name of the context property
-	 * @param value the value of a context property. Can also be null
+	 * @param object the value of a context property. Can also be null
 	 */
 	@Override
 	public void setProperty(String name, Object object) {

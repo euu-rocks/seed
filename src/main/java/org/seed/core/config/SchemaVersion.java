@@ -19,7 +19,7 @@ package org.seed.core.config;
 
 /**
  * For schema update, a new version must be added 
- * and a new file named system-update-<Version>.json 
+ * and a new file named system-update-{@literal <}Version{@literal >}.json
  * must be created in the folder resources/liquibase
  * that contains a changeset 
  * (e.g. V_1_0_1 -> system-update-V_1_0_1.json)

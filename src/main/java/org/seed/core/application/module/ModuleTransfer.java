@@ -71,7 +71,7 @@ import org.springframework.util.FastByteArrayOutputStream;
 
 /**
  * In case of "NPE while unmarshalling" 
- * check if public setter for collection exists (e.g. setElements(List<?> ...))
+ * check if public setter for collection exists (e.g. setElements(List{@literal <}?{@literal >} ...))
  */
 @Component
 public class ModuleTransfer {

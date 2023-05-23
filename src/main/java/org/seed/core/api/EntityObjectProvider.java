@@ -173,7 +173,7 @@ public interface EntityObjectProvider {
 	/**
 	 * Inserts or updates the given {@link EntityObject} in the database
 	 * as part of a bulk operation.
-	 * @See {@link BatchOperation}
+	 * See {@link BatchOperation}
 	 * @param <T> the type of the entity object
 	 * @param entityObject the entity object to save
 	 * @param batchOperation the batch operation to use

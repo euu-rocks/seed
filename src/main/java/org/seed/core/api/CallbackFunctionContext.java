@@ -63,7 +63,7 @@ public interface CallbackFunctionContext extends FunctionContext {
 	
 	/**
 	 * Returns a service that provides access to stored procedures. 
-	 * @See {@link StoredProcedureCall}
+	 * See {@link StoredProcedureCall}
 	 * @return a service that provides access to stored procedures
 	 */
 	StoredProcedureProvider getStoredProcedureProvider();
