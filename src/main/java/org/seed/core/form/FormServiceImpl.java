@@ -208,8 +208,9 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		
 		return subList(getObjects(session), form -> !form.isAutoLayout() && 
 						(form.containsEntityField(entityField) || 
-						(form.getLayout() != null && getLayoutService().containsField(form.getLayout(), entityField)) ||
-						anyMatch(form.getSubForms(), subForm -> subForm.containsEntityField(entityField))));
+						 anyMatch(form.getFieldExtras(), extra -> entityField.equals(extra.getEntityField())) ||
+						 (form.getLayout() != null && getLayoutService().containsField(form.getLayout(), entityField)) ||
+						 anyMatch(form.getSubForms(), subForm -> subForm.containsEntityField(entityField))));
 	}
 	
 	@Override

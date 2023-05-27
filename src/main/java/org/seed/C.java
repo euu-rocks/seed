@@ -96,6 +96,7 @@ public final class C {
 	public static final String TITLE            = "title";
 	public static final String TRANSFER         = "transfer";
 	public static final String TRANSFERABLE     = "transferable";
+	public static final String TRANSFORM		= "transform";
 	public static final String TRANSFORMER      = "transformer";
 	public static final String TRANSITION       = "transition";
 	public static final String TRUE             = "true";

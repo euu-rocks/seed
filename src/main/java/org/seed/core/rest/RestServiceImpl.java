@@ -129,8 +129,7 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 		Assert.notNull(userGroup, C.USERGROUP);
 		Assert.notNull(session, C.SESSION);
 		
-		return subList(getObjects(session), rest -> anyMatch(rest.getPermissions(), 
-															 perm -> userGroup.equals(perm.getUserGroup())));
+		return subList(getObjects(session), rest -> rest.containsPermission(userGroup));
 	}
 	
 	@Override

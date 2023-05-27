@@ -30,6 +30,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.LabelProvider;
 import org.seed.core.data.SystemField;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
@@ -81,6 +82,9 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	
 	@Autowired
 	private LayoutValidator layoutValidator;
+	
+	@Autowired
+	private LabelProvider labelProvider;
 	
 	private final LayoutParser layoutParser = new LayoutParser();
 	
@@ -806,20 +810,20 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(form, C.FORM);
 		Assert.notNull(formSettings, "form settings");
 		
-		final var elemListbox = createListFormList();
-		final var elemListhead = elemListbox.addChild(createListHead(true));
-		final var elemTemplate = elemListbox.addChild(createTemplate(A_MODEL, "obj"));
-		final var elemListitem = elemTemplate.addChild(createListItem("'callAction',action=vm.editAction,elem=self"))
-													   .setAttribute(A_SCLASS, init("vm.getListItemTestClass(obj)"));
-		if (form.hasFields()) {
+		if (anyMatch(form.getFields(), formSettings::isFormFieldVisible)) {
+			final var elemListbox = createListFormList();
+			final var elemListhead = elemListbox.addChild(createListHead(true));
+			final var elemTemplate = elemListbox.addChild(createTemplate(A_MODEL, "obj"));
+			final var elemListitem = elemTemplate.addChild(createListItem("'callAction',action=vm.editAction,elem=self"))
+														   .setAttribute(A_SCLASS, init("vm.getListItemTestClass(obj)"));
 			formSettings.sortFields(form.getFields());
 			for (FormField field : subList(form.getFields(), formSettings::isFormFieldVisible)) {
 				// header
-				final LayoutElement elemListheader = createListHeader(field.getName(), 
-																	  field.getHflex() != null 
-																	  	? field.getHflex() 
-																	  	: V_1, 
-																	  field.getLabelStyle());
+				final var elemListheader = createListHeader(field.getName(), 
+															field.getHflex() != null 
+																? field.getHflex() 
+																: V_1, 
+															field.getLabelStyle());
 				elemListheader.setAttribute(A_STYLE, "cursor:pointer")
 							  .setAttribute(A_ICONSCLASS, load("vm.getSortIcon(" + field.getId() + ')'))
 							  .setAttribute(A_ONCLICK, command("'sort',fieldId=" + field.getId()));
@@ -827,8 +831,13 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 				// field
 				elemListitem.addChild(buildListFormField(field));
 			}
+			return buildLayout(elemListbox);
 		}
-		return buildLayout(elemListbox);
+		else {
+			final var elemLabel = createLabel("\n\t" + labelProvider.getLabel("form.list.fieldsnotavailable"));
+			elemLabel.setAttribute(A_STYLE, "color:crimson");
+			return buildLayout(elemLabel);
+		}
 	}
 	
 	private static LayoutElement buildListFormField(FormField field) {

@@ -20,15 +20,24 @@
 <!DOCTYPE xml>
 <borderlayout>
 	<north border="0">
-		<toolbar width="100%">
-			<toolbarbutton label="${labels.admin.entity.newfunction}" 
-						   iconSclass="new-button z-icon-file-o alpha-icon-lg" 
-					   	   onClick="@command('newCallbackFunction')"/>
-			<toolbarbutton label="${labels.admin.entity.removefunction}" 
-						   iconSclass="remove-button z-icon-remove alpha-icon-lg" 
-					   	   onClick="@command('removeCallbackFunction',elem=self)"
-					   	   visible="@load(not empty vm.callbackFunction)"/>
-		</toolbar>
+		<hbox hflex="1">
+			<toolbar hflex="1">
+				<toolbarbutton label="${labels.admin.entity.newfunction}" 
+							   iconSclass="new-button z-icon-file-o alpha-icon-lg" 
+						   	   onClick="@command('newCallbackFunction')"/>
+				<toolbarbutton label="${labels.admin.entity.removefunction}" 
+							   iconSclass="remove-button z-icon-remove alpha-icon-lg" 
+						   	   onClick="@command('removeCallbackFunction',elem=self)"
+						   	   visible="@load(not empty vm.callbackFunction)"/>
+			</toolbar>
+			<toolbar visible="@init(vm.isAPIJavadocAvailable())"
+					 align="end" hflex="min"
+					 overflowPopup="false">
+				<toolbarbutton iconSclass="z-icon-share alpha-icon-lg" 
+							   label="${labels.admin.entity.showjavadoc}" 
+							   onClick="@command('showAPIJavadoc')"/>			 
+			</toolbar>
+		</hbox>
 	</north>
 	<center border="0">
 		<listbox mold="paging" autopaging="true" 

@@ -27,14 +27,23 @@
 		mode="modal" sizable="true">
 	<borderlayout>
 		<north border="0">
-			<toolbar>
-				<toolbarbutton iconSclass="z-icon-check-circle alpha-icon-lg" 
-						   label="${labels.button.compile}" 
-						   onClick="@command('compile',code=codemirror.getText(),elem=self)"/>
-				<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
-						   label="${labels.button.reset}" 
-						   onClick="@command('reset')"/>
-			</toolbar>
+			<hbox hflex="1">
+				<toolbar hflex="1">
+					<toolbarbutton iconSclass="z-icon-check-circle alpha-icon-lg" 
+							   label="${labels.button.compile}" 
+							   onClick="@command('compile',code=codemirror.getText(),elem=self)"/>
+					<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+							   label="${labels.button.reset}" 
+							   onClick="@command('reset')"/>
+				</toolbar>
+				<toolbar visible="@init(vm.isAPIJavadocAvailable())"
+						 align="end" hflex="min"
+						 overflowPopup="false">
+					<toolbarbutton iconSclass="z-icon-share alpha-icon-lg" 
+								   label="${labels.admin.entity.showjavadoc}" 
+								   onClick="@command('showAPIJavadoc')"/>			 
+				</toolbar>
+			</hbox>
 		</north>
 		<center border="0">
 			<borderlayout>

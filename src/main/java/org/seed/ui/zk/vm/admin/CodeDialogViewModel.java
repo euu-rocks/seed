@@ -95,6 +95,12 @@ public class CodeDialogViewModel extends AbstractApplicationViewModel {
 		contentObject.setContent(originalContent);
 	}
 	
+	@Override
+	@Command
+	public void showAPIJavadoc() {
+		super.showAPIJavadoc();
+	}
+	
 	@Command
 	@SmartNotifyChange("errorMessage")
 	public void compile(@BindingParam(C.CODE) String code,

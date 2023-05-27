@@ -157,7 +157,7 @@ public class RestValidator extends AbstractSystemEntityValidator<Rest> {
 				  name.equalsIgnoreCase(C.FILTER) 	 ||
 				  name.equalsIgnoreCase(C.TASK)   	 ||
 				  name.equalsIgnoreCase(C.OBJECT))   ||
-				  name.equalsIgnoreCase("transform");
+				  name.equalsIgnoreCase(C.TRANSFORM);
 	}
 	
 	private static final String LABEL_FUNCTION = "label.function";

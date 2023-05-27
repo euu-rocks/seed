@@ -49,6 +49,8 @@ public class Seed {
 	
 	public static final String PROP_BATCH_SIZE                   = "db.batchprocessing.batch_size";
 	
+	public static final String PROP_EXTERN_API_JAVADOC_URL		 = "extern.apijavadoc.url";
+	
 	public static final String PROP_SEARCH_SOLR_ENABLE           = "search.solr.enable";
 	public static final String PROP_SEARCH_SOLR_URL              = "search.solr.url";
 	

@@ -200,13 +200,9 @@ public class UserGroupServiceImpl extends AbstractApplicationEntityService<UserG
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
-		if (currentVersionModule.getUserGroups() != null) {
-			for (UserGroup currentVersionGroup : currentVersionModule.getUserGroups()) {
-				if (module.getUserGroupByUid(currentVersionGroup.getUid()) == null) {
-					session.delete(currentVersionGroup);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getUserGroups(), 
+						 currentVersionGroup -> module.getUserGroupByUid(currentVersionGroup.getUid()) == null, 
+						 session::delete);
 	}
 	
 	@Override

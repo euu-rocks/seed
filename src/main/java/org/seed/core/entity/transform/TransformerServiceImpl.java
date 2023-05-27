@@ -25,8 +25,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -93,7 +91,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	
 	@Override
 	public Transformer createInstance(@Nullable Options options) {
-		final TransformerMetadata transformer = (TransformerMetadata) super.createInstance(options);
+		final var transformer = (TransformerMetadata) super.createInstance(options);
 		transformer.createLists();
 		return transformer;
 	}
@@ -103,7 +101,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	public TransformerFunction createFunction(Transformer transformer) {
 		Assert.notNull(transformer, C.TRANSFORMER);
 		
-		final TransformerFunction function = new TransformerFunction();
+		final var function = new TransformerFunction();
 		transformer.addFunction(function);
 		return function;
 	}
@@ -115,10 +113,10 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		Assert.notNull(targetEntity, C.TARGETENTITY);
 		Assert.notNull(name, C.NAME);
 		
-		final List<Transformer> list = repository.find(session,
-													   queryParam(C.SOURCEENTITY, sourceEntity),
-				   									   queryParam(C.TARGETENTITY, targetEntity),
-				   									   queryParam(C.NAME, name));
+		final var list = repository.find(session,
+										 queryParam(C.SOURCEENTITY, sourceEntity),
+				   						 queryParam(C.TARGETENTITY, targetEntity),
+				   						 queryParam(C.NAME, name));
 		return !list.isEmpty() ? list.get(0) : null;
 	}
 	
@@ -144,7 +142,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		Assert.notNull(session, C.SESSION);
 		
 		if (!entity.isGeneric()) {
-			final Set<Transformer> result = new HashSet<>();
+			final var result = new HashSet<Transformer>();
 			result.addAll(repository.find(session, queryParam(C.SOURCEENTITY, entity)));
 			result.addAll(repository.find(session, queryParam(C.TARGETENTITY, entity)));
 			return new ArrayList<>(result);
@@ -183,22 +181,22 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	@Override
 	public List<NestedTransformer> getNestedTransformers(Transformer transformer) {
 		Assert.notNull(transformer, C.TRANSFORMER);
+		final var resultMap = new HashMap<MultiKey, NestedTransformer>();
 		
-		final Map<MultiKey, NestedTransformer> resultMap = new HashMap<>();
 		if (transformer.hasElements()) {
-			final Entity sourceEntity = transformer.getSourceEntity();
-			final Entity targetEntity = transformer.getTargetEntity();
+			final var sourceEntity = transformer.getSourceEntity();
+			final var targetEntity = transformer.getTargetEntity();
 			for (TransformerElement element : transformer.getElements()) {
-				final NestedEntity sourceNested = sourceEntity.getNestedByEntityField(element.getSourceField());
-				final NestedEntity targetNested = targetEntity.getNestedByEntityField(element.getTargetField());
+				final var sourceNested = sourceEntity.getNestedByEntityField(element.getSourceField());
+				final var targetNested = targetEntity.getNestedByEntityField(element.getTargetField());
 				if (sourceNested != null && targetNested != null) {
-					final MultiKey key = MultiKey.valueOf(sourceNested, targetNested);
+					final var key = MultiKey.valueOf(sourceNested, targetNested);
 					resultMap.computeIfAbsent(key, t -> new NestedTransformer(sourceNested, targetNested));
 					resultMap.get(key).addElement(element);
 				}
 			}
 		}
-		return new ArrayList<>(resultMap.values());
+		return valueList(resultMap);
 	}
 	
 	@Override
@@ -208,17 +206,9 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		Assert.notNull(elements, "elements");
 		Assert.notNull(nesteds, "nesteds");
 		
-		for (TransformerElement element : elements) {
-			if (!transformer.containsElement(element)) {
-				transformer.addElement(element);
-			}
-		}
+		filterAndForEach(elements, not(transformer::containsElement), transformer::addElement);
 		for (NestedTransformer nested : nesteds) {
-			for (TransformerElement element : nested.getElements()) {
-				if (!transformer.containsElement(element)) {
-					transformer.addElement(element);
-				}
-			}
+			filterAndForEach(nested.getElements(), not(transformer::containsElement), transformer::addElement);
 		}
 		if (transformer.hasElements()) {
 			adjustTransformerElements(transformer, elements, nesteds);
@@ -227,20 +217,8 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	
 	private void adjustTransformerElements(Transformer transformer, List<TransformerElement> elements, List<NestedTransformer> nesteds) {
 		for (Iterator<TransformerElement> it = transformer.getElements().iterator(); it.hasNext();) {
-			final TransformerElement element = it.next();
-			boolean found = false;
-			if (elements.contains(element)) {
-				found = true;
-			}
-			else {
-				for (NestedTransformer nested : nesteds) {
-					if (nested.containsElement(element)) {
-						found = true;
-						break;
-					}
-				}
-			}
-			if (!found) {
+			final var element = it.next();
+			if (!(elements.contains(element) || anyMatch(nesteds, nested -> nested.containsElement(element)))) {
 				it.remove();
 			}
 		}
@@ -252,7 +230,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		Assert.notNull(transformer, C.TRANSFORMER);
 		
 		final boolean isNew = transformer.isNew();
-		final Transformer currentVersionTransformer = !isNew ? getObject(transformer.getId()) : null;
+		final var currentVersionTransformer = !isNew ? getObject(transformer.getId()) : null;
 		final boolean renamed = !isNew && !currentVersionTransformer.getInternalName().equals(transformer.getInternalName());
 		
 		if (currentVersionTransformer != null) { // It's necessary to load function names now
@@ -265,13 +243,12 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		
 		if (!isNew && currentVersionTransformer.hasFunctions()) {
 			for (TransformerFunction currentFunction : currentVersionTransformer.getFunctions()) {
-				final TransformerFunction function = transformer.getFunctionByUid(currentFunction.getUid());
+				final var function = transformer.getFunctionByUid(currentFunction.getUid());
 				if (function == null || !function.getName().equals(currentFunction.getName())) {
 					removeFunctionClass(currentFunction);
 				}
 			}
 		}
-		
 		if (transformer.hasFunctions()) {
 			updateConfiguration();
 		}
@@ -300,18 +277,19 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		Assert.notNull(userGroup, C.USERGROUP);
 		Assert.notNull(session, C.SESSION);
 		
-		return subList(getObjects(session),
-					   trans -> anyMatch(trans.getPermissions(), 
-							   			 perm -> userGroup.equals(perm.getUserGroup())));
-	}
-	
-	@Override
-	public List<Transformer> findUsage(EntityFieldGroup fieldGroup) {
-		return Collections.emptyList();
+		return subList(getObjects(session), trans -> trans.containsPermission(userGroup));
 	}
 	
 	@Override
 	public List<Transformer> findUsage(EntityStatus entityStatus, Session session) {
+		Assert.notNull(entityStatus, C.STATUS);
+		Assert.notNull(session, C.SESSION);
+		
+		return subList(getObjects(session), trans -> trans.containsStatus(entityStatus));
+	}
+	
+	@Override
+	public List<Transformer> findUsage(EntityFieldGroup fieldGroup) {
 		return Collections.emptyList();
 	}
 	
@@ -344,8 +322,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 					analysis.addChangeNew(transformer);
 				}
 				else {
-					final Transformer currentVersionTransformer = 
-						currentVersionModule.getTransformerByUid(transformer.getUid());
+					final var currentVersionTransformer = currentVersionModule.getTransformerByUid(transformer.getUid());
 					if (currentVersionTransformer == null) {
 						analysis.addChangeNew(transformer);
 					}
@@ -395,9 +372,9 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	}
 	
 	private void initTransformer(Transformer transformer, TransferContext context, Session session) {
-		final Transformer currentVersionTransformer = findByUid(session, transformer.getUid());
-		final Entity sourceEntity = entityService.findByUid(session, transformer.getSourceEntityUid());
-		final Entity targetEntity = entityService.findByUid(session, transformer.getTargetEntityUid());
+		final var currentVersionTransformer = findByUid(session, transformer.getUid());
+		final var sourceEntity = entityService.findByUid(session, transformer.getSourceEntityUid());
+		final var targetEntity = entityService.findByUid(session, transformer.getTargetEntityUid());
 		((TransformerMetadata) transformer).setModule(context.getModule());
 		((TransformerMetadata) transformer).setSourceEntity(sourceEntity);
 		((TransformerMetadata) transformer).setTargetEntity(targetEntity);
@@ -429,10 +406,9 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		element.setTransformer(transformer);
 		element.setSourceField(sourceEntity.findFieldByUid(element.getSourceFieldUid()));
 		element.setTargetField(targetEntity.findFieldByUid(element.getTargetFieldUid()));
-		final TransformerElement currentVersionElement =
-			currentVersionTransformer != null 
-				? currentVersionTransformer.getElementByUid(element.getUid()) 
-				: null;
+		final var currentVersionElement = currentVersionTransformer != null 
+											? currentVersionTransformer.getElementByUid(element.getUid()) 
+											: null;
 		if (currentVersionElement != null) {
 			currentVersionElement.copySystemFieldsTo(element);
 		}
@@ -441,10 +417,9 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	private void initTransformerFunction(TransformerFunction function, Transformer transformer,
 										 Transformer currentVersionTransformer) {
 		function.setTransformer(transformer);
-		final TransformerFunction currentVersionFunction =
-			currentVersionTransformer != null
-				? currentVersionTransformer.getFunctionByUid(function.getUid())
-				: null;
+		final var currentVersionFunction = currentVersionTransformer != null
+											? currentVersionTransformer.getFunctionByUid(function.getUid())
+											: null;
 		if (currentVersionFunction != null) {
 			currentVersionFunction.copySystemFieldsTo(function);
 		}
@@ -454,10 +429,9 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 										   Transformer currentVersionTransformer, Session session) {
 		permission.setTransformer(transformer);
 		permission.setUserGroup(userGroupService.findByUid(session, permission.getUserGroupUid()));
-		final TransformerPermission currentVersionPermission = 
-			currentVersionTransformer != null
-				? currentVersionTransformer.getPermissionByUid(permission.getUid())
-				: null;
+		final var currentVersionPermission = currentVersionTransformer != null
+												? currentVersionTransformer.getPermissionByUid(permission.getUid())
+												: null;
 		if (currentVersionPermission != null) {
 			currentVersionPermission.copySystemFieldsTo(permission);
 		}
@@ -467,10 +441,9 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 									   Transformer currentVersionTransformer) {
 		status.setTransformer(transformer);
 		status.setStatus(transformer.getSourceEntity().getStatusByUid(status.getStatusUid()));
-		final TransformerStatus currentVersionStatus =
-			currentVersionTransformer != null
-				? currentVersionTransformer.getStatusByUid(status.getUid())
-				: null;
+		final var currentVersionStatus = currentVersionTransformer != null
+											? currentVersionTransformer.getStatusByUid(status.getUid())
+											: null;
 		if (currentVersionStatus != null) {
 			currentVersionStatus.copySystemFieldsTo(status);
 		}

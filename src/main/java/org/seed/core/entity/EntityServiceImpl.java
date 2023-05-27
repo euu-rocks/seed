@@ -309,6 +309,8 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		
 		return subList(getObjects(session), 
 					   entity -> entity.containsPermission(userGroup) ||
+					   			 anyMatch(entity.getFieldConstraints(), 
+					   					  constr -> userGroup.equals(constr.getUserGroup())) ||
 					   			 anyMatch(entity.getStatusTransitions(), 
 					   					  tran -> tran.containsPermission(userGroup)));
 	}
@@ -348,7 +350,6 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 			}
 		}
 		else {
-			Assert.stateAvailable(field.getType(), "field type");
 			switch (field.getType()) {
 				case BOOLEAN:
 					return MiscUtils.toArray(field.getType(), FieldType.TEXT, FieldType.TEXTLONG);
@@ -871,8 +872,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		codeManager.removeClass(CodeUtils.getQualifiedName(function));
 	}
 	
-	private void removeEntityClasses(Entity entity, Entity currentVersionEntity,
-			 boolean isInsert, boolean renamed) {
+	private void removeEntityClasses(Entity entity, Entity currentVersionEntity, boolean isInsert, boolean renamed) {
 		if (renamed) {
 			removeEntityClass(currentVersionEntity);
 		}

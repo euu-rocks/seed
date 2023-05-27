@@ -21,7 +21,6 @@ import static org.seed.core.util.CollectionUtils.*;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Nullable;
 
@@ -38,7 +37,6 @@ import org.seed.core.data.Options;
 import org.seed.core.data.ValidationException;
 import org.seed.core.data.datasource.IDataSource;
 import org.seed.core.data.datasource.DataSourceDependent;
-import org.seed.core.data.datasource.DataSourceResult;
 import org.seed.core.data.datasource.DataSourceService;
 import org.seed.core.user.User;
 import org.seed.core.user.UserGroup;
@@ -71,7 +69,7 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 	
 	@Override
 	public Report createInstance(@Nullable Options options) {
-		final ReportMetadata instance = (ReportMetadata) super.createInstance(options);
+		final var instance = (ReportMetadata) super.createInstance(options);
 		instance.createLists();
 		return instance;
 	}
@@ -88,7 +86,7 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 	public ReportDataSource createDataSource(Report report) {
 		Assert.notNull(report, C.REPORT);
 		
-		final ReportDataSource dataSource = new ReportDataSource();
+		final var dataSource = new ReportDataSource();
 		report.addDataSource(dataSource);
 		return dataSource;
 	}
@@ -100,17 +98,16 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 		Assert.notNull(format, "format");
 		
 		validator.validateGenerate(report);
-		final ReportGenerator generator = generatorProvider.getGenerator(report, format);
+		final var generator = generatorProvider.getGenerator(report, format);
 		if (report.hasDataSources()) {
 			// query data sources
 			for (ReportDataSource reportDataSource : report.getDataSources()) {
-				final Map<String,Object> parameterMap = new HashMap<>();
-				final IDataSource dataSource = reportDataSource.getDataSource();
+				final var paramMap = new HashMap<String,Object>();
+				final var dataSource = reportDataSource.getDataSource();
 				if (dataSource.hasParameters()) {
-					dataSource.getParameters()
-							  .forEach(param -> parameterMap.put(param.getName(),param.getValue()));
+					dataSource.getParameters().forEach(param -> paramMap.put(param.getName(),param.getValue()));
 				}
-				final DataSourceResult result = dataSourceService.query(dataSource, parameterMap, session);
+				final var result = dataSourceService.query(dataSource, paramMap, session);
 				generator.addDataSourceResult(reportDataSource, result);
 			}
 		}
@@ -137,8 +134,7 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 					analysis.addChangeNew(report);
 				}
 				else {
-					final Report currentVersionReport =
-						currentVersionModule.getReportByUid(report.getUid());
+					final var currentVersionReport = currentVersionModule.getReportByUid(report.getUid());
 					if (currentVersionReport == null) {
 						analysis.addChangeNew(report);
 					}
@@ -170,7 +166,7 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 		
 		if (context.getModule().getReports() != null) {
 			for (Report report : context.getModule().getReports()) {
-				final Report currentVersionReport = findByUid(session, report.getUid());
+				final var currentVersionReport = findByUid(session, report.getUid());
 				((ReportMetadata) report).setModule(context.getModule());
 				if (currentVersionReport != null) {
 					((ReportMetadata) currentVersionReport).copySystemFieldsTo(report);
@@ -191,10 +187,9 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 		for (ReportDataSource dataSource : report.getDataSources()) {
 			dataSource.setReport(report);
 			dataSource.setDataSource(dataSourceService.findByUid(session, dataSource.getDataSourceUid()));
-			final ReportDataSource currentVersionDataSource =
-				currentVersionReport != null
-					? currentVersionReport.getDataSourceByUid(dataSource.getUid())
-					: null;
+			final var currentVersionDataSource = currentVersionReport != null
+													? currentVersionReport.getDataSourceByUid(dataSource.getUid())
+													: null;
 			if (currentVersionDataSource != null) {
 				currentVersionDataSource.copySystemFieldsTo(dataSource);
 			}
@@ -205,10 +200,9 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 		for (ReportPermission permission : report.getPermissions()) {
 			permission.setReport(report);
 			permission.setUserGroup(userGroupService.findByUid(session, permission.getUserGroupUid()));
-			final ReportPermission currentVersionPermission =
-				currentVersionReport != null
-					? currentVersionReport.getPermissionByUid(permission.getUid())
-					: null;
+			final var currentVersionPermission = currentVersionReport != null
+													? currentVersionReport.getPermissionByUid(permission.getUid())
+													: null;
 			if (currentVersionPermission != null) {
 				currentVersionPermission.copySystemFieldsTo(permission);
 			}
@@ -253,9 +247,7 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 		Assert.notNull(userGroup, C.USERGROUP);
 		Assert.notNull(session, C.SESSION);
 		
-		return subList(getObjects(session), 
-					   report -> anyMatch(report.getPermissions(), 
-										  perm -> userGroup.equals(perm.getUserGroup())));
+		return subList(getObjects(session), report -> report.containsPermission(userGroup));
 	}
 
 	@Override
@@ -269,7 +261,7 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 	}
 	
 	private static ReportPermission createPermission(Report report, UserGroup group) {
-		final ReportPermission permission = new ReportPermission();
+		final var permission = new ReportPermission();
 		permission.setReport(report);
 		permission.setUserGroup(group);
 		return permission;

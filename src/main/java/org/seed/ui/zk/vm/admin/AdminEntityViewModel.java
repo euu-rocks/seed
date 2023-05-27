@@ -482,6 +482,12 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 						documentationService.createStatusDiagramPlantUML(getObject())));
 	}
 	
+	@Override
+	@Command
+	public void showAPIJavadoc() {
+		super.showAPIJavadoc();
+	}
+	
 	@Command
 	public void saveEntity(@BindingParam(C.ELEM) Component component) {
 		try {

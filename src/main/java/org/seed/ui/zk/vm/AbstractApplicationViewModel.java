@@ -25,8 +25,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.hibernate.Session;
 
 import org.seed.C;
+import org.seed.Seed;
 import org.seed.core.application.setting.ApplicationSettingService;
 import org.seed.core.application.setting.Setting;
+import org.seed.core.config.ApplicationProperties;
 import org.seed.core.config.FullTextSearchProvider;
 import org.seed.core.config.Limits;
 import org.seed.core.config.OpenSessionInViewFilter;
@@ -81,6 +83,9 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	@WireVariable(value="defaultSessionProvider")
 	private SessionProvider sessionProvider;
 	
+	@WireVariable(value="applicationProperties")
+	private ApplicationProperties applicationProperties;
+	
 	@WireVariable(value="applicationSettingServiceImpl")
 	protected ApplicationSettingService settingService;
 	
@@ -96,6 +101,7 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	@WireVariable(value="limits")
 	private Limits limits;
 	
+	// TODO: nach AbstractViewModel verlagern
 	private Map<String, DoubleClickDetector> mapDblClickDetector;
 	
 	private boolean dirty;
@@ -156,6 +162,10 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 		return reportService.getReports(getUser(), currentSession());
 	}
 	
+	public final boolean isAPIJavadocAvailable() {
+		return applicationProperties.hasProperty(Seed.PROP_EXTERN_API_JAVADOC_URL);
+	}
+	
 	public boolean isFullTextSearchAvailable() {
 		return fullTextSearchProvider.isFullTextSearchAvailable();
 	}
@@ -213,6 +223,10 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 		else {
 			throw new UnsupportedOperationException(systemEntity.getClass().getSimpleName());
 		}
+	}
+	
+	protected void showAPIJavadoc() {
+		openNewTab(applicationProperties.getProperty(Seed.PROP_EXTERN_API_JAVADOC_URL));
 	}
 	
 	protected final void resetDirty() {

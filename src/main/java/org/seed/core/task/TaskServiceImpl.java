@@ -43,7 +43,6 @@ import org.seed.core.codegen.CodeUtils;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.data.Options;
 import org.seed.core.data.ValidationException;
-import org.seed.core.mail.MailBuilder;
 import org.seed.core.mail.MailService;
 import org.seed.core.task.job.AbstractSystemJob;
 import org.seed.core.user.User;
@@ -82,7 +81,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	
 	@Override
 	public Task createInstance(@Nullable Options options) {
-		final TaskMetadata instance = (TaskMetadata) super.createInstance(options);
+		final var instance = (TaskMetadata) super.createInstance(options);
 		instance.createLists();
 		instance.setActive(true);
 		return instance;
@@ -124,7 +123,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	public TaskRun createRun(Task task) {
 		Assert.notNull(task, C.TASK);
 		
-		final TaskRun run = new TaskRun();
+		final var run = new TaskRun();
 		run.setStartTime(new Date());
 		task.addRun(run);
 		return run;
@@ -134,7 +133,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	public SystemTaskRun createRun(SystemTask systemTask) {
 		Assert.notNull(systemTask, "system task");
 		
-		final SystemTaskRun run = new SystemTaskRun();
+		final var run = new SystemTaskRun();
 		run.setSystemTask(systemTask);
 		run.setStartTime(new Date());
 		return run;
@@ -145,7 +144,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	public TaskParameter createParameter(Task task) {
 		Assert.notNull(task, C.TASK);
 		
-		final TaskParameter param = new TaskParameter();
+		final var param = new TaskParameter();
 		task.addParameter(param);
 		return param;
 	}
@@ -155,7 +154,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	public TaskNotification createNotification(Task task) {
 		Assert.notNull(task, C.TASK);
 		
-		final TaskNotification notification = new TaskNotification();
+		final var notification = new TaskNotification();
 		notification.setResult(TaskResult.SUCCESS);
 		task.addNotification(notification);
 		return notification;
@@ -178,9 +177,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		Assert.notNull(userGroup, C.USERGROUP);
 		Assert.notNull(session, C.SESSION);
 		
-		return subList(getObjects(session), 
-					   task -> anyMatch(task.getPermissions(), 
-							   			perm -> userGroup.equals(perm.getUserGroup())));
+		return subList(getObjects(session), task -> task.containsPermission(userGroup));
 	}
 	
 	@Override
@@ -233,7 +230,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		
 		if (context.getModule().getTasks() != null) {
 			for (Task task : context.getModule().getTasks()) {
-				final Task currentVersionTask = findByUid(session, task.getUid());
+				final var currentVersionTask = findByUid(session, task.getUid());
 				((TaskMetadata) task).setModule(context.getModule());
 				if (currentVersionTask != null) {
 					((TaskMetadata) currentVersionTask).copySystemFieldsTo(task);
@@ -260,10 +257,9 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	
 	private void initTaskParameter(TaskParameter parameter, Task task, Task currentVersionTask) {
 		parameter.setTask(task);
-		final TaskParameter currentVersionParameter =
-			currentVersionTask != null 
-				? currentVersionTask.getParameterByUid(parameter.getUid()) 
-				: null;
+		final var currentVersionParameter = currentVersionTask != null 
+												? currentVersionTask.getParameterByUid(parameter.getUid()) 
+												: null;
 		if (currentVersionParameter != null) {
 			currentVersionParameter.copySystemFieldsTo(parameter);
 		}
@@ -272,10 +268,9 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	private void initTaskPermission(TaskPermission permission, Task task, Task currentVersionTask, Session session) {
 		permission.setTask(task);
 		permission.setUserGroup(userGroupService.findByUid(session, permission.getUserGroupUid()));
-		final TaskPermission currentVersionPermission =
-			currentVersionTask != null
-				? currentVersionTask.getPermissionByUid(permission.getUid())
-				: null;
+		final var currentVersionPermission = currentVersionTask != null
+												? currentVersionTask.getPermissionByUid(permission.getUid())
+												: null;
 		if (currentVersionPermission != null) {
 			currentVersionPermission.copySystemFieldsTo(permission);
 		}
@@ -304,7 +299,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		
 		final boolean isNew = task.isNew();
 		final boolean contentChanged = ((TaskMetadata) task).isContentChanged();
-		final Task currentVersionTask = !isNew ? getObject(task.getId()) : null;
+		final var currentVersionTask = !isNew ? getObject(task.getId()) : null;
 		super.saveObject(task);
 		
 		if (!isNew && !task.getInternalName().equals(currentVersionTask.getInternalName())) {
@@ -375,22 +370,21 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		Assert.state(task.hasNotifications(), "task has no notifications");
 		Assert.state(run.getResult() != null, "run has no result");
 		
-		if (!mailService.isMailingEnabled()) {
-			return;
+		if (mailService.isMailingEnabled()) {
+			final var result = run.getResult();
+			final var mailBuilder = mailService.getMailBuilder()
+				.setSubject(labelProvider.getLabel("label.jobrun") + ": " + task.getName() + ' ' + 
+						labelProvider.formatDate(run.getStartTime()) + " - " + 
+						labelProvider.formatDate(run.getEndTime()) + ' ' +
+						labelProvider.getEnumLabel(result))
+				.setText(getRunLogText(run));
+			
+			filterAndForEach(task.getNotifications(), 
+							 notif -> result.ordinal() >= notif.getResult().ordinal(), 
+							 notif -> mailService.sendMail(mailBuilder
+															.setToAddress(notif.getUser().getEmail())
+															.build()));
 		}
-		final TaskResult result = run.getResult();
-		final MailBuilder mailBuilder = mailService.getMailBuilder()
-			.setSubject(labelProvider.getLabel("label.jobrun") + ": " + task.getName() + ' ' + 
-					labelProvider.formatDate(run.getStartTime()) + " - " + 
-					labelProvider.formatDate(run.getEndTime()) + ' ' +
-					labelProvider.getEnumLabel(result))
-			.setText(getRunLogText(run));
-		
-		filterAndForEach(task.getNotifications(), 
-						 notif -> result.ordinal() >= notif.getResult().ordinal(), 
-						 notif -> mailService.sendMail(mailBuilder
-														.setToAddress(notif.getUser().getEmail())
-														.build()));
 	}
 	
 	@Override
@@ -408,7 +402,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	}
 	
 	private String getRunLogText(TaskRun run) {
-		final StringBuilder buf = new StringBuilder();
+		final var buf = new StringBuilder();
 		for (TaskRunLog log : run.getLogs()) {
 			buf.append(labelProvider.formatDate(log.getCreatedOn())).append(' ')
 			   .append(log.getLevel()).append(' ').append(log.getContent()).append("\n");
@@ -417,7 +411,7 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	}
 	
 	private static TaskPermission createPermission(Task task, UserGroup group) {
-		final TaskPermission permission = new TaskPermission();
+		final var permission = new TaskPermission();
 		permission.setTask(task);
 		permission.setUserGroup(group);
 		return permission;

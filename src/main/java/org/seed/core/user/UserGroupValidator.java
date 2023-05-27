@@ -57,31 +57,31 @@ public class UserGroupValidator extends AbstractSystemEntityValidator<UserGroup>
 										 ValidationErrors errors, Session session) {
 		for (SystemEntity systemEntity : dependent.findUsage(userGroup, session)) {
 			switch (getEntityType(systemEntity)) {
-			case "entity":
+			case C.ENTITY:
 				errors.addError("val.inuse.groupentity", systemEntity.getName());
 				break;
 
-			case "filter":
+			case C.FILTER:
 				errors.addError("val.inuse.groupfilter", systemEntity.getName());
 				break;
 
-			case "transform":
+			case C.TRANSFORM:
 				errors.addError("val.inuse.grouptransform", systemEntity.getName());
 				break;
 
-			case "report":
+			case C.REPORT:
 				errors.addError("val.inuse.groupreport", systemEntity.getName());
 				break;
 
-			case "rest":
+			case C.REST:
 				errors.addError("val.inuse.grouprest", systemEntity.getName());
 				break;
 
-			case "task":
+			case C.TASK:
 				errors.addError("val.inuse.grouptask", systemEntity.getName());
 				break;
 
-			case "user":
+			case C.USER:
 				errors.addError("val.inuse.groupuser", systemEntity.getName());
 				break;
 

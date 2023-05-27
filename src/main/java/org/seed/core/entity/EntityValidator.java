@@ -666,7 +666,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 					errors.addError("val.inuse.entitytransfer", systemEntity.getName());
 					break;
 	
-				case "transform":
+				case C.TRANSFORM:
 					errors.addError("val.inuse.entitytransform", systemEntity.getName());
 					break;
 	
@@ -696,7 +696,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 					errors.addError("val.inuse.fieldform", systemEntity.getName());
 					break;
 	
-				case "transform":
+				case C.TRANSFORM:
 					errors.addError("val.inuse.fieldtransform", systemEntity.getName());
 					break;
 	
@@ -719,6 +719,10 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 					
 				case C.VALUE:
 					errors.addError("val.inuse.status");
+					break;
+					
+				case C.TRANSFORM:
+					errors.addError("val.inuse.statustransform", systemEntity.getName());
 					break;
 					
 				default:

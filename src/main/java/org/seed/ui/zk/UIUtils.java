@@ -184,6 +184,12 @@ public abstract class UIUtils {
 		Executions.getCurrent().sendRedirect(url);
 	}
 	
+	public static void openNewTab(String url) {
+		Assert.notNull(url, C.URL);
+		
+		Executions.getCurrent().sendRedirect(url, "new");
+	}
+	
 	public static void wireComponents(Component component, Object model) {
 		Assert.notNull(component, C.COMPONENT);
 		

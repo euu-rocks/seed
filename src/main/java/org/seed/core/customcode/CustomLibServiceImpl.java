@@ -17,6 +17,8 @@
  */
 package org.seed.core.customcode;
 
+import static org.seed.core.util.CollectionUtils.filterAndForEach;
+
 import java.util.List;
 
 import org.hibernate.Session;
@@ -83,13 +85,9 @@ public class CustomLibServiceImpl extends AbstractApplicationEntityService<Custo
 
 	@Override
 	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
-		if (currentVersionModule.getCustomLibs() != null) {
-			for (CustomLib currentVersionLib : currentVersionModule.getCustomLibs()) {
-				if (analysis.getModule().getCustomLibByUid(currentVersionLib.getUid()) == null) {
-					analysis.addChangeDelete(currentVersionLib);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getCustomLibs(),
+						 currentVersionLib -> analysis.getModule().getCustomLibByUid(currentVersionLib.getUid()) == null,
+						 analysis::addChangeDelete);
 	}
 
 	@Override
@@ -117,13 +115,9 @@ public class CustomLibServiceImpl extends AbstractApplicationEntityService<Custo
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
-		if (currentVersionModule.getCustomLibs() != null) {
-			for (CustomLib currentVersionLib : currentVersionModule.getCustomLibs()) {
-				if (module.getCustomLibByUid(currentVersionLib.getUid()) == null) {
-					session.delete(currentVersionLib);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getCustomLibs(), 
+						 currentVersionLib -> module.getCustomLibByUid(currentVersionLib.getUid()) == null, 
+						 session::delete);
 	}
 	
 	@Override

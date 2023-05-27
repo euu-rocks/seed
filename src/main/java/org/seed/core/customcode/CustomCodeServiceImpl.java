@@ -17,6 +17,8 @@
  */
 package org.seed.core.customcode;
 
+import static org.seed.core.util.CollectionUtils.filterAndForEach;
+
 import org.hibernate.Session;
 
 import org.seed.C;
@@ -76,13 +78,9 @@ public class CustomCodeServiceImpl extends AbstractApplicationEntityService<Cust
 	
 	@Override
 	protected void analyzeCurrentVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
-		if (currentVersionModule.getCustomCodes() != null) {
-			for (CustomCode currentVersionCode : currentVersionModule.getCustomCodes()) {
-				if (analysis.getModule().getCustomCodeByUid(currentVersionCode.getUid()) == null) {
-					analysis.addChangeDelete(currentVersionCode);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getCustomCodes(),
+						 currentVersionCode -> analysis.getModule().getCustomCodeByUid(currentVersionCode.getUid()) == null,
+						 analysis::addChangeDelete);
 	}
 
 	@Override
@@ -153,7 +151,6 @@ public class CustomCodeServiceImpl extends AbstractApplicationEntityService<Cust
 		
 		final CustomCode customCode = findByName(sourceCode.getQualifiedName(), session);
 		if (customCode != null && !customCode.getContent().equals(sourceCode.getContent())) {
-			
 			customCode.setContent(sourceCode.getContent());
 			repository.save(customCode);
 			return true;

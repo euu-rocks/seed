@@ -340,9 +340,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		Assert.notNull(userGroup, C.USERGROUP);
 		Assert.notNull(session, C.SESSION);
 		
-		return subList(getObjects(session), 
-					   filter -> anyMatch(filter.getPermissions(), 
-							   			  perm -> userGroup.equals(perm.getUserGroup())));
+		return subList(getObjects(session), filter -> filter.containsPermission(userGroup));
 	}
 	
 	@Override
