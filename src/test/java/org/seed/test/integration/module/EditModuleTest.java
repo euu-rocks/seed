@@ -51,15 +51,4 @@ public class EditModuleTest extends AbstractModuleTest {
 		saveModule(tabpanel);
 	}
 	
-	@Test
-	@Order(3)
-	void testAddMenu() {
-		WebElement tabpanel = showModule("testmodulenew");
-		assertEquals("Menüs", findTab(tabpanel, "menus").getText());
-		clickTab(tabpanel, "menus");
-		WebElement tabpanelMenus = findTabpanel(tabpanel, "menus");
-		dragAndDrop(tabpanelMenus, "testmenunew", "selected");
-		saveModule(tabpanel);
-	}
-	
 }

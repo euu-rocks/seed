@@ -1,0 +1,50 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<?component name="nested-transfers" macroURI="~./zul/admin/transfer/nested_transfers.zul" inline="true"?>
+<?component name="nested-elements" macroURI="~./zul/admin/transfer/nested_elements.zul" inline="true"?>
+<borderlayout>
+	<center border="0" style="padding:5px">
+		<tabbox hflex="1" vflex="1">
+			<tabs>
+				<tab sclass="nestedtransfers-tab"
+					 label="${labels.label.nesteds}"/>
+				<tab id="tabNestedElements" sclass="nestedelements-tab" 
+					 label="${labels.label.elements}"
+					 onSelect="@command('selectNestedElements')"
+					 visible="@load(!empty vm.nesteds)"/>
+			</tabs>
+			<tabpanels> 
+				<tabpanel sclass="nestedtransfers-tabpanel">
+					<nested-transfers/>
+				</tabpanel>
+				<tabpanel sclass="nestedelements-tabpanel"
+						  fulfill="tabNestedElements.onSelect">
+					<nested-elements/>
+				</tabpanel>
+			</tabpanels>
+		</tabbox>
+	</center>
+	<south border="0">
+		<div align="center">
+			<label value="${labels.info.dragndropinfo}"/>
+		</div>
+	</south>
+</borderlayout>

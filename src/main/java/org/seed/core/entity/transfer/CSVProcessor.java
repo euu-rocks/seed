@@ -45,10 +45,11 @@ import com.opencsv.ICSVWriter;
 
 class CSVProcessor extends AbstractTransferProcessor {
 	
-	CSVProcessor(ValueObjectService valueObjectService,
+	CSVProcessor(TransferService transferService,
+				 ValueObjectService valueObjectService,
 				 Class<? extends ValueObject> objectClass,
 				 LabelProvider labelProvider, Transfer transfer) {
-		super(valueObjectService, objectClass, labelProvider, transfer);
+		super(transferService, valueObjectService, objectClass, labelProvider, transfer);
 	}
 	
 	@Override

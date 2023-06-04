@@ -237,6 +237,14 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 							errors.addError("val.inuse.nestedform", systemEntity.getName());
 							break;
 							
+						case C.TRANSFORM:
+							errors.addError("val.inuse.nestedtransform", systemEntity.getName());
+							break;
+							
+						case C.TRANSFER:
+							errors.addError("val.inuse.nestedtransfer", systemEntity.getName());
+							break;
+							
 						default:
 							unhandledEntity(systemEntity);
 					}

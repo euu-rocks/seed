@@ -43,6 +43,7 @@ import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.data.Order;
 import org.seed.core.entity.Entity;
+import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityMetadata;
 import org.seed.core.entity.EntityStatus;
 import org.seed.core.util.Assert;
@@ -185,6 +186,15 @@ public class TransformerMetadata extends AbstractApplicationEntity
 		Assert.notNull(element, C.ELEMENT);
 		
 		return containsObject(getElements(), element);
+	}
+	
+	@Override
+	public boolean containsField(EntityField entityField) {
+		Assert.notNull(entityField, C.ENTITYFIELD);
+		
+		return anyMatch(getElements(), 
+						elem -> entityField.equals(elem.getSourceField()) ||
+								entityField.equals(elem.getTargetField()));
 	}
 	
 	@Override

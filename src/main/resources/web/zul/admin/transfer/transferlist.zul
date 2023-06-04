@@ -58,10 +58,10 @@
 			<listhead sizable="true">
 	            <listheader hflex="2" label="${labels.label.transfer}" 
 	            			sort="auto(name)" onCreate="self.sort(true)"/>
-	            <listheader hflex="1" label="${labels.label.type}"
-	            			sort="auto(format)"/>
 	            <listheader hflex="2" label="${labels.label.entity}"
 	            			sort="auto(entity.name)"/>
+	            <listheader hflex="1" label="${labels.label.type}"
+	            			sort="auto(format)"/>
 	            <listheader hflex="1" label="${labels.label.module}"
 	            			sort="auto(module.name)"
 	            			visible="@load(vm.existModules())"/>
@@ -72,11 +72,11 @@
 	            	<listcell iconSclass="z-icon-exchange z-icon-fw alpha-icon-lg">
 	            		<label value="@init(transfer.name)" style="margin-left:3px"/>
 	            	</listcell>
-	            	<listcell>
-	            		<label value="@init(vm.getEnumLabel(transfer.format))"/>
-	            	</listcell>
 	            	<listcell iconSclass="z-icon-table z-icon-fw alpha-icon-lg">
 	            		<label value="@init(transfer.entity.name)"/>
+	            	</listcell>
+	            	<listcell>
+	            		<label value="@init(vm.getEnumLabel(transfer.format))"/>
 	            	</listcell>
 	            	<listcell iconSclass="@load(empty transfer.module ? '' : 'z-icon-cube alpha-icon-lg')">
 	            		<label value="@init(transfer.module.name)" style="margin-left:3px"/>

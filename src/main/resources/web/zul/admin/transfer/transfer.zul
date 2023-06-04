@@ -19,6 +19,7 @@
 -->
 <!DOCTYPE xml>
 <?component name="transfer-elements" macroURI="~./zul/admin/transfer/transfer_elements.zul" inline="true"?>
+<?component name="transfer-nesteds" macroURI="~./zul/admin/transfer/transfer_nesteds.zul" inline="true"?>
 <?component name="transfer-csv" macroURI="~./zul/admin/transfer/transfer_csv.zul" inline="true"?>
 <borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminTransferViewModel')">
 	<north border="0">
@@ -98,9 +99,12 @@
 				<tabs>
 					<tab sclass="fields-tab"
 						 label="${labels.label.fields}"/>
-					<tab id="tabCSV" sclass="settings-tab" 
+					<tab id="tabCSV" sclass="csvsettings-tab" 
 						 label="${labels.label.settings}"
 						 visible="@load(vm.object.format.isCSV())"/>
+					<tab id="tabNesteds" sclass="nesteds-tab" 
+						 label="${labels.label.nesteds}"
+						 visible="@load(vm.object.format.isJson() and vm.object.entity.hasNesteds())"/>
 				</tabs>
 				<tabpanels> 
 					<tabpanel sclass="fields-tabpanel">
@@ -108,6 +112,9 @@
 					</tabpanel>
 					<tabpanel sclass="settings-tabpanel" fulfill="tabCSV.onSelect">
 						<transfer-csv/>
+					</tabpanel>
+					<tabpanel sclass="nestedss-tabpanel" fulfill="tabNesteds.onSelect">
+						<transfer-nesteds/>
 					</tabpanel>
 				</tabpanels>
 			</tabbox>

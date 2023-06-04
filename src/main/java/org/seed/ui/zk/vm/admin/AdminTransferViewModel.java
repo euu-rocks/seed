@@ -17,6 +17,8 @@
  */
 package org.seed.ui.zk.vm.admin;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.seed.C;
@@ -24,6 +26,7 @@ import org.seed.core.data.SystemObject;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityService;
 import org.seed.core.entity.transfer.CharEncoding;
+import org.seed.core.entity.transfer.NestedTransfer;
 import org.seed.core.entity.transfer.Newline;
 import org.seed.core.entity.transfer.Transfer;
 import org.seed.core.entity.transfer.TransferElement;
@@ -34,6 +37,7 @@ import org.seed.core.entity.transfer.TransferResult;
 import org.seed.core.util.MiscUtils;
 import org.seed.ui.ListFilter;
 
+import org.springframework.util.ObjectUtils;
 import org.zkoss.bind.BindContext;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
@@ -42,6 +46,7 @@ import org.zkoss.bind.annotation.ContextType;
 import org.zkoss.bind.annotation.ExecutionArgParam;
 import org.zkoss.bind.annotation.GlobalCommand;
 import org.zkoss.bind.annotation.Init;
+import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.bind.annotation.SmartNotifyChange;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.select.annotation.Wire;
@@ -54,6 +59,8 @@ import com.opencsv.ICSVWriter;
 public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	
 	private static final String ELEMENTS = "elements";
+	private static final String NESTEDS  = "nesteds";
+	private static final String NESTEDELEMENTS  = "nestedelements";
 	
 	@Wire("#newTransferWin")
 	private Window window;
@@ -66,6 +73,14 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	
 	private TransferElement element;
 	
+	private NestedTransfer nested;
+	
+	private TransferElement nestedElement;
+	
+	private List<TransferElement> elements;
+	
+	private List<NestedTransfer> nesteds;
+	
 	public AdminTransferViewModel() {
 		super(Authorisation.ADMIN_ENTITY, C.TRANSFER,
 			  "/admin/transfer/transferlist.zul", 
@@ -73,6 +88,38 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 			  "/admin/transfer/newtransfer.zul");
 	}
 	
+	public List<TransferElement> getElements() {
+		return elements;
+	}
+
+	public List<NestedTransfer> getNesteds() {
+		return nesteds;
+	}
+	
+	public TransferElement getElement() {
+		return element;
+	}
+
+	public void setElement(TransferElement element) {
+		this.element = element;
+	}
+	
+	public NestedTransfer getNested() {
+		return nested;
+	}
+
+	public void setNested(NestedTransfer nested) {
+		this.nested = nested;
+	}
+
+	public TransferElement getNestedElement() {
+		return nestedElement;
+	}
+
+	public void setNestedElement(TransferElement nestedElement) {
+		this.nestedElement = nestedElement;
+	}
+
 	public TransferFormat[] getTransferFormats() {
 		return TransferFormat.values();
 	}
@@ -104,20 +151,22 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	}
 	
 	@Override
+	protected void initObject(Transfer transfer) {
+		super.initObject(transfer);
+		elements = transferService.getMainObjectElements(transfer);
+		if (elements.isEmpty()) {
+			elements = new ArrayList<>();
+		}
+		nesteds = transferService.getNestedTransfers(transfer);
+	}
+	
+	@Override
 	protected void initFilters() {
 		final ListFilter<Transfer> filterEntity = getFilter(FILTERGROUP_LIST, C.ENTITY);
 		filterEntity.setValueFunction(o -> o.getEntity().getName());
 		for (Transfer transfer : getObjectList()) {
 			filterEntity.addValue(transfer.getEntity().getName());
 		}
-	}
-	
-	public TransferElement getElement() {
-		return element;
-	}
-
-	public void setElement(TransferElement element) {
-		this.element = element;
 	}
 	
 	public String getElementName(TransferElement element) {
@@ -150,8 +199,23 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	}
 	
 	@Command
+	@NotifyChange(ELEMENTS)
 	public void selectAllElements() {
 		selectAll(ELEMENTS);
+		adjustLists(elements, getListManagerList(ELEMENTS, LIST_SELECTED));
+	}
+	
+	@Command
+	@NotifyChange(NESTEDS)
+	public void selectAllNesteds() {
+		selectAll(NESTEDS);
+		adjustLists(nesteds, getListManagerList(NESTEDS, LIST_SELECTED));
+	}
+	
+	@Command
+	public void selectAllNestedElements() {
+		selectAll(NESTEDELEMENTS);
+		adjustLists(nested.getElements(), getListManagerList(NESTEDELEMENTS, LIST_SELECTED));
 	}
 	
 	@Command
@@ -186,8 +250,7 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	
 	@Command
 	public void saveTransfer(@BindingParam(C.ELEM) Component component) {
-		adjustLists(getObject().getElements(), getListManagerList(ELEMENTS, LIST_SELECTED));
-		
+		transferService.adjustElements(getObject(), elements, nesteds);
 		cmdSaveObject(component);
 	}
 	
@@ -218,13 +281,14 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	@SmartNotifyChange(C.ELEMENT)
 	public void dropToElementList(@BindingParam(C.ITEM) TransferElement item,
 								  @BindingParam(C.LIST) int listNum) {
-		super.dropToList(ELEMENTS, listNum, item);
+		dropToList(ELEMENTS, listNum, item);
 		if (listNum == LIST_SELECTED) {
 			element = item;
 		}
 		else if (item == element) {
 			element = null;
 		}
+		adjustLists(elements, getListManagerList(ELEMENTS, LIST_SELECTED));
 	}
 	
 	@Command
@@ -232,13 +296,89 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	public void insertToElementList(@BindingParam(C.BASE) TransferElement base,
 				  				    @BindingParam(C.ITEM) TransferElement item,
 				  				    @BindingParam(C.LIST) int listNum) {
-		super.insertToList(ELEMENTS, listNum, base, item);
+		insertToList(ELEMENTS, listNum, base, item);
 		if (listNum == LIST_SELECTED) {
 			element = item;
 		}
 		else if (item == element) {
 			element = null;
 		}
+		adjustLists(elements, getListManagerList(ELEMENTS, LIST_SELECTED));
+	}
+	
+	@Command
+	@SmartNotifyChange("nestedElement")
+	public void dropToNestedElementList(@BindingParam(C.ITEM) TransferElement item,
+										@BindingParam(C.LIST) int listNum) {
+		dropToList(NESTEDELEMENTS, listNum, item);
+		if (listNum == LIST_SELECTED) {
+			nestedElement = item;
+		}
+		else if (item == nestedElement) {
+			nestedElement = null;
+		}
+		adjustLists(nested.getElements(), getListManagerList(NESTEDELEMENTS, LIST_SELECTED));
+	}
+	
+	@Command
+	@SmartNotifyChange("nestedElement")
+	public void insertToNestedElementList(@BindingParam(C.BASE) TransferElement base,
+				  						  @BindingParam(C.ITEM) TransferElement item,
+				  						  @BindingParam(C.LIST) int listNum) {
+		insertToList(NESTEDELEMENTS, listNum, base, item);
+		if (listNum == LIST_SELECTED) {
+			nestedElement = item;
+		}
+		else if (item == nestedElement) {
+			nestedElement = null;
+		}
+		adjustLists(nested.getElements(), getListManagerList(NESTEDELEMENTS, LIST_SELECTED));
+	}
+	
+	@Command
+	@NotifyChange({C.NESTED, NESTEDS})
+	public void dropToNestedList(@BindingParam(C.ITEM) NestedTransfer item,
+								 @BindingParam(C.LIST) int listNum) {
+		dropToList(NESTEDS, listNum, item);
+		if (listNum == LIST_AVAILABLE) {
+			item.removeElements();
+			if (item == nested) {
+				nested = null;
+			}
+		}
+		adjustLists(nesteds, getListManagerList(NESTEDS, LIST_SELECTED));
+		removeListManager(NESTEDELEMENTS);
+	}
+	
+	@Command
+	@NotifyChange({C.NESTED, NESTEDS})
+	public void insertToNestedList(@BindingParam(C.BASE) NestedTransfer base,
+				  				   @BindingParam(C.ITEM) NestedTransfer item,
+				  				   @BindingParam(C.LIST) int listNum) {
+		insertToList(NESTEDS, listNum, base, item);
+		if (listNum == LIST_AVAILABLE) {
+			item.removeElements();
+			if (item == nested) {
+				nested = null;
+			}
+		}
+		adjustLists(nesteds, getListManagerList(NESTEDS, LIST_SELECTED));
+		removeListManager(NESTEDELEMENTS);
+	}
+	
+	@Command
+	@SmartNotifyChange(C.NESTED)
+	public void selectNestedElements() {
+		if (nested == null && !ObjectUtils.isEmpty(nesteds)) {
+			nested = nesteds.get(0);
+		}
+	}
+	
+	@Command
+	@NotifyChange({LISTMANAGER_LIST, "nestedElement"})
+	public void selectNestedTransfer() {
+		removeListManager(NESTEDELEMENTS);
+		nestedElement = null;
 	}
 	
 	@GlobalCommand
@@ -248,19 +388,37 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 
 	@Override
 	protected List<SystemObject> getListManagerSource(String key, int listNum) {
-		if (ELEMENTS.equals(key)) {
-			return MiscUtils.castList(listNum == LIST_AVAILABLE
-					? transferService.getAvailableElements(getObject())
-				    : getObject().getElements());
-		}
-		else {
-			throw new IllegalStateException("unknown list manager key: " + key);
+		switch (key) {
+			case ELEMENTS:
+				return MiscUtils.castList(listNum == LIST_AVAILABLE
+						? transferService.getAvailableElements(getObject(), elements)
+						: elements);
+				
+			case NESTEDS:
+				return MiscUtils.castList(listNum == LIST_AVAILABLE
+						? transferService.getAvailableNesteds(getObject(), nesteds)
+						: nesteds);
+			
+			case NESTEDELEMENTS:
+				if (nested == null) {
+					return Collections.emptyList();
+				}
+				return MiscUtils.castList(listNum == LIST_AVAILABLE
+						? transferService.getAvailableNestedElements(nested, nested.getElements())
+						: nested.getElements());
+				
+			default:
+				throw new IllegalStateException("unknown list manager key: " + key);
 		}
 	}
 
 	@Override
 	protected void resetProperties() {
 		element = null;
+		elements = null;
+		nested = null;
+		nesteds = null;
+		nestedElement = null;
 	}
 	
 }

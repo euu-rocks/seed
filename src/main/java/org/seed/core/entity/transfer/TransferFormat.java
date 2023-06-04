@@ -19,7 +19,8 @@ package org.seed.core.entity.transfer;
 
 public enum TransferFormat {
 	
-	CSV ("text/csv", ".csv");
+	CSV  ("text/csv", ".csv"),
+	JSON ("application/json", ".json");
 	
 	public final String contentType;
 	
@@ -32,6 +33,10 @@ public enum TransferFormat {
 
 	public boolean isCSV() {
 		return this == CSV;
+	}
+	
+	public boolean isJson() {
+		return this == JSON;
 	}
 	
 }

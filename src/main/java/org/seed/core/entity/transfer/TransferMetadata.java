@@ -39,11 +39,13 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.data.Order;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityMetadata;
+import org.seed.core.util.Assert;
 
 @javax.persistence.Entity
 @Table(name = "sys_entity_transfer")
@@ -199,7 +201,27 @@ public class TransferMetadata extends AbstractApplicationEntity implements Trans
 	
 	@Override
 	public boolean containsField(EntityField entityField) {
+		Assert.notNull(entityField, C.ENTITYFIELD);
+		
 		return anyMatch(getElements(), elem -> entityField.equals(elem.getEntityField()));
+	}
+	
+	@Override
+	public boolean containsElement(TransferElement element) {
+		Assert.notNull(element, C.ELEMENT);
+		
+		return containsObject(getElements(), element);
+	}
+	
+	@Override
+	public void addElement(TransferElement element) {
+		Assert.notNull(element, C.ELEMENT);
+		
+		element.setTransfer(this);
+		if (elements == null) {
+			elements = new ArrayList<>();
+		}
+		elements.add(element);
 	}
 	
 	@Override

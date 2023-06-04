@@ -36,6 +36,11 @@ public class CreateMenuTest extends AbstractMenuTest {
 		WebElement tabpanel = findTabpanel("menues");
 		clickButton(tabpanel, "new");
 		
+		WebElement window = findWindow("new-menu");
+		assertEquals("Neues Menü erstellen", findWindowHeader(window).getText());
+		findCombobox(window, "module").sendKeys("Testmodule");
+		clickButton(window, "create");
+		
 		clickButton(tabpanel, "save");
 		findValidationMessage(); // name is empty
 		

@@ -30,7 +30,17 @@ public interface TransferService extends ApplicationEntityService<Transfer> {
 	
 	ImportOptions createImportOptions(Transfer transfer);
 	
-	List<TransferElement> getAvailableElements(Transfer transfer);
+	List<TransferElement> getAvailableElements(Transfer transfer, List<TransferElement> elements);
+	
+	List<NestedTransfer> getAvailableNesteds(Transfer transfer, List<NestedTransfer> nesteds);
+	
+	List<TransferElement> getAvailableNestedElements(NestedTransfer nestedTransfer, List<TransferElement> elements);
+	
+	List<TransferElement> getMainObjectElements(Transfer transfer);
+	
+	List<NestedTransfer> getNestedTransfers(Transfer transfer);
+	
+	void adjustElements(Transfer transfer, List<TransferElement> elements, List<NestedTransfer> nesteds);
 	
 	byte[] doExport(Transfer transfer);
 	

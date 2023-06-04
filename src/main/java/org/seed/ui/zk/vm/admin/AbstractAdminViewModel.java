@@ -408,7 +408,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		if (listSorterMap == null) {
 			listSorterMap = new HashMap<>();
 		}
-		DragDropListSorter listSorter = listSorterMap.get(key);
+		var listSorter = listSorterMap.get(key);
 		if (listSorter == null) {
 			listSorter = new DragDropListSorter(getListSorterSource(key));
 			listSorterMap.put(key, listSorter);
@@ -467,7 +467,7 @@ public abstract class AbstractAdminViewModel<T extends SystemEntity> extends Abs
 		if (listManagerMap == null) {
 			listManagerMap = new HashMap<>();
 		}
-		DragDropListManager listManager = listManagerMap.get(key);
+		var listManager = listManagerMap.get(key);
 		if (listManager == null) {
 			listManager = new DragDropListManager();
 			for (int listNum = 0; listNum < 2; listNum++) {

@@ -98,6 +98,10 @@ public class TransferResult {
 		addError(new TransferError(TransferErrorType.UNPARSABLE, pex.getMessage() + " at line " + line));
 	}
 	
+	void addError(ParseException pex) {
+		addError(new TransferError(TransferErrorType.UNPARSABLE, pex.getMessage()));
+	}
+	
 	void addError(PersistenceException pex) {
 		if (pex.getCause() instanceof ConstraintViolationException) {
 			final String message = pex.getCause().getCause().getMessage();

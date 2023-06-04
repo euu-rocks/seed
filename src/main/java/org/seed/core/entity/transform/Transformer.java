@@ -23,6 +23,7 @@ import org.seed.core.api.EntityTransformer;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApprovableObject;
 import org.seed.core.entity.Entity;
+import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityStatus;
 
 public interface Transformer 
@@ -39,6 +40,8 @@ public interface Transformer
 	boolean hasElements();
 	
 	boolean containsElement(TransformerElement element);
+	
+	boolean containsField(EntityField entityField);
 	
 	TransformerElement getElementByUid(String uid);
 	

@@ -19,11 +19,8 @@ package org.seed.core.entity.transform;
 
 import static org.seed.core.util.CollectionUtils.*;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -113,11 +110,10 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		Assert.notNull(targetEntity, C.TARGETENTITY);
 		Assert.notNull(name, C.NAME);
 		
-		final var list = repository.find(session,
-										 queryParam(C.SOURCEENTITY, sourceEntity),
-				   						 queryParam(C.TARGETENTITY, targetEntity),
-				   						 queryParam(C.NAME, name));
-		return !list.isEmpty() ? list.get(0) : null;
+		return repository.findUnique(session,
+									 queryParam(C.SOURCEENTITY, sourceEntity),
+				   					 queryParam(C.TARGETENTITY, targetEntity),
+				   					 queryParam(C.NAME, name));
 	}
 	
 	@Override
@@ -141,13 +137,15 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(session, C.SESSION);
 		
-		if (!entity.isGeneric()) {
-			final var result = new HashSet<Transformer>();
-			result.addAll(repository.find(session, queryParam(C.SOURCEENTITY, entity)));
-			result.addAll(repository.find(session, queryParam(C.TARGETENTITY, entity)));
-			return new ArrayList<>(result);
+		if (entity.isGeneric()) {
+			return Collections.emptyList();
 		}
-		return Collections.emptyList();
+		return subList(getObjects(session),
+					   trans -> entity.equals(trans.getSourceEntity()) ||
+					   			entity.equals(trans.getTargetEntity()) ||	
+					   			anyMatch(getNestedTransformers(trans),
+					   					 nested -> entity.equals(nested.getSourceNested().getNestedEntity()) ||
+					   					 		   entity.equals(nested.getTargetNested().getNestedEntity())));
 	}
 	
 	public List<TransformerPermission> getAvailablePermissions(Transformer transformer, Session session) {
@@ -207,20 +205,10 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		Assert.notNull(nesteds, "nesteds");
 		
 		filterAndForEach(elements, not(transformer::containsElement), transformer::addElement);
-		for (NestedTransformer nested : nesteds) {
-			filterAndForEach(nested.getElements(), not(transformer::containsElement), transformer::addElement);
-		}
+		nesteds.forEach(nested -> filterAndForEach(nested.getElements(), not(transformer::containsElement), transformer::addElement));
 		if (transformer.hasElements()) {
-			adjustTransformerElements(transformer, elements, nesteds);
-		}
-	}
-	
-	private void adjustTransformerElements(Transformer transformer, List<TransformerElement> elements, List<NestedTransformer> nesteds) {
-		for (Iterator<TransformerElement> it = transformer.getElements().iterator(); it.hasNext();) {
-			final var element = it.next();
-			if (!(elements.contains(element) || anyMatch(nesteds, nested -> nested.containsElement(element)))) {
-				it.remove();
-			}
+			transformer.getElements().removeIf(element -> !(elements.contains(element) || 
+											   anyMatch(nesteds, nested -> nested.containsElement(element))));
 		}
 	}
 	
@@ -266,10 +254,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		Assert.notNull(entityField, C.ENTITYFIELD);
 		Assert.notNull(session, C.SESSION);
 		
-		return subList(getObjects(session), 
-					   trans -> anyMatch(trans.getElements(), 
-									     elem -> entityField.equals(elem.getSourceField()) ||
-											     entityField.equals(elem.getTargetField())));
+		return subList(getObjects(session), trans -> trans.containsField(entityField));
 	}
 	
 	@Override
@@ -289,17 +274,23 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	}
 	
 	@Override
+	public List<Transformer> findUsage(NestedEntity nestedEntity, Session session) {
+		Assert.notNull(nestedEntity, "nested entity");
+		Assert.notNull(session, C.SESSION);
+		
+		return subList(getObjects(session), 
+					   trans -> anyMatch(getNestedTransformers(trans), 
+							   			 nested -> nestedEntity.equals(nested.getSourceNested()) ||
+							   			 		   nestedEntity.equals(nested.getTargetNested())));
+	}
+	
+	@Override
 	public List<Transformer> findUsage(EntityFieldGroup fieldGroup) {
 		return Collections.emptyList();
 	}
 	
 	@Override
 	public List<Transformer> findUsage(EntityFunction entityFunction, Session session) {
-		return Collections.emptyList();
-	}
-	
-	@Override
-	public List<Transformer> findUsage(NestedEntity nestedEntity, Session session) {
 		return Collections.emptyList();
 	}
 	
@@ -479,7 +470,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 						sourceField.getName().equalsIgnoreCase(targetField.getName()) &&
 						!containsElement(elements, sourceField, targetField)) {
 						
-						final TransformerElement element = createElement(sourceField, targetField);
+						final var element = createElement(sourceField, targetField);
 						element.setTransformer(transformer);
 						elements.add(element);
 						matched = true;
@@ -520,21 +511,21 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	}
 	
 	private static TransformerElement createElement(EntityField sourceField, EntityField targetField) {
-		final TransformerElement element = new TransformerElement();
+		final var element = new TransformerElement();
 		element.setSourceField(sourceField);
 		element.setTargetField(targetField);
 		return element;
 	}
 	
 	private static TransformerPermission createPermission(Transformer transformer, UserGroup group) {
-		final TransformerPermission permission = new TransformerPermission();
+		final var permission = new TransformerPermission();
 		permission.setTransformer(transformer);
 		permission.setUserGroup(group);
 		return permission; 
 	}
 	
 	private static TransformerStatus createStatus(Transformer transformer, EntityStatus status) {
-		final TransformerStatus transformerStatus = new TransformerStatus();
+		final var transformerStatus = new TransformerStatus();
 		transformerStatus.setTransformer(transformer);
 		transformerStatus.setStatus(status);
 		return transformerStatus;

@@ -1,0 +1,136 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout>
+ 	<north border="0">
+		<grid hflex="1" class="alpha-noborder" style="margin:3px" 
+			  visible="@load(not empty vm.nesteds)">
+			<columns>
+	           	<column hflex="min"/>
+	            <column hflex="max"/>
+	        </columns>
+			<rows>
+				<row>
+					<cell align="right">
+						<label value="${labels.label.nested}:"/>
+					</cell>
+					<cell>
+						<combobox model="@load(vm.nesteds)" 
+						  		  selectedItem="@bind(vm.nested)"
+						  		  onSelect="@command('selectNestedTransfer')"
+						  		  nullable="false"
+				           		  width="300px">
+				             <template name="model" var="nested">
+				                 <comboitem label="@load(nested.nested.name)"
+				                 			iconSclass="z-icon-sitemap z-icon-fw alpha-icon-lg"/>
+				             </template>
+				        </combobox>
+					</cell>
+				</row>
+			</rows>
+		</grid>
+	</north>
+	<center border="0">
+		<borderlayout>
+			<north border="0">
+				<toolbar width="100%">
+					<toolbarbutton label="${labels.button.selectall}" 
+								   onClick="@command('selectAllNestedElements')"/>
+				</toolbar>
+			</north>
+			<west width="30%" border="0" style="padding:5px">
+				<groupbox hflex="1" vflex="1">
+					<caption label="${labels.label.fieldsavailable}"/>
+					<listbox mold="paging" autopaging="true"
+							 model="@load(vm.getListManagerList('nestedelements',0))"
+							 droppable="true" 
+							 onDrop="@command('dropToNestedElementList',item=event.dragged.attributes.item,list=0)"
+							 hflex="1" vflex="1"
+							 class="available-items alpha-noborder alpha-nobg"
+							 oddRowSclass="non-odd">
+						<template name="model" var="element">
+							<listitem sclass="@init(vm.getItemTestClass(element.entityField))"
+									  attributes.item="@init(element)" 
+									  draggable="true" droppable="true" 
+			 						  onDrop="@command('insertToNestedElementList',item=event.dragged.attributes.item,base=element,list=0)">
+								<listcell label="@init(element.entityField.name)"
+										  iconSclass="@load(element.entityField.type.isReference() ? 'z-icon-share-square-o alpha-icon-lg' : 'z-icon-edit alpha-icon-lg')"/>
+							</listitem>
+						</template>
+					</listbox>
+				</groupbox>
+			</west>
+			<center border="0" style="padding:5px">
+				<groupbox  vflex="1">
+					<caption label="${labels.label.fieldsselected}"/>
+					<listbox mold="paging" autopaging="true" 
+							 model="@load(vm.getListManagerList('nestedelements',1))"
+							 selectedItem="@bind(vm.nestedElement)" 
+							 droppable="true" 
+							 onDrop="@command('dropToNestedElementList',item=event.dragged.attributes.item,list=1)"
+							 class="selected-items alpha-noborder alpha-nobg"
+							 hflex="1" vflex="1"
+							 oddRowSclass="non-odd">
+						<template name="model" var="element">
+							<listitem sclass="@init(vm.getItemTestClass(element.entityField))"
+									  attributes.item="@init(element)" 
+									  draggable="true" droppable="true" 
+									  onDrop="@command('insertToNestedElementList',item=event.dragged.attributes.item,base=element,list=1)">
+								<listcell label="@init(element.entityField.name)"
+										  style="@load(element.identifier ? 'font-weight:bold' : null)"
+										  iconSclass="@load(element.entityField.type.isReference() ? 'z-icon-share-square-o alpha-icon-lg' : 'z-icon-edit alpha-icon-lg')"/>
+							</listitem>
+						</template>
+					</listbox>
+				</groupbox>
+			</center>
+			<east title="${labels.label.properties}" 
+				  visible="@load(!empty vm.nestedElement)"
+				  width="275px" border="0" collapsible="true" 
+				  class="alpha-properties">
+				<vlayout class="alpha-properties-content">
+					<label value="${labels.label.columnname}:"/>
+		        	<textbox value="@bind(vm.nestedElement.name) @converter(vm.stringConverter)"
+					       	 placeholder="@load(vm.getElementName(vm.nestedElement))"
+					       	 onChange="@command('flagDirty')"
+					       	 hflex="1"/>
+					<vlayout visible="@load(vm.hasFormat(vm.nestedElement))">
+						<label value="${labels.label.format}:"/>
+						<textbox value="@bind(vm.nestedElement.format) @converter(vm.stringConverter)"
+					       	 onChange="@command('flagDirty')"
+					       	 hflex="1"/>
+					</vlayout>
+					<vlayout visible="@load(vm.nestedElement.fieldType.isBoolean())">
+						<label value="${labels.label.valuetrue}:"/>
+						<textbox value="@bind(vm.nestedElement.valueTrue) @converter(vm.stringConverter)"
+					       	 placeholder="1"
+					       	 onChange="@command('flagDirty')"
+					       	 hflex="1"/>
+					    <label value="${labels.label.valuefalse}:"/>
+						<textbox value="@bind(vm.nestedElement.valueFalse) @converter(vm.stringConverter)"
+					       	 placeholder="0"
+					       	 onChange="@command('flagDirty')"
+					       	 hflex="1"/>
+					</vlayout>
+		       </vlayout>
+			</east>
+		</borderlayout>	
+	</center>
+</borderlayout>

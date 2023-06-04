@@ -47,6 +47,10 @@ public interface Transfer extends ApplicationEntity {
 	
 	boolean containsField(EntityField entityField);
 	
+	boolean containsElement(TransferElement element);
+	
+	void addElement(TransferElement element);
+	
 	List<TransferElement> getElements();
 	
 	List<EntityField> getElementFields();

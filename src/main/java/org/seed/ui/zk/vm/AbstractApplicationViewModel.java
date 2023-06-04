@@ -18,9 +18,7 @@
 package org.seed.ui.zk.vm;
 
 import java.util.List;
-import java.util.Map;
 import java.util.TimeZone;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.hibernate.Session;
 
@@ -53,7 +51,6 @@ import org.seed.core.task.Task;
 import org.seed.core.user.User;
 import org.seed.core.user.UserService;
 import org.seed.core.util.Assert;
-import org.seed.ui.DoubleClickDetector;
 import org.seed.ui.FormParameter;
 import org.seed.ui.TabParameterMap;
 import org.seed.ui.ViewParameterMap;
@@ -100,9 +97,6 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	
 	@WireVariable(value="limits")
 	private Limits limits;
-	
-	// TODO: nach AbstractViewModel verlagern
-	private Map<String, DoubleClickDetector> mapDblClickDetector;
 	
 	private boolean dirty;
 	
@@ -247,16 +241,6 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 	
 	protected final void resetCurrentSession() {
 		setRequestAttribute(OpenSessionInViewFilter.ATTR_SESSION, sessionProvider.getSession());
-	}
-	
-	protected final boolean isDoubleClick(String key) {
-		Assert.notNull(key, C.KEY);
-		
-		if (mapDblClickDetector == null) {
-			mapDblClickDetector = new ConcurrentHashMap<>();
-		}
-		return mapDblClickDetector.computeIfAbsent(key, d -> new DoubleClickDetector())
-								  .detect();
 	}
 	
 	protected final void downloadReport(Report report, ReportFormat format) 

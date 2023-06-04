@@ -22,6 +22,7 @@ import static org.seed.core.util.CollectionUtils.*;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -93,7 +94,7 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	
 	@Override
 	public Transfer createInstance(@Nullable Options options) {
-		final TransferMetadata instance = (TransferMetadata) super.createInstance(options);
+		final var instance = (TransferMetadata) super.createInstance(options);
 		instance.createLists();
 		return instance;
 	}
@@ -102,7 +103,7 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	public ImportOptions createImportOptions(Transfer transfer) {
 		Assert.notNull(transfer, C.TRANSFER);
 		
-		final ImportOptions options = new ImportOptions();
+		final var options = new ImportOptions();
 		options.setAllOrNothing(true);
 		options.setCreateIfNew(true);
 		if (transfer.getIdentifierField() != null) {
@@ -117,30 +118,30 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 		Assert.notNull(transfer, C.TRANSFER);
 		
 		super.initObject(transfer);
-		final TransferMetadata transferMeta = (TransferMetadata) transfer;
+		final var transferMeta = (TransferMetadata) transfer;
 		
-		if (TransferFormat.CSV == transfer.getFormat()) {
-			transferMeta.setEncoding(CharEncoding.UTF8);
-			transferMeta.setNewline(Newline.systemDefault());
+		switch (transfer.getFormat()) {
+			case CSV:
+				transferMeta.setEncoding(CharEncoding.UTF8);
+				transferMeta.setNewline(Newline.systemDefault());
+				break;
+				
+			case JSON:
+				transferMeta.setEncoding(CharEncoding.UTF8);
+				break;
+				
+			default:
+				throw new UnsupportedOperationException(transfer.getFormat().name());
 		}
-		else {
-			throw new UnsupportedOperationException(transfer.getFormat().name());
-		}
-	}
-	
-	private List<Transfer> findTransfers(Entity entity, Session session) {
-		Assert.notNull(entity, C.ENTITY);
-		Assert.notNull(session, C.SESSION);
-		
-		return transferRepository.find(session, queryParam(C.ENTITY, entity));
 	}
 	
 	@Override
-	public List<TransferElement> getAvailableElements(Transfer transfer) {
+	public List<TransferElement> getAvailableElements(Transfer transfer, List<TransferElement> elements) {
 		Assert.notNull(transfer, C.TRANSFER);
+		Assert.notNull(elements, "elements");
 		
-		final Entity entity = transfer.getEntity();
-		final List<TransferElement> result = new ArrayList<>();
+		final var entity = transfer.getEntity();
+		final var result = new ArrayList<TransferElement>();
 		if (entity.hasAllFields()) {
 			boolean identifierFound = false;
 			for (EntityField entityField : entity.getAllFields()) {
@@ -150,8 +151,8 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 					entityField.getType().isReference()) {
 					continue;
 				}
-				if (!transfer.containsField(entityField)) {
-					final TransferElement element = createElement(transfer, entityField);
+				if (!anyMatch(elements, elem -> entityField.equals(elem.getEntityField()))) {
+					final var element = createElement(transfer, entityField);
 					if (entityField.isUnique() && !identifierFound) {
 						element.setIdentifier(true);
 						identifierFound = true;
@@ -161,6 +162,88 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 			}
 		}
 		return result;
+	}
+	
+	@Override
+	public List<TransferElement> getAvailableNestedElements(NestedTransfer nestedTransfer, List<TransferElement> elements) {
+		Assert.notNull(nestedTransfer, "NestedTransfer");
+		Assert.notNull(elements, "elements");
+		
+		final var entity = nestedTransfer.getNested().getNestedEntity();
+		final var result = new ArrayList<TransferElement>();
+		if (entity.hasAllFields()) {
+			for (EntityField entityField : entity.getAllFields()) {
+				if (entityField.getType().isBinary() || 
+					entityField.getType().isFile() ||
+					entityField.getType().isReference()) {
+					continue;
+				}
+				if (!anyMatch(elements, elem -> entityField.equals(elem.getEntityField()))) {
+					final var element = new TransferElement();
+					element.setEntityField(entityField);
+					result.add(element);
+				}
+			}
+		}
+		return result;
+	}
+	
+	@Override
+	public List<NestedTransfer> getAvailableNesteds(Transfer transfer, List<NestedTransfer> nesteds) {
+		Assert.notNull(transfer, C.TRANSFER);
+		Assert.notNull(nesteds, "nesteds");
+		
+		final var entity = transfer.getEntity();
+		final var result = new ArrayList<NestedTransfer>();
+		if (entity.hasNesteds()) {
+			for (NestedEntity nested : entity.getNesteds()) {
+				if (!anyMatch(nesteds, nst -> nested.equals(nst.getNested()))) {
+					result.add(new NestedTransfer(nested));
+				}
+			}
+		}
+		return result;
+	}
+	
+	@Override
+	public List<TransferElement> getMainObjectElements(Transfer transfer) {
+		Assert.notNull(transfer, C.TRANSFER);
+		
+		return subList(transfer.getElements(),
+					   elem -> transfer.getEntity().containsField(elem.getEntityField()));
+	}
+	
+	@Override
+	public List<NestedTransfer> getNestedTransfers(Transfer transfer) {
+		Assert.notNull(transfer, C.TRANSFER);
+		final var resultMap = new HashMap<NestedEntity, NestedTransfer>();
+		
+		if (transfer.hasElements()) {
+			final var entity = transfer.getEntity();
+			for (TransferElement element : transfer.getElements()) {
+				final var nested = entity.getNestedByEntityField(element.getEntityField());
+				if (nested != null) {
+					resultMap.computeIfAbsent(nested, t -> new NestedTransfer(nested));
+					resultMap.get(nested).addElement(element);
+				}
+			}
+		}
+		return valueList(resultMap);
+	}
+	
+	@Override
+	@Secured("ROLE_ADMIN_ENTITY")
+	public void adjustElements(Transfer transfer, List<TransferElement> elements, List<NestedTransfer> nesteds) {
+		Assert.notNull(transfer, C.TRANSFER);
+		Assert.notNull(elements, "elements");
+		Assert.notNull(nesteds, "nesteds");
+		
+		filterAndForEach(elements, not(transfer::containsElement), transfer::addElement);
+		nesteds.forEach(nested -> filterAndForEach(nested.getElements(), not(transfer::containsElement), transfer::addElement));
+		if (transfer.hasElements()) {
+			transfer.getElements().removeIf(element -> !(elements.contains(element) || 
+														 anyMatch(nesteds, nested -> nested.containsElement(element))));
+		}
 	}
 	
 	@Override
@@ -211,7 +294,7 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 		Assert.notNull(content, C.CONTENT);
 		Assert.state(transferableEntity.isTransferable(), "entity is not transferable");
 		
-		final Transfer transfer = createAutoTransfer(transferableEntity, true);
+		final var transfer = createAutoTransfer(transferableEntity, true);
 		return createProcessor(transfer)
 				.doImport(transfer.getOptions(), new ByteArrayInputStream(content));
 	}
@@ -221,9 +304,23 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(session, C.SESSION);
 		
-		return entity.isGeneric()
-				? Collections.emptyList()
-				: findTransfers(entity, session);
+		if (entity.isGeneric()) {
+			return Collections.emptyList();
+		}
+		return subList(getObjects(session),
+					   transfer -> entity.equals(transfer.getEntity()) ||
+					   			   anyMatch(getNestedTransfers(transfer),
+					   					   	nested -> entity.equals(nested.getNested().getNestedEntity())));
+	}
+	
+	@Override
+	public List<Transfer> findUsage(NestedEntity nestedEntity, Session session) {
+		Assert.notNull(nestedEntity, "nested entity");
+		Assert.notNull(session, C.SESSION);
+		
+		return subList(getObjects(session),
+					   transfer -> anyMatch(getNestedTransfers(transfer),
+		   					   				nested -> nestedEntity.equals(nested.getNested())));
 	}
 
 	@Override
@@ -231,18 +328,11 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 		Assert.notNull(entityField, C.ENTITYFIELD);
 		Assert.notNull(session, C.SESSION);
 		
-		return subList(findTransfers(entityField.getEntity(), session), 
-					   trans -> anyMatch(trans.getElements(), 
-						elem -> entityField.equals(elem.getEntityField())));
+		return subList(getObjects(session), transfer -> transfer.containsField(entityField));
 	}
 	
 	@Override
 	public List<Transfer> findUsage(EntityFieldGroup fieldGroup) {
-		return Collections.emptyList();
-	}
-	
-	@Override
-	public List<Transfer> findUsage(NestedEntity nestedEntity, Session session) {
 		return Collections.emptyList();
 	}
 	
@@ -281,8 +371,7 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 					analysis.addChangeNew(transfer);
 				}
 				else {
-					final Transfer currentVersionTransfer =
-						currentVersionModule.getTransferByUid(transfer.getUid());
+					final var currentVersionTransfer = currentVersionModule.getTransferByUid(transfer.getUid());
 					if (currentVersionTransfer == null) {
 						analysis.addChangeNew(transfer);
 					}
@@ -340,10 +429,9 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 									 Transfer transfer, Transfer currentVersionTransfer) {
 		element.setTransfer(transfer);
 		element.setEntityField(entity.findFieldByUid(element.getFieldUid()));
-		final TransferElement currentVersionElement =
-			currentVersionTransfer != null 
-				? currentVersionTransfer.getElementByUid(element.getUid()) 
-				: null;
+		final var currentVersionElement = currentVersionTransfer != null 
+											? currentVersionTransfer.getElementByUid(element.getUid()) 
+											: null;
 		if (currentVersionElement != null) {
 			currentVersionElement.copySystemFieldsTo(element);
 		}
@@ -362,17 +450,22 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	
 	@SuppressWarnings("unchecked")
 	private TransferProcessor createProcessor(Transfer transfer) {
-		final Class<?> objectClass = codeManager.getGeneratedClass(transfer.getEntity());
-		final Class<? extends ValueObject> valueObjectClass = (Class<? extends ValueObject>) objectClass;
-		
-		if (TransferFormat.CSV == transfer.getFormat()) {
-			return new CSVProcessor(valueObjectService, valueObjectClass, labelProvider, transfer);
+		final var valueObjectClass = (Class<? extends ValueObject>) 
+				codeManager.getGeneratedClass(transfer.getEntity());
+		switch (transfer.getFormat()) {
+			case CSV:
+				return new CSVProcessor(this, valueObjectService, valueObjectClass, labelProvider, transfer);
+				
+			case JSON:
+				return new JsonProcessor(this, valueObjectService, valueObjectClass, labelProvider, transfer);
+				
+			default:
+				throw new UnsupportedOperationException(transfer.getFormat().name());
 		}
-		throw new UnsupportedOperationException(transfer.getFormat().name());
 	}
 	
 	private Transfer createTransfer(Entity entity, List<TransferElement> elements)  {
-		final TransferMetadata transfer = (TransferMetadata) createInstance(null);
+		final var transfer = (TransferMetadata) createInstance(null);
 		transfer.setFormat(TransferFormat.CSV);
 		transfer.setEntity(entity);
 		transfer.setElements(elements);
@@ -393,15 +486,15 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 			options.setCreateIfNew(true);
 			options.setModifyExisting(true);
 		}
-		final TransferMetadata transfer = (TransferMetadata) createInstance(options);
+		final var transfer = (TransferMetadata) createInstance(options);
 		transfer.setFormat(TransferFormat.CSV);
 		transfer.setEntity(entity);
 		
-		final List<TransferElement> elements = new ArrayList<>();
-		final TransferElement elementUid = createElement(transfer, transfer.getEntity().getUidField());
+		final var elements = new ArrayList<TransferElement>();
+		final var elementUid = createElement(transfer, transfer.getEntity().getUidField());
 		elementUid.setIdentifier(true);
 		elements.add(elementUid);
-		elements.addAll(getAvailableElements(transfer));
+		elements.addAll(getAvailableElements(transfer, transfer.getElements()));
 		transfer.setElements(elements);
 		try {
 			initObject(transfer);
@@ -413,7 +506,7 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	}
 	
 	private static TransferElement createElement(Transfer transfer, EntityField entityField) {
-		final TransferElement element = new TransferElement();
+		final var element = new TransferElement();
 		element.setTransfer(transfer);
 		element.setEntityField(entityField);
 		return element;

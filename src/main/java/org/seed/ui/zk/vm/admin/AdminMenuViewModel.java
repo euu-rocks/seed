@@ -31,17 +31,24 @@ import org.seed.core.util.MiscUtils;
 
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.ContextParam;
+import org.zkoss.bind.annotation.ContextType;
 import org.zkoss.bind.annotation.ExecutionArgParam;
 import org.zkoss.bind.annotation.GlobalCommand;
 import org.zkoss.bind.annotation.Init;
 import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.select.annotation.Wire;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
+import org.zkoss.zul.Window;
 
 public class AdminMenuViewModel extends AbstractAdminViewModel<Menu> {
 	
 	private static final String ENTRIES  = "entries";
 	private static final String SUBMENUS = "subMenus";
+	
+	@Wire("#newMenuWin")
+	private Window window;
 	
 	@WireVariable(value="menuServiceImpl")
 	private MenuService menuService;
@@ -54,12 +61,14 @@ public class AdminMenuViewModel extends AbstractAdminViewModel<Menu> {
 	public AdminMenuViewModel() {
 		super(Authorisation.ADMIN_MENU, C.MENU,
 			  "/admin/menu/menulist.zul", 
-			  "/admin/menu/menu.zul");
+			  "/admin/menu/menu.zul",
+			  "/admin/menu/newmenu.zul");
 	}
 	
 	@Init
-	public void init(@ExecutionArgParam(C.PARAM) Object object) {
-		super.init(object, null);
+	public void init(@ContextParam(ContextType.VIEW) Component view,
+					 @ExecutionArgParam(C.PARAM) Object object) {
+		super.init(object, view);
 	}
 	
 	@Override
@@ -83,6 +92,16 @@ public class AdminMenuViewModel extends AbstractAdminViewModel<Menu> {
 	public List<Form> getForms() {
 		return formService.getObjects(currentSession());
 	}
+	
+	@Command
+	public void createMenu(@BindingParam(C.ELEM) Component elem) {
+		cmdInitObject(elem, window);
+	}
+	
+	@Command
+	public void cancel() {
+		window.detach();
+	}
 
 	@Command
 	public void back() {
@@ -91,7 +110,12 @@ public class AdminMenuViewModel extends AbstractAdminViewModel<Menu> {
 	
 	@Command
 	public void newMenu() {
-		cmdNewObject();
+		if (existModules()) {
+			cmdNewObjectDialog();
+		}
+		else {
+			cmdNewObject();
+		}
 	}
 	
 	@Command

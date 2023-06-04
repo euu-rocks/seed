@@ -34,7 +34,7 @@ public class DragDropListManager {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public DragDropListManager(int numLists) {
+	protected DragDropListManager(int numLists) {
 		Assert.state(numLists > 1, "illegal numLists: " + numLists);
 		
 		lists = new List[numLists];
@@ -50,6 +50,8 @@ public class DragDropListManager {
     }
 	
 	public void drop(SystemObject item, int listNum) {
+		Assert.notNull(item, C.ITEM);
+		
 		final int curListNum = getListNum(item);
 		if (listNum != curListNum) { // ignore drop to same list
 			lists[curListNum].remove(item);
@@ -59,8 +61,9 @@ public class DragDropListManager {
 	
 	public void insert(SystemObject base, SystemObject item, int listNum) {
 		Assert.notNull(base, C.BASE);
+		Assert.notNull(item, C.ITEM);
 		
-		final List<SystemObject> list = getList(listNum);
+		final var list = getList(listNum);
 		final int curListNum = getListNum(item);
 		if (curListNum == listNum) {
 			Collections.swap(list, list.indexOf(base), list.indexOf(item));
@@ -72,21 +75,18 @@ public class DragDropListManager {
     }
 	
 	public void selectAll() {
-		Assert.state(lists.length == 2, "unsupported if listNum != 2");
-		
 		lists[1].addAll(lists[0]);
 		lists[0].clear();
 	}
 	
-	private int getListNum(SystemObject item) { 
-		Assert.notNull(item, C.ITEM);
-		
+	protected int getListNum(SystemObject item) { 
 		for (int i = 0; i < lists.length; i++) {
     		if (lists[i].contains(item)) {
     			return i;
     		}
 		}
-    	throw new IllegalStateException("unknown item: " + item);
+		Assert.stateIllegal("unknown item: " + item);
+		return -1;
     }
 	
 }

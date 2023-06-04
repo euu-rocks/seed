@@ -17,6 +17,8 @@
  */
 package org.seed.core.entity.transform;
 
+import static org.seed.core.util.CollectionUtils.anyMatch;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +37,7 @@ public class NestedTransformer {
 	
 	public NestedTransformer() {}
 	
-	public NestedTransformer(NestedEntity sourceNested, NestedEntity targetNested) {
+	NestedTransformer(NestedEntity sourceNested, NestedEntity targetNested) {
 		Assert.notNull(sourceNested, "sourceNested");
 		Assert.notNull(sourceNested, "targetNested");
 		
@@ -73,13 +75,8 @@ public class NestedTransformer {
 		Assert.notNull(sourceField, "sourceField");
 		Assert.notNull(targetField, "targetField");
 		
-		for (TransformerElement element : elements) {
-			if (element.getSourceField().equals(sourceField) &&
-				element.getTargetField().equals(targetField)) {
-				return true;
-			}
-		}
-		return false;
+		return anyMatch(elements, elem -> sourceField.equals(elem.getSourceField()) &&
+										  targetField.equals(elem.getTargetField()));
 	}
 
 	public List<TransformerElement> getElements() {

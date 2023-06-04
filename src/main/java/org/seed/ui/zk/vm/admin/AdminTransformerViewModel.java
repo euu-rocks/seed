@@ -433,6 +433,7 @@ public class AdminTransformerViewModel extends AbstractAdminViewModel<Transforme
 		elements = null;
 		function = null;
 		nested = null;
+		nesteds = null;
 		nestedElement = null;
 		permission = null;
 	}

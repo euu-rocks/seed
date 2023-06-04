@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.seed.C;
 import org.seed.LabelProvider;
@@ -29,6 +30,7 @@ import org.seed.core.data.ValidationError;
 import org.seed.core.util.Assert;
 import org.seed.core.util.ExceptionUtils;
 import org.seed.core.util.MiscUtils;
+import org.seed.ui.DoubleClickDetector;
 import org.seed.ui.zk.UIUtils;
 
 import org.springframework.util.StringUtils;
@@ -50,6 +52,8 @@ abstract class AbstractViewModel extends UIUtils {
 	
 	@WireVariable(value="ZKLabelProvider")
 	private LabelProvider labelProvider;
+	
+	private Map<String, DoubleClickDetector> mapDblClickDetector;
 	
 	public String getLabel(String key, String ...params) {
 		return labelProvider.getLabel(key, params);
@@ -77,6 +81,16 @@ abstract class AbstractViewModel extends UIUtils {
 				confirmed(Messagebox.ON_YES.equals(event.getName()), elem, confirmParam); 
 			}
 		});
+	}
+	
+	protected final boolean isDoubleClick(String key) {
+		Assert.notNull(key, C.KEY);
+		
+		if (mapDblClickDetector == null) {
+			mapDblClickDetector = new ConcurrentHashMap<>();
+		}
+		return mapDblClickDetector.computeIfAbsent(key, d -> new DoubleClickDetector())
+								  .detect();
 	}
 	
 	protected void confirmed(boolean confirmed, Component elem, Object confirmParam) {

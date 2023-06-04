@@ -21,9 +21,12 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.PersistenceException;
@@ -50,6 +53,8 @@ abstract class AbstractTransferProcessor implements TransferProcessor {
 	
 	private final ValueObjectService valueObjectService;
 	
+	private final TransferService transferService;
+	
 	private final Class<? extends ValueObject> objectClass;
 	
 	private final LabelProvider labelProvider;
@@ -64,7 +69,8 @@ abstract class AbstractTransferProcessor implements TransferProcessor {
 	
 	private int chunkIndex = -1;
 	
-	protected AbstractTransferProcessor(ValueObjectService valueObjectService,
+	protected AbstractTransferProcessor(TransferService transferService,
+										ValueObjectService valueObjectService,
 										Class<? extends ValueObject> objectClass,
 										LabelProvider labelProvider,
 										Transfer transfer) {
@@ -73,6 +79,7 @@ abstract class AbstractTransferProcessor implements TransferProcessor {
 		Assert.notNull(transfer, "labelProvider");
 		Assert.notNull(transfer, C.TRANSFER);
 		
+		this.transferService = transferService;
 		this.valueObjectService = valueObjectService;
 		this.objectClass = objectClass;
 		this.labelProvider = labelProvider;
@@ -121,6 +128,58 @@ abstract class AbstractTransferProcessor implements TransferProcessor {
 			chunk = valueObjectService.loadChunk(getCursor());
 		}
 		return chunk.get(index++ % getCursor().getChunkSize());
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected ValueObject importObject(Map<String, Object> map) throws ParseException {
+		final ValueObject object = BeanUtils.instantiate(objectClass);
+		importObjectFields(object, transferService.getMainObjectElements(transfer), map);
+		for (NestedTransfer nested : transferService.getNestedTransfers(transfer)) {
+			final var nestedList = (List<Map<String, Object>>) map.get(nested.getNested().getInternalName());
+			if (nestedList == null) {
+				continue;
+			}
+			for (Map<String, Object> nestedMap : nestedList) {
+				final ValueObject nestedObj = valueObjectService.addNestedInstance(object, nested.getNested());
+				importObjectFields(nestedObj, nested.getElements(), nestedMap);
+			}
+		}
+		return object;
+	}
+	
+	private void importObjectFields(ValueObject object, List<TransferElement> elements, Map<String, Object> map) throws ParseException {
+		for (TransferElement element : elements) {
+			var value = map.get(element.getEntityField().getInternalName());
+			if (value == null) {
+				continue;
+			}
+			switch (element.getEntityField().getType()) {
+				case AUTONUM:
+				case BOOLEAN:
+				case DOUBLE:
+				case INTEGER:
+				case LONG:
+				case TEXT:
+				case TEXTLONG:
+					break; // do nothing
+					
+				case DATE:
+					value = parseDate(element, (String) value); 
+					break;
+					
+				case DATETIME:
+					value = parseDateTime(element, (String) value);
+					break;
+					
+				case DECIMAL:
+					value = labelProvider.parseBigDecimal((String) value);
+					break;
+					
+				default:
+					throw new UnsupportedOperationException(element.getEntityField().getType().name());
+			}
+			ObjectAccess.callSetter(object, element.getEntityField().getInternalName(), value);
+		}
 	}
 	
 	protected ValueObject importObject(String[] columns) throws ParseException {
@@ -177,6 +236,55 @@ abstract class AbstractTransferProcessor implements TransferProcessor {
 			}
 		}
 		return object;
+	}
+	
+	protected Map<String, Object> exportObjectMap(ValueObject object) {
+		final var objMap = new HashMap<String, Object>();
+		exportObjectFields(object, transferService.getMainObjectElements(transfer), objMap);
+		for (NestedTransfer nested : transferService.getNestedTransfers(transfer)) {
+			final var nestedList = new ArrayList<Map<String, Object>>();
+			objMap.put(nested.getNested().getInternalName(), nestedList);
+			for (ValueObject nestedObj : valueObjectService.getNestedObjects(object, nested.getNested())) {
+				final var nestedMap = new HashMap<String, Object>();
+				nestedList.add(nestedMap);
+				exportObjectFields(nestedObj, nested.getElements(), nestedMap);
+			}
+		}
+		return objMap;
+	}
+	
+	private void exportObjectFields(ValueObject object, List<TransferElement> elements, Map<String, Object> objMap) {
+		for (TransferElement element : elements) {
+			final var value = ObjectAccess.callGetter(object, element.getEntityField().getInternalName());
+			if (value != null) {
+				objMap.put(element.getEntityField().getInternalName(), formatMapValue(element, value));
+			}
+		}
+	}
+	
+	private Object formatMapValue(TransferElement element, Object value) {
+		switch (element.getEntityField().getType()) {
+			case AUTONUM:
+			case BOOLEAN:
+			case DOUBLE:
+			case INTEGER:
+			case LONG:
+			case TEXT:
+			case TEXTLONG:
+				return value; // do nothing
+				
+			case DATE:
+				return formatDate(element, (Date) value);
+			
+			case DATETIME:
+				return formatDateTime(element, (Date) value);
+				
+			case DECIMAL:
+				return labelProvider.formatBigDecimal((BigDecimal) value);
+			
+			default:
+				throw new UnsupportedOperationException(element.getEntityField().getType().name());
+		}
 	}
 	
 	protected String[] exportObject(ValueObject object) {
