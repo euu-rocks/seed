@@ -450,8 +450,9 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	
 	@SuppressWarnings("unchecked")
 	private TransferProcessor createProcessor(Transfer transfer) {
-		final var valueObjectClass = (Class<? extends ValueObject>) 
-				codeManager.getGeneratedClass(transfer.getEntity());
+		final Class<?> objectClass = codeManager.getGeneratedClass(transfer.getEntity());
+		final Class<? extends ValueObject> valueObjectClass = (Class<? extends ValueObject>) objectClass;
+		
 		switch (transfer.getFormat()) {
 			case CSV:
 				return new CSVProcessor(this, valueObjectService, valueObjectClass, labelProvider, transfer);
