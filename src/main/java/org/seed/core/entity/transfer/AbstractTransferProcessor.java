@@ -112,6 +112,21 @@ abstract class AbstractTransferProcessor implements TransferProcessor {
 				: MiscUtils.CHARSET;
 	}
 	
+	protected String getElementName(TransferElement element) {
+		if (element.getName() != null) {
+			return element.getName();
+		}
+		else if (element.getEntityField() != null) {
+			return element.getEntityField().getName();
+		}
+		else if (element.getSystemField() != null) {
+			return getEnumLabel(element.getSystemField());
+		}
+		else {
+			throw new IllegalStateException("no entity or system field");
+		}
+	}
+	
 	protected String getLabel(String key, String ...params) {
 		return labelProvider.getLabel(key, params);
 	}
@@ -149,7 +164,7 @@ abstract class AbstractTransferProcessor implements TransferProcessor {
 	
 	private void importObjectFields(ValueObject object, List<TransferElement> elements, Map<String, Object> map) throws ParseException {
 		for (TransferElement element : elements) {
-			var value = map.get(element.getEntityField().getInternalName());
+			var value = map.get(getElementName(element));
 			if (value == null) {
 				continue;
 			}
@@ -257,7 +272,7 @@ abstract class AbstractTransferProcessor implements TransferProcessor {
 		for (TransferElement element : elements) {
 			final var value = ObjectAccess.callGetter(object, element.getEntityField().getInternalName());
 			if (value != null) {
-				objMap.put(element.getEntityField().getInternalName(), formatMapValue(element, value));
+				objMap.put(getElementName(element), formatMapValue(element, value));
 			}
 		}
 	}

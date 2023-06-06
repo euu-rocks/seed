@@ -127,8 +127,7 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 				break;
 				
 			case JSON:
-				transferMeta.setEncoding(CharEncoding.UTF8);
-				break;
+				break; // do nothing
 				
 			default:
 				throw new UnsupportedOperationException(transfer.getFormat().name());
@@ -138,7 +137,7 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	@Override
 	public List<TransferElement> getAvailableElements(Transfer transfer, List<TransferElement> elements) {
 		Assert.notNull(transfer, C.TRANSFER);
-		Assert.notNull(elements, "elements");
+		Assert.notNull(elements, ELEMENTS);
 		
 		final var entity = transfer.getEntity();
 		final var result = new ArrayList<TransferElement>();
@@ -167,7 +166,7 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	@Override
 	public List<TransferElement> getAvailableNestedElements(NestedTransfer nestedTransfer, List<TransferElement> elements) {
 		Assert.notNull(nestedTransfer, "NestedTransfer");
-		Assert.notNull(elements, "elements");
+		Assert.notNull(elements, ELEMENTS);
 		
 		final var entity = nestedTransfer.getNested().getNestedEntity();
 		final var result = new ArrayList<TransferElement>();
@@ -219,9 +218,8 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 		final var resultMap = new HashMap<NestedEntity, NestedTransfer>();
 		
 		if (transfer.hasElements()) {
-			final var entity = transfer.getEntity();
 			for (TransferElement element : transfer.getElements()) {
-				final var nested = entity.getNestedByEntityField(element.getEntityField());
+				final var nested = transfer.getEntity().getNestedByEntityField(element.getEntityField());
 				if (nested != null) {
 					resultMap.computeIfAbsent(nested, t -> new NestedTransfer(nested));
 					resultMap.get(nested).addElement(element);
@@ -235,7 +233,7 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	@Secured("ROLE_ADMIN_ENTITY")
 	public void adjustElements(Transfer transfer, List<TransferElement> elements, List<NestedTransfer> nesteds) {
 		Assert.notNull(transfer, C.TRANSFER);
-		Assert.notNull(elements, "elements");
+		Assert.notNull(elements, ELEMENTS);
 		Assert.notNull(nesteds, "nesteds");
 		
 		filterAndForEach(elements, not(transfer::containsElement), transfer::addElement);
@@ -267,7 +265,7 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 						   QueryCursor<ValueObject> cursor) {
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(cursor, C.CURSOR);
-		Assert.notNull(elements, "elements");
+		Assert.notNull(elements, ELEMENTS);
 		
 		return createProcessor(createTransfer(entity, elements))
 				.setCursor(cursor)
@@ -450,8 +448,9 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	
 	@SuppressWarnings("unchecked")
 	private TransferProcessor createProcessor(Transfer transfer) {
+		// class conversion is necessary
 		final Class<?> objectClass = codeManager.getGeneratedClass(transfer.getEntity());
-		final Class<? extends ValueObject> valueObjectClass = (Class<? extends ValueObject>) objectClass;
+		final var valueObjectClass = (Class<? extends ValueObject>) objectClass;
 		
 		switch (transfer.getFormat()) {
 			case CSV:
@@ -512,5 +511,7 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 		element.setEntityField(entityField);
 		return element;
 	}
+	
+	private static final String ELEMENTS = "elements";
 
 }

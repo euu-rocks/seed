@@ -32,6 +32,7 @@ import org.seed.core.data.ValidationException;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.entity.value.ValueObjectService;
 import org.seed.core.util.Assert;
+
 import org.springframework.util.FastByteArrayOutputStream;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -79,20 +80,30 @@ class JsonProcessor extends AbstractTransferProcessor {
 		
 		try {
 			final var list = (List<Map<String, Object>>) mapper.readValue(inputStream, collectionType);
-			for (Map<String, Object> map : list) {
-				try {
-					objects.add(importObject(map));
+			if (list != null) {
+				for (var map : list) {
+					final ValueObject object = importObject(map, result);
+					if (object != null) {
+						objects.add(object);
+					}
 				}
-				catch (ParseException pex) {
-					result.addError(pex);
-				}
+				saveObjects(objects, options, result);
 			}
-			saveObjects(objects, options, result);
 		}
 		catch (IOException ex) {
 			throw new InternalException(ex);
 		}
 		return result;
+	}
+	
+	private ValueObject importObject(Map<String, Object> map, TransferResult result) {
+		try {
+			return importObject(map);
+		}
+		catch (ParseException pex) {
+			result.addError(pex);
+			return null;
+		}
 	}
 
 }

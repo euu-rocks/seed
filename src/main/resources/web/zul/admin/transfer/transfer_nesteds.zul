@@ -27,7 +27,7 @@
 				<tab sclass="nestedtransfers-tab"
 					 label="${labels.label.nesteds}"/>
 				<tab id="tabNestedElements" sclass="nestedelements-tab" 
-					 label="${labels.label.elements}"
+					 label="${labels.label.fields}"
 					 onSelect="@command('selectNestedElements')"
 					 visible="@load(!empty vm.nesteds)"/>
 			</tabs>

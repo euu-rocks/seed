@@ -223,33 +223,63 @@ public class ValueObjectValidator implements ApplicationContextAware {
 		boolean tooBig;
 		switch (field.getType()) {
 			case DATE:
-				tooLow = field.getMinDate() != null && field.getMinDate().after((Date) value); 
-				tooBig = field.getMaxDate() != null && field.getMaxDate().before((Date) value);
+				if (value instanceof Date) {
+					tooLow = field.getMinDate() != null && field.getMinDate().after((Date) value); 
+					tooBig = field.getMaxDate() != null && field.getMaxDate().before((Date) value);
+				}
+				else {
+					throw new IllegalStateException("value is not a date: " + value.getClass() + ' '+ value);
+				}
 				break;
 			
 			case DATETIME:
-				tooLow = field.getMinDateTime() != null && field.getMinDateTime().after((Date) value); 
-				tooBig = field.getMaxDateTime() != null && field.getMaxDateTime().before((Date) value);
+				if (value instanceof Date) {
+					tooLow = field.getMinDateTime() != null && field.getMinDateTime().after((Date) value); 
+					tooBig = field.getMaxDateTime() != null && field.getMaxDateTime().before((Date) value);
+				}
+				else {
+					throw new IllegalStateException("value is not a date: " + value.getClass() + ' '+ value);
+				}
 				break;
 				
 			case DECIMAL:
-				tooLow = field.getMinDecimal() != null && field.getMinDecimal().compareTo((BigDecimal) value) > 0; 
-				tooBig = field.getMaxDecimal() != null && field.getMaxDecimal().compareTo((BigDecimal) value) < 0;
+				if (value instanceof BigDecimal) {
+					tooLow = field.getMinDecimal() != null && field.getMinDecimal().compareTo((BigDecimal) value) > 0; 
+					tooBig = field.getMaxDecimal() != null && field.getMaxDecimal().compareTo((BigDecimal) value) < 0;
+				}
+				else {
+					throw new IllegalStateException("value is not BigDecimal" + value.getClass() + ' '+ value);
+				}
 				break;
 				
 			case DOUBLE:
-				tooLow = field.getMinDouble() != null && field.getMinDouble().compareTo((Double) value) > 0; 
-				tooBig = field.getMaxDouble() != null && field.getMaxDouble().compareTo((Double) value) < 0;
+				if (value instanceof Double) {
+					tooLow = field.getMinDouble() != null && field.getMinDouble().compareTo((Double) value) > 0; 
+					tooBig = field.getMaxDouble() != null && field.getMaxDouble().compareTo((Double) value) < 0;
+				}
+				else {
+					throw new IllegalStateException("value is not a double: " + value.getClass() + ' '+ value);
+				}
 				break;
 				
 			case INTEGER:
-				tooLow = field.getMinInt() != null && field.getMinInt().compareTo((Integer) value) > 0; 
-				tooBig = field.getMaxInt() != null && field.getMaxInt().compareTo((Integer) value) < 0;
+				if (value instanceof Integer) {
+					tooLow = field.getMinInt() != null && field.getMinInt().compareTo((Integer) value) > 0; 
+					tooBig = field.getMaxInt() != null && field.getMaxInt().compareTo((Integer) value) < 0;
+				}
+				else {
+					throw new IllegalStateException("value is not an integer: " + value.getClass() + ' '+ value);
+				}
 				break;
 				
 			case LONG:
-				tooLow = field.getMinLong() != null && field.getMinLong().compareTo((Long) value) > 0; 
-				tooBig = field.getMaxLong() != null && field.getMaxLong().compareTo((Long) value) < 0;
+				if (value instanceof Long) {
+					tooLow = field.getMinLong() != null && field.getMinLong().compareTo((Long) value) > 0; 
+					tooBig = field.getMaxLong() != null && field.getMaxLong().compareTo((Long) value) < 0;
+				}
+				else {
+					throw new IllegalStateException("value is not a long: " + value.getClass() + ' '+ value);
+				}
 				break;
 				
 			default:
