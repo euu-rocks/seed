@@ -64,7 +64,11 @@ public class UserGroupValidator extends AbstractSystemEntityValidator<UserGroup>
 			case C.FILTER:
 				errors.addError("val.inuse.groupfilter", systemEntity.getName());
 				break;
-
+			
+			case C.TRANSFER:
+				errors.addError("val.inuse.grouptransfer", systemEntity.getName());
+				break;	
+				
 			case C.TRANSFORM:
 				errors.addError("val.inuse.grouptransform", systemEntity.getName());
 				break;

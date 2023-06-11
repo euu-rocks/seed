@@ -29,13 +29,16 @@ import org.seed.core.entity.transfer.CharEncoding;
 import org.seed.core.entity.transfer.NestedTransfer;
 import org.seed.core.entity.transfer.Newline;
 import org.seed.core.entity.transfer.Transfer;
+import org.seed.core.entity.transfer.TransferAccess;
 import org.seed.core.entity.transfer.TransferElement;
+import org.seed.core.entity.transfer.TransferPermission;
 import org.seed.core.entity.transfer.TransferService;
 import org.seed.core.user.Authorisation;
 import org.seed.core.entity.transfer.TransferFormat;
 import org.seed.core.entity.transfer.TransferResult;
 import org.seed.core.util.MiscUtils;
 import org.seed.ui.ListFilter;
+import org.seed.ui.zk.vm.TransferDialogParameter;
 
 import org.springframework.util.ObjectUtils;
 import org.zkoss.bind.BindContext;
@@ -61,6 +64,7 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	private static final String ELEMENTS = "elements";
 	private static final String NESTEDS  = "nesteds";
 	private static final String NESTEDELEMENTS  = "nestedelements";
+	private static final String PERMISSIONS = "permissions";
 	
 	@Wire("#newTransferWin")
 	private Window window;
@@ -72,6 +76,8 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	private EntityService entityService;
 	
 	private TransferElement element;
+	
+	private TransferPermission permission;
 	
 	private NestedTransfer nestedTransfer;
 	
@@ -104,6 +110,14 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 		this.element = element;
 	}
 	
+	public TransferPermission getPermission() {
+		return permission;
+	}
+
+	public void setPermission(TransferPermission permission) {
+		this.permission = permission;
+	}
+
 	public NestedTransfer getNested() {
 		return nestedTransfer;
 	}
@@ -122,6 +136,10 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 
 	public TransferFormat[] getTransferFormats() {
 		return TransferFormat.values();
+	}
+	
+	public TransferAccess[] getTransferAccesses() {
+		return TransferAccess.values();
 	}
 	
 	public CharEncoding[] getEncodings() {
@@ -251,7 +269,10 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	@Command
 	public void saveTransfer(@BindingParam(C.ELEM) Component component) {
 		transferService.adjustElements(getObject(), transferElements, nesteds);
-		cmdSaveObject(component);
+		adjustLists(getObject().getPermissions(), getListManagerList(PERMISSIONS, LIST_SELECTED));
+		if (cmdSaveObject(component)) {
+			refreshMenu();
+		}
 	}
 	
 	@Command
@@ -267,7 +288,7 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 		showDialog("/admin/transfer/importdialog.zul", new TransferDialogParameter(this));
 	}
 	
-	protected void setTransferResult(TransferResult transferResult) {
+	public void setTransferResult(TransferResult transferResult) {
 		showDialog("/admin/transfer/importresult.zul", new TransferDialogParameter(this, transferResult));
 	}
 	
@@ -367,6 +388,33 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	}
 	
 	@Command
+	@SmartNotifyChange(C.PERMISSION)
+	public void dropToPermissionList(@BindingParam(C.ITEM) TransferPermission item,
+									 @BindingParam(C.LIST) int listNum) {
+		dropToList(PERMISSIONS, listNum, item);
+		if (listNum == LIST_SELECTED) {
+			permission = item;
+		}
+		else if (listNum == LIST_AVAILABLE && item == permission) {
+			this.permission = null;
+		}
+	}
+	
+	@Command
+	@SmartNotifyChange(C.PERMISSION)
+	public void insertToPermissionList(@BindingParam(C.BASE) TransferPermission base,
+									   @BindingParam(C.ITEM) TransferPermission item,
+									   @BindingParam(C.LIST) int listNum) {
+		insertToList(PERMISSIONS, listNum, base, item);
+		if (listNum == LIST_SELECTED) {
+			permission = item;
+		}
+		else if (listNum == LIST_AVAILABLE && item == permission) {
+			permission = null;
+		}
+	}
+	
+	@Command
 	@SmartNotifyChange(C.NESTED)
 	public void selectNestedElements() {
 		if (nestedTransfer == null && !ObjectUtils.isEmpty(nesteds)) {
@@ -406,6 +454,11 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 				return MiscUtils.castList(listNum == LIST_AVAILABLE
 						? transferService.getAvailableNestedElements(nestedTransfer, nestedTransfer.getElements())
 						: nestedTransfer.getElements());
+			
+			case PERMISSIONS:
+				return MiscUtils.castList(listNum == LIST_AVAILABLE 
+						? transferService.getAvailablePermissions(getObject(), currentSession()) 
+						: getObject().getPermissions());
 				
 			default:
 				throw new IllegalStateException("unknown list manager key: " + key);
@@ -419,6 +472,7 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 		nestedTransfer = null;
 		nesteds = null;
 		nestedElement = null;
+		permission = null;
 	}
 	
 }

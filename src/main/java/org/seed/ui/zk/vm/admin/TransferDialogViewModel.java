@@ -32,6 +32,8 @@ import org.seed.core.entity.transfer.TransferService;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 import org.seed.ui.zk.vm.AbstractApplicationViewModel;
+import org.seed.ui.zk.vm.TransferDialogParameter;
+import org.seed.ui.zk.vm.TransferViewModel;
 
 import org.springframework.util.ObjectUtils;
 import org.zkoss.bind.annotation.BindingParam;
@@ -56,9 +58,11 @@ public class TransferDialogViewModel extends AbstractApplicationViewModel {
 	@WireVariable(value="transferServiceImpl")
 	private TransferService transferService;
 	
-	private AdminTransferViewModel transferViewModel;
+	private AdminTransferViewModel adminTransferViewModel;
 	
 	private AdminModuleViewModel moduleViewModule;
+	
+	private TransferViewModel transferViewModel;
 	
 	private ImportOptions importOptions;
 	
@@ -81,21 +85,29 @@ public class TransferDialogViewModel extends AbstractApplicationViewModel {
 		wireComponents(view);
 		
 		if (param.parentViewModel instanceof AdminTransferViewModel) {
-			transferViewModel = (AdminTransferViewModel) param.parentViewModel;
-			transfer = transferViewModel.getObject();
-			
-			if (param.transferResult != null) {
-				transferResult = param.transferResult;
-				importOptions = transferResult.getOptions();
-			}
-			else {
-				importOptions = transferService.createImportOptions(transfer); 
-				importFile = new FileObject();
-			}
+			adminTransferViewModel = (AdminTransferViewModel) param.parentViewModel;
+			transfer = adminTransferViewModel.getObject();
+			init(param);
 		}
 		else if (param.parentViewModel instanceof AdminModuleViewModel) {
 			moduleViewModule = (AdminModuleViewModel) param.parentViewModel;
 			importAnalysis = param.importAnalysis;
+		}
+		else if (param.parentViewModel instanceof TransferViewModel) {
+			transferViewModel = (TransferViewModel) param.parentViewModel;
+			transfer = transferViewModel.getTransfer();
+			init(param);
+		}
+	}
+	
+	private void init(TransferDialogParameter param) {
+		if (param.transferResult != null) {
+			transferResult = param.transferResult;
+			importOptions = transferResult.getOptions();
+		}
+		else {
+			importOptions = transferService.createImportOptions(transfer); 
+			importFile = new FileObject();
 		}
 	}
 	
@@ -227,7 +239,12 @@ public class TransferDialogViewModel extends AbstractApplicationViewModel {
 		try {
 			final TransferResult result = transferService.doImport(transfer, importOptions, importFile);
 			window.detach();
-			transferViewModel.setTransferResult(result);
+			if (adminTransferViewModel != null) {
+				adminTransferViewModel.setTransferResult(result);
+			}
+			else if (transferViewModel != null) {
+				transferViewModel.setTransferResult(result);
+			}
 		}
 		catch (ValidationException vex) {
 			showValidationErrors(component, IMPORT_FAILED, vex.getErrors());

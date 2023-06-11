@@ -24,6 +24,7 @@ import java.util.List;
 import org.seed.C;
 import org.seed.core.application.setting.Setting;
 import org.seed.core.config.SystemLog;
+import org.seed.core.entity.transfer.TransferService;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormService;
 import org.seed.core.task.TaskService;
@@ -57,6 +58,9 @@ public class MainViewModel extends AbstractApplicationViewModel {
 	
 	@WireVariable(value="taskServiceImpl")
 	private TaskService taskService;
+	
+	@WireVariable(value="transferServiceImpl")
+	private TransferService transferService;
 	
 	@WireVariable(value="systemLog")
 	private SystemLog systemLog;
@@ -132,6 +136,7 @@ public class MainViewModel extends AbstractApplicationViewModel {
 		return menuManager.getMenuList(getUser(), currentSession(),
 									   !getUserReports().isEmpty(), 
 									   !taskService.getTasks(getUser(), currentSession()).isEmpty(), 
+									   !transferService.getTransfers(getUser(), currentSession()).isEmpty(),
 									   isFullTextSearchAvailable());
 	}
 	

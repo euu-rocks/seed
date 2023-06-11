@@ -19,22 +19,29 @@ package org.seed.core.entity.transfer;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.data.FileObject;
 import org.seed.core.data.QueryCursor;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.value.ValueObject;
+import org.seed.core.user.User;
 
 public interface TransferService extends ApplicationEntityService<Transfer> {
 	
 	ImportOptions createImportOptions(Transfer transfer);
+	
+	List<Transfer> getTransfers(User user, Session session);
 	
 	List<TransferElement> getAvailableElements(Transfer transfer, List<TransferElement> elements);
 	
 	List<NestedTransfer> getAvailableNesteds(Transfer transfer, List<NestedTransfer> nesteds);
 	
 	List<TransferElement> getAvailableNestedElements(NestedTransfer nestedTransfer, List<TransferElement> elements);
+	
+	List<TransferPermission> getAvailablePermissions(Transfer transfer, Session session);
 	
 	List<TransferElement> getMainObjectElements(Transfer transfer);
 	

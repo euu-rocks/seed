@@ -50,7 +50,8 @@ import org.seed.core.util.Assert;
 @javax.persistence.Entity
 @Table(name = "sys_entity_transfer")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class TransferMetadata extends AbstractApplicationEntity implements Transfer {
+public class TransferMetadata extends AbstractApplicationEntity 
+	implements Transfer {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "entity_id")
@@ -63,6 +64,13 @@ public class TransferMetadata extends AbstractApplicationEntity implements Trans
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@OrderBy("order")
 	private List<TransferElement> elements;
+	
+	@OneToMany(mappedBy = "transfer",
+			   cascade = CascadeType.ALL,
+			   orphanRemoval = true,
+			   fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+	private List<TransferPermission> permissions;
 	
 	private TransferFormat format;
 	
@@ -99,6 +107,11 @@ public class TransferMetadata extends AbstractApplicationEntity implements Trans
 	}
 	
 	@Override
+	public boolean hasPermissions() {
+		return notEmpty(getPermissions());
+	}
+	
+	@Override
 	@XmlElement(name="element")
 	@XmlElementWrapper(name="elements")
 	public List<TransferElement> getElements() {
@@ -109,6 +122,22 @@ public class TransferMetadata extends AbstractApplicationEntity implements Trans
 		this.elements = elements;
 	}
 	
+	@Override
+	@XmlElement(name="permission")
+	@XmlElementWrapper(name="permissions")
+	public List<TransferPermission> getPermissions() {
+		return permissions;
+	}
+
+	public void setPermissions(List<TransferPermission> permissions) {
+		this.permissions = permissions;
+	}
+	
+	@Override
+	public TransferPermission getPermissionByUid(String uid) {
+		return getObjectByUid(getPermissions(), uid);
+	}
+
 	@Override
 	@XmlAttribute
 	public TransferFormat getFormat() {
@@ -245,12 +274,18 @@ public class TransferMetadata extends AbstractApplicationEntity implements Trans
 			.isEquals()) {
 			return false;
 		}
-		return isEqualElements(otherTransfer);
+		return isEqualElements(otherTransfer) &&
+			   isEqualPermissions(otherTransfer);
 	}
 	
 	private boolean isEqualElements(Transfer otherTransfer) {
 		return !(anyMatch(elements, elem -> !elem.isEqual(otherTransfer.getElementByUid(elem.getUid()))) ||
 				 anyMatch(otherTransfer.getElements(), elem -> getElementByUid(elem.getUid()) == null));
+	}
+	
+	private final boolean isEqualPermissions(Transfer otherTransfer) {
+		return !(anyMatch(permissions, perm -> !perm.isEqual(otherTransfer.getPermissionByUid(perm.getUid()))) ||
+				 anyMatch(otherTransfer.getPermissions(), perm -> getPermissionByUid(perm.getUid()) == null));
 	}
 	
 	@Override
@@ -278,16 +313,19 @@ public class TransferMetadata extends AbstractApplicationEntity implements Trans
 	@Override
 	public void removeNewObjects() {
 		removeNewObjects(getElements());
+		removeNewObjects(getPermissions());
 	}
 	
 	@Override
 	public void initUid() {
 		super.initUid();
 		initUids(getElements());
+		initUids(getPermissions());
 	}
 	
 	void createLists() {
 		elements = new ArrayList<>();
+		permissions = new ArrayList<>();
 	}
 
 }

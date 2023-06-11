@@ -207,7 +207,9 @@ public class AdminReportViewModel extends AbstractAdminViewModel<Report> {
 	@Command
 	public void saveReport(@BindingParam(C.ELEM) Component component) {
 		adjustLists(getObject().getPermissions(), getListManagerList(PERMISSIONS, LIST_SELECTED));
-		cmdSaveObject(component);
+		if (cmdSaveObject(component)) {
+			refreshMenu();
+		}
 	}
 	
 	@Override

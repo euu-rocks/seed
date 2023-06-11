@@ -21,6 +21,7 @@
 <?component name="transfer-elements" macroURI="~./zul/admin/transfer/transfer_elements.zul" inline="true"?>
 <?component name="transfer-nesteds" macroURI="~./zul/admin/transfer/transfer_nesteds.zul" inline="true"?>
 <?component name="transfer-csv" macroURI="~./zul/admin/transfer/transfer_csv.zul" inline="true"?>
+<?component name="transfer-permissions" macroURI="~./zul/admin/transfer/transfer_permissions.zul" inline="true"?>
 <borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminTransferViewModel')">
 	<north border="0">
 		<toolbar>
@@ -105,6 +106,9 @@
 					<tab id="tabNesteds" sclass="nesteds-tab" 
 						 label="${labels.label.nesteds}"
 						 visible="@load(vm.object.format.isJson() and vm.object.entity.hasNesteds())"/>
+					<tab id="tabPermissions" sclass="permissions-tab" 
+						 label="${labels.label.permissions}"
+						 visible="@load(vm.showPermissions())"/>
 				</tabs>
 				<tabpanels> 
 					<tabpanel sclass="fields-tabpanel">
@@ -113,8 +117,11 @@
 					<tabpanel sclass="settings-tabpanel" fulfill="tabCSV.onSelect">
 						<transfer-csv/>
 					</tabpanel>
-					<tabpanel sclass="nestedss-tabpanel" fulfill="tabNesteds.onSelect">
+					<tabpanel sclass="nesteds-tabpanel" fulfill="tabNesteds.onSelect">
 						<transfer-nesteds/>
+					</tabpanel>
+					<tabpanel sclass="permissions-tabpanel" fulfill="tabPermissions.onSelect">
+						<transfer-permissions/>
 					</tabpanel>
 				</tabpanels>
 			</tabbox>

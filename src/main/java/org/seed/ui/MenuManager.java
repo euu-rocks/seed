@@ -61,7 +61,7 @@ public class MenuManager {
 	@Secured("ROLE_LOGIN")
 	public List<TreeNode> getMenuList(User user, Session session,
 									  boolean reportsExist, boolean tasksExist, 
-									  boolean fullTextSearchAvailable) {
+									  boolean transfersExist, boolean fullTextSearchAvailable) {
 		Assert.notNull(user, C.USER);
 		Assert.notNull(session, C.SESSION);
 		final List<TreeNode> menuList = new ArrayList<>();
@@ -80,9 +80,16 @@ public class MenuManager {
 		
 		// reports
 		if (user.isAuthorised(Authorisation.PRINT_REPORTS) && reportsExist) {
-			menuList.add(createNode("label.reports", 
+			menuList.add(createNode("label.runreport", 
 									"/report/reportlist.zul", 
 									"z-icon-book"));
+		}
+		
+		// transfers
+		if (user.isAuthorised(Authorisation.RUN_IMPORT_EXPORT) && transfersExist) {
+			menuList.add(createNode("label.runtransfer", 
+									"/transfer/transferlist.zul", 
+									"z-icon-exchange"));
 		}
 		
 		// user menus

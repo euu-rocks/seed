@@ -15,43 +15,11 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.user;
+package org.seed.core.entity.transfer;
 
-public enum Authorisation {
+public enum TransferAccess {
 	
-	ADMIN_ENTITY,
-	ADMIN_FORM,
-	ADMIN_MENU,
-	ADMIN_JOB,
-	ADMIN_USER,
-	ADMIN_DBOBJECT,
-	ADMIN_DATASOURCE,
-	ADMIN_REPORT,
-	ADMIN_SOURCECODE,
-	ADMIN_REST,
-	ADMIN_MODULE,
-	ADMIN_SETTINGS,
-	
-	RUN_JOBS,
-	PRINT_REPORTS,
-	SEARCH_FULLTEXT,
-	CALL_REST,
-	ENDPOINTS,
-	SYSTEMINFO,
-	SYSTEMTASK,
-	
-	ADMIN_PERMISSIONS,
-	RUN_IMPORT_EXPORT;
-	
-	private static final String ADMIN_PREFIX = "ADMIN_";
-	private static final String ROLE_PREFIX = "ROLE_";
-	
-	String roleName() {
-		return ROLE_PREFIX.concat(name());
-	}
-	
-	boolean isAdminAuthorisation() {
-		return name().startsWith(ADMIN_PREFIX);
-	}
+	EXPORT,
+	IMPORT
 	
 }

@@ -20,10 +20,11 @@ package org.seed.core.entity.transfer;
 import java.util.List;
 
 import org.seed.core.application.ApplicationEntity;
+import org.seed.core.application.ApprovableObject;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
 
-public interface Transfer extends ApplicationEntity {
+public interface Transfer extends ApplicationEntity, ApprovableObject<TransferPermission> {
 	
 	Entity getEntity();
 	

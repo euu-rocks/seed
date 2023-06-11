@@ -15,23 +15,23 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.ui.zk.vm.admin;
+package org.seed.ui.zk.vm;
 
 import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.entity.transfer.TransferResult;
 import org.seed.core.util.Assert;
 
-class TransferDialogParameter {
+public class TransferDialogParameter {
 	
 	private static final String PARENT_VIEWMODEL = "parentViewModel";
 	
-	final AbstractAdminViewModel<?> parentViewModel;
+	public final AbstractApplicationViewModel parentViewModel;
 	
-	final TransferResult transferResult;
+	public final TransferResult transferResult;
 	
-	final ImportAnalysis importAnalysis;
+	public final ImportAnalysis importAnalysis;
 
-	public TransferDialogParameter(AdminTransferViewModel parentViewModel) {
+	public TransferDialogParameter(AbstractApplicationViewModel parentViewModel) {
 		Assert.notNull(parentViewModel, PARENT_VIEWMODEL);
 		
 		this.parentViewModel = parentViewModel;
@@ -39,7 +39,7 @@ class TransferDialogParameter {
 		this.importAnalysis = null;
 	}
 
-	public TransferDialogParameter(AdminTransferViewModel parentViewModel, TransferResult transferResult) {
+	public TransferDialogParameter(AbstractApplicationViewModel parentViewModel, TransferResult transferResult) {
 		Assert.notNull(parentViewModel, PARENT_VIEWMODEL);
 		Assert.notNull(transferResult, "transferResult");
 		
@@ -48,7 +48,7 @@ class TransferDialogParameter {
 		importAnalysis = null;
 	}
 
-	public TransferDialogParameter(AdminModuleViewModel parentViewModel, ImportAnalysis importAnalysis) {
+	public TransferDialogParameter(AbstractApplicationViewModel parentViewModel, ImportAnalysis importAnalysis) {
 		Assert.notNull(parentViewModel, PARENT_VIEWMODEL);
 		Assert.notNull(importAnalysis, "importAnalysis");
 		

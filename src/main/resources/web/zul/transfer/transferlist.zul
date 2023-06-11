@@ -1,0 +1,54 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.TransferViewModel')">
+	<north border="0">
+		<toolbar hflex="1">
+			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+						   label="${labels.button.refresh}" 
+						   onClick="@command('refresh')"/>	
+			<toolbarbutton iconSclass="export-button z-icon-upload alpha-icon-lg" 
+						   label="${labels.button.export}" 
+						   onClick="@command('exportTransfer', elem=self)"
+						   visible="@load(!empty vm.transfer)"/>
+			<toolbarbutton iconSclass="import-button z-icon-download alpha-icon-lg" 
+						   label="${labels.button.importing}" 
+						   onClick="@command('importTransfer', elem=self)"
+						   visible="@load(!empty vm.transfer and vm.isImportEnabled(vm.transfer))"/>
+		</toolbar>
+	</north>
+	<center border="0">
+		<listbox style="margin:5px" mold="paging" autopaging="true" vflex="true"
+				 model="@load(vm.transfers)" 
+		         selectedItem="@bind(vm.transfer)">
+			<listhead sizable="true">
+				<listheader label="${labels.label.transfer}" 
+	            			sort="auto(name)" onCreate="self.sort(true)"/>
+			</listhead>
+			<template name="model" var="transfer">
+				<listitem>
+	            	<listcell iconSclass="z-icon-exchange z-icon-fw alpha-icon-lg">
+	            		<label value="@init(transfer.name)" style="margin-left:3px"/>
+	            	</listcell>
+	            </listitem>
+			</template>
+		</listbox>
+	</center>
+</borderlayout>

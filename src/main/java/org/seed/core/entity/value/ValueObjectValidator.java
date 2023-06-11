@@ -19,7 +19,6 @@ package org.seed.core.entity.value;
 
 import static org.seed.core.util.CollectionUtils.filterAndForEach;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -219,77 +218,75 @@ public class ValueObjectValidator implements ApplicationContextAware {
 	}
 	
 	private static void validateMinMaxValue(EntityField field, Object value, ValidationErrors errors) {
-		boolean tooLow;
-		boolean tooBig;
+		final int result;
 		switch (field.getType()) {
 			case DATE:
-				if (value instanceof Date) {
-					tooLow = field.getMinDate() != null && field.getMinDate().after((Date) value); 
-					tooBig = field.getMaxDate() != null && field.getMaxDate().before((Date) value);
-				}
-				else {
-					throw new IllegalStateException("value is not a date: " + value.getClass() + ' '+ value);
-				}
+				result = validateMinMaxDate(field, field.getMinDate(), field.getMaxDate(), value);
 				break;
 			
 			case DATETIME:
-				if (value instanceof Date) {
-					tooLow = field.getMinDateTime() != null && field.getMinDateTime().after((Date) value); 
-					tooBig = field.getMaxDateTime() != null && field.getMaxDateTime().before((Date) value);
-				}
-				else {
-					throw new IllegalStateException("value is not a date: " + value.getClass() + ' '+ value);
-				}
+				result = validateMinMaxDate(field, field.getMinDateTime(), field.getMaxDateTime(), value);
 				break;
 				
 			case DECIMAL:
-				if (value instanceof BigDecimal) {
-					tooLow = field.getMinDecimal() != null && field.getMinDecimal().compareTo((BigDecimal) value) > 0; 
-					tooBig = field.getMaxDecimal() != null && field.getMaxDecimal().compareTo((BigDecimal) value) < 0;
-				}
-				else {
-					throw new IllegalStateException("value is not BigDecimal" + value.getClass() + ' '+ value);
-				}
+				result = validateMinMaxNumber(field, field.getMinDecimal(), field.getMaxDecimal(), value);
 				break;
 				
 			case DOUBLE:
-				if (value instanceof Double) {
-					tooLow = field.getMinDouble() != null && field.getMinDouble().compareTo((Double) value) > 0; 
-					tooBig = field.getMaxDouble() != null && field.getMaxDouble().compareTo((Double) value) < 0;
-				}
-				else {
-					throw new IllegalStateException("value is not a double: " + value.getClass() + ' '+ value);
-				}
+				result = validateMinMaxNumber(field, field.getMinDouble(), field.getMaxDouble(), value);
 				break;
 				
 			case INTEGER:
-				if (value instanceof Integer) {
-					tooLow = field.getMinInt() != null && field.getMinInt().compareTo((Integer) value) > 0; 
-					tooBig = field.getMaxInt() != null && field.getMaxInt().compareTo((Integer) value) < 0;
-				}
-				else {
-					throw new IllegalStateException("value is not an integer: " + value.getClass() + ' '+ value);
-				}
+				result = validateMinMaxNumber(field, field.getMinInt(), field.getMaxInt(), value);
 				break;
 				
 			case LONG:
-				if (value instanceof Long) {
-					tooLow = field.getMinLong() != null && field.getMinLong().compareTo((Long) value) > 0; 
-					tooBig = field.getMaxLong() != null && field.getMaxLong().compareTo((Long) value) < 0;
-				}
-				else {
-					throw new IllegalStateException("value is not a long: " + value.getClass() + ' '+ value);
-				}
+				result = validateMinMaxNumber(field, field.getMinLong(), field.getMaxLong(), value);
 				break;
 				
 			default:
 				throw new UnsupportedOperationException(field.getType().name());
 		}
-		if (tooLow) {
+		if (result < 0) {
 			errors.addError("val.toolow.fieldvalue", field.getName());
 		}
-		else if (tooBig) {
+		else if (result > 0) {
 			errors.addError("val.toobig.fieldvalue", field.getName());
+		}
+	}
+	
+	private static int validateMinMaxDate(EntityField field, Date minDate, Date maxDate, Object value) {
+		if (value instanceof Date) {
+			if (minDate != null && minDate.after((Date) value)) {
+				return -1;
+			}
+			else if (maxDate != null && maxDate.before((Date) value)) {
+				return 1;
+			}
+			else {
+				return 0;
+			}
+		}
+		else {
+			throw new IllegalStateException("value of '"+ field.getName() + "' is not a date: " + value.getClass() + ' '+ value);
+		}
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private static int validateMinMaxNumber(EntityField field, Comparable minNumber, Comparable maxNumber, Object value) {
+		if (value instanceof Number) {
+			if (minNumber != null && minNumber.compareTo(value) > 0) {
+				return -1;
+			}
+			else if (maxNumber != null && maxNumber.compareTo(value) < 0) {
+				return 1;
+			}
+			else {
+				return 0;
+			}
+		}
+		else {
+			throw new IllegalStateException("value of '"+ field.getName() + "' is not a number: " + value.getClass() + ' '+ value);
 		}
 	}
 	

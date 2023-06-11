@@ -54,6 +54,10 @@ import org.seed.core.entity.EntityStatus;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.entity.value.ValueObjectService;
+import org.seed.core.user.User;
+import org.seed.core.user.UserGroup;
+import org.seed.core.user.UserGroupDependent;
+import org.seed.core.user.UserGroupService;
 import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,10 +66,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TransferServiceImpl extends AbstractApplicationEntityService<Transfer>
-	implements TransferService, EntityDependent<Transfer> {
+	implements TransferService, EntityDependent<Transfer>, UserGroupDependent<Transfer> {
 	
 	@Autowired
 	private EntityService entityService;
+	
+	@Autowired
+	private UserGroupService userGroupService;
 	
 	@Autowired
 	private ValueObjectService valueObjectService;
@@ -97,6 +104,13 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 		final var instance = (TransferMetadata) super.createInstance(options);
 		instance.createLists();
 		return instance;
+	}
+	
+	@Override
+	public List<Transfer> getTransfers(User user, Session session) {
+		Assert.notNull(user, C.USER);
+		
+		return subList(getObjects(session), transfer -> transfer.checkPermissions(user));
 	}
 	
 	@Override
@@ -202,6 +216,16 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 			}
 		}
 		return result;
+	}
+	
+	@Override
+	public List<TransferPermission> getAvailablePermissions(Transfer transfer, Session session) {
+		Assert.notNull(transfer, C.TRANSFER);
+		Assert.notNull(session, C.SESSION);
+		
+		return filterAndConvert(userGroupService.findNonSystemGroups(session), 
+								not(transfer::containsPermission), 
+								group -> createPermission(transfer, group));
 	}
 	
 	@Override
@@ -330,6 +354,14 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	}
 	
 	@Override
+	public List<Transfer> findUsage(UserGroup userGroup, Session session) {
+		Assert.notNull(userGroup, C.USERGROUP);
+		Assert.notNull(session, C.SESSION);
+		
+		return subList(getObjects(session), transfer -> transfer.containsPermission(userGroup));
+	}
+	
+	@Override
 	public List<Transfer> findUsage(EntityFieldGroup fieldGroup) {
 		return Collections.emptyList();
 	}
@@ -421,6 +453,9 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 				initTransferElement(element, entity, transfer, currentVersionTransfer);
 			}
 		}
+		if (transfer.hasPermissions()) {
+			initPermissions(session, transfer, currentVersionTransfer);
+		}
 	}
 	
 	private void initTransferElement(TransferElement element, Entity entity, 
@@ -432,6 +467,20 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 											: null;
 		if (currentVersionElement != null) {
 			currentVersionElement.copySystemFieldsTo(element);
+		}
+	}
+	
+	private void initPermissions(Session session, Transfer transfer, Transfer currentVersionTransfer) {
+		for (TransferPermission permission : transfer.getPermissions()) {
+			permission.setTransfer(transfer);
+			permission.setUserGroup(userGroupService.findByUid(session, permission.getUserGroupUid()));
+			if (currentVersionTransfer != null) {
+				final TransferPermission currentVersionPermission =
+						currentVersionTransfer.getPermissionByUid(permission.getUid());
+				if (currentVersionPermission != null) {
+					currentVersionPermission.copySystemFieldsTo(permission);
+				}
+			}
 		}
 	}
 	
@@ -510,6 +559,14 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 		element.setTransfer(transfer);
 		element.setEntityField(entityField);
 		return element;
+	}
+	
+	private static TransferPermission createPermission(Transfer transfer, UserGroup group) {
+		final var permission = new TransferPermission();
+		permission.setTransfer(transfer);
+		permission.setUserGroup(group);
+		permission.setAccess(TransferAccess.IMPORT);
+		return permission;
 	}
 	
 	private static final String ELEMENTS = "elements";

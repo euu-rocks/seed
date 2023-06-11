@@ -31,6 +31,7 @@ import org.seed.core.entity.transfer.Transfer;
 import org.seed.core.entity.transfer.TransferElement;
 import org.seed.core.entity.transfer.TransferFormat;
 import org.seed.core.entity.transfer.TransferMetadata;
+import org.seed.core.entity.transfer.TransferPermission;
 
 class TransferTest {
 	
@@ -64,6 +65,22 @@ class TransferTest {
 		element.setUid("test");
 		
 		assertSame(element, transfer.getElementByUid("test"));
+	}
+	
+	@Test
+	void testGetPermissionByUid( ) {
+		final Transfer transfer = new TransferMetadata();
+		final TransferPermission permission = new TransferPermission();
+		final List<TransferPermission> permissions = new ArrayList<>();
+		permission.setUid("other");
+		permissions.add(permission);
+		((TransferMetadata) transfer).setPermissions(permissions);
+		
+		assertNull(transfer.getPermissionByUid("test"));
+		
+		permission.setUid("test");
+		
+		assertSame(permission, transfer.getPermissionByUid("test"));
 	}
 	
 	@Test
@@ -145,6 +162,28 @@ class TransferTest {
 		assertTrue(transfer1.isEqual(transfer2));
 		
 		element1.setUid("other");
+		assertFalse(transfer1.isEqual(transfer2));
+	}
+	
+	@Test
+	void testIsEqualPermissions() {
+		final Transfer transfer1 = new TransferMetadata();
+		final Transfer transfer2 = new TransferMetadata();
+		final TransferPermission permission1 = new TransferPermission();
+		final TransferPermission permission2 = new TransferPermission();
+		final List<TransferPermission> permissions1 = new ArrayList<>();
+		final List<TransferPermission> permissions2 = new ArrayList<>();
+		permissions1.add(permission1);
+		permissions2.add(permission2);
+		permission1.setUid("test");
+		permission2.setUid("test");
+		((TransferMetadata) transfer1).setPermissions(permissions1);
+		assertFalse(transfer1.isEqual(transfer2));
+		
+		((TransferMetadata) transfer2).setPermissions(permissions2);
+		assertTrue(transfer1.isEqual(transfer2));
+		
+		permission2.setUid("other");
 		assertFalse(transfer1.isEqual(transfer2));
 	}
 	

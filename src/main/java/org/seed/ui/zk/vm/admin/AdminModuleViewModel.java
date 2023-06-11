@@ -48,6 +48,7 @@ import org.seed.core.task.TaskService;
 import org.seed.core.user.Authorisation;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
+import org.seed.ui.zk.vm.TransferDialogParameter;
 
 import org.springframework.oxm.UnmarshallingFailureException;
 import org.zkoss.bind.annotation.BindingParam;
