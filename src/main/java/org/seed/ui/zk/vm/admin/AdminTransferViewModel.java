@@ -85,7 +85,7 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	
 	private List<TransferElement> transferElements;
 	
-	private List<NestedTransfer> nesteds;
+	private List<NestedTransfer> nestedTransfers;
 	
 	public AdminTransferViewModel() {
 		super(Authorisation.ADMIN_ENTITY, C.TRANSFER,
@@ -99,7 +99,7 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	}
 
 	public List<NestedTransfer> getNesteds() {
-		return nesteds;
+		return nestedTransfers;
 	}
 	
 	public TransferElement getElement() {
@@ -175,7 +175,7 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 		if (transferElements.isEmpty()) {
 			transferElements = new ArrayList<>();
 		}
-		nesteds = transferService.getNestedTransfers(transfer);
+		nestedTransfers = transferService.getNestedTransfers(transfer);
 	}
 	
 	@Override
@@ -227,7 +227,7 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	@NotifyChange(NESTEDS)
 	public void selectAllNesteds() {
 		selectAll(NESTEDS);
-		adjustLists(nesteds, getListManagerList(NESTEDS, LIST_SELECTED));
+		adjustLists(nestedTransfers, getListManagerList(NESTEDS, LIST_SELECTED));
 	}
 	
 	@Command
@@ -268,7 +268,7 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	
 	@Command
 	public void saveTransfer(@BindingParam(C.ELEM) Component component) {
-		transferService.adjustElements(getObject(), transferElements, nesteds);
+		transferService.adjustElements(getObject(), transferElements, nestedTransfers);
 		adjustLists(getObject().getPermissions(), getListManagerList(PERMISSIONS, LIST_SELECTED));
 		if (cmdSaveObject(component)) {
 			refreshMenu();
@@ -367,7 +367,7 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 				nestedTransfer = null;
 			}
 		}
-		adjustLists(nesteds, getListManagerList(NESTEDS, LIST_SELECTED));
+		adjustLists(nestedTransfers, getListManagerList(NESTEDS, LIST_SELECTED));
 		removeListManager(NESTEDELEMENTS);
 	}
 	
@@ -383,7 +383,7 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 				nestedTransfer = null;
 			}
 		}
-		adjustLists(nesteds, getListManagerList(NESTEDS, LIST_SELECTED));
+		adjustLists(nestedTransfers, getListManagerList(NESTEDS, LIST_SELECTED));
 		removeListManager(NESTEDELEMENTS);
 	}
 	
@@ -417,8 +417,8 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	@Command
 	@SmartNotifyChange(C.NESTED)
 	public void selectNestedElements() {
-		if (nestedTransfer == null && !ObjectUtils.isEmpty(nesteds)) {
-			nestedTransfer = nesteds.get(0);
+		if (nestedTransfer == null && !ObjectUtils.isEmpty(nestedTransfers)) {
+			nestedTransfer = nestedTransfers.get(0);
 		}
 	}
 	
@@ -444,8 +444,8 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 				
 			case NESTEDS:
 				return MiscUtils.castList(listNum == LIST_AVAILABLE
-						? transferService.getAvailableNesteds(getObject(), nesteds)
-						: nesteds);
+						? transferService.getAvailableNesteds(getObject(), nestedTransfers)
+						: nestedTransfers);
 			
 			case NESTEDELEMENTS:
 				if (nestedTransfer == null) {
@@ -470,7 +470,7 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 		element = null;
 		transferElements = null;
 		nestedTransfer = null;
-		nesteds = null;
+		nestedTransfers = null;
 		nestedElement = null;
 		permission = null;
 	}

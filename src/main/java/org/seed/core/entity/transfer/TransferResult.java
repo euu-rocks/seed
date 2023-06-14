@@ -74,6 +74,14 @@ public class TransferResult {
 		return updatedObjects;
 	}
 	
+	@Override
+	public String toString() {
+		return "successfulTransfers:" + successfulTransfers +
+			   ", failedTransfers:" + failedTransfers +
+			   ", createdObjects:" + createdObjects +
+			   ", updatedObjects:" + updatedObjects;
+	}
+	
 	void registerCreatedObject() {
 		this.createdObjects++;
 	}

@@ -349,10 +349,9 @@ abstract class AbstractTransferProcessor implements TransferProcessor {
 		return result;
 	}
 	
-	protected void saveObjects(List<ValueObject> objects, ImportOptions options, 
-							   TransferResult result) {
-		final Set<Object> keys = new HashSet<>();
-		final EntityField identifierField = transfer.getIdentifierField();
+	protected void saveObjects(List<ValueObject> objects, ImportOptions options, TransferResult result) {
+		final var keys = new HashSet<Object>();
+		final var identifierField = transfer.getIdentifierField();
 		if (options.isModifyExisting()) {
 			Assert.stateAvailable(identifierField, "identifier field");
 		}
@@ -374,7 +373,12 @@ abstract class AbstractTransferProcessor implements TransferProcessor {
 			if (tx != null) {
 				tx.rollback();
 			}
-			throw new InternalException(ex);
+			if (!(ex instanceof ValidationException ||      // These exceptions are used to
+				  ex instanceof MissingKeyException ||      // abort "all or nothing" imports and
+				  ex instanceof DuplicateKeyException)) {   // rollback overall transaction
+				// only throw unexpected exceptions
+				throw new InternalException(ex);
+			}
 		}
 		finally {
 			if (session != null) {
@@ -387,7 +391,7 @@ abstract class AbstractTransferProcessor implements TransferProcessor {
 	}
 	
 	private void processObject(ValueObject object, ImportOptions options, EntityField identifierField,
-				TransferResult result, Set<Object> keys, Session session) 
+							   TransferResult result, Set<Object> keys, Session session) 
 		throws MissingKeyException, DuplicateKeyException, ValidationException {
 		
 		int updateResult = 0;
@@ -445,12 +449,11 @@ abstract class AbstractTransferProcessor implements TransferProcessor {
 	}
 	
 	// -1 = error, 0 = no existing object, 1 = existing object updated
-	private int updateExistingObject(ValueObject object, EntityField identifierField,
-			 ImportOptions options, TransferResult result,
-			 Set<Object> keys, Session session) 
+	private int updateExistingObject(ValueObject object, EntityField identifierField, ImportOptions options, 
+									 TransferResult result, Set<Object> keys, Session session) 
 		throws MissingKeyException, DuplicateKeyException, ValidationException {
 		
-		final Object key = valueObjectService.getValue(object, identifierField);
+		final var key = valueObjectService.getValue(object, identifierField);
 		// check key
 		if (ObjectUtils.isEmpty(key)) {
 			result.addMissingKeyError(identifierField.getName());
@@ -470,7 +473,7 @@ abstract class AbstractTransferProcessor implements TransferProcessor {
 		keys.add(key);
 
 		// load existing object
-		final ValueObject existingObject = session != null 
+		final var existingObject = session != null 
 				? valueObjectService.findUnique(identifierField.getEntity(), identifierField, key, session)
 				: valueObjectService.findUnique(identifierField.getEntity(), identifierField, key);
 		if (existingObject == null) {

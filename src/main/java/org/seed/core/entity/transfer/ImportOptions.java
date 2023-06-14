@@ -60,5 +60,11 @@ public class ImportOptions implements Options {
 	public void setExecuteCallbacks(boolean executeCallbacks) {
 		this.executeCallbacks = executeCallbacks;
 	}
-
+	
+	@Override
+	public String toString() {
+		return "allOrNothing:" + allOrNothing + ", createIfNew:" + createIfNew + "," + 
+			   " modifyExisting:" + modifyExisting + ", executeCallbacks:" + executeCallbacks;  
+	}
+ 
 }

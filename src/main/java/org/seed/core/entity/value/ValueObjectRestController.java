@@ -24,6 +24,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import org.seed.C;
+import org.seed.core.application.AbstractRestController;
 import org.seed.core.config.OpenSessionInViewFilter;
 import org.seed.core.data.FieldAccess;
 import org.seed.core.data.FileObject;
@@ -45,11 +46,8 @@ import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -263,12 +261,8 @@ public class ValueObjectRestController {
 		final ValueObject object = getObjectByNameAndId(session, name, id);
 		checkFieldAccess(field.getEntity(), field, object, user, FieldAccess.WRITE);
 		
-		final FileObject fileObject = new FileObject();
-		fileObject.setName(file.getOriginalFilename());
-		fileObject.setContentType(file.getContentType());
 		try {
-			fileObject.setContent(file.getBytes());
-			return service.saveFieldContent(object, field, fileObject, session);
+			return service.saveFieldContent(object, field, AbstractRestController.toFileObject(file), session);
 		}
 		catch (ValidationException vex) {
 			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, vex.getMessage());
@@ -473,16 +467,9 @@ public class ValueObjectRestController {
 		if (file == null) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "no file available");
 		}
-		
-		final BodyBuilder builder = ResponseEntity.ok();
-		if (download) {
-			builder.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
-				   .contentType(MediaType.APPLICATION_OCTET_STREAM);
-		}
-		else {
-			builder.contentType(MediaType.parseMediaType(file.getContentType()));
-		}
-		return builder.body(new ByteArrayResource(file.getContent()));
+		return download 
+				? AbstractRestController.download(file.getName(), file.getContent())
+				: AbstractRestController.stream(file.getContentType(), file.getContent());
 	}
 	
 	private EntityField getEntityField(Session session, String name, String fieldName) {

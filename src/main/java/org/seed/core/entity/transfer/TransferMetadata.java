@@ -46,6 +46,10 @@ import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.EntityMetadata;
 import org.seed.core.util.Assert;
+import org.seed.core.util.ReferenceJsonSerializer;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @javax.persistence.Entity
 @Table(name = "sys_entity_transfer")
@@ -55,6 +59,7 @@ public class TransferMetadata extends AbstractApplicationEntity
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "entity_id")
+	@JsonSerialize(using = ReferenceJsonSerializer.class)
 	private EntityMetadata entity;
 	
 	@OneToMany(mappedBy = "transfer",
@@ -289,15 +294,16 @@ public class TransferMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
+	@JsonIgnore
 	public EntityField getIdentifierField() {
 		final TransferElement element = firstMatch(getElements(), TransferElement::isIdentifier);
 		return element != null ? element.getEntityField() : null;
 	}
 	
 	@Override
+	@JsonIgnore
 	public List<EntityField> getElementFields() {
-		return filterAndConvert(getElements(), elem -> elem.getEntityField() != null, 
-												TransferElement::getEntityField);
+		return filterAndConvert(getElements(), elem -> elem.getEntityField() != null, TransferElement::getEntityField);
 	}
 	
 	@Override

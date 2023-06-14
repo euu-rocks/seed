@@ -33,6 +33,10 @@ import org.seed.core.application.AbstractOrderedTransferableObject;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.SystemField;
 import org.seed.core.entity.EntityField;
+import org.seed.core.util.ReferenceJsonSerializer;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @javax.persistence.Entity
 @Table(name = "sys_entity_transfer_elem")
@@ -41,10 +45,12 @@ public class TransferElement extends AbstractOrderedTransferableObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "transfer_id")
+	@JsonIgnore
 	private TransferMetadata transfer;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "entity_field_id")
+	@JsonSerialize(using = ReferenceJsonSerializer.class)
 	private EntityField entityField;
 	
 	private boolean isIdentifier;
@@ -123,6 +129,7 @@ public class TransferElement extends AbstractOrderedTransferableObject {
 	}
 	
 	@XmlTransient
+	@JsonIgnore
 	public FieldType getFieldType() {
 		return entityField != null
 				? entityField.getType()

@@ -17,20 +17,29 @@
  */
 package org.seed.core.application;
 
+import static org.seed.core.util.CollectionUtils.subList;
+
+import java.io.IOException;
 import java.util.List;
 import java.util.function.Predicate;
 
 import org.hibernate.Session;
 
 import org.seed.C;
+import org.seed.InternalException;
+import org.seed.core.data.FileObject;
 import org.seed.core.user.Authorisation;
 import org.seed.core.user.User;
 import org.seed.core.user.UserService;
 import org.seed.core.util.Assert;
-import org.seed.core.util.CollectionUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 public abstract class AbstractRestController<T extends ApplicationEntity> {
@@ -47,7 +56,7 @@ public abstract class AbstractRestController<T extends ApplicationEntity> {
 	protected List<T> getAll(Session session, Predicate<T> filter) {
 		Assert.notNull(session, C.SESSION);
 		
-		return CollectionUtils.subList(getService().getObjects(session), filter);
+		return subList(getService().getObjects(session), filter);
 	}
 	
 	protected T get(Session session, Long id) {
@@ -79,9 +88,49 @@ public abstract class AbstractRestController<T extends ApplicationEntity> {
 	}
 	
 	protected User getUser(Session session) {
+		Assert.notNull(session, C.SESSION);
 		final User user = userService.getCurrentUser(session);
 		Assert.stateAvailable(user, C.USER);
 		return user;
+	}
+	
+	public static FileObject toFileObject(MultipartFile multipartFile) {
+		Assert.notNull(multipartFile, "multipart file");
+		try {
+			final FileObject file = new FileObject();
+			file.setName(multipartFile.getOriginalFilename());
+			file.setContentType(multipartFile.getContentType());
+			file.setContent(multipartFile.getBytes());
+			return file;
+		}
+		catch (IOException ex) {
+			throw new InternalException(ex);
+		}
+	}
+	
+	public static ResponseEntity<ByteArrayResource> download(String fileName, byte[] content) {
+		Assert.notNull(fileName, "file name");
+		Assert.notNull(content, C.CONTENT);
+		
+		return ResponseEntity
+				.ok()
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + '\"')
+				.contentType(MediaType.APPLICATION_OCTET_STREAM)
+				.body(createResource(content));
+	}
+	
+	public static ResponseEntity<ByteArrayResource> stream(String contentType, byte[] content) {
+		Assert.notNull(contentType, "content type");
+		Assert.notNull(content, C.CONTENT);
+		
+		return ResponseEntity
+				.ok()
+				.contentType(MediaType.parseMediaType(contentType))
+				.body(createResource(content));
+	}
+	
+	private static ByteArrayResource createResource(byte[] content) {
+		return new ByteArrayResource(content);
 	}
 	
 	protected abstract ApplicationEntityService<T> getService();
