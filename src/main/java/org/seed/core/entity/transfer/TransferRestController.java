@@ -122,17 +122,17 @@ public class TransferRestController extends AbstractRestController<Transfer> {
 		}
 		
 		final ImportOptions options = new ImportOptions();
-		options.setAllOrNothing(allOrNothing.isPresent() ? NameUtils.booleanValue(allOrNothing.get()) : true);
-		options.setCreateIfNew(createIfNew.isPresent() ? NameUtils.booleanValue(createIfNew.get()) : true);
-		options.setModifyExisting(modifyExisting.isPresent() ? NameUtils.booleanValue(modifyExisting.get()) : true);
-		options.setExecuteCallbacks(executeCallbacks.isPresent() ? NameUtils.booleanValue(executeCallbacks.get()) : true);
+		options.setAllOrNothing(allOrNothing.isEmpty() || NameUtils.booleanValue(allOrNothing.get()));
+		options.setCreateIfNew(createIfNew.isEmpty() || NameUtils.booleanValue(createIfNew.get()));
+		options.setModifyExisting(modifyExisting.isEmpty() || NameUtils.booleanValue(modifyExisting.get()));
+		options.setExecuteCallbacks(executeCallbacks.isEmpty() || NameUtils.booleanValue(executeCallbacks.get()));
 		try {
 			final TransferResult result = transferService.doImport(transfer, options, toFileObject(file));
-			final String msg = " Parameters[" + options.toString() + "], " + " Result[" + result.toString() + "]";
-			if (options.isAllOrNothing() && result.getFailedTransfers() > 0) {
-				return new ResponseEntity<>("import failed." + msg, HttpStatus.NOT_ACCEPTABLE);
+			final String infoMsg = "Parameters[" + options + "], Result[" + result + ']';
+			if (options.isAllOrNothing() && result.hasErrors()) {
+				return new ResponseEntity<>("import failed. " + infoMsg, HttpStatus.NOT_ACCEPTABLE);
 			}
-			return new ResponseEntity<>(file.getOriginalFilename() + " imported." + msg, HttpStatus.OK);
+			return new ResponseEntity<>(file.getOriginalFilename() + " imported. " + infoMsg, HttpStatus.OK);
 		}
 		catch (ValidationException vex) {
 			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, vex.getMessage());

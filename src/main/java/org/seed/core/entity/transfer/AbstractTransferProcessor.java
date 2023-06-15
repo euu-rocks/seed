@@ -17,6 +17,8 @@
  */
 package org.seed.core.entity.transfer;
 
+import static org.seed.core.util.CollectionUtils.convertedList;
+
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.text.ParseException;
@@ -476,18 +478,39 @@ abstract class AbstractTransferProcessor implements TransferProcessor {
 		final var existingObject = session != null 
 				? valueObjectService.findUnique(identifierField.getEntity(), identifierField, key, session)
 				: valueObjectService.findUnique(identifierField.getEntity(), identifierField, key);
-		if (existingObject == null) {
-			// no object exits
+		
+		if (existingObject != null) {
+			copyFields(object, existingObject);
+			saveObject(existingObject, options, result, session);
+			return 1;
+		}
+		else {
+			// no existing object
 			return 0;
 		}
-
-		valueObjectService.copyFields(object, existingObject, transfer.getElementFields());
-		saveObject(existingObject, options, result, session);
-		return 1;
+	}
+	
+	private void copyFields(ValueObject sourceObject, ValueObject targetObject) {
+		var fieldList = convertedList(transferService.getMainObjectElements(transfer), elem -> elem.getEntityField());
+		valueObjectService.copyFields(sourceObject, targetObject, fieldList);
+		for (NestedTransfer nested : transferService.getNestedTransfers(transfer)) {
+			fieldList = convertedList(nested.getElements(), elem -> elem.getEntityField());
+			if (valueObjectService.hasNestedObjects(targetObject, nested.getNested())) {
+				valueObjectService.getNestedObjects(targetObject, nested.getNested()).clear();
+			}
+			if (valueObjectService.hasNestedObjects(sourceObject, nested.getNested())) {
+				for (ValueObject nestedObj : valueObjectService.getNestedObjects(sourceObject, nested.getNested())) {
+					var nestedInstance = valueObjectService.addNestedInstance(targetObject, nested.getNested());
+					valueObjectService.copyFields(nestedObj, nestedInstance, fieldList);
+				}
+			}
+		}
 	}
 	
 	private void saveObject(ValueObject object, ImportOptions options, TransferResult result, Session session) 
 		throws ValidationException {
+		
+		final boolean wasNew = object.isNew();
 		try {
 			if (session != null) {
 				valueObjectService.saveObject(object, session, null);
@@ -495,7 +518,12 @@ abstract class AbstractTransferProcessor implements TransferProcessor {
 			else {
 				valueObjectService.saveObject(object);
 			}
-			result.registerCreatedObject();
+			if (wasNew) {
+				result.registerCreatedObject();
+			}
+			else {
+				result.registerUpdatedObject();
+			}
 			result.registerSuccessfulTransfer();
 		}
 		catch (ValidationException vex) {
