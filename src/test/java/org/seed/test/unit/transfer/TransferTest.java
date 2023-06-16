@@ -84,22 +84,6 @@ class TransferTest {
 	}
 	
 	@Test
-	void testGetElementFields() {
-		final Transfer transfer = new TransferMetadata();
-		final EntityField entityField = new EntityField();
-		final TransferElement element1 = new TransferElement();
-		final TransferElement element2 = new TransferElement();
-		final List<TransferElement> elements = new ArrayList<>();
-		elements.add(element1);
-		elements.add(element2);
-		element1.setEntityField(entityField);
-		((TransferMetadata) transfer).setElements(elements);
-		
-		assertSame(1, transfer.getElementFields().size());
-		assertSame(entityField, transfer.getElementFields().get(0));
-	}
-	
-	@Test
 	void testGetIdentifierField() {
 		final Transfer transfer = new TransferMetadata();
 		final EntityField entityField = new EntityField();

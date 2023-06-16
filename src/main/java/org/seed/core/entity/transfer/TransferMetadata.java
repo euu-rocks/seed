@@ -301,12 +301,6 @@ public class TransferMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
-	@JsonIgnore
-	public List<EntityField> getElementFields() {
-		return filterAndConvert(getElements(), elem -> elem.getEntityField() != null, TransferElement::getEntityField);
-	}
-	
-	@Override
 	public TransferElement getElementByUid(String uid) {
 		return getObjectByUid(getElements(), uid);
 	}

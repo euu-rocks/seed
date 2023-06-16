@@ -158,15 +158,12 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public void copyFields(ValueObject sourceObject, 
-						   ValueObject targetObject,
-						   List<EntityField> entityFields) {
+	public void copyFields(ValueObject sourceObject, ValueObject targetObject, List<EntityField> fields) {
 		Assert.notNull(sourceObject, "sourceObject");
 		Assert.notNull(targetObject, "targetObject");
-		Assert.notNull(entityFields, "entity fields");
+		Assert.notNull(fields, "fields");
 		
-		entityFields.forEach(field -> setValue(targetObject, field, 
-											   getValue(sourceObject, field)));
+		fields.forEach(field -> setValue(targetObject, field, getValue(sourceObject, field)));
 	}
 	
 	@Override

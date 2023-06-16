@@ -494,11 +494,11 @@ abstract class AbstractTransferProcessor implements TransferProcessor {
 		var fieldList = convertedList(transferService.getMainObjectElements(transfer), elem -> elem.getEntityField());
 		valueObjectService.copyFields(sourceObject, targetObject, fieldList);
 		for (NestedTransfer nested : transferService.getNestedTransfers(transfer)) {
-			fieldList = convertedList(nested.getElements(), elem -> elem.getEntityField());
 			if (valueObjectService.hasNestedObjects(targetObject, nested.getNested())) {
 				valueObjectService.getNestedObjects(targetObject, nested.getNested()).clear();
 			}
 			if (valueObjectService.hasNestedObjects(sourceObject, nested.getNested())) {
+				fieldList = convertedList(nested.getElements(), elem -> elem.getEntityField());
 				for (ValueObject nestedObj : valueObjectService.getNestedObjects(sourceObject, nested.getNested())) {
 					var nestedInstance = valueObjectService.addNestedInstance(targetObject, nested.getNested());
 					valueObjectService.copyFields(nestedObj, nestedInstance, fieldList);

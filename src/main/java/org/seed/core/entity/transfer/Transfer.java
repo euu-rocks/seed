@@ -54,8 +54,6 @@ public interface Transfer extends ApplicationEntity, ApprovableObject<TransferPe
 	
 	List<TransferElement> getElements();
 	
-	List<EntityField> getElementFields();
-	
 	EntityField getIdentifierField();
 	
 	String getEntityUid();
