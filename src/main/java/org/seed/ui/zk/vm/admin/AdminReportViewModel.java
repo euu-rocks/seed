@@ -110,12 +110,22 @@ public class AdminReportViewModel extends AbstractAdminViewModel<Report> {
 	
 	@Command
 	public void newReport() {
-		cmdNewObject();
+		if (existModules()) {
+			cmdNewObjectDialog();
+		}
+		else {
+			cmdNewObject();
+		}
 	}
 	
 	@Command
 	public void editReport() {
 		cmdEditObject();
+	}
+	
+	@Command
+	public void cancel() {
+		window.detach();
 	}
 	
 	@Command

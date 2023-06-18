@@ -32,9 +32,14 @@ import org.zkoss.bind.annotation.ContextType;
 import org.zkoss.bind.annotation.ExecutionArgParam;
 import org.zkoss.bind.annotation.Init;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.select.annotation.Wire;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
+import org.zkoss.zul.Window;
 
 public class AdminCustomLibViewModel extends AbstractAdminViewModel<CustomLib> {
+	
+	@Wire("#newCustomLibWin")
+	private Window window;
 	
 	@WireVariable(value="customLibServiceImpl")
 	private CustomLibService customLibService;
@@ -44,7 +49,8 @@ public class AdminCustomLibViewModel extends AbstractAdminViewModel<CustomLib> {
 	public AdminCustomLibViewModel() {
 		super(Authorisation.ADMIN_SOURCECODE, "customlib",
 			  "/admin/customcode/customliblist.zul", 
-			  "/admin/customcode/customlib.zul");
+			  "/admin/customcode/customlib.zul",
+			  "/admin/customcode/newcustomlib.zul");
 	}
 	
 	@Init
@@ -85,7 +91,22 @@ public class AdminCustomLibViewModel extends AbstractAdminViewModel<CustomLib> {
 	
 	@Command
 	public void newLib() {
-		cmdNewObject();
+		if (existModules()) {
+			cmdNewObjectDialog();
+		}
+		else {
+			cmdNewObject();
+		}
+	}
+	
+	@Command
+	public void createCustomLib(@BindingParam(C.ELEM) Component elem) {
+		cmdInitObject(elem, window);
+	}
+	
+	@Command
+	public void cancel() {
+		window.detach();
 	}
 	
 	@Command

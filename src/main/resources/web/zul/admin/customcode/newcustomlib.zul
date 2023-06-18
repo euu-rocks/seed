@@ -19,10 +19,10 @@
 -->
 <!DOCTYPE xml>
 <?page contentType="text/html;charset=UTF-8"?>
-<window id="newReportWin" 
-		sclass="new-report-win" 
-		title="${labels.admin.create.report}"
-		viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminReportViewModel')" 
+<window id="newCustomLibWin" 
+		sclass="new-customlib-win" 
+		title="${labels.admin.create.customlib}"
+		viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.AdminCustomLibViewModel')" 
 		width="350px" mode="modal" closable="true">
 	<div class="alpha-dialog">
 		<grid class="alpha-noborder">
@@ -64,7 +64,7 @@
 		<div class="alpha-dialog-footer">
 			<button iconSclass="create-button z-icon-check" 
 					label="${labels.button.create}" 
-					onClick="@command('createReport',elem=self)"/>
+					onClick="@command('createCustomLib',elem=self)"/>
 			<space/>
 			<button iconSclass="close-button z-icon-close" 
 					label="${labels.button.cancel}" 

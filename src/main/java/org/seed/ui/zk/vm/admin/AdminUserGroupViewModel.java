@@ -29,29 +29,39 @@ import org.seed.core.user.UserGroupAuthorisation;
 import org.seed.core.user.UserGroupMetadata;
 import org.seed.core.user.UserGroupService;
 import org.seed.core.util.MiscUtils;
+
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.ContextParam;
+import org.zkoss.bind.annotation.ContextType;
 import org.zkoss.bind.annotation.ExecutionArgParam;
 import org.zkoss.bind.annotation.GlobalCommand;
 import org.zkoss.bind.annotation.Init;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.select.annotation.Wire;
+import org.zkoss.zul.Window;
 
 public class AdminUserGroupViewModel extends AbstractAdminViewModel<UserGroup> {
 	
 	private static final String AUTHORISATIONS = "authorisations";
 	private static final String USERS = "users";
 	
+	@Wire("#newUserGroupWin")
+	private Window window;
+	
 	private final List<Long> originalUserIds = new ArrayList<>();
 	
 	public AdminUserGroupViewModel() {
 		super(Authorisation.ADMIN_USER, "usergroup",
 			  "/admin/user/usergrouplist.zul", 
-			  "/admin/user/usergroup.zul");
+			  "/admin/user/usergroup.zul",
+			  "/admin/user/newusergroup.zul");
 	}
 	
 	@Init
-	public void init(@ExecutionArgParam(C.PARAM) Object object) {
-		super.init(object, null);
+	public void init(@ContextParam(ContextType.VIEW) Component view,
+					 @ExecutionArgParam(C.PARAM) Object object) {
+		super.init(object, view);
 	}
 	
 	@Override
@@ -65,13 +75,28 @@ public class AdminUserGroupViewModel extends AbstractAdminViewModel<UserGroup> {
 	}
 	
 	@Command
+	public void createUserGroup(@BindingParam(C.ELEM) Component elem) {
+		cmdInitObject(elem, window);
+	}
+	
+	@Command
+	public void cancel() {
+		window.detach();
+	}
+	
+	@Command
 	public void back() {
 		cmdBack();
 	}
 	
 	@Command
 	public void newUserGroup() {
-		cmdNewObject();
+		if (existModules()) {
+			cmdNewObjectDialog();
+		}
+		else {
+			cmdNewObject();
+		}
 	}
 	
 	@Command
@@ -102,33 +127,33 @@ public class AdminUserGroupViewModel extends AbstractAdminViewModel<UserGroup> {
 	@Command
 	public void flagDirty(@BindingParam("notify") String notify, 
 						  @BindingParam("notifyObject") String notifyObject) {
-		super.flagDirty(notify, null, notifyObject);
+		flagDirty(notify, null, notifyObject);
 	}
 	
 	@Command
 	public void dropToAuthorisationList(@BindingParam(C.ITEM) UserGroupAuthorisation item,
 							   			@BindingParam(C.LIST) int listNum) {
-		super.dropToList(AUTHORISATIONS, listNum, item);
+		dropToList(AUTHORISATIONS, listNum, item);
 	}
 	
 	@Command
 	public void insertToAuthorisationList(@BindingParam(C.BASE) UserGroupAuthorisation base,
 								 		  @BindingParam(C.ITEM) UserGroupAuthorisation item,
 								 		  @BindingParam(C.LIST) int listNum) {
-		super.insertToList(AUTHORISATIONS, listNum, base, item);
+		insertToList(AUTHORISATIONS, listNum, base, item);
 	}
 	
 	@Command
 	public void dropToUserList(@BindingParam(C.ITEM) User item,
 							   @BindingParam(C.LIST) int listNum) {
-		super.dropToList(USERS, listNum, item);
+		dropToList(USERS, listNum, item);
 	}
 	
 	@Command
 	public void insertToUserList(@BindingParam(C.BASE) User base,
 								 @BindingParam(C.ITEM) User item,
 								 @BindingParam(C.LIST) int listNum) {
-		super.insertToList(USERS, listNum, base, item);
+		insertToList(USERS, listNum, base, item);
 	}
 	
 	@GlobalCommand

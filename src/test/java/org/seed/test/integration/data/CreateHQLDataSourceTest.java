@@ -33,18 +33,21 @@ public class CreateHQLDataSourceTest extends AbstractDataSourceTest {
 	void testCreateHQLDataSource() {
 		clickMenu("administration-abfragen");
 		assertEquals("Abfragen", findTab("abfragen").getText());
-		
 		WebElement tabpanel = findTabpanel("abfragen");
 		clickButton(tabpanel, "new");
-		clickRadioItem(tabpanel, "hql");
 		
+		WebElement window = findWindow("new-datasource");
+		assertEquals("Neue Abfrage erstellen", findWindowHeader(window).getText());
+		findCombobox(window, "module").sendKeys("Testmodule");
+		clickButton(window, "create");
+		
+		clickRadioItem(tabpanel, "hql");
 		clickTab(tabpanel, "parameters");
 		WebElement tabpanelParameters = findTabpanel(tabpanel, "parameters");
 		clickButton(tabpanelParameters, "new");
 		
 		findOptionTextbox(tabpanelParameters, "name").sendKeys("id");
 		findOptionCombobox(tabpanelParameters, "type").sendKeys("Ganzzahl (lang)");
-		
 		
 		clickTab(tabpanel, "query");
 		WebElement tabpanelQuery = findTabpanel(tabpanel, "query");

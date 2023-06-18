@@ -36,6 +36,11 @@ public class CreateJobTest extends AbstractJobTest {
 		WebElement tabpanel = findTabpanel("jobs");
 		clickButton(tabpanel, "new");
 		
+		WebElement window = findWindow("new-task");
+		assertEquals("Neuen Job erstellen", findWindowHeader(window).getText());
+		findCombobox(window, "module").sendKeys("Testmodule");
+		clickButton(window, "create");
+		
 		clickButton(tabpanel, "save");
 		findValidationMessage(); // name is empty
 		
@@ -43,7 +48,7 @@ public class CreateJobTest extends AbstractJobTest {
 		pause(500);
 		clickButton(tabpanel, "editcode");
 		
-		WebElement window = findWindow("code-dialog");
+		window = findWindow("code-dialog");
 		findCodeMirror(window, "content", 11).sendKeys("StoredProcedureCall call = context.getStoredProcedureProvider().createCall(\"testprocedure\");\n"
 				+ "		call.setParameter(\"text1\",\"Hello\");\n"
 				+ "      	call.setParameter(\"text2\",\"World\");\n"

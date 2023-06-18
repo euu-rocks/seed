@@ -35,6 +35,12 @@ public class CreateRestTest extends AbstractRestTest {
 		assertEquals("REST-Services", findTab("rest-services").getText());
 		WebElement tabpanel = findTabpanel("rest-services");
 		clickButton(tabpanel, "new");
+		
+		WebElement window = findWindow("new-rest");
+		assertEquals("Neuen REST-Service erstellen", findWindowHeader(window).getText());
+		findCombobox(window, "module").sendKeys("Testmodule");
+		clickButton(window, "create");
+		
 		clickButton(tabpanel, "save");
 		findValidationMessage(); // name is empty
 		

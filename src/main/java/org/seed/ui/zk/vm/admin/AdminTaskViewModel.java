@@ -59,7 +59,9 @@ import org.zkoss.bind.annotation.Init;
 import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.bind.annotation.SmartNotifyChange;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.select.annotation.Wire;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
+import org.zkoss.zul.Window;
 
 public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	implements JobListener {
@@ -67,6 +69,9 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	private static final String PARAMETERS = "parameters";
 	private static final String PERMISSIONS = "permissions";
 	private static final String NOTIFICATIONS = "notifications";
+	
+	@Wire("#newTaskWin")
+	private Window window;
 	
 	@WireVariable(value="taskServiceImpl")
 	private TaskService taskService;
@@ -98,7 +103,8 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	public AdminTaskViewModel() {
 		super(Authorisation.ADMIN_JOB, C.TASK,
 			  "/admin/task/tasklist.zul", 
-			  "/admin/task/task.zul");
+			  "/admin/task/task.zul",
+			  "/admin/task/newtask.zul");
 	}
 	
 	public TaskParameter getParameter() {
@@ -173,6 +179,16 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	}
 	
 	@Command
+	public void createTask(@BindingParam(C.ELEM) Component elem) {
+		cmdInitObject(elem, window);
+	}
+	
+	@Command
+	public void cancel() {
+		window.detach();
+	}
+	
+	@Command
 	@SmartNotifyChange(C.PERMISSION)
 	public void insertToPermissionList(@BindingParam(C.BASE) TaskPermission base,
 									   @BindingParam(C.ITEM) TaskPermission item,
@@ -229,7 +245,12 @@ public class AdminTaskViewModel extends AbstractAdminViewModel<Task>
 	
 	@Command
 	public void newTask() {
-		cmdNewObject();
+		if (existModules()) {
+			cmdNewObjectDialog();
+		}
+		else {
+			cmdNewObject();
+		}
 	}
 	
 	@Command

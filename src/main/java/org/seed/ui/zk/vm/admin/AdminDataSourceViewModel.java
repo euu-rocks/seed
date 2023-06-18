@@ -41,11 +41,16 @@ import org.zkoss.bind.annotation.Init;
 import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.bind.annotation.SmartNotifyChange;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.select.annotation.Wire;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
+import org.zkoss.zul.Window;
 
 public class AdminDataSourceViewModel extends AbstractAdminViewModel<IDataSource> {
 	
 	private static final String PARAMETERS = "parameters";
+	
+	@Wire("#newDataSourceWin")
+	private Window window;
 	
 	@WireVariable(value="dataSourceServiceImpl")
 	private DataSourceService dataSourceService;
@@ -60,7 +65,8 @@ public class AdminDataSourceViewModel extends AbstractAdminViewModel<IDataSource
 	public AdminDataSourceViewModel() {
 		super(Authorisation.ADMIN_DATASOURCE, "datasource",
 			  "/admin/datasource/datasourcelist.zul", 
-			  "/admin/datasource/datasource.zul");
+			  "/admin/datasource/datasource.zul",
+			  "/admin/datasource/newdatasource.zul");
 	}
 	
 	public DataSourceType[] getTypes() {
@@ -107,6 +113,16 @@ public class AdminDataSourceViewModel extends AbstractAdminViewModel<IDataSource
 	}
 	
 	@Command
+	public void createDataSource(@BindingParam(C.ELEM) Component elem) {
+		cmdInitObject(elem, window);
+	}
+	
+	@Command
+	public void cancel() {
+		window.detach();
+	}
+	
+	@Command
 	public void flagDirty(@BindingParam("notify") String notify, 
 						  @BindingParam("notifyObject") String notifyObject) {
 		super.flagDirty(notify, null, notifyObject);
@@ -125,7 +141,12 @@ public class AdminDataSourceViewModel extends AbstractAdminViewModel<IDataSource
 	
 	@Command
 	public void newDataSource() {
-		cmdNewObject();
+		if (existModules()) {
+			cmdNewObjectDialog();
+		}
+		else {
+			cmdNewObject();
+		}
 	}
 	
 	@Command

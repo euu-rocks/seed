@@ -35,6 +35,12 @@ public class CreateReportTest extends AbstractReportTest {
 		assertEquals("Reporte", findTab("reporte").getText());
 		WebElement tabpanel = findTabpanel("reporte");
 		clickButton(tabpanel, "new");
+		
+		WebElement window = findWindow("new-report");
+		assertEquals("Neuen Report erstellen", findWindowHeader(window).getText());
+		findCombobox(window, "module").sendKeys("Testmodule");
+		clickButton(window, "create");
+		
 		clickButton(tabpanel, "save");
 		findValidationMessage();
 		

@@ -35,9 +35,14 @@ import org.zkoss.bind.annotation.ExecutionArgParam;
 import org.zkoss.bind.annotation.Init;
 import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.select.annotation.Wire;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
+import org.zkoss.zul.Window;
 
 public class AdminCustomCodeViewModel extends AbstractAdminViewModel<CustomCode> {
+	
+	@Wire("#newCustomCodeWin")
+	private Window window;
 	
 	@WireVariable(value="customCodeServiceImpl")
 	private CustomCodeService customCodeService;
@@ -53,7 +58,8 @@ public class AdminCustomCodeViewModel extends AbstractAdminViewModel<CustomCode>
 	public AdminCustomCodeViewModel() {
 		super(Authorisation.ADMIN_SOURCECODE, "customcode",
 			  "/admin/customcode/customcodelist.zul", 
-			  "/admin/customcode/customcode.zul");
+			  "/admin/customcode/customcode.zul",
+			  "/admin/customcode/newcustomcode.zul");
 	}
 	
 	@Init
@@ -79,7 +85,22 @@ public class AdminCustomCodeViewModel extends AbstractAdminViewModel<CustomCode>
 	
 	@Command
 	public void newCode() {
-		cmdNewObject();
+		if (existModules()) {
+			cmdNewObjectDialog();
+		}
+		else {
+			cmdNewObject();
+		}
+	}
+	
+	@Command
+	public void createCustomCode(@BindingParam(C.ELEM) Component elem) {
+		cmdInitObject(elem, window);
+	}
+	
+	@Command
+	public void cancel() {
+		window.detach();
 	}
 	
 	@Command

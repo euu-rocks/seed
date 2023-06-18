@@ -35,6 +35,12 @@ public class CreateCustomCodeTest extends AbstractCustomCodeTest {
 		assertEquals("Quellcode", findTab("quellcode").getText());
 		WebElement tabpanel = findTabpanel("quellcode");
 		clickButton(tabpanel, "new");
+		
+		WebElement window = findWindow("new-customcode");
+		assertEquals("Neuen Quellcode erstellen", findWindowHeader(window).getText());
+		findCombobox(window, "module").sendKeys("Testmodule");
+		clickButton(window, "create");
+		
 		clickButton(tabpanel, "save");
 		findValidationMessage(); // code is empty
 		

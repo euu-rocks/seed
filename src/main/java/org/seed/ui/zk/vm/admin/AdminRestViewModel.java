@@ -42,12 +42,17 @@ import org.zkoss.bind.annotation.Init;
 import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.bind.annotation.SmartNotifyChange;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.select.annotation.Wire;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
+import org.zkoss.zul.Window;
 
 public class AdminRestViewModel extends AbstractAdminViewModel<Rest> {
 	
 	private static final String FUNCTIONS = "functions";
 	private static final String PERMISSIONS = "permissions";
+	
+	@Wire("#newRestWin")
+	private Window window;
 	
 	@WireVariable(value="restServiceImpl")
 	private RestService restService;
@@ -62,7 +67,8 @@ public class AdminRestViewModel extends AbstractAdminViewModel<Rest> {
 	public AdminRestViewModel() {
 		super(Authorisation.ADMIN_REST, C.REST,
 			  "/admin/rest/restlist.zul", 
-			  "/admin/rest/rest.zul");
+			  "/admin/rest/rest.zul",
+			  "/admin/rest/newrest.zul");
 	}
 	
 	public RestFunction getFunction() {
@@ -139,7 +145,22 @@ public class AdminRestViewModel extends AbstractAdminViewModel<Rest> {
 	
 	@Command
 	public void newRest() {
-		cmdNewObject();
+		if (existModules()) {
+			cmdNewObjectDialog();
+		}
+		else {
+			cmdNewObject();
+		}
+	}
+	
+	@Command
+	public void createRest(@BindingParam(C.ELEM) Component elem) {
+		cmdInitObject(elem, window);
+	}
+	
+	@Command
+	public void cancel() {
+		window.detach();
 	}
 	
 	@Command

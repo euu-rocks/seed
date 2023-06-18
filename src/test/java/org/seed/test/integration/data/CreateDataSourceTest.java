@@ -33,9 +33,13 @@ public class CreateDataSourceTest extends AbstractDataSourceTest {
 	void testCreateDataSource() {
 		clickMenu("administration-abfragen");
 		assertEquals("Abfragen", findTab("abfragen").getText());
-		
 		WebElement tabpanel = findTabpanel("abfragen");
 		clickButton(tabpanel, "new");
+		
+		WebElement window = findWindow("new-datasource");
+		assertEquals("Neue Abfrage erstellen", findWindowHeader(window).getText());
+		findCombobox(window, "module").sendKeys("Testmodule");
+		clickButton(window, "create");
 		
 		clickTab(tabpanel, "parameters");
 		WebElement tabpanelParameters = findTabpanel(tabpanel, "parameters");
