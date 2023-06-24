@@ -72,6 +72,94 @@
 							</cell>
 						</row>	
 					</template>
+					<template name="integer" var="parameter">
+						<row>
+							<cell style="padding: 4px 10px" align="right">
+								<label value="@init(parameter.name)"/>	
+							</cell>
+							<cell style="padding: 4px 4px">
+								<intbox value="@bind(parameter.value)"
+					            		mandatory="true" hflex="1"/>	
+							</cell>
+						</row>	
+					</template>
+					<template name="long" var="parameter">
+						<row>
+							<cell style="padding: 4px 10px" align="right">
+								<label value="@init(parameter.name)"/>	
+							</cell>
+							<cell style="padding: 4px 4px">
+								<longbox value="@bind(parameter.value)"
+					            		 mandatory="true" hflex="1"/>	
+							</cell>
+						</row>	
+					</template>
+					<template name="double" var="parameter">
+						<row>
+							<cell style="padding: 4px 10px" align="right">
+								<label value="@init(parameter.name)"/>	
+							</cell>
+							<cell style="padding: 4px 4px">
+								<doublebox value="@bind(parameter.value)"
+					            		   mandatory="true" hflex="1"/>	
+							</cell>
+						</row>	
+					</template>
+					<template name="decimal" var="parameter">
+						<row>
+							<cell style="padding: 4px 10px" align="right">
+								<label value="@init(parameter.name)"/>	
+							</cell>
+							<cell style="padding: 4px 4px">
+								<decimalbox value="@bind(parameter.value)"
+					            			mandatory="true" hflex="1"/>	
+							</cell>
+						</row>	
+					</template>
+					<template name="date" var="parameter">
+						<row>
+							<cell style="padding: 4px 10px" align="right">
+								<label value="@init(parameter.name)"/>	
+							</cell>
+							<cell style="padding: 4px 4px">
+								<datebox value="@bind(parameter.value)"
+					            		 mandatory="true" hflex="1"/>	
+							</cell>
+						</row>	
+					</template>
+					<template name="boolean" var="parameter">
+						<row>
+							<cell style="padding: 4px 10px" align="right">
+								<label value="@init(parameter.name)"/>	
+							</cell>
+							<cell style="padding: 4px 4px">
+								<checkbox checked="@bind(parameter.value)"
+					            		  hflex="1"/>	
+							</cell>
+						</row>	
+					</template>
+					<template name="reference" var="parameter">
+						<row>
+							<cell style="padding: 4px 10px" align="right">
+								<label value="@init(parameter.name)"/>	
+							</cell>
+							<cell style="padding: 4px 4px">
+								<combobox model="@load(vm.getReferenceObjects(parameter)) @template(empty each.name ? 'empty' : 'entity')"
+		            			 		  mandatory="true"
+		            			 		  selectedItem="@bind(parameter.value)"
+		            			 		  value="@load(parameter.value.name)"
+		            		  	 		  hflex="1">
+									<template name="empty">
+				                    	<comboitem/>
+				                	</template>	
+				            		<template name="entity" var="entity">
+				                    	<comboitem label="@init(entity.name)"
+				                    			   iconSclass="z-icon-table z-icon-fw alpha-icon-lg"/>
+				                	</template>	
+				            	</combobox>
+							</cell>
+						</row>	
+					</template>
 				</grid>
 				
 				<!-- more than one data source has parameters -->
@@ -99,6 +187,94 @@
 											<cell style="padding: 4px 4px">
 												<textbox value="@bind(parameter.value)"
 									            		 mandatory="true" hflex="1"/>	
+											</cell>
+										</row>	
+									</template>
+									<template name="integer" var="parameter">
+										<row>
+											<cell style="padding: 4px 10px" align="right">
+												<label value="@init(parameter.name)"/>	
+											</cell>
+											<cell style="padding: 4px 4px">
+												<intbox value="@bind(parameter.value)"
+									            		mandatory="true" hflex="1"/>	
+											</cell>
+										</row>	
+									</template>
+									<template name="long" var="parameter">
+										<row>
+											<cell style="padding: 4px 10px" align="right">
+												<label value="@init(parameter.name)"/>	
+											</cell>
+											<cell style="padding: 4px 4px">
+												<longbox value="@bind(parameter.value)"
+									            		 mandatory="true" hflex="1"/>	
+											</cell>
+										</row>	
+									</template>
+									<template name="double" var="parameter">
+										<row>
+											<cell style="padding: 4px 10px" align="right">
+												<label value="@init(parameter.name)"/>	
+											</cell>
+											<cell style="padding: 4px 4px">
+												<doublebox value="@bind(parameter.value)"
+									            		   mandatory="true" hflex="1"/>	
+											</cell>
+										</row>	
+									</template>
+									<template name="decimal" var="parameter">
+										<row>
+											<cell style="padding: 4px 10px" align="right">
+												<label value="@init(parameter.name)"/>	
+											</cell>
+											<cell style="padding: 4px 4px">
+												<decimalbox value="@bind(parameter.value)"
+									            			mandatory="true" hflex="1"/>	
+											</cell>
+										</row>	
+									</template>
+									<template name="date" var="parameter">
+										<row>
+											<cell style="padding: 4px 10px" align="right">
+												<label value="@init(parameter.name)"/>	
+											</cell>
+											<cell style="padding: 4px 4px">
+												<datebox value="@bind(parameter.value)"
+									            		 mandatory="true" hflex="1"/>	
+											</cell>
+										</row>	
+									</template>
+									<template name="boolean" var="parameter">
+										<row>
+											<cell style="padding: 4px 10px" align="right">
+												<label value="@init(parameter.name)"/>	
+											</cell>
+											<cell style="padding: 4px 4px">
+												<checkbox checked="@bind(parameter.value)"
+									           			  hflex="1"/>	
+											</cell>
+										</row>	
+									</template>
+									<template name="reference" var="parameter">
+										<row>
+											<cell style="padding: 4px 10px" align="right">
+												<label value="@init(parameter.name)"/>	
+											</cell>
+											<cell style="padding: 4px 4px">
+												<combobox model="@load(vm.getReferenceObjects(parameter)) @template(empty each.name ? 'empty' : 'entity')"
+		            			 		  				  mandatory="true"
+		           										  selectedItem="@bind(parameter.value)"
+		            									  value="@load(parameter.value.name)"
+		            		  	 		  				  hflex="1">
+													<template name="empty">
+								                    	<comboitem/>
+								                	</template>	
+								            		<template name="entity" var="entity">
+								                    	<comboitem label="@init(entity.name)"
+								                    			   iconSclass="z-icon-table z-icon-fw alpha-icon-lg"/>
+								                	</template>	
+								            	</combobox>	
 											</cell>
 										</row>	
 									</template>

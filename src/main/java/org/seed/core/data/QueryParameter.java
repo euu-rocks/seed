@@ -30,7 +30,7 @@ public final class QueryParameter {
 	
 	final Object value;
 
-	QueryParameter(String name, Object value) {
+	public QueryParameter(String name, Object value) {
 		Assert.notNull(name, C.NAME);
 		Assert.notNull(value, C.VALUE);
 		

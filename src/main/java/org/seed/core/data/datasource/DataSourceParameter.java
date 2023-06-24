@@ -33,6 +33,10 @@ import org.seed.core.application.TransferableObject;
 import org.seed.core.data.AbstractSystemEntity;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityMetadata;
+import org.seed.core.util.ReferenceJsonSerializer;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @javax.persistence.Entity
 @Table(name = "sys_datasource_param")
@@ -42,10 +46,12 @@ public class DataSourceParameter extends AbstractSystemEntity
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "datasource_id")
+	@JsonIgnore
 	private DataSourceMetadata dataSource;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "refentity_id")
+	@JsonSerialize(using = ReferenceJsonSerializer.class)
 	private EntityMetadata referenceEntity;
 	
 	private String uid;

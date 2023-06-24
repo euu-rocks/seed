@@ -85,7 +85,7 @@ public class DataSourceValidator extends AbstractSystemEntityValidator<IDataSour
 			if (dataSource.hasParameters()) {
 				validateParameters(dataSource, errors);
 			}
-			for (String contentParameter : dataSource.getContentParameterSet()) {
+			for (String contentParameter : dataSource.getContentParameterNames()) {
 				if (dataSource.getParameterByName(contentParameter) == null) {
 					errors.addError("val.query.noparam", contentParameter);
 				}
@@ -162,7 +162,7 @@ public class DataSourceValidator extends AbstractSystemEntityValidator<IDataSour
 	
 	private Map<String, Object> createTestParameterMap(IDataSource dataSource) {
 		final Map<String, Object> parameterMap = new HashMap<>();
-		for (String contentParameter : dataSource.getContentParameterSet()) {
+		for (String contentParameter : dataSource.getContentParameterNames()) {
 			final DataSourceParameter parameter = dataSource.getParameterByName(contentParameter);
 			Assert.stateAvailable(parameterMap, "parameterMap");
 			

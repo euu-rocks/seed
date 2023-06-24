@@ -42,6 +42,8 @@ import org.seed.core.data.Order;
 import org.seed.core.data.datasource.DataSourceParameter;
 import org.seed.core.util.Assert;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "sys_report")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -122,6 +124,7 @@ public class ReportMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
+	@JsonIgnore
 	public Map<String, List<DataSourceParameter>> getDataSourceParameterMap() {
 		return hasDataSources()
 				? getDataSources().stream()

@@ -36,10 +36,12 @@ public interface IDataSource extends ApplicationEntity, org.seed.core.api.DataSo
 	
 	List<DataSourceParameter> getParameters();
 	
+	List<DataSourceParameter> getContentParameters();
+	
 	void addParameter(DataSourceParameter parameter);
 	
 	void removeParameter(DataSourceParameter parameter);
 	
-	Set<String> getContentParameterSet();
+	Set<String> getContentParameterNames();
 	
 }

@@ -19,25 +19,21 @@ package org.seed.core.data.datasource;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
 import org.hibernate.jdbc.ReturningWork;
-import org.hibernate.query.NativeQuery;
 import org.hibernate.query.Query;
 import org.hibernate.query.internal.AbstractProducedQuery;
 
-import org.seed.C;
 import org.seed.InternalException;
-import org.seed.LabelProvider;
 import org.seed.core.data.AbstractSystemEntityRepository;
 import org.seed.core.data.SystemObject;
 import org.seed.core.util.Assert;
@@ -45,17 +41,12 @@ import org.seed.core.util.MiscUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.StringUtils;
 
 @Repository
 public class DataSourceRepository extends AbstractSystemEntityRepository<IDataSource> {
 	
 	private static final Logger log = LoggerFactory.getLogger(DataSourceRepository.class);
-	
-	@Autowired
-	private LabelProvider labelProvider;
 	
 	public DataSourceRepository() {
 		super(DataSourceMetadata.class);
@@ -89,110 +80,142 @@ public class DataSourceRepository extends AbstractSystemEntityRepository<IDataSo
 	}
 	
 	private ResultSetMetaData getMetadata(IDataSource dataSource, Map<String, Object> parameters, Session session) {
-		final String sql = buildQuery(dataSource, parameters);
+		final String queryString;
 		switch(dataSource.getType()) {
 			case SQL:
-				return session.doReturningWork(new ReturningWork<ResultSetMetaData>() {
-
-					@Override
-					public ResultSetMetaData execute(Connection connection) throws SQLException {
-						try (Statement statement = connection.createStatement();
-							 ResultSet resultSet = statement.executeQuery(sql)) {
-							return resultSet.getMetaData();
-						}
-					}
-				});
+				queryString = buildSqlQueryString(dataSource);
+				break;
 				
 			case HQL:
-				final Query<?> query = session.createQuery(sql);
-				return session.doReturningWork(new ReturningWork<ResultSetMetaData>() {
-					
-					@Override
-					public ResultSetMetaData execute(Connection connection) throws SQLException {
-						try (PreparedStatement statement = connection.prepareStatement(getSQL(query))) {
-							int idx = 1;
-							for (String contentParameter : dataSource.getContentParameterSet()) {
-								final Object paramValue = parameters.get(contentParameter);
-								statement.setObject(idx++, paramValue);
-							}
-							try (ResultSet resultSet = statement.executeQuery()) {
-								return resultSet.getMetaData();
-							}
-						}
-					}
-				});
-
+				queryString = getSQL(createHqlQuery(dataSource, parameters, session));
+				break;
+				
 			default:
 				throw new UnsupportedOperationException(dataSource.getType().name());	
 		}
+		
+		return session.doReturningWork(new ReturningWork<ResultSetMetaData>() {
+			
+			@Override
+			public ResultSetMetaData execute(Connection connection) throws SQLException {
+				try (PreparedStatement statement = connection.prepareStatement(queryString)) {
+					setParameterValues(statement, dataSource, parameters);
+					try (ResultSet resultSet = statement.executeQuery()) {
+						return resultSet.getMetaData();
+					}
+				}
+			}
+		});
 	}
 	
-	private List<Object> query(IDataSource dataSource, Map<String, Object> parameters, Session session, boolean testQuery) {
-		final String queryString = buildQuery(dataSource, parameters);
+	private List<Object> query(IDataSource dataSource, Map<String, Object> parameters, 
+							   Session session, boolean testQuery) {
+		final Query<?> query;
 		switch (dataSource.getType()) {
 			case SQL:
-				final NativeQuery<?> sqlQuery = session.createNativeQuery(queryString);
-				if (testQuery) {
-					sqlQuery.setMaxResults(1);
-				}
-				return MiscUtils.castList(sqlQuery.list());
-			
+				query = createSqlQuery(dataSource, parameters, session);
+				break;
+				
 			case HQL:
-				final Query<?> query = session.createQuery(queryString);
-				for (String contentParameter : dataSource.getContentParameterSet()) {
-					final Object paramValue = parameters.get(contentParameter);
-					query.setParameter(contentParameter, paramValue);
-				}
-				if (testQuery) {
-					query.setMaxResults(1);
-				}
-				return MiscUtils.castList(query.list());
+				query = createHqlQuery(dataSource, parameters, session);
+				break;
 			
 			default:
 				throw new UnsupportedOperationException(dataSource.getType().name());
 		}
+		if (testQuery) {
+			query.setMaxResults(1);
+		}
+		return MiscUtils.castList(query.list());
 	}
 	
-	private String buildQuery(IDataSource dataSource, Map<String, Object> parameters) {
-		String query = dataSource.getContent();
-		Assert.stateAvailable(query, C.CONTENT);
-		
-		if (dataSource.getType() == DataSourceType.SQL) {
-			for (String contentParameter : dataSource.getContentParameterSet()) {
-				final Object paramValue = parameters.get(contentParameter);
-				Assert.stateAvailable(paramValue, "parameter value " + contentParameter);
-				query = query.replace('{' + contentParameter + '}', formatParameter(paramValue));
-			}
-		}
-		if (log.isDebugEnabled()) {
-			log.debug("[{}] {}", dataSource.getName(), query);
+	private static Query<?> createSqlQuery(IDataSource dataSource, Map<String, Object> paramMap, Session session) {
+		final var parameters = dataSource.getContentParameters();
+		final var queryString = buildSqlQueryString(dataSource);
+		final var query = session.createNativeQuery(queryString);
+		int idx = 1;
+		for (DataSourceParameter parameter : parameters) {
+			final var paramValue = paramMap.get(parameter.getName());
+			query.setParameter(idx++, paramValue);	
 		}
 		return query;
 	}
 	
-	private String formatParameter(Object parameter) {
-		if (parameter instanceof String) {
-			return StringUtils.quote((String) parameter);
+	private static Query<?> createHqlQuery(IDataSource dataSource, Map<String, Object> paramMap, Session session) {
+		final var query = session.createQuery(dataSource.getContent());
+		for (String paramName : dataSource.getContentParameterNames()) {
+			final var paramValue = paramMap.get(paramName);
+			query.setParameter(paramName, paramValue);
 		}
-		if (parameter instanceof BigDecimal) {
-			return labelProvider.formatBigDecimal((BigDecimal) parameter);
+		return query;
+	}
+	
+	private static void setParameterValues(PreparedStatement statement, IDataSource dataSource, Map<String, Object> parameters) throws SQLException {
+		int idx = 1;
+		for (DataSourceParameter parameter : dataSource.getContentParameters()) {
+			var paramValue = parameters.get(parameter.getName());
+			Assert.stateAvailable(paramValue, "parameter " + parameter.getName());
+			switch (parameter.getType()) {
+				case TEXT:
+					statement.setString(idx++, (String) paramValue);
+					break;
+					
+				case INTEGER:
+					statement.setInt(idx++, ((Number) paramValue).intValue());
+					break;
+					
+				case DOUBLE:
+					statement.setDouble(idx++, ((Number) paramValue).doubleValue());
+					break;
+					
+				case DECIMAL:
+					statement.setBigDecimal(idx, (BigDecimal) paramValue);
+					break;
+					
+				case DATE:
+					statement.setDate(idx++, new Date(((java.util.Date) paramValue).getTime()));
+					break;
+					
+				case LONG:
+					statement.setLong(idx++, ((Number) paramValue).longValue());
+					break;
+					
+				case BOOLEAN:
+					statement.setBoolean(idx++, (Boolean) paramValue);
+					break;
+				
+				case REFERENCE:
+					statement.setLong(idx++, ((SystemObject) paramValue).getId());
+					break;
+					
+				default:
+					throw new UnsupportedOperationException(parameter.getType().name());
+			}
 		}
-		if (parameter instanceof Date) {
-			return labelProvider.formatDate((Date) parameter);
+	}
+	
+	private static String buildSqlQueryString(IDataSource dataSource) {
+		final var paramNames = dataSource.getContentParameterNames();
+		var queryString = dataSource.getContent();
+		for (String paramName : paramNames) {
+			queryString = queryString.replace('{' + paramName + '}', "?");
 		}
-		if (parameter instanceof SystemObject) {
-			final Long id = ((SystemObject) parameter).getId();
-			return id != null ? id.toString() : null;
-		}
-		return parameter != null ? parameter.toString() : "null";
+		if (log.isDebugEnabled()) {
+        	log.debug(queryString);
+        }
+		return queryString;
 	}
 	
 	@SuppressWarnings("deprecation")
 	private static String getSQL(Query<?> query) {
-		final AbstractProducedQuery<?> producedQuery = query.unwrap(AbstractProducedQuery.class);
-        return producedQuery.getProducer().getFactory().getQueryPlanCache()
-        	.getHQLQueryPlan(producedQuery.getQueryString(), false, Collections.emptyMap())
-            .getSqlStrings()[0];
+		final var producedQuery = query.unwrap(AbstractProducedQuery.class);
+        final var sql = producedQuery.getProducer().getFactory().getQueryPlanCache()
+            	.getHQLQueryPlan(producedQuery.getQueryString(), false, Collections.emptyMap())
+                .getSqlStrings()[0];
+        if (log.isDebugEnabled()) {
+        	log.debug(sql);
+        }
+		return sql;
 	}
 	
 }

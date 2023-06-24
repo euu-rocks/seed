@@ -46,6 +46,8 @@ import org.seed.core.application.ContentObject;
 import org.seed.core.util.Assert;
 import org.seed.core.util.CDATAXmlAdapter;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "sys_datasource")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -146,7 +148,8 @@ public class DataSourceMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
-	public Set<String> getContentParameterSet() {
+	@JsonIgnore
+	public Set<String> getContentParameterNames() {
 		if (content != null) {
 			Assert.stateAvailable(type, C.TYPE);
 			final Set<String> result = new HashSet<>();
@@ -171,6 +174,38 @@ public class DataSourceMetadata extends AbstractApplicationEntity
 			return result;
 		}
 		return Collections.emptySet();
+	}
+	
+	@Override
+	@JsonIgnore
+	public List<DataSourceParameter> getContentParameters() {
+		if (content != null) {
+			Assert.stateAvailable(type, C.TYPE);
+			final var result = new ArrayList<DataSourceParameter>();
+			final Pattern pattern;
+			switch (type) {
+				case SQL:
+					pattern = PATTERN_PARAM_SQL;
+					break;
+				
+				case HQL:
+					pattern = PATTERN_PARAM_HQL;
+					break;
+					
+				default:
+					throw new UnsupportedOperationException(type.name());
+			}
+			
+			final Matcher matcher = pattern.matcher(content);
+			while (matcher.find()) {
+				final var paramName = matcher.group(1); 
+				final var param = getParameterByName(paramName);
+				Assert.stateAvailable(param, "parameter: " + paramName);
+				result.add(param);
+			}
+			return result;
+		}
+		return Collections.emptyList();
 	}
 	
 	@Override

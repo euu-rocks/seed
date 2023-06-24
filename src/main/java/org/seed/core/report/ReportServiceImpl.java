@@ -19,14 +19,17 @@ package org.seed.core.report;
 
 import static org.seed.core.util.CollectionUtils.*;
 
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
 import org.hibernate.Session;
 
 import org.seed.C;
+import org.seed.LabelProvider;
 import org.seed.core.application.AbstractApplicationEntityService;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.ApplicationEntityService;
@@ -36,13 +39,16 @@ import org.seed.core.application.module.TransferContext;
 import org.seed.core.data.Options;
 import org.seed.core.data.ValidationException;
 import org.seed.core.data.datasource.IDataSource;
+import org.seed.core.entity.EntityService;
 import org.seed.core.data.datasource.DataSourceDependent;
+import org.seed.core.data.datasource.DataSourceParameter;
 import org.seed.core.data.datasource.DataSourceService;
 import org.seed.core.user.User;
 import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupDependent;
 import org.seed.core.user.UserGroupService;
 import org.seed.core.util.Assert;
+import org.seed.core.util.NameUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
@@ -59,10 +65,16 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 	private ReportValidator validator;
 	
 	@Autowired
+	private EntityService entityService; 
+	
+	@Autowired
 	private DataSourceService dataSourceService;
 	
 	@Autowired
 	private UserGroupService userGroupService;
+	
+	@Autowired
+	private LabelProvider labelProvider;
 	
 	@Autowired
 	private ReportGeneratorProvider generatorProvider;
@@ -92,6 +104,7 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 	}
 	
 	@Override
+	@Secured("ROLE_PRINT_REPORTS")
 	public byte[] generateReport(Report report, ReportFormat format, Session session) throws ValidationException {
 		Assert.notNull(report, C.REPORT);
 		Assert.notNull(session, C.SESSION);
@@ -105,7 +118,7 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 				final var paramMap = new HashMap<String,Object>();
 				final var dataSource = reportDataSource.getDataSource();
 				if (dataSource.hasParameters()) {
-					dataSource.getParameters().forEach(param -> paramMap.put(param.getName(),param.getValue()));
+					dataSource.getParameters().forEach(param -> paramMap.put(param.getName(), param.getValue()));
 				}
 				final var result = dataSourceService.query(dataSource, paramMap, session);
 				generator.addDataSourceResult(reportDataSource, result);
@@ -122,6 +135,56 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 		return filterAndConvert(userGroupService.findNonSystemGroups(session), 
 								not(report::containsPermission), 
 								group -> createPermission(report, group));
+	}
+	
+	@Override
+	public void setDataSourceParameters(Session session, Report report, Map<String,String> parameters) throws ParseException {
+		Assert.notNull(report, C.REPORT);
+		Assert.notNull(session, C.SESSION);
+		
+		final var paramMap = toCaseInsensitiveKeyMap(parameters);
+		for (var dataSourceParamList : report.getDataSourceParameterMap().values()) {
+			for (DataSourceParameter dataSourceParam : dataSourceParamList) {
+				final var value = paramMap.get(dataSourceParam.getName());
+				if (value != null) {
+					dataSourceParam.setValue(formatDataSourceParameter(session, dataSourceParam, value));
+				}
+				else {
+					throw new IllegalArgumentException("missing parameter: " + dataSourceParam.getName());
+				}
+			}
+		}
+	}
+	
+	private Object formatDataSourceParameter(Session session, DataSourceParameter parameter, String value) throws ParseException {
+		switch (parameter.getType()) {
+			case BOOLEAN:
+				return NameUtils.booleanValue(value);
+			
+			case INTEGER:
+				return Integer.parseInt(value);
+				
+			case DOUBLE:
+				return Double.parseDouble(value);
+				
+			case LONG:
+				return Long.parseLong(value);
+				
+			case DECIMAL:
+				return labelProvider.parseBigDecimal(value);
+				
+			case DATE:
+				return labelProvider.parseDate(value);
+			
+			case REFERENCE:
+				return entityService.findByUid(session, parameter.getReferenceEntityUid());
+				
+			case TEXT:
+				return value;
+				
+			default:
+				throw new UnsupportedOperationException(parameter.getType().name());
+		}
 	}
 	
 	@Override

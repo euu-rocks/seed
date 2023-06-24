@@ -47,6 +47,8 @@ public abstract class AbstractRestController<T extends ApplicationEntity> {
 	@Autowired
 	private UserService userService;
 	
+	protected abstract ApplicationEntityService<T> getService();
+	
 	protected List<T> getAll(Session session) {
 		Assert.notNull(session, C.SESSION);
 		
@@ -61,35 +63,32 @@ public abstract class AbstractRestController<T extends ApplicationEntity> {
 	
 	protected T get(Session session, Long id) {
 		Assert.notNull(session, C.SESSION);
+		Assert.notNull(id, C.ID);
 		
 		final T object = getService().getObject(id, session);
 		if (object == null) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, id.toString());
 		}
 		return object;
 	}
 	
 	protected boolean checkPermissions(Session session, ApplicationEntity object) {
-		Assert.notNull(session, C.SESSION);
-		
 		return checkPermissions(session, object, null);
 	}
 	
 	protected boolean checkPermissions(Session session, ApplicationEntity object, Enum<?> access) {
-		Assert.notNull(session, C.SESSION);
+		Assert.notNull(object, C.OBJECT);
 		
 		return object.checkPermissions(getUser(session), access);
 	}
 	
 	protected boolean isAuthorised(Session session, Authorisation authorisation) {
-		Assert.notNull(session, C.SESSION);
-		
 		return getUser(session).isAuthorised(authorisation);
 	}
 	
 	protected User getUser(Session session) {
 		Assert.notNull(session, C.SESSION);
-		final User user = userService.getCurrentUser(session);
+		final var user = userService.getCurrentUser(session);
 		Assert.stateAvailable(user, C.USER);
 		return user;
 	}
@@ -97,11 +96,11 @@ public abstract class AbstractRestController<T extends ApplicationEntity> {
 	public static FileObject toFileObject(MultipartFile multipartFile) {
 		Assert.notNull(multipartFile, "multipart file");
 		try {
-			final FileObject file = new FileObject();
-			file.setName(multipartFile.getOriginalFilename());
-			file.setContentType(multipartFile.getContentType());
-			file.setContent(multipartFile.getBytes());
-			return file;
+			final var fileObject = new FileObject();
+			fileObject.setName(multipartFile.getOriginalFilename());
+			fileObject.setContentType(multipartFile.getContentType());
+			fileObject.setContent(multipartFile.getBytes());
+			return fileObject;
 		}
 		catch (IOException ex) {
 			throw new InternalException(ex);
@@ -112,27 +111,19 @@ public abstract class AbstractRestController<T extends ApplicationEntity> {
 		Assert.notNull(fileName, "file name");
 		Assert.notNull(content, C.CONTENT);
 		
-		return ResponseEntity
-				.ok()
+		return ResponseEntity.ok()
 				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + '\"')
 				.contentType(MediaType.APPLICATION_OCTET_STREAM)
-				.body(createResource(content));
+				.body(new ByteArrayResource(content));
 	}
 	
 	public static ResponseEntity<ByteArrayResource> stream(String contentType, byte[] content) {
 		Assert.notNull(contentType, "content type");
 		Assert.notNull(content, C.CONTENT);
 		
-		return ResponseEntity
-				.ok()
+		return ResponseEntity.ok()
 				.contentType(MediaType.parseMediaType(contentType))
-				.body(createResource(content));
+				.body(new ByteArrayResource(content));
 	}
-	
-	private static ByteArrayResource createResource(byte[] content) {
-		return new ByteArrayResource(content);
-	}
-	
-	protected abstract ApplicationEntityService<T> getService();
 	
 }

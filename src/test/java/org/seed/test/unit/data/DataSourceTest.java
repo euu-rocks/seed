@@ -72,21 +72,20 @@ class DataSourceTest {
 	}
 	
 	@Test
-	void testGetContentParameterSet() {
+	void testGetContentParameterNames() {
 		final IDataSource dataSource = new DataSourceMetadata();
 		((DataSourceMetadata) dataSource).setContent("no param");
 		((DataSourceMetadata) dataSource).setType(DataSourceType.SQL);
-		
-		assertTrue(dataSource.getContentParameterSet().isEmpty());
+		assertTrue(dataSource.getContentParameterNames().isEmpty());
 		
 		((DataSourceMetadata) dataSource).setContent("Lorem ipsum{test}dolor sit amet");
-		assertFalse(dataSource.getContentParameterSet().isEmpty());
-		assertEquals("test", dataSource.getContentParameterSet().iterator().next());
+		assertFalse(dataSource.getContentParameterNames().isEmpty());
+		assertEquals("test", dataSource.getContentParameterNames().iterator().next());
 		
 		((DataSourceMetadata) dataSource).setType(DataSourceType.HQL);
 		((DataSourceMetadata) dataSource).setContent("sed diam nonumy:test eirmod tempor");
-		assertFalse(dataSource.getContentParameterSet().isEmpty());
-		assertEquals("test", dataSource.getContentParameterSet().iterator().next());
+		assertFalse(dataSource.getContentParameterNames().isEmpty());
+		assertEquals("test", dataSource.getContentParameterNames().iterator().next());
 	}
 	
 	@Test

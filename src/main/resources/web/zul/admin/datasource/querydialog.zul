@@ -32,8 +32,7 @@
 			</toolbar>
 		</north>
 		<center border="0" autoscroll="true">
-			<listbox model="@load(vm.result.resultList)"
-					 visible="@load(!empty vm.result.resultList)">
+			<listbox model="@load(vm.result.resultList)">
 				<listhead children="@load(vm.result.columns)">
 				    <template name="children">
 				    	<listheader label="@load(each.name)" />
@@ -112,10 +111,10 @@
 					<vlayout>
 			           <label value="@init(each.name)"/>
 			           <combobox model="@load(vm.getReferenceObjects(each)) @template(empty each.name ? 'empty' : 'entity')"
-		            			  mandatory="true"
-		            			  selectedItem="@bind(each.value)"
-		            			  value="@load(each.value.name)"
-		            		  	  hflex="1">
+		            			 mandatory="true"
+		            			 selectedItem="@bind(each.value)"
+		            			 value="@load(each.value.name)"
+		            		  	 hflex="1">
 							<template name="empty">
 		                    	<comboitem/>
 		                	</template>	

@@ -17,7 +17,9 @@
  */
 package org.seed.core.report;
 
+import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Session;
 
@@ -32,6 +34,8 @@ public interface ReportService extends ApplicationEntityService<Report> {
 	ReportDataSource createDataSource(Report report);
 	
 	List<ReportPermission> getAvailablePermissions(Report report, Session session);
+	
+	void setDataSourceParameters(Session session, Report report, Map<String,String> parameters) throws ParseException;
 	
 	byte[] generateReport(Report report, ReportFormat format, Session session) throws ValidationException;
 	

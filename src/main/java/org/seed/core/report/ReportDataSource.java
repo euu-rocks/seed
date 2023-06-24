@@ -32,6 +32,9 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.seed.core.application.AbstractOrderedTransferableObject;
 import org.seed.core.data.datasource.IDataSource;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import org.seed.core.data.datasource.DataSourceMetadata;
 
 @Entity
@@ -41,6 +44,7 @@ public class ReportDataSource extends AbstractOrderedTransferableObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "report_id")
+	@JsonIgnore
 	private ReportMetadata report;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -79,6 +83,7 @@ public class ReportDataSource extends AbstractOrderedTransferableObject {
 		this.dataSource = (DataSourceMetadata) dataSource;
 	}
 	
+	@JsonIgnore
 	@XmlAttribute
 	public String getDataSourceUid() {
 		return dataSource != null ? dataSource.getUid() : dataSourceUid;

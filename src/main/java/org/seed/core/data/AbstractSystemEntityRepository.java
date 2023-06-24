@@ -190,6 +190,15 @@ public abstract class AbstractSystemEntityRepository<T extends SystemEntity>
 		return sessionProvider.getSession();
 	}
 	
+	protected static void handleException(Exception ex) {
+		if (ex instanceof RuntimeException) {
+			throw (RuntimeException) ex;
+		}
+		else {
+			throw new InternalException(ex);
+		}
+	}
+	
 	@SuppressWarnings({"unchecked"})
 	private Query createQuery(Session session, QueryParameter ...params) {
 		final var criteriaBuilder = session.getCriteriaBuilder();
@@ -220,19 +229,6 @@ public abstract class AbstractSystemEntityRepository<T extends SystemEntity>
 			return builder.isNotNull(table.get(param.name));
 		}
 		return builder.equal(table.get(param.name), param.value);
-	}
-	
-	protected static void handleException(Exception ex) {
-		if (ex instanceof RuntimeException) {
-			throw (RuntimeException) ex;
-		}
-		else {
-			throw new InternalException(ex);
-		}
-	}
-	
-	protected static QueryParameter queryParam(String name, Object value) {
-		return new QueryParameter(name, value);
 	}
 	
 }

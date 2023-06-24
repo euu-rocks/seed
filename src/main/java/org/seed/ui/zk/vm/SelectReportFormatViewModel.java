@@ -24,6 +24,8 @@ import java.util.List;
 import org.seed.C;
 import org.seed.core.data.ValidationException;
 import org.seed.core.data.datasource.DataSourceParameter;
+import org.seed.core.entity.value.ValueObject;
+import org.seed.core.entity.value.ValueObjectService;
 import org.seed.core.report.Report;
 import org.seed.core.report.ReportFormat;
 import org.seed.core.util.Assert;
@@ -37,12 +39,16 @@ import org.zkoss.bind.annotation.ExecutionArgParam;
 import org.zkoss.bind.annotation.Init;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.select.annotation.Wire;
+import org.zkoss.zk.ui.select.annotation.WireVariable;
 import org.zkoss.zul.Window;
 
-public class SelectReportFormatViewModel extends AbstractViewModel  {
+public class SelectReportFormatViewModel extends AbstractApplicationViewModel  {
 	
 	@Wire("#selectFormatWin")
 	private Window window;
+	
+	@WireVariable(value="valueObjectServiceImpl")
+	private ValueObjectService valueObjectService;
 	
 	private Report report;
 	
@@ -51,6 +57,10 @@ public class SelectReportFormatViewModel extends AbstractViewModel  {
 	private List<Tab> parameterTabs;
 	
 	private AbstractApplicationViewModel parentVM;
+	
+	public List<ValueObject> getReferenceObjects(DataSourceParameter parameter) {
+		return valueObjectService.getAllObjects(currentSession(), parameter.getReferenceEntity());
+	}
 	
 	@Init
     public void init(@ContextParam(ContextType.VIEW) Component view,
