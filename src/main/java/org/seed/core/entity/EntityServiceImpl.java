@@ -304,7 +304,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	@Override
 	public List<Entity> findUsage(UserGroup userGroup, Session session) {
-		Assert.notNull(userGroup, C.USERNAME);
+		Assert.notNull(userGroup, C.USERGROUP);
 		Assert.notNull(session, C.SESSION);
 		
 		return subList(getObjects(session), 
@@ -585,11 +585,12 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	public void importObjects(TransferContext context, Session session) throws ValidationException {
 		Assert.notNull(context, C.CONTEXT);
 		Assert.notNull(session, C.SESSION);
+		final var entities = context.getModule().getEntities();
 		
-		if (context.getModule().getEntities() != null) {
+		if (entities != null) {
 			importEntities(context, session);
 			// init references to other entities
-			for (Entity entity : context.getModule().getEntities()) {
+			for (Entity entity : entities) {
 				final Entity genericEntity = entity.getGenericEntityUid() != null
 						? findByUid(session, entity.getGenericEntityUid())
 						: null;
@@ -597,7 +598,9 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				initEntityReferences(entity, session);
 				initRelationEntities(session, entity);
 				initConstraintFields(entity);
-				// validate and save
+			}
+			// validate and save
+			for (Entity entity : entities) {
 				saveObject(entity, session);
 			}
 		}
