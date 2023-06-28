@@ -396,7 +396,7 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>3.5.0</version>
 				<configuration>
-					<show>private</show>
+					<!--<show>private</show>-->
 					<nohelp>true</nohelp>
 					<sourcepath>${basedir}/src/main/java/org/seed</sourcepath>
 				</configuration>
