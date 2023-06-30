@@ -76,7 +76,7 @@
 		    <template name="model" var="menu">
 	            <listitem sclass="@init(vm.getListItemTestClass(menu))"  
 	            		  onDoubleClick="@command('editMenu')">
-	            	<listcell iconSclass="z-icon-navicon z-icon-fw alpha-icon-lg">
+	            	<listcell iconSclass="@load(vm.getIconClass(menu))">
 	            		<label value="@init(menu.name)" style="margin-left:3px"/>
 	            	</listcell>
 	            	<listcell iconSclass="@load(empty menu.module ? '' : 'z-icon-cube alpha-icon-lg')">

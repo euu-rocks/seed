@@ -28,8 +28,6 @@ import org.seed.core.data.AbstractSystemEntity;
 public abstract class AbstractParameterObject extends AbstractSystemEntity 
 	implements TransferableObject {
 	
-	// inherits name from SystemEntity
-	
 	private String value;
 	
 	private String uid;

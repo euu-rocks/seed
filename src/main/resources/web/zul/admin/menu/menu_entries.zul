@@ -47,7 +47,7 @@
 	            		  attributes.item="@load(submenu)" 
 	            		  draggable="true" droppable="true" 
 	            		  onDrop="@command('swapEntries',item=event.dragged.attributes.item,base=submenu)">
-	            	<listcell iconSclass="z-icon-navicon alpha-icon-lg">
+	            	<listcell iconSclass="@load(vm.getIconClass(submenu))">
 	            		<label value="@load(submenu.name)" 
 	            			   style="margin-left:3px"/>
 	            	</listcell>
@@ -85,6 +85,9 @@
                     		   iconSclass="z-icon-list-alt alpha-icon-lg"/>
                 </template>
             </combobox>
+            <label value="${labels.label.icon}:"/>
+            <button iconSclass="@load(vm.subMenu.icon)"
+					onClick="@command('editSubMenuIcon')"/>
         </vlayout>
 	</east>
 </borderlayout>

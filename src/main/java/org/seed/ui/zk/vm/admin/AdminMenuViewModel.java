@@ -93,6 +93,12 @@ public class AdminMenuViewModel extends AbstractAdminViewModel<Menu> {
 		return formService.getObjects(currentSession());
 	}
 	
+	public String getIconClass(Menu menu) {
+		return menu.getIcon() != null
+				? menu.getIcon()
+				: "z-icon-navicon z-icon-fw alpha-icon-lg";
+	}
+	
 	@Command
 	public void createMenu(@BindingParam(C.ELEM) Component elem) {
 		cmdInitObject(elem, window);
@@ -116,6 +122,16 @@ public class AdminMenuViewModel extends AbstractAdminViewModel<Menu> {
 		else {
 			cmdNewObject();
 		}
+	}
+	
+	@Command
+	public void editIcon() {
+		showIconDialog(getObject());
+	}
+	
+	@Command
+	public void editSubMenuIcon() {
+		showIconDialog(subMenu);
 	}
 	
 	@Command
@@ -200,6 +216,18 @@ public class AdminMenuViewModel extends AbstractAdminViewModel<Menu> {
 	@Override
 	protected void resetProperties() {
 		subMenu = null;
+	}
+	
+	void updateIcon(Menu menu) {
+		notifyChange(menu, C.ICON);
+		flagDirty();
+		if (menu.hasParent()) {
+			notifyChange("getIconClass");
+		}
+	}
+	
+	private void showIconDialog(Menu menu) {
+		showDialog("/admin/menu/selecticon.zul", new SelectIconParameter(this, menu));
 	}
 	
 }

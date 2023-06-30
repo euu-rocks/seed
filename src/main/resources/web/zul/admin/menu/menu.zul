@@ -63,8 +63,14 @@
 									 onChange="@command('flagDirty')"
 									 hflex="1"/> 
 						</cell>
-						<cell/>
-						<cell/>
+						<cell>
+							<label value="${labels.label.icon}:"
+								   style="margin-left:10px"/>
+						</cell>
+						<cell>
+							<button iconSclass="@load(vm.object.icon)"
+									onClick="@command('editIcon')"/>
+						</cell>
 					</row>
 				</rows>
 			</grid>

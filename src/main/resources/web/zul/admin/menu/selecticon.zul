@@ -1,0 +1,83 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<?page contentType="text/html;charset=UTF-8"?>
+<window id="selectIconWin"
+	    sclass="select-icon-win" 
+	    width="370px" height="220px"
+		viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.SelectIconViewModel')" 
+		title="${labels.admin.menu.selecticon}"
+		mode="modal" sizable="true" closable="true">
+	<borderlayout>
+		<center border="0"
+				style="margin:10px">
+			<vlayout>
+				<hlayout children="@init(vm.getIcons(0))">
+					<template name="children" var="icon">
+						<a iconSclass="@init(icon.iconClass)" style="color:black"
+						   onClick="@command('selectIcon',icon=icon)"/>	
+					</template>	
+				</hlayout>
+				<hlayout children="@init(vm.getIcons(1))">
+					<template name="children" var="icon">
+						<a iconSclass="@init(icon.iconClass)" style="color:black"
+						   onClick="@command('selectIcon',icon=icon)"/>	
+					</template>	
+				</hlayout>
+				<hlayout children="@init(vm.getIcons(2))">
+					<template name="children" var="icon">
+						<a iconSclass="@init(icon.iconClass)" style="color:black"
+						   onClick="@command('selectIcon',icon=icon)"/>	
+					</template>	
+				</hlayout>
+				<hlayout children="@init(vm.getIcons(3))">
+					<template name="children" var="icon">
+						<a iconSclass="@init(icon.iconClass)" style="color:black"
+						   onClick="@command('selectIcon',icon=icon)"/>	
+					</template>	
+				</hlayout>
+				<hlayout children="@init(vm.getIcons(4))">
+					<template name="children" var="icon">
+						<a iconSclass="@init(icon.iconClass)" style="color:black"
+						   onClick="@command('selectIcon',icon=icon)"/>	
+					</template>	
+				</hlayout>
+				<hlayout children="@init(vm.getIcons(5))">
+					<template name="children" var="icon">
+						<a iconSclass="@init(icon.iconClass)" style="color:black"
+						   onClick="@command('selectIcon',icon=icon)"/>	
+					</template>	
+				</hlayout>
+				<hlayout children="@init(vm.getIcons(6))">
+					<template name="children" var="icon">
+						<a iconSclass="@init(icon.iconClass)" style="color:black"
+						   onClick="@command('selectIcon',icon=icon)"/>	
+					</template>	
+				</hlayout>
+				<hlayout children="@init(vm.getIcons(7))">
+					<template name="children" var="icon">
+						<a iconSclass="@init(icon.iconClass)" style="color:black"
+						   onClick="@command('selectIcon',icon=icon)"/>	
+					</template>	
+				</hlayout>
+			</vlayout>	
+		</center>
+	</borderlayout>		
+</window>

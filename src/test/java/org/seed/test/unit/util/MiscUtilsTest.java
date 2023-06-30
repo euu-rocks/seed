@@ -29,6 +29,18 @@ import org.seed.core.util.MiscUtils;
 class MiscUtilsTest {
 	
 	@Test
+	void testToArray() {
+		assertNotNull(MiscUtils.toArray());
+		assertEquals(0, MiscUtils.toArray().length);
+		var testarray = MiscUtils.toArray(1, 2, 3);
+		
+		assertEquals(3, testarray.length);
+		assertEquals(1, testarray[0]);
+		assertEquals(2, testarray[1]);
+		assertEquals(3, testarray[2]);
+	}
+	
+	@Test
 	void testToStringBytes() {
 		assertNull(MiscUtils.toString(null));
 		byte[] test = "test".getBytes();
