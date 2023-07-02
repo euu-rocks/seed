@@ -63,8 +63,11 @@ import org.seed.test.integration.task.CreateJobTest;
 import org.seed.test.integration.task.DeleteJobTest;
 import org.seed.test.integration.task.EditJobTest;
 import org.seed.test.integration.transfer.CreateTransferTest;
+import org.seed.test.integration.transfer.CreateJsonTransferTest;
 import org.seed.test.integration.transfer.DeleteTransferTest;
+import org.seed.test.integration.transfer.DeleteJsonTransferTest;
 import org.seed.test.integration.transfer.EditTransferTest;
+import org.seed.test.integration.transfer.EditJsonTransferTest;
 import org.seed.test.integration.transformer.CreateTransformerTest;
 import org.seed.test.integration.transformer.DeleteTransformerTest;
 import org.seed.test.integration.transformer.EditTransformerTest;
@@ -81,19 +84,20 @@ import org.seed.test.integration.user.EditUserTest;
 				 CreateModuleTest.class, CreateMenuTest.class, CreateTransferableEntityTest.class,
 				 CreateGenericEntityTest.class, CreateDerivedEntityTest.class, CreateEntityTest.class, 
 				 CreateNestedEntityTest.class, CreateFilterTest.class, CreateHQLFilterTest.class, 
-				 CreateTransferTest.class, CreateTransformerTest.class, CreateFormTest.class, 
-				 CreateDBObjectTest.class, CreateDataSourceTest.class, CreateHQLDataSourceTest.class, 
-				 CreateReportTest.class, CreateCustomCodeTest.class, CreateRestTest.class,
-				 CreateJobTest.class, CreateTestobjectTest.class, TestobjectFormTest.class, 
-				 EditEntityTest.class, EditFilterTest.class, EditDBObjectTest.class, 
-				 EditDataSourceTest.class, EditTransferTest.class, EditTransformerTest.class, 
-				 EditFormTest.class, EditMenuTest.class, EditJobTest.class, EditModuleTest.class, 
-				 EditReportTest.class, EditCustomCodeTest.class, EditRestTest.class, EditUserTest.class, 
+				 CreateTransferTest.class, CreateJsonTransferTest.class, CreateTransformerTest.class, 
+				 CreateFormTest.class, CreateDBObjectTest.class, CreateDataSourceTest.class, 
+				 CreateHQLDataSourceTest.class, CreateReportTest.class, CreateCustomCodeTest.class, 
+				 CreateRestTest.class, CreateJobTest.class, CreateTestobjectTest.class, 
+				 TestobjectFormTest.class, EditEntityTest.class, EditFilterTest.class, 
+				 EditDBObjectTest.class, EditDataSourceTest.class, EditTransferTest.class, 
+				 EditJsonTransferTest.class, EditTransformerTest.class, EditFormTest.class, 
+				 EditMenuTest.class, EditJobTest.class, EditModuleTest.class, EditReportTest.class, 
+				 EditCustomCodeTest.class, EditRestTest.class, EditUserTest.class, 
 				 EditUserGroupTest.class, DeleteRestTest.class, DeleteCustomCodeTest.class, 
 				 DeleteReportTest.class, DeleteJobTest.class, DeleteDataSourcesTest.class, 
 				 DeleteDBObjectTest.class, DeleteFormTest.class, DeleteMenuTest.class, 
-				 DeleteTransformerTest.class, DeleteTransferTest.class, DeleteFilterTest.class,
-				 DeleteTestobjectTest.class, DeleteEntityTest.class, DeleteUserGroupTest.class, 
-				 DeleteUserTest.class,  DeleteModuleTest.class 
+				 DeleteTransformerTest.class, DeleteTransferTest.class, DeleteJsonTransferTest.class, 
+				 DeleteFilterTest.class, DeleteTestobjectTest.class, DeleteEntityTest.class, 
+				 DeleteUserGroupTest.class, DeleteUserTest.class,  DeleteModuleTest.class 
 			   })
 public class IntegrationTestSuite { }

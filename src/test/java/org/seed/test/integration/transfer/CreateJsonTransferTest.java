@@ -26,7 +26,7 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.openqa.selenium.WebElement;
 
 @TestMethodOrder(OrderAnnotation.class)
-public class CreateTransferTest extends AbstractTransferTest {
+public class CreateJsonTransferTest extends AbstractTransferTest {
 	
 	@Test
 	@Order(1)
@@ -40,20 +40,20 @@ public class CreateTransferTest extends AbstractTransferTest {
 		WebElement window = findWindow("new-transfer");
 		assertEquals("Neuen Import / Export erstellen", findWindowHeader(window).getText());
 		findCombobox(window, "entity").sendKeys("IntegrationTest");
-		findCombobox(window, "format").sendKeys("CSV");
+		findCombobox(window, "format").sendKeys("Json");
 		findCombobox(window, "module").sendKeys("Testmodule");
 		clickButton(window, "create");
 		
 		clickButton(tabpanel, "save");
 		findValidationMessage(); // name is empty
-		findTextbox(tabpanel, "name").sendKeys("Testtransfer");
+		findTextbox(tabpanel, "name").sendKeys("Jsontransfer");
 		saveTransfer(tabpanel);
 	}
 	
 	@Test
 	@Order(2)
 	void testAddElement() {
-		WebElement tabpanel = showTransfer("testtransfer");
+		WebElement tabpanel = showTransfer("jsontransfer");
 		assertEquals("Felder", findTab(tabpanel, "fields").getText());
 		WebElement tabpanelFields = findTabpanel(tabpanel, "fields");
 		dragAndDrop(tabpanelFields, "textfield", "selected");
@@ -62,13 +62,17 @@ public class CreateTransferTest extends AbstractTransferTest {
 	
 	@Test
 	@Order(3)
-	void testAddPermission() {
-		WebElement tabpanel = showTransfer("testtransfer");
-		assertEquals("Berechtigungen", findTab(tabpanel, "permissions").getText());
-		clickTab(tabpanel, "permissions");
+	void testAddNestedElement() {
+		WebElement tabpanel = showTransfer("jsontransfer");
+		assertEquals("Unterobjekte", findTab(tabpanel, "nesteds").getText());
+		clickTab(tabpanel, "nesteds");
 		
-		WebElement tabpanelPermissions = findTabpanel(tabpanel, "permissions");
-		dragAndDrop(tabpanelPermissions, "testrole", "selected");
+		WebElement tabpanelNesteds = findTabpanel(tabpanel, "nesteds");
+		dragAndDrop(tabpanelNesteds, "nestedtest", "selected");
+		clickTab(tabpanelNesteds, "nestedelements");
+		
+		WebElement tabpanelNestedFields = findTabpanel(tabpanelNesteds, "nestedelements");
+		dragAndDrop(tabpanelNestedFields, "name", "selected");
 		saveTransfer(tabpanel);
 	}
 	
