@@ -47,3 +47,4 @@ org.seed.ui.zk.component
 org.seed.ui.zk.convert
 org.seed.ui.zk.vm
 org.seed.ui.zk.vm.admin
+org.seed.ui.zk.vm.codegen
