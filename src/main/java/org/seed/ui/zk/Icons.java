@@ -141,7 +141,9 @@ public enum Icons {
 	DUMMY_NO_ICON;
 	
 	public String getIconClass() {
-		return "z-icon-" + name().toLowerCase().replace('_', '-') + 
+		return "z-icon-" + 
+				name().toLowerCase().replace('_', '-') + 
 				" z-icon-fw alpha-icon-lg";
 	}
+	
 }

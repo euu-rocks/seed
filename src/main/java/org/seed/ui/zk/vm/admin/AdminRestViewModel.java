@@ -158,6 +158,12 @@ public class AdminRestViewModel extends AbstractAdminViewModel<Rest> {
 		cmdInitObject(elem, window);
 	}
 	
+	@Override
+	@Command
+	public void showSwagger() {
+		super.showSwagger();
+	}
+	
 	@Command
 	public void cancel() {
 		window.detach();

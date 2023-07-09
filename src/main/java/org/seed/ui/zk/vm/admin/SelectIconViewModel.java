@@ -68,6 +68,8 @@ public class SelectIconViewModel extends AbstractApplicationViewModel {
 	
 	@Command
 	public void selectIcon(@BindingParam(C.ICON) Icons icon) {
+		Assert.notNull(icon, C.ICON);
+		
 		if (icon == Icons.DUMMY_NO_ICON) {
 			menu.setIcon(null);
 		}

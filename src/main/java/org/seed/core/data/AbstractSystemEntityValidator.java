@@ -22,8 +22,8 @@ import java.util.List;
 import org.seed.C;
 import org.seed.core.config.Limits;
 import org.seed.core.util.Assert;
+import org.seed.core.util.BeanUtils;
 import org.seed.core.util.NameUtils;
-import org.seed.core.util.ObjectAccess;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
@@ -162,7 +162,7 @@ public abstract class AbstractSystemEntityValidator<T extends SystemEntity>
 	}
 	
 	private static boolean checkElement(Object value, String fieldName, SystemObject element) {
-		final Object elementValue = ObjectAccess.callGetter(element, fieldName);
+		final Object elementValue = BeanUtils.callGetter(element, fieldName);
 		return (value instanceof String && elementValue instanceof String &&
 				((String) value).equalsIgnoreCase((String) elementValue)) || 
 				value.equals(elementValue);

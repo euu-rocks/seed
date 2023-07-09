@@ -36,7 +36,7 @@
 							   label="${labels.button.reset}" 
 							   onClick="@command('reset')"/>
 				</toolbar>
-				<toolbar visible="@init(vm.isAPIJavadocAvailable())"
+				<toolbar visible="@init(vm.isAPIJavadocAvailable() and !vm.isFormFunction())"
 						 align="end" hflex="min"
 						 overflowPopup="false">
 					<toolbarbutton iconSclass="z-icon-share alpha-icon-lg" 

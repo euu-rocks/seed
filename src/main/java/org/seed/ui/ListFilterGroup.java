@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.seed.C;
 import org.seed.core.data.SystemObject;
 import org.seed.core.util.Assert;
-import org.seed.core.util.ObjectAccess;
+import org.seed.core.util.BeanUtils;
 
 public class ListFilterGroup implements ListFilterListener {
 	
@@ -91,7 +91,7 @@ public class ListFilterGroup implements ListFilterListener {
 			
 			final Object value = filter.getValueFunction() != null 
 					? filter.getValueFunction().apply(object)
-					: ObjectAccess.callGetter(object, filterName);
+					: BeanUtils.callGetter(object, filterName);
 			if (value == null) {
 				return false;
 			}
@@ -115,7 +115,7 @@ public class ListFilterGroup implements ListFilterListener {
 			return result instanceof Boolean && ((Boolean) result).booleanValue();
 		}
 		else {
-			final Boolean bool = ObjectAccess.callBooleanGetter(object, filterName);
+			final Boolean bool = BeanUtils.callIs(object, filterName);
 			return bool != null && bool.booleanValue();
 		}
 	}

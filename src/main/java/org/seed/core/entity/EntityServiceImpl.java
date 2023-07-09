@@ -44,7 +44,6 @@ import org.seed.core.codegen.SourceCode;
 import org.seed.core.config.Limits;
 import org.seed.core.config.SchemaManager;
 import org.seed.core.config.SchemaVersion;
-import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.config.changelog.ChangeLog;
 import org.seed.core.config.changelog.ReferenceChangeLog;
 import org.seed.core.data.AbstractSystemObject;
@@ -80,9 +79,6 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	@Autowired
 	private UserGroupService userGroupService;
-	
-	@Autowired
-	private UpdatableConfiguration configuration;
 	
 	@Autowired
 	private SchemaManager schemaManager; 
@@ -726,7 +722,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 			}
 		}
 		
-		configuration.updateConfiguration();
+		updateConfiguration();
 	}
 	
 	@Override
@@ -781,7 +777,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 			}
 		}
 		removeEntityClass(entity);
-		configuration.updateConfiguration();
+		updateConfiguration();
 	}
 	
 	@Override

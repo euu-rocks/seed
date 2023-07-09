@@ -21,39 +21,54 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-import org.seed.core.util.ObjectAccess;
+import org.seed.core.util.BeanUtils;
 
-class ObjectAccessTest {
+class BeanUtilsTest {
 	
 	@Test
-	void testCallBooleanGetter() {
+	void testInstantiate() {
+		final TestObject object = BeanUtils.instantiate(TestObject.class);
+		assertNotNull(object);
+		assertTrue(object instanceof TestObject);
+	}
+	
+	@Test
+	void testCallIs() {
 		final TestObject object = new TestObject();
-		assertNull(ObjectAccess.callBooleanGetter(object, "bool"));
+		assertNull(BeanUtils.callIs(object, "bool"));
 		
 		object.setBool(Boolean.TRUE);
-		assertEquals(Boolean.TRUE, ObjectAccess.callBooleanGetter(object, "bool"));
+		assertEquals(Boolean.TRUE, BeanUtils.callIs(object, "bool"));
 		
 		object.setBool(Boolean.FALSE);
-		assertEquals(Boolean.FALSE, ObjectAccess.callBooleanGetter(object, "bool"));
+		assertEquals(Boolean.FALSE, BeanUtils.callIs(object, "bool"));
 	}
 	
 	@Test
 	void testCallGetter() {
 		final TestObject object = new TestObject();
-		assertNull(ObjectAccess.callGetter(object, "str"));
+		assertNull(BeanUtils.callGetter(object, "str"));
 		
 		object.setStr("test");
-		assertEquals("test", ObjectAccess.callGetter(object, "str"));
+		assertEquals("test", BeanUtils.callGetter(object, "str"));
 	}
 	
 	@Test
 	void testCallSetter() {
 		final TestObject object = new TestObject();
-		ObjectAccess.callSetter(object, "str", "test");
+		BeanUtils.callSetter(object, "str", "test");
 		assertEquals("test", object.getStr());
 		
-		ObjectAccess.callSetter(object, "str", new Object[] {null});
+		BeanUtils.callSetter(object, "str", new Object[] {null});
 		assertNull(object.getStr());
+	}
+	
+	@Test
+	void testCallMethod() {
+		final TestObject object = new TestObject();
+		assertNull(BeanUtils.callMethod(object, "test"));
+		object.setStr("test");
+		assertEquals("test", BeanUtils.callMethod(object, "test"));
 	}
 	
 	public static class TestObject {
@@ -76,6 +91,10 @@ class ObjectAccessTest {
 
 		public void setStr(String str) {
 			this.str = str;
+		}
+		
+		public String test() {
+			return str;
 		}
 		
 	}

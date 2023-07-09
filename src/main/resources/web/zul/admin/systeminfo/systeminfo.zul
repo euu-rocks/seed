@@ -24,15 +24,23 @@
 <?component name="info-compilererror" macroURI="~./zul/admin/systeminfo/systeminfo_compilererror.zul" inline="true"?>
 <borderlayout viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.SystemInfoViewModel')">
 	<north border="0">
-		<toolbar>
-			<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
-						   label="${labels.button.refresh}" 
-						   onClick="@command('refresh',elem=self)"/>
-			<toolbarbutton iconSclass="z-icon-remove alpha-icon-lg" 
-						   label="${labels.button.resetnotification}" 
-						   onClick="@command('resetNotification',elem=self)"
-						   visible="@load(vm.existSystemError())"/>
-		</toolbar>
+		<hbox hflex="1">
+			<toolbar hflex="1">
+				<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
+							   label="${labels.button.refresh}" 
+							   onClick="@command('refresh',elem=self)"/>
+				<toolbarbutton iconSclass="z-icon-remove alpha-icon-lg" 
+							   label="${labels.button.resetnotification}" 
+							   onClick="@command('resetNotification',elem=self)"
+							   visible="@load(vm.existSystemError())"/>
+			</toolbar>
+			<toolbar align="end" hflex="min"
+					 overflowPopup="false">
+				<toolbarbutton iconSclass="z-icon-share alpha-icon-lg" 
+							   label="${labels.systeminfo.showswagger}" 
+							   onClick="@command('showSwagger')"/>			 
+			</toolbar>
+		</hbox>
 	</north>
 	<center border="0" autoscroll="true">
 		<tabbox hflex="1" vflex="1" class="alpha-tabbox">

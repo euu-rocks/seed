@@ -1,0 +1,131 @@
+    {
+        "changeSet": {
+            "id": "system update 0.9.41",
+            "author": "seed",
+            "changes": [
+               {
+	              "createTable": {
+	                 "tableName": "sys_form_function",
+	                 "columns": [
+	                   {
+	                       "column": {
+	                          "name": "id",
+	                          "type": "BIGINT",
+	                          "constraints": {
+	                              "primaryKey": "true",
+	                              "primaryKeyName": "pk_sys_form_function"
+	                          }
+	                       }
+	                   },
+	                   {
+	                       "column": {
+	                          "name": "uid",
+	                          "type": "VARCHAR(<#UID_LEN#>)",
+	                          "constraints": {
+	                              "nullable": "false"
+	                          }
+	                       }
+	                   },
+	                   {
+	                       "column": {
+	                          "name": "createdby",
+	                          "type": "VARCHAR(<#USERNAME_LEN#>)"
+	                       }
+	                   },
+	                   {
+	                       "column": {
+	                          "name": "createdon",
+	                          "type": "DATETIME"
+	                       }
+	                   },
+	                   {
+	                       "column": {
+	                          "name": "modifiedby",
+	                          "type": "VARCHAR(<#USERNAME_LEN#>)"
+	                       }
+	                   },
+	                   {
+	                       "column": {
+	                          "name": "modifiedon",
+	                          "type": "DATETIME"
+	                       }
+	                   },
+	                   {
+	                       "column": {
+	                          "name": "version",
+	                          "type": "INT",
+	                          "constraints": {
+	                              "nullable": "false"
+	                          }
+	                       }
+	                   },
+	                   {
+                           "column":  {
+                              "name":  "ordernum",
+                              "type":  "INT"
+                           } 
+                       },
+	                   {
+	                       "column": {
+	                          "name": "form_id",
+	                          "type": "BIGINT",
+	                          "constraints": {
+	                              "nullable": "false"
+	                          }
+	                       }
+	                   },
+	                   {
+	                       "column": {
+	                          "name": "name",
+	                          "type": "VARCHAR(<#IDENT_LEN#>)",
+	                          "constraints": {
+	                              "nullable": "false"
+	                          }
+	                       }
+	                   },
+	                   {
+	                       "column": {
+	                          "name": "content",
+	                          "type": "CLOB"
+	                       }
+	                   }
+	                ]
+	              }
+	           },
+			   {
+	              "addUniqueConstraint": {
+	                 "columnNames": "form_id,name",
+	                 "constraintName": "uni_sys_form_function_name",
+	                 "tableName": "sys_form_function"
+	              }
+	           },
+	           {
+                  "addForeignKeyConstraint": {
+                     "baseColumnNames": "form_id",
+                     "baseTableName": "sys_form_function",
+                     "constraintName": "fk_sys_form_function_form",
+                     "deferrable": "false",
+                     "initiallyDeferred": "false",
+                     "onDelete": "NO ACTION",
+                     "onUpdate": "NO ACTION",
+                     "referencedColumnNames": "id",
+                     "referencedTableName": "sys_form",
+                     "validate": "true"
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_sys_form_function_form",
+                     "tableName": "sys_form_function",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "form_id"
+                         }
+                       }
+                     ]
+                  }
+               }
+            ]
+        }
+    }

@@ -7,6 +7,12 @@
 
 ## How to run
 
+### Create PostgreSQL database and user
+```
+create database seed
+
+create user seed with password 'seed'
+```
 ### Try with DOCKER 
 ```
 docker build -t euurocks/seed .

@@ -36,6 +36,9 @@ import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
+import org.seed.core.codegen.CodeManager;
+import org.seed.core.codegen.CodeUtils;
+import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.data.AbstractSystemObject;
 import org.seed.core.data.SystemField;
 import org.seed.core.data.ValidationException;
@@ -83,6 +86,9 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	
 	@Autowired
 	private FormRepository formRepository;
+	
+	@Autowired
+	private CodeManager codeManager;
 	
 	private List<FormChangeAware> changeAwareObjects;
 	
@@ -153,6 +159,16 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		Assert.notNull(form, C.FORM);
 		
 		formValidator.validateAddRelationForm(form, relation);
+	}
+	
+	@Override
+	@Secured("ROLE_ADMIN_FORM")
+	public FormFunction createFunction(Form form) {
+		Assert.notNull(form, C.FORM);
+		
+		final FormFunction function = new FormFunction();
+		form.addFunction(function);
+		return function;
 	}
 	
 	@Override
@@ -319,6 +335,19 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	@Override
+	public Class<GeneratedCode> getFunctionClass(Form form, String functionName) {
+		Assert.notNull(form, C.FORM);
+		Assert.notNull(functionName, "function name");
+		
+		final FormFunction function = form.getFunctionByName(functionName);
+		Assert.stateAvailable(function, "function: " + functionName);
+		
+		final var functionClass = codeManager.getGeneratedClass(function);
+		Assert.stateAvailable(functionClass, "function class " + CodeUtils.getQualifiedName(function));
+		return functionClass;
+	}
+	
+	@Override
 	protected void analyzeNextVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
 		if (analysis.getModule().getForms() != null) {
 			for (Form form : analysis.getModule().getForms()) {
@@ -448,6 +477,8 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 				handleException(tx, ex);
 			}
 		}
+		
+		updateConfiguration();
 	}
 	
 	@Override
@@ -589,10 +620,6 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 			for (EntityField entityField : entity.getAllFields()) {
 				if (!form.containsEntityField(entityField)) {
 					final FormField formField = createFormField(form, entityField); 
-					if (entityField.getType().isAutonum() || 
-						entityField.getType().isText()) {
-						formField.setSelected(true);
-					}
 					form.addField(formField);
 				}
 			}
@@ -651,6 +678,9 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		}
 		if (form.hasActions()) {
 			initActions(form, currentVersionForm);
+		}
+		if (form.hasFunctions()) {
+			initFunctions(form, currentVersionForm);
 		}
 		if (form.hasTransformers()) {
 			initTransformers(session, form, currentVersionForm);
@@ -721,8 +751,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 				formField.setEntityField(form.getEntity().findFieldByUid(formField.getEntityFieldUid()));
 			}
 			if (currentVersionForm != null) {
-				final FormField currentVersionField =
-					currentVersionForm.getFieldByUid(formField.getUid());
+				final var currentVersionField = currentVersionForm.getFieldByUid(formField.getUid());
 				if (currentVersionField != null) {
 					currentVersionField.copySystemFieldsTo(formField);
 				}
@@ -741,8 +770,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 				fieldExtra.setFilter(filterService.findByUid(session, fieldExtra.getFilterUid()));
 			}
 			if (currentVersionForm != null) {
-				final FormFieldExtra currentVersionExtra =
-					currentVersionForm.getFieldExtraByUid(fieldExtra.getUid());
+				final var currentVersionExtra = currentVersionForm.getFieldExtraByUid(fieldExtra.getUid());
 				if (currentVersionExtra != null) {
 					currentVersionExtra.copySystemFieldsTo(fieldExtra);
 				}
@@ -757,10 +785,21 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 				action.setEntityFunction(form.getEntity().getFunctionByUid(action.getEntityFunctionUid()));
 			}
 			if (currentVersionForm != null) {
-				final FormAction currentVersionAction =
-					currentVersionForm.getActionByUid(action.getUid());
+				final var currentVersionAction = currentVersionForm.getActionByUid(action.getUid());
 				if (currentVersionAction != null) {
 					currentVersionAction.copySystemFieldsTo(action);
+				}
+			}
+		}
+	}
+	
+	private void initFunctions(Form form, Form currentVersionForm) {
+		for (FormFunction function : form.getFunctions()) {
+			function.setForm(form);
+			if (currentVersionForm != null) {
+				final var currentVersionFunction = currentVersionForm.getFunctionByUid(function.getUid());
+				if (currentVersionFunction != null) {
+					currentVersionFunction.copySystemFieldsTo(function);
 				}
 			}
 		}
@@ -773,8 +812,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 				transformer.setTransformer(transformerService.findByUid(session, transformer.getTransformerUid()));
 			}
 			if (currentVersionForm != null) {
-				final FormTransformer currentVersionTransformer =
-					currentVersionForm.getTransformerByUid(transformer.getUid());
+				final var currentVersionTransformer = currentVersionForm.getTransformerByUid(transformer.getUid());
 				if (currentVersionTransformer != null) {
 					currentVersionTransformer.copySystemFieldsTo(transformer);
 				}
@@ -786,8 +824,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		for (FormPrintout printout : form.getPrintouts()) {
 			printout.setForm(form);
 			if (currentVersionForm != null) {
-				final FormPrintout currentVersionPrintout =
-					currentVersionForm.getPrintoutByUid(printout.getUid());
+				final var currentVersionPrintout = currentVersionForm.getPrintoutByUid(printout.getUid());
 				if (currentVersionPrintout != null) {
 					currentVersionPrintout.copySystemFieldsTo(printout);
 				}
@@ -798,7 +835,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	private void initSubForms(Session session, Form form, Form currentVersionForm) {
 		for (SubForm subForm : form.getSubForms()) {
 			SubForm currentVersionSubForm = null;
-			final NestedEntity nested = form.getEntity().getNestedByUid(subForm.getNestedEntityUid());
+			final var nested = form.getEntity().getNestedByUid(subForm.getNestedEntityUid());
 			subForm.setForm(form);
 			subForm.setNestedEntity(nested);
 			if (currentVersionForm != null) {
@@ -832,8 +869,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 			subFormAction.setEntityFunction(nested.getFunctionByUid(subFormAction.getEntityFunctionUid()));
 		}
 		if (currentVersionSubForm != null) {
-			final SubFormAction currentVersionAction =
-				currentVersionSubForm.getActionByUid(subFormAction.getUid());
+			final var currentVersionAction = currentVersionSubForm.getActionByUid(subFormAction.getUid());
 			if (currentVersionAction != null) {
 				currentVersionAction.copySystemFieldsTo(subFormAction);
 			}
@@ -851,8 +887,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 			subFormField.setFilter(filterService.findByUid(session, subFormField.getFilterUid()));
 		}
 		if (currentVersionSubForm != null) {
-			final SubFormField currentVersionField = 
-					currentVersionSubForm.getFieldByUid(subFormField.getUid());
+			final var currentVersionField = currentVersionSubForm.getFieldByUid(subFormField.getUid());
 			if (currentVersionField != null) {
 				currentVersionField.copySystemFieldsTo(subFormField);
 			}
@@ -914,29 +949,15 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	private static List<FormField> createFormFields(Form form) {
-		Assert.notNull(form, C.FORM);
-		
 		return MiscUtils.castList(
 				ListUtils.union(createEntityFields(form), 
 								createSystemFields(form)));
 	}
 	
 	private static List<FormField> createEntityFields(Form form) {
-		final var result = new ArrayList<FormField>();
-		final Entity entity = form.getEntity();
-		if (entity.hasAllFields()) {
-			for (EntityField entityField : entity.getAllFields()) {
-				if (!form.containsEntityField(entityField)) {
-					final FormField formField = createFormField(form, entityField); 
-					if (entityField.getType().isAutonum() || 
-						entityField.getType().isText()) {
-						formField.setSelected(true);
-					}
-					result.add(formField);
-				}
-			}
-		}
-		return result;
+		return filterAndConvert(form.getEntity().getAllFields(), 
+								field -> !form.containsEntityField(field), 
+								field -> createFormField(form, field));
 	}
 	
 	private static List<FormField> createSystemFields(Form form) {
@@ -944,6 +965,12 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 								field -> (field != SystemField.ENTITYSTATUS || form.getEntity().hasStatus()) && 
 										 !form.containsSystemField(field), 
 								field-> createSystemFormField(form, field));
+	}
+	
+	private static boolean isDefaultSelected(EntityField entityField) {
+		final var type = entityField.getType();
+		return type.isAutonum() || type.isText() || type.isTextLong() ||
+			   type.isDate() || type.isDateTime();
 	}
 	
 	private static FormAction createAction(Form form, FormActionType actionType) {
@@ -964,6 +991,9 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		final var formField = new FormField();
 		formField.setForm(form);
 		formField.setEntityField(entityField);
+		if (isDefaultSelected(entityField)) {
+			formField.setSelected(true);
+		}
 		return formField;
 	}
 	

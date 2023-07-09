@@ -334,6 +334,18 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	}
 	
 	@Command
+	public void callFunction(@BindingParam(C.ELEM) Component component,
+							 @BindingParam(C.FUNCTION) String functionName,
+							 @BindingParam(C.PARAMETER) Object parameter) {
+		try {
+			callFormFunction(component, functionName, parameter);
+		}
+		catch (Exception ex) {
+			showError(component, ex);
+		}
+	}
+	
+	@Command
 	public void callAction(@BindingParam(C.ACTION) FormAction action,
 						   @BindingParam(C.ELEM) Component component) {
 		if (!checkFormIntegrity()) {

@@ -223,6 +223,10 @@ public abstract class AbstractApplicationViewModel extends AbstractViewModel {
 		openNewTab(applicationProperties.getProperty(Seed.PROP_EXTERN_API_JAVADOC_URL));
 	}
 	
+	protected void showSwagger() {
+		openNewTab("/swagger-ui/");
+	}
+	
 	protected final void resetDirty() {
 		if (dirty) {
 			setDirty(false);

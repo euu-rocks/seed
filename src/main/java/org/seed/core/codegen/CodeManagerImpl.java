@@ -60,6 +60,7 @@ public class CodeManagerImpl implements CodeManager {
 	public static final String API_PACKAGE				   = "org.seed.core.api";
 	
 	public static final String GENERATED_ENTITY_PACKAGE    = "org.seed.generated.entity";
+	public static final String GENERATED_FORM_PACKAGE      = "org.seed.generated.form";
 	public static final String GENERATED_REST_PACKAGE      = "org.seed.generated.rest";
 	public static final String GENERATED_TASK_PACKAGE      = "org.seed.generated.task";
 	public static final String GENERATED_TRANSFORM_PACKAGE = "org.seed.generated.transform";
@@ -148,6 +149,7 @@ public class CodeManagerImpl implements CodeManager {
 			compileTransformClasses(sourceCodeList);
 			compileRestClasses(sourceCodeList);
 			compileTaskClasses(sourceCodeList);
+			compileFormClasses(sourceCodeList);
 			if (compilerError) {
 				compileAllCodeBuilders();
 			}
@@ -209,6 +211,19 @@ public class CodeManagerImpl implements CodeManager {
 		}
 	}
 	
+	private void compileFormClasses(List<SourceCode> sourceCodeList) {
+		for (SourceCode source : subList(sourceCodeList, this::isFormSource)) {
+			try {
+				compile(source);
+			}
+			catch (CompilerException cex) {
+				log.warn("Error while compiling form class {}", cex.getMessage());
+				systemLog.logError("systemlog.error.compileform", cex);
+				compilerError = true;
+			}
+		}
+	}
+	
 	private void compileTransformClasses(List<SourceCode> sourceCodeList) {
 		for (SourceCode source : subList(sourceCodeList, this::isTransformSource)) {
 			try {
@@ -263,6 +278,10 @@ public class CodeManagerImpl implements CodeManager {
 		return code.getPackageName().equals(GENERATED_ENTITY_PACKAGE);
 	}
 	
+	private boolean isFormSource(SourceCode code) {
+		return code.getPackageName().equals(GENERATED_FORM_PACKAGE);
+	}
+	
 	private boolean isTransformSource(SourceCode code) {
 		return code.getPackageName().equals(GENERATED_TRANSFORM_PACKAGE);
 	}
@@ -279,7 +298,8 @@ public class CodeManagerImpl implements CodeManager {
 		return !(isEntitySource(code) ||
 				 isTransformSource(code) ||
 				 isRestSource(code) ||
-				 isTaskSource(code));
+				 isTaskSource(code) ||
+				 isFormSource(code));
 	}
 	
 	private List<SourceCodeBuilder> collectCodeBuilders(boolean all) {

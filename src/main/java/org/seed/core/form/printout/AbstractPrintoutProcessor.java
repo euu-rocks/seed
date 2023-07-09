@@ -31,9 +31,9 @@ import org.seed.core.entity.NestedEntity;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.form.FormPrintout;
 import org.seed.core.util.Assert;
-import org.seed.core.util.ObjectAccess;
+import org.seed.core.util.BeanUtils;
 
-public abstract class AbstractPrintoutProcessor extends ObjectAccess implements PrintoutProcessor {
+public abstract class AbstractPrintoutProcessor implements PrintoutProcessor {
 	
 	private static final String PATTERN_START = "{{";
 	private static final String PATTERN_END = "}}";
@@ -121,7 +121,7 @@ public abstract class AbstractPrintoutProcessor extends ObjectAccess implements 
 		try {
 			final int idx = key.indexOf('.');
 			if (idx >= 0) {
-				final Object object = callGetter(valueObject, key.substring(0, idx));
+				final Object object = BeanUtils.callGetter(valueObject, key.substring(0, idx));
 				if (object != null) {
 					if (object instanceof ValueObject) {
 						return replaceKey(key.substring(idx + 1), (ValueObject) object);
@@ -133,7 +133,7 @@ public abstract class AbstractPrintoutProcessor extends ObjectAccess implements 
 				return "";
 			}
 			
-			final Object value = formatValue(callGetter(valueObject, key));
+			final Object value = formatValue(BeanUtils.callGetter(valueObject, key));
 			return value != null 
 					? value.toString() 
 					: "";
@@ -169,7 +169,7 @@ public abstract class AbstractPrintoutProcessor extends ObjectAccess implements 
 	}
 	
 	protected static List<ValueObject> getNestedObjects(ValueObject valueObject, NestedEntity nestedEntity) {
-		return callGetter(valueObject, nestedEntity.getInternalName());
+		return BeanUtils.callGetter(valueObject, nestedEntity.getInternalName());
 	}
 	
 	private static int findPatternStart(String text, int idx) {

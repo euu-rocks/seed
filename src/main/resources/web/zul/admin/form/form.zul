@@ -20,6 +20,7 @@
 <!DOCTYPE xml>
 <?component name="form-layout" macroURI="~./zul/admin/form/form_layout.zul" inline="true"?>
 <?component name="form-fields" macroURI="~./zul/admin/form/form_fields.zul" inline="true"?>
+<?component name="form-functions" macroURI="~./zul/admin/form/form_functions.zul" inline="true"?>
 <?component name="form-transformers" macroURI="~./zul/admin/form/form_transformers.zul" inline="true"?>
 <?component name="form-actions" macroURI="~./zul/admin/form/form_actions.zul" inline="true"?>
 <?component name="form-printouts" macroURI="~./zul/admin/form/form_printouts.zul" inline="true"?>
@@ -126,6 +127,8 @@
 						 label="${labels.label.list}"/>
 					<tab id="tabActions" sclass="actions-tab"
 						 label="${labels.label.actions}"/>
+					<tab id="tabFunctions" sclass="functions-tab"
+						 label="${labels.label.functions}"/>
 					<tab id="tabTransformers" sclass="transformers-tab"
 						 label="${labels.label.transformers}"
 						 visible="@load(vm.existTransformers())"/>
@@ -141,6 +144,9 @@
 					</tabpanel>
 					<tabpanel sclass="actions-tabpanel" fulfill="tabActions.onSelect">
 						<form-actions/>
+					</tabpanel>
+					<tabpanel sclass="functions-tabpanel" fulfill="tabFunctions.onSelect">
+						<form-functions/>
 					</tabpanel>
 					<tabpanel sclass="transformers-tabpanel" fulfill="tabTransformers.onSelect">
 						<form-transformers/>

@@ -47,7 +47,6 @@ import org.seed.core.entity.value.ValueObjectService;
 import org.seed.core.util.Assert;
 import org.seed.core.util.BeanUtils;
 import org.seed.core.util.MiscUtils;
-import org.seed.core.util.ObjectAccess;
 
 import org.springframework.util.ObjectUtils;
 
@@ -195,7 +194,7 @@ abstract class AbstractTransferProcessor implements TransferProcessor {
 				default:
 					throw new UnsupportedOperationException(element.getEntityField().getType().name());
 			}
-			ObjectAccess.callSetter(object, element.getEntityField().getInternalName(), value);
+			BeanUtils.callSetter(object, element.getEntityField().getInternalName(), value);
 		}
 	}
 	
@@ -245,10 +244,10 @@ abstract class AbstractTransferProcessor implements TransferProcessor {
 						throw new UnsupportedOperationException(element.getEntityField().getType().name());
 				}
 				if (element.getEntityField() != null) {
-					ObjectAccess.callSetter(object, element.getEntityField().getInternalName(), value);
+					BeanUtils.callSetter(object, element.getEntityField().getInternalName(), value);
 				}
 				else {
-					ObjectAccess.callSetter(object, element.getSystemField().property, value);
+					BeanUtils.callSetter(object, element.getSystemField().property, value);
 				}
 			}
 		}
@@ -272,7 +271,7 @@ abstract class AbstractTransferProcessor implements TransferProcessor {
 	
 	private void exportObjectFields(ValueObject object, List<TransferElement> elements, Map<String, Object> objMap) {
 		for (TransferElement element : elements) {
-			final var value = ObjectAccess.callGetter(object, element.getEntityField().getInternalName());
+			final var value = BeanUtils.callGetter(object, element.getEntityField().getInternalName());
 			if (value != null) {
 				objMap.put(getElementName(element), formatMapValue(element, value));
 			}
@@ -309,8 +308,8 @@ abstract class AbstractTransferProcessor implements TransferProcessor {
 		final var result = new String[transfer.getElements().size()];
 		for (TransferElement element : transfer.getElements()) {
 			final var value = element.getEntityField() != null
-								? ObjectAccess.callGetter(object, element.getEntityField().getInternalName())
-								: ObjectAccess.callGetter(object, element.getSystemField().property);
+								? BeanUtils.callGetter(object, element.getEntityField().getInternalName())
+								: BeanUtils.callGetter(object, element.getSystemField().property);
 			if (value == null) {
 				idx++;
 				continue;

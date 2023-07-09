@@ -1,0 +1,76 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout>
+	<north border="0">
+		<toolbar width="100%">
+			<toolbarbutton label="${labels.admin.entity.newfunction}" 
+						   iconSclass="new-button z-icon-file-o alpha-icon-lg" 
+					   	   onClick="@command('newFunction')"
+					   	   disabled="@load(empty vm.object.name)"/>
+			<toolbarbutton label="${labels.admin.entity.removefunction}" 
+						   iconSclass="remove-button z-icon-remove alpha-icon-lg" 
+					   	   onClick="@command('removeFunction',elem=self)"
+					   	   visible="@load(not empty vm.function)"/>
+		</toolbar>
+	</north>
+	<center border="0">
+		<listbox mold="paging" autopaging="true" 
+				 model="@load(vm.object.functions)" 
+		         selectedItem="@bind(vm.function)"
+		         visible="@load(!empty vm.object.functions)"
+		         class="alpha-noborder"
+		         hflex="1" vflex="1">
+			<listhead sizable="true">
+				<listheader label="${labels.label.name}"
+							sort="auto(name)" hflex="max"/>
+	        </listhead> 
+	        <template name="model" var="function">
+	            <listitem sclass="@init(vm.getListItemTestClass(function))" 
+	            		  attributes.item="@load(function)" 
+	            		  onDoubleClick="@command('editFunctionSource')"> 
+	            	<listcell>
+	            		<label value="@load(function.name)" 
+	            			   style="margin-left:3px"/>
+	            	</listcell>
+	            </listitem>
+		    </template> 
+		</listbox>
+	</center>
+	<east title="${labels.label.properties}" 
+		  visible="@load(!empty vm.function)"
+		  width="275px" border="0" collapsible="true" 
+		  class="alpha-properties">
+		<vlayout class="alpha-properties-content" hflex="1">
+			<label value="${labels.label.functionname}:"/>
+			<div sclass="functionname-field">
+	            <textbox hflex="1"
+	            		 value="@bind(vm.function.name) @converter(vm.stringConverter)"
+	            		 mandatory="true"
+	            		 onChange="@command('flagDirty', object=vm.function)"/>
+            </div>
+            <button label="${labels.admin.entity.editsource}..."
+            		sclass="editfunction-button"
+            		onClick="@command('editFunctionSource')"
+            		disabled="@load(empty vm.function.name)"
+            		style="margin-top:8px;margin-bottom:8px"/>
+        </vlayout>
+    </east>
+</borderlayout>

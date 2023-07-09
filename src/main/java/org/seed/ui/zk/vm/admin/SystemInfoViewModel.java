@@ -196,6 +196,12 @@ public class SystemInfoViewModel extends AbstractApplicationViewModel {
 		notifyChangeAll();
 	}
 	
+	@Override
+	@Command
+	public void showSwagger() {
+		super.showSwagger();
+	}
+	
 	@Command
 	@NotifyChange("existSystemError")
 	public void resetNotification(@BindingParam(C.ELEM) Component component) {

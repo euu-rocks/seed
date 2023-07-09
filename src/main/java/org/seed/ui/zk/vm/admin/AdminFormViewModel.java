@@ -22,6 +22,8 @@ import java.util.List;
 import org.apache.commons.collections4.ListUtils;
 
 import org.seed.C;
+import org.seed.core.application.ContentObject;
+import org.seed.core.codegen.SourceCode;
 import org.seed.core.data.SystemObject;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityService;
@@ -30,6 +32,7 @@ import org.seed.core.form.AutolayoutType;
 import org.seed.core.form.Form;
 import org.seed.core.form.FormAction;
 import org.seed.core.form.FormField;
+import org.seed.core.form.FormFunction;
 import org.seed.core.form.FormMetadata;
 import org.seed.core.form.FormOptions;
 import org.seed.core.form.FormPrintout;
@@ -44,6 +47,7 @@ import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 import org.seed.core.util.UID;
 import org.seed.ui.ListFilter;
+import org.seed.ui.zk.vm.codegen.ViewModelCodeProvider;
 
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
@@ -62,6 +66,7 @@ import org.zkoss.zul.Window;
 public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	
 	private static final String FIELDS         = "fields";
+	private static final String FUNCTIONS	   = "functions";
 	private static final String ACTIONS        = "actions";
 	private static final String TRANSFORMERS   = "transformers";
 	private static final String PRINTOUTS      = "printouts";
@@ -84,9 +89,14 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	@WireVariable(value="menuServiceImpl")
 	private MenuService menuService;
 	
+	@WireVariable(value="viewModelCodeProvider")
+	private ViewModelCodeProvider codeProvider;
+	
 	private FormField field;
 	
 	private FormAction action;
+	
+	private FormFunction function;
 	
 	private FormTransformer transformer;
 	
@@ -162,6 +172,14 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 		this.action = action;
 	}
 	
+	public FormFunction getFunction() {
+		return function;
+	}
+
+	public void setFunction(FormFunction function) {
+		this.function = function;
+	}
+
 	public FormTransformer getTransformer() {
 		return transformer;
 	}
@@ -273,6 +291,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	protected void resetProperties() {
 		field = null;
 		action = null;
+		function = null;
 		transformer = null;
 		printout = null;
 	}
@@ -299,6 +318,31 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
+	@NotifyChange(C.FUNCTION)
+	public void newFunction() {
+		function = formService.createFunction(getObject());
+		notifyObjectChange(FUNCTIONS);
+		flagDirty();
+	}
+	
+	@Command
+	@NotifyChange(C.FUNCTION)
+	public void removeFunction() {
+		getObject().removeFunction(function);
+		notifyObjectChange(FUNCTIONS);
+		function = null;
+		flagDirty();
+	}
+	
+	@Command
+	public void editFunctionSource() {
+		if (function.getContent() == null) {
+			function.setContent(codeProvider.getFunctionTemplate(function));
+		}
+		showCodeDialog(new CodeDialogParameter(this, function));
+	}
+	
+	@Command
 	@Override
 	public void flagDirty() {
 		super.flagDirty();
@@ -314,6 +358,14 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 		return null;
 	}
 	
+	@Override
+	protected SourceCode getSourceCode(ContentObject contentObject) {
+		Assert.notNull(contentObject, "contentObject");
+		final FormFunction formFunction = (FormFunction) contentObject;
+		
+		return codeProvider.getFormSource(formFunction);
+	}
+	
 	@Command
 	public void saveForm(@BindingParam(C.ELEM) Component component) {
 		final boolean isCreate = getObject().isNew(); 
@@ -325,8 +377,11 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 			((FormMetadata) getObject()).setLayoutContent(getLayoutContent());
 			notifyChange(LAYOUT_INCLUDE);
 		}
-		if (cmdSaveObject(component) && isCreate) {
-			refreshMenu();
+		if (cmdSaveObject(component)) {
+			resetCurrentSession();
+			if (isCreate) {
+				refreshMenu();
+			}
 		}
 	}
 	

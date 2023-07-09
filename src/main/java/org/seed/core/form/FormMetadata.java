@@ -104,6 +104,13 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 			   orphanRemoval = true,
 			   fetch = FetchType.LAZY)
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+	private List<FormFunction> functions;
+	
+	@OneToMany(mappedBy = "form",
+			   cascade = CascadeType.ALL,
+			   orphanRemoval = true,
+			   fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@OrderBy("order")
 	private List<FormTransformer> transformers;
 	
@@ -225,6 +232,17 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	public void setActions(List<FormAction> actions) {
 		this.actions = actions;
 	}
+	
+	@Override
+	@XmlElement(name="function")
+	@XmlElementWrapper(name="functions")
+	public List<FormFunction> getFunctions() {
+		return functions;
+	}
+
+	public void setFunctions(List<FormFunction> functions) {
+		this.functions = functions;
+	}
 
 	@Override
 	@XmlElement(name="transformer")
@@ -285,6 +303,11 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	}
 	
 	@Override
+	public boolean hasFunctions() {
+		return notEmpty(getFunctions());
+	}
+	
+	@Override
 	public boolean hasFieldExtras() {
 		return notEmpty(getFieldExtras());
 	}
@@ -307,6 +330,25 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 		getFields().remove(field);
 	}
 	
+	@Override
+	public void addFunction(FormFunction function) {
+		Assert.notNull(function, C.FUNCTION);
+		
+		if (functions == null) {
+			functions = new ArrayList<>();
+		}
+		function.setForm(this);
+		functions.add(function);
+	}
+	
+	@Override
+	public void removeFunction(FormFunction function) {
+		Assert.notNull(function, C.FUNCTION);
+		
+		getFunctions().remove(function);
+	}
+	
+	@Override
 	public boolean hasSubForms() {
 		return notEmpty(getSubForms());
 	}
@@ -498,6 +540,20 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 		Assert.notNull(fieldUid, "field uid");
 		
 		return getObjectByUid(getFields(), fieldUid);
+	}
+	
+	@Override
+	public FormFunction getFunctionByUid(String functionUid) {
+		Assert.notNull(functionUid, "function uid");
+		
+		return getObjectByUid(getFunctions(), functionUid);
+	}
+	
+	@Override
+	public FormFunction getFunctionByName(String functionName) {
+		Assert.notNull(functionName, "function name");
+		
+		return getObjectByName(getFunctions(), functionName, true);
 	}
 	
 	@Override
@@ -733,6 +789,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 		
 		return isEqualFields(otherForm) &&
 			   isEqualFieldExtras(otherForm) &&
+			   isEqualFunctions(otherForm) &&
 			   isEqualActions(otherForm) &&
 			   isEqualTransformers(otherForm) &&
 			   isEqualPrintouts(otherForm) &&
@@ -743,6 +800,11 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	private boolean isEqualFields(Form otherForm) {
 		return !(anyMatch(fields, field -> !field.isEqual(otherForm.getFieldByUid(field.getUid()))) || 
 				 anyMatch(otherForm.getFields(), field -> getFieldByUid(field.getUid()) == null));
+	}
+	
+	private boolean isEqualFunctions(Form otherForm) {
+		return !(anyMatch(functions, function -> !function.isEqual(otherForm.getFunctionByUid(function.getUid()))) || 
+				 anyMatch(otherForm.getFunctions(), function -> getFunctionByUid(function.getUid()) == null));
 	}
 	
 	private boolean isEqualFieldExtras(Form otherForm) {
@@ -805,6 +867,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	public void removeNewObjects() {
 		removeNewObjects(getFields());
 		removeNewObjects(getFieldExtras());
+		removeNewObjects(getFunctions());
 		removeNewObjects(getActions());
 		removeNewObjects(getTransformers());
 		removeNewObjects(getPrintouts());
@@ -822,6 +885,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 		super.initUid();
 		initUids(getFields());
 		initUids(getFieldExtras());
+		initUids(getFunctions());
 		initUids(getActions());
 		initUids(getTransformers());
 		initUids(getPrintouts());

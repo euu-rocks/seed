@@ -47,6 +47,8 @@ public interface Form extends ApplicationEntity {
 	
 	boolean hasFields();
 	
+	boolean hasFunctions();
+	
 	boolean containsEntityField(EntityField entityField);
 	
 	boolean containsSystemField(SystemField systemField);
@@ -81,6 +83,10 @@ public interface Form extends ApplicationEntity {
 	
 	RelationForm getRelationFormByUid(String relationFormUid);
 	
+	FormFunction getFunctionByUid(String functionUid);
+	
+	FormFunction getFunctionByName(String functionName);
+	
 	boolean isFieldVisible(EntityField entityField, EntityStatus status, User user);
 	
 	boolean isFieldReadonly(EntityField entityField, EntityStatus status, User user);
@@ -94,6 +100,10 @@ public interface Form extends ApplicationEntity {
 	void addField(FormField field);
 	
 	void removeField(FormField field);
+	
+	void addFunction(FormFunction function);
+	
+	void removeFunction(FormFunction function);
 	
 	boolean hasActions();
 	
@@ -126,6 +136,8 @@ public interface Form extends ApplicationEntity {
 	void addPrintout(FormPrintout printout);
 	
 	void removePrintout(FormPrintout printout);
+	
+	List<FormFunction> getFunctions();
 	
 	boolean hasRelationForms();
 	

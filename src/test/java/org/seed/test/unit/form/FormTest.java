@@ -46,6 +46,7 @@ import org.seed.core.form.FormAction;
 import org.seed.core.form.FormActionType;
 import org.seed.core.form.FormField;
 import org.seed.core.form.FormFieldExtra;
+import org.seed.core.form.FormFunction;
 import org.seed.core.form.FormLayout;
 import org.seed.core.form.FormMetadata;
 import org.seed.core.form.FormPrintout;
@@ -143,12 +144,25 @@ class FormTest {
 		assertFalse(form.hasTransformers());
 		
 		form.addTransformer(transformer);
-		
 		assertSame(form, transformer.getForm());
 		
 		assertTrue(form.hasTransformers());
 		assertSame(1, form.getTransformers().size());
 		assertSame(transformer, form.getTransformers().get(0));
+	}
+	
+	@Test
+	void testAddFunction() {
+		final Form form = new FormMetadata();
+		final FormFunction function = new FormFunction();
+		assertFalse(form.hasFunctions());
+		
+		form.addFunction(function);
+		assertSame(form, function.getForm());
+		
+		assertTrue(form.hasFunctions());
+		assertSame(1, form.getFunctions().size());
+		assertSame(function, form.getFunctions().get(0));
 	}
 	
 	@Test
@@ -337,6 +351,34 @@ class FormTest {
 		field.setUid("test");
 		
 		assertSame(field, form.getFieldByUid("test"));
+	}
+	
+	@Test
+	void testGetFunctionByUid() {
+		final Form form = new FormMetadata();
+		final FormFunction function = new FormFunction();
+		form.addFunction(function);
+		function.setUid("other");
+		
+		assertNull(form.getFunctionByUid("test"));
+		
+		function.setUid("test");
+		
+		assertSame(function, form.getFunctionByUid("test"));
+	}
+	
+	@Test
+	void testGetFunctionByName() {
+		final Form form = new FormMetadata();
+		final FormFunction function = new FormFunction();
+		form.addFunction(function);
+		function.setName("other");
+		
+		assertNull(form.getFunctionByName("test"));
+		
+		function.setName("test");
+		
+		assertSame(function, form.getFunctionByName("test"));
 	}
 	
 	@Test
@@ -661,6 +703,24 @@ class FormTest {
 	}
 	
 	@Test
+	void testIsEqualFunctions() {
+		final Form form1 = new FormMetadata();
+		final Form form2 = new FormMetadata();
+		final FormFunction function1 = new FormFunction();
+		final FormFunction function2 = new FormFunction();
+		function1.setUid("test");
+		function2.setUid("test");
+		form1.addFunction(function1);
+		assertFalse(form1.isEqual(form2));
+		
+		form2.addFunction(function2);
+		assertTrue(form1.isEqual(form2));
+		
+		function2.setUid("other");
+		assertFalse(form1.isEqual(form2));
+	}
+	
+	@Test
 	void testIsEqualActions() {
 		final Form form1 = new FormMetadata();
 		final Form form2 = new FormMetadata();
@@ -927,6 +987,19 @@ class FormTest {
 		
 		assertFalse(form.hasFieldExtras());
 		assertSame(0, form.getFieldExtras().size());
+	}
+	
+	@Test
+	void testRemoveFunction() {
+		final Form form = new FormMetadata();
+		final FormFunction function = new FormFunction();
+		form.addFunction(function);
+		assertSame(1, form.getFunctions().size());
+		
+		form.removeFunction(function);
+		
+		assertFalse(form.hasFunctions());
+		assertSame(0, form.getFunctions().size());
 	}
 	
 	@Test

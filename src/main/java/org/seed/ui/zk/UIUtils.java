@@ -23,8 +23,8 @@ import java.util.Map;
 import org.seed.C;
 import org.seed.Seed;
 import org.seed.core.util.Assert;
+import org.seed.core.util.BeanUtils;
 import org.seed.core.util.MiscUtils;
-import org.seed.core.util.ObjectAccess;
 
 import org.zkoss.bind.BindUtils;
 import org.zkoss.util.media.Media;
@@ -112,7 +112,7 @@ public abstract class UIUtils {
 	
 	public static String getTestClass(Object object, String suffix) {
 		if (object != null && suffix != null) {
-			final String name = ObjectAccess.callGetter(object, "internalName");
+			final String name = BeanUtils.callGetter(object, "internalName");
 			if (name != null) {
 				return name.replace('_', '-').toLowerCase().concat(suffix);
 			}
@@ -137,7 +137,7 @@ public abstract class UIUtils {
 	}
 	
 	public static void showWarnMessage(String titleKey, String[] messageKeys) {
-		final StringBuilder buf = new StringBuilder();
+		final var buf = new StringBuilder();
 		for (String messageKey : messageKeys) {
 			if (buf.length() > 0) {
 				buf.append("\n\n");

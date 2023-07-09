@@ -17,6 +17,8 @@
  */
 package org.seed.core.util;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,10 +31,13 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.core.type.filter.TypeFilter;
+import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StringUtils;
 
 public interface BeanUtils {
 	
 	static <T> T instantiate(Class<T> clas) {
+		Assert.notNull(clas, "class");
 		try {
 			return clas.getDeclaredConstructor().newInstance();
 		} 
@@ -45,7 +50,7 @@ public interface BeanUtils {
 		Assert.notNull(applicationContext, C.CONTEXT);
 		Assert.notNull(type, C.TYPE);
 		
-		return CollectionUtils.valueList(applicationContext.getBeansOfType(type));
+		return valueList(applicationContext.getBeansOfType(type));
 	}
 	
 	static <T> List<Class<? extends T>> getImplementingClasses(Class<T> typeClass) {
@@ -58,6 +63,40 @@ public interface BeanUtils {
 		Assert.notNull(annotationClass, "annotationClass");
 		
 		return findClasses(new AnnotationTypeFilter(annotationClass));
+	}
+	
+	static <T> T callIs(Object object, String propertyName) {
+		Assert.notNull(propertyName, "property name");
+		
+		return callMethod(object, "is" + StringUtils.capitalize(propertyName));
+	}
+	
+	static <T> T callGetter(Object object, String propertyName) {
+		Assert.notNull(propertyName, "property name");
+		
+		return callMethod(object, "get" + StringUtils.capitalize(propertyName));
+	}
+	
+	static void callSetter(Object object, String propertyName, Object ...parameters) {
+		Assert.notNull(propertyName, "property name");
+		
+		callMethod(object, "set" + StringUtils.capitalize(propertyName), parameters);
+	}
+	
+	@SuppressWarnings("unchecked")
+	static <T> T callMethod(Object object, String methodName, Object ...parameters) {
+		Assert.notNull(object, C.OBJECT);
+		Assert.notNull(methodName, "method name");
+		final var method = firstMatch(object.getClass().getMethods(), 
+									  methd -> methd.getName().equals(methodName));
+		if (method != null) {
+			return (T) ReflectionUtils.invokeMethod(method, object, parameters);
+		}
+		else {
+			throw new IllegalStateException("method not found: " + 
+											object.getClass().getName() + '.' + 
+											methodName);
+		}
 	}
 	
 	@SuppressWarnings("unchecked")

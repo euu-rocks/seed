@@ -22,6 +22,9 @@ import java.util.List;
 import org.hibernate.Session;
 
 import org.seed.C;
+import org.seed.core.codegen.CodeManager;
+import org.seed.core.codegen.CodeUtils;
+import org.seed.core.codegen.compile.CompilerException;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationErrors;
@@ -30,6 +33,7 @@ import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
+import org.seed.ui.zk.vm.codegen.ViewModelCodeProvider;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -39,6 +43,12 @@ public class FormValidator extends AbstractSystemEntityValidator<Form> {
 	
 	@Autowired
 	private FormRepository repository;
+	
+	@Autowired
+	private CodeManager codeManager;
+	
+	@Autowired
+	private ViewModelCodeProvider formCodeProvider;
 	
 	private List<FormDependent<? extends SystemEntity>> formDependents;
 	
@@ -80,12 +90,13 @@ public class FormValidator extends AbstractSystemEntityValidator<Form> {
 			errors.addOverlongName(getMaxNameLength());
 		}
 		if (form.hasFields()) {
-			for (FormField field : form.getFields()) {
-				validateField(field, errors);
-			}
+			form.getFields().forEach(field -> validateField(field, errors));
 		}
 		if (form.hasActions()) {
 			validateActions(form, errors);
+		}
+		if (form.hasFunctions()) {
+			validateFunctions(form, errors);
 		}
 		if (form.hasTransformers()) {
 			validateTransformers(form, errors);
@@ -156,6 +167,39 @@ public class FormValidator extends AbstractSystemEntityValidator<Form> {
 			if (action.getLabel() != null &&
 				action.getLabel().length() > getMaxStringLength()) {
 				errors.addOverlongObjectField(LABEL, "label.action", getMaxStringLength());
+			}
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void validateFunctions(Form form, ValidationErrors errors) {
+		for (FormFunction function : form.getFunctions()) {
+			// name
+			if (isEmpty(function.getName())) {
+				errors.addEmptyField("label.functionname");
+			}
+			else if (!isNameLengthAllowed(function.getName())) {
+				errors.addOverlongObjectName("label.function", getMaxNameLength());
+			}
+			else if (!isNameAllowed(function.getInternalName())) {
+				errors.addIllegalField("label.functionname", function.getName());
+			}
+			else if (!isNameUnique(function.getName(), form.getFunctions())) {
+				errors.addError("val.ambiguous.functionname", function.getName());
+			}
+			// content
+			if (isEmpty(function.getContent())) {
+				errors.addError("val.empty.functioncode", function.getName());
+			}
+			else {
+				final String className = CodeUtils.extractClassName(
+						CodeUtils.extractQualifiedName(function.getContent()));
+				if (!function.getGeneratedClass().equals(className)) {
+					errors.addError("val.illegal.functionclassname", function.getName(), function.getGeneratedClass());
+				}
+				else {
+					validateFunctionCode(function, errors);
+				}
 			}
 		}
 	}
@@ -245,6 +289,15 @@ public class FormValidator extends AbstractSystemEntityValidator<Form> {
 			formDependents = MiscUtils.castList(getBeans(FormDependent.class));
 		}
 		return formDependents;
+	}
+	
+	private void validateFunctionCode(FormFunction function, ValidationErrors errors) {
+		try {
+			codeManager.testCompile(formCodeProvider.getFormSource(function));
+		}
+		catch (CompilerException cex) {
+			errors.addError("val.illegal.functioncode", function.getName());
+		}
 	}
 	
 	private static final String LABEL = "label.label";

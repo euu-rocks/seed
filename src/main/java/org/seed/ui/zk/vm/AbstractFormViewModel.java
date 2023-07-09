@@ -47,6 +47,7 @@ import org.seed.core.form.SubForm;
 import org.seed.core.form.SubFormAction;
 import org.seed.core.form.printout.PrintoutService;
 import org.seed.core.util.Assert;
+import org.seed.core.util.BeanUtils;
 import org.seed.core.util.NameUtils;
 import org.seed.ui.FormParameter;
 import org.seed.ui.Tab;
@@ -288,15 +289,21 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 		callEntityFunction(component, object, action.getEntityFunction());
 	}
 	
+	protected void callFormFunction(Component component, String functionName, Object parameter) {
+		final var functionClass = formService.getFunctionClass(form, functionName);
+		final var functionInstance = BeanUtils.instantiate(functionClass);
+		BeanUtils.callMethod(functionInstance, "call", getViewModelAccess(), component, parameter);
+	}
+	
 	protected void transformObject() {
 		final ValueObject targetObject = valueObjectService.transform(transformer.getTransformer(), object, currentSession());
 		showDetailForm(transformer.getTargetForm(), targetObject);
 	}
 	
 	protected List<ValueObject> getReferenceValues(EntityField referenceField, Filter filter) {
-		final List<ValueObject> valueObjectList = filter != null 
-												? valueObjectService.find(currentSession(), referenceField.getReferenceEntity(), filter)
-												: valueObjectService.getAllObjects(currentSession(), referenceField.getReferenceEntity());
+		final var valueObjectList = filter != null 
+										? valueObjectService.find(currentSession(), referenceField.getReferenceEntity(), filter)
+										: valueObjectService.getAllObjects(currentSession(), referenceField.getReferenceEntity());
 		final FormFieldExtra fieldExtra = form.getFieldExtra(referenceField);
 		if (fieldExtra == null || !fieldExtra.isUnsortedValues()) {
 			valueObjectService.sortObjects(valueObjectList);
@@ -305,7 +312,8 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 	}
 	
 	protected boolean checkObjectExistence() {
-		if (object == null || (!object.isNew() && valueObjectService.getObject(currentSession(), form.getEntity(), object.getId()) == null)) {
+		if (object == null || 
+			(!object.isNew() && valueObjectService.getObject(currentSession(), form.getEntity(), object.getId()) == null)) {
 			showWarnMessage(getLabel("form.action.faildeleted"));
 			return false;
 		}
@@ -331,8 +339,8 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 	
 	@SuppressWarnings("serial")
 	protected ListModel<ValueObject> createReferenceListModel(EntityField referenceField, Filter filter) {
-		final QueryCursor<ValueObject> cursor = valueObjectService.createCursor(currentSession(), referenceField.getReferenceEntity(), 
-																				filter, ValueObjectRepository.DEFAULT_CHUNK_SIZE);
+		final var cursor = valueObjectService.createCursor(currentSession(), referenceField.getReferenceEntity(), filter, 
+														   ValueObjectRepository.DEFAULT_CHUNK_SIZE);
 		return new LoadOnDemandListModel<ValueObject>(cursor, true) {
 			
 			@Override
@@ -442,6 +450,22 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 		catch (Exception aex) {
 			showErrorMessage(aex.getMessage());
 		}
+	}
+	
+	private ViewModelContext getViewModelAccess() {
+		return new ViewModelContext(this) {
+
+			@Override
+			public EntityService getEntityService() {
+				return entityService;
+			}
+
+			@Override
+			public ValueObjectService getValueObjectService() {
+				return valueObjectService;
+			}
+			
+		};
 	}
 	
 	protected static void checkReferenceField(EntityField referenceField, String referenceFieldUid) {
