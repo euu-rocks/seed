@@ -23,18 +23,32 @@ import org.seed.core.form.navigation.Menu;
 
 public class FormOptions implements Options {
 	
-	private boolean autoLayout = true; 
+	private boolean autoLayout;
+	
+	private boolean expertMode;
 	
 	private Menu menu;
 	
 	private Module module;
 	
+	public FormOptions(boolean autoLayout) {
+		this.autoLayout = autoLayout;
+	}
+
 	public boolean isAutoLayout() {
 		return autoLayout;
 	}
 
 	public void setAutoLayout(boolean autoLayout) {
 		this.autoLayout = autoLayout;
+	}
+
+	public boolean isExpertMode() {
+		return expertMode;
+	}
+
+	public void setExpertMode(boolean expertMode) {
+		this.expertMode = expertMode;
 	}
 
 	public Menu getMenu() {

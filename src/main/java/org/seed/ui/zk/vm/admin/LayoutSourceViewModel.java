@@ -104,7 +104,8 @@ public class LayoutSourceViewModel extends AbstractApplicationViewModel {
 	public void applyLayout(@BindingParam(C.LAYOUT) String layout,
 							@BindingParam(C.ELEM) Component component) {
 		try {
-			formViewModel.setLayout(layoutService.parseLayout(layout));
+			layoutService.parseLayout(layout);
+			formViewModel.setLayoutContent(layout);
 			window.detach();
 		} 
 		catch (SAXException | IOException | ParserConfigurationException ex) {

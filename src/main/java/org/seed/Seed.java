@@ -38,6 +38,8 @@ import springfox.documentation.annotations.ApiIgnore;
 								  org.springframework.boot.autoconfigure.solr.SolrAutoConfiguration.class})
 public class Seed {
 	
+	public static final String BASE_APPLICATION_PACKAGE			 = "org.seed";
+	
 	public static final String PROP_DATASOURCE_URL               = "spring.datasource.url"; 
 	public static final String PROP_DATASOURCE_USERNAME          = "spring.datasource.username"; 
 	public static final String PROP_DATASOURCE_PASSWORD          = "spring.datasource.password"; 

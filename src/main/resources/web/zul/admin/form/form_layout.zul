@@ -23,13 +23,16 @@
 		<toolbar>
 			<toolbarbutton iconSclass="newlayout-button z-icon-newspaper-o alpha-icon-lg" 
 						   label="${labels.admin.form.newlayout}"
-						   onClick="@command('newLayout')"/>
+						   onClick="@command('newLayout')"
+						   visible="@load(!vm.object.expertMode)"/>
 			<toolbarbutton iconSclass="autolayout-button z-icon-newspaper-o alpha-icon-lg" 
 						   label="${labels.label.autolayout}"
-						   onClick="@command('newAutoLayout')"/>
+						   onClick="@command('newAutoLayout')"
+						   visible="@load(!vm.object.expertMode)"/>
 			<toolbarbutton iconSclass="editsource-button z-icon-code alpha-icon-lg" 
 						   label="${labels.label.editsourcecode}"
-						   onClick="@command('editLayoutSource')"/>
+						   onClick="@command('editLayoutSource')"
+						   visible="@load(vm.object.expertMode)"/>
 		</toolbar>
 	</north>
 	<center border="0"

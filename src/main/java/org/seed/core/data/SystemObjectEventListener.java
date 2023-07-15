@@ -22,6 +22,8 @@ import java.util.Date;
 import org.hibernate.event.spi.SaveOrUpdateEvent;
 import org.hibernate.event.spi.SaveOrUpdateEventListener;
 
+import org.seed.C;
+import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 
 @SuppressWarnings("serial")
@@ -29,7 +31,11 @@ public class SystemObjectEventListener implements SaveOrUpdateEventListener {
 
 	@Override
 	public void onSaveOrUpdate(SaveOrUpdateEvent event) {
-		final AbstractSystemObject object = (AbstractSystemObject) event.getEntity();
+		final var object = (AbstractSystemObject) 
+				(event.getEntity() != null
+					? event.getEntity()
+					: event.getObject());
+		Assert.stateAvailable(object, C.OBJECT);
 		
 		object.setOrderIndexes();
 		if (object.getCreatedOn() == null) {

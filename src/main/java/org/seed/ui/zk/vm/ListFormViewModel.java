@@ -234,7 +234,7 @@ public class ListFormViewModel extends AbstractFormViewModel {
 	@Command
 	public void callAction(@BindingParam(C.ACTION) FormAction action,
 						   @BindingParam(C.ELEM) Component component) {
-		if (!checkFormIntegrity()) {
+		if (!checkFormIntegrity() || action == null) {
 			return;
 		}
 		switch (action.getType()) {

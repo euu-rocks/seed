@@ -47,6 +47,7 @@ abstract class AbstractLayoutVisitor extends LayoutUtils
 
 	AbstractLayoutVisitor(Form form) {
 		Assert.notNull(form, C.FORM);
+		Assert.state(!form.isExpertMode(), "export mode layout cannot be visited");
 		
 		this.form = form;
 	}

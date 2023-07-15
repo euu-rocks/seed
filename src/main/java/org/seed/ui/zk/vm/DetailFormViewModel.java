@@ -336,7 +336,7 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 	@Command
 	public void callFunction(@BindingParam(C.ELEM) Component component,
 							 @BindingParam(C.FUNCTION) String functionName,
-							 @BindingParam(C.PARAMETER) Object parameter) {
+							 @BindingParam(C.PARAM) Object parameter) {
 		try {
 			callFormFunction(component, functionName, parameter);
 		}

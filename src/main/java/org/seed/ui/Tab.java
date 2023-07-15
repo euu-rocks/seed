@@ -17,8 +17,8 @@
  */
 package org.seed.ui;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.seed.C;
 import org.seed.core.util.Assert;
@@ -87,7 +87,7 @@ public final class Tab {
 		Assert.notNull(value, C.VALUE);
 		
 		if (properties == null) {
-			properties = new HashMap<>(8);
+			properties = new ConcurrentHashMap<>();
 		}
 		properties.put(name, value);
 	}

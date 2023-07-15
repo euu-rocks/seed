@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.Seed;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
@@ -36,10 +37,10 @@ import org.springframework.util.StringUtils;
 
 public interface BeanUtils {
 	
-	static <T> T instantiate(Class<T> clas) {
-		Assert.notNull(clas, "class");
+	static <T> T instantiate(Class<T> typeClass) {
+		Assert.notNull(typeClass, C.TYPECLASS);
 		try {
-			return clas.getDeclaredConstructor().newInstance();
+			return typeClass.getDeclaredConstructor().newInstance();
 		} 
 		catch (Exception ex) {
 			throw new InternalException(ex);
@@ -54,7 +55,7 @@ public interface BeanUtils {
 	}
 	
 	static <T> List<Class<? extends T>> getImplementingClasses(Class<T> typeClass) {
-		Assert.notNull(typeClass, "typeClass");
+		Assert.notNull(typeClass, C.TYPECLASS);
 		
 		return findClasses(new AssignableTypeFilter(typeClass));
 	}
@@ -66,19 +67,19 @@ public interface BeanUtils {
 	}
 	
 	static <T> T callIs(Object object, String propertyName) {
-		Assert.notNull(propertyName, "property name");
+		Assert.notNull(propertyName, C.PROPERTYNAME);
 		
 		return callMethod(object, "is" + StringUtils.capitalize(propertyName));
 	}
 	
 	static <T> T callGetter(Object object, String propertyName) {
-		Assert.notNull(propertyName, "property name");
+		Assert.notNull(propertyName, C.PROPERTYNAME);
 		
 		return callMethod(object, "get" + StringUtils.capitalize(propertyName));
 	}
 	
 	static void callSetter(Object object, String propertyName, Object ...parameters) {
-		Assert.notNull(propertyName, "property name");
+		Assert.notNull(propertyName, C.PROPERTYNAME);
 		
 		callMethod(object, "set" + StringUtils.capitalize(propertyName), parameters);
 	}
@@ -89,14 +90,8 @@ public interface BeanUtils {
 		Assert.notNull(methodName, "method name");
 		final var method = firstMatch(object.getClass().getMethods(), 
 									  methd -> methd.getName().equals(methodName));
-		if (method != null) {
-			return (T) ReflectionUtils.invokeMethod(method, object, parameters);
-		}
-		else {
-			throw new IllegalStateException("method not found: " + 
-											object.getClass().getName() + '.' + 
-											methodName);
-		}
+		Assert.stateAvailable(method, object.getClass().getName() + '.' + methodName);
+		return (T) ReflectionUtils.invokeMethod(method, object, parameters);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -105,7 +100,7 @@ public interface BeanUtils {
 		final var scanner = new ClassPathScanningCandidateComponentProvider(false);
 		scanner.addIncludeFilter(typeFilter);
 		try {
-			for (final var beanDef : scanner.findCandidateComponents("org.seed")) {
+			for (final var beanDef : scanner.findCandidateComponents(Seed.BASE_APPLICATION_PACKAGE)) {
 				listClasses.add((Class<? extends T>) Class.forName(beanDef.getBeanClassName()));
 			}
 		}

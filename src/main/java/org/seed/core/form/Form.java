@@ -43,6 +43,8 @@ public interface Form extends ApplicationEntity {
 	
 	boolean isAutoLayout();
 	
+	boolean isExpertMode();
+	
 	AutolayoutType getAutolayoutType();
 	
 	boolean hasFields();

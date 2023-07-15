@@ -69,10 +69,12 @@
 									 hflex="1"/>
 						</cell>
 						<cell style="padding: 4px 10px" align="right">
-							<label value="${labels.label.auto}"/>
+							<label value="${labels.label.auto}"
+								   visible="@load(!vm.object.expertMode)"/>
 						</cell>
 						<cell style="padding: 4px 4px">
-							<hlayout style="padding-top:4px">
+							<hlayout style="padding-top:4px"
+									 visible="@load(!vm.object.expertMode)">
 								<checkbox checked="@bind(vm.object.autoLayout)"
 									  	  onCheck="@command('flagDirty')"/> 
 								<space/>
@@ -99,13 +101,15 @@
 									 cols="40" readonly="true"/>
 						</cell>	
 						<cell style="padding: 4px 10px" align="right">
-							<label value="${labels.label.filter}:"/>
+							<label value="${labels.label.filter}:"
+								   visible="@load(!vm.object.expertMode)"/>
 						</cell>
 						<cell sclass="filter-fieldcell"
 							  style="padding: 4px 4px">
 							<combobox model="@load(vm.filters) @template(empty each.name ? 'empty' : 'filter')"
 									  selectedItem="@bind(vm.object.filter)"
 									  value="@load(vm.object.filter.name)"
+									  visible="@load(!vm.object.expertMode)"
 									  onSelect="@command('flagDirty')"
 									  hflex="1">
 								<template name="empty">
@@ -128,7 +132,8 @@
 					<tab id="tabActions" sclass="actions-tab"
 						 label="${labels.label.actions}"/>
 					<tab id="tabFunctions" sclass="functions-tab"
-						 label="${labels.label.functions}"/>
+						 label="${labels.label.functions}"
+						 visible="@load(vm.object.expertMode)"/>
 					<tab id="tabTransformers" sclass="transformers-tab"
 						 label="${labels.label.transformers}"
 						 visible="@load(vm.existTransformers())"/>

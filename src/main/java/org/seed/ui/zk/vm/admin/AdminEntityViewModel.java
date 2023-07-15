@@ -412,7 +412,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 	
 	@Override
 	public Entity createObject() {
-		return entityService.createInstance(new FormOptions());
+		return entityService.createInstance(new FormOptions(true));
 	}
 	
 	@Command

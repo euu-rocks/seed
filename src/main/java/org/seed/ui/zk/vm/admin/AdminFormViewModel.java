@@ -47,6 +47,7 @@ import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 import org.seed.core.util.UID;
 import org.seed.ui.ListFilter;
+import org.seed.ui.zk.UIUtils;
 import org.seed.ui.zk.vm.codegen.ViewModelCodeProvider;
 
 import org.zkoss.bind.annotation.BindingParam;
@@ -65,14 +66,16 @@ import org.zkoss.zul.Window;
 
 public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	
-	private static final String FIELDS         = "fields";
-	private static final String FUNCTIONS	   = "functions";
-	private static final String ACTIONS        = "actions";
-	private static final String TRANSFORMERS   = "transformers";
-	private static final String PRINTOUTS      = "printouts";
-	private static final String LAYOUT_INCLUDE = "layoutInclude";
-	private static final String CONTEXT_ID     = "contextid";
-	private static final String EDITFORM_UID   = "editFormUid";
+	private static final String FIELDS            = "fields";
+	private static final String FUNCTIONS	      = "functions";
+	private static final String ACTIONS           = "actions";
+	private static final String TRANSFORMERS      = "transformers";
+	private static final String PRINTOUTS         = "printouts";
+	private static final String LAYOUT_INCLUDE    = "layoutInclude";
+	private static final String CONTEXT_ID        = "contextid";
+	private static final String EDITFORM_UID      = "editFormUid";
+	private static final String OPTION_AUTOLAYOUT = "autolayout";
+	private static final String OPTION_EXPERTMODE = "expertmode";
 	
 	@Wire("#newFormWin")
 	private Window window;
@@ -122,8 +125,11 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	@Override
 	protected void initObject(Form form) {
 		super.initObject(form);
+		if (form.isExpertMode()) {
+			return;
+		}
+		// init layout
 		final LayoutElement editLayout = layoutService.getEditLayout(getEditFormUid());
-		
 		if (form.getLayout() != null) {
 			if (editLayout != null) {
 				this.layoutRoot = editLayout;
@@ -228,7 +234,9 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	public String getLayoutInclude() {
-		return "/generated/edit/" + getEditFormUid() + '/' + System.currentTimeMillis();
+		return getObject().isExpertMode()
+				? UIUtils.getZulPath("/admin/form/layout_expertmode.zul")
+				: "/generated/edit/" + getEditFormUid() + '/' + System.currentTimeMillis();
 	}
 	
 	public boolean existTransformers() {
@@ -349,7 +357,12 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	String getLayoutContent() {
-		if (layoutRoot != null) {
+		if (getObject().isExpertMode()) {
+			return getObject().getLayout() != null
+					? getObject().getLayout().getContent()
+					: null;
+		}
+		else if (layoutRoot != null) {
 			layoutService.undecorateLayout(getObject(), layoutRoot);
 			final String layoutContent = layoutService.buildLayout(layoutRoot);
 			layoutService.decorateLayout(getObject(), layoutRoot);
@@ -392,7 +405,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	
 	@Override
 	public Form createObject() {
-		return formService.createInstance(new FormOptions());
+		return formService.createInstance(new FormOptions(false));
 	}
 	
 	// create dialog ---------------------------------------------------------
@@ -731,6 +744,23 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	}
 	
 	@Command
+	public void selectOption(@BindingParam("option") String option) {
+		switch (option) {
+			case OPTION_AUTOLAYOUT:
+				getOptions().setExpertMode(false);
+				break;
+				
+			case OPTION_EXPERTMODE:
+				getOptions().setAutoLayout(false);
+				break;
+				
+			default:
+				throw new UnsupportedOperationException(option);
+		}
+		notifyObjectChange(C.OPTIONS);
+	}
+	
+	@Command
 	public void swapPrintouts(@BindingParam(C.BASE) FormPrintout base, 
 						      @BindingParam(C.ITEM) FormPrintout item) {
 		swapItems(PRINTOUTS, base, item);
@@ -760,8 +790,17 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 		flagDirty();
 	}
 	
+	void setLayoutContent(String content) {
+		((FormMetadata) getObject()).setLayoutContent(content);
+		flagDirty();
+	}
+	
 	void refreshLayout() {
 		notifyChange(LAYOUT_INCLUDE);
+	}
+	
+	private FormOptions getOptions() {
+		return (FormOptions) getObject().getOptions();
 	}
 	
 	private String getEditFormUid() {

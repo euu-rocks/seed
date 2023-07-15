@@ -125,6 +125,23 @@
                        }
                      ]
                   }
+               },
+               {
+                  "addColumn":  {
+                     "columns":[
+                        {
+                           "column": {
+                              "name": "expertmode",
+                              "type": "BOOLEAN",
+                              "defaultValueBoolean": "false",
+                              "constraints": {
+                                  "nullable": "false"
+                              }
+                           }
+                        }
+                     ],
+                     "tableName": "sys_form"
+                  } 
                }
             ]
         }

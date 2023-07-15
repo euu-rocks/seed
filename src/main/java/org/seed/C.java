@@ -74,8 +74,9 @@ public final class C {
 	public static final String PATH             = "path";
 	public static final String PERMISSION       = "permission";
 	public static final String PRINTOUT         = "printout";
-	public static final String PROPERTY         = "property";
 	public static final String PROPERTIES       = "properties";
+	public static final String PROPERTY         = "property";
+	public static final String PROPERTYNAME     = "propertyName";
 	public static final String QUALIFIEDNAME    = "qualifiedName";
 	public static final String RELATION         = "relation";
 	public static final String REPORT           = "report";

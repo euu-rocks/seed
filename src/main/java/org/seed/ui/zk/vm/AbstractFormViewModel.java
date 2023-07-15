@@ -50,6 +50,7 @@ import org.seed.core.util.Assert;
 import org.seed.core.util.BeanUtils;
 import org.seed.core.util.NameUtils;
 import org.seed.ui.FormParameter;
+import org.seed.ui.ViewModelProperty;
 import org.seed.ui.Tab;
 import org.seed.ui.zk.LoadOnDemandListModel;
 
@@ -213,6 +214,10 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 		return label;
 	}
 	
+	public ViewModelProperty getProperty(String name) {
+		return new ViewModelProperty(tab, name);
+	}
+	
 	public List<ValueObject> asList(ValueObject object) {
 		return Collections.singletonList(object);
 	}
@@ -292,7 +297,7 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 	protected void callFormFunction(Component component, String functionName, Object parameter) {
 		final var functionClass = formService.getFunctionClass(form, functionName);
 		final var functionInstance = BeanUtils.instantiate(functionClass);
-		BeanUtils.callMethod(functionInstance, "call", getViewModelAccess(), component, parameter);
+		BeanUtils.callMethod(functionInstance, "call", getViewModelContext(), component, parameter);
 	}
 	
 	protected void transformObject() {
@@ -452,20 +457,8 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 		}
 	}
 	
-	private ViewModelContext getViewModelAccess() {
-		return new ViewModelContext(this) {
-
-			@Override
-			public EntityService getEntityService() {
-				return entityService;
-			}
-
-			@Override
-			public ValueObjectService getValueObjectService() {
-				return valueObjectService;
-			}
-			
-		};
+	private ViewModelContext getViewModelContext() {
+		return new ViewModelContext(this);
 	}
 	
 	protected static void checkReferenceField(EntityField referenceField, String referenceFieldUid) {

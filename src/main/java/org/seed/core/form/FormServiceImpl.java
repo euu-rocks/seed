@@ -38,7 +38,6 @@ import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.codegen.CodeUtils;
-import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.data.AbstractSystemObject;
 import org.seed.core.data.SystemField;
 import org.seed.core.data.ValidationException;
@@ -113,6 +112,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		final FormOptions formOptions = form.getOptions();
 		if (formOptions != null) {
 			formMeta.setModule(formOptions.getModule());
+			formMeta.setExpertMode(formOptions.isExpertMode());
 			if (formOptions.isAutoLayout()) {
 				formMeta.setAutoLayout(true);
 				formMeta.setLayoutContent(getLayoutService().buildAutoLayout(form.getEntity(), form));
@@ -204,6 +204,11 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		Assert.notNull(session, C.SESSION);
 		
 		return formRepository.find(session, queryParam(C.ENTITY, entity));
+	}
+	
+	private List<Form> findNonExpertForms(Entity entity, Session session) {
+		return formRepository.find(session, queryParam(C.ENTITY, entity),
+											queryParam("expertMode", false));
 	}
 	
 	@Override
@@ -335,7 +340,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	@Override
-	public Class<GeneratedCode> getFunctionClass(Form form, String functionName) {
+	public Class<?> getFunctionClass(Form form, String functionName) {
 		Assert.notNull(form, C.FORM);
 		Assert.notNull(functionName, "function name");
 		
@@ -404,8 +409,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 			for (Form form : context.getModule().getForms()) {
 				initFormReferences(form, session);
 				initSubFormReferences(form, session);
-				// validate and save
-				saveObject(form, session);
+				formRepository.save(form, session);
 			}
 		}
 	}
@@ -587,7 +591,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		Assert.notNull(session, C.SESSION);
 		
 		if (!entity.isGeneric()) {
-			for (Form form : findForms(entity, session)) {
+			for (Form form : findNonExpertForms(entity, session)) {
 				// remove field if entity field no longer exist
 				form.getFields().removeIf(field -> field.getEntityField() != null && 
 												   !entity.containsAllField(field.getEntityField()));
@@ -595,7 +599,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 			}
 			// update parent entity forms (entity is used as nested entity)
 			for (Entity parentEntity : entityService.findParentEntities(entity, session)) {
-				findForms(parentEntity, session).forEach(parentForm -> updateFormLayout(parentForm, parentEntity, session));
+				findNonExpertForms(parentEntity, session).forEach(parentForm -> updateFormLayout(parentForm, parentEntity, session));
 			}
 		}
 	}
@@ -695,15 +699,22 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 			((FormMetadata) form).setFilter(filterService.findByUid(session, form.getFilterUid()));
 		}
 		if (form.getLayout() != null) {
-			final FormLayout currentVersionLayout =
-				currentVersionForm != null ? currentVersionForm.getLayout() : null;
-			if (currentVersionLayout != null) {
-				currentVersionLayout.copySystemFieldsTo(form.getLayout());
-				session.detach(currentVersionLayout);
-			}
-			getLayoutService().rebuildLayout(form);
-			session.saveOrUpdate(form.getLayout());
+			initFormLayout(form, currentVersionForm, session);
 		}
+	}
+	
+	private void initFormLayout(Form form, Form currentVersionForm, Session session) {
+		final var currentVersionLayout = currentVersionForm != null 
+											? currentVersionForm.getLayout() 
+											: null;
+		if (currentVersionLayout != null) {
+			currentVersionLayout.copySystemFieldsTo(form.getLayout());
+			session.detach(currentVersionLayout);
+		}
+		if (!form.isExpertMode()) {
+			getLayoutService().rebuildLayout(form);
+		}
+		session.saveOrUpdate(form.getLayout());
 	}
 	
 	private void initFormReferences(Form form, Session session) {

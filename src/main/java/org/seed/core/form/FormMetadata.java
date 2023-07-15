@@ -131,6 +131,8 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	
 	private boolean autoLayout;
 	
+	private boolean expertMode;
+	
 	private AutolayoutType autolayoutType;
 	
 	@Transient
@@ -184,6 +186,16 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 		this.autoLayout = autoLayout;
 	}
 	
+	@Override
+	@XmlAttribute
+	public boolean isExpertMode() {
+		return expertMode;
+	}
+
+	public void setExpertMode(boolean expertMode) {
+		this.expertMode = expertMode;
+	}
+
 	@Override
 	@XmlAttribute
 	public AutolayoutType getAutolayoutType() {
@@ -771,6 +783,7 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 		if (!new EqualsBuilder()
 			.append(getName(), otherForm.getName())
 			.append(getFilterUid(), otherForm.getFilterUid())
+			.append(expertMode, otherForm.isExpertMode())
 			.append(autoLayout, otherForm.isAutoLayout())
 			.append(autolayoutType, otherForm.getAutolayoutType())
 			.isEquals()) {
