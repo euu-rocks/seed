@@ -41,6 +41,8 @@
 			<listhead sizable="true">
 				<listheader label="${labels.label.name}"
 							sort="auto(name)" hflex="max"/>
+				<listheader hflex="min" label="${labels.label.initial}"
+	            			sort="auto(initial)"/>
 	        </listhead> 
 	        <template name="model" var="function">
 	            <listitem sclass="@init(vm.getListItemTestClass(function))" 
@@ -49,6 +51,9 @@
 	            	<listcell>
 	            		<label value="@load(function.name)" 
 	            			   style="margin-left:3px"/>
+	            	</listcell>
+	            	<listcell style="text-align:center">
+	            		<checkbox checked="@load(function.initial)" disabled="true"/>
 	            	</listcell>
 	            </listitem>
 		    </template> 
@@ -71,6 +76,14 @@
             		onClick="@command('editFunctionSource')"
             		disabled="@load(empty vm.function.name)"
             		style="margin-top:8px;margin-bottom:8px"/>
+            <vlayout>
+            	<label value="${labels.label.options}:"/>	 
+	       		<hlayout>
+	        		<checkbox checked="@bind(vm.function.initial)"
+	        				  onCheck="@command('flagDirty')"/>
+	        		<label value="${labels.label.initialfunction}"/>
+	       		</hlayout>
+	       	</vlayout>
         </vlayout>
     </east>
 </borderlayout>

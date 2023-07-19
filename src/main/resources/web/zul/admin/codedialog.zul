@@ -36,9 +36,9 @@
 							   label="${labels.button.reset}" 
 							   onClick="@command('reset')"/>
 				</toolbar>
-				<toolbar visible="@init(vm.isAPIJavadocAvailable() and !vm.isFormFunction())"
-						 align="end" hflex="min"
-						 overflowPopup="false">
+				<toolbar align="end" hflex="min"
+						 overflowPopup="false"
+						 visible="@init(vm.isAPIJavadocAvailable() and vm.isAPIJavadocEnabled())">
 					<toolbarbutton iconSclass="z-icon-share alpha-icon-lg" 
 								   label="${labels.admin.entity.showjavadoc}" 
 								   onClick="@command('showAPIJavadoc')"/>			 

@@ -15,12 +15,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.ui.zk.vm;
+package org.seed.core.api;
+
+import org.seed.ui.zk.vm.AbstractFormViewModel;
 
 import org.zkoss.zk.ui.Component;
 
-public interface CustomFormFunction {
+public interface FormFunctionContext extends CallbackFunctionContext {
 	
-	void call(ViewModelContext context, Component component, Object parameter);
+	AbstractFormViewModel getViewModel();
 	
+	Component getComponent();
+	
+	<T> T getParameter();
+	
+	<T> T getFormProperty(String name);
+	
+	void setFormProperty(String name, Object value);
+
 }

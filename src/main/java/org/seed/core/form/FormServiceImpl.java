@@ -441,6 +441,9 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 				handleException(tx, ex);
 			}
 		}
+		if (form.hasFunctions()) {
+			form.getFunctions().forEach(this::removeFormFunctionClass);
+		}
 	}
 	
 	@Override
@@ -466,10 +469,24 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		
 		cleanupForm(form);
 		final boolean isInsert = form.isNew();
+		final Form currentVersionForm = !isInsert ? getObject(form.getId()) : null;
+		final boolean renamed = !isInsert && !currentVersionForm.getInternalName().equals(form.getInternalName());
+		
 		try (Session session = formRepository.openSession()) {
 			Transaction tx = null;
 			try {
 				tx = session.beginTransaction();
+				if (renamed && form.hasFunctions()) {
+					renamePackages(form, currentVersionForm);
+				}
+				if (!isInsert && notEmpty(currentVersionForm.getFunctions())) {
+					for (FormFunction currentFunction : currentVersionForm.getFunctions()) {
+						final FormFunction function = form.getFunctionByUid(currentFunction.getUid());
+						if (function == null || !function.getName().equals(currentFunction.getName())) {
+							removeFormFunctionClass(currentFunction);
+						}
+					}
+				}
 				saveObject(form, session);
 				tx.commit();
 			}
@@ -903,6 +920,17 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 				currentVersionField.copySystemFieldsTo(subFormField);
 			}
 		}
+	}
+	
+	private void renamePackages(Form form, Form currentVersionForm) {
+		currentVersionForm.getFunctions().forEach(this::removeFormFunctionClass);
+		filterAndForEach(form.getFunctions(), 
+				function -> function.getContent() != null, 
+				function -> function.setContent(CodeUtils.renamePackage(function.getContent(), function.getGeneratedPackage())));
+	}
+	
+	private void removeFormFunctionClass(FormFunction function) {
+		codeManager.removeClass(CodeUtils.getQualifiedName(function));
 	}
 	
 	private void cleanupForm(Form form) {

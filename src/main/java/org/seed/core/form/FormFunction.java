@@ -21,6 +21,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -44,6 +45,8 @@ public class FormFunction extends AbstractContentObject
     @JoinColumn(name = "form_id")
 	private FormMetadata form;
 	
+	private boolean isInitial;
+	
 	@XmlTransient
 	public Form getForm() {
 		return form;
@@ -51,6 +54,15 @@ public class FormFunction extends AbstractContentObject
 
 	public void setForm(Form form) {
 		this.form = (FormMetadata) form;
+	}
+	
+	@XmlAttribute
+	public boolean isInitial() {
+		return isInitial;
+	}
+
+	public void setInitial(boolean isInitial) {
+		this.isInitial = isInitial;
 	}
 
 	@Override
@@ -75,6 +87,7 @@ public class FormFunction extends AbstractContentObject
 		return new EqualsBuilder()
 				.append(getName(), otherFunction.getName())
 				.append(getContent(), otherFunction.getContent())
+				.append(isInitial, otherFunction.isInitial())
 				.isEquals();
 	}
 

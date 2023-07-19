@@ -38,6 +38,7 @@ import org.seed.core.form.Form;
 import org.seed.core.form.FormAction;
 import org.seed.core.form.FormActionType;
 import org.seed.core.form.FormFieldExtra;
+import org.seed.core.form.FormFunction;
 import org.seed.core.form.FormMetadata;
 import org.seed.core.form.FormPrintout;
 import org.seed.core.form.FormService;
@@ -62,7 +63,7 @@ import org.zkoss.zul.Filedownload;
 import org.zkoss.zul.ListModel;
 import org.zkoss.zul.Listbox;
 
-abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
+public abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 	
 	protected static final String FIELD_UID           = "fieldUid";
 	protected static final String REFERENCE_FIELD_UID = "referenceFieldUid";
@@ -294,10 +295,15 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 		callEntityFunction(component, object, action.getEntityFunction());
 	}
 	
+	protected void callFormFunction(FormFunction function) {
+		callFormFunction(null, function.getInternalName(), null);
+	}
+	
 	protected void callFormFunction(Component component, String functionName, Object parameter) {
 		final var functionClass = formService.getFunctionClass(form, functionName);
-		final var functionInstance = BeanUtils.instantiate(functionClass);
-		BeanUtils.callMethod(functionInstance, "call", getViewModelContext(), component, parameter);
+		final var functionInstance = (org.seed.core.api.FormFunction) BeanUtils.instantiate(functionClass);
+		final var context = new DefaultFormFunctionContext(this, component, parameter, currentSession());
+		functionInstance.call(context);
 	}
 	
 	protected void transformObject() {
@@ -455,10 +461,6 @@ abstract class AbstractFormViewModel extends AbstractApplicationViewModel {
 		catch (Exception aex) {
 			showErrorMessage(aex.getMessage());
 		}
-	}
-	
-	private ViewModelContext getViewModelContext() {
-		return new ViewModelContext(this);
 	}
 	
 	protected static void checkReferenceField(EntityField referenceField, String referenceFieldUid) {

@@ -26,7 +26,6 @@ import org.seed.core.codegen.CodeUtils;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.codegen.compile.CompilerException;
 import org.seed.core.entity.EntityFunction;
-import org.seed.core.form.FormFunction;
 import org.seed.core.util.Assert;
 import org.seed.ui.zk.vm.AbstractApplicationViewModel;
 
@@ -71,8 +70,11 @@ public class CodeDialogViewModel extends AbstractApplicationViewModel {
 		return contentObject.getContent();
 	}
 	
-	public boolean isFormFunction() {
-		return contentObject instanceof FormFunction;
+	public boolean isAPIJavadocEnabled() {
+		if (contentObject instanceof EntityFunction) {
+			return ((EntityFunction) contentObject).isCallback();
+		}
+		return true;
 	}
 
 	@Init

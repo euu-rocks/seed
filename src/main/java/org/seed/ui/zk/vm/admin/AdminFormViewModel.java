@@ -38,6 +38,7 @@ import org.seed.core.form.FormOptions;
 import org.seed.core.form.FormPrintout;
 import org.seed.core.form.FormService;
 import org.seed.core.form.FormTransformer;
+import org.seed.core.form.codegen.FormFunctionCodeProvider;
 import org.seed.core.form.layout.LayoutElement;
 import org.seed.core.form.layout.LayoutService;
 import org.seed.core.form.navigation.Menu;
@@ -48,8 +49,6 @@ import org.seed.core.util.MiscUtils;
 import org.seed.core.util.UID;
 import org.seed.ui.ListFilter;
 import org.seed.ui.zk.UIUtils;
-import org.seed.ui.zk.vm.codegen.ViewModelCodeProvider;
-
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.ContextParam;
@@ -92,8 +91,8 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	@WireVariable(value="menuServiceImpl")
 	private MenuService menuService;
 	
-	@WireVariable(value="viewModelCodeProvider")
-	private ViewModelCodeProvider codeProvider;
+	@WireVariable(value="formFunctionCodeProvider")
+	private FormFunctionCodeProvider codeProvider;
 	
 	private FormField field;
 	

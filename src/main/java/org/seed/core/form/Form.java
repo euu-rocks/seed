@@ -141,6 +141,8 @@ public interface Form extends ApplicationEntity {
 	
 	List<FormFunction> getFunctions();
 	
+	List<FormFunction> getInitialFunctions();
+	
 	boolean hasRelationForms();
 	
 	List<SubForm> getSubForms();

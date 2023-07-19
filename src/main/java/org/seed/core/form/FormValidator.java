@@ -31,10 +31,9 @@ import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.NestedEntity;
+import org.seed.core.form.codegen.FormFunctionCodeProvider;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
-import org.seed.ui.zk.vm.codegen.ViewModelCodeProvider;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -48,7 +47,7 @@ public class FormValidator extends AbstractSystemEntityValidator<Form> {
 	private CodeManager codeManager;
 	
 	@Autowired
-	private ViewModelCodeProvider formCodeProvider;
+	private FormFunctionCodeProvider formCodeProvider;
 	
 	private List<FormDependent<? extends SystemEntity>> formDependents;
 	

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.ui.zk.vm.codegen;
+package org.seed.core.form.codegen;
 
 import static org.seed.core.util.CollectionUtils.convertedList;
 
@@ -36,25 +36,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ViewModelCodeProvider implements SourceCodeProvider {
+public class FormFunctionCodeProvider implements SourceCodeProvider {
 	
 	@Autowired
 	private FormRepository repository;
 	
 	
 	public String getFunctionTemplate(FormFunction function) {
-		return new ViewModelCodeBuilder(function).build(BuildMode.TEMPLATE).getContent();
+		return new FormFunctionCodeBuilder(function).build(BuildMode.TEMPLATE).getContent();
 	}
 	
 	public SourceCode getFormSource(FormFunction function) {
-		return new ViewModelCodeBuilder(function).build();
+		return new FormFunctionCodeBuilder(function).build();
 	}
 	
 	@Override
 	public List<SourceCodeBuilder> getSourceCodeBuilders(Session session) {
-		final List<SourceCodeBuilder> result = new ArrayList<>();
+		final var result = new ArrayList<SourceCodeBuilder>();
 		for (Form form : repository.find(session)) {
-			result.addAll(convertedList(form.getFunctions(), ViewModelCodeBuilder::new));
+			result.addAll(convertedList(form.getFunctions(), FormFunctionCodeBuilder::new));
 		}
 		return result;
 	}

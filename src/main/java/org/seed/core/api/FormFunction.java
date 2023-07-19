@@ -15,39 +15,10 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.ui.zk.vm;
+package org.seed.core.api;
 
-import org.seed.C;
-import org.seed.core.util.Assert;
-import org.seed.ui.ViewModelProperty;
-
-public class ViewModelContext {
+public interface FormFunction {
 	
-	private final AbstractFormViewModel vm;
-	
-	ViewModelContext(AbstractFormViewModel vm) {
-		this.vm = vm;
-	}
-	
-	public AbstractFormViewModel getViewModel() {
-		return vm;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public <T> T getProperty(String name) {
-		Assert.notNull(name, C.NAME);
-		
-		return (T) property(name).getValue();
-	}
-	
-	public void setProperty(String name, Object value) {
-		Assert.notNull(name, C.NAME);
-		
-		property(name).setValue(value);
-	}
-	
-	private ViewModelProperty property(String name) {
-		return new ViewModelProperty(vm.getTab(), name);
-	}
+	void call(FormFunctionContext context);
 	
 }

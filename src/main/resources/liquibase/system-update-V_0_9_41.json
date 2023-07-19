@@ -65,6 +65,16 @@
                               "type":  "INT"
                            } 
                        },
+                       {
+                           "column": {
+                              "name": "isinitial",
+                              "type": "BOOLEAN",
+                              "defaultValueBoolean": "false",
+                              "constraints": {
+                                  "nullable": "false"
+                              }
+                           }
+                       },
 	                   {
 	                       "column": {
 	                          "name": "form_id",

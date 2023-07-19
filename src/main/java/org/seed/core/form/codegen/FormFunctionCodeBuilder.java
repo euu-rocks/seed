@@ -15,11 +15,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.ui.zk.vm.codegen;
+package org.seed.core.form.codegen;
 
 import java.util.Date;
 
 import org.seed.C;
+import org.seed.core.api.FormFunctionContext;
 import org.seed.core.codegen.AbstractSourceCodeBuilder;
 import org.seed.core.codegen.CodeManagerImpl;
 import org.seed.core.codegen.ParameterMetadata;
@@ -27,16 +28,12 @@ import org.seed.core.codegen.SourceCode;
 import org.seed.core.codegen.TypeClass;
 import org.seed.core.form.FormFunction;
 import org.seed.core.util.Assert;
-import org.seed.ui.zk.vm.CustomFormFunction;
-import org.seed.ui.zk.vm.ViewModelContext;
 
-import org.zkoss.zk.ui.Component;
-
-class ViewModelCodeBuilder extends AbstractSourceCodeBuilder {
+class FormFunctionCodeBuilder extends AbstractSourceCodeBuilder {
 	
 	private final FormFunction function;
 	
-	ViewModelCodeBuilder(FormFunction function) {
+	FormFunctionCodeBuilder(FormFunction function) {
 		super(function, 
 			  false, 
 			  null, 
@@ -58,10 +55,8 @@ class ViewModelCodeBuilder extends AbstractSourceCodeBuilder {
 				addImportPackage(CodeManagerImpl.GENERATED_ENTITY_PACKAGE);
 				addMethod(null, "call", 
 						  new ParameterMetadata[] {
-							newParameter(C.CONTEXT, newTypeClass(ViewModelContext.class)),
-							newParameter(C.COMPONENT, newTypeClass(Component.class)),
-							newParameter(C.PARAMETER, newTypeClass(Object.class))
-						  }, 
+								newParameter(C.CONTEXT, newTypeClass(FormFunctionContext.class))
+						  },
 						  CODE_PLACEHOLDER,
 						  newAnnotation(Override.class));
 				return super.build(false);
@@ -76,7 +71,7 @@ class ViewModelCodeBuilder extends AbstractSourceCodeBuilder {
 
 
 	private static TypeClass[] getInterfaceTypes() {
-		return new TypeClass[] { newTypeClass(CustomFormFunction.class) };
+		return new TypeClass[] { newTypeClass(org.seed.core.api.FormFunction.class) };
 	}
 	
 }

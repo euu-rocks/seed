@@ -211,6 +211,10 @@ public class DetailFormViewModel extends AbstractFormViewModel {
 		}
 		initObject();
 		resetRelationForms();
+		
+		if (getForm().isExpertMode()) {
+			getForm().getInitialFunctions().forEach(super::callFormFunction);
+		}
 	}
 	
 	@Command

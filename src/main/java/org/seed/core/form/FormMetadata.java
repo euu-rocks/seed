@@ -343,6 +343,11 @@ public class FormMetadata extends AbstractApplicationEntity implements Form {
 	}
 	
 	@Override
+	public List<FormFunction> getInitialFunctions() {
+		return subList(getFunctions(), FormFunction::isInitial);
+	}
+	
+	@Override
 	public void addFunction(FormFunction function) {
 		Assert.notNull(function, C.FUNCTION);
 		
