@@ -26,6 +26,7 @@ org.seed.core.entity.transform.codegen
 org.seed.core.entity.value
 org.seed.core.entity.value.event
 org.seed.core.form
+org.seed.core.form.codegen
 org.seed.core.form.layout
 org.seed.core.form.layout.visit
 org.seed.core.form.navigation
@@ -47,4 +48,3 @@ org.seed.ui.zk.component
 org.seed.ui.zk.convert
 org.seed.ui.zk.vm
 org.seed.ui.zk.vm.admin
-org.seed.ui.zk.vm.codegen
