@@ -45,6 +45,7 @@ jobs:
     - name: Execute tntegration tests suite with Maven
       run: mvn -B --fail-at-end integration-test
       env:
+        MOZ_HEADLESS: 1
         DELAY_BEFORE_CLICK_MENU: 1000
         DELAY_AFTER_LOGIN: 1000
         DELAY_AFTER_CLICK_MENU: 1000
