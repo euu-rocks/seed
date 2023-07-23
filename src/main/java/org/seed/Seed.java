@@ -18,7 +18,7 @@
 package org.seed;
 
 import org.seed.config.ZKCEApplication;
-
+import org.seed.core.application.ApplicationContextProvider;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
@@ -62,12 +62,10 @@ public class Seed {
 	
 	public static final String PROP_MODULE_EXT_ROOT_DIR          = "module.external.rootdir";
 	
-	private static ApplicationContext applicationContext;
-	
 	private static LabelProvider labelProvider;
 	
 	public static void main(String[] args) {
-		applicationContext = SpringApplication.run(Seed.class, args);
+		SpringApplication.run(Seed.class, args);
 	}
 	
 	@GetMapping("/seed")
@@ -91,6 +89,8 @@ public class Seed {
  	}
 	
 	public static <T> T getBean(Class<T> typeClass) {
+		ApplicationContext applicationContext = ApplicationContextProvider.getApplicationContext();
+		
 		if (typeClass == null) {
 			throw new IllegalArgumentException("type class is null");
 		}

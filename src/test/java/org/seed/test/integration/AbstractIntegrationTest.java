@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.time.Duration;
 import java.util.Arrays;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -40,14 +41,29 @@ public abstract class AbstractIntegrationTest {
 	
 	private static final String TEST_BROWSER = "firefox";
 	
-	private static final long DELAY_AFTER_CLICK_MENU	 = 300;
-	private static final long DELAY_AFTER_DRAG_AND_DROP  = 100;
-	private static final long DELAY_AFTER_CLEAR_FIELD	 = 100;
-	private static final long DELAY_AFTER_CLICK_LISTITEM = 100;
+	private static final long DELAY_BEFORE_CLICK_MENU;
+	private static final long DELAY_AFTER_LOGIN;
+	private static final long DELAY_AFTER_CLICK_MENU;
+	private static final long DELAY_AFTER_DRAG_AND_DROP;
+	private static final long DELAY_AFTER_CLEAR_FIELD;
+	private static final long DELAY_AFTER_CLICK_LISTITEM;
 	
-	private static final long MAX_WAIT_ELEMENT			 = 1000;
-	private static final long MAX_WAIT_SUCCESS			 = 3000;
-	private static final long MAX_WAIT_DISAPPEAR		 = 3000;
+	private static final long MAX_WAIT_ELEMENT;
+	private static final long MAX_WAIT_SUCCESS;
+	private static final long MAX_WAIT_DISAPPEAR;
+	
+	static{
+		DELAY_BEFORE_CLICK_MENU	   = getEnvOrDefaultValue("DELAY_BEFORE_CLICK_MENU", 0);
+		DELAY_AFTER_LOGIN          = getEnvOrDefaultValue("DELAY_AFTER_CLICK_MENU", 300);
+		DELAY_AFTER_CLICK_MENU     = getEnvOrDefaultValue("DELAY_AFTER_CLICK_MENU", 300);
+		DELAY_AFTER_DRAG_AND_DROP  = getEnvOrDefaultValue("DELAY_AFTER_DRAG_AND_DROP", 100);
+		DELAY_AFTER_CLEAR_FIELD    = getEnvOrDefaultValue("DELAY_AFTER_CLEAR_FIELD", 100);
+		DELAY_AFTER_CLICK_LISTITEM = getEnvOrDefaultValue("DELAY_AFTER_CLICK_LISTITEM", 100);
+		
+		MAX_WAIT_ELEMENT		   = getEnvOrDefaultValue("MAX_WAIT_ELEMENT", 1000);
+		MAX_WAIT_SUCCESS           = getEnvOrDefaultValue("MAX_WAIT_SUCCESS", 3000);
+		MAX_WAIT_DISAPPEAR         = getEnvOrDefaultValue("MAX_WAIT_DISAPPEAR", 3000);
+	}
 	
 	private static final String SEED_URL  = "http://localhost:8080"; //NOSONAR
 	private static final String SEED_NAME = "Seed";
@@ -60,6 +76,15 @@ public abstract class AbstractIntegrationTest {
 	
 	protected AbstractIntegrationTest() {}
 	
+	private static long getEnvOrDefaultValue(String envVarName, int defaultValue) {
+		String envVarValue = System.getenv(envVarName);
+		if (StringUtils.isNotEmpty(envVarValue) && StringUtils.isNumeric(envVarValue)) {
+			return Integer.valueOf(envVarValue);
+		} else {
+			return defaultValue;
+		}
+	}
+
 	@BeforeAll
 	static void init() {
 		driverManager = WebDriverManager.getInstance(TEST_BROWSER);
@@ -155,6 +180,7 @@ public abstract class AbstractIntegrationTest {
 	}
 	
 	protected void clickMenu(String className) {
+		pause(DELAY_BEFORE_CLICK_MENU);
 		findByClass(className + "-navi").click();
 		pause(DELAY_AFTER_CLICK_MENU);
 	}
@@ -345,6 +371,7 @@ public abstract class AbstractIntegrationTest {
         findById("password").sendKeys(SEED_PWD);
         findByClass("btn").click();
         assertEquals(SEED_NAME, driver.getTitle());
+        pause(DELAY_AFTER_LOGIN);
 	}
 	
 	private Actions actions() {
