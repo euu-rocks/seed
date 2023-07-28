@@ -53,6 +53,7 @@ import org.seed.core.task.TaskService;
 import org.seed.core.util.Assert;
 import org.seed.core.util.BeanUtils;
 import org.seed.core.util.ExceptionUtils;
+import org.seed.core.util.MiscUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -353,9 +354,8 @@ public class DefaultJobScheduler
 		scheduleTask(getTask(job));
 	}
 	
-	@SuppressWarnings("unchecked")
 	private JobDetail createImmediateJobDetail(Task task) {
-		return JobBuilder.newJob((Class<? extends org.quartz.Job>) taskService.getJobClass(task))
+		return JobBuilder.newJob(MiscUtils.castClass(taskService.getJobClass(task)))
 				 .withIdentity(task.getId().toString(), C.SEED)
 				 .build();
 	}
@@ -366,9 +366,8 @@ public class DefaultJobScheduler
 				.build();
 	}
 	
-	@SuppressWarnings("unchecked")
 	private JobDetail createJobDetail(Task task) {
-		return JobBuilder.newJob((Class<? extends org.quartz.Job>) taskService.getJobClass(task))
+		return JobBuilder.newJob(MiscUtils.castClass(taskService.getJobClass(task)))
 				 .withIdentity(task.getUid(), C.SEED)
 				 .build();
 	}
