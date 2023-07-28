@@ -64,6 +64,11 @@ public abstract class MiscUtils {
 	}
 	
 	@SuppressWarnings("unchecked")
+	public static <T> Class<T> castClass(Class<?> clas) {
+		return (Class<T>) clas;
+	}
+	
+	@SuppressWarnings("unchecked")
 	public static <T> List<T> castList(List<?> list) {
 		return (List<T>) list;
 	}

@@ -130,7 +130,8 @@ public class ValueObjectTransformer {
 		Assert.stateAvailable(functionClass, "function class " + function.getGeneratedClass());
 		
 		try {
-			final var functionInstance = (TransformationFunction<ValueObject, ValueObject>) BeanUtils.instantiate(functionClass);
+			final var functionInstance = (TransformationFunction<ValueObject, ValueObject>) 
+					BeanUtils.instantiate(functionClass);
 			functionInstance.transform(sourceObject, targetObject, functionContext);
 		}
 		catch (Exception ex) {

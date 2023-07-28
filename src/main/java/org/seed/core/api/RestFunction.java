@@ -39,7 +39,7 @@ public interface RestFunction {
 	}
 	
 	/**
-	 * Exceutes the function and returns the response object
+	 * Executes the function and returns the response object
 	 * @param context the context of the function
 	 * @return the response object
 	 */

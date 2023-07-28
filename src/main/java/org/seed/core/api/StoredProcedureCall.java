@@ -57,7 +57,7 @@ public interface StoredProcedureCall {
 	void setParameter(String paramName, Object paramValue);
 	
 	/**
-	 * Exceutes the stored procedure
+	 * Executes the stored procedure
 	 */
 	void execute();
 	

@@ -22,6 +22,7 @@ import java.util.List;
 import org.hibernate.Session;
 
 import org.seed.core.application.ApplicationEntityService;
+import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityRelation;
@@ -58,6 +59,6 @@ public interface FormService extends ApplicationEntityService<Form> {
 	
 	List<FormAction> getDetailFormActions(Form form);
 	
-	Class<?> getFunctionClass(Form form, String functionName);
+	Class<GeneratedCode> getFunctionClass(Form form, String functionName);
 	
 }

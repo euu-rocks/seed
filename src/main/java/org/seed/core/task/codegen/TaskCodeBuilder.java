@@ -68,7 +68,7 @@ class TaskCodeBuilder extends AbstractSourceCodeBuilder {
 							newParameter(C.CONTEXT, newTypeClass(JobContext.class))
 						  }, 
 						  CODE_PLACEHOLDER, newAnnotation(Override.class));
-				return super.build(false);
+				return buildSourceCode();
 				
 			case COMPLETE:
 				return createSourceCode(task.getContent());

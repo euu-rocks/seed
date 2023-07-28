@@ -42,9 +42,11 @@ public class EditJobTest extends AbstractJobTest {
 		// edit source code
 		clickButton(tabpanel, "editcode");
 		WebElement window = findWindow("code-dialog");
-		WebElement codeMirror = findCodeMirror(window, "content", 7);
-		codeMirror.sendKeys(repeatKey(Keys.BACK_SPACE, 22));
-		codeMirror.sendKeys("New extends AbstractJob {");
+		
+		WebElement codeMirror = findCodeMirror(window, "content", 9);
+		codeMirror.sendKeys(repeatKey(Keys.BACK_SPACE, 48));
+		codeMirror.sendKeys("New extends AbstractJob implements GeneratedCode {");
+		
 		clickButton(window, "apply");
 		waitWindowDisappear("code-dialog");
 		saveJob(tabpanel);

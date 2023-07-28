@@ -777,6 +777,9 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 			}
 		}
 		removeEntityClass(entity);
+		if (entity.hasFunctions()) {
+			entity.getCallbackFunctions().forEach(this::removeEntityFunctionClass);
+		}
 		updateConfiguration();
 	}
 	

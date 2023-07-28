@@ -23,6 +23,7 @@ import org.hibernate.Session;
 
 import org.seed.core.api.Job;
 import org.seed.core.application.ApplicationEntityService;
+import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.task.job.AbstractSystemJob;
 import org.seed.core.user.User;
 
@@ -41,6 +42,10 @@ public interface TaskService extends ApplicationEntityService<Task> {
 	Task getTask(Session session, Job job);
 	
 	List<Task> getTasks(User user, Session session);
+	
+	Class<GeneratedCode> getJobClass(Task task);
+	
+	List<Class<GeneratedCode>> getJobClasses();
 	
 	SystemTaskRun getLastSystemTaskRun(SystemTask systemTask, Session session);
 	

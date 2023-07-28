@@ -111,17 +111,17 @@ public interface ValueObjectService extends EntityUsage {
 	
 	String getIdentifier(ValueObject object, Session session);
 	
-	long count(Session session, Class<?> entityClass);
+	long count(Session session, Class<ValueObject> entityClass);
 	
 	long count(Entity entity, Session session);
 	
 	ValueObject getObject(Session session, Entity entity, Long id);
 	
-	ValueObject getObject(Session session, Class<?> entityClass, Long id);
+	ValueObject getObject(Session session, Class<ValueObject> entityClass, Long id);
 	
 	List<ValueObject> getAllObjects(Session session, Entity entity);
 	
-	List<ValueObject> getAllObjects(Session session, Class<?> entityClass);
+	List<ValueObject> getAllObjects(Session session, Class<ValueObject> entityClass);
 	
 	List<ValueObject> getAvailableRelationObjects(Session session, ValueObject object, EntityRelation relation);
 	
@@ -135,9 +135,9 @@ public interface ValueObjectService extends EntityUsage {
 	
 	ValueObject findUnique(Entity entity, EntityField entityField, Object value, Session session);
 	
-	List<ValueObject> findByIds(Session session, Class<?> entityClass, Long ...ids);
+	List<ValueObject> findByIds(Session session, Class<ValueObject> entityClass, Long ...ids);
 	
-	List<ValueObject> findByIds(Session session, Class<?> entityClass, List<Long> idList);
+	List<ValueObject> findByIds(Session session, Class<ValueObject> entityClass, List<Long> idList);
 	
 	void deleteObject(ValueObject object) throws ValidationException;
 	

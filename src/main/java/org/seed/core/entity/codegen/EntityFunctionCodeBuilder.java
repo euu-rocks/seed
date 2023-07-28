@@ -66,7 +66,7 @@ class EntityFunctionCodeBuilder extends AbstractSourceCodeBuilder {
 							newParameter(C.CONTEXT, newTypeClass(CallbackFunctionContext.class))
 						  }, 
 						  CODE_PLACEHOLDER);
-				return super.build(false);
+				return buildSourceCode();
 			
 			case COMPLETE:
 				return createSourceCode(entityFunction.getContent());

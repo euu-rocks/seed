@@ -40,6 +40,7 @@ import org.seed.core.codegen.CodeChangeAware;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.codegen.CodeManagerImpl;
 import org.seed.core.codegen.CodeUtils;
+import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.codegen.SourceCode;
 import org.seed.core.data.Options;
 import org.seed.core.data.ValidationException;
@@ -117,6 +118,20 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		Assert.notNull(user, C.USER);
 		
 		return subList(getObjects(session), task -> task.checkPermissions(user));
+	}
+	
+	@Override
+	public Class<GeneratedCode> getJobClass(Task task) {
+		Assert.notNull(task, C.TASK);
+		
+		final var jobClass = codeManager.getGeneratedClass(task);
+		Assert.stateAvailable(jobClass, "class for task: " + task.getName());
+		return jobClass;
+	}
+	
+	@Override
+	public List<Class<GeneratedCode>> getJobClasses() {
+		return codeManager.getGeneratedClasses(Job.class);
 	}
 	
 	@Override

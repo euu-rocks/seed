@@ -60,7 +60,7 @@ class RestCodeBuilder extends AbstractSourceCodeBuilder {
 						  }, 
 						  CODE_PLACEHOLDER + "\n\t\treturn \"TODO\";\n",
 						  newAnnotation(Override.class));
-				return super.build(false);
+				return buildSourceCode();
 				
 			case COMPLETE:
 				return createSourceCode(function.getContent());

@@ -46,7 +46,6 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 			this.typeClass = typeClass;
 			this.name = name;
 		}
-		
 	}
 	
 	protected static final String LF = System.lineSeparator();
@@ -56,6 +55,8 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 	protected static final String SEPARATOR = ", ";
 	
 	protected static final String CODE_PLACEHOLDER = LF + "\t\t// put your code here" + LF;
+	
+	private static final TypeClass TYPE_GENERATED = newTypeClass(GeneratedCode.class);
 	
 	private final ClassMetadata classMetadata;
 	
@@ -81,16 +82,13 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		return build(BuildMode.COMPLETE);
 	}
 	
-	protected SourceCode build(boolean isGenerated) {
-		final StringBuilder buildBuffer = new StringBuilder();
-		
+	protected SourceCode buildSourceCode() {
+		final var buildBuffer = new StringBuilder();
 		// package
 		buildPackage(buildBuffer, classMetadata.packageName);
 		
 		// imports
-		if (isGenerated) {
-			addImport(GeneratedCode.class);
-		}
+		addImport(GeneratedCode.class);
 		forEach(classMetadata.annotations, this::addImport);
 		forEach(classMetadata.interfaceClasses, this::addImport);
 		if (classMetadata.superClass != null) {
@@ -108,7 +106,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		buildBuffer.append(LF);
 		
 		// class
-		buildClassDefinition(buildBuffer, isGenerated);
+		buildClassDefinition(buildBuffer);
 		// code
 		buildBuffer.append(codeBuffer).append('}').append(LF);
 		
@@ -195,7 +193,6 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 			buildAnnotation(codeBuffer, annotation);
 			codeBuffer.append(LF);
 		});
-
 		codeBuffer.append("\tpublic ");
 		
 		// return type
@@ -210,13 +207,10 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		// parameters
 		codeBuffer.append(' ').append(methodName).append('(');
 		if (parameters != null) {
-			boolean first = true;
-			for (ParameterMetadata parameter : parameters) {
+			for (int i = 0; i < parameters.length; i++) {
+				final var parameter = parameters[i];
 				addImport(parameter.typeClass);
-				if (first) {
-					first = false;
-				}
-				else {
+				if (i > 0) {
 					codeBuffer.append(SEPARATOR);
 				}
 				if (parameter.annotation != null) {
@@ -224,7 +218,8 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 					buildAnnotation(codeBuffer, parameter.annotation);
 					codeBuffer.append(' ');
 				}
-				codeBuffer.append(parameter.typeClass.className).append(' ').append(parameter.name);
+				codeBuffer.append(parameter.typeClass.className).append(' ')
+						  .append(parameter.name);
 			}
 		}
 		
@@ -260,7 +255,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		return memberMap.get(memberName);
 	}
 	
-	private void buildClassDefinition(StringBuilder buf, boolean isGenerated) {
+	private void buildClassDefinition(StringBuilder buf) {
 		// annotations
 		forEach(classMetadata.annotations, annotation -> {
 			buildAnnotation(buf, annotation);
@@ -268,11 +263,11 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		});
 		
 		// class
-		buf.append("public");
+		buf.append("public ");
 		if (classMetadata.isAbstract) {
-			buf.append(" abstract");
+			buf.append("abstract ");
 		}
-		buf.append(" class ").append(classMetadata.className);
+		buf.append("class ").append(classMetadata.className);
 		
 		// super class
 		if (classMetadata.superClass != null) {
@@ -281,28 +276,13 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		}
 		
 		// interfaces
-		if (isGenerated || classMetadata.interfaceClasses != null) {
-			buf.append(" implements ");
-			buildClassInterfaces(buf, isGenerated);
-		}
+		buf.append(" implements ");
+		forEach(classMetadata.interfaceClasses, interfaceClass -> {
+			buildTypeClass(buf, interfaceClass);
+			buf.append(SEPARATOR);
+		});
+		buildTypeClass(buf, TYPE_GENERATED);
 		buf.append(" {").append(LFLF);
-	}
-	
-	private void buildClassInterfaces(StringBuilder buf, boolean isGenerated) {
-		boolean first = true;
-		if (isGenerated) {
-			buf.append(GeneratedCode.class.getSimpleName());
-			first = false;
-		}
-		if (classMetadata.interfaceClasses != null) {
-			for (TypeClass interfaceClass : classMetadata.interfaceClasses) {
-				if (!first) {
-					buf.append(SEPARATOR);
-				}
-				buildTypeClass(buf, interfaceClass);
-				first = false;
-			}
-		}
 	}
 	
 	private static void buildPackage(StringBuilder buf, String packageName) {
@@ -354,7 +334,6 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 					buf.append(SEPARATOR);
 				}
 				buf.append(entry.getKey()).append(" = ");
-				
 				if (entry.getValue() instanceof AnnotationMetadata[]) {
 					buildAnnotations(buf, (AnnotationMetadata[]) entry.getValue());
 					continue;
@@ -372,16 +351,12 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 	}
 	
 	private static void buildAnnotations(StringBuilder buf, AnnotationMetadata[] annotations) {
-		boolean first = true;
 		buf.append('{');
-		for (AnnotationMetadata annotation : annotations) {
-			if (first) {
-				first = false;
-			}
-			else {
+		for (int i = 0; i < annotations.length; i++) {
+			if (i > 0) {
 				buf.append(SEPARATOR);
 			}
-			buildAnnotation(buf, annotation);
+			buildAnnotation(buf, annotations[i]);
 		}
 		buf.append('}');
 	}

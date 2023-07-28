@@ -20,7 +20,6 @@ package org.seed.core.entity.value;
 import static org.seed.core.util.CollectionUtils.convertedList;
 
 import java.util.List;
-import java.util.Set;
 
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Session;
@@ -29,6 +28,7 @@ import org.hibernate.envers.AuditReaderFactory;
 
 import org.seed.C;
 import org.seed.core.codegen.CodeManager;
+import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.config.SessionProvider;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.SystemField;
@@ -58,7 +58,7 @@ public class RevisionServiceImpl implements RevisionService {
 	@Override
 	public List<Revision> getRevisions(Entity entity, Long id) {
 		Assert.notNull(id, C.ID);
-		checkAudited(entity);
+		checkEntity(entity);
 		
 		try (Session session = sessionProvider.getSession()) {
 			return convertedList(getRevisionNumbers(session, codeManager.getGeneratedClass(entity), id), 
@@ -70,7 +70,7 @@ public class RevisionServiceImpl implements RevisionService {
 	public ValueObject getRevisionObject(Entity entity, Long id, Revision revision) {
 		Assert.notNull(id, C.ID);
 		Assert.notNull(revision, "revision");
-		checkAudited(entity);
+		checkEntity(entity);
 		
 		try (Session session = sessionProvider.getSession()) {
 			final ValueObject object = (ValueObject) createAuditReader(session)
@@ -122,7 +122,7 @@ public class RevisionServiceImpl implements RevisionService {
 	
 	private void loadNesteds(Entity entity, ValueObject object) {
 		for (NestedEntity nested : entity.getNesteds()) {
-			final List<ValueObject> nestedObjects = valueObjectAccess.getNestedObjects(object, nested);
+			final var nestedObjects = valueObjectAccess.getNestedObjects(object, nested);
 			if (nestedObjects != null) {
 				try {
 					nestedObjects.forEach(ValueObject::toString); // to really load nested object
@@ -136,7 +136,7 @@ public class RevisionServiceImpl implements RevisionService {
 	
 	private void loadRelations(Entity entity, ValueObject object) {
 		for (EntityRelation relation : entity.getAllRelations()) {
-			final Set<ValueObject> relatedObjects = valueObjectAccess.getRelatedObjects(object, relation);
+			final var relatedObjects = valueObjectAccess.getRelatedObjects(object, relation);
 			if (relatedObjects != null) {
 				try {
 					relatedObjects.forEach(ValueObject::toString); // to really load related object
@@ -148,8 +148,9 @@ public class RevisionServiceImpl implements RevisionService {
 		}
 	}
 	
-	private static void checkAudited(Entity entity) {
+	private static void checkEntity(Entity entity) {
 		Assert.notNull(entity, C.ENTITY);
+		Assert.state(!entity.isGeneric(), "entity is generic");
 		Assert.state(entity.isAudited(), "entity is not audited");
 	}
 	
@@ -157,7 +158,7 @@ public class RevisionServiceImpl implements RevisionService {
 		return session.get(RevisionEntity.class, id);
 	}
 	
-	private static List<Number> getRevisionNumbers(Session session, Class<?> entityClass, Long id) {
+	private static List<Number> getRevisionNumbers(Session session, Class<GeneratedCode> entityClass, Long id) {
 		return createAuditReader(session).getRevisions(entityClass, id);
 	}
 	

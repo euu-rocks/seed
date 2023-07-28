@@ -38,6 +38,7 @@ import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.codegen.CodeUtils;
+import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.data.AbstractSystemObject;
 import org.seed.core.data.SystemField;
 import org.seed.core.data.ValidationException;
@@ -340,7 +341,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	@Override
-	public Class<?> getFunctionClass(Form form, String functionName) {
+	public Class<GeneratedCode> getFunctionClass(Form form, String functionName) {
 		Assert.notNull(form, C.FORM);
 		Assert.notNull(functionName, "function name");
 		

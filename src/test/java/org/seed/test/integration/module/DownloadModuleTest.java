@@ -15,21 +15,21 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.seed.core.api;
+package org.seed.test.integration.module;
 
-/**
- * <code>FormFunction</code> is the base interface of all form functions.
- * A form function is triggered by an user action
- * 
- * @author seed-master
- *
- */
-public interface FormFunction {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+import org.openqa.selenium.WebElement;
+
+public class DownloadModuleTest extends AbstractModuleTest {
 	
-	/**
-	 * Executes the function
-	 * @param context the context of the function
-	 */
-	void call(FormFunctionContext context);
+	@Test
+	void testDownloadModule() {
+		WebElement tabpanel = showModule("testmodule");
+		assertEquals("Module: Testmodule", findTab("module").getText());
+		clickButton(tabpanel, "export");
+		pause(10000);
+	}
 	
 }

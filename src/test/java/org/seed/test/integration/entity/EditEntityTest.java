@@ -186,7 +186,7 @@ public class EditEntityTest extends AbstractEntityTest {
 		clickButton(tabpanelFunctions, "editfunction");
 		
 		WebElement window = findWindow("code-dialog");
-		findCodeMirror(window, "content", 9).sendKeys("//test edit");
+		findCodeMirror(window, "content", 10).sendKeys("//test edit");
 		clickButton(window, "apply");
 		waitWindowDisappear("code-dialog");
 		saveEntity(tabpanel);

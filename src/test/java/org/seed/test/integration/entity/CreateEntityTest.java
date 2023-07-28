@@ -134,7 +134,7 @@ public class CreateEntityTest extends AbstractEntityTest {
 		clickButton(tabpanelFunctions, "editfunction");
 		
 		WebElement window = findWindow("code-dialog");
-		findCodeMirror(window, "content", 9).sendKeys("System.out.println(\"Testcallback\");");
+		findCodeMirror(window, "content", 10).sendKeys("System.out.println(\"Testcallback\");");
 		clickButton(window, "apply");
 		waitWindowDisappear("code-dialog");
 		

@@ -34,6 +34,8 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
+import org.springframework.util.ObjectUtils;
+
 public interface CollectionUtils {
 	
 	static <T> boolean anyMatch(@Nullable T[] array, Predicate<T> predicate) {
@@ -119,7 +121,7 @@ public interface CollectionUtils {
 	}
 	
 	static <T> void forEach(@Nullable T[] array, Consumer<T> action) {
-		if (array != null) {
+		if (!ObjectUtils.isEmpty(array)) {
 			Arrays.stream(array).forEach(action);
 		}
 	}

@@ -59,7 +59,7 @@ class FormFunctionCodeBuilder extends AbstractSourceCodeBuilder {
 						  },
 						  CODE_PLACEHOLDER,
 						  newAnnotation(Override.class));
-				return super.build(false);
+				return buildSourceCode();
 				
 			case COMPLETE:
 				return createSourceCode(function.getContent());

@@ -55,9 +55,10 @@ public class EditRestTest extends AbstractRestTest {
 		
 		clickButton(tabpanelFunctions, "editfunction");
 		WebElement window = findWindow("code-dialog");
-		WebElement codeMirror = findCodeMirror(window, "content", 6);
-		codeMirror.sendKeys(repeatKey(Keys.BACK_SPACE, 26));
-		codeMirror.sendKeys("new implements RestFunction {");
+		WebElement codeMirror = findCodeMirror(window, "content", 7);
+		codeMirror.sendKeys(repeatKey(Keys.BACK_SPACE, 41));
+		codeMirror.sendKeys("new implements RestFunction, GeneratedCode {");
+		
 		clickButton(window, "apply");
 		waitWindowDisappear("code-dialog");
 		saveRest(tabpanel);

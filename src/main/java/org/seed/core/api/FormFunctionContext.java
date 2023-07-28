@@ -21,16 +21,30 @@ import org.seed.ui.zk.vm.AbstractFormViewModel;
 
 import org.zkoss.zk.ui.Component;
 
+/**
+ * A <code>FormFunctionContext</code> is the context in which a {@link FormFunction} is executed.
+ * 
+ * @author seed-master
+ *
+ */
 public interface FormFunctionContext extends CallbackFunctionContext {
 	
+	/**
+	 * Returns the view model
+	 * @return the view model
+	 */
 	AbstractFormViewModel getViewModel();
 	
+	/**
+	 * Returns the component that raised the event
+	 * @return the component that raised the event
+	 */
 	Component getComponent();
 	
+	/**
+	 * Returns a custom function parameter
+	 * @return a custom function parameter
+	 */
 	<T> T getParameter();
 	
-	<T> T getFormProperty(String name);
-	
-	void setFormProperty(String name, Object value);
-
 }

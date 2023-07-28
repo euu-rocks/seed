@@ -31,8 +31,6 @@ public interface CodeManager {
 	
 	Class<GeneratedCode> getGeneratedClass(GeneratedObject generatedObject);
 	
-	Class<GeneratedCode> getGeneratedClass(String qualifiedName);
-	
 	List<Class<GeneratedCode>> getGeneratedClasses(Class<?> type);
 	
 	void removeClass(String qualifiedName);

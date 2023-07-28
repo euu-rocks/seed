@@ -34,8 +34,6 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Selection;
-import javax.persistence.criteria.Subquery;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -106,7 +104,7 @@ public class ValueObjectRepository {
 		return get(session, getEntityClass(session, entity), id);
 	}
 	
-	ValueObject get(Session session, Class<?> entityClass, Long id) {
+	ValueObject get(Session session, Class<ValueObject> entityClass, Long id) {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(entityClass, C.ENTITYCLASS);
 		Assert.notNull(id, C.ID);
@@ -155,7 +153,7 @@ public class ValueObjectRepository {
 		return false;
 	}
 	
-	long count(Session session, Class<?> entityClass) {
+	long count(Session session, Class<ValueObject> entityClass) {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(entityClass, C.ENTITYCLASS);
 		
@@ -169,25 +167,23 @@ public class ValueObjectRepository {
 		return findAll(session, getEntityClass(session, entity));
 	}
 	
-	@SuppressWarnings("unchecked")
-	List<ValueObject> findAll(Session session, Class<?> entityClass) {
+	List<ValueObject> findAll(Session session, Class<ValueObject> entityClass) {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(entityClass, C.ENTITYCLASS);
 		
-		final var query = (CriteriaQuery<ValueObject>) session.getCriteriaBuilder().createQuery(entityClass);
-		return find(session, query.select((Selection<? extends ValueObject>) query.from(entityClass)));
+		final var query = session.getCriteriaBuilder().createQuery(entityClass);
+		return find(session, query.select(query.from(entityClass)));
 	}
 	
-	@SuppressWarnings("unchecked")
 	List<ValueObject> find(Session session, Entity entity, Filter filter, Sort ...sorts) {
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(filter, C.FILTER);
 		checkFilter(entity, filter);
 		
 		if (filter.getHqlQuery() != null) {
-			return session.createQuery(filter.getHqlQuery())
-						  .setCacheable(true)
-						  .list();
+			return MiscUtils.castList(session.createQuery(filter.getHqlQuery())
+						  					 .setCacheable(true)
+						  					 .list());
 		}
 		return find(session, buildQuery(session, entity, filter, sorts));
 	}
@@ -201,20 +197,20 @@ public class ValueObjectRepository {
 					  .getResultList();
 	}
 	
-	List<ValueObject> findByIds(Session session, Class<?> entityClass, Long ...ids) {
+	List<ValueObject> findByIds(Session session, Class<ValueObject> entityClass, Long ...ids) {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(entityClass, C.ENTITYCLASS);
 		Assert.notNull(ids, "ids");
 		
-		return MiscUtils.castList(session.byMultipleIds(entityClass).multiLoad(ids));
+		return session.byMultipleIds(entityClass).multiLoad(ids);
 	}
 	
-	List<ValueObject> findByIds(Session session, Class<?> entityClass, List<Long> idList) {
+	List<ValueObject> findByIds(Session session, Class<ValueObject> entityClass, List<Long> idList) {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(entityClass, C.ENTITYCLASS);
 		Assert.notNull(idList, "id list");
 		
-		return MiscUtils.castList(session.byMultipleIds(entityClass).multiLoad(idList));
+		return session.byMultipleIds(entityClass).multiLoad(idList);
 	}
 	
 	boolean exist(Session session, Entity entity, @Nullable Filter filter) {
@@ -437,14 +433,14 @@ public class ValueObjectRepository {
 		return entity;
 	}
 	
-	protected Class<?> getEntityClass(Session session, Entity entity) {
+	protected Class<ValueObject> getEntityClass(Session session, Entity entity) {
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(entity, C.ENTITY);
 		Assert.state(!entity.isNew(), "entity is new");
 		
 		// entity reload is necessary because entity could be renamed but not saved yet
 		entity = getEntity(entity.getId(), session);
-		final Class<?> entityClass = codeManager.getGeneratedClass(entity);
+		final Class<ValueObject> entityClass = MiscUtils.castClass(codeManager.getGeneratedClass(entity));
 		Assert.stateAvailable(entityClass, "class for entity: " + entity.getName());
 		return entityClass;
 	}
@@ -625,10 +621,9 @@ public class ValueObjectRepository {
 		return (CriteriaQuery<T>) builder.createQuery(getEntityClass(session, entity));
 	}
 	
-	@SuppressWarnings("unchecked")
 	private <T> Root<ValueObject> buildQuery(CriteriaBuilder builder, Entity entity, Session session, 
 											 Filter filter, CriteriaQuery<T> query, Sort ...sorts) {
-		final var root = (Root<ValueObject>) query.from(getEntityClass(session, entity));
+		final Root<ValueObject> root = query.from(getEntityClass(session, entity));
 		// criteria
 		if (filter != null) {
 			Assert.state(entity.equals(filter.getEntity()), "entity not match filter entity");
@@ -649,11 +644,10 @@ public class ValueObjectRepository {
 		return root;
 	}
 	
-	@SuppressWarnings("unchecked")
 	private <T> Root<ValueObject> buildQuery(CriteriaBuilder builder, Entity entity, Session session,
 											 ValueObject searchObject, CriteriaQuery<T> query, 
 											 Map<Long, Map<String, CriterionOperator>> criteriaMap, Sort ...sorts) {
-		final var root = (Root<ValueObject>) query.from(getEntityClass(session, entity));
+		final Root<ValueObject> root = query.from(getEntityClass(session, entity));
 		final var restrictions = new ArrayList<Predicate>();
 		
 		// main object
@@ -701,7 +695,6 @@ public class ValueObjectRepository {
 		return restrictions;
 	}
 	
-	@SuppressWarnings("unchecked")
 	private <T> List<Predicate> createNestedRestrictions(CriteriaBuilder builder, NestedEntity nestedEntity, Session session, 
 														 List<ValueObject> nesteds, Map<Long, Map<String, CriterionOperator>> criteriaMap,
 														 CriteriaQuery<T> query, Root<ValueObject> root) {
@@ -716,7 +709,7 @@ public class ValueObjectRepository {
 				continue;
 			}
 			
-			final var subQuery = (Subquery<ValueObject>) query.subquery(nestedEntityClass);
+			final var subQuery = query.subquery(nestedEntityClass);
 			final var subRoot = subQuery.correlate(root);
 			final var join = subRoot.join(nestedEntity.getInternalName());
 			final var joins = Collections.singletonMap(entityNested.getId(), join);
@@ -773,7 +766,7 @@ public class ValueObjectRepository {
 				if (nestedAutonumField != null && objectAccess.hasNestedObjects(object, nested)) {
 					objectAccess.getNestedObjects(object, nested)
 								.forEach(obj -> objectAccess.setValue(obj, nestedAutonumField, 
-													autonumService.getNextValue(nestedAutonumField, session)));
+												autonumService.getNextValue(nestedAutonumField, session)));
 				}
 			}
 		}
@@ -787,7 +780,7 @@ public class ValueObjectRepository {
 					filterAndForEach(objectAccess.getNestedObjects(object, nested), 
 									 ValueObject::isNew, 
 									 obj -> objectAccess.setValue(obj, nestedAutonumField, 
-												autonumService.getNextValue(nestedAutonumField, session)));
+											autonumService.getNextValue(nestedAutonumField, session)));
 				}
 			}
 		}

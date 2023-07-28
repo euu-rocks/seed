@@ -76,7 +76,7 @@ public class EditTransformerTest extends AbstractTransformerTest {
 		clickButton(tabpanelFunctions, "editfunction");
 		
 		WebElement window = findWindow("code-dialog");
-		findCodeMirror(window, "content", 9).sendKeys("// edited");
+		findCodeMirror(window, "content", 10).sendKeys("// edited");
 		clickButton(window, "apply");
 		waitWindowDisappear("code-dialog");
 		saveTransformer(tabpanel);

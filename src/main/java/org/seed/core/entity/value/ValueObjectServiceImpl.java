@@ -120,7 +120,7 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public long count(Session session, Class<?> entityClass) {
+	public long count(Session session, Class<ValueObject> entityClass) {
 		return repository.count(session, entityClass);
 	}
 	
@@ -284,7 +284,6 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public List<ValueObject> loadChunk(Session session, QueryCursor<ValueObject> cursor) {
 		final var query = cursor.getQueryText() != null
 							? session.createQuery(cursor.getQueryText())
@@ -292,7 +291,7 @@ public class ValueObjectServiceImpl
 		query.setFirstResult(cursor.getStartIndex());
 		query.setMaxResults(cursor.getChunkSize());
 		query.setCacheable(true);
-		return query.getResultList();
+		return MiscUtils.castList(query.getResultList());
 	}
 	
 	@Override
@@ -402,7 +401,7 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public ValueObject getObject(Session session, Class<?> entityClass, Long id) {
+	public ValueObject getObject(Session session, Class<ValueObject> entityClass, Long id) {
 		return repository.get(session, entityClass, id);
 	}
 
@@ -412,7 +411,7 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public List<ValueObject> getAllObjects(Session session, Class<?> entityClass) {
+	public List<ValueObject> getAllObjects(Session session, Class<ValueObject> entityClass) {
 		return repository.findAll(session, entityClass);
 	}
 	
@@ -469,12 +468,12 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public List<ValueObject> findByIds(Session session, Class<?> entityClass, Long ...ids) {
+	public List<ValueObject> findByIds(Session session, Class<ValueObject> entityClass, Long ...ids) {
 		return repository.findByIds(session, entityClass, ids);
 	}
 	
 	@Override
-	public List<ValueObject> findByIds(Session session, Class<?> entityClass, List<Long> idList) {
+	public List<ValueObject> findByIds(Session session, Class<ValueObject> entityClass, List<Long> idList) {
 		return repository.findByIds(session, entityClass, idList);
 	}
 	

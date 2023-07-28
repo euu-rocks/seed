@@ -19,11 +19,8 @@ package org.seed.ui.zk.vm;
 
 import org.hibernate.Session;
 
-import org.seed.C;
 import org.seed.core.api.FormFunctionContext;
 import org.seed.core.entity.value.event.ValueObjectFunctionContext;
-import org.seed.core.util.Assert;
-import org.seed.ui.ViewModelProperty;
 
 import org.zkoss.zk.ui.Component;
 
@@ -58,23 +55,6 @@ class DefaultFormFunctionContext extends ValueObjectFunctionContext
 	@Override
 	public <T> T getParameter() {
 		return (T) parameter;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T getFormProperty(String name) {
-		return (T) property(name).getValue();
-	}
-
-	@Override
-	public void setFormProperty(String name, Object value) {
-		property(name).setValue(value);
-	}
-	
-	private ViewModelProperty property(String name) {
-		Assert.notNull(name, C.NAME);
-		
-		return new ViewModelProperty(viewModel.getTab(), name);
 	}
 
 }

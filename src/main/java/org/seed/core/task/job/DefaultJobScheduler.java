@@ -39,8 +39,6 @@ import org.quartz.TriggerBuilder;
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.api.Job;
-import org.seed.core.codegen.CodeManager;
-import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.config.LogLevel;
 import org.seed.core.config.SessionProvider;
 import org.seed.core.task.AbstractTaskRun;
@@ -72,9 +70,6 @@ public class DefaultJobScheduler
 	
 	@Autowired
 	private SchedulerFactoryBean schedulerFactory;
-	
-	@Autowired
-	private CodeManager codeManager;
 	
 	@Autowired
 	private TaskService taskService;
@@ -196,7 +191,7 @@ public class DefaultJobScheduler
 	@Override
 	public void scheduleAllTasks() {
 		try {
-			for (Class<GeneratedCode> jobClass : codeManager.getGeneratedClasses(Job.class)) {
+			for (var jobClass : taskService.getJobClasses()) {
 				scheduleJob((Job) BeanUtils.instantiate(jobClass));
 			}
 		}
@@ -291,7 +286,7 @@ public class DefaultJobScheduler
 			final TaskRun run = task.getRunById(taskRunId);
 			Assert.stateAvailable(run, "run " + taskRunId);
 			
-			final List<TaskRunLog> logs = (List<TaskRunLog>) context.get(DefaultJobContext.RUN_LOGS);
+			final var logs = (List<TaskRunLog>) context.get(DefaultJobContext.RUN_LOGS);
 			if (logs != null) {
 				logs.forEach(run::addLog);
 			}
@@ -313,7 +308,7 @@ public class DefaultJobScheduler
 	}
 	
 	private void finalizeSystemJob(JobExecutionContext context, JobExecutionException jobException) {
-		final SystemTaskRun run = (SystemTaskRun) context.get(AbstractSystemJob.SYSTEMTASK_RUN);
+		final var run = (SystemTaskRun) context.get(AbstractSystemJob.SYSTEMTASK_RUN);
 		LogLevel maxLevel = run.getMaxLogLevel();
 		if (jobException != null) {
 			logError(run, jobException.getCause());
@@ -322,12 +317,6 @@ public class DefaultJobScheduler
 		run.setEndTime(new Date());
 		run.setResult(TaskResult.getResult(maxLevel));
 		taskService.saveSystemTaskRun(run);
-	}
-	
-	private Class<?> getJobClass(Task task) {
-		final Class<?> jobClass = codeManager.getGeneratedClass(task);
-		Assert.state(jobClass != null, "no job class available for task: " + task.getName());
-		return jobClass;
 	}
 	
 	private Scheduler getScheduler() {
@@ -366,7 +355,7 @@ public class DefaultJobScheduler
 	
 	@SuppressWarnings("unchecked")
 	private JobDetail createImmediateJobDetail(Task task) {
-		return JobBuilder.newJob((Class<? extends org.quartz.Job>) getJobClass(task))
+		return JobBuilder.newJob((Class<? extends org.quartz.Job>) taskService.getJobClass(task))
 				 .withIdentity(task.getId().toString(), C.SEED)
 				 .build();
 	}
@@ -379,7 +368,7 @@ public class DefaultJobScheduler
 	
 	@SuppressWarnings("unchecked")
 	private JobDetail createJobDetail(Task task) {
-		return JobBuilder.newJob((Class<? extends org.quartz.Job>) getJobClass(task))
+		return JobBuilder.newJob((Class<? extends org.quartz.Job>) taskService.getJobClass(task))
 				 .withIdentity(task.getUid(), C.SEED)
 				 .build();
 	}
@@ -423,7 +412,7 @@ public class DefaultJobScheduler
 	}
 	
 	private static void log(TaskRun run, LogLevel level, String message) {
-		final TaskRunLog runLog = new TaskRunLog();
+		final var runLog = new TaskRunLog();
 		runLog.setMoment(new Date());
 		runLog.setLevel(level);
 		runLog.setContent(message);
@@ -431,7 +420,7 @@ public class DefaultJobScheduler
 	}
 	
 	private static void log(SystemTaskRun run, LogLevel level, String message) {
-		final SystemTaskRunLog runLog = new SystemTaskRunLog();
+		final var runLog = new SystemTaskRunLog();
 		runLog.setLevel(level);
 		runLog.setContent(message);
 		run.addLog(runLog);

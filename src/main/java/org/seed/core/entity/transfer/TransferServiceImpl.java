@@ -59,7 +59,7 @@ import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupDependent;
 import org.seed.core.user.UserGroupService;
 import org.seed.core.util.Assert;
-
+import org.seed.core.util.MiscUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
@@ -495,18 +495,15 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 						 session::delete);
 	}
 	
-	@SuppressWarnings("unchecked")
 	private TransferProcessor createProcessor(Transfer transfer) {
-		// class conversion is necessary
-		final Class<?> objectClass = codeManager.getGeneratedClass(transfer.getEntity());
-		final var valueObjectClass = (Class<? extends ValueObject>) objectClass;
-		
+		final Class<? extends ValueObject> objectClass = MiscUtils.castClass(
+				codeManager.getGeneratedClass(transfer.getEntity()));
 		switch (transfer.getFormat()) {
 			case CSV:
-				return new CSVProcessor(this, valueObjectService, valueObjectClass, labelProvider, transfer);
+				return new CSVProcessor(this, valueObjectService, objectClass, labelProvider, transfer);
 				
 			case JSON:
-				return new JsonProcessor(this, valueObjectService, valueObjectClass, labelProvider, transfer);
+				return new JsonProcessor(this, valueObjectService, objectClass, labelProvider, transfer);
 				
 			default:
 				throw new UnsupportedOperationException(transfer.getFormat().name());

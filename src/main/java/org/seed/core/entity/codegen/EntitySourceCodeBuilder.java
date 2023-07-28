@@ -183,7 +183,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 					addFunction(function.getContent(), newAnnotation(JsonIgnore.class)));
 		}
 		
-		return super.build(true);
+		return buildSourceCode();
 	}
 	
 	private void addFunction(String code, AnnotationMetadata ...annotations) {

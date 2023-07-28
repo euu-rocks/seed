@@ -38,7 +38,6 @@ import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.codegen.CodeUtils;
-import org.seed.core.codegen.GeneratedCode;
 import org.seed.core.data.Options;
 import org.seed.core.data.ValidationException;
 import org.seed.core.user.UserGroup;
@@ -139,7 +138,7 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 		Assert.notNull(session, C.SESSION);
 		Assert.notNull(method, "method");
 		
-		final Class<GeneratedCode> functionClass = codeManager.getGeneratedClass(function);
+		final var functionClass = codeManager.getGeneratedClass(function);
 		Assert.stateAvailable(functionClass, "function class");
 		
 		Object result = null;

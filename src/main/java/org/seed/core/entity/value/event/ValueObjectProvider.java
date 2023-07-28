@@ -107,7 +107,7 @@ class ValueObjectProvider implements EntityObjectProvider {
 	public <T extends EntityObject> long count(Class<T> objectClass) {
 		Assert.notNull(objectClass, C.OBJECTCLASS);
 		
-		return valueObjectService.count(functionContext.getSession(), objectClass);
+		return valueObjectService.count(functionContext.getSession(), MiscUtils.castClass(objectClass));
 	}
 	
 	@Override
@@ -116,28 +116,28 @@ class ValueObjectProvider implements EntityObjectProvider {
 		Assert.notNull(objectClass, C.OBJECTCLASS);
 		Assert.notNull(id, C.ID);
 		
-		return (T) valueObjectService.getObject(functionContext.getSession(), objectClass, id);
+		return (T) valueObjectService.getObject(functionContext.getSession(), MiscUtils.castClass(objectClass), id);
 	}
 	
 	@Override
 	public <T extends EntityObject> List<T> findAll(Class<T> objectClass) {
 		Assert.notNull(objectClass, C.OBJECTCLASS);
 		
-		return MiscUtils.castList(valueObjectService.getAllObjects(functionContext.getSession(), objectClass));
+		return MiscUtils.castList(valueObjectService.getAllObjects(functionContext.getSession(), MiscUtils.castClass(objectClass)));
 	}
 	
 	@Override
 	public <T extends EntityObject> List<T> findByIds(Class<T> objectClass, Long ...ids) {
 		Assert.notNull(objectClass, C.OBJECTCLASS);
 		
-		return MiscUtils.castList(valueObjectService.findByIds(functionContext.getSession(), objectClass, ids));
+		return MiscUtils.castList(valueObjectService.findByIds(functionContext.getSession(), MiscUtils.castClass(objectClass), ids));
 	}
 	
 	@Override
 	public <T extends EntityObject> List<T> findByIds(Class<T> objectClass, List<Long> idList) {
 		Assert.notNull(objectClass, C.OBJECTCLASS);
 		
-		return MiscUtils.castList(valueObjectService.findByIds(functionContext.getSession(), objectClass, idList));
+		return MiscUtils.castList(valueObjectService.findByIds(functionContext.getSession(), MiscUtils.castClass(objectClass), idList));
 	}
 	
 	@Override
