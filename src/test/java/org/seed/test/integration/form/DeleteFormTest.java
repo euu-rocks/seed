@@ -72,4 +72,17 @@ public class DeleteFormTest extends AbstractFormTest {
 		waitTabDisappear("layout");
 	}
 	
+	@Test
+	@Order(5)
+	void testDeleteExpertForm() {
+		WebElement tabpanel = showForm("expertform");
+		assertEquals("Formulare: Expertform", findTab("formulare").getText());
+		clickButton(tabpanel, "delete");
+		
+		WebElement dialogConfirm = findConfirmDialog();
+		confirm(dialogConfirm);
+		waitConfirmDialogDisappear();
+		waitTabDisappear("layout");
+	}
+	
 }

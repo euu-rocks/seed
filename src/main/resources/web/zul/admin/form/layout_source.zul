@@ -19,7 +19,8 @@
 -->
 <!DOCTYPE xml>
 <?page contentType="text/html;charset=UTF-8"?>
-<window id="layoutDialogWin" width="90%" height="90%" 
+<window id="layoutDialogWin" width="90%" height="90%"
+		sclass="layout-source-win"  
 		viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.LayoutSourceViewModel')" 
 		title="${labels.admin.form.editsource}"
 		mode="modal" sizable="true">
@@ -38,6 +39,7 @@
 			<borderlayout>
 				<center border="0">
 					<codemirror id="codemirror"
+								sclass="content-field"
 								value="@load(vm.content)" 
 								mode="text/html" 
 								lineNumbers="true"
@@ -52,11 +54,11 @@
 		</center>
 		<south border="0">
 			<div align="center" style="padding:5px;background-color:#F8F8F8">
-				<button iconSclass="z-icon-check"
+				<button iconSclass="apply-button z-icon-check"
 						label="${labels.button.apply}" 
 						onClick="@command('applyLayout',layout=codemirror.getText(),elem=self)"/>
 				<space/>
-				<button iconSclass="z-icon-close" 
+				<button iconSclass="apply-cancel z-icon-close" 
 						label="${labels.button.cancel}" 
 						onClick="@command('cancel')"/>
 			</div>

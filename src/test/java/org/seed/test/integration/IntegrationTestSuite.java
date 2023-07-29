@@ -44,6 +44,7 @@ import org.seed.test.integration.filter.CreateHQLFilterTest;
 import org.seed.test.integration.filter.DeleteFilterTest;
 import org.seed.test.integration.filter.EditFilterTest;
 import org.seed.test.integration.form.CreateFormTest;
+import org.seed.test.integration.form.CreateExpertFormTest;
 import org.seed.test.integration.form.DeleteFormTest;
 import org.seed.test.integration.form.EditFormTest;
 import org.seed.test.integration.form.TestobjectFormTest;
@@ -85,14 +86,14 @@ import org.seed.test.integration.user.EditUserTest;
 				 CreateGenericEntityTest.class, CreateDerivedEntityTest.class, CreateEntityTest.class, 
 				 CreateNestedEntityTest.class, CreateFilterTest.class, CreateHQLFilterTest.class, 
 				 CreateTransferTest.class, CreateJsonTransferTest.class, CreateTransformerTest.class, 
-				 CreateFormTest.class, CreateDBObjectTest.class, CreateDataSourceTest.class, 
-				 CreateHQLDataSourceTest.class, CreateReportTest.class, CreateCustomCodeTest.class, 
-				 CreateRestTest.class, CreateJobTest.class, CreateTestobjectTest.class, 
-				 TestobjectFormTest.class, EditEntityTest.class, EditFilterTest.class, 
-				 EditDBObjectTest.class, EditDataSourceTest.class, EditTransferTest.class, 
-				 EditJsonTransferTest.class, EditTransformerTest.class, EditFormTest.class, 
-				 EditMenuTest.class, EditJobTest.class, EditModuleTest.class, EditReportTest.class, 
-				 EditCustomCodeTest.class, EditRestTest.class, EditUserTest.class, 
+				 CreateFormTest.class, CreateExpertFormTest.class, CreateDBObjectTest.class, 
+				 CreateDataSourceTest.class, CreateHQLDataSourceTest.class, CreateReportTest.class, 
+				 CreateCustomCodeTest.class, CreateRestTest.class, CreateJobTest.class, 
+				 CreateTestobjectTest.class, TestobjectFormTest.class, EditEntityTest.class, 
+				 EditFilterTest.class, EditDBObjectTest.class, EditDataSourceTest.class, 
+				 EditTransferTest.class, EditJsonTransferTest.class, EditTransformerTest.class, 
+				 EditFormTest.class, EditMenuTest.class, EditJobTest.class, EditModuleTest.class, 
+				 EditReportTest.class, EditCustomCodeTest.class, EditRestTest.class, EditUserTest.class, 
 				 EditUserGroupTest.class, DeleteRestTest.class, DeleteCustomCodeTest.class, 
 				 DeleteReportTest.class, DeleteJobTest.class, DeleteDataSourcesTest.class, 
 				 DeleteDBObjectTest.class, DeleteFormTest.class, DeleteMenuTest.class, 

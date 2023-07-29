@@ -109,7 +109,7 @@ public class ValueObjectRepository {
 		Assert.notNull(entityClass, C.ENTITYCLASS);
 		Assert.notNull(id, C.ID);
 		
-		return (ValueObject) session.get(entityClass, id);
+		return session.get(entityClass, id);
 	}
 	
 	ValueObject createInstance(Entity entity, Session session, ValueObjectFunctionContext functionContext) {

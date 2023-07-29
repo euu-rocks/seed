@@ -90,7 +90,8 @@
                 <row>
                 	<cell align="right"/>
                 	<cell>
-                		<checkbox checked="@bind(vm.object.options.autoLayout)"
+                		<checkbox sclass="autolayout-field"
+                				  checked="@bind(vm.object.options.autoLayout)"
                 				  onCheck="@command('selectOption',option='autolayout')"/>
                 		<label value=" ${labels.label.autolayout}"/>
                 	</cell>
@@ -98,7 +99,8 @@
                 <row>
                 	<cell align="right"/>
                 	<cell>
-                		<checkbox checked="@bind(vm.object.options.expertMode)"
+                		<checkbox sclass="expertmode-field"
+                				  checked="@bind(vm.object.options.expertMode)"
                 				  onCheck="@command('selectOption',option='expertmode')"/>
                 		<label value=" ${labels.label.expertmode}"/>
                 	</cell>
