@@ -21,9 +21,9 @@ import java.util.List;
 
 import org.hibernate.Session;
 
-import org.seed.core.application.ApplicationEntity;
+import org.seed.core.data.SystemEntity;
 
-public interface ModuleDependent<T extends ApplicationEntity> {
+public interface ModuleDependent<T extends SystemEntity> {
 	
 	List<T> findUsage(Module module, Session session);
 	

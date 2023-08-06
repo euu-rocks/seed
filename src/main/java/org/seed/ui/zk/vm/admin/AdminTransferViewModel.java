@@ -171,11 +171,8 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	@Override
 	protected void initObject(Transfer transfer) {
 		super.initObject(transfer);
-		transferElements = transferService.getMainObjectElements(transfer);
-		if (transferElements.isEmpty()) {
-			transferElements = new ArrayList<>();
-		}
-		nestedTransfers = transferService.getNestedTransfers(transfer);
+		transferElements = new ArrayList<>(transferService.getMainObjectElements(transfer));
+		nestedTransfers = new ArrayList<>(transferService.getNestedTransfers(transfer));
 	}
 	
 	@Override

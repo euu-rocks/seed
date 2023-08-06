@@ -102,6 +102,7 @@ public class FormPrintout extends AbstractOrderedTransferableObject {
 		}
 		final FormPrintout otherPrintout = (FormPrintout) other;
 		return new EqualsBuilder()
+			.append(getOrder(), otherPrintout.getOrder())
 			.append(name, otherPrintout.name)
 			.append(fileName, otherPrintout.fileName)
 			.append(contentType, otherPrintout.contentType)

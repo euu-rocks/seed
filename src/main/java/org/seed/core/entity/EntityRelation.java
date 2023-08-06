@@ -136,6 +136,7 @@ public class EntityRelation extends AbstractOrderedTransferableObject {
 		}
 		final EntityRelation otherRelation = (EntityRelation) other;
 		return new EqualsBuilder()
+			.append(getOrder(), otherRelation.getOrder())
 			.append(name, otherRelation.getName())
 			.append(relatedEntityUid, otherRelation.getRelatedEntityUid())
 			.isEquals();

@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.ModuleMetadata;
 import org.seed.core.application.module.ModuleParameter;
+import org.seed.core.application.module.NestedModule;
 import org.seed.core.customcode.CustomCodeMetadata;
 import org.seed.core.customcode.CustomLibMetadata;
 import org.seed.core.data.datasource.DataSourceMetadata;
@@ -59,6 +60,19 @@ class ModuleTest {
 	}
 	
 	@Test
+	void testAddNested() {
+		final Module module = new ModuleMetadata();
+		final NestedModule nested = new NestedModule();
+		assertFalse(module.hasNesteds());
+		
+		module.addNested(nested);
+		
+		assertTrue(module.hasNesteds());
+		assertSame(1, module.getNesteds().size());
+		assertSame(nested, module.getNesteds().get(0));
+	}
+	
+	@Test
 	void testAddTransferContent() {
 		final Module module = new ModuleMetadata();
 		final Entity entity = new EntityMetadata();
@@ -68,6 +82,17 @@ class ModuleTest {
 		module.addTransferContent(entity, "text".getBytes());
 		
 		assertTrue(module.hasTransferContent());
+	}
+	
+	@Test
+	void testContainsNestedModule() {
+		final Module module = new ModuleMetadata();
+		final NestedModule nested = new NestedModule();
+		final Module nestedModule = new ModuleMetadata();
+		nested.setNestedModule(nestedModule);
+		assertFalse(module.containsNestedModule(nestedModule));
+		module.addNested(nested);
+		assertTrue(module.containsNestedModule(nestedModule));
 	}
 	
 	@Test
@@ -217,6 +242,19 @@ class ModuleTest {
 	}
 	
 	@Test
+	void testGetNestedByUid() {
+		final Module module = new ModuleMetadata();
+		final NestedModule nested = new NestedModule();
+		module.addNested(nested);
+		nested.setUid("other");
+		assertNull(module.getNestedByUid("test"));
+		
+		nested.setUid("test");
+		
+		assertSame(nested, module.getNestedByUid("test"));
+	}
+	
+	@Test
 	void testGetReportByUid() {
 		final Module module = new ModuleMetadata();
 		final ReportMetadata report = new ReportMetadata();
@@ -307,6 +345,33 @@ class ModuleTest {
 	}
 	
 	@Test
+	void testHasParameters() {
+		final Module module = new ModuleMetadata();
+		final ModuleParameter param = new ModuleParameter();
+		assertFalse(module.hasParameters());
+		module.addParameter(param);
+		assertTrue(module.hasParameters());
+	}
+	
+	@Test
+	void testHasNesteds() {
+		final Module module = new ModuleMetadata();
+		final NestedModule nested = new NestedModule();
+		assertFalse(module.hasNesteds());
+		module.addNested(nested);
+		assertTrue(module.hasNesteds());
+	}
+	
+	@Test
+	void testHasTransferContent() {
+		final Module module = new ModuleMetadata();
+		final Entity entity = new EntityMetadata();
+		assertFalse(module.hasTransferContent());
+		module.addTransferContent(entity, "text".getBytes());
+		assertTrue(module.hasTransferContent());
+	}
+	
+	@Test
 	void testRemoveParameter() {
 		final Module module = new ModuleMetadata();
 		final ModuleParameter param = new ModuleParameter();
@@ -317,6 +382,19 @@ class ModuleTest {
 		
 		assertFalse(module.hasParameters());
 		assertSame(0, module.getParameters().size());
+	}
+	
+	@Test
+	void testRemoveNested() {
+		final Module module = new ModuleMetadata();
+		final NestedModule nested = new NestedModule();
+		module.addNested(nested);
+		assertSame(1, module.getNesteds().size());
+		
+		module.removeNested(nested);
+		
+		assertFalse(module.hasNesteds());
+		assertSame(0, module.getNesteds().size());
 	}
 
 }

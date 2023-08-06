@@ -164,6 +164,7 @@ public class NestedEntity extends AbstractOrderedTransferableObject {
 		}
 		final NestedEntity otherNested = (NestedEntity) other;
 		return new EqualsBuilder()
+			.append(getOrder(), otherNested.getOrder())
 			.append(nestedEntityUid, otherNested.getNestedEntityUid())
 			.append(referenceFieldUid, otherNested.getReferenceFieldUid())
 			.append(name, otherNested.getName())

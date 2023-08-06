@@ -118,9 +118,9 @@ public class ValueObjectRepository {
 		checkSessionAndContext(session, functionContext);
 		try {
 			final var entityClass = getEntityClass(session != null ? session : functionContext.getSession(), entity);
-			final var object = (AbstractValueObject) BeanUtils.instantiate(entityClass);
+			final var object = BeanUtils.instantiate(entityClass);
 			if (entity.hasStatus()) {
-				object.setEntityStatus(entity.getInitialStatus());
+				((AbstractValueObject) object).setEntityStatus(entity.getInitialStatus());
 			}
 			fireEvent(CallbackEventType.CREATE, object, session, functionContext);
 			return object;

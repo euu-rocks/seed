@@ -30,6 +30,8 @@
 					<tab label="${labels.label.overview}"/>
 					<tab id="tabParameters" label="${labels.label.parameters}"
 						 visible="@init(!empty vm.importAnalysis.parameterChanges)"/>
+					<tab id="tabNesteds" label="${labels.label.submodules}"
+						 visible="@init(!empty vm.importAnalysis.nestedChanges)"/>
 					<tab id="tabEntities" label="${labels.label.entities}"
 						 visible="@init(!empty vm.importAnalysis.entityChanges)"/>
 					<tab id="tabFilter" label="${labels.label.filter}"
@@ -129,6 +131,27 @@
 					        </template>
 		         		</listbox>
 					</tabpanel>
+					<tabpanel fulfill="tabNesteds.onSelect">
+						<listbox mold="paging" autopaging="true" 
+				 				 model="@init(vm.importAnalysis.nestedChanges)"
+				 				 class="alpha-noborder"
+		         				 hflex="1" vflex="1">
+		         			<listhead sizable="true">
+					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.submodule}" hflex="max"/>
+					        </listhead>
+					        <template name="model" var="change">
+					        	<listitem>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(vm.getEnumLabel(change.type))"/>
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.entity.name)"/>
+					        		</listcell>
+					        	</listitem>
+					        </template>
+		         		</listbox>
+					</tabpanel>
 					<tabpanel fulfill="tabEntities.onSelect">
 						<listbox mold="paging" autopaging="true" 
 				 				 model="@init(vm.importAnalysis.entityChanges)"
@@ -136,12 +159,17 @@
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.module}" hflex="min"
+					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.entity}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
 					        	<listitem>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(vm.getEnumLabel(change.type))"/>
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.module.name)"/>
 					        		</listcell>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(change.entity.name)"/>
@@ -157,12 +185,17 @@
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.module}" hflex="min"
+					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.filter}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
 					        	<listitem>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(vm.getEnumLabel(change.type))"/>
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.module.name)"/>
 					        		</listcell>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(change.entity.name)"/>
@@ -178,12 +211,17 @@
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.module}" hflex="min"
+					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.transformer}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
 					        	<listitem>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(vm.getEnumLabel(change.type))"/>
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.module.name)"/>
 					        		</listcell>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(change.entity.name)"/>
@@ -199,12 +237,17 @@
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.module}" hflex="min"
+					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.transfer}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
 					        	<listitem>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(vm.getEnumLabel(change.type))"/>
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.module.name)"/>
 					        		</listcell>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(change.entity.name)"/>
@@ -220,12 +263,17 @@
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.module}" hflex="min"
+					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.form}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
 					        	<listitem>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(vm.getEnumLabel(change.type))"/>
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.module.name)"/>
 					        		</listcell>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(change.entity.name)"/>
@@ -241,12 +289,17 @@
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.module}" hflex="min"
+					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.menu}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
 					        	<listitem>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(vm.getEnumLabel(change.type))" />
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.module.name)"/>
 					        		</listcell>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(change.entity.name)"/>
@@ -262,12 +315,17 @@
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.module}" hflex="min"
+					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.task}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
 					        	<listitem>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(vm.getEnumLabel(change.type))" />
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.module.name)"/>
 					        		</listcell>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(change.entity.name)"/>
@@ -283,12 +341,17 @@
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.module}" hflex="min"
+					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.task}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
 					        	<listitem>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(vm.getEnumLabel(change.type))" />
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.module.name)"/>
 					        		</listcell>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(change.entity.name)"/>
@@ -304,12 +367,17 @@
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.module}" hflex="min"
+					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.task}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
 					        	<listitem>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(vm.getEnumLabel(change.type))" />
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.module.name)"/>
 					        		</listcell>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(change.entity.name)"/>
@@ -325,12 +393,17 @@
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.module}" hflex="min"
+					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.report}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
 					        	<listitem>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(vm.getEnumLabel(change.type))" />
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.module.name)"/>
 					        		</listcell>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(change.entity.name)"/>
@@ -346,12 +419,17 @@
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.module}" hflex="min"
+					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.rest}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
 					        	<listitem>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(vm.getEnumLabel(change.type))" />
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.module.name)"/>
 					        		</listcell>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(change.entity.name)"/>
@@ -367,12 +445,17 @@
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.module}" hflex="min"
+					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.customcode}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
 					        	<listitem>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(vm.getEnumLabel(change.type))" />
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.module.name)"/>
 					        		</listcell>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(change.entity.name)"/>
@@ -388,12 +471,17 @@
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.module}" hflex="min"
+					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.customlib}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
 					        	<listitem>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(vm.getEnumLabel(change.type))" />
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.module.name)"/>
 					        		</listcell>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(change.entity.name)"/>
@@ -409,12 +497,17 @@
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
+					            <listheader label="${labels.label.module}" hflex="min"
+					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.usergroup}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
 					        	<listitem>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(vm.getEnumLabel(change.type))" />
+					        		</listcell>
+					        		<listcell style="@init(vm.getStyle(change.type))">
+					        			<label value="@init(change.module.name)"/>
 					        		</listcell>
 					        		<listcell style="@init(vm.getStyle(change.type))">
 					        			<label value="@init(change.entity.name)"/>

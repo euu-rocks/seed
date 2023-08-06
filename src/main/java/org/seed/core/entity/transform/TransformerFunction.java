@@ -102,6 +102,7 @@ public class TransformerFunction extends AbstractContentObject
 		}
 		final TransformerFunction otherFunction = (TransformerFunction) other;
 		return new EqualsBuilder()
+				.append(getOrder(), otherFunction.getOrder())
 				.append(getName(), otherFunction.getName())
 				.append(getContent(), otherFunction.getContent())
 				.append(isActiveBeforeTransformation, otherFunction.isActiveBeforeTransformation)

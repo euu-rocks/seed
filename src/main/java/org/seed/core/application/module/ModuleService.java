@@ -18,6 +18,9 @@
 package org.seed.core.application.module;
 
 import java.io.InputStream;
+import java.util.List;
+
+import org.hibernate.Session;
 
 import org.seed.core.data.SystemEntityService;
 import org.seed.core.data.ValidationException;
@@ -26,7 +29,13 @@ public interface ModuleService extends SystemEntityService<Module> {
 	
 	boolean isExternalDirEnabled();
 	
+	boolean existOtherModules(Module module, Session session);
+	
+	List<Module> getAvailableNesteds(Module module, Session session);
+	
 	ModuleParameter createParameter(Module module);
+	
+	NestedModule createNested(Module module);
 	
 	Module readModule(InputStream inputStream);
 	

@@ -80,6 +80,7 @@ public class EntityFieldGroup extends AbstractOrderedTransferableObject {
 		}
 		final EntityFieldGroup otherGroup = (EntityFieldGroup) other;
 		return new EqualsBuilder()
+			.append(getOrder(), otherGroup.getOrder())
 			.append(name, otherGroup.name)
 			.isEquals();
 	}

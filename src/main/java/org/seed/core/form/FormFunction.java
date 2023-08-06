@@ -85,6 +85,7 @@ public class FormFunction extends AbstractContentObject
 		}
 		final FormFunction otherFunction = (FormFunction) other;
 		return new EqualsBuilder()
+				.append(getOrder(), otherFunction.getOrder())
 				.append(getName(), otherFunction.getName())
 				.append(getContent(), otherFunction.getContent())
 				.append(isInitial, otherFunction.isInitial())

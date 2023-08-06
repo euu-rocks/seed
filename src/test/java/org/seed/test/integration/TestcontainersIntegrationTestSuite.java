@@ -20,9 +20,8 @@ package org.seed.test.integration;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.TestClassOrder;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.ClassOrderer;
-import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+
 import org.seed.Seed;
 import org.seed.test.integration.customcode.CreateCustomCodeTest;
 import org.seed.test.integration.customcode.DeleteCustomCodeTest;

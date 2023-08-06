@@ -94,6 +94,7 @@ public class RestFunction extends AbstractContentObject
 		}
 		final RestFunction otherFunction = (RestFunction) other;
 		return new EqualsBuilder()
+				.append(getOrder(), otherFunction.getOrder())
 				.append(getName(), otherFunction.getName())
 				.append(mapping, otherFunction.getMapping())
 				.append(method, otherFunction.getMethod())

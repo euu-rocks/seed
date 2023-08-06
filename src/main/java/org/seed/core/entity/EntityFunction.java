@@ -209,6 +209,7 @@ public class EntityFunction extends AbstractContentObject
 		}
 		final EntityFunction otherFunction = (EntityFunction) other;
 		return new EqualsBuilder()
+			.append(getOrder(), otherFunction.getOrder())
 			.append(getName(), otherFunction.getName())
 			.append(getContent(), otherFunction.getContent())
 			.append(isCallback, otherFunction.isCallback)

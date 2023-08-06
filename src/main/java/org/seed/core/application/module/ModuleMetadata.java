@@ -28,6 +28,7 @@ import java.util.Map;
 import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -48,6 +49,7 @@ import org.seed.core.customcode.CustomCodeMetadata;
 import org.seed.core.customcode.CustomLib;
 import org.seed.core.customcode.CustomLibMetadata;
 import org.seed.core.data.AbstractSystemEntity;
+import org.seed.core.data.Order;
 import org.seed.core.data.datasource.IDataSource;
 import org.seed.core.data.datasource.DataSourceMetadata;
 import org.seed.core.data.dbobject.DBObject;
@@ -90,6 +92,14 @@ public class ModuleMetadata extends AbstractSystemEntity
 			   fetch = FetchType.LAZY)
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private List<ModuleParameter> parameters;
+	
+	@OneToMany(mappedBy = "parentModule",
+			   cascade = CascadeType.ALL,
+			   orphanRemoval = true,
+			   fetch = FetchType.LAZY)
+	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+	@OrderBy("order")
+	private List<NestedModule> nesteds;
 	
 	@OneToMany(mappedBy = "module", fetch = FetchType.LAZY)
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -475,6 +485,40 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
+	@XmlElement(name="nested")
+	@XmlElementWrapper(name="nesteds")
+	public List<NestedModule> getNesteds() {
+		return nesteds;
+	}
+
+	public void setNesteds(List<NestedModule> nesteds) {
+		this.nesteds = nesteds;
+	}
+	
+	@Override
+	public boolean hasNesteds() {
+		return notEmpty(getNesteds());
+	}
+	
+	@Override
+	public void addNested(NestedModule nested) {
+		Assert.notNull(nested, C.NESTED);
+		
+		if (nesteds == null) {
+			nesteds = new ArrayList<>();
+		}
+		nested.setParentModule(this);
+		nesteds.add(nested);
+	}
+	
+	@Override
+	public void removeNested(NestedModule nested) {
+		Assert.notNull(nested, C.NESTED);
+		
+		getNesteds().remove(nested);
+	}
+
+	@Override
 	@JsonIgnore
 	public String getFileName() {
 		return getInternalName() + '_' +
@@ -527,6 +571,13 @@ public class ModuleMetadata extends AbstractSystemEntity
 		return mapTransferContent != null
 				? mapTransferContent.get(entity.getUid())
 				: null;
+	}
+	
+	@Override
+	public boolean containsNestedModule(Module module) {
+		Assert.notNull(module, C.MODULE);
+		
+		return anyMatch(getNesteds(), nested -> module.equals(nested.getNestedModule()));
 	}
 	
 	@Override
@@ -621,6 +672,13 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
+	public NestedModule getNestedByUid(String nestedUid) {
+		Assert.notNull(nestedUid, "nestedUid");
+		
+		return getObjectByUid(getNesteds(), nestedUid);
+	}
+	
+	@Override
 	public Report getReportByUid(String reportUid) {
 		Assert.notNull(reportUid, "reportUid");
 		
@@ -632,6 +690,11 @@ public class ModuleMetadata extends AbstractSystemEntity
 		Assert.notNull(restUid, "restUid");
 		
 		return getObjectByUid(getRests(), restUid);
+	}
+	
+	@Override
+	protected void setOrderIndexes() {
+		Order.setOrderIndexes(getNesteds());
 	}
 	
 }

@@ -113,6 +113,7 @@ public class EntityStatusTransitionFunction extends AbstractOrderedTransferableO
 		}
 		final EntityStatusTransitionFunction otherFunction = (EntityStatusTransitionFunction) other;
 		return new EqualsBuilder()
+			.append(getOrder(), otherFunction.getOrder())
 			.append(functionUid, otherFunction.getFunctionUid())
 			.append(isActiveBeforeTransition, otherFunction.isActiveBeforeTransition)
 			.append(isActiveAfterTransition, otherFunction.isActiveAfterTransition)

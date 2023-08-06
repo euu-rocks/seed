@@ -126,6 +126,7 @@ public class FormTransformer extends AbstractOrderedTransferableObject {
 		}
 		final FormTransformer otherTransformer = (FormTransformer) other;
 		return new EqualsBuilder()
+			.append(getOrder(), otherTransformer.getOrder())
 			.append(transformerUid, otherTransformer.getTransformerUid())
 			.append(targetFormUid, otherTransformer.getTargetFormUid())
 			.append(label, otherTransformer.label)

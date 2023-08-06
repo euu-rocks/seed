@@ -61,6 +61,8 @@ public interface Module extends SystemEntity, TransferableObject {
 	
 	List<Task> getTasks();
 	
+	List<NestedModule> getNesteds();
+	
 	List<Report> getReports();
 	
 	List<CustomCode> getCustomCodes();
@@ -75,15 +77,25 @@ public interface Module extends SystemEntity, TransferableObject {
 	
 	boolean hasParameters();
 	
+	boolean hasNesteds();
+	
+	boolean containsNestedModule(Module module);
+	
 	ModuleParameter getParameter(String name);
 	
 	void addParameter(ModuleParameter parameter);
 	
+	void addNested(NestedModule nested);
+	
 	void removeParameter(ModuleParameter parameter);
+	
+	void removeNested(NestedModule nested);
 	
 	String getFileName();
 	
 	ModuleParameter getParameterByUid(String parameterUid);
+	
+	NestedModule getNestedByUid(String nestedUid);
 	
 	Entity getEntityByUid(String entityUid);
 	

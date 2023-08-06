@@ -168,6 +168,7 @@ public class TransferElement extends AbstractOrderedTransferableObject {
 		}
 		final TransferElement otherElement = (TransferElement) other;
 		return new EqualsBuilder()
+			.append(getOrder(), otherElement.getOrder())
 			.append(fieldUid, otherElement.getFieldUid())
 			.append(isIdentifier, otherElement.isIdentifier)
 			.append(name, otherElement.name)

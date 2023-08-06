@@ -21,8 +21,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.hibernate.Session;
-
 import org.seed.C;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.application.module.ImportAnalysis;
@@ -30,6 +28,7 @@ import org.seed.core.application.module.Module;
 import org.seed.core.application.module.ModuleMetadata;
 import org.seed.core.application.module.ModuleParameter;
 import org.seed.core.application.module.ModuleService;
+import org.seed.core.application.module.NestedModule;
 import org.seed.core.customcode.CustomCodeService;
 import org.seed.core.customcode.CustomLibService;
 import org.seed.core.data.SystemObject;
@@ -74,6 +73,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	private static final String TRANSFERS = "transfers";
 	private static final String FORMS = "forms";
 	private static final String MENUS = "menus";
+	private static final String NESTEDS = "nesteds";
 	private static final String PARAMETERS = "parameters";
 	private static final String TASKS = "tasks";
 	private static final String REPORTS = "reports";
@@ -123,6 +123,8 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	
 	private ModuleParameter parameter;
 	
+	private NestedModule nested;
+	
 	private boolean existDBObjects;
 	private boolean existDataSources;
 	private boolean existEntities;
@@ -137,6 +139,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	private boolean existCustomCodes;
 	private boolean existCustomLibs;
 	private boolean existUserGroups;
+	private boolean existOtherModules;
 	
 	public AdminModuleViewModel() {
 		super(Authorisation.ADMIN_MODULE, C.MODULE,
@@ -152,6 +155,14 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 		this.parameter = parameter;
 	}
 	
+	public NestedModule getNested() {
+		return nested;
+	}
+
+	public void setNested(NestedModule nested) {
+		this.nested = nested;
+	}
+
 	public boolean existDBObjects() {
 		return existDBObjects;
 	}
@@ -208,6 +219,10 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 		return existUserGroups;
 	}
 	
+	public boolean existOtherModules() {
+		return existOtherModules;
+	}
+	
 	public boolean isExternalDirEnabled() {
 		return moduleService.isExternalDirEnabled();
 	}
@@ -221,7 +236,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	@Override
 	public void initObject(Module module) {
 		super.initObject(module);
-		final Session session = currentSession();
+		final var session = currentSession();
 		existDBObjects = dbObjectService.existObjects(session);
 		existDataSources = dataSourceService.existObjects(session);
 		existEntities = entityService.existObjects(session);
@@ -235,7 +250,17 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 		existRests = restService.existObjects(session);
 		existCustomCodes = customCodeService.existObjects(session);
 		existCustomLibs = customLibService.existObjects(session);
-		existUserGroups = !userGroupService.findNonSystemGroups(session).isEmpty();
+		existUserGroups = userGroupService.findNonSystemGroups(session).size() > 0;
+		existOtherModules = moduleService.existOtherModules(module, session);
+	}
+	
+	public List<Module> getAvailableNesteds() {
+		return moduleService.getAvailableNesteds(getObject(), currentSession());
+	}
+	
+	@Command
+	public void back() {
+		cmdBack();
 	}
 	
 	@Command
@@ -247,16 +272,28 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	}
 	
 	@Command
-	public void back() {
-		cmdBack();
-	}
-	
-	@Command
 	@NotifyChange(C.PARAMETER)
 	public void removeParameter() {
 		getObject().removeParameter(parameter);
 		parameter = null;
 		notifyObjectChange(PARAMETERS);
+		flagDirty();
+	}
+	
+	@Command
+	@NotifyChange(C.NESTED)
+	public void newNested() {
+		nested = moduleService.createNested(getObject());
+		notifyObjectChange(NESTEDS);
+		flagDirty();
+	}
+	
+	@Command
+	@NotifyChange(C.NESTED)
+	public void removeNested() {
+		getObject().removeNested(nested);
+		nested = null;
+		notifyObjectChange(NESTEDS);
 		flagDirty();
 	}
  	
@@ -462,6 +499,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	@Override
 	protected void resetProperties() {
 		parameter = null;
+		nested = null;
 	}
 	
 	private List<SystemObject> getListManagerSourceDBObject(int listNum) {

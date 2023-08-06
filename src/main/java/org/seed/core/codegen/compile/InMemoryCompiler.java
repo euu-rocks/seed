@@ -19,6 +19,7 @@ package org.seed.core.codegen.compile;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.PostConstruct;
 import javax.tools.DiagnosticCollector;
@@ -121,7 +122,7 @@ public class InMemoryCompiler implements Compiler {
 				? getClass().getClassLoader() 
 				: new CustomJarClassLoader(getCustomJars(), getClass().getClassLoader());
 		final var classLoader = new GeneratedCodeClassLoader(fileManager.getClassFileObjects(), parent);
-		mapClasses = classLoader.getClassMap();
+		mapClasses = new ConcurrentHashMap<>(classLoader.getClassMap());
 		return classLoader;
 	}
 	

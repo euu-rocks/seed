@@ -27,6 +27,7 @@
 <?component name="module-forms" macroURI="~./zul/admin/module/module_forms.zul" inline="true"?>
 <?component name="module-menus" macroURI="~./zul/admin/module/module_menus.zul" inline="true"?>
 <?component name="module-params" macroURI="~./zul/admin/module/module_params.zul" inline="true"?>
+<?component name="module-nesteds" macroURI="~./zul/admin/module/module_nesteds.zul" inline="true"?>
 <?component name="module-tasks" macroURI="~./zul/admin/module/module_tasks.zul" inline="true"?>
 <?component name="module-reports" macroURI="~./zul/admin/module/module_reports.zul" inline="true"?>
 <?component name="module-rests" macroURI="~./zul/admin/module/module_rests.zul" inline="true"?>
@@ -104,6 +105,9 @@
 				<tabs>
 					<tab sclass="parameters-tab"
 						 label="${labels.label.parameter}"/>
+					<tab id="tabNesteds" sclass="nesteds-tab" 
+						 label="${labels.label.submodules}"
+						 visible="@load(vm.existOtherModules())"/>
 					<tab id="tabEntities" sclass="entities-tab" 
 						 label="${labels.label.entities}"
 						 visible="@load(vm.existEntities())"/>
@@ -150,6 +154,10 @@
 				<tabpanels>
 					<tabpanel sclass="parameters-tabpanel">
 						<module-params/>
+					</tabpanel>
+					<tabpanel sclass="nesteds-tabpanel"
+							  fulfill="tabNesteds.onSelect">
+						<module-nesteds/>
 					</tabpanel>
 					<tabpanel sclass="entities-tabpanel"
 							  fulfill="tabEntities.onSelect">

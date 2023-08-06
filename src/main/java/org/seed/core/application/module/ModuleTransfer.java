@@ -69,10 +69,6 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FastByteArrayOutputStream;
 
-/**
- * In case of "NPE while unmarshalling" 
- * check if public setter for collection exists (e.g. setElements(List{@literal <}?{@literal >} ...))
- */
 @Component
 public class ModuleTransfer {
 	
@@ -126,30 +122,38 @@ public class ModuleTransfer {
 		Assert.notNull(inputStream, "input stream");
 		var mapJars = new HashMap<String, byte[]>();
 		var mapTransferContents = new HashMap<String, byte[]>();
+		var mapNestedModules = new HashMap<String, Module>();
 		Module module = null;
 		
 		try (final var stream = new SafeZipInputStream(inputStream)) {
 			ZipEntry entry;
 			while ((entry = stream.getNextEntrySafe()) != null) {
+				final var name = entry.getName();
+				final var content = stream.readSafe(entry);
+				// read nested modules
+				if (name.endsWith(MODULE_FILE_EXTENSION)) {
+					var nestedModule = readModule(new ByteArrayInputStream(content));
+					mapNestedModules.put(nestedModule.getUid(), nestedModule);
+				}
 				// read module
-				if (MODULE_XML_FILENAME.equals(entry.getName())) {
+				else if (MODULE_XML_FILENAME.equals(name)) {
 					module = (Module) getMarshaller().unmarshal(
 						new StreamSource(
-							new ByteArrayInputStream(stream.readSafe(entry))));
+							new ByteArrayInputStream(content)));
 				}
 				// read jar files
-				else if (isJarFile(entry.getName())) {
-					mapJars.put(entry.getName(), stream.readSafe(entry));
+				else if (isJarFile(name)) {
+					mapJars.put(name, content);
 				}
 				// read transfer files
-				else if (isTransferFile(entry.getName())) {
-					mapTransferContents.put(entry.getName(), stream.readSafe(entry));
+				else if (isTransferFile(name)) {
+					mapTransferContents.put(name, content);
 				}
 				// ignore other entries
 			}
 		}
 		if (module != null) {
-			initModuleContent(module, mapJars, mapTransferContents);
+			initModuleContent(module, mapJars, mapTransferContents, mapNestedModules);
 		}
 		return module;
 	}
@@ -186,7 +190,7 @@ public class ModuleTransfer {
 			}
 		}
 		if (module != null) {
-			initModuleContent(module, mapJars, mapTransferContents);
+			initModuleContent(module, mapJars, mapTransferContents, null);
 		}
 		return module;
 	}
@@ -202,12 +206,23 @@ public class ModuleTransfer {
 	
 	private void exportModule(Module module, OutputStream out) throws IOException {
 		try (final var stream = new ZipOutputStream(out)) {
-		    // write module
+		    
+			// write nested modules
+			if (module.hasNesteds()) {
+				for (NestedModule nested : module.getNesteds()) {
+					writeZipEntry(stream, nested.getFileName(), 
+								  exportModule(nested.getNestedModule()));
+				}
+			}
+			
+			// write module
 		    writeZipEntry(stream, MODULE_XML_FILENAME, getModuleContent(module));
+		    
 		    // write custom libs
 		    for (CustomLib customLib : module.getCustomLibs()) {
 		    	writeZipEntry(stream, customLib.getFilename(), customLib.getContent());
 		    }
+		    
 		    // write transferable objects
 		    for (Entity entity : module.getTransferableEntities()) {
 		    	writeZipEntry(stream, entity.getInternalName() + TransferFormat.CSV.fileExtension, 
@@ -222,12 +237,23 @@ public class ModuleTransfer {
 		
 		final var moduleDir = new File(externalModuleDir, module.getName());
 		moduleDir.mkdir();
+		
+		// write nested modules
+		if (module.hasNesteds()) {
+			for (NestedModule nested : module.getNesteds()) {
+				final var content = exportModule(nested.getNestedModule());
+				writeToExternalDir(moduleDir, nested.getFileName(), content);
+			}
+		}
+		
 		// write module
 		writeToExternalDir(moduleDir, MODULE_XML_FILENAME, getModuleContent(module));
+		
 		// write custom libs
 	    for (final var customLib : module.getCustomLibs()) {
 	    	writeToExternalDir(moduleDir, customLib.getFilename(), customLib.getContent());
 	    }
+	    
 	    // write transferable objects
 	    for (final var entity : module.getTransferableEntities()) {
 	    	writeToExternalDir(moduleDir, entity.getInternalName() + TransferFormat.CSV.fileExtension, 
@@ -235,10 +261,33 @@ public class ModuleTransfer {
 	    }
 	}
 	
-	ImportAnalysis analyzeModule(Module module) {
+	void analyzeModule(Module module, ImportAnalysis analysis) {
 		Assert.notNull(module, C.MODULE);
-		final ImportAnalysis analysis = new ImportAnalysis(module);
+		Assert.notNull(analysis, "analysis");
 		final Module currentVersionModule = getCurrentVersionModule(module);
+		
+		// nested modules
+		if (module.hasNesteds()) {
+			for (final var nested : module.getNesteds()) {
+				if (currentVersionModule == null) {
+					analysis.addChangeNew(nested);
+				}
+				else {
+					final var currentVersionNested =
+						currentVersionModule.getNestedByUid(nested.getUid());
+					if (currentVersionNested == null) {
+						analysis.addChangeNew(nested);
+					}
+					else if (!nested.isEqual(currentVersionNested)) {
+						analysis.addChangeModify(nested);
+					}
+				}
+				// analyze nested
+				analysis.setModule(nested.getNestedModule());
+				analyzeModule(nested.getNestedModule(), analysis);
+			}
+			analysis.setModule(module);
+		}
 		
 		// module parameters
 		if (module.hasParameters()) {
@@ -261,54 +310,15 @@ public class ModuleTransfer {
 		
 		// module objects
 		sortByDependencies(applicationServices).forEach(service -> service.analyzeObjects(analysis, currentVersionModule));
-		return analysis;
 	}
 	
 	void importModule(Module module) throws ValidationException {
-		Assert.notNull(module, C.MODULE);
-		final Module currentVersionModule = getCurrentVersionModule(module);
-		final var context = new DefaultTransferContext(module);
 		final var sortedServices = sortByDependencies(applicationServices);
 		try (Session session = sessionProvider.getSession()) {
 			Transaction tx = null;
 			try {
 				tx = session.beginTransaction();
-				
-				// module
-				if (currentVersionModule != null) {
-					deleteObjects(session, module, currentVersionModule);
-					((ModuleMetadata) currentVersionModule).copySystemFieldsTo(module);
-					session.detach(currentVersionModule);
-				}
-				
-				// parameters
-				if (module.hasParameters()) {
-					importModuleParameters(module, currentVersionModule);
-				}
-				
-				// module schema version
-				SchemaVersion moduleSchemaVersion = module.getSchemaVersion();
-				if (moduleSchemaVersion == null) {
-					moduleSchemaVersion = SchemaVersion.V_0_9_21;
-				}
-				// schema update
-				if (moduleSchemaVersion != SchemaVersion.currentVersion()) {
-					for (int v = moduleSchemaVersion.ordinal() + 1; v <= SchemaVersion.currentVersion().ordinal(); v++) {
-						final SchemaVersion version = SchemaVersion.getVersion(v);
-						sortedServices.forEach(service -> service.handleSchemaUpdate(context, version));
-					}
-				}
-				
-				// save module
-				moduleRepository.save(module, session);
-				// init components
-				for (final var service : sortedServices) {
-					service.importObjects(context, session);
-				}
-				// changelogs
-				if (module.getEntities() != null || module.getDBObjects() != null) {
-					sortedServices.forEach(service -> service.createChangeLogs(context, session));
-				}
+				importModule(module, session, sortedServices);
 				tx.commit();
 			}
 			catch (Exception ex) {
@@ -323,11 +333,52 @@ public class ModuleTransfer {
 		}
 		
 		// update configuration
-		if (module.getEntities() != null) {
-			Seed.getBean(UpdatableConfiguration.class).updateConfiguration();
+		Seed.getBean(UpdatableConfiguration.class).updateConfiguration();
+		
+		// import content
+		importModuleContent(module);
+	}
+	
+	private void importModule(Module module, Session session, List<ApplicationEntityService<?>> services) 
+		throws ValidationException {
+		Assert.notNull(module, C.MODULE);
+		final var context = new DefaultTransferContext(module);
+		final var currentVersionModule = getCurrentVersionModule(module);
+		
+		// nested modules
+		if (module.hasNesteds()) {
+			importNestedModules(module, currentVersionModule);
+			for (NestedModule nested : module.getNesteds()) {
+				importModule(nested.getNestedModule(), session, services);
+			}
 		}
 		
-		importModuleContent(module);
+		// init module
+		if (currentVersionModule != null) {
+			deleteObjects(session, module, currentVersionModule);
+			((ModuleMetadata) currentVersionModule).copySystemFieldsTo(module);
+			session.detach(currentVersionModule);
+		}
+
+		// parameters
+		if (module.hasParameters()) {
+			importModuleParameters(module, currentVersionModule);
+		}
+		
+		// schema update handling
+		handleSchemaUpdates(module, context, services);
+
+		// save module
+		moduleRepository.save(module, session);
+		
+		// import objects
+		for (final var service : services) {
+			service.importObjects(context, session);
+		}
+		// create changelogs
+		if (module.getEntities() != null || module.getDBObjects() != null) {
+			services.forEach(service -> service.createChangeLogs(context, session));
+		}
 	}
 	
 	private void importModuleParameters(Module module, Module currentVersionModule) {
@@ -342,18 +393,32 @@ public class ModuleTransfer {
 		}
 	}
 	
-	private void importModuleContent(Module module) {
+	private void importNestedModules(Module module, Module currentVersionModule) {
+		for (final var nested : module.getNesteds()) {
+			nested.setParentModule(module);
+			if (currentVersionModule != null) {
+				final var currentVersionNested = currentVersionModule.getNestedByUid(nested.getUid());
+				if (currentVersionNested != null) {
+					currentVersionNested.copySystemFieldsTo(nested);
+				}
+			}
+		}
+	}
+	
+	private void importModuleContent(Module module) throws ValidationException {
+		// nested modules
+		if (module.hasNesteds()) {
+			for (NestedModule nested : module.getNesteds()) {
+				importModuleContent(nested.getNestedModule());
+			}
+		}
+		
 		// import transferable entity content
 		if (module.getTransferableEntities() != null) {
 			for (final var entity : module.getTransferableEntities()) {
 				final var content = module.getTransferContent(entity);
 				if (content != null) {
-					try {
-						transferService.doImport(entity, content);
-					} 
-					catch (ValidationException vex) {
-						throw new InternalException(vex);
-					}
+					transferService.doImport(entity, content);
 				}
 			}
 		}
@@ -398,21 +463,50 @@ public class ModuleTransfer {
 	
 	private static void initModuleContent(Module module, 
 										  Map<String, byte[]> mapJars, 
-										  Map<String, byte[]> mapTransferContents) {
+										  Map<String, byte[]> mapTransferContents,
+										  Map<String, Module> mapNestedModules) {
 		// init custom libs content
-		if (notEmpty(mapJars) && module.getCustomLibs() != null) {
+		if (notEmpty(mapJars) && notEmpty(module.getCustomLibs())) {
 			for (final var customLib : module.getCustomLibs()) {
-				Assert.stateAvailable(mapJars.containsKey(customLib.getFilename()), customLib.getFilename());
-				((CustomLibMetadata) customLib).setContent(mapJars.get(customLib.getFilename()));
+				final var content = mapJars.get(customLib.getFilename()); 
+				Assert.stateAvailable(content, customLib.getFilename());
+				((CustomLibMetadata) customLib).setContent(content);
 			}
 		}
+		
+		// init nested modules
+		if (notEmpty(mapNestedModules) && notEmpty(module.getNesteds())) {
+			for (final var nestedModule : module.getNesteds()) {
+				final var nested = mapNestedModules.get(nestedModule.getNestedModuleUid());
+				Assert.stateAvailable(nested, "nested module " + nestedModule.getNestedModuleUid());
+				nestedModule.setNestedModule(nested);
+			}
+		}
+		
 		// store transfer file content in module
-		if (notEmpty(mapTransferContents) && module.getTransferableEntities() != null) {
+		if (notEmpty(mapTransferContents) && notEmpty(module.getTransferableEntities())) {
 			for (final var entity : module.getTransferableEntities()) {
 				final var content = mapTransferContents.get(entity.getInternalName().concat(TransferFormat.CSV.fileExtension));
 				if (content != null) {
 					module.addTransferContent(entity, content);
 				}
+			}
+		}
+	}
+	
+	private static void handleSchemaUpdates(Module module, TransferContext context,
+											List<ApplicationEntityService<?>> services) {
+		// module schema version
+		SchemaVersion moduleSchemaVersion = module.getSchemaVersion();
+		if (moduleSchemaVersion == null) {
+			moduleSchemaVersion = SchemaVersion.V_0_9_21;
+		}
+
+		// schema update
+		if (moduleSchemaVersion != SchemaVersion.currentVersion()) {
+			for (int v = moduleSchemaVersion.ordinal() + 1; v <= SchemaVersion.currentVersion().ordinal(); v++) {
+				final var version = SchemaVersion.getVersion(v);
+				services.forEach(service -> service.handleSchemaUpdate(context, version));
 			}
 		}
 	}
@@ -434,9 +528,7 @@ public class ModuleTransfer {
 	private static List<ApplicationEntityService<?>> sortByDependencies(List<ApplicationEntityService<?>> applicationServices) {
 		final var result = new ArrayList<ApplicationEntityService<?>>(applicationServices.size());
 		while (result.size() < applicationServices.size()) {
-			result.addAll(subList(applicationServices, 
-								  service -> !result.contains(service) &&
-											 dependenciesResolved(service, result)));
+			result.addAll(subList(applicationServices, service -> !result.contains(service) && dependenciesResolved(service, result)));
 		}
 		return result;
 	}

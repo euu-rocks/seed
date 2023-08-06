@@ -17,11 +17,10 @@
  */
 package org.seed.core.application.module;
 
-import static org.seed.core.util.CollectionUtils.filterAndForEach;
+import static org.seed.core.util.CollectionUtils.*;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -30,12 +29,9 @@ import org.hibernate.Transaction;
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.application.AbstractApplicationEntity;
-import org.seed.core.application.ApplicationEntity;
 import org.seed.core.data.AbstractSystemEntityService;
-import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
-import org.seed.core.util.MiscUtils;
 import org.seed.core.util.UID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +40,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
-	implements ModuleService {
+	implements ModuleService, ModuleDependent<Module> {
 	
 	@Autowired
 	private ModuleRepository repository;
@@ -54,8 +50,6 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 	
 	@Autowired
 	private ModuleTransfer transfer;
-	
-	private List<ModuleDependent<? extends ApplicationEntity>> moduleDependents;
 	
 	@Override
 	protected ModuleRepository getRepository() {
@@ -70,6 +64,32 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 	@Override
 	public boolean isExternalDirEnabled() {
 		return transfer.isExternalDirEnabled();
+	}
+	
+	@Override
+	public boolean existOtherModules(Module module, Session session) {
+		Assert.notNull(module, C.MODULE);
+		
+		return anyMatch(repository.find(session), not(module::equals));
+	}
+	
+	@Override
+	@Secured("ROLE_ADMIN_MODULE")
+	public List<Module> getAvailableNesteds(Module module, Session session) {
+		Assert.notNull(module, C.MODULE);
+		
+		return subList(repository.find(session), 
+					   mod -> !module.equals(mod) && 
+					   		  !module.containsNestedModule(mod) &&
+					   		  !mod.containsNestedModule(module));
+	}
+	
+	@Override
+	public List<Module> findUsage(Module module, Session session) {
+		Assert.notNull(module, C.MODULE);
+		
+		return subList(repository.find(session), 
+					   mod -> mod.containsNestedModule(module));
 	}
 	
 	@Override
@@ -121,9 +141,12 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 	public ImportAnalysis analyzeModule(Module module) throws ValidationException {
 		Assert.notNull(module, C.MODULE);
 		
-		final Module currentVersionModule = repository.findByUid(module.getUid());
+		final var currentVersionModule = repository.findByUid(module.getUid());
 		validator.validateImport(module, currentVersionModule);
-		return transfer.analyzeModule(module);
+		
+		final var analysis = new ImportAnalysis(module);
+		transfer.analyzeModule(module, analysis);
+		return analysis;
 	}
 	
 	@Override
@@ -144,48 +167,37 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 	
 	@Override
 	@Secured("ROLE_ADMIN_MODULE")
-	public void deleteObject(Module module) throws ValidationException {
+	public NestedModule createNested(Module module) {
 		Assert.notNull(module, C.MODULE);
 		
-		final var moduleObjects = new ArrayList<SystemEntity>();
-		try (Session session = repository.openSession()) {
-			getModuleDependents().forEach(dependent -> 
-				moduleObjects.addAll(dependent.findUsage(module, session)));
-			Transaction tx = null;
-			try {
-				tx = session.beginTransaction();
-				for (SystemEntity entity : moduleObjects) {
-					((AbstractApplicationEntity) entity).setModule(null);
-					session.update(entity);
-				}
-				deleteObject(module, session);
-				tx.commit();
-			}
-			catch (Exception ex) {
-				handleException(tx, ex);
-			}
-		}
+		final var nested = new NestedModule();
+		module.addNested(nested);
+		return nested;
 	}
 	
 	@Override
 	@Secured("ROLE_ADMIN_MODULE")
 	public void saveObject(Module module) throws ValidationException {
 		Assert.notNull(module, C.MODULE);
+		final var moduleMeta = (ModuleMetadata) module;
 		
 		try (Session session = repository.openSession()) {
 			Transaction tx = null;
 			try {
 				tx = session.beginTransaction();
 				if (module.getUid() == null) {
-					((ModuleMetadata) module).setUid(UID.createUID());
+					moduleMeta.setUid(UID.createUID());
 				}
 				filterAndForEach(module.getParameters(), 
 								 param -> param.getUid() == null, 
 								 param -> param.setUid(UID.createUID()));
+				filterAndForEach(module.getNesteds(), 
+						 		 nested -> nested.getUid() == null, 
+						 		 nested -> nested.setUid(UID.createUID()));
 				saveObject(module, session);
 				
-				if (((ModuleMetadata) module).getChangedObjects() != null) {
-					for (ApplicationEntity changedObject : ((ModuleMetadata) module).getChangedObjects()) {
+				if (moduleMeta.getChangedObjects() != null) {
+					for (var changedObject : moduleMeta.getChangedObjects()) {
 						if (changedObject.getModule() == null) {
 							((AbstractApplicationEntity) changedObject).setModule(module);
 						}
@@ -201,13 +213,6 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 				handleException(tx, ex);
 			}
 		}
-	}
-	
-	private List<ModuleDependent<? extends ApplicationEntity>> getModuleDependents() {
-		if (moduleDependents == null) {
-			moduleDependents = MiscUtils.castList(getBeans(ModuleDependent.class));
-		}
-		return moduleDependents;
 	}
 	
 }

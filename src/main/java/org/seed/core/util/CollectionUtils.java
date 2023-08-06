@@ -51,13 +51,13 @@ public interface CollectionUtils {
 	}
 	
 	static <T,R> List<R> convertedList(@Nullable Collection<T> collection, Function<T,R> function) {
-		return collection != null
+		return notEmpty(collection)
 				? collection.stream().map(function).collect(Collectors.toList())
 				: Collections.emptyList();
 	}
 	
 	static <T,R> Set<R> convertedSet(@Nullable Collection<T> collection, Function<T,R> function) {
-		return collection != null
+		return notEmpty(collection)
 				? collection.stream().map(function).collect(Collectors.toSet())
 				: Collections.emptySet();
 	}
@@ -65,7 +65,7 @@ public interface CollectionUtils {
 	static <T,K,V> Map<K,V> convertedMap(@Nullable Collection<T> collection,
 										 Function<? super T,? extends K> keyFunction,
 										 Function<? super T,? extends V> valueFunction) {
-		return collection != null
+		return notEmpty(collection)
 				? collection.stream().collect(Collectors.toMap(keyFunction, valueFunction))
 				: Collections.emptyMap();
 	}
@@ -73,7 +73,7 @@ public interface CollectionUtils {
 	static <T,R> List<R> filterAndConvert(@Nullable Collection<T> collection, 
 										  Predicate<T> predicate, 
 										  Function<T,R> function) {
-		return collection != null
+		return notEmpty(collection)
 				? filterAndConvert(collection.stream(), predicate, function)
 				: Collections.emptyList();
 	}
@@ -87,7 +87,7 @@ public interface CollectionUtils {
 	}
 	
 	static <T> long filterAndCount(@Nullable Collection<T> collection, Predicate<T> predicate) {
-		return collection != null
+		return notEmpty(collection)
 				? collection.stream().filter(predicate).count()
 				: 0;
 	}
@@ -95,7 +95,7 @@ public interface CollectionUtils {
 	static <T> void filterAndForEach(@Nullable Collection<T> collection, 
 			  						 Predicate<T> predicate,
 			  						 Consumer<T> action) {
-		if (collection != null) {
+		if (notEmpty(collection)) {
 			filterAndForEach(collection.stream(), predicate, action);
 		}
 	}
@@ -109,7 +109,7 @@ public interface CollectionUtils {
 	}
 	
 	static <T> T firstMatch(@Nullable Collection<T> collection, Predicate<T> predicate) {
-		return collection != null 
+		return notEmpty(collection) 
 				? firstMatch(collection.stream(), predicate)
 				: null;
 	}
@@ -142,11 +142,11 @@ public interface CollectionUtils {
 	}
 	
 	static boolean notEmpty(@Nullable Collection<?> collection) {
-		return collection != null && !collection.isEmpty();
+		return collection != null && collection.size() > 0;
 	}
 	
 	static boolean notEmpty(@Nullable Map<?,?> map) {
-		return map != null && !map.isEmpty();
+		return map != null && map.size() > 0;
 	}
 	
 	static <T> List<T> subList(@Nullable T[] array, Predicate<T> predicate) {
@@ -156,21 +156,21 @@ public interface CollectionUtils {
 	}
 	
 	static <T> List<T> subList(@Nullable Collection<T> collection, Predicate<T> predicate) {
-		return collection != null
+		return notEmpty(collection)
 				? subList(collection.stream(), predicate)
 				: Collections.emptyList();
 	}
 	
 	static <V> Map<String, V> toCaseInsensitiveKeyMap(@Nullable Map<String, V> map) {
 		final var caseInsensitiveKeyMap = new TreeMap<String, V>(String.CASE_INSENSITIVE_ORDER);
-		if (map != null) {
+		if (notEmpty(map)) {
 			caseInsensitiveKeyMap.putAll(map);
 		}
 		return caseInsensitiveKeyMap;
 	}
 	
 	static <T> List<T> valueList(@Nullable Map<?,T> map) {
-		return map != null
+		return notEmpty(map)
 				? map.values().stream().collect(Collectors.toList())
 				: Collections.emptyList();
 	}

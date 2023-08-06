@@ -17,9 +17,14 @@
  */
 package org.seed.core.application.module;
 
+import java.util.List;
+
+import org.hibernate.Session;
+
 import org.seed.C;
 import org.seed.core.application.ApplicationEntity;
 import org.seed.core.data.AbstractSystemEntityValidator;
+import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
@@ -39,6 +44,7 @@ import org.seed.core.task.TaskService;
 import org.seed.core.user.UserGroup;
 import org.seed.core.user.UserGroupService;
 import org.seed.core.util.Assert;
+import org.seed.core.util.MiscUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -46,6 +52,9 @@ import org.springframework.util.ObjectUtils;
 
 @Component
 public class ModuleValidator extends AbstractSystemEntityValidator<Module> {
+	
+	@Autowired
+	private ModuleRepository repository;
 	
 	@Autowired
 	private EntityService entityService;
@@ -71,9 +80,11 @@ public class ModuleValidator extends AbstractSystemEntityValidator<Module> {
 	@Autowired
 	private UserGroupService userGroupService;
 	
+	private List<ModuleDependent<? extends SystemEntity>> moduleDependents;
+	
 	public void validateImport(Module module, Module existingModule) throws ValidationException {
 		Assert.notNull(module, C.MODULE);
-		final ValidationErrors errors = createValidationErrors(module);
+		final var errors = createValidationErrors(module);
 		
 		// entities
 		if (module.getEntities() != null) {
@@ -112,10 +123,9 @@ public class ModuleValidator extends AbstractSystemEntityValidator<Module> {
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public void validateSave(Module module) throws ValidationException {
 		Assert.notNull(module, C.MODULE);
-		final ValidationErrors errors = createValidationErrors(module);
+		final var errors = createValidationErrors(module);
 		
 		if (isEmpty(module.getName())) {
 			errors.addEmptyName();
@@ -125,17 +135,117 @@ public class ModuleValidator extends AbstractSystemEntityValidator<Module> {
 		}
 		
 		if (module.hasParameters()) {
-			for (ModuleParameter parameter : module.getParameters()) {
-				if (isEmpty(parameter.getName())) {
-					errors.addEmptyField("label.paramname");
-				}
-				else if (!isNameUnique(parameter.getName(), module.getParameters())) {
-					errors.addError("val.ambiguous.param", parameter.getName());
-				}
+			validateParameters(module, errors);
+		}
+		if (module.hasNesteds()) {
+			validateNesteds(module, errors);
+		}
+		
+		validate(errors);
+	}
+	
+	@Override
+	public void validateDelete(Module module) throws ValidationException {
+		Assert.notNull(module, C.MODULE);
+		final var errors = createValidationErrors(module);
+		
+		try (Session session = repository.openSession()) {
+			for (var dependent : getModuleDependents()) {
+				validateDeleteModuleDependent(module, dependent, errors, session);
 			}
 		}
 		
 		validate(errors);
+	}
+	
+	private void validateDeleteModuleDependent(Module module, ModuleDependent<? extends SystemEntity> dependent, 
+			ValidationErrors errors, Session session) {
+		for (SystemEntity systemEntity : dependent.findUsage(module, session)) {
+			switch (getEntityType(systemEntity)) {
+				case "customcode":
+					errors.addError("val.inuse.modulecustomcode", systemEntity.getName());
+					break;
+			
+				case "datasource":
+					errors.addError("val.inuse.moduledatasource", systemEntity.getName());
+					break;
+					
+				case "dbobject":
+					errors.addError("val.inuse.moduledbobject", systemEntity.getName());
+					break;
+			
+				case C.ENTITY:
+					errors.addError("val.inuse.moduleentity", systemEntity.getName());
+					break;
+				
+				case C.FILTER:
+					errors.addError("val.inuse.modulefilter", systemEntity.getName());
+					break;
+					
+				case C.FORM:
+					errors.addError("val.inuse.moduleform", systemEntity.getName());
+					break;
+				
+				case "navigation":
+					errors.addError("val.inuse.modulemenu", systemEntity.getName());
+					break;
+				
+				case C.MODULE:
+					errors.addError("val.inuse.modulemodule", systemEntity.getName());
+					break;
+					
+				case C.REPORT:
+					errors.addError("val.inuse.modulereport", systemEntity.getName());
+					break;
+					
+				case C.REST:
+					errors.addError("val.inuse.modulerest", systemEntity.getName());
+					break;
+					
+				case C.TASK:
+					errors.addError("val.inuse.moduletask", systemEntity.getName());
+					break;	
+					
+				case C.TRANSFER:
+					errors.addError("val.inuse.moduletransfer", systemEntity.getName());
+					break;
+					
+				case C.TRANSFORMER:
+					errors.addError("val.inuse.moduletransformer", systemEntity.getName());
+					break;
+				
+				case C.USER:
+					errors.addError("val.inuse.moduleusergroup", systemEntity.getName());
+					break;
+					
+				default:
+					unhandledEntity(systemEntity);
+			}
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void validateParameters(Module module, ValidationErrors errors) {
+		for (ModuleParameter parameter : module.getParameters()) {
+			if (isEmpty(parameter.getName())) {
+				errors.addEmptyField("label.paramname");
+			}
+			else if (!isNameUnique(parameter.getName(), module.getParameters())) {
+				errors.addError("val.ambiguous.param", parameter.getName());
+			}
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void validateNesteds(Module module, ValidationErrors errors) {
+		for (NestedModule nested : module.getNesteds()) {
+			if (isEmpty(nested.getNestedModule())) {
+				errors.addEmptyField("label.submodule");
+			}
+			else if (!isUnique(nested.getNestedModule(), "nestedModule", module.getNesteds())) {
+				errors.addError("val.ambiguous.nested", nested.getNestedModule().getName()); 
+			}
+		}
 	}
 	
 	private void validateEntities(Module module, Module existingModule, ValidationErrors errors) {
@@ -208,6 +318,13 @@ public class ModuleValidator extends AbstractSystemEntityValidator<Module> {
 				errors.addError("val.transfer.illegalusergroup", group.getName(), module.getName());
 			}
 		}
+	}
+	
+	private List<ModuleDependent<? extends SystemEntity>> getModuleDependents() {
+		if (moduleDependents == null) {
+			moduleDependents = MiscUtils.castList(getBeans(ModuleDependent.class));
+		}
+		return moduleDependents;
 	}
 	
 	private static boolean checkModule(ApplicationEntity entity, Module module) {

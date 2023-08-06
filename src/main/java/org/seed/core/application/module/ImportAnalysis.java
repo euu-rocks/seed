@@ -44,7 +44,7 @@ public class ImportAnalysis {
 	
 	private final List<Change> changes = new ArrayList<>();
 	
-	private final Module module;
+	private Module module;
 	
 	ImportAnalysis(Module module) {
 		Assert.notNull(module, C.MODULE);
@@ -54,6 +54,16 @@ public class ImportAnalysis {
 
 	public Module getModule() {
 		return module;
+	}
+	
+	void setModule(Module module) {
+		Assert.notNull(module, C.MODULE);
+		
+		this.module = module;
+	}
+	
+	public boolean hasNestedModules() {
+		return module.hasNesteds();
 	}
 
 	public void addChangeNew(SystemEntity entity) {
@@ -96,6 +106,10 @@ public class ImportAnalysis {
 	
 	public List<Change> getParameterChanges() {
 		return getChanges(ModuleParameter.class);
+	}
+	
+	public List<Change> getNestedChanges() {
+		return getChanges(NestedModule.class);
 	}
 	
 	public List<Change> getDBObjectChanges() {
@@ -155,7 +169,7 @@ public class ImportAnalysis {
 	}
 	
 	private void addChange(ChangeType type, SystemEntity entity) {
-		changes.add(new Change(type, entity));
+		changes.add(new Change(type, entity, module));
 	}
 	
 	private long countChanges(ChangeType type) {
@@ -179,10 +193,13 @@ public class ImportAnalysis {
 		private final ChangeType type;
 		
 		private final SystemEntity entity;
+		
+		private final Module module;
 
-		private Change(ChangeType type, SystemEntity entity) {
+		private Change(ChangeType type, SystemEntity entity, Module module) {
 			this.type = type;
 			this.entity = entity;
+			this.module = module;
 		}
 
 		public ChangeType getType() {
@@ -191,6 +208,10 @@ public class ImportAnalysis {
 
 		public SystemEntity getEntity() {
 			return entity;
+		}
+		
+		public Module getModule() {
+			return module;
 		}
 		
 	}

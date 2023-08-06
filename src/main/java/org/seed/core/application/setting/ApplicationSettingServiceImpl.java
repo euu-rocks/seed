@@ -115,7 +115,7 @@ public class ApplicationSettingServiceImpl implements ApplicationSettingService 
 				final var appSettings = getCurrentSettings(settings, session);
 				// save settings
 				for (var entry : settings.entrySet()) {
-					ApplicationSetting appSetting = appSettings.get(entry.getKey());
+					var appSetting = appSettings.get(entry.getKey());
 					if (entry.getValue() != null) {
 						if (appSetting == null) {
 							appSetting = new ApplicationSetting();
@@ -147,7 +147,8 @@ public class ApplicationSettingServiceImpl implements ApplicationSettingService 
 		Seed.getBean(UpdatableConfiguration.class).updateConfiguration(true);
 	}
 	
-	private Map<Setting, ApplicationSetting> getCurrentSettings(Map<Setting, String> settings, Session session) {
+	private Map<Setting, ApplicationSetting> getCurrentSettings(Map<Setting, String> settings, 
+																Session session) {
 		final var appSettings = new EnumMap<Setting, ApplicationSetting>(Setting.class);
 		for (ApplicationSetting setting : repository.find(session)) {
 			// delete no longer existing setting
@@ -170,11 +171,10 @@ public class ApplicationSettingServiceImpl implements ApplicationSettingService 
 	
 	private Map<Setting, String> getSettingMap() {
 		if (settingMap == null) {
-			final var map = convertedMap(repository.find(), 
-										 ApplicationSetting::getSetting, 
-										 ApplicationSetting::getValue);
-			map.computeIfAbsent(Setting.MENU_MODE, mode -> "NAVIGATION");
-			settingMap = new ConcurrentHashMap<>(map);
+			settingMap = new ConcurrentHashMap<>(convertedMap(repository.find(), 
+					 										  ApplicationSetting::getSetting, 
+					 										  ApplicationSetting::getValue));
+			settingMap.computeIfAbsent(Setting.MENU_MODE, mode -> "NAVIGATION");
 		}
 		return settingMap;
 	}

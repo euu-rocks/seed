@@ -107,6 +107,7 @@ public class ReportDataSource extends AbstractOrderedTransferableObject {
 		}
 		final ReportDataSource otherDataSource = (ReportDataSource) other;
 		return new EqualsBuilder()
+			.append(getOrder(), otherDataSource.getOrder())
 			.append(label, otherDataSource.getLabel())
 			.append(dataSourceUid, otherDataSource.getDataSourceUid())
 			.isEquals();

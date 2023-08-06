@@ -152,6 +152,137 @@
                      ],
                      "tableName": "sys_form"
                   } 
+               },
+               {
+                  "createTable": {
+                     "tableName": "sys_module_nested",
+                     "columns": [
+                       {
+                           "column": {
+                              "name": "id",
+                              "type": "BIGINT",
+                              "constraints": {
+                                  "primaryKey": "true",
+                                  "primaryKeyName": "pk_sys_module_nested"
+                              }
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "uid",
+                              "type": "VARCHAR(<#UID_LEN#>)",
+                              "constraints": {
+                                  "nullable": "false"
+                              }
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "createdby",
+                              "type": "VARCHAR(<#USERNAME_LEN#>)"
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "createdon",
+                              "type": "DATETIME"
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "modifiedby",
+                              "type": "VARCHAR(<#USERNAME_LEN#>)"
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "modifiedon",
+                              "type": "DATETIME"
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "version",
+                              "type": "INT",
+                              "constraints": {
+                                  "nullable": "false"
+                              }
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "ordernum",
+                              "type": "INT",
+                              "constraints": {
+                                  "nullable": "false"
+                              }
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "parent_module_id",
+                              "type": "BIGINT",
+                              "constraints": {
+                                  "nullable": "false"
+                              }
+                           }
+                       },
+                       {
+                           "column": {
+                              "name": "nested_module_id",
+                              "type": "BIGINT"
+                           }
+                       }
+                     ]
+                  }
+               },
+               {
+                  "addUniqueConstraint": {
+                     "columnNames": "parent_module_id,nested_module_id",
+                     "constraintName": "uni_sys_module_nested",
+                     "tableName": "sys_module_nested"
+                  }
+               },
+               {
+                  "addForeignKeyConstraint": {
+                     "baseColumnNames": "parent_module_id",
+                     "baseTableName": "sys_module_nested",
+                     "constraintName": "fk_sys_module_nested_parent",
+                     "deferrable": "false",
+                     "initiallyDeferred": "false",
+                     "onDelete": "NO ACTION",
+                     "onUpdate": "NO ACTION",
+                     "referencedColumnNames": "id",
+                     "referencedTableName": "sys_module",
+                     "validate": "true"
+                  }
+               },
+               {
+                  "addForeignKeyConstraint": {
+                     "baseColumnNames": "nested_module_id",
+                     "baseTableName": "sys_module_nested",
+                     "constraintName": "fk_sys_module_nested_nested",
+                     "deferrable": "false",
+                     "initiallyDeferred": "false",
+                     "onDelete": "NO ACTION",
+                     "onUpdate": "NO ACTION",
+                     "referencedColumnNames": "id",
+                     "referencedTableName": "sys_module",
+                     "validate": "true"
+                  }
+               },
+               {
+                  "createIndex": {
+                     "indexName": "idx_module_nest_module",
+                     "tableName": "sys_module_nested",
+                     "columns": [
+                       {
+                         "column": {
+                            "name": "parent_module_id"
+                         }
+                       }
+                     ]
+                  }
                }
             ]
         }

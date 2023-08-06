@@ -1,0 +1,76 @@
+<!--
+
+    Seed
+    Copyright (C) 2021 EUU⛰ROCKS
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!DOCTYPE xml>
+<borderlayout>
+	<north border="0">
+		<toolbar width="100%">
+			<toolbarbutton label="${labels.admin.module.newnested}" 
+						   iconSclass="new-button z-icon-file-o alpha-icon-lg" 
+					   	   onClick="@command('newNested')"/>
+			<toolbarbutton label="${labels.admin.module.removenested}" 
+						   iconSclass="remove-button z-icon-remove alpha-icon-lg" 
+					   	   onClick="@command('removeNested',elem=self)"
+					   	   visible="@load(!empty vm.nested)"/>
+		</toolbar>
+	</north>
+	<center border="0">
+		<listbox mold="paging" autopaging="true" 
+				 model="@load(vm.object.nesteds)" 
+		         selectedItem="@bind(vm.nested)"
+		         visible="@load(!empty vm.object.nesteds)"
+		         class="alpha-noborder"
+		         hflex="1" vflex="1">
+			<listhead sizable="true">
+	            <listheader label="${labels.label.submodule}" 
+	            			sort="auto(name)" hflex="1"/>
+	        </listhead> 
+	        <template name="model" var="nested">
+	            <listitem sclass="@init(vm.getListItemTestClass(nested))">
+	            	<listcell iconSclass="@load(empty nested.nestedModule ? '' : 'z-icon-cube alpha-icon-lg')">
+	            		<label value="@load(nested.nestedModule.name)" 
+	            			   style="margin-left:3px"/>
+	            	</listcell>
+	            </listitem>
+		    </template> 
+		</listbox>
+	</center>
+	<east title="${labels.label.properties}" 
+		  visible="@load(!empty vm.nested)"
+		  width="275px" border="0" collapsible="true" 
+		  class="alpha-properties">
+		<vlayout class="alpha-properties-content">
+			<label value="${labels.label.submodule}:"/>
+            <combobox model="@load(vm.availableNesteds) @template(empty each.name ? 'empty' : 'nested')"
+           			  mandatory="true"
+           			  selectedItem="@bind(vm.nested.nestedModule)"
+           			  onSelect="@command('flagDirty')"
+           			  value="@load(vm.nested.nestedModule.name)"
+           			  hflex="1">
+           		<template name="empty">
+                   	<comboitem/>
+               	</template>	
+               	<template name="nested" var="nestedModule">
+                   	<comboitem label="@init(nestedModule.name)"
+                   			   iconSclass="z-icon-cube z-icon-fw alpha-icon-lg"/>
+               	</template>	
+           	</combobox>
+		</vlayout>
+	</east>
+</borderlayout>

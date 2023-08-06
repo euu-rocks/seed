@@ -509,6 +509,7 @@ public class EntityField extends AbstractOrderedTransferableObject {
 		}
 		final EntityField otherField = (EntityField) other;
 		return new EqualsBuilder()
+			.append(getOrder(), otherField.getOrder())
 			.append(getFieldGroupUid(), otherField.getFieldGroupUid())
 			.append(getReferenceEntityUid(), otherField.getReferenceEntityUid())
 			.append(getName(), otherField.getName())
