@@ -79,6 +79,8 @@ public interface Module extends SystemEntity, TransferableObject {
 	
 	boolean hasNesteds();
 	
+	boolean containsModule(Module module);
+	
 	boolean containsNestedModule(Module module);
 	
 	ModuleParameter getParameter(String name);

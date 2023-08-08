@@ -42,7 +42,10 @@
 	            			sort="auto(name)" hflex="1"/>
 	        </listhead> 
 	        <template name="model" var="nested">
-	            <listitem sclass="@init(vm.getListItemTestClass(nested))">
+	            <listitem sclass="@init(vm.getListItemTestClass(nested))"
+	          			  attributes.item="@load(nested)"
+	          			  draggable="true" droppable="true" 
+	            		  onDrop="@command('swapNesteds',item=event.dragged.attributes.item,base=nested)">
 	            	<listcell iconSclass="@load(empty nested.nestedModule ? '' : 'z-icon-cube alpha-icon-lg')">
 	            		<label value="@load(nested.nestedModule.name)" 
 	            			   style="margin-left:3px"/>

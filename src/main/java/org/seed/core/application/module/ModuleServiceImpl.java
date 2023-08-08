@@ -80,8 +80,8 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 		
 		return subList(repository.find(session), 
 					   mod -> !module.equals(mod) && 
-					   		  !module.containsNestedModule(mod) &&
-					   		  !mod.containsNestedModule(module));
+					   		  !module.containsModule(mod) &&
+					   		  !mod.containsModule(module));
 	}
 	
 	@Override

@@ -163,6 +163,7 @@ public class ModuleTransfer {
 		Assert.stateAvailable(externalModuleDir, "external module dir");
 		var mapJars = new HashMap<String, byte[]>();
 		var mapTransferContents = new HashMap<String, byte[]>();
+		var mapNestedModules = new HashMap<String, Module>();
 		Module module = null;
 		
 		final var moduleDir = new File(externalModuleDir, moduleName);
@@ -174,8 +175,13 @@ public class ModuleTransfer {
 				continue;
 			}
 			try (InputStream fis = new FileInputStream(file)) {
+				// read nested modules
+				if (file.getName().endsWith(MODULE_FILE_EXTENSION)) {
+					var nestedModule = readModuleFromDir(file.getName());
+					mapNestedModules.put(nestedModule.getUid(), nestedModule);
+				}
 				// read module
-				if (MODULE_XML_FILENAME.equals(file.getName())) {
+				else if (MODULE_XML_FILENAME.equals(file.getName())) {
 					module = (Module) getMarshaller().unmarshal(new StreamSource(fis));
 				}
 				// read jar files
@@ -190,7 +196,7 @@ public class ModuleTransfer {
 			}
 		}
 		if (module != null) {
-			initModuleContent(module, mapJars, mapTransferContents, null);
+			initModuleContent(module, mapJars, mapTransferContents, mapNestedModules);
 		}
 		return module;
 	}
@@ -235,7 +241,7 @@ public class ModuleTransfer {
 		Assert.notNull(module, C.MODULE);
 		Assert.stateAvailable(externalModuleDir, "external module dir");
 		
-		final var moduleDir = new File(externalModuleDir, module.getName());
+		final var moduleDir = new File(externalModuleDir, module.getInternalName());
 		moduleDir.mkdir();
 		
 		// write nested modules
@@ -268,48 +274,56 @@ public class ModuleTransfer {
 		
 		// nested modules
 		if (module.hasNesteds()) {
-			for (final var nested : module.getNesteds()) {
-				if (currentVersionModule == null) {
-					analysis.addChangeNew(nested);
-				}
-				else {
-					final var currentVersionNested =
-						currentVersionModule.getNestedByUid(nested.getUid());
-					if (currentVersionNested == null) {
-						analysis.addChangeNew(nested);
-					}
-					else if (!nested.isEqual(currentVersionNested)) {
-						analysis.addChangeModify(nested);
-					}
-				}
-				// analyze nested
-				analysis.setModule(nested.getNestedModule());
-				analyzeModule(nested.getNestedModule(), analysis);
-			}
-			analysis.setModule(module);
+			analyzeNesteds(module, analysis, currentVersionModule);
 		}
 		
 		// module parameters
 		if (module.hasParameters()) {
-			for (final var parameter : module.getParameters()) {
-				if (currentVersionModule == null) {
-					analysis.addChangeNew(parameter);
-				}
-				else {
-					final var currentVersionParameter =
-						currentVersionModule.getParameterByUid(parameter.getUid());
-					if (currentVersionParameter == null) {
-						analysis.addChangeNew(parameter);
-					}
-					else if (!parameter.isEqual(currentVersionParameter)) {
-						analysis.addChangeModify(parameter);
-					}
-				}
-			}
+			analyzeParameters(module, analysis, currentVersionModule);
 		}
 		
 		// module objects
 		sortByDependencies(applicationServices).forEach(service -> service.analyzeObjects(analysis, currentVersionModule));
+	}
+	
+	private void analyzeNesteds(Module module, ImportAnalysis analysis, Module currentVersionModule) {
+		for (final var nested : module.getNesteds()) {
+			if (currentVersionModule == null) {
+				analysis.addChangeNew(nested);
+			}
+			else {
+				final var currentVersionNested =
+					currentVersionModule.getNestedByUid(nested.getUid());
+				if (currentVersionNested == null) {
+					analysis.addChangeNew(nested);
+				}
+				else if (!nested.isEqual(currentVersionNested)) {
+					analysis.addChangeModify(nested);
+				}
+			}
+			// analyze nested
+			analysis.setModule(nested.getNestedModule());
+			analyzeModule(nested.getNestedModule(), analysis);
+		}
+		analysis.setModule(module);
+	}
+	
+	private void analyzeParameters(Module module, ImportAnalysis analysis, Module currentVersionModule) {
+		for (final var parameter : module.getParameters()) {
+			if (currentVersionModule == null) {
+				analysis.addChangeNew(parameter);
+			}
+			else {
+				final var currentVersionParameter =
+					currentVersionModule.getParameterByUid(parameter.getUid());
+				if (currentVersionParameter == null) {
+					analysis.addChangeNew(parameter);
+				}
+				else if (!parameter.isEqual(currentVersionParameter)) {
+					analysis.addChangeModify(parameter);
+				}
+			}
+		}
 	}
 	
 	void importModule(Module module) throws ValidationException {

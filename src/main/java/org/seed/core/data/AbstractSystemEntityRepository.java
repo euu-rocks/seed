@@ -88,9 +88,9 @@ public abstract class AbstractSystemEntityRepository<T extends SystemEntity>
 	public boolean exist(Session session, QueryParameter ...params) {
 		Assert.notNull(session, C.SESSION);
 		
-		return createQuery(session, params)
+		return !createQuery(session, params)
 				.setMaxResults(1)
-				.getResultList().size() > 0;
+				.getResultList().isEmpty();
 	}
 	
 	@Override

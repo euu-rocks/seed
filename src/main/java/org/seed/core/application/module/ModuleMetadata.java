@@ -574,6 +574,15 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
+	public boolean containsModule(Module module) { // search recursively
+		Assert.notNull(module, C.MODULE);
+		
+		return anyMatch(getNesteds(), 
+						nested -> module.equals(nested.getNestedModule()) ||
+								  nested.containsModule(module));
+	}
+	
+	@Override
 	public boolean containsNestedModule(Module module) {
 		Assert.notNull(module, C.MODULE);
 		

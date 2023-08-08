@@ -40,6 +40,7 @@ public class CreateExpertFormTest extends AbstractFormTest {
 		assertEquals("Neues Formular erstellen", findWindowHeader(window).getText());
 		findCombobox(window, "entity").sendKeys("IntegrationTest");
 		findCombobox(window, "module").sendKeys("Testmodule");
+		findCombobox(window, "menu").sendKeys("Testmenu");
 		clickCheckbox(window, "expertmode");
 		clickButton(window, "create");
 		

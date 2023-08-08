@@ -30,6 +30,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import org.seed.C;
 import org.seed.core.application.AbstractOrderedTransferableObject;
 import org.seed.core.data.Options;
 import org.seed.core.data.SystemEntity;
@@ -53,7 +54,7 @@ public class NestedModule extends AbstractOrderedTransferableObject
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "nested_module_id")
 	@JsonSerialize(using = ReferenceJsonSerializer.class)
-	private ModuleMetadata nestedModule;
+	private ModuleMetadata nested;
 	
 	@Transient
 	@JsonIgnore
@@ -70,27 +71,33 @@ public class NestedModule extends AbstractOrderedTransferableObject
 	
 	@XmlTransient
 	public Module getNestedModule() {
-		return nestedModule;
+		return nested;
 	}
 
 	public void setNestedModule(Module nestedModule) {
-		this.nestedModule = (ModuleMetadata) nestedModule;
+		this.nested = (ModuleMetadata) nestedModule;
 	}
 	
 	@XmlAttribute
 	public String getNestedModuleUid() {
-		return nestedModule != null ? nestedModule.getUid() : nestedModuleUid;
+		return nested != null ? nested.getUid() : nestedModuleUid;
 	}
 
 	public void setNestedModuleUid(String nestedModuleUid) {
 		this.nestedModuleUid = nestedModuleUid;
 	}
 	
+	public boolean containsModule(Module module) {
+		Assert.notNull(module, C.MODULE);
+		
+		return nested != null && nested.containsModule(module);
+	}
+	
 	@JsonIgnore
 	public String getFileName() {
-		Assert.stateAvailable(nestedModule, "nested module");
+		Assert.stateAvailable(nested, "nested module");
 		
-		return nestedModule.getInternalName().concat(ModuleTransfer.MODULE_FILE_EXTENSION);
+		return nested.getInternalName().concat(ModuleTransfer.MODULE_FILE_EXTENSION);
 	}
 	
 	@Override
@@ -117,8 +124,8 @@ public class NestedModule extends AbstractOrderedTransferableObject
 	@Override
 	@JsonIgnore
 	public String getName() {
-		return nestedModule != null 
-				? nestedModule.getName() 
+		return nested != null 
+				? nested.getName() 
 				: null;
 	}
 
@@ -130,8 +137,8 @@ public class NestedModule extends AbstractOrderedTransferableObject
 	@Override
 	@JsonIgnore
 	public String getInternalName() {
-		return nestedModule != null 
-				? nestedModule.getInternalName() 
+		return nested != null 
+				? nested.getInternalName() 
 				: null;
 	}
 

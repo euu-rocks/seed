@@ -250,7 +250,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 		existRests = restService.existObjects(session);
 		existCustomCodes = customCodeService.existObjects(session);
 		existCustomLibs = customLibService.existObjects(session);
-		existUserGroups = userGroupService.findNonSystemGroups(session).size() > 0;
+		existUserGroups = !userGroupService.findNonSystemGroups(session).isEmpty();
 		existOtherModules = moduleService.existOtherModules(module, session);
 	}
 	
@@ -323,6 +323,12 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 		if (cmdSaveObject(component)) {
 			cmdRefresh();
 		}
+	}
+	
+	@Command
+	public void swapNesteds(@BindingParam(C.BASE) NestedModule base, 
+							@BindingParam(C.ITEM) NestedModule item) {
+		swapItems(NESTEDS, base, item);
 	}
 	
 	@Command
@@ -494,6 +500,14 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 			default:
 				throw new IllegalStateException("unknown list manager key: " + key);
 		}
+	}
+	
+	@Override
+	protected List<SystemObject> getListSorterSource(String key) {
+		if (NESTEDS.equals(key)) {
+			return MiscUtils.castList(getObject().getNesteds());
+		}
+		throw new IllegalStateException("unknown list sorter key: " + key);
 	}
 
 	@Override

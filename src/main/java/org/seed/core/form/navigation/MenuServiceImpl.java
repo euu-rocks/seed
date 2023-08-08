@@ -149,7 +149,6 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 					if (parentMenu == null) {
 						parentMenu = createInstance(null);
 						parentMenu.setName(defaultMenuName);
-						((MenuMetadata)parentMenu).setModule(formOptions.getModule());
 						saveObject(parentMenu, session);
 					}
 				}

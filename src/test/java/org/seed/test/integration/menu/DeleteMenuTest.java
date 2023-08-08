@@ -53,17 +53,4 @@ public class DeleteMenuTest extends AbstractMenuTest {
 		waitTabDisappear("entries");
 	}
 	
-	@Test
-	@Order(3)
-	void testDeleteDefaultMenu() {
-		WebElement tabpanel = showMenu("eigene-objekte");
-		assertEquals("Menüs: Eigene Objekte", findTab("menues").getText());
-		clickButton(tabpanel, "delete");
-		
-		WebElement dialogConfirm = findConfirmDialog();
-		confirm(dialogConfirm);
-		waitConfirmDialogDisappear();
-		waitTabDisappear("entries");
-	}
-	
 }

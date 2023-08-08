@@ -47,6 +47,7 @@ import org.seed.test.integration.form.CreateFormTest;
 import org.seed.test.integration.form.CreateExpertFormTest;
 import org.seed.test.integration.form.DeleteFormTest;
 import org.seed.test.integration.form.EditFormTest;
+import org.seed.test.integration.form.EditExpertFormTest;
 import org.seed.test.integration.form.TestobjectFormTest;
 import org.seed.test.integration.menu.CreateMenuTest;
 import org.seed.test.integration.menu.DeleteMenuTest;
@@ -92,9 +93,9 @@ import org.seed.test.integration.user.EditUserTest;
 				 CreateTestobjectTest.class, TestobjectFormTest.class, EditEntityTest.class, 
 				 EditFilterTest.class, EditDBObjectTest.class, EditDataSourceTest.class, 
 				 EditTransferTest.class, EditJsonTransferTest.class, EditTransformerTest.class, 
-				 EditFormTest.class, EditMenuTest.class, EditJobTest.class, EditModuleTest.class, 
-				 EditReportTest.class, EditCustomCodeTest.class, EditRestTest.class, EditUserTest.class, 
-				 EditUserGroupTest.class, DeleteRestTest.class, DeleteCustomCodeTest.class, 
+				 EditFormTest.class, EditExpertFormTest.class, EditMenuTest.class, EditJobTest.class, 
+				 EditModuleTest.class, EditReportTest.class, EditCustomCodeTest.class, EditRestTest.class, 
+				 EditUserTest.class, EditUserGroupTest.class, DeleteRestTest.class, DeleteCustomCodeTest.class, 
 				 DeleteReportTest.class, DeleteJobTest.class, DeleteDataSourcesTest.class, 
 				 DeleteDBObjectTest.class, DeleteFormTest.class, DeleteMenuTest.class, 
 				 DeleteTransformerTest.class, DeleteTransferTest.class, DeleteJsonTransferTest.class, 

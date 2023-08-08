@@ -142,15 +142,15 @@ public interface CollectionUtils {
 	}
 	
 	static boolean notEmpty(@Nullable Collection<?> collection) {
-		return collection != null && collection.size() > 0;
+		return collection != null && !collection.isEmpty();
 	}
 	
 	static boolean notEmpty(@Nullable Map<?,?> map) {
-		return map != null && map.size() > 0;
+		return map != null && !map.isEmpty();
 	}
 	
 	static <T> List<T> subList(@Nullable T[] array, Predicate<T> predicate) {
-		return array != null
+		return array != null && array.length > 0
 				? subList(Arrays.stream(array), predicate)
 				: Collections.emptyList();
 	}
