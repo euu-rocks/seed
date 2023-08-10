@@ -79,6 +79,7 @@ public class NestedModule extends AbstractOrderedTransferableObject
 	}
 	
 	@XmlAttribute
+	@JsonIgnore
 	public String getNestedModuleUid() {
 		return nested != null ? nested.getUid() : nestedModuleUid;
 	}

@@ -67,4 +67,16 @@ public class CreateModuleTest extends AbstractModuleTest {
 		saveModule(tabpanel);
 	}
 	
+	@Test
+	@Order(4)
+	void testCreateSubModule() {
+		clickMenu("administration-module");
+		assertEquals("Module", findTab("module").getText());
+		WebElement tabpanel = findTabpanel("module");
+		clickButton(tabpanel, "new");
+		
+		findTextbox(tabpanel, "name").sendKeys("Submodule");
+		saveModule(tabpanel);
+	}
+	
 }

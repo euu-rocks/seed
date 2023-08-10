@@ -496,6 +496,7 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
+	@JsonIgnore
 	public boolean hasNesteds() {
 		return notEmpty(getNesteds());
 	}

@@ -123,8 +123,8 @@ public class ModuleTransfer {
 		var mapJars = new HashMap<String, byte[]>();
 		var mapTransferContents = new HashMap<String, byte[]>();
 		var mapNestedModules = new HashMap<String, Module>();
-		Module module = null;
 		
+		Module module = null;
 		try (final var stream = new SafeZipInputStream(inputStream)) {
 			ZipEntry entry;
 			while ((entry = stream.getNextEntrySafe()) != null) {
@@ -158,30 +158,34 @@ public class ModuleTransfer {
 		return module;
 	}
 	
-	Module readModuleFromDir(String moduleName) throws IOException {
-		Assert.notNull(moduleName, "module name");
+	Module readModuleFromDir(String moduleDirName) throws IOException {
+		Assert.notNull(moduleDirName, "module dir name");
 		Assert.stateAvailable(externalModuleDir, "external module dir");
-		var mapJars = new HashMap<String, byte[]>();
-		var mapTransferContents = new HashMap<String, byte[]>();
-		var mapNestedModules = new HashMap<String, Module>();
-		Module module = null;
 		
-		final var moduleDir = new File(externalModuleDir, moduleName);
+		return readModuleFromDir(moduleDirName, externalModuleDir);
+	}
+	
+	private Module readModuleFromDir(String moduleDirName, File parentDir) throws IOException {
+		final var mapJars = new HashMap<String, byte[]>();
+		final var mapTransferContents = new HashMap<String, byte[]>();
+		final var mapNestedModules = new HashMap<String, Module>();
+		final var moduleDir = new File(parentDir, moduleDirName);
+		
+		Module module = null;
 		if (!moduleDir.exists() || !moduleDir.isDirectory()) {
 			return null;
 		}
-		for (File file : moduleDir.listFiles()) {
-			if (!file.isFile() || file.isHidden()) {
+		for (File file : subList(moduleDir.listFiles(), not(File::isHidden))) {
+			// nested module
+			if (file.isDirectory()) {
+				var nestedModule = readModuleFromDir(file.getName(), moduleDir);
+				mapNestedModules.put(nestedModule.getUid(), nestedModule);
 				continue;
 			}
+			// module files
 			try (InputStream fis = new FileInputStream(file)) {
-				// read nested modules
-				if (file.getName().endsWith(MODULE_FILE_EXTENSION)) {
-					var nestedModule = readModuleFromDir(file.getName());
-					mapNestedModules.put(nestedModule.getUid(), nestedModule);
-				}
 				// read module
-				else if (MODULE_XML_FILENAME.equals(file.getName())) {
+				if (MODULE_XML_FILENAME.equals(file.getName())) {
 					module = (Module) getMarshaller().unmarshal(new StreamSource(fis));
 				}
 				// read jar files
@@ -212,7 +216,6 @@ public class ModuleTransfer {
 	
 	private void exportModule(Module module, OutputStream out) throws IOException {
 		try (final var stream = new ZipOutputStream(out)) {
-		    
 			// write nested modules
 			if (module.hasNesteds()) {
 				for (NestedModule nested : module.getNesteds()) {
@@ -241,14 +244,18 @@ public class ModuleTransfer {
 		Assert.notNull(module, C.MODULE);
 		Assert.stateAvailable(externalModuleDir, "external module dir");
 		
-		final var moduleDir = new File(externalModuleDir, module.getInternalName());
+		exportModuleToDir(module, externalModuleDir);
+	}
+	
+	private void exportModuleToDir(Module module, File parentDir) throws IOException {
+		// create module directory
+		final var moduleDir = new File(parentDir, module.getInternalName());
 		moduleDir.mkdir();
 		
 		// write nested modules
 		if (module.hasNesteds()) {
 			for (NestedModule nested : module.getNesteds()) {
-				final var content = exportModule(nested.getNestedModule());
-				writeToExternalDir(moduleDir, nested.getFileName(), content);
+				exportModuleToDir(nested.getNestedModule(), moduleDir);
 			}
 		}
 		

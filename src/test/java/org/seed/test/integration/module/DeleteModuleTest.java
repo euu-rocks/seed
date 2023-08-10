@@ -51,4 +51,16 @@ public class DeleteModuleTest extends AbstractModuleTest {
 		waitConfirmDialogDisappear();
 	}
 	
+	@Test
+	@Order(3)
+	void testDeleteSubmodule() {
+		WebElement tabpanel = showModule("submodule");
+		assertEquals("Module: Submodule", findTab("module").getText());
+		clickButton(tabpanel, "delete");
+		
+		WebElement dialogConfirm = findConfirmDialog();
+		confirm(dialogConfirm);
+		waitConfirmDialogDisappear();
+	}
+	
 }

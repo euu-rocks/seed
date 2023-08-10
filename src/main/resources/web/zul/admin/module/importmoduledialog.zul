@@ -21,7 +21,7 @@
 <?page contentType="text/html;charset=UTF-8"?>
 <window id="moduleDialogWin" width="300px" 
 		viewModel="@id('vm') @init('org.seed.ui.zk.vm.admin.ModuleDialogViewModel')" 
-		title="${labels.admin.module.importnamedialog}"
+		title="${labels.admin.module.importmoduledialog}"
 		mode="modal" sizable="true">
 	<div class="alpha-dialog">
 		<grid class="alpha-noborder">

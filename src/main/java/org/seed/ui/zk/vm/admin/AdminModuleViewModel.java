@@ -360,7 +360,7 @@ public class AdminModuleViewModel extends AbstractAdminViewModel<Module> {
 	@Command
 	public void analyzeModuleFromDir(@BindingParam(C.ELEM) Component elem) {
 		if (getObject() == null || getObject().isNew()) {
-			showDialog("/admin/module/namedialog.zul", this);
+			showDialog("/admin/module/importmoduledialog.zul", this);
 			return;
 		}
 		final Module module = moduleService.readModuleFromDir(getObject().getName());

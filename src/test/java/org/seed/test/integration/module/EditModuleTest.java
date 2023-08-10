@@ -51,4 +51,16 @@ public class EditModuleTest extends AbstractModuleTest {
 		saveModule(tabpanel);
 	}
 	
+	@Test
+	@Order(3)
+	void testAssignSubmodule() {
+		WebElement tabpanel = showModule("testmodulenew");
+		assertEquals("Untermodule", findTab(tabpanel, "nesteds").getText());
+		clickTab(tabpanel, "nesteds");
+		WebElement tabpanelNesteds = findTabpanel(tabpanel, "nesteds");
+		clickButton(tabpanelNesteds, "new");
+		findOptionCombobox(tabpanelNesteds, "nestedmodule").sendKeys("Submodule");
+		saveModule(tabpanel);
+	}
+	
 }

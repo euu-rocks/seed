@@ -60,20 +60,22 @@
 		  class="alpha-properties">
 		<vlayout class="alpha-properties-content">
 			<label value="${labels.label.submodule}:"/>
-            <combobox model="@load(vm.availableNesteds) @template(empty each.name ? 'empty' : 'nested')"
-           			  mandatory="true"
-           			  selectedItem="@bind(vm.nested.nestedModule)"
-           			  onSelect="@command('flagDirty')"
-           			  value="@load(vm.nested.nestedModule.name)"
-           			  hflex="1">
-           		<template name="empty">
-                   	<comboitem/>
-               	</template>	
-               	<template name="nested" var="nestedModule">
-                   	<comboitem label="@init(nestedModule.name)"
-                   			   iconSclass="z-icon-cube z-icon-fw alpha-icon-lg"/>
-               	</template>	
-           	</combobox>
+			<div sclass="nestedmodule-field"> 
+	            <combobox model="@load(vm.availableNesteds) @template(empty each.name ? 'empty' : 'nested')"
+	           			  mandatory="true"
+	           			  selectedItem="@bind(vm.nested.nestedModule)"
+	           			  onSelect="@command('flagDirty')"
+	           			  value="@load(vm.nested.nestedModule.name)"
+	           			  hflex="1">
+	           		<template name="empty">
+	                   	<comboitem/>
+	               	</template>	
+	               	<template name="nested" var="nestedModule">
+	                   	<comboitem label="@init(nestedModule.name)"
+	                   			   iconSclass="z-icon-cube z-icon-fw alpha-icon-lg"/>
+	               	</template>	
+	           	</combobox>
+			</div>
 		</vlayout>
 	</east>
 </borderlayout>
