@@ -31,8 +31,7 @@
 		</toolbar>
 	</north>
 	<center border="0">
-		<listbox mold="paging" autopaging="true" 
-				 model="@load(vm.object.printouts)" 
+		<listbox model="@load(vm.object.printouts)" 
 		         selectedItem="@bind(vm.printout)"
 		         visible="@load(!empty vm.object.printouts)"
 		         class="alpha-noborder"

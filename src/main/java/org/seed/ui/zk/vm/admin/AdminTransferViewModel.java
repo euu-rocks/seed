@@ -37,7 +37,6 @@ import org.seed.core.user.Authorisation;
 import org.seed.core.entity.transfer.TransferFormat;
 import org.seed.core.entity.transfer.TransferResult;
 import org.seed.core.util.MiscUtils;
-import org.seed.ui.ListFilter;
 import org.seed.ui.zk.vm.TransferDialogParameter;
 
 import org.springframework.util.ObjectUtils;
@@ -177,10 +176,13 @@ public class AdminTransferViewModel extends AbstractAdminViewModel<Transfer> {
 	
 	@Override
 	protected void initFilters() {
-		final ListFilter<Transfer> filterEntity = getFilter(FILTERGROUP_LIST, C.ENTITY);
+		final var filterEntity = getFilter(FILTERGROUP_LIST, C.ENTITY);
 		filterEntity.setValueFunction(o -> o.getEntity().getName());
+		final var filterType = getFilter(FILTERGROUP_LIST, C.TYPE);
+		filterType.setValueFunction(o -> getEnumLabel(o.getFormat()));
 		for (Transfer transfer : getObjectList()) {
 			filterEntity.addValue(transfer.getEntity().getName());
+			filterType.addValue(getEnumLabel(transfer.getFormat()));
 		}
 	}
 	

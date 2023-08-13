@@ -171,8 +171,6 @@ public class DecoratingVisitor extends AbstractLayoutVisitor {
 		elemListBox.setContext(newContextId());
 		elemListBox.removeAttribute(A_MODEL);
 		elemListBox.removeAttribute(A_SELECTEDITEM);
-		elemListBox.removeAttribute(A_AUTOPAGING);
-		elemListBox.removeAttribute(A_MOLD);
 		elemListBox.removeChildren(A_TEMPLATE);
 		element.removeChildren(LayoutElement.NORTH);
 		

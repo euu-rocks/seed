@@ -129,22 +129,15 @@ public class RestMetadata extends AbstractApplicationEntity
 	@Override
 	public RestFunction getFunctionByMapping(String mapping) {
 		Assert.notNull("mapping", mapping);
+		final String mappingStr = '/' + mapping;
 		
-		if (hasFunctions()) {
-			final String mappingStr = '/' + mapping;
-			for (RestFunction function : getFunctions()) {
-				if (mappingStr.equals(function.getMapping())) {
-					return function;
-				}
-			}
-			// fallback: internal name
-			for (RestFunction function : getFunctions()) {
-				if (function.getInternalName().equalsIgnoreCase(mapping)) {
-					return function;
-				}
-			}
+		RestFunction function = null;
+		function = firstMatch(getFunctions(), func -> mappingStr.equals(func.getMapping()));
+		if (function == null) {
+			function = firstMatch(getFunctions(), 
+								  func -> func.getInternalName().equalsIgnoreCase(mapping));
 		}
-		return null;
+		return function;
 	}
 	
 	@Override

@@ -24,11 +24,10 @@
 		mode="modal" closable="true">
 	<borderlayout hflex="1" vflex="1">
 		<center>
-			<listbox mold="paging" autopaging="true" 
-				 model="@load(vm.borderLayoutProperties.layoutAreaProperties)" 
-		         selectedItem="@bind(vm.layoutAreaProperties)"
-		         class="alpha-noborder"
-		         hflex="1" vflex="1">
+			<listbox model="@load(vm.borderLayoutProperties.layoutAreaProperties)" 
+					 selectedItem="@bind(vm.layoutAreaProperties)"
+					 class="alpha-noborder"
+					 hflex="1" vflex="1">
 		    	<listhead sizable="true">
 		            <listheader label="${labels.label.area}" hflex="1"/>
 		        </listhead>

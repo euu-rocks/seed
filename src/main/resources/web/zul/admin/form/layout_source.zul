@@ -30,6 +30,9 @@
 				<toolbarbutton iconSclass="z-icon-check-circle alpha-icon-lg" 
 							   label="${labels.button.validate}" 
 							   onClick="@command('validateLayout',layout=codemirror.getText(),elem=self)"/>
+				<toolbarbutton iconSclass="autolayout-button z-icon-newspaper-o alpha-icon-lg" 
+							   label="${labels.label.autolayout}"
+							   onClick="@command('newAutoLayout')"/>
 				<toolbarbutton iconSclass="z-icon-refresh alpha-icon-lg" 
 							   label="${labels.button.reset}" 
 							   onClick="@command('reset')"/>

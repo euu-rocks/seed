@@ -26,7 +26,6 @@ import org.seed.core.util.Assert;
 public class LayoutElementAttributes {
 	
 	public static final String A_ALIGN         = "align";
-	public static final String A_AUTOPAGING    = "autopaging";
 	public static final String A_BORDER        = "border";
 	public static final String A_BUTTONVISIBLE = "buttonVisible";
 	public static final String A_CHECKED       = "checked";
@@ -46,7 +45,6 @@ public class LayoutElementAttributes {
 	public static final String A_MANDATORY     = "mandatory";
 	public static final String A_MAXLENGTH     = "maxlength";
 	public static final String A_MODEL         = "model";
-	public static final String A_MOLD          = "mold";
 	public static final String A_NAME          = "name";
 	public static final String A_ONCHANGE      = "onChange";
 	public static final String A_ONCHANGING    = "onChanging";

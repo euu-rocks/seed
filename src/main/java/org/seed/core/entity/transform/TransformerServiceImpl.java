@@ -446,14 +446,12 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
-		if (currentVersionModule.getTransformers() != null) {
-			for (Transformer transformer : currentVersionModule.getTransformers()) {
-				if (module.getTransformerByUid(transformer.getUid()) == null) {
-					session.delete(transformer);
-					removeFunctionClasses(transformer);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getTransformers(), 
+						 currentVersionTransformer -> module.getTransformerByUid(currentVersionTransformer.getUid()) == null, 
+						 currentVersionTransformer -> {
+							 session.delete(currentVersionTransformer);
+							 removeFunctionClasses(currentVersionTransformer);
+						 });
 	}
 	
 	@Override

@@ -22,8 +22,7 @@
 	<west width="50%" border="0" style="padding:5px">
 		<groupbox hflex="1" vflex="1">
 			<caption label="${labels.label.filtersavailable}"/>
-			<listbox mold="paging" autopaging="true"
-					 model="@load(vm.getListManagerList('filters',0))"
+			<listbox model="@load(vm.getListManagerList('filters',0))"
 					 droppable="true" onDrop="@command('dropToList',key='filters',item=event.dragged.attributes.item,list=0)"
 					 hflex="1" vflex="1"
 					 class="alpha-noborder alpha-nobg" 
@@ -42,8 +41,7 @@
 	<center border="0" style="padding:5px">
 		<groupbox  vflex="1">
 			<caption label="${labels.label.filtersselected}"/>
-			<listbox mold="paging" autopaging="true" 
-					 model="@load(vm.getListManagerList('filters',1))"
+			<listbox model="@load(vm.getListManagerList('filters',1))"
 					 droppable="true" onDrop="@command('dropToList',key='filters',item=event.dragged.attributes.item,list=1)"
 					 class="alpha-noborder alpha-nobg"
 					 hflex="1" vflex="1"

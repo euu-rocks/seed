@@ -69,19 +69,19 @@ public interface BeanUtils {
 	static <T> T callIs(Object object, String propertyName) {
 		Assert.notNull(propertyName, C.PROPERTYNAME);
 		
-		return callMethod(object, "is" + StringUtils.capitalize(propertyName));
+		return callMethod(object, "is".concat(StringUtils.capitalize(propertyName)));
 	}
 	
 	static <T> T callGetter(Object object, String propertyName) {
 		Assert.notNull(propertyName, C.PROPERTYNAME);
 		
-		return callMethod(object, "get" + StringUtils.capitalize(propertyName));
+		return callMethod(object, "get".concat(StringUtils.capitalize(propertyName)));
 	}
 	
 	static void callSetter(Object object, String propertyName, Object ...parameters) {
 		Assert.notNull(propertyName, C.PROPERTYNAME);
 		
-		callMethod(object, "set" + StringUtils.capitalize(propertyName), parameters);
+		callMethod(object, "set".concat(StringUtils.capitalize(propertyName)), parameters);
 	}
 	
 	@SuppressWarnings("unchecked")

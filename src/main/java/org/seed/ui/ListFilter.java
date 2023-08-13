@@ -17,6 +17,8 @@
  */
 package org.seed.ui;
 
+import static org.seed.core.util.CollectionUtils.notEmpty;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
@@ -25,7 +27,6 @@ import org.seed.C;
 import org.seed.core.data.SystemObject;
 import org.seed.core.util.Assert;
 
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 public class ListFilter<T extends SystemObject> {
@@ -63,7 +64,7 @@ public class ListFilter<T extends SystemObject> {
 	}
 	
 	public boolean hasValues() {
-		return !ObjectUtils.isEmpty(values);
+		return notEmpty(values);
 	}
 	
 	public String getValue() {

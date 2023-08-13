@@ -53,7 +53,6 @@
 			<listbox model="@load(vm.getListManagerList('transitionPermissions',0))" 
 					 droppable="true" oddRowSclass="non-odd"
 					 onDrop="@command('dropToStatusPermissionList',item=event.dragged.attributes.item,list=0)"
-					 mold="paging" autopaging="true"
 					 class="available-items alpha-noborder alpha-nobg"
 					 hflex="1" vflex="1">
 				<template name="model" var="permission">
@@ -74,7 +73,6 @@
 			<listbox model="@load(vm.getListManagerList('transitionPermissions',1))" 
 					 droppable="true" oddRowSclass="non-odd"
 					 onDrop="@command('dropToStatusPermissionList',item=event.dragged.attributes.item,list=1)"
-					 mold="paging" autopaging="true"
 					 class="selected-items alpha-noborder alpha-nobg"
 					 hflex="1" vflex="1">
 				<template name="model" var="permission">

@@ -31,8 +31,7 @@
 		</toolbar>
 	</north>
 	<center border="0">
-		<listbox mold="paging" autopaging="true" 
-				 model="@load(vm.object.criteria)" 
+		<listbox model="@load(vm.object.criteria)" 
 		         selectedItem="@bind(vm.criterion)"
 		         onSelect="@command('selectCriterion')"
 		         visible="@load(!empty vm.object.criteria)"

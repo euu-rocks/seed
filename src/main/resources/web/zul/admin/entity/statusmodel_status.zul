@@ -40,8 +40,7 @@
 		</hbox>
 	</north>
 	<center border="0">
-		<listbox mold="paging" autopaging="true"
-				 model="@load(vm.object.statusList)" 
+		<listbox model="@load(vm.object.statusList)" 
 		         selectedItem="@bind(vm.status)"
 		         visible="@load(not empty vm.object.statusList)"
 		         hflex="1" vflex="1" 

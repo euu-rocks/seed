@@ -27,12 +27,11 @@
 			<toolbarbutton label="${labels.admin.entity.removefunction}" 
 						   iconSclass="remove-button z-icon-remove alpha-icon-lg" 
 					   	   onClick="@command('removeFunction',elem=self)"
-					   	   visible="@load(not empty vm.function)"/>
+					   	   visible="@load(!empty vm.function)"/>
 		</toolbar>
 	</north>
 	<center border="0">
-		<listbox mold="paging" autopaging="true" 
-				 model="@load(vm.object.memberFunctions)" 
+		<listbox model="@load(vm.object.memberFunctions)" 
 		         selectedItem="@bind(vm.function)"
 		         visible="@load(!empty vm.object.memberFunctions)"
 		         class="alpha-noborder"

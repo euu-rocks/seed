@@ -41,7 +41,8 @@
 		</north>
 		<west visible="@load(vm.isMenuMode('NAVIGATION'))"
 			  title="@load(vm.applicationName)" size="220px" 
-			  splittable="true" collapsible="true" border="0">
+			  splittable="true" collapsible="true" 
+			  autoscroll="true" border="0">
 			<tree model="@load(vm.menuTree)" 
 				  selectedItem="@bind(vm.selectedNode)"
 				  onClick="@command('nodeClicked')"

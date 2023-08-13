@@ -297,14 +297,12 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
-		if (currentVersionModule.getTasks() != null) {
-			for (Task task : currentVersionModule.getTasks()) {
-				if (module.getTaskByUid(task.getUid()) == null) {
-					session.delete(task);
-					removeTaskClass(task);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getTasks(), 
+						 currentVersionTask -> module.getTaskByUid(currentVersionTask.getUid()) == null, 
+						 currentVersionTask -> {
+							 session.delete(currentVersionTask);
+							 removeTaskClass(currentVersionTask);
+						 });
 	}
 	
 	@Override

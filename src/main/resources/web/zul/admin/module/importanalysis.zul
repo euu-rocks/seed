@@ -111,8 +111,7 @@
 				        </grid>
 				    </tabpanel>
 				    <tabpanel fulfill="tabParameters.onSelect">
-						<listbox mold="paging" autopaging="true" 
-				 				 model="@init(vm.importAnalysis.parameterChanges)"
+						<listbox model="@init(vm.importAnalysis.parameterChanges)"
 				 				 class="alpha-noborder"
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
@@ -132,8 +131,7 @@
 		         		</listbox>
 					</tabpanel>
 					<tabpanel fulfill="tabNesteds.onSelect">
-						<listbox mold="paging" autopaging="true" 
-				 				 model="@init(vm.importAnalysis.nestedChanges)"
+						<listbox model="@init(vm.importAnalysis.nestedChanges)"
 				 				 class="alpha-noborder"
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
@@ -158,8 +156,7 @@
 		         		</listbox>
 					</tabpanel>
 					<tabpanel fulfill="tabEntities.onSelect">
-						<listbox mold="paging" autopaging="true" 
-				 				 model="@init(vm.importAnalysis.entityChanges)"
+						<listbox model="@init(vm.importAnalysis.entityChanges)"
 				 				 class="alpha-noborder"
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
@@ -184,8 +181,7 @@
 		         		</listbox>
 					</tabpanel>
 					<tabpanel fulfill="tabFilter.onSelect">
-						<listbox mold="paging" autopaging="true" 
-				 				 model="@init(vm.importAnalysis.filterChanges)"
+						<listbox model="@init(vm.importAnalysis.filterChanges)"
 				 				 class="alpha-noborder"
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
@@ -210,8 +206,7 @@
 		         		</listbox>
 					</tabpanel>
 					<tabpanel fulfill="tabTransformer.onSelect">
-						<listbox mold="paging" autopaging="true" 
-				 				 model="@init(vm.importAnalysis.transformerChanges)"
+						<listbox model="@init(vm.importAnalysis.transformerChanges)"
 				 				 class="alpha-noborder"
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
@@ -236,8 +231,7 @@
 		         		</listbox>
 					</tabpanel>
 					<tabpanel fulfill="tabTransfer.onSelect">
-						<listbox mold="paging" autopaging="true" 
-				 				 model="@init(vm.importAnalysis.transferChanges)"
+						<listbox model="@init(vm.importAnalysis.transferChanges)"
 				 				 class="alpha-noborder"
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
@@ -262,8 +256,7 @@
 		         		</listbox>
 					</tabpanel>
 					<tabpanel fulfill="tabForms.onSelect">
-						<listbox mold="paging" autopaging="true" 
-				 				 model="@init(vm.importAnalysis.formChanges)"
+						<listbox model="@init(vm.importAnalysis.formChanges)"
 				 				 class="alpha-noborder"
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
@@ -288,8 +281,7 @@
 		         		</listbox>
 					</tabpanel>
 					<tabpanel fulfill="tabMenus.onSelect">
-						<listbox mold="paging" autopaging="true" 
-				 				 model="@init(vm.importAnalysis.menuChanges)"
+						<listbox model="@init(vm.importAnalysis.menuChanges)"
 				 				 class="alpha-noborder"
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
@@ -314,8 +306,7 @@
 		         		</listbox>
 					</tabpanel>
 					<tabpanel fulfill="tabJobs.onSelect">
-						<listbox mold="paging" autopaging="true" 
-				 				 model="@init(vm.importAnalysis.taskChanges)"
+						<listbox model="@init(vm.importAnalysis.taskChanges)"
 				 				 class="alpha-noborder"
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
@@ -340,8 +331,7 @@
 		         		</listbox>
 					</tabpanel>
 					<tabpanel fulfill="tabDBObjects.onSelect">
-						<listbox mold="paging" autopaging="true" 
-				 				 model="@init(vm.importAnalysis.DBObjectChanges)"
+						<listbox model="@init(vm.importAnalysis.DBObjectChanges)"
 				 				 class="alpha-noborder"
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
@@ -366,8 +356,7 @@
 		         		</listbox>
 					</tabpanel>
 					<tabpanel fulfill="tabDataSources.onSelect">
-						<listbox mold="paging" autopaging="true" 
-				 				 model="@init(vm.importAnalysis.dataSourceChanges)"
+						<listbox model="@init(vm.importAnalysis.dataSourceChanges)"
 				 				 class="alpha-noborder"
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
@@ -392,8 +381,7 @@
 		         		</listbox>
 					</tabpanel>
 					<tabpanel fulfill="tabReports.onSelect">
-						<listbox mold="paging" autopaging="true" 
-				 				 model="@init(vm.importAnalysis.reportChanges)"
+						<listbox model="@init(vm.importAnalysis.reportChanges)"
 				 				 class="alpha-noborder"
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
@@ -418,8 +406,7 @@
 		         		</listbox>
 					</tabpanel>
 					<tabpanel fulfill="tabRestServices.onSelect">
-						<listbox mold="paging" autopaging="true" 
-				 				 model="@init(vm.importAnalysis.restChanges)"
+						<listbox model="@init(vm.importAnalysis.restChanges)"
 				 				 class="alpha-noborder"
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
@@ -444,8 +431,7 @@
 		         		</listbox>
 					</tabpanel>
 					<tabpanel fulfill="tabCustomCode.onSelect">
-						<listbox mold="paging" autopaging="true" 
-				 				 model="@init(vm.importAnalysis.customCodeChanges)"
+						<listbox model="@init(vm.importAnalysis.customCodeChanges)"
 				 				 class="alpha-noborder"
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
@@ -470,8 +456,7 @@
 		         		</listbox>
 					</tabpanel>
 					<tabpanel fulfill="tabCustomLib.onSelect">
-						<listbox mold="paging" autopaging="true" 
-				 				 model="@init(vm.importAnalysis.customLibChanges)"
+						<listbox model="@init(vm.importAnalysis.customLibChanges)"
 				 				 class="alpha-noborder"
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
@@ -496,8 +481,7 @@
 		         		</listbox>
 					</tabpanel>
 					<tabpanel fulfill="tabUserGroup.onSelect">
-						<listbox mold="paging" autopaging="true" 
-				 				 model="@init(vm.importAnalysis.userGroupChanges)"
+						<listbox model="@init(vm.importAnalysis.userGroupChanges)"
 				 				 class="alpha-noborder"
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">
@@ -524,8 +508,7 @@
 					<tabpanel fulfill="tabError.onSelect">
 						<borderlayout>
 							<center border="0">
-								<listbox mold="paging" autopaging="true" 
-						 				 model="@load(vm.importErrors)"
+								<listbox model="@load(vm.importErrors)"
 						 				 selectedItem="@bind(vm.importError)"
 						 				 class="alpha-noborder"
 				         				 hflex="1" vflex="1">

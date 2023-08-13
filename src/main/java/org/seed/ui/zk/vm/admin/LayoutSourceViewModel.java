@@ -86,6 +86,13 @@ public class LayoutSourceViewModel extends AbstractApplicationViewModel {
 	}
 	
 	@Command
+	@NotifyChange(C.CONTENT)
+	public void newAutoLayout() {
+		final var form = formViewModel.getObject();
+		content = layoutService.buildAutoLayout(form.getEntity(), form);
+	}
+	
+	@Command
 	@SmartNotifyChange("errorMessage")
 	public void validateLayout(@BindingParam(C.LAYOUT) String layout,
 							   @BindingParam(C.ELEM) Component component) {

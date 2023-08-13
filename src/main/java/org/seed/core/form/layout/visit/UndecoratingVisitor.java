@@ -253,8 +253,6 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 		elemListBox.setAttribute(A_SELECTEDITEM, bind(selectedRelationFormObject(relation)));
 		elemListBox.setAttribute(A_ONSELECT, command("'selectRelationFormObject'"));
 		elemListBox.setAttribute("nonselectableTags", "");
-		elemListBox.setAttribute(A_AUTOPAGING, V_TRUE);
-		elemListBox.setAttribute(A_MOLD, "paging");
 		
 		// actions
 		final LayoutElement elemNorth = element.addChild(createBorderLayoutArea(BorderLayoutArea.NORTH), 0);
@@ -282,9 +280,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 				.setAttribute(A_MODEL, load(objectProperty(subForm.getNestedEntity().getInternalName())))
 				.setAttribute(A_SELECTEDITEM, bind(selectedSubFormObject(subForm)))
 				.setAttribute(A_ONSELECT, command("'selectSubFormObject'"))
-				.setAttribute("nonselectableTags", "")
-				.setAttribute(A_AUTOPAGING, V_TRUE)
-				.setAttribute(A_MOLD, "paging");
+				.setAttribute("nonselectableTags", "");
 		final LayoutElement elemListitem = elemListBox.addChild(createTemplate(A_MODEL, subForm.getNestedEntity().getInternalName()))
 													  .addChild(createListItem(null));
 		elemListitem.setAttribute(A_SCLASS, "@init(vm.getListItemTestClass(" + subForm.getNestedEntity().getInternalName() + "))");

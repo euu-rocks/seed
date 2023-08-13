@@ -42,11 +42,10 @@
 	        </grid>
 		</north>
 		<center>
-			<listbox mold="paging" autopaging="true" 
-				 model="@load(vm.columnProperties)" 
-		         selectedItem="@bind(vm.selectedColumn)"
-		         class="alpha-noborder"
-		         hflex="1" vflex="1">
+			<listbox model="@load(vm.columnProperties)" 
+					 selectedItem="@bind(vm.selectedColumn)"
+					 class="alpha-noborder"
+					 hflex="1" vflex="1">
 		    	<listhead sizable="true">
 		            <listheader label="${labels.label.column}" hflex="1"/>
 		        </listhead>

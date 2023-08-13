@@ -43,10 +43,10 @@
 		</toolbar>
 	</north>
 	<center border="0">
-		<listbox style="margin:5px" mold="paging" autopaging="true" vflex="true"
-				 model="@load(vm.objectList)" 
+		<listbox model="@load(vm.objectList)" 
 		         selectedItem="@bind(vm.object)" 
-		         visible="@load(vm.existObjects())">
+		         visible="@load(vm.existObjects())"
+		         style="margin:5px" vflex="true">
 			<listhead sizable="true">
 	            <listheader hflex="2" label="${labels.label.transformer}" 
 	            			sort="auto(name)" onCreate="self.sort(true)"/>

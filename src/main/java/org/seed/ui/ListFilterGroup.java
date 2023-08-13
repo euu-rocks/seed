@@ -81,7 +81,7 @@ public class ListFilterGroup implements ListFilterListener {
 		Assert.notNull(object, C.OBJECT);
 		
 		for (String filterName : filterMap.keySet()) {
-			final ListFilter<T> filter = getFilter(filterName);
+			final var filter = getFilter(filterName);
 			if (filter.isEmpty()) {
 				continue;
 			}
@@ -95,23 +95,25 @@ public class ListFilterGroup implements ListFilterListener {
 			if (value == null) {
 				return false;
 			}
-			// bei Mehrfachauswahl muß der Wert genau stimmen
+			// multiple value
 			if (filter.hasValues()) {
 				if (!value.toString().equals(filter.getValue())) {
 					return false;
 				}
 			}
-			// sonst reicht es, wenn der Wert mit dem filter value beginnt
-			else if (!value.toString().toLowerCase().startsWith(filter.getValue().toLowerCase())) {
+			// single value
+			else if (!value.toString().toLowerCase()
+						   .contains(filter.getValue().toLowerCase())) {
 				return false;
 			}
 		}
 		return true;
 	}
 	
-	private <T extends SystemObject> boolean acceptBooleanFilter(T object, ListFilter<T> filter, String filterName) {
+	private <T extends SystemObject> boolean acceptBooleanFilter(
+			 T object, ListFilter<T> filter, String filterName) {
 		if (filter.getValueFunction() != null) {
-			final Object result = filter.getValueFunction().apply(object);
+			final var result = filter.getValueFunction().apply(object);
 			return result instanceof Boolean && ((Boolean) result).booleanValue();
 		}
 		else {

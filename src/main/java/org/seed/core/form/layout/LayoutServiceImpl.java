@@ -710,18 +710,17 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(form, C.FORM);
 		
-		for (EntityField entityField : entity.getAllFields()) {
-			if (entityField.getType().isReference()) {
-				final List<Form> forms = formService.findForms(entityField.getReferenceEntity());
-				if (!forms.isEmpty()) {
-					FormFieldExtra fieldExtra = form.getFieldExtra(entityField);
-					if (fieldExtra == null) {
-						fieldExtra = new FormFieldExtra();
-						fieldExtra.setEntityField(entityField);
-						form.addFieldExtra(fieldExtra);
-					}
-					fieldExtra.setDetailForm(forms.get(0));
+		for (EntityField entityField : subList(entity.getAllFields(), 
+											   field -> field.getType().isReference())) {
+			final var forms = formService.findForms(entityField.getReferenceEntity());
+			if (notEmpty(forms)) {
+				FormFieldExtra fieldExtra = form.getFieldExtra(entityField);
+				if (fieldExtra == null) {
+					fieldExtra = new FormFieldExtra();
+					fieldExtra.setEntityField(entityField);
+					form.addFieldExtra(fieldExtra);
 				}
+				fieldExtra.setDetailForm(forms.get(0));
 			}
 		}
 		return buildLayout(createAutoLayout(entity, form));

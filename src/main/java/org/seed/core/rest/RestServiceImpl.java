@@ -208,14 +208,12 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
-		if (currentVersionModule.getRests() != null) {
-			for (Rest rest : currentVersionModule.getRests()) {
-				if (module.getRestByUid(rest.getUid()) == null) {
-					session.delete(rest);
-					removeFunctionClasses(rest);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getRests(), 
+						 currentVersionRest -> module.getRestByUid(currentVersionRest.getUid()) == null, 
+						 currentVersionRest -> {
+							 session.delete(currentVersionRest);
+							 removeFunctionClasses(currentVersionRest);
+						 });
 	}
 	
 	@Override

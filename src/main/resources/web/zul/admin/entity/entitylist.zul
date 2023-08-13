@@ -52,7 +52,7 @@
 		</hbox>
 	</north>
 	<center border="0">
-		<listbox style="margin:5px" mold="paging" autopaging="true" vflex="true"
+		<listbox style="margin:5px" vflex="true"
 				 model="@load(vm.objectList)" 
 		         selectedItem="@bind(vm.object)" 
 		         visible="@load(vm.existObjects())">

@@ -46,7 +46,11 @@ public interface StreamUtils {
 	}
 	
 	static SafeZipInputStream getZipStream(byte[] bytes) {
-		return new SafeZipInputStream(new ByteArrayInputStream(bytes));
+		return getZipStream(new ByteArrayInputStream(bytes));
+	}
+	
+	static SafeZipInputStream getZipStream(InputStream stream) {
+		return new SafeZipInputStream(stream);
 	}
 	
 	static String compress(String text) {

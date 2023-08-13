@@ -22,8 +22,7 @@
 	<west width="50%" border="0" style="padding:5px">
 		<groupbox hflex="1" vflex="1">
 			<caption label="${labels.label.menusavailable}"/>
-			<listbox mold="paging" autopaging="true"
-					 model="@load(vm.getListManagerList('menus',0))"
+			<listbox model="@load(vm.getListManagerList('menus',0))"
 					 droppable="true" onDrop="@command('dropToList',key='menus',item=event.dragged.attributes.item,list=0)"
 					 hflex="1" vflex="1"
 					 class="available-items alpha-noborder alpha-nobg" 
@@ -43,8 +42,7 @@
 	<center border="0" style="padding:5px">
 		<groupbox  vflex="1">
 			<caption label="${labels.label.menusselected}"/>
-			<listbox mold="paging" autopaging="true" 
-					 model="@load(vm.getListManagerList('menus',1))"
+			<listbox model="@load(vm.getListManagerList('menus',1))"
 					 droppable="true" onDrop="@command('dropToList',key='menus',item=event.dragged.attributes.item,list=1)"
 					 class="selected-items alpha-noborder alpha-nobg"
 					 hflex="1" vflex="1"

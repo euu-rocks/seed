@@ -42,7 +42,7 @@ public class SafeZipInputStream extends ZipInputStream {
 	
 	private int totalEntryArchive = 0;
 
-	public SafeZipInputStream(InputStream inputStream) {
+	SafeZipInputStream(InputStream inputStream) {
 		super(inputStream);
 	}
 	

@@ -107,14 +107,12 @@ public class CustomCodeServiceImpl extends AbstractApplicationEntityService<Cust
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
-		if (currentVersionModule.getCustomCodes() != null) {
-			for (CustomCode currentVersionCode : currentVersionModule.getCustomCodes()) {
-				if (module.getCustomCodeByUid(currentVersionCode.getUid()) == null) {
-					session.delete(currentVersionCode);
-					removeCustomClass(currentVersionCode);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getCustomCodes(), 
+						 currentVersionCode -> module.getCustomCodeByUid(currentVersionCode.getUid()) == null, 
+						 currentVersionCode -> {
+							 session.delete(currentVersionCode);
+							 removeCustomClass(currentVersionCode);
+						 });
 	}
 	
 	@Override

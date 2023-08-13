@@ -92,8 +92,7 @@
 				        </grid>
 					</tabpanel>
 					<tabpanel fulfill="tabErrors.onSelect">
-						<listbox mold="paging" autopaging="true" 
-				 				 model="@init(vm.transferResult.errors)"
+						<listbox model="@init(vm.transferResult.errors)"
 				 				 class="alpha-noborder"
 		         				 hflex="1" vflex="1">
 		         			<listhead sizable="true">

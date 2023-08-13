@@ -46,6 +46,7 @@ import org.seed.C;
 import org.seed.InternalException;
 import org.seed.Seed;
 import org.seed.core.application.ApplicationEntityService;
+import org.seed.core.codegen.CodeUtils;
 import org.seed.core.config.ApplicationProperties;
 import org.seed.core.config.SchemaVersion;
 import org.seed.core.config.SessionProvider;
@@ -57,13 +58,10 @@ import org.seed.core.entity.Entity;
 import org.seed.core.entity.transfer.TransferFormat;
 import org.seed.core.entity.transfer.TransferService;
 import org.seed.core.util.Assert;
-import org.seed.core.util.SafeZipInputStream;
+import org.seed.core.util.StreamUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.seed.core.codegen.CodeUtils.isJarFile;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.stereotype.Component;
@@ -125,7 +123,7 @@ public class ModuleTransfer {
 		var mapNestedModules = new HashMap<String, Module>();
 		
 		Module module = null;
-		try (final var stream = new SafeZipInputStream(inputStream)) {
+		try (final var stream = StreamUtils.getZipStream(inputStream)) {
 			ZipEntry entry;
 			while ((entry = stream.getNextEntrySafe()) != null) {
 				final var name = entry.getName();
@@ -138,11 +136,10 @@ public class ModuleTransfer {
 				// read module
 				else if (MODULE_XML_FILENAME.equals(name)) {
 					module = (Module) getMarshaller().unmarshal(
-						new StreamSource(
-							new ByteArrayInputStream(content)));
+						new StreamSource(new ByteArrayInputStream(content)));
 				}
 				// read jar files
-				else if (isJarFile(name)) {
+				else if (CodeUtils.isJarFile(name)) {
 					mapJars.put(name, content);
 				}
 				// read transfer files
@@ -189,7 +186,7 @@ public class ModuleTransfer {
 					module = (Module) getMarshaller().unmarshal(new StreamSource(fis));
 				}
 				// read jar files
-				else if (isJarFile(file.getName())) {
+				else if (CodeUtils.isJarFile(file.getName())) {
 					mapJars.put(file.getName(), fis.readAllBytes());
 				}
 				// read transfer files

@@ -40,8 +40,7 @@
 		</hbox>
 	</north>
 	<center border="0">
-		<listbox mold="paging" autopaging="true" 
-				 model="@load(vm.object.callbackFunctions)" 
+		<listbox model="@load(vm.object.callbackFunctions)" 
 		         selectedItem="@bind(vm.callbackFunction)"
 		         visible="@load(!empty vm.object.callbackFunctions)"
 		         class="alpha-noborder"

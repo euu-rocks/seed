@@ -56,8 +56,7 @@
 			  visible="@load(!empty vm.run)"
 			  splittable="true" 
 			  size="50%" border="0">
-			<listbox mold="paging" autopaging="true" 
-					 model="@load(vm.run.logs)" 
+			<listbox model="@load(vm.run.logs)" 
 			         class="alpha-noborder"
 			         hflex="1" vflex="1">
 				<listhead sizable="true">

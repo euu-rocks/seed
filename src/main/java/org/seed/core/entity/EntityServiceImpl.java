@@ -248,7 +248,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		
 		return subList(getObjects(session), obj -> !entity.equals(obj) && 
 											(entity.equals(obj.getGenericEntity()) ||
-											!obj.getReferenceFields(entity).isEmpty() ||
+											notEmpty(obj.getReferenceFields(entity)) ||
 											obj.isNestedEntity(entity) || 
 											obj.isRelatedEntity(entity)));
 	}
@@ -392,7 +392,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		return subList(entityRepository.find(session), 
 				nested -> !nested.equals(entity) &&
 						  !nested.isGeneric() &&
-						  !nested.getReferenceFields(entity).isEmpty());
+						  notEmpty(nested.getReferenceFields(entity)));
 	}
 	
 	@Override

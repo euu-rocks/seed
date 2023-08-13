@@ -224,7 +224,7 @@ public class ValueObjectRepository {
 								  .setMaxResults(1)
 								  .getResultList();
 		result.forEach(session::detach);
-		return !result.isEmpty();
+		return notEmpty(result);
 	}
 	
 	ValueObject findUnique(Entity entity, Filter filter) {
