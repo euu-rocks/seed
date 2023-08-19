@@ -57,7 +57,6 @@ public class NestedModule extends AbstractOrderedTransferableObject
 	private ModuleMetadata nested;
 	
 	@Transient
-	@JsonIgnore
 	private String nestedModuleUid;
 	
 	@XmlTransient
@@ -70,6 +69,7 @@ public class NestedModule extends AbstractOrderedTransferableObject
 	}
 	
 	@XmlTransient
+	@JsonIgnore
 	public Module getNestedModule() {
 		return nested;
 	}
@@ -79,7 +79,6 @@ public class NestedModule extends AbstractOrderedTransferableObject
 	}
 	
 	@XmlAttribute
-	@JsonIgnore
 	public String getNestedModuleUid() {
 		return nested != null ? nested.getUid() : nestedModuleUid;
 	}
@@ -98,7 +97,8 @@ public class NestedModule extends AbstractOrderedTransferableObject
 	public String getFileName() {
 		Assert.stateAvailable(nested, "nested module");
 		
-		return nested.getInternalName().concat(ModuleTransfer.MODULE_FILE_EXTENSION);
+		return nested.getInternalName()
+					 .concat(ModuleTransfer.MODULE_FILE_EXTENSION);
 	}
 	
 	@Override
@@ -124,6 +124,7 @@ public class NestedModule extends AbstractOrderedTransferableObject
 
 	@Override
 	@JsonIgnore
+	@XmlTransient
 	public String getName() {
 		return nested != null 
 				? nested.getName() 

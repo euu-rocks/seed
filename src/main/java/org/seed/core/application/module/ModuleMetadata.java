@@ -82,7 +82,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @javax.persistence.Entity
 @Table(name = "sys_module")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@XmlRootElement(name="module")
+@XmlRootElement(name = "module")
 public class ModuleMetadata extends AbstractSystemEntity 
 	implements Module, TransferableObject {
 	
@@ -485,8 +485,8 @@ public class ModuleMetadata extends AbstractSystemEntity
 	}
 	
 	@Override
-	@XmlElement(name="nested")
-	@XmlElementWrapper(name="nesteds")
+	@XmlElement(name="nestedmodule")
+	@XmlElementWrapper(name="nestedmodules")
 	public List<NestedModule> getNesteds() {
 		return nesteds;
 	}
