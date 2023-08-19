@@ -83,6 +83,12 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 		if (isEmpty(dbObject.getType())) {
 			errors.addEmptyField("label.type");
 		}
+		if (isEmpty(dbObject.getOrder())) {
+			errors.addEmptyField("label.order");
+		}
+		else if (isBelowZero(dbObject.getOrder())) {
+			errors.addError("val.neg.field", "label.order");
+		}
 		if (isEmpty(dbObject.getContent())) {
 			errors.addEmptyField("label.sqlstatement");
 		}

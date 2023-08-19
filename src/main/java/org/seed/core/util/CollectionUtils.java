@@ -34,8 +34,6 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
-import org.springframework.util.ObjectUtils;
-
 public interface CollectionUtils {
 	
 	static <T> boolean anyMatch(@Nullable T[] array, Predicate<T> predicate) {
@@ -81,7 +79,7 @@ public interface CollectionUtils {
 	static <T,R> List<R> filterAndConvert(@Nullable T[] array, 
 			 							  Predicate<T> predicate, 
 			 							  Function<T,R> function) {
-		return array != null
+		return notEmpty(array)
 				? filterAndConvert(Arrays.stream(array), predicate, function)
 				: Collections.emptyList();
 	}
@@ -103,7 +101,7 @@ public interface CollectionUtils {
 	static <T> void filterAndForEach(@Nullable T[] array, 
 									 Predicate<T> predicate,
 									 Consumer<T> action) {
-		if (array != null) {
+		if (notEmpty(array)) {
 			filterAndForEach(Arrays.stream(array), predicate, action);
 		}
 	}
@@ -115,13 +113,13 @@ public interface CollectionUtils {
 	}
 	
 	static <T> T firstMatch(@Nullable T[] array, Predicate<T> predicate) {
-		return array != null 
+		return notEmpty(array) 
 				? firstMatch(Arrays.stream(array), predicate)
 				: null;
 	}
 	
 	static <T> void forEach(@Nullable T[] array, Consumer<T> action) {
-		if (!ObjectUtils.isEmpty(array)) {
+		if (notEmpty(array)) {
 			Arrays.stream(array).forEach(action);
 		}
 	}
@@ -141,6 +139,10 @@ public interface CollectionUtils {
 		return Predicate.not(target);
 	}
 	
+	static <T> boolean notEmpty(@Nullable T[] array) {
+		return array != null && array.length > 0;
+	}
+	
 	static boolean notEmpty(@Nullable Collection<?> collection) {
 		return collection != null && !collection.isEmpty();
 	}
@@ -150,7 +152,7 @@ public interface CollectionUtils {
 	}
 	
 	static <T> List<T> subList(@Nullable T[] array, Predicate<T> predicate) {
-		return array != null && array.length > 0
+		return notEmpty(array)
 				? subList(Arrays.stream(array), predicate)
 				: Collections.emptyList();
 	}

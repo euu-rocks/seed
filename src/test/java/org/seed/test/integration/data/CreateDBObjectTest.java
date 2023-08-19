@@ -42,6 +42,7 @@ public class CreateDBObjectTest extends AbstractDBObjectTest {
 		findValidationMessage(); // name is empty
 		
 		findTextbox(tabpanel, "name").sendKeys("Testview");
+		findIntbox(tabpanel, "order").sendKeys("1");
 		findCodeMirror(tabpanel, "content", 1).sendKeys("* from transferabletest");
 		saveDBObject(tabpanel);
 	}
@@ -60,6 +61,7 @@ public class CreateDBObjectTest extends AbstractDBObjectTest {
 		findValidationMessage(); // name is empty
 		
 		findTextbox(tabpanel, "name").sendKeys("Testprocedure");
+		findIntbox(tabpanel, "order").sendKeys("2");
 		findCodeMirror(tabpanel, "content", 1).sendKeys("Testprocedure(\n"
 				+ "	text1 in varchar(100),\n"
 				+ "	text2 in varchar(100),\n"
@@ -88,6 +90,7 @@ public class CreateDBObjectTest extends AbstractDBObjectTest {
 		findValidationMessage(); // name is empty
 		
 		findTextbox(tabpanel, "name").sendKeys("Testfunction");
+		findIntbox(tabpanel, "order").sendKeys("3");
 		findCodeMirror(tabpanel, "content", 1).sendKeys("Testfunction()\n"
 				+ "returns int\n"
 				+ "language plpgsql\n"
@@ -116,6 +119,7 @@ public class CreateDBObjectTest extends AbstractDBObjectTest {
 		clickButton(window, "create");
 		
 		findTextbox(tabpanel, "name").sendKeys("Triggerfunction");
+		findIntbox(tabpanel, "order").sendKeys("4");
 		findCodeMirror(tabpanel, "content", 1).sendKeys("Triggerfunction()\n"
 				+ "returns trigger\n"
 				+ "language plpgsql\n"
@@ -140,6 +144,7 @@ public class CreateDBObjectTest extends AbstractDBObjectTest {
 		clickButton(window, "create");
 	
 		findTextbox(tabpanel, "name").sendKeys("Testtrigger");
+		findIntbox(tabpanel, "order").sendKeys("5");
 		findCodeMirror(tabpanel, "content", 1).sendKeys("Testtrigger\n"
 				+ "  before update\n"
 				+ "  on sys_user\n"
@@ -160,6 +165,7 @@ public class CreateDBObjectTest extends AbstractDBObjectTest {
 		clickButton(window, "create");
 		
 		findTextbox(tabpanel, "name").sendKeys("Testsequence");
+		findIntbox(tabpanel, "order").sendKeys("6");
 		findCodeMirror(tabpanel, "content", 1).sendKeys("Testsequence START 100");
 		saveDBObject(tabpanel);
 	}

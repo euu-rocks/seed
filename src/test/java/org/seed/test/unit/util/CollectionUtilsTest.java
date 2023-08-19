@@ -211,8 +211,10 @@ class CollectionUtilsTest {
 	void testNotEmpty() {
 		final List<String> list = new ArrayList<>();
 		final Map<String, String> map = new HashMap<>();
+		String[] array = new String[0];
 		assertFalse(CollectionUtils.notEmpty((List<String>) null));
 		assertFalse(CollectionUtils.notEmpty(list));
+		assertFalse(CollectionUtils.notEmpty(array));
 		
 		list.add("test");
 		assertTrue(CollectionUtils.notEmpty(list));
@@ -222,6 +224,9 @@ class CollectionUtilsTest {
 		
 		map.put("test", "yes");
 		assertTrue(CollectionUtils.notEmpty(map));
+		
+		array = new String[] {"test"};
+		assertTrue(CollectionUtils.notEmpty(array));
 	}
 	
 	@Test

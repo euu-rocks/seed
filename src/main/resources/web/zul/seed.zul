@@ -63,7 +63,7 @@
 				</template>
 			</tree>
 		</west>
-		<center border="0">
+		<center autoscroll="true" border="0">
 			<tabbox hflex="1" vflex="1">
 				<tabs children="@load(vm.tabs)">
 					<template name="children" var="tab">

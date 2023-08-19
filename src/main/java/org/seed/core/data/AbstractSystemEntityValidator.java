@@ -112,6 +112,10 @@ public abstract class AbstractSystemEntityValidator<T extends SystemEntity>
 		return !StringUtils.hasText(str);
 	}
 	
+	protected static boolean isBelowZero(Number number) {
+		return number != null && number.longValue() < 0;
+	}
+	
 	protected static boolean isZeroOrBelow(Number number) {
 		return number != null && number.longValue() <= 0;
 	}

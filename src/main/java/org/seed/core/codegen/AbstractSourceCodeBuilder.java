@@ -17,7 +17,7 @@
  */
 package org.seed.core.codegen;
 
-import static org.seed.core.util.CollectionUtils.forEach;
+import static org.seed.core.util.CollectionUtils.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,7 +31,6 @@ import javax.annotation.Nullable;
 import org.seed.C;
 import org.seed.core.util.Assert;
 
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
@@ -206,7 +205,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		
 		// parameters
 		codeBuffer.append(' ').append(methodName).append('(');
-		if (parameters != null) {
+		if (notEmpty(parameters)) {
 			for (int i = 0; i < parameters.length; i++) {
 				final var parameter = parameters[i];
 				addImport(parameter.typeClass);
@@ -366,7 +365,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 			buf.append(typeClass.genericClass.getSimpleName()).append('<');
 		}
 		buf.append(typeClass.className);
-		if (!ObjectUtils.isEmpty(typeClass.typeClasses)) {
+		if (notEmpty(typeClass.typeClasses)) {
 			buf.append('<');
 			for (int i = 0; i < typeClass.typeClasses.length; i++) {
 				if (i > 0) {

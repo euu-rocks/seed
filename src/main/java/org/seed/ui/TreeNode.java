@@ -17,7 +17,7 @@
  */
 package org.seed.ui;
 
-import static org.seed.core.util.CollectionUtils.firstMatch;
+import static org.seed.core.util.CollectionUtils.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -120,13 +120,15 @@ public final class TreeNode {
 	}
 	
 	public List<TreeNode> getParentWithChildren() {
-		if (children != null) {
-			final List<TreeNode> result = new ArrayList<>(children.size() + 1);
+		if (notEmpty(children)) {
+			final var result = new ArrayList<TreeNode>(children.size() + 1);
 			result.add(new TreeNode(label, viewName, iconClass, formId));
 			result.addAll(children);
 			return result;
 		}
-		return Collections.emptyList();
+		else {
+			return Collections.emptyList();
+		}
 	}
 
 	public int countChildren() {
