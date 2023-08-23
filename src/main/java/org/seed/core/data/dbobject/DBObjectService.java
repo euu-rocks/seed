@@ -20,11 +20,12 @@ package org.seed.core.data.dbobject;
 import java.util.List;
 
 import org.seed.core.application.ApplicationEntityService;
+import org.seed.core.data.SystemEntity;
 
 public interface DBObjectService extends ApplicationEntityService<DBObject> {
 	
-	List<DBObject> findTriggerContains(String name);
+	List<DBObject> findUsage(SystemEntity entity);
 	
-	List<DBObject> findViewsContains(String name);
+	List<DBObject> findViewsContains(SystemEntity entity);
 	
 }

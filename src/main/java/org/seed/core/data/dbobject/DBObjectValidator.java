@@ -17,6 +17,8 @@
  */
 package org.seed.core.data.dbobject;
 
+import static org.seed.core.util.CollectionUtils.*;
+
 import javax.persistence.PersistenceException;
 
 import org.hibernate.Session;
@@ -48,7 +50,8 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 		Assert.notNull(dbObject, C.DBOBJECT);
 		
 		if (isEmpty(dbObject.getType())) {
-			throw new ValidationException(createValidationErrors(dbObject).addEmptyField("label.type"));
+			throw new ValidationException(createValidationErrors(dbObject)
+											.addEmptyField("label.type"));
 		}
 	}
 	
@@ -56,16 +59,12 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 	public void validateDelete(DBObject dbObject) throws ValidationException {
 		Assert.notNull(dbObject, C.DBOBJECT);
 		final var errors = createValidationErrors(dbObject);
+		final var service = getBean(DBObjectService.class); 
 		
-		if (dbObject.getType() == DBObjectType.FUNCTION) {
-			final var service = getBean(DBObjectService.class); 
-			for (DBObject trigger : service.findTriggerContains(dbObject.getInternalName())) {
-				errors.addError("val.inuse.functiontriggerdelete", trigger.getName());
-			}
-			for (DBObject view : service.findViewsContains(dbObject.getInternalName())) {
-				errors.addError("val.inuse.functionviewdelete", view.getName());
-			}
-		}
+		filterAndForEach(service.findUsage(dbObject), 
+						 not(dbObject::equals), 
+						 object -> errors.addError("val.inuse.dbobjectdelete", object.getName(), 
+								 				   getEnumLabel(object.getType())));
 		validate(errors);
 	}
 	
@@ -95,12 +94,12 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 		else if (!isEmpty(dbObject.getName()) &&
 				 !isEmpty(dbObject.getType()) && 
 				 dbObject.getType() != DBObjectType.VIEW && 
-				 !dbObject.contains(dbObject.getInternalName())) {
+				 !dbObject.contains(dbObject)) {
 			errors.addNotContains(dbObject.getInternalName());
 		}
-		if (errors.isEmpty()) {
+		if (errors.isEmpty() && dbObject.isEnabled()) {
 			validateObjectType(dbObject, errors);
-			validateSaveObjectUsage(dbObject, errors);
+			validateSaveUsage(dbObject, errors);
 		}
 		if (errors.isEmpty() && dbObject.isEnabled() && 
 			(dbObject.isNew() || dbObject.getType().isEditable())) {
@@ -109,18 +108,38 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 		validate(errors);
 	}
 	
-	private void validateSaveObjectUsage(DBObject dbObject, ValidationErrors errors) {
-		if (dbObject.getType() == DBObjectType.FUNCTION) {
-			final DBObject currentVersionObject = !dbObject.isNew() ? repository.get(dbObject.getId()) : null;
-			if (currentVersionObject != null && !currentVersionObject.getName().equals(dbObject.getName())) {
-				final var service = getBean(DBObjectService.class); 
-				for (DBObject trigger : service.findTriggerContains(currentVersionObject.getInternalName())) {
-					errors.addError("val.inuse.functiontriggerrename", trigger.getName());
-				}
-				for (DBObject view : service.findViewsContains(currentVersionObject.getInternalName())) {
-					errors.addError("val.inuse.functionviewrename", view.getName());
-				}
-			}
+	private void validateSaveUsage(DBObject dbObject, ValidationErrors errors) {
+		final var service = getBean(DBObjectService.class); 
+		final var currentVersionObject = dbObject.isNew() 
+								? null 
+								: repository.get(dbObject.getId());
+		final var dependents = currentVersionObject != null 
+								? service.findUsage(currentVersionObject) 
+								: null;
+		// object renamed
+		if (currentVersionObject != null &&
+			!currentVersionObject.getName().equals(dbObject.getName())) {
+			filterAndForEach(dependents, 
+							 not(dbObject::equals),
+							 object -> errors.addError("val.inuse.dbobjectrename", object.getName(), 
+									 				   getEnumLabel(object.getType())));
+		}
+		// check nesteds order
+		filterAndForEach(repository.find(), 
+						 object -> !dbObject.equals(object) &&
+						 		   dbObject.contains(object) &&
+						 		   !dbObject.isOrderHigherThan(object), 
+						 object -> errors.addError("val.inuse.dbobjectnestedorder", 
+								 				   object.getName(), 
+								 				   String.valueOf(object.getOrder())));		
+		// check dependents order
+		if (!dbObject.isNew()) {
+			filterAndForEach(dependents, 
+							 object -> !dbObject.equals(object) && 
+							 		   !object.isOrderHigherThan(dbObject), 
+							 object -> errors.addError("val.inuse.dbobjectdependentorder", 
+									 				   object.getName(), 
+									 				   String.valueOf(object.getOrder())));
 		}
 	}
 	
@@ -168,18 +187,21 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 				tx = session.beginTransaction();
 				switch (dbObject.getType()) {
 					case VIEW:
-						session.createNativeQuery(dbObject.getContent()).setMaxResults(0).list();
+						session.createNativeQuery(dbObject.getContent())
+							   .setMaxResults(0).list();
 						break;
 						
 					case PROCEDURE:
 					case FUNCTION:
 					case TRIGGER:
 					case SEQUENCE:
-						session.createNativeQuery(dbObject.getContent()).executeUpdate();
+						session.createNativeQuery(dbObject.getContent())
+							   .executeUpdate();
 						break;
 						
 					default:
-						throw new UnsupportedOperationException(dbObject.getType().name());
+						throw new UnsupportedOperationException(
+								dbObject.getType().name());
 				}
 			}
 			finally {
@@ -189,7 +211,8 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 			}
 		}
 		catch (PersistenceException pex) {
-			throw new ValidationException(new ValidationError(dbObject, "val.illegal.sqlstatement"), 
+			throw new ValidationException(new ValidationError(dbObject, 
+										  "val.illegal.sqlstatement"), 
 										  new DataException(pex));
 		}
 	}

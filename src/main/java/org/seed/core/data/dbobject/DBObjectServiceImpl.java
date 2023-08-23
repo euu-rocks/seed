@@ -34,6 +34,7 @@ import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
 import org.seed.core.config.changelog.ChangeLog;
 import org.seed.core.data.AbstractSystemObject;
+import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.EntityService;
 import org.seed.core.util.Assert;
@@ -63,17 +64,17 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 	}
 	
 	@Override
-	public List<DBObject> findViewsContains(String name) {
-		Assert.notNull(name, C.NAME);
+	public List<DBObject> findUsage(SystemEntity entity) {
+		Assert.notNull(entity, C.ENTITY);
 		
-		return findDBObjectContains(DBObjectType.VIEW, name);
+		return findUsage(null, entity);
 	}
 	
 	@Override
-	public List<DBObject> findTriggerContains(String name) {
-		Assert.notNull(name, C.NAME);
+	public List<DBObject> findViewsContains(SystemEntity entity) {
+		Assert.notNull(entity, C.ENTITY);
 		
-		return findDBObjectContains(DBObjectType.TRIGGER, name);
+		return findUsage(DBObjectType.VIEW, entity);
 	}
 	
 	@Override
@@ -263,9 +264,11 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 		updateConfiguration();
 	}
 	
-	private List<DBObject> findDBObjectContains(DBObjectType type, String name) {
-		return subList(repository.find(queryParam(C.TYPE, type)), 
-					   view -> view.isEnabled() && view.contains(name));
+	private List<DBObject> findUsage(DBObjectType type, SystemEntity entity) {
+		final var objects = type != null
+							 ? repository.find(queryParam(C.TYPE, type))
+							 : repository.find();
+		return subList(objects, object -> object.isEnabled() && object.contains(entity));
 	}
 	
 	private static ChangeLog createChangeLog(DBObject currentVersionObject, DBObject nextVersionObject) {

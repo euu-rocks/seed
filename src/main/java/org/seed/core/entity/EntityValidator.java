@@ -321,7 +321,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 			
 			// field type change
 			if (field.getType() != currentVersionField.getType()) {
-				dbObjectService.findViewsContains(entity.getInternalName())
+				dbObjectService.findViewsContains(entity)
 							   .forEach(view -> errors.addError("val.inuse.entityview", view.getName()));
 			}
 			// change to unique

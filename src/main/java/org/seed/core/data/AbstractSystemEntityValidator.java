@@ -20,6 +20,8 @@ package org.seed.core.data;
 import java.util.List;
 
 import org.seed.C;
+import org.seed.LabelProvider;
+import org.seed.Seed;
 import org.seed.core.config.Limits;
 import org.seed.core.util.Assert;
 import org.seed.core.util.BeanUtils;
@@ -35,6 +37,8 @@ public abstract class AbstractSystemEntityValidator<T extends SystemEntity>
 	
 	@Autowired
 	private Limits limits;
+	
+	private LabelProvider labelProvider;
 	
 	@Override
 	public void validateCreate(T object) throws ValidationException {
@@ -58,6 +62,15 @@ public abstract class AbstractSystemEntityValidator<T extends SystemEntity>
 			errors.addOverlongName(getMaxNameLength());
 		}
 		validate(errors);
+	}
+	
+	protected String getEnumLabel(Enum<?> enm) {
+		Assert.notNull(enm, "enum");
+		
+		if (labelProvider == null) {
+			labelProvider = Seed.getBean(LabelProvider.class);
+		}
+		return labelProvider.getEnumLabel(enm);
 	}
 	
 	protected int getLimit(String key) {

@@ -17,7 +17,6 @@
  */
 package org.seed.core.data.dbobject;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.persistence.Column;
@@ -30,8 +29,11 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.application.ContentObject;
+import org.seed.core.data.SystemEntity;
+import org.seed.core.util.Assert;
 import org.seed.core.util.CDATAXmlAdapter;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -42,19 +44,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class DBObjectMetadata extends AbstractApplicationEntity 
 	implements DBObject, ContentObject {
 	
-	/*
-	\s = whitespace
-	+  = one or more
-	on = text "on"
-	\s = whitespace
-	+  = one or more
-	(  = start match group
-	[  = one of the following characters
-	^  = not the following character
-	\s = whitespace
-	+  = one or more
-	*/
 	private static final Pattern PATTERN_TRIGGER_TABLE = Pattern.compile("\\s+on\\s+([^\\s]+)");
+	
+	private static final String PATTERN_NEIGHBOR = "[^a-zA-Z0-9_.-]";
+	
+	private static final String NAME_PREFIX = "(^|" + PATTERN_NEIGHBOR + ")";
+	
+	private static final String NAME_SUFFIX = "($|" + PATTERN_NEIGHBOR + ")";
+	
+	private static final String SQL_COMMENT_PATTERN = "--.*|(\"(?:\\\\[^\"]|\\\\\"|.)*?\")|(?s)/\\*.*?\\*/";
 	
 	private DBObjectType type;
 	
@@ -97,7 +95,7 @@ public class DBObjectMetadata extends AbstractApplicationEntity
 	@Override
 	@JsonIgnore
 	public boolean isEnabled() {
-		return order == null || order >= 0;
+		return order != null && order >= 0;
 	}
 	
 	@Override
@@ -109,13 +107,30 @@ public class DBObjectMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public boolean contains(String text) {
-		return content != null && text != null &&
+		Assert.notNull(text, C.TEXT);
+		
+		return content != null && 
 			   content.toLowerCase().contains(text.toLowerCase());
+	}
+	
+	@Override
+	public boolean contains(SystemEntity entity) {
+		Assert.notNull(entity, C.ENTITY);
+		
+		return containsName(removeComments(content), entity.getInternalName());
+	}
+	
+	@Override
+	public boolean isOrderHigherThan(DBObject dbObject) {
+		Assert.notNull(dbObject, C.DBOBJECT);
+		
+		return order != null && 
+			   order > (dbObject.getOrder() != null ? dbObject.getOrder() : 0); 
 	}
 	
 	String getTriggerTable() {
 		if (content != null) {
-			final Matcher matcher = PATTERN_TRIGGER_TABLE.matcher(content.toLowerCase());
+			final var matcher = PATTERN_TRIGGER_TABLE.matcher(content.toLowerCase());
 			if (matcher.find()) {
 				return matcher.group(1);
 			}
@@ -138,6 +153,20 @@ public class DBObjectMetadata extends AbstractApplicationEntity
 				.append(order, otherObject.getOrder())
 				.append(content, otherObject.getContent())
 				.isEquals();
+	}
+	
+	public static boolean containsName(String text, String name) {
+		return text != null && name != null &&
+			   Pattern.compile(NAME_PREFIX + name + NAME_SUFFIX, 
+					   		   Pattern.CASE_INSENSITIVE)
+			   		  .matcher(text)
+			   		  .find();
+	}
+	
+	public static String removeComments(String text) {
+		return text != null
+				? text.replaceAll(SQL_COMMENT_PATTERN, "$1")
+				: null;
 	}
 	
 }

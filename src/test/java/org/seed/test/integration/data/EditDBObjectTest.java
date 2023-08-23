@@ -64,6 +64,8 @@ public class EditDBObjectTest extends AbstractDBObjectTest {
 		assertEquals("Datenbankelemente: Testview", findTab("datenbankelemente").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TestviewNew");
+		clearIntbox(tabpanel, "order");
+		findIntbox(tabpanel, "order").sendKeys("4");
 		
 		WebElement codeMirror = findCodeMirror(tabpanel, "content", 1);
 		codeMirror.sendKeys(repeatKey(Keys.BACK_SPACE, 23));
