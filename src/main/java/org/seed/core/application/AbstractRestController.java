@@ -27,6 +27,7 @@ import org.hibernate.Session;
 
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.core.config.SystemLog;
 import org.seed.core.data.FileObject;
 import org.seed.core.user.Authorisation;
 import org.seed.core.user.User;
@@ -103,6 +104,7 @@ public abstract class AbstractRestController<T extends ApplicationEntity> {
 			return fileObject;
 		}
 		catch (IOException ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 	}

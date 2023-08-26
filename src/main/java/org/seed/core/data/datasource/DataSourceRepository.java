@@ -34,6 +34,7 @@ import org.hibernate.query.Query;
 import org.hibernate.query.internal.AbstractProducedQuery;
 
 import org.seed.InternalException;
+import org.seed.core.config.SystemLog;
 import org.seed.core.data.AbstractSystemEntityRepository;
 import org.seed.core.data.SystemObject;
 import org.seed.core.util.Assert;
@@ -69,6 +70,7 @@ public class DataSourceRepository extends AbstractSystemEntityRepository<IDataSo
 											   getMetadata(dataSource, parameters, session));
 		} 
 		catch (SQLException ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 	}

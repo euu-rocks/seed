@@ -102,7 +102,9 @@ public class FilterCriterion extends AbstractTransferableObject {
 	
 	@XmlAttribute
 	public String getEntityFieldUid() {
-		return entityField != null ? entityField.getUid() : entityFieldUid;
+		return entityField != null 
+				? entityField.getUid() 
+				: entityFieldUid;
 	}
 
 	public void setEntityFieldUid(String entityFieldUid) {
@@ -241,7 +243,9 @@ public class FilterCriterion extends AbstractTransferableObject {
 
 	public void setReference(TransferableObject reference) {
 		this.reference = reference;
-		referenceUid = reference != null ? reference.getUid() : null;
+		referenceUid = reference != null 
+				? reference.getUid() 
+				: null;
 	}
 	
 	void setValueObject(ValueObject valueObject) {
@@ -368,38 +372,54 @@ public class FilterCriterion extends AbstractTransferableObject {
 			case AUTONUM:
 			case TEXT:
 			case TEXTLONG:
-				if (entityField != null && entityField.isUidField()) {
-					referenceUid = (String) value;
+				if (value instanceof String) {
+					if (entityField != null && entityField.isUidField()) {
+						referenceUid = (String) value;
+					}
+					stringValue = (String) value;
 				}
-				stringValue = (String) value;
 				break;
 				
 			case BOOLEAN:
-				booleanValue = (Boolean) value;
+				if (value instanceof Boolean) {
+					booleanValue = (Boolean) value;
+				}
 				break;
 				
 			case INTEGER:
-				integerValue = (Integer) value;
+				if (value instanceof Integer) {
+					integerValue = (Integer) value;
+				}
 				break;
 				
 			case LONG:
-				longValue = (Long) value;
+				if (value instanceof Long) {
+					longValue = (Long) value;
+				}
 				break;
 				
 			case DOUBLE:
-				doubleValue = (Double) value;
+				if (value instanceof Double) {
+					doubleValue = (Double) value;
+				}
 				break;
 				
 			case DECIMAL:
-				decimalValue = (BigDecimal) value;
+				if (value instanceof BigDecimal) {
+					decimalValue = (BigDecimal) value;
+				}
 				break;
 				
 			case DATE:
-				dateValue = (Date) value;
+				if (value instanceof Date) {
+					dateValue = (Date) value;
+				}
 				break;
 				
 			case DATETIME:
-				dateTimeValue = (Date) value;
+				if (value instanceof Date) {
+					dateTimeValue = (Date) value;
+				}
 				break;
 				
 			case REFERENCE:
@@ -409,7 +429,7 @@ public class FilterCriterion extends AbstractTransferableObject {
 				else if (value instanceof ValueObject) {
 					valueObject = (ValueObject) value; 
 				}
-				else {
+				else if (value instanceof String) {
 					referenceUid = (String) value;
 				}
 				break;

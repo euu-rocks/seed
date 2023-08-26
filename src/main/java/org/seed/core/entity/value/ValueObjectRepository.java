@@ -44,6 +44,7 @@ import org.seed.InternalException;
 import org.seed.core.api.CallbackEventType;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.config.SessionProvider;
+import org.seed.core.config.SystemLog;
 import org.seed.core.data.QueryCursor;
 import org.seed.core.data.FieldType;
 import org.seed.core.data.FileObject;
@@ -126,6 +127,7 @@ public class ValueObjectRepository {
 			return object;
 		}
 		catch (Exception ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 	}

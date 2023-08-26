@@ -39,6 +39,7 @@ import org.seed.core.application.module.TransferContext;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.codegen.CodeUtils;
 import org.seed.core.codegen.GeneratedCode;
+import org.seed.core.config.SystemLog;
 import org.seed.core.data.AbstractSystemObject;
 import org.seed.core.data.SystemField;
 import org.seed.core.data.ValidationException;
@@ -546,6 +547,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 				saveObject(form, session);
 			} 
 			catch (ValidationException vex) {
+				SystemLog.logError(vex);
 				throw new InternalException(vex);
 			}
 		}
@@ -563,6 +565,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 				deleteObject(form, session);
 			} 
 			catch (ValidationException vex) {
+				SystemLog.logError(vex);
 				throw new InternalException(vex);
 			}
 		}

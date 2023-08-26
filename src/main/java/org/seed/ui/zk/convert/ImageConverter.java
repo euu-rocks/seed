@@ -18,6 +18,8 @@
 package org.seed.ui.zk.convert;
 
 import org.seed.InternalException;
+import org.seed.core.config.SystemLog;
+
 import org.zkoss.bind.BindContext;
 import org.zkoss.bind.Converter;
 import org.zkoss.image.AImage;
@@ -38,6 +40,7 @@ public class ImageConverter implements Converter<AImage, byte[], Image> {
 			return new AImage(null, bytes);
         }
 		catch (Exception ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 	}

@@ -27,6 +27,7 @@ import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterOutputStream;
 
 import org.seed.InternalException;
+import org.seed.core.config.SystemLog;
 
 import org.springframework.core.io.Resource;
 import org.springframework.util.FastByteArrayOutputStream;
@@ -60,6 +61,7 @@ public interface StreamUtils {
 				return MiscUtils.toString(Base64.getEncoder().encode(compressedBytes));
 			} 
 			catch (IOException ex) {
+				SystemLog.logError(ex);
 				throw new InternalException(ex);
 			}
 		}
@@ -73,6 +75,7 @@ public interface StreamUtils {
 				return MiscUtils.toString(decompressedBytes);
 			} 
 			catch (IOException ex) {
+				SystemLog.logError(ex);
 				throw new InternalException(ex);
 			}  
 		}
@@ -84,6 +87,7 @@ public interface StreamUtils {
 			return org.springframework.util.StreamUtils.copyToString(stream, MiscUtils.CHARSET);
 		}
 		catch (IOException ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 	}

@@ -34,6 +34,7 @@ import org.seed.core.api.EntityObjectProvider;
 import org.seed.core.api.EntityTransformer;
 import org.seed.core.api.Status;
 import org.seed.core.config.ApplicationProperties;
+import org.seed.core.config.SystemLog;
 import org.seed.core.data.BatchCursor;
 import org.seed.core.data.QueryCursor;
 import org.seed.core.data.ValidationException;
@@ -243,6 +244,7 @@ class ValueObjectProvider implements EntityObjectProvider {
 										  transformerName, functionContext.getSession());
 		}
 		catch (Exception ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 	}

@@ -29,6 +29,7 @@ import org.hibernate.Transaction;
 
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.core.config.SystemLog;
 import org.seed.core.data.AbstractSystemEntityService;
 import org.seed.core.data.Options;
 import org.seed.core.data.ValidationException;
@@ -109,6 +110,7 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 			super.saveObject(user, session);
 		}
 		catch (ValidationException vex) {
+			SystemLog.logError(vex);
 			throw new InternalException(vex);
 		}
 	}
@@ -186,6 +188,7 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 				if (tx != null) {
 					tx.rollback();
 				}
+				SystemLog.logError(ex);
 				throw new InternalException(ex);
 			}
 		}
@@ -259,6 +262,7 @@ public class UserServiceImpl extends AbstractSystemEntityService<User>
 				if (tx != null) {
 					tx.rollback();
 				}
+				SystemLog.logError(ex);
 				throw new InternalException(ex);
 			}
 		}

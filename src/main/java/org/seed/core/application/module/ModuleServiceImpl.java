@@ -29,6 +29,7 @@ import org.hibernate.Transaction;
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.application.AbstractApplicationEntity;
+import org.seed.core.config.SystemLog;
 import org.seed.core.data.AbstractSystemEntityService;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
@@ -99,6 +100,7 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 			return transfer.readModule(inputStream);
 		} 
 		catch (IOException ioex) {
+			SystemLog.logError(ioex);
 			throw new InternalException(ioex);
 		}	
 	}
@@ -110,6 +112,7 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 			return transfer.readModuleFromDir(moduleName);
 		} 
 		catch (IOException ioex) {
+			SystemLog.logError(ioex);
 			throw new InternalException(ioex);
 		}	
 	}
@@ -121,6 +124,7 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 			return transfer.exportModule(module);
 		} 
 		catch (IOException ioex) {
+			SystemLog.logError(ioex);
 			throw new InternalException(ioex);
 		}
 	}
@@ -132,6 +136,7 @@ public class ModuleServiceImpl extends AbstractSystemEntityService<Module>
 			transfer.exportModuleToDir(module);
 		} 
 		catch (IOException ioex) {
+			SystemLog.logError(ioex);
 			throw new InternalException(ioex);
 		}
 	}

@@ -33,6 +33,7 @@ import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
+import org.seed.core.config.SystemLog;
 import org.seed.core.data.QueryParameter;
 import org.seed.core.data.SystemEntityRepository;
 import org.seed.core.data.SystemEntityValidator;
@@ -160,6 +161,7 @@ public class MenuServiceImpl extends AbstractApplicationEntityService<Menu>
 			}
 		}
 		catch (ValidationException vex) {
+			SystemLog.logError(vex);
 			throw new InternalException(vex);
 		}
 	}

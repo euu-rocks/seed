@@ -24,15 +24,20 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
+import javax.persistence.PersistenceException;
 import javax.persistence.criteria.CriteriaQuery;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.exception.ConstraintViolationException;
 
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.core.config.SystemLog;
 import org.seed.core.data.AbstractSystemEntity;
 import org.seed.core.data.FieldAccess;
 import org.seed.core.data.QueryCursor;
@@ -63,7 +68,6 @@ import org.seed.core.rest.RestHelper;
 import org.seed.core.user.User;
 import org.seed.core.user.UserService;
 import org.seed.core.util.Assert;
-import org.seed.core.util.ExceptionUtils;
 import org.seed.core.util.MiscUtils;
 import org.seed.core.util.Tupel;
 
@@ -209,6 +213,7 @@ public class ValueObjectServiceImpl
 			if (ex instanceof ValidationException) {
 				throw (ValidationException) ex;
 			}
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 	}
@@ -531,6 +536,7 @@ public class ValueObjectServiceImpl
 			if (ex instanceof ValidationException) {
 				throw (ValidationException) ex;
 			}
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 	}
@@ -584,11 +590,12 @@ public class ValueObjectServiceImpl
 				if (ex instanceof ValidationException) {
 					throw (ValidationException) ex;
 				}
-				else if (ExceptionUtils.isUniqueConstraintViolation(ex)) {
-					final Tupel<String, String> details = ExceptionUtils.getUniqueConstraintDetails(ex);
+				else if (isUniqueConstraintViolation(ex)) {
+					final var details = getUniqueConstraintDetails(ex);
 					throw new ValidationException(
 							new ValidationError(null, "val.ambiguous.unique", details.x, details.y));
 				}
+				SystemLog.logError(ex);
 				throw new InternalException(ex);
 			}
 		}
@@ -753,6 +760,7 @@ public class ValueObjectServiceImpl
 			if (ex instanceof ValidationException) {
 				throw (ValidationException) ex;
 			}
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 	}
@@ -774,6 +782,13 @@ public class ValueObjectServiceImpl
 			}
 		}
 		return object;
+	}
+	
+	public static boolean isUniqueConstraintViolation(Exception ex) {
+		return ex instanceof PersistenceException && 
+			   ex.getCause() instanceof ConstraintViolationException &&
+			   ((ConstraintViolationException) ex.getCause()).getSQLException()
+			   	.getMessage().contains("unique constraint");
 	}
 	
 	private User getUser(Session session) {
@@ -821,6 +836,25 @@ public class ValueObjectServiceImpl
 			}
 		}
 		return result;
+	}
+	
+	private Tupel<String,String> getUniqueConstraintDetails(Exception ex) {
+		final String message = ((ConstraintViolationException) ex.getCause())
+								.getSQLException().getMessage();
+		String column = "?";
+		String value = "?";
+		final int idxDetail = message.indexOf("Detail:");
+		if (idxDetail > 0) {
+			final String detailMessage = message.substring(idxDetail);
+			final Matcher matcher = Pattern.compile("\\((.*?)\\)").matcher(detailMessage);
+			if (matcher.find()) {
+				column = matcher.group(1);
+				if (matcher.find()) {
+					value = matcher.group(1);
+				}
+			}
+		}
+		return new Tupel<>(column, value);
 	}
 	
 	@SuppressWarnings("unchecked")

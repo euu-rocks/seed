@@ -24,11 +24,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
 import org.seed.C;
 import org.seed.LabelProvider;
 import org.seed.core.data.ValidationError;
 import org.seed.core.util.Assert;
-import org.seed.core.util.ExceptionUtils;
 import org.seed.core.util.MiscUtils;
 import org.seed.ui.DoubleClickDetector;
 import org.seed.ui.zk.UIUtils;
@@ -174,7 +175,7 @@ abstract class AbstractViewModel extends UIUtils {
 	protected final void showError(Component component, Exception ex) {
 		final String msg = StringUtils.hasText(ex.getMessage()) 
 							? ex.getMessage()
-							: ExceptionUtils.getStackTraceAsString(ex);
+							: ExceptionUtils.getStackTrace(ex);
 		showError(component, msg);
 	}
 	

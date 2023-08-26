@@ -34,6 +34,7 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTRow;
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.LabelProvider;
+import org.seed.core.config.SystemLog;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.NestedEntity;
 import org.seed.core.entity.value.ValueObject;
@@ -123,6 +124,7 @@ class DOCXPrintoutProcessor extends AbstractPrintoutProcessor {
 			document.write(out);
 		}
 		catch (IOException | XmlException ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 	}

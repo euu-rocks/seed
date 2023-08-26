@@ -31,6 +31,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.LabelProvider;
+import org.seed.core.config.SystemLog;
 import org.seed.core.data.SystemField;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.Entity;
@@ -162,6 +163,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 			return parseLayout(layout.getContent());
 		} 
 		catch (SAXException | IOException | ParserConfigurationException ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 	}
@@ -736,7 +738,9 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 			for (NestedEntity nested : form.getEntity().getNesteds()) {
 				try {
 					formService.addSubForm(form, nested);
-				} catch (ValidationException vex) {
+				} 
+				catch (ValidationException vex) {
+					SystemLog.logError(vex);
 					throw new InternalException(vex);
 				}
 			}

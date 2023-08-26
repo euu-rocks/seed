@@ -24,6 +24,7 @@ import java.util.Map;
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.LabelProvider;
+import org.seed.core.config.SystemLog;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityService;
 import org.seed.core.entity.value.ValueObject;
@@ -104,6 +105,7 @@ public class PrintoutServiceImpl implements PrintoutService {
 		} 
 		catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | 
 				NoSuchMethodException | SecurityException ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 	}

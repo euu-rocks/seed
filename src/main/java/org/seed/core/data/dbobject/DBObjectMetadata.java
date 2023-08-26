@@ -52,7 +52,7 @@ public class DBObjectMetadata extends AbstractApplicationEntity
 	
 	private static final String NAME_SUFFIX = "($|" + PATTERN_NEIGHBOR + ")";
 	
-	private static final String SQL_COMMENT_PATTERN = "--.*|(\"(?:\\\\[^\"]|\\\\\"|.)*?\")|(?s)/\\*.*?\\*/";
+	private static final String SQL_COMMENT_PATTERN = "--.*|(\"(?:\\\\[^\"]|\\\\\"|.)*+\")|(?s)/\\*.*?\\*/";
 	
 	private DBObjectType type;
 	

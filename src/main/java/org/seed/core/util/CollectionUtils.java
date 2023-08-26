@@ -37,15 +37,15 @@ import javax.annotation.Nullable;
 public interface CollectionUtils {
 	
 	static <T> boolean anyMatch(@Nullable T[] array, Predicate<T> predicate) {
-		return array != null && Arrays.stream(array).anyMatch(predicate);
+		return notEmpty(array) && Arrays.stream(array).anyMatch(predicate);
 	}
 	
 	static <T> boolean anyMatch(@Nullable Collection<T> collection, Predicate<T> predicate) {
-		return collection != null && collection.stream().anyMatch(predicate);
+		return notEmpty(collection) && collection.stream().anyMatch(predicate);
 	}
 	
 	static <T> boolean containsObject(@Nullable Collection<T> collection, T object) {
-		return collection != null && object != null && collection.contains(object);
+		return notEmpty(collection) && object != null && collection.contains(object);
 	}
 	
 	static <T,R> List<R> convertedList(@Nullable Collection<T> collection, Function<T,R> function) {

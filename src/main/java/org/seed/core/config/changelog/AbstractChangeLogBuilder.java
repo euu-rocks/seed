@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.core.config.SystemLog;
 import org.seed.core.data.SystemEntity;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
@@ -132,6 +133,7 @@ public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 			getChangeSet().addChange(changeWrapper);
 		}
 		catch (CustomChangeException ccex) {
+			SystemLog.logError(ccex);
 			throw new InternalException(ccex);
 		}
 	}
@@ -162,6 +164,7 @@ public abstract class AbstractChangeLogBuilder<T extends SystemEntity>
 			return changeLog;
 		} 
 		catch (IOException ioex) {
+			SystemLog.logError(ioex);
 			throw new InternalException(ioex);
 		}
 	}

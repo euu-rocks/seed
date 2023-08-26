@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import org.hibernate.Session;
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.core.config.SystemLog;
 import org.seed.core.data.AbstractSystemEntityService;
 import org.seed.core.data.SystemEntityValidator;
 import org.seed.core.data.ValidationException;
@@ -70,6 +71,7 @@ public class AutonumberServiceImpl extends AbstractSystemEntityService<Autonumbe
 			super.saveObject(autonum, session);
 		} 
 		catch (ValidationException e) {
+			SystemLog.logError(e);
 			throw new InternalException(e);
 		}
 		return pattern != null 

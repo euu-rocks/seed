@@ -30,6 +30,7 @@ import org.hibernate.Transaction;
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.Seed;
+import org.seed.core.config.SystemLog;
 import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
@@ -141,6 +142,7 @@ public class ApplicationSettingServiceImpl implements ApplicationSettingService 
 				if (tx != null) {
 					tx.rollback();
 				}
+				SystemLog.logError(ex);
 				throw new InternalException(ex);
 			}
 		}

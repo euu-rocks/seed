@@ -39,6 +39,7 @@ import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
 import org.seed.core.codegen.CodeManager;
+import org.seed.core.config.SystemLog;
 import org.seed.core.data.FileObject;
 import org.seed.core.data.Options;
 import org.seed.core.data.QueryCursor;
@@ -520,6 +521,7 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 			initObject(transfer);
 		} 
 		catch (ValidationException vex) {
+			SystemLog.logError(vex);
 			throw new InternalException(vex);
 		}
 		return transfer;
@@ -546,6 +548,7 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 			initObject(transfer);
 		} 
 		catch (ValidationException vex) {
+			SystemLog.logError(vex);
 			throw new InternalException(vex);
 		}
 		return transfer;

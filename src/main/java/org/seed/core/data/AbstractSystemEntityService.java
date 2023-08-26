@@ -26,6 +26,7 @@ import org.hibernate.Transaction;
 
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.core.config.SystemLog;
 import org.seed.core.util.Assert;
 import org.seed.core.util.BeanUtils;
 
@@ -45,6 +46,7 @@ public abstract class AbstractSystemEntityService<T extends SystemEntity>
 			return instance;
 		} 
 		catch (Exception ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 	}
@@ -121,6 +123,7 @@ public abstract class AbstractSystemEntityService<T extends SystemEntity>
 			tx.commit();
 		}
 		catch (Exception ex) {
+			SystemLog.logError(ex);
 			if (tx != null) {
 				tx.rollback();
 			}

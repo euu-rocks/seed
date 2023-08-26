@@ -50,6 +50,7 @@ import org.seed.core.codegen.CodeUtils;
 import org.seed.core.config.ApplicationProperties;
 import org.seed.core.config.SchemaVersion;
 import org.seed.core.config.SessionProvider;
+import org.seed.core.config.SystemLog;
 import org.seed.core.config.UpdatableConfiguration;
 import org.seed.core.customcode.CustomLib;
 import org.seed.core.customcode.CustomLibMetadata;
@@ -87,6 +88,9 @@ public class ModuleTransfer {
 	
 	@Autowired
 	private SessionProvider sessionProvider;
+	
+	@Autowired
+	private SystemLog systemLog;
 	
 	@Autowired
 	private List<ApplicationEntityService<?>> applicationServices;
@@ -338,6 +342,7 @@ public class ModuleTransfer {
 				tx = session.beginTransaction();
 				importModule(module, session, sortedServices);
 				tx.commit();
+				systemLog.logInfo("systemlog.info.moduleimported", module.getName());
 			}
 			catch (Exception ex) {
 				if (tx != null) {
@@ -346,6 +351,7 @@ public class ModuleTransfer {
 				if (ex instanceof ValidationException) {
 					throw (ValidationException) ex;
 				}
+				systemLog.logError("systemlog.error.moduleimport", ex, module.getName());
 				throw new InternalException(ex);
 			}
 		}
@@ -469,6 +475,7 @@ public class ModuleTransfer {
 				marshaller.afterPropertiesSet();
 			} 
 			catch (Exception ex) {
+				SystemLog.logError(ex);
 				throw new InternalException(ex);
 			}
 		}

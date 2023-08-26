@@ -26,6 +26,7 @@ import org.seed.core.api.ApplicationException;
 import org.seed.core.api.CallbackEventType;
 import org.seed.core.api.CallbackFunction;
 import org.seed.core.codegen.CodeManager;
+import org.seed.core.config.SystemLog;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityFunction;
 import org.seed.core.entity.EntityRepository;
@@ -182,6 +183,7 @@ public class ValueObjectEventHandler {
 			throw appex;
 		}
 		catch (Exception ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 	}

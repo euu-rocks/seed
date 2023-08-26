@@ -29,6 +29,7 @@ import javax.imageio.ImageIO;
 
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.core.config.SystemLog;
 import org.seed.core.util.Assert;
 
 import org.springframework.util.FastByteArrayOutputStream;
@@ -84,6 +85,7 @@ abstract class ImageUtils {
 			return baos.toByteArray(); 
 		} 
 		catch (IOException ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 	}
@@ -93,6 +95,7 @@ abstract class ImageUtils {
 			return ImageIO.read(new ByteArrayInputStream(bytes));
 		} 
 		catch (IOException ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 	}
@@ -102,6 +105,7 @@ abstract class ImageUtils {
 			return new AImage(null, getBytes(image)); 
 		} 
 		catch (IOException ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 	}

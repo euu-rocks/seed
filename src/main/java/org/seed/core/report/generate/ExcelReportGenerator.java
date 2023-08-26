@@ -32,6 +32,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import org.seed.InternalException;
+import org.seed.core.config.SystemLog;
 import org.seed.core.data.datasource.ColumnMetadata;
 import org.seed.core.data.datasource.DataSourceResult;
 import org.seed.core.report.Report;
@@ -59,6 +60,7 @@ class ExcelReportGenerator extends AbstractReportGenerator {
 			return getBytes();
 		}
 		catch (IOException ioex) {
+			SystemLog.logError(ioex);
 			throw new InternalException(ioex);
 		}
 		finally {

@@ -28,6 +28,7 @@ import java.util.Map;
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.LabelProvider;
+import org.seed.core.config.SystemLog;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.entity.value.ValueObjectService;
@@ -53,6 +54,7 @@ class JsonProcessor extends AbstractTransferProcessor {
 			return out.toByteArray();
 		}
 		catch (IOException ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 	}
@@ -91,6 +93,7 @@ class JsonProcessor extends AbstractTransferProcessor {
 			}
 		}
 		catch (IOException ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 		return result;

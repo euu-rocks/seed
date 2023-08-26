@@ -21,15 +21,19 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
 import org.seed.Seed;
 import org.seed.core.util.Assert;
-import org.seed.core.util.ExceptionUtils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 @Component
 public class SystemLog {
+	
+	private static final Logger log = LoggerFactory.getLogger(SystemLog.class);
 	
 	private final List<LogEntry> entries = new CopyOnWriteArrayList<>();
 	
@@ -74,14 +78,35 @@ public class SystemLog {
 			errorOccured = true;
 		}
 		if (throwable != null) {
-			details = StringUtils.hasText(throwable.getMessage()) 
-						? throwable.getMessage()
-						: ExceptionUtils.getStackTraceAsString(throwable);
+			details = ExceptionUtils.getStackTrace(throwable);
 		}
 		entries.add(new LogEntry(level, labelKey, details, params));
 	}
+	
+	public static void logError(Throwable throwable) {
+		try {
+			final var systemLog = Seed.getBean(SystemLog.class);
+			final var callerInfo = 
+				StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE)
+						   .walk(frames -> 
+						   		frames.skip(1)
+						   		.findFirst()
+								.map(frame -> frame.getDeclaringClass().getSimpleName() + '.' + 
+											  frame.getMethodName() + " line:" + 
+											  frame.getLineNumber()));
+			if (callerInfo.isPresent()) {
+				systemLog.logError("systemlog.error.message", throwable, callerInfo.get());
+			}
+			else {
+				systemLog.logError("systemlog.error.unknown", throwable);
+			}
+		}
+		catch (Exception ex) {
+			log.warn("log error", ex);
+		}
+	}
 
-	public class LogEntry {
+	public static class LogEntry {
 		
 		private final LogLevel level;
 		

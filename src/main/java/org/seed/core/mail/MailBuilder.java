@@ -27,6 +27,7 @@ import javax.mail.internet.MimeMessage;
 
 import org.seed.C;
 import org.seed.InternalException;
+import org.seed.core.config.SystemLog;
 import org.seed.core.util.Assert;
 
 import org.springframework.core.io.InputStreamSource;
@@ -191,9 +192,8 @@ public class MailBuilder {
 		Assert.state(text != null, C.TEXT);
 		try {
 			if (attachments != null) {
-				final MimeMessage message = mailSender.createMimeMessage();
-				final MimeMessageHelper messageHelper = 
-						new MimeMessageHelper(message, true);
+				final var message = mailSender.createMimeMessage();
+				final var messageHelper = new MimeMessageHelper(message, true);
 				messageHelper.setFrom(fromAddress);
 				messageHelper.setTo(toAddress);
 				messageHelper.setCc(ccAddress);
@@ -207,7 +207,7 @@ public class MailBuilder {
 				return new MimeMail(message, subject, toAddress);
 			}
 			else {
-				final SimpleMailMessage message = new SimpleMailMessage();
+				final var message = new SimpleMailMessage();
 				message.setFrom(fromAddress);
 				message.setTo(toAddress);
 				message.setCc(ccAddress);
@@ -217,6 +217,7 @@ public class MailBuilder {
 			}
 		}
 		catch (MessagingException mex) {
+			SystemLog.logError(mex);
 			throw new InternalException(mex);
 		}
 	}

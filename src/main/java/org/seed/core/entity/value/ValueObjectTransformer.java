@@ -28,6 +28,7 @@ import org.seed.InternalException;
 import org.seed.core.api.CallbackEventType;
 import org.seed.core.api.TransformationFunction;
 import org.seed.core.codegen.CodeManager;
+import org.seed.core.config.SystemLog;
 import org.seed.core.data.FileObject;
 import org.seed.core.entity.EntityField;
 import org.seed.core.entity.transform.NestedTransformer;
@@ -135,6 +136,7 @@ public class ValueObjectTransformer {
 			functionInstance.transform(sourceObject, targetObject, functionContext);
 		}
 		catch (Exception ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 	}

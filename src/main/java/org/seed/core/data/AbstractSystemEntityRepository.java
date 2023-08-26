@@ -31,6 +31,7 @@ import org.hibernate.Transaction;
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.config.SessionProvider;
+import org.seed.core.config.SystemLog;
 import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -191,6 +192,7 @@ public abstract class AbstractSystemEntityRepository<T extends SystemEntity>
 	}
 	
 	protected static void handleException(Exception ex) {
+		SystemLog.logError(ex);
 		if (ex instanceof RuntimeException) {
 			throw (RuntimeException) ex;
 		}

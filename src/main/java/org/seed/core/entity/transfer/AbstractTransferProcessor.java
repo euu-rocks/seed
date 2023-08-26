@@ -39,6 +39,7 @@ import org.hibernate.Transaction;
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.LabelProvider;
+import org.seed.core.config.SystemLog;
 import org.seed.core.data.QueryCursor;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.EntityField;
@@ -378,6 +379,7 @@ abstract class AbstractTransferProcessor implements TransferProcessor {
 				  ex instanceof MissingKeyException ||      // abort "all or nothing" imports and
 				  ex instanceof DuplicateKeyException)) {   // rollback overall transaction
 				// only throw unexpected exceptions
+				SystemLog.logError(ex);
 				throw new InternalException(ex);
 			}
 		}

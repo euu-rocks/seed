@@ -26,6 +26,7 @@ import org.seed.Seed;
 import org.seed.core.api.AbstractFunctionContext;
 import org.seed.core.api.DataSource;
 import org.seed.core.api.DataSourceProvider;
+import org.seed.core.config.SystemLog;
 import org.seed.core.data.ValidationException;
 import org.seed.core.util.Assert;
 
@@ -58,6 +59,7 @@ public class DefaultDataSourceProvider implements DataSourceProvider {
 									.getResultList();
 		} 
 		catch (ValidationException vex) {
+			SystemLog.logError(vex);
 			throw new InternalException(vex);
 		}
 	}

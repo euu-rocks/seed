@@ -22,6 +22,8 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
 import org.hibernate.Session;
 import org.quartz.CalendarIntervalScheduleBuilder;
 import org.quartz.CronScheduleBuilder;
@@ -41,6 +43,7 @@ import org.seed.InternalException;
 import org.seed.core.api.Job;
 import org.seed.core.config.LogLevel;
 import org.seed.core.config.SessionProvider;
+import org.seed.core.config.SystemLog;
 import org.seed.core.task.AbstractTaskRun;
 import org.seed.core.task.SystemTask;
 import org.seed.core.task.SystemTaskRun;
@@ -52,7 +55,6 @@ import org.seed.core.task.TaskRunLog;
 import org.seed.core.task.TaskService;
 import org.seed.core.util.Assert;
 import org.seed.core.util.BeanUtils;
-import org.seed.core.util.ExceptionUtils;
 import org.seed.core.util.MiscUtils;
 
 import org.slf4j.Logger;
@@ -108,6 +110,7 @@ public class DefaultJobScheduler
 					.addJobListener(listener);
 		} 
 		catch (SchedulerException ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 	}
@@ -124,6 +127,7 @@ public class DefaultJobScheduler
 			}
 		} 
 		catch (SchedulerException ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 		return false;
@@ -138,6 +142,7 @@ public class DefaultJobScheduler
 					.removeJobListener(listener.getName());
 		} 
 		catch (SchedulerException ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 	}
@@ -151,6 +156,7 @@ public class DefaultJobScheduler
 									   createImmediateTrigger(task));
 		} 
 		catch (SchedulerException ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 		log.info("Job for task '{}' started", task.getName());
@@ -164,6 +170,7 @@ public class DefaultJobScheduler
 									   createImmediateTrigger(systemTask));
 		} 
 		catch (SchedulerException ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 		if (log.isInfoEnabled()) {
@@ -184,6 +191,7 @@ public class DefaultJobScheduler
 			getScheduler().scheduleJob(createJobDetail(task), createTrigger(task));
 		}
 		catch (SchedulerException ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 		log.info("Job for task '{}' scheduled", task.getName());
@@ -197,6 +205,7 @@ public class DefaultJobScheduler
 			}
 		}
 		catch (Exception ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 	}
@@ -208,6 +217,7 @@ public class DefaultJobScheduler
 			getScheduler().deleteJob(JobKey.jobKey(task.getUid(), C.SEED));
 		} 
 		catch (SchedulerException ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 		log.info("Job for task '{}' unscheduled", task.getName());
@@ -219,6 +229,7 @@ public class DefaultJobScheduler
 			getScheduler().clear();
 		} 
 		catch (SchedulerException ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 	}
@@ -337,7 +348,7 @@ public class DefaultJobScheduler
 	}
 	
 	private void logError(AbstractTaskRun run, Throwable throwable) {
-		for (String line : ExceptionUtils.getStackTraceAsString(throwable).split("\n")) {
+		for (String line : ExceptionUtils.getStackTrace(throwable).split("\n")) {
 			if (line.contains(AbstractJob.class.getName())) {
 				break;
 			}

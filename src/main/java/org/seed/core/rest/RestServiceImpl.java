@@ -38,6 +38,7 @@ import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
 import org.seed.core.codegen.CodeManager;
 import org.seed.core.codegen.CodeUtils;
+import org.seed.core.config.SystemLog;
 import org.seed.core.data.Options;
 import org.seed.core.data.ValidationException;
 import org.seed.core.user.UserGroup;
@@ -163,6 +164,7 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 			if (tx != null) {
 				tx.rollback();
 			}
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 		return result;

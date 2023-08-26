@@ -36,6 +36,7 @@ import org.hibernate.Session;
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.core.config.FullTextSearchProvider;
+import org.seed.core.config.SystemLog;
 import org.seed.core.data.SystemField;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityChangeAware;
@@ -133,8 +134,9 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 			return convertedList(solrClient.query(query).getResults(), 
 								 FullTextSearch::createResultEntry);
 		}
-		catch (Exception e) {
-			throw new InternalException(e);
+		catch (Exception ex) {
+			SystemLog.logError(ex);
+			throw new InternalException(ex);
 		}
 	}
 	
@@ -151,8 +153,9 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 								doc -> Long.valueOf((String) doc.getFirstValue(SystemField.ID.property)), 
 								doc -> decorateResultText((String) doc.getFirstValue(FIELD_TEXT), fullTextKey));
 		} 
-		catch (Exception e) {
-			throw new InternalException(e);
+		catch (Exception ex) {
+			SystemLog.logError(ex);
+			throw new InternalException(ex);
 		}
 	}
 	
@@ -203,8 +206,9 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 			solrClient.deleteByQuery("*:*");
 			solrClient.commit();
 		} 
-		catch (SolrServerException | IOException e) {
-			throw new InternalException(e);
+		catch (SolrServerException | IOException ex) {
+			SystemLog.logError(ex);
+			throw new InternalException(ex);
 		}
 	}
 	

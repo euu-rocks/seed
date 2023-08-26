@@ -26,6 +26,7 @@ import java.util.List;
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.Seed;
+import org.seed.core.config.SystemLog;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
@@ -43,6 +44,7 @@ public interface BeanUtils {
 			return typeClass.getDeclaredConstructor().newInstance();
 		} 
 		catch (Exception ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 	}
@@ -105,6 +107,7 @@ public interface BeanUtils {
 			}
 		}
 		catch (ClassNotFoundException cnfex) {
+			SystemLog.logError(cnfex);
 			throw new InternalException(cnfex);
 		}
 		return listClasses;

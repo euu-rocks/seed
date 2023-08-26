@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import org.seed.C;
 import org.seed.InternalException;
 import org.seed.LabelProvider;
+import org.seed.core.config.SystemLog;
 import org.seed.core.data.ValidationException;
 import org.seed.core.entity.value.ValueObject;
 import org.seed.core.entity.value.ValueObjectService;
@@ -76,6 +77,7 @@ class CSVProcessor extends AbstractTransferProcessor {
 			}
 		}
 		catch (Exception ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 		finally {
@@ -113,6 +115,7 @@ class CSVProcessor extends AbstractTransferProcessor {
 	    	saveObjects(objects, options, result);
 		} 
 	    catch (Exception ex) {
+	    	SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 		return result;

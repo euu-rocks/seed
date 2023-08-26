@@ -23,7 +23,9 @@ import java.util.Date;
 
 import org.seed.InternalException;
 import org.seed.LabelProvider;
+import org.seed.core.config.SystemLog;
 import org.seed.core.data.FileObject;
+
 import org.zkoss.bind.BindContext;
 import org.zkoss.image.AImage;
 import org.zkoss.zk.ui.Component;
@@ -65,6 +67,7 @@ public class ValueConverter extends AbstractConverter<Object, Object, Component>
 			return new AImage(null, bytes);
 		} 
 		catch (IOException ex) {
+			SystemLog.logError(ex);
 			throw new InternalException(ex);
 		}
 	}
