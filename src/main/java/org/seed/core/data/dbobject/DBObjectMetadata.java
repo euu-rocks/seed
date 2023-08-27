@@ -17,8 +17,6 @@
  */
 package org.seed.core.data.dbobject;
 
-import java.util.regex.Pattern;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -43,16 +41,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class DBObjectMetadata extends AbstractApplicationEntity 
 	implements DBObject, ContentObject {
-	
-	private static final Pattern PATTERN_TRIGGER_TABLE = Pattern.compile("\\s+on\\s+([^\\s]+)");
-	
-	private static final String PATTERN_NEIGHBOR = "[^a-zA-Z0-9_.-]";
-	
-	private static final String NAME_PREFIX = "(^|" + PATTERN_NEIGHBOR + ")";
-	
-	private static final String NAME_SUFFIX = "($|" + PATTERN_NEIGHBOR + ")";
-	
-	private static final String SQL_COMMENT_PATTERN = "--.*|(\"(?:\\\\[^\"]|\\\\\"|.)*+\")|(?s)/\\*.*?\\*/";
 	
 	private DBObjectType type;
 	
@@ -106,6 +94,13 @@ public class DBObjectMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
+	public boolean contains(SystemEntity entity) {
+		Assert.notNull(entity, C.ENTITY);
+		
+		return DBObjectUtils.containsName(content, entity.getInternalName());
+	}
+	
+	@Override
 	public boolean contains(String text) {
 		Assert.notNull(text, C.TEXT);
 		
@@ -114,28 +109,11 @@ public class DBObjectMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
-	public boolean contains(SystemEntity entity) {
-		Assert.notNull(entity, C.ENTITY);
-		
-		return containsName(removeComments(content), entity.getInternalName());
-	}
-	
-	@Override
 	public boolean isOrderHigherThan(DBObject dbObject) {
 		Assert.notNull(dbObject, C.DBOBJECT);
 		
 		return order != null && 
 			   order > (dbObject.getOrder() != null ? dbObject.getOrder() : 0); 
-	}
-	
-	String getTriggerTable() {
-		if (content != null) {
-			final var matcher = PATTERN_TRIGGER_TABLE.matcher(content.toLowerCase());
-			if (matcher.find()) {
-				return matcher.group(1);
-			}
-		}
-		return null;
 	}
 	
 	@Override
@@ -153,20 +131,6 @@ public class DBObjectMetadata extends AbstractApplicationEntity
 				.append(order, otherObject.getOrder())
 				.append(content, otherObject.getContent())
 				.isEquals();
-	}
-	
-	public static boolean containsName(String text, String name) {
-		return text != null && name != null &&
-			   Pattern.compile(NAME_PREFIX + name + NAME_SUFFIX, 
-					   		   Pattern.CASE_INSENSITIVE)
-			   		  .matcher(text)
-			   		  .find();
-	}
-	
-	public static String removeComments(String text) {
-		return text != null
-				? text.replaceAll(SQL_COMMENT_PATTERN, "$1")
-				: null;
 	}
 	
 }

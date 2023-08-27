@@ -73,37 +73,4 @@ class DBObjectTest {
 		assertFalse(dbObject2.isOrderHigherThan(dbObject1));
 	}
 	
-	@Test
-	void testContainsName() {
-		assertFalse(DBObjectMetadata.containsName(null, null));
-		assertFalse(DBObjectMetadata.containsName("test", null));
-		assertFalse(DBObjectMetadata.containsName(null, "test"));
-		assertTrue(DBObjectMetadata.containsName("Test", "test"));
-		assertTrue(DBObjectMetadata.containsName(" test", "test"));
-		assertTrue(DBObjectMetadata.containsName("test ", "test"));
-		assertTrue(DBObjectMetadata.containsName("\ttest ", "test"));
-		assertTrue(DBObjectMetadata.containsName(",test;", "test"));
-		assertTrue(DBObjectMetadata.containsName("=test()", "test"));
-		assertFalse(DBObjectMetadata.containsName("atest", "test"));
-		assertFalse(DBObjectMetadata.containsName(" testa", "test"));
-		assertFalse(DBObjectMetadata.containsName(" test.", "test"));
-		assertFalse(DBObjectMetadata.containsName(" test-", "test"));
-		assertFalse(DBObjectMetadata.containsName(" test_", "test"));
-		assertFalse(DBObjectMetadata.containsName(".test ", "test"));
-		assertFalse(DBObjectMetadata.containsName("-test ", "test"));
-		assertFalse(DBObjectMetadata.containsName("_test ", "test"));
-		
-		assertTrue(DBObjectMetadata.containsName("create procedure testprocedure(", "Testprocedure"));
-	}
-	
-	@Test
-	void testRemoveComments() {
-		assertNull(DBObjectMetadata.removeComments(null));
-		assertEquals("this is a test", DBObjectMetadata.removeComments("this is a test"));
-		assertEquals("this is a test", DBObjectMetadata.removeComments("this is a test--comment"));
-		assertEquals("this is a test", DBObjectMetadata.removeComments("this is/* comment */ a test"));
-		assertEquals("this is a test", DBObjectMetadata.removeComments("this is a /*\r\n"
-																	 + "multiline comment */test--comment"));
-	}
-	
 }

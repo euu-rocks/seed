@@ -166,7 +166,7 @@ class DBObjectChangeLogBuilder extends AbstractChangeLogBuilder<DBObject> {
 		
 	private void addDropTriggerChange(DBObject dbObject) {
 		final var dropTriggerChange = new DropTriggerChange();
-		final String tableName = ((DBObjectMetadata) dbObject).getTriggerTable();
+		final String tableName = DBObjectUtils.getTriggerTable(dbObject.getContent());
 		dropTriggerChange.setTriggerName(dbObject.getObjectName() + " on " + tableName);
 		addChange(dropTriggerChange);
 	}
