@@ -21,11 +21,11 @@ import java.util.regex.Pattern;
 
 public abstract class DBObjectUtils {
 	
-	private static final Pattern PATTERN_QUOTED_TEXT = Pattern.compile("\\\".*?\\\"|\\'.*?\\'|`.*`");
+	private static final Pattern PATTERN_QUOTED_TEXT = Pattern.compile("\\\"[^\\\"]*+\\\"|\\'[^\\']*+\\'|`.*`");
 	
-	private static final Pattern PATTERN_SQL_COMMENT = Pattern.compile("--.*|/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/");
+	private static final Pattern PATTERN_SQL_COMMENT = Pattern.compile("--.*|/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*+/");
 	
-	private static final Pattern PATTERN_TRIGGER_TABLE = Pattern.compile("\\s+on\\s+([^\\s]+)");
+	private static final Pattern PATTERN_TRIGGER_TABLE = Pattern.compile("\\s+on\\s+([^\\s]+)", Pattern.CASE_INSENSITIVE);
 	
 	private static final String NAME_NEIGHBOR = "[^a-zA-Z0-9_.-]";
 	
@@ -33,7 +33,7 @@ public abstract class DBObjectUtils {
 	
 	private static final String NAME_SUFFIX = "($|" + NAME_NEIGHBOR + ")";
 	
-	private DBObjectUtils() {};
+	private DBObjectUtils() {}
 	
 	public static boolean containsName(String text, String name) {
 		return text != null && name != null &&
@@ -44,7 +44,8 @@ public abstract class DBObjectUtils {
 	
 	public static String getTriggerTable(String text) {
 		if (text != null) {
-			final var matcher = PATTERN_TRIGGER_TABLE.matcher(text.toLowerCase());
+			final var matcher = PATTERN_TRIGGER_TABLE.matcher(removeMatches(PATTERN_SQL_COMMENT, 
+																removeMatches(PATTERN_QUOTED_TEXT, text)));
 			if (matcher.find()) {
 				return matcher.group(1);
 			}
