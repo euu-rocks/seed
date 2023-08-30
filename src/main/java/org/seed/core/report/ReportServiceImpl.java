@@ -273,14 +273,14 @@ public class ReportServiceImpl extends AbstractApplicationEntityService<Report>
 	}
 	
 	@Override
-	public void deleteObjects(Module module, Module currentVersionModule, Session session) {
+	public void removeObjects(Module module, Module currentVersionModule, Session session) {
 		Assert.notNull(module, C.MODULE);
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
 		filterAndForEach(currentVersionModule.getReports(), 
 						 report -> module.getReportByUid(report.getUid()) == null, 
-						 session::delete);
+						 report -> session.saveOrUpdate(removeModule(report)));
 	}
 	
 	@Override

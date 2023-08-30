@@ -292,17 +292,14 @@ public class TaskServiceImpl extends AbstractApplicationEntityService<Task>
 	}
 	
 	@Override
-	public void deleteObjects(Module module, Module currentVersionModule, Session session) {
+	public void removeObjects(Module module, Module currentVersionModule, Session session) {
 		Assert.notNull(module, C.MODULE);
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
 		filterAndForEach(currentVersionModule.getTasks(), 
-						 currentVersionTask -> module.getTaskByUid(currentVersionTask.getUid()) == null, 
-						 currentVersionTask -> {
-							 session.delete(currentVersionTask);
-							 removeTaskClass(currentVersionTask);
-						 });
+						 task -> module.getTaskByUid(task.getUid()) == null, 
+						 task -> session.saveOrUpdate(removeModule(task)));
 	}
 	
 	@Override

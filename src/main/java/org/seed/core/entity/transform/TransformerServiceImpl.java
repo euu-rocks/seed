@@ -441,17 +441,14 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	}
 	
 	@Override
-	public void deleteObjects(Module module, Module currentVersionModule, Session session) {
+	public void removeObjects(Module module, Module currentVersionModule, Session session) {
 		Assert.notNull(module, C.MODULE);
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
 		filterAndForEach(currentVersionModule.getTransformers(), 
-						 currentVersionTransformer -> module.getTransformerByUid(currentVersionTransformer.getUid()) == null, 
-						 currentVersionTransformer -> {
-							 session.delete(currentVersionTransformer);
-							 removeFunctionClasses(currentVersionTransformer);
-						 });
+						 transformer -> module.getTransformerByUid(transformer.getUid()) == null, 
+						 transformer -> session.saveOrUpdate(removeModule(transformer)));
 	}
 	
 	@Override

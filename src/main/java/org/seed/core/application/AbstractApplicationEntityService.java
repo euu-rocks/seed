@@ -91,6 +91,11 @@ public abstract class AbstractApplicationEntityService<T extends ApplicationEnti
 		super.saveObject(object, session);
 	}
 	
+	protected final T removeModule(T object) {
+		((AbstractApplicationEntity) object).setModule(null);
+		return object;
+	}
+	
 	protected final void updateConfiguration() {
 		getBean(UpdatableConfiguration.class).updateConfiguration();
 	}

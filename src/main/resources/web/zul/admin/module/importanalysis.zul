@@ -137,7 +137,7 @@
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
 					            <listheader label="${labels.label.module}" hflex="min"
-					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
+					            			visible="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.submodule}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
@@ -162,7 +162,7 @@
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
 					            <listheader label="${labels.label.module}" hflex="min"
-					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
+					            			visible="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.entity}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
@@ -187,7 +187,7 @@
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
 					            <listheader label="${labels.label.module}" hflex="min"
-					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
+					            			visible="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.filter}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
@@ -212,7 +212,7 @@
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
 					            <listheader label="${labels.label.module}" hflex="min"
-					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
+					            			visible="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.transformer}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
@@ -237,7 +237,7 @@
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
 					            <listheader label="${labels.label.module}" hflex="min"
-					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
+					            			visible="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.transfer}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
@@ -262,7 +262,7 @@
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
 					            <listheader label="${labels.label.module}" hflex="min"
-					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
+					            			visible="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.form}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
@@ -287,7 +287,7 @@
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
 					            <listheader label="${labels.label.module}" hflex="min"
-					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
+					            			visible="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.menu}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
@@ -312,7 +312,7 @@
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
 					            <listheader label="${labels.label.module}" hflex="min"
-					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
+					            			visible="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.task}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
@@ -337,7 +337,7 @@
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
 					            <listheader label="${labels.label.module}" hflex="min"
-					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
+					            			visible="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.task}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
@@ -362,7 +362,7 @@
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
 					            <listheader label="${labels.label.module}" hflex="min"
-					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
+					            			visible="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.task}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
@@ -387,7 +387,7 @@
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
 					            <listheader label="${labels.label.module}" hflex="min"
-					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
+					            			visible="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.report}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
@@ -412,7 +412,7 @@
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
 					            <listheader label="${labels.label.module}" hflex="min"
-					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
+					            			visible="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.rest}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
@@ -437,7 +437,7 @@
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
 					            <listheader label="${labels.label.module}" hflex="min"
-					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
+					            			visible="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.customcode}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
@@ -462,7 +462,7 @@
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
 					            <listheader label="${labels.label.module}" hflex="min"
-					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
+					            			visible="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.customlib}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">
@@ -487,7 +487,7 @@
 		         			<listhead sizable="true">
 					            <listheader label="${labels.label.change}" hflex="min"/>
 					            <listheader label="${labels.label.module}" hflex="min"
-					            			visilble="@init(vm.importAnalysis.hasNestedModules())"/>
+					            			visible="@init(vm.importAnalysis.hasNestedModules())"/>
 					            <listheader label="${labels.label.usergroup}" hflex="max"/>
 					        </listhead>
 					        <template name="model" var="change">

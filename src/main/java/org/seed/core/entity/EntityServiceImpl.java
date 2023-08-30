@@ -654,27 +654,14 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	@Override
-	public void deleteObjects(Module module, Module currentVersionModule, Session session) {
+	public void removeObjects(Module module, Module currentVersionModule, Session session) {
 		Assert.notNull(module, C.MODULE);
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
-		if (currentVersionModule.getEntities() != null) {
-			for (Entity currentVersionEntity : currentVersionModule.getEntities()) {
-				if (module.getEntityByUid(currentVersionEntity.getUid()) == null) {
-					final EntityField autonumField = currentVersionEntity.findAutonumField(); 
-					// delete autonumber
-					if (autonumField != null) {
-						autonumService.deleteAutonumber(autonumField, session);
-					}
-					session.delete(currentVersionEntity);
-					if (notEmpty(currentVersionEntity.getCallbackFunctions())) {
-						currentVersionEntity.getCallbackFunctions().forEach(this::removeEntityFunctionClass);
-					}
-					removeEntityClass(currentVersionEntity);
-				}
-			}
-		}
+		filterAndForEach(currentVersionModule.getEntities(), 
+						 entity -> module.getEntityByUid(entity.getUid()) == null, 
+						 entity -> session.saveOrUpdate(removeModule(entity)));
 	}
 	
 	@Override

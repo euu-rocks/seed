@@ -198,14 +198,14 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 	}
 	
 	@Override
-	public void deleteObjects(Module module, Module currentVersionModule, Session session) {
+	public void removeObjects(Module module, Module currentVersionModule, Session session) {
 		Assert.notNull(module, C.MODULE);
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
 		filterAndForEach(currentVersionModule.getDBObjects(), 
 						 dbObject -> module.getDBObjectByUid(dbObject.getUid()) == null,
-						 session::delete);
+						 dbObject -> session.saveOrUpdate(removeModule(dbObject)));
 	}
 	
 	@Override

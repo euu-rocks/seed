@@ -486,14 +486,14 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	}
 	
 	@Override
-	public void deleteObjects(Module module, Module currentVersionModule, Session session) {
+	public void removeObjects(Module module, Module currentVersionModule, Session session) {
 		Assert.notNull(module, C.MODULE);
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
 		filterAndForEach(currentVersionModule.getTransfers(), 
 						 trans -> module.getTransferByUid(trans.getUid()) == null, 
-						 session::delete);
+						 trans -> session.saveOrUpdate(removeModule(trans)));
 	}
 	
 	private TransferProcessor createProcessor(Transfer transfer) {

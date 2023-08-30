@@ -195,14 +195,14 @@ public class UserGroupServiceImpl extends AbstractApplicationEntityService<UserG
 	}
 	
 	@Override
-	public void deleteObjects(Module module, Module currentVersionModule, Session session) {
+	public void removeObjects(Module module, Module currentVersionModule, Session session) {
 		Assert.notNull(module, C.MODULE);
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
 		filterAndForEach(currentVersionModule.getUserGroups(), 
-						 currentVersionGroup -> module.getUserGroupByUid(currentVersionGroup.getUid()) == null, 
-						 session::delete);
+						 group -> module.getUserGroupByUid(group.getUid()) == null, 
+						 group -> session.saveOrUpdate(removeModule(group)));
 	}
 	
 	@Override

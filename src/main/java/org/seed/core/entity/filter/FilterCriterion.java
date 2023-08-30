@@ -372,70 +372,106 @@ public class FilterCriterion extends AbstractTransferableObject {
 			case AUTONUM:
 			case TEXT:
 			case TEXTLONG:
-				if (value instanceof String) {
-					if (entityField != null && entityField.isUidField()) {
-						referenceUid = (String) value;
-					}
-					stringValue = (String) value;
-				}
+				initStringValue(value);
 				break;
 				
 			case BOOLEAN:
-				if (value instanceof Boolean) {
-					booleanValue = (Boolean) value;
-				}
+				initBooleanValue(value);
 				break;
 				
 			case INTEGER:
-				if (value instanceof Integer) {
-					integerValue = (Integer) value;
-				}
+				initIntegerValue(value);
 				break;
 				
 			case LONG:
-				if (value instanceof Long) {
-					longValue = (Long) value;
-				}
+				initLongValue(value);
 				break;
 				
 			case DOUBLE:
-				if (value instanceof Double) {
-					doubleValue = (Double) value;
-				}
+				initDoubleValue(value);
 				break;
 				
 			case DECIMAL:
-				if (value instanceof BigDecimal) {
-					decimalValue = (BigDecimal) value;
-				}
+				initDecimalValue(value);
 				break;
 				
 			case DATE:
-				if (value instanceof Date) {
-					dateValue = (Date) value;
-				}
+				initDateValue(value);
 				break;
 				
 			case DATETIME:
-				if (value instanceof Date) {
-					dateTimeValue = (Date) value;
-				}
+				initDateTimeValue(value);
 				break;
 				
 			case REFERENCE:
-				if (value instanceof TransferableObject) {
-					referenceUid = ((TransferableObject) value).getUid();
-				}
-				else if (value instanceof ValueObject) {
-					valueObject = (ValueObject) value; 
-				}
-				else if (value instanceof String) {
-					referenceUid = (String) value;
-				}
+				initReferenceValue(value);
 				break;
 				
 			default:
 				throw new UnsupportedOperationException(fieldType.name());
+		}
+	}
+	
+	private void initStringValue(Object value) {
+		if (value instanceof String) {
+			if (entityField != null && entityField.isUidField()) {
+				referenceUid = (String) value;
+			}
+			stringValue = (String) value;
+		}
+	}
+	
+	private void initBooleanValue(Object value) {
+		if (value instanceof Boolean) {
+			booleanValue = (Boolean) value;
+		}
+	}
+	
+	private void initIntegerValue(Object value) {
+		if (value instanceof Integer) {
+			integerValue = (Integer) value;
+		}
+	}
+	
+	private void initLongValue(Object value) {
+		if (value instanceof Long) {
+			longValue = (Long) value;
+		}
+	}
+	
+	private void initDoubleValue(Object value) {
+		if (value instanceof Double) {
+			doubleValue = (Double) value;
+		}
+	}
+	
+	private void initDecimalValue(Object value) {
+		if (value instanceof BigDecimal) {
+			decimalValue = (BigDecimal) value;
+		}
+	}
+	
+	private void initDateValue(Object value) {
+		if (value instanceof Date) {
+			dateValue = (Date) value;
+		}
+	}
+	
+	private void initDateTimeValue(Object value) {
+		if (value instanceof Date) {
+			dateTimeValue = (Date) value;
+		}
+	}
+	
+	private void initReferenceValue(Object value) {
+		if (value instanceof TransferableObject) {
+			referenceUid = ((TransferableObject) value).getUid();
+		}
+		else if (value instanceof ValueObject) {
+			valueObject = (ValueObject) value; 
+		}
+		else if (value instanceof String) {
+			referenceUid = (String) value;
 		}
 	}
 	

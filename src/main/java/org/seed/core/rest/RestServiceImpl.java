@@ -205,17 +205,14 @@ public class RestServiceImpl extends AbstractApplicationEntityService<Rest>
 	}
 	
 	@Override
-	public void deleteObjects(Module module, Module currentVersionModule, Session session) {
+	public void removeObjects(Module module, Module currentVersionModule, Session session) {
 		Assert.notNull(module, C.MODULE);
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
 		filterAndForEach(currentVersionModule.getRests(), 
-						 currentVersionRest -> module.getRestByUid(currentVersionRest.getUid()) == null, 
-						 currentVersionRest -> {
-							 session.delete(currentVersionRest);
-							 removeFunctionClasses(currentVersionRest);
-						 });
+						 rest -> module.getRestByUid(rest.getUid()) == null, 
+						 rest -> session.saveOrUpdate(removeModule(rest)));
 	}
 	
 	@Override

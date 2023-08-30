@@ -44,7 +44,7 @@ public interface ApplicationEntityService<T extends ApplicationEntity> extends S
 	
 	void createChangeLogs(TransferContext context, Session session);
 	
-	void deleteObjects(Module module, Module currentVersionModule, Session session);
+	void removeObjects(Module module, Module currentVersionModule, Session session);
 	
 	void saveObject(T object, Session session) throws ValidationException;
 	

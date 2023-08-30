@@ -379,7 +379,7 @@ public class ModuleTransfer {
 		
 		// init module
 		if (currentVersionModule != null) {
-			deleteObjects(session, module, currentVersionModule);
+			removeObjects(session, module, currentVersionModule);
 			((ModuleMetadata) currentVersionModule).copySystemFieldsTo(module);
 			session.detach(currentVersionModule);
 		}
@@ -452,10 +452,10 @@ public class ModuleTransfer {
 		return moduleRepository.findByUid(module.getUid());
 	}
 	
-	private void deleteObjects(Session session, Module module, Module currentVersionModule) {
+	private void removeObjects(Session session, Module module, Module currentVersionModule) {
 		final var services = sortByDependencies(applicationServices);
 		Collections.reverse(services);
-		services.forEach(service -> service.deleteObjects(module, currentVersionModule, session));
+		services.forEach(service -> service.removeObjects(module, currentVersionModule, session));
 	}
 	
 	private byte[] getModuleContent(Module module) {

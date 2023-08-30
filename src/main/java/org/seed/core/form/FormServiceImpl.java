@@ -417,14 +417,14 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	@Override
-	public void deleteObjects(Module module, Module currentVersionModule, Session session) {
+	public void removeObjects(Module module, Module currentVersionModule, Session session) {
 		Assert.notNull(module, C.MODULE);
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
 		filterAndForEach(currentVersionModule.getForms(), 
 						 form -> module.getFormByUid(form.getUid()) == null, 
-						 session::delete);
+						 form -> session.saveOrUpdate(removeModule(form)));
 	}
 	
 	@Override

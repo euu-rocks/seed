@@ -222,14 +222,14 @@ public class DataSourceServiceImpl extends AbstractApplicationEntityService<IDat
 	}
 	
 	@Override
-	public void deleteObjects(Module module, Module currentVersionModule, Session session) {
+	public void removeObjects(Module module, Module currentVersionModule, Session session) {
 		Assert.notNull(module, C.MODULE);
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
 		filterAndForEach(currentVersionModule.getDataSources(), 
 						 dataSource -> module.getDataSourceByUid(dataSource.getUid()) == null, 
-						 session::delete);
+						 dataSource -> session.saveOrUpdate(removeModule(dataSource)));
 	}
 	
 	@Override

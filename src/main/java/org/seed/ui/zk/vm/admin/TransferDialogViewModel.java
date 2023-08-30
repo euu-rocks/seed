@@ -156,9 +156,12 @@ public class TransferDialogViewModel extends AbstractApplicationViewModel {
 	}
 	
 	public String getModuleImportResult() {
-		return importAnalysis.hasChanges() 
-				? getLabel("admin.module.resultnumchanges", String.valueOf(importAnalysis.getNumChanges()))
-				: getLabel("admin.module.resultnochanges");
+		if (importAnalysis.hasChanges()) {
+			return importAnalysis.getNumChanges() > 1
+					? getLabel("admin.module.resultnumchanges", String.valueOf(importAnalysis.getNumChanges()))
+					: getLabel("admin.module.resultonechange"); 
+		}
+		return getLabel("admin.module.resultnochanges");
 	}
 	
 	public String getResultText() {

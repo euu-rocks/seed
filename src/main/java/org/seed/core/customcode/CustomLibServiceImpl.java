@@ -110,14 +110,14 @@ public class CustomLibServiceImpl extends AbstractApplicationEntityService<Custo
 	}
 	
 	@Override
-	public void deleteObjects(Module module, Module currentVersionModule, Session session) {
+	public void removeObjects(Module module, Module currentVersionModule, Session session) {
 		Assert.notNull(module, C.MODULE);
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
 		filterAndForEach(currentVersionModule.getCustomLibs(), 
-						 currentVersionLib -> module.getCustomLibByUid(currentVersionLib.getUid()) == null, 
-						 session::delete);
+						 lib -> module.getCustomLibByUid(lib.getUid()) == null, 
+						 lib -> session.saveOrUpdate(removeModule(lib)));
 	}
 	
 	@Override

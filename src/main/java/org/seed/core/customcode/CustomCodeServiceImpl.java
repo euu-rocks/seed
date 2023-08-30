@@ -102,17 +102,14 @@ public class CustomCodeServiceImpl extends AbstractApplicationEntityService<Cust
 	}
 
 	@Override
-	public void deleteObjects(Module module, Module currentVersionModule, Session session) {
+	public void removeObjects(Module module, Module currentVersionModule, Session session) {
 		Assert.notNull(module, C.MODULE);
 		Assert.notNull(currentVersionModule, "currentVersionModule");
 		Assert.notNull(session, C.SESSION);
 		
 		filterAndForEach(currentVersionModule.getCustomCodes(), 
-						 currentVersionCode -> module.getCustomCodeByUid(currentVersionCode.getUid()) == null, 
-						 currentVersionCode -> {
-							 session.delete(currentVersionCode);
-							 removeCustomClass(currentVersionCode);
-						 });
+						 code -> module.getCustomCodeByUid(code.getUid()) == null, 
+						 code -> session.saveOrUpdate(removeModule(code)));
 	}
 	
 	@Override
