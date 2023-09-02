@@ -19,18 +19,22 @@ package org.seed.core.config;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.SortedSet;
 
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.persistence.Table;
 import javax.sql.DataSource;
 
 import org.hibernate.Session;
+import org.hibernate.jdbc.ReturningWork;
 
+import org.seed.C;
 import org.seed.core.config.changelog.ChangeLog;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
@@ -97,7 +101,7 @@ public class SchemaManager {
 	public synchronized DatabaseInfo getDatabaseInfo() {
 		if (databaseInfo == null) {
 			try (Connection connection = dataSource.getConnection()) {
-				final DatabaseMetaData dbMeta = connection.getMetaData();
+				final var dbMeta = connection.getMetaData();
 				databaseInfo = new DatabaseInfo(dbMeta.getDatabaseProductName(),
 												dbMeta.getDatabaseProductVersion());
 			}
@@ -106,6 +110,32 @@ public class SchemaManager {
 			}
 		}
 		return databaseInfo;
+	}
+	
+	public List<String> findDependencies(Session session, String objectName, @Nullable String fieldName) {
+		Assert.notNull(session, C.SESSION);
+		Assert.notNull(objectName, "object name");
+		
+		return session.doReturningWork(new ReturningWork<List<String>>() {
+			
+			@Override
+			public List<String> execute(Connection connection) throws SQLException {
+				final var result = new ArrayList<String>();
+				final String query = buildDependencyQuery(fieldName != null); 
+				try (var statement = connection.prepareStatement(query)) {
+					statement.setString(1, objectName);
+					if (fieldName != null) {
+						statement.setString(2, fieldName);
+					}
+					try (ResultSet resultSet = statement.executeQuery()) {
+						while (resultSet.next()) {
+							result.add(resultSet.getString(1));
+						}
+					}
+				}
+				return result;
+			}
+		});
 	}
 	
 	synchronized SchemaConfiguration loadSchemaConfiguration(Session session) {
@@ -127,7 +157,8 @@ public class SchemaManager {
 		final long startTime = System.currentTimeMillis();
 		try (Connection connection = dataSource.getConnection()) {
 			final String customChangeSets = loadCustomChangeSets(connection);
-			final String changeLog = replaceLimits(systemChangeLog.replace("<#CHANGE_SETS#>", customChangeSets));
+			final String changeLog = replaceLimits(
+					systemChangeLog.replace("<#CHANGE_SETS#>", customChangeSets));
 			if (log.isDebugEnabled()) {
 				log.debug("Changelog content:\r\n{}", changeLog);
 			}
@@ -185,7 +216,8 @@ public class SchemaManager {
 		final StringBuilder buf = new StringBuilder();
 		if (existTable(connection, CHANGELOG_TABLE)) {
 			try (Statement statement = connection.createStatement();
-				 ResultSet resultSet = statement.executeQuery("select changeset from " + CHANGELOG_TABLE + " order by id")) {
+				 ResultSet resultSet = statement.executeQuery("select changeset from " + CHANGELOG_TABLE + 
+						 									  " order by id")) {
 				while (resultSet.next()) {
 					if (buf.length() > 0) {
 						buf.append(',');
@@ -209,7 +241,8 @@ public class SchemaManager {
 	
 	private static boolean existLock(Connection connection) throws SQLException {
 		try (Statement statement = connection.createStatement();
-			 ResultSet resultSet = statement.executeQuery("select count(*) from " + CHANGELOG_LOCKTABLE + " where locked = true")) {
+			 ResultSet resultSet = statement.executeQuery("select count(*) from " + CHANGELOG_LOCKTABLE + 
+					 									  " where locked = true")) {
 			return resultSet.next() && resultSet.getInt(1) == 1;
 		}
 	}
@@ -221,12 +254,33 @@ public class SchemaManager {
 	
 	private static void removeLastChangeLog(Connection connection) throws SQLException {
 		try (Statement statement = connection.createStatement()) {
-			statement.executeUpdate("delete from " + CHANGELOG_TABLE + " where id = (select max(id) from " + CHANGELOG_TABLE + ')');
+			statement.executeUpdate("delete from " + CHANGELOG_TABLE + 
+									" where id = (select max(id) from " + CHANGELOG_TABLE + ')');
 		}
 	}
 	
+	private static String buildDependencyQuery(boolean withAttribute) {
+		final var buf = new StringBuffer()
+			.append("select distinct dep_obj.relname from pg_depend")
+			.append(" join pg_rewrite on pg_depend.objid = pg_rewrite.oid")
+			.append(" join pg_class as dep_obj on pg_rewrite.ev_class = dep_obj.oid")
+			.append(" join pg_class as source_obj on pg_depend.refobjid = source_obj.oid")
+			.append(" join pg_attribute on pg_depend.refobjid = pg_attribute.attrelid")
+			.append("  and pg_depend.refobjsubid = pg_attribute.attnum")
+			.append(" join pg_namespace dep_ns on dep_ns.oid = dep_obj.relnamespace")
+			.append(" join pg_namespace source_ns on source_ns.oid = source_obj.relnamespace")
+			.append(" where source_ns.oid = dep_ns.oid")
+			.append(" and source_ns.nspname = 'public'")
+			.append(" and source_obj.relname = ?");
+		if (withAttribute) {
+			buf.append(" and pg_attribute.attname = ?");
+		}
+		return buf.toString();
+	}
+	
 	private static boolean existTable(Connection connection, String tableName) throws SQLException {
-		try (ResultSet resultSet = connection.getMetaData().getTables(null, null, tableName, new String[] { "TABLE" })) {
+		try (ResultSet resultSet = connection.getMetaData().getTables(null, null, tableName, 
+																	  new String[] { "TABLE" })) {
 			while (resultSet.next()) { 
 				if (tableName.equalsIgnoreCase(resultSet.getString("TABLE_NAME"))) {
 					return true;
@@ -254,7 +308,8 @@ public class SchemaManager {
 		}
 
 		@Override
-		public InputStreamList openStreams(String relativeTo, String streamPath) throws IOException {
+		public InputStreamList openStreams(String relativeTo, String streamPath) 
+			throws IOException {
 			Assert.state(CHANGELOG_FILENAME.equals(streamPath), "unknown path: " + streamPath);
 			
 			return new InputStreamList(null, StreamUtils.getStringAsStream(text)); 
@@ -262,7 +317,8 @@ public class SchemaManager {
 
 		@Override
 		public SortedSet<String> list(String relativeTo, String path, boolean recursive, 
-									  boolean includeFiles, boolean includeDirectories) throws IOException {
+									  boolean includeFiles, boolean includeDirectories) 
+			throws IOException {
 			throw new UnsupportedOperationException();
 		}
 

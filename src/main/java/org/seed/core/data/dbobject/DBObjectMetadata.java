@@ -30,7 +30,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.seed.C;
 import org.seed.core.application.AbstractApplicationEntity;
 import org.seed.core.application.ContentObject;
-import org.seed.core.data.SystemEntity;
 import org.seed.core.util.Assert;
 import org.seed.core.util.CDATAXmlAdapter;
 
@@ -94,10 +93,10 @@ public class DBObjectMetadata extends AbstractApplicationEntity
 	}
 	
 	@Override
-	public boolean contains(SystemEntity entity) {
-		Assert.notNull(entity, C.ENTITY);
+	public boolean contains(DBObject dbObject) {
+		Assert.notNull(dbObject, C.DBOBJECT);
 		
-		return DBObjectUtils.containsName(content, entity.getInternalName());
+		return DBObjectUtils.containsName(content, dbObject.getInternalName());
 	}
 	
 	@Override

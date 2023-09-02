@@ -20,6 +20,7 @@ package org.seed.core.data.dbobject;
 import static org.seed.core.util.CollectionUtils.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -32,11 +33,19 @@ import org.seed.core.application.ApplicationEntityService;
 import org.seed.core.application.module.ImportAnalysis;
 import org.seed.core.application.module.Module;
 import org.seed.core.application.module.TransferContext;
+import org.seed.core.config.SchemaManager;
 import org.seed.core.config.changelog.ChangeLog;
 import org.seed.core.data.AbstractSystemObject;
-import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationException;
+import org.seed.core.entity.Entity;
+import org.seed.core.entity.EntityDependent;
+import org.seed.core.entity.EntityField;
+import org.seed.core.entity.EntityFieldGroup;
+import org.seed.core.entity.EntityFunction;
+import org.seed.core.entity.EntityRelation;
 import org.seed.core.entity.EntityService;
+import org.seed.core.entity.EntityStatus;
+import org.seed.core.entity.NestedEntity;
 import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,13 +54,16 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObject>
-	implements DBObjectService {
+	implements DBObjectService, EntityDependent<DBObject> {
 	
 	@Autowired
 	private DBObjectRepository repository;
 	
 	@Autowired
 	private DBObjectValidator validator;
+	
+	@Autowired
+	private SchemaManager schemaManager;
 	
 	@Override
 	protected DBObjectRepository getRepository() {
@@ -61,20 +73,6 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 	@Override
 	protected DBObjectValidator getValidator() {
 		return validator;
-	}
-	
-	@Override
-	public List<DBObject> findUsage(SystemEntity entity) {
-		Assert.notNull(entity, C.ENTITY);
-		
-		return findUsage(null, entity);
-	}
-	
-	@Override
-	public List<DBObject> findViewsContains(SystemEntity entity) {
-		Assert.notNull(entity, C.ENTITY);
-		
-		return findUsage(DBObjectType.VIEW, entity);
 	}
 	
 	@Override
@@ -108,6 +106,52 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 				throw new UnsupportedOperationException(dbObject.getType().name());
 		}
 		((DBObjectMetadata) dbObject).setContent(content);
+	}
+	
+	@Override
+	public List<DBObject> findUsage(DBObject dbObject) {
+		Assert.notNull(dbObject, C.DBOBJECT);
+		
+		return subList(repository.find(), object -> object.isEnabled() && object.contains(dbObject));
+	}
+	
+	@Override
+	public List<DBObject> findUsage(Entity entity, Session session) {
+		return convertedList(schemaManager.findDependencies(session, entity.getEffectiveTableName(), null), 
+							 DBObjectServiceImpl::createDummyObject);
+	}
+
+	@Override
+	public List<DBObject> findUsage(EntityField entityField, Session session) {
+		return convertedList(schemaManager.findDependencies(session, 
+															entityField.getEntity().getEffectiveTableName(),
+															entityField.getEffectiveColumnName()), 
+							 DBObjectServiceImpl::createDummyObject);
+	}
+	
+	@Override
+	public List<DBObject> findUsage(EntityFieldGroup fieldGroup) {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public List<DBObject> findUsage(EntityStatus entityStatus, Session session) {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public List<DBObject> findUsage(EntityFunction entityFunction, Session session) {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public List<DBObject> findUsage(NestedEntity nestedEntity, Session session) {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public List<DBObject> findUsage(EntityRelation entityRelation, Session session) {
+		return Collections.emptyList();
 	}
 	
 	@Override
@@ -264,13 +308,6 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 		updateConfiguration();
 	}
 	
-	private List<DBObject> findUsage(DBObjectType type, SystemEntity entity) {
-		final var objects = type != null
-							 ? repository.find(queryParam(C.TYPE, type))
-							 : repository.find();
-		return subList(objects, object -> object.isEnabled() && object.contains(entity));
-	}
-	
 	private static ChangeLog createChangeLog(DBObject currentVersionObject, DBObject nextVersionObject) {
 		return new DBObjectChangeLogBuilder()
 						.setCurrentVersionObject(currentVersionObject)
@@ -278,4 +315,10 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 						.build();
 	}
 	
+	private static DBObject createDummyObject(String name) {
+		final var object = new DBObjectMetadata();
+		object.setName(name);
+		return object;
+	}
+
 }

@@ -25,11 +25,11 @@ import org.hibernate.Session;
 
 import org.seed.C;
 import org.seed.core.codegen.CodeUtils;
+import org.seed.core.config.SchemaManager;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.SystemEntity;
 import org.seed.core.data.ValidationErrors;
 import org.seed.core.data.ValidationException;
-import org.seed.core.data.dbobject.DBObjectService;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
 import org.seed.core.util.NameUtils;
@@ -45,7 +45,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 	private EntityRepository repository;
 	
 	@Autowired
-	private DBObjectService dbObjectService;
+	private SchemaManager schemaManager;
 	
 	private List<EntityDependent<? extends SystemEntity>> entityDependents;
 	
@@ -321,8 +321,9 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 			
 			// field type change
 			if (field.getType() != currentVersionField.getType()) {
-				dbObjectService.findViewsContains(entity)
-							   .forEach(view -> errors.addError("val.inuse.entityview", view.getName()));
+				schemaManager.findDependencies(session, entity.getEffectiveTableName(), 
+						  					   field.getEffectiveColumnName())
+							 .forEach(view -> errors.addError("val.inuse.fieldviewtype", field.getName(), view));
 			}
 			// change to unique
 			if (field.isUnique() && !currentVersionField.isUnique() &&
@@ -657,6 +658,10 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 				case "datasource":
 					errors.addError("val.inuse.entitydatasource", systemEntity.getName());
 					break;
+					
+				case "dbobject":
+					errors.addError("val.inuse.entitydbobject", systemEntity.getName());
+					break;
 	
 				case C.ENTITY:
 					errors.addError("val.inuse.entityentity", systemEntity.getName());
@@ -692,6 +697,10 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 			  ValidationErrors errors, Session session) {
 		for (SystemEntity systemEntity : dependent.findUsage(field, session)) {
 			switch (getEntityType(systemEntity)) {
+				case "dbobject":
+					errors.addError("val.inuse.fieldview", systemEntity.getName());
+					break;
+			
 				case C.ENTITY:
 					errors.addError("val.inuse.fieldentity", systemEntity.getName());
 					break;

@@ -18,7 +18,6 @@
 package org.seed.core.data.dbobject;
 
 import org.seed.core.application.ApplicationEntity;
-import org.seed.core.data.SystemEntity;
 
 public interface DBObject extends ApplicationEntity {
 	
@@ -34,7 +33,7 @@ public interface DBObject extends ApplicationEntity {
 	
 	boolean contains(String text);
 	
-	boolean contains(SystemEntity other);
+	boolean contains(DBObject other);
 	
 	boolean isOrderHigherThan(DBObject dbObject);
 	

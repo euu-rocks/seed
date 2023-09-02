@@ -25,6 +25,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import org.seed.C;
+import org.seed.core.config.SchemaManager;
 import org.seed.core.config.SessionProvider;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.DataException;
@@ -45,6 +46,9 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 	@Autowired
 	private DBObjectRepository repository;
 	
+	@Autowired
+	private SchemaManager schemaManager;
+	
 	@Override
 	public void validateCreate(DBObject dbObject) throws ValidationException {
 		Assert.notNull(dbObject, C.DBOBJECT);
@@ -60,11 +64,17 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 		Assert.notNull(dbObject, C.DBOBJECT);
 		final var errors = createValidationErrors(dbObject);
 		final var service = getBean(DBObjectService.class); 
-		
-		filterAndForEach(service.findUsage(dbObject), 
-						 not(dbObject::equals), 
-						 object -> errors.addError("val.inuse.dbobjectdelete", object.getName(), 
-								 				   getEnumLabel(object.getType())));
+		try (Session session = sessionProvider.getSession()) {
+			schemaManager.findDependencies(session, dbObject.getInternalName(), null)
+				.forEach(view -> errors.addError("val.inuse.dbobjectdelete", view, 
+		 				  						 getEnumLabel(DBObjectType.VIEW)));
+		}
+		if (errors.isEmpty()) {
+			filterAndForEach(service.findUsage(dbObject), 
+							 not(dbObject::equals), 
+							 object -> errors.addError("val.inuse.dbobjectdelete", object.getName(), 
+									 				   getEnumLabel(object.getType())));
+		}
 		validate(errors);
 	}
 	
