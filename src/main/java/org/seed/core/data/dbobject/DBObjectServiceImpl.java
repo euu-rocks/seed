@@ -117,12 +117,18 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 	
 	@Override
 	public List<DBObject> findUsage(Entity entity, Session session) {
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(session, C.SESSION);
+		
 		return convertedList(schemaManager.findDependencies(session, entity.getEffectiveTableName(), null), 
 							 DBObjectServiceImpl::createDummyObject);
 	}
 
 	@Override
 	public List<DBObject> findUsage(EntityField entityField, Session session) {
+		Assert.notNull(entityField, C.ENTITYFIELD);
+		Assert.notNull(session, C.SESSION);
+		
 		return convertedList(schemaManager.findDependencies(session, 
 															entityField.getEntity().getEffectiveTableName(),
 															entityField.getEffectiveColumnName()), 

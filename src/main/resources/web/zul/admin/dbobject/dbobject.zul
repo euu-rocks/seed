@@ -80,6 +80,7 @@
 							  style="padding: 4px 4px">
 							<intbox value="@bind(vm.object.order)"
 									onChange="@command('flagDirty')"
+									tooltiptext="${labels.admin.dbobject.orderinfo}"
 									mandatory="true"
 									hflex="1"/> 
 						</cell>

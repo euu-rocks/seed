@@ -82,13 +82,13 @@ public class DBObjectMetadata extends AbstractApplicationEntity
 	@Override
 	@JsonIgnore
 	public boolean isEnabled() {
-		return order != null && order >= 0;
+		return order != null && order > 0;
 	}
 	
 	@Override
 	@JsonIgnore
 	public String getObjectName() {
-		final String name = getInternalName();
+		final var name = getInternalName();
 		return name != null ? name.toLowerCase() : null;
 	}
 	
@@ -96,7 +96,7 @@ public class DBObjectMetadata extends AbstractApplicationEntity
 	public boolean contains(DBObject dbObject) {
 		Assert.notNull(dbObject, C.DBOBJECT);
 		
-		return DBObjectUtils.containsName(content, dbObject.getInternalName());
+		return DBObjectUtils.containsName(content, dbObject.getObjectName());
 	}
 	
 	@Override

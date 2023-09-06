@@ -246,11 +246,17 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(session, C.SESSION);
 		
-		return subList(getObjects(session), obj -> !entity.equals(obj) && 
-											(entity.equals(obj.getGenericEntity()) ||
-											notEmpty(obj.getReferenceFields(entity)) ||
-											obj.isNestedEntity(entity) || 
-											obj.isRelatedEntity(entity)));
+		var result = subList(getObjects(session),
+							 obj -> !entity.equals(obj) && 
+							 		(entity.equals(obj.getGenericEntity()) ||
+							 		 notEmpty(obj.getReferenceFields(entity)) ||
+							 		obj.isNestedEntity(entity) || 
+							 		obj.isRelatedEntity(entity)));
+		if (result.isEmpty()) {
+			result = convertedList(schemaManager.findReferences(session, entity.getEffectiveTableName()), 
+								   EntityServiceImpl::createDummyEntity);
+		}
+		return result;
 	}
 	
 	@Override
@@ -1247,6 +1253,12 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 			changeAwareObjects = getBeans(EntityChangeAware.class);
 		}
 		return changeAwareObjects;
+	}
+	
+	private static Entity createDummyEntity(String name) {
+		final var entity = new EntityMetadata();
+		entity.setName(name);
+		return entity;
 	}
 	
 	private static EntityPermission createPermission(Entity entity, UserGroup group) {

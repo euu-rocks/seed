@@ -66,7 +66,29 @@ public class SchemaManager {
 	
 	private static final String CHANGELOG_LOCKTABLE = "databasechangeloglock";
 	
-	private static final String CHANGELOG_FILENAME = "changelog.json"; 
+	private static final String CHANGELOG_FILENAME = "changelog.json";
+	
+	private static final String QUERY_DEPENDENCIES =
+			"select distinct dep_obj.relname from pg_depend" +
+			" join pg_rewrite on pg_depend.objid = pg_rewrite.oid" +
+			" join pg_class dep_obj on pg_rewrite.ev_class = dep_obj.oid" +
+			" join pg_class source_obj on pg_depend.refobjid = source_obj.oid" +
+			" join pg_attribute on pg_depend.refobjid = pg_attribute.attrelid" +
+			"  and pg_depend.refobjsubid = pg_attribute.attnum" +
+			" join pg_namespace dep_ns on dep_ns.oid = dep_obj.relnamespace" +
+			" join pg_namespace source_ns on source_ns.oid = source_obj.relnamespace" +
+			" where source_ns.oid = dep_ns.oid and source_ns.nspname = 'public'" +
+			"  and source_obj.relname = ?";
+	
+	private static final String QUERY_DEPENDENCIES_FIELD = QUERY_DEPENDENCIES + 
+			"  and pg_attribute.attname = ?";
+	
+	private static final String QUERY_REFERENCES =
+			"select distinct tc.table_name from information_schema.table_constraints tc" +
+			" join information_schema.constraint_column_usage ccu on ccu.constraint_name = tc.constraint_name" +
+			"  and ccu.table_schema = tc.table_schema" +
+			" where tc.table_schema = ccu.table_schema and tc.table_schema = 'public'" +
+			"  and tc.constraint_type = 'FOREIGN KEY' and ccu.table_name = ?";
 	
 	@Autowired
 	private ResourceLoader resourceLoader;
@@ -121,12 +143,34 @@ public class SchemaManager {
 			@Override
 			public List<String> execute(Connection connection) throws SQLException {
 				final var result = new ArrayList<String>();
-				final String query = buildDependencyQuery(fieldName != null); 
+				final String query = fieldName != null ? QUERY_DEPENDENCIES_FIELD : QUERY_DEPENDENCIES; 
 				try (var statement = connection.prepareStatement(query)) {
 					statement.setString(1, objectName);
 					if (fieldName != null) {
 						statement.setString(2, fieldName);
 					}
+					try (ResultSet resultSet = statement.executeQuery()) {
+						while (resultSet.next()) {
+							result.add(resultSet.getString(1));
+						}
+					}
+				}
+				return result;
+			}
+		});
+	}
+	
+	public List<String> findReferences(Session session, String objectName) {
+		Assert.notNull(session, C.SESSION);
+		Assert.notNull(objectName, "object name");
+		
+		return session.doReturningWork(new ReturningWork<List<String>>() {
+			
+			@Override
+			public List<String> execute(Connection connection) throws SQLException {
+				final var result = new ArrayList<String>();
+				try (var statement = connection.prepareStatement(QUERY_REFERENCES)) {
+					statement.setString(1, objectName);
 					try (ResultSet resultSet = statement.executeQuery()) {
 						while (resultSet.next()) {
 							result.add(resultSet.getString(1));
@@ -257,25 +301,6 @@ public class SchemaManager {
 			statement.executeUpdate("delete from " + CHANGELOG_TABLE + 
 									" where id = (select max(id) from " + CHANGELOG_TABLE + ')');
 		}
-	}
-	
-	private static String buildDependencyQuery(boolean withAttribute) {
-		final var buf = new StringBuffer()
-			.append("select distinct dep_obj.relname from pg_depend")
-			.append(" join pg_rewrite on pg_depend.objid = pg_rewrite.oid")
-			.append(" join pg_class as dep_obj on pg_rewrite.ev_class = dep_obj.oid")
-			.append(" join pg_class as source_obj on pg_depend.refobjid = source_obj.oid")
-			.append(" join pg_attribute on pg_depend.refobjid = pg_attribute.attrelid")
-			.append("  and pg_depend.refobjsubid = pg_attribute.attnum")
-			.append(" join pg_namespace dep_ns on dep_ns.oid = dep_obj.relnamespace")
-			.append(" join pg_namespace source_ns on source_ns.oid = source_obj.relnamespace")
-			.append(" where source_ns.oid = dep_ns.oid")
-			.append(" and source_ns.nspname = 'public'")
-			.append(" and source_obj.relname = ?");
-		if (withAttribute) {
-			buf.append(" and pg_attribute.attname = ?");
-		}
-		return buf.toString();
 	}
 	
 	private static boolean existTable(Connection connection, String tableName) throws SQLException {

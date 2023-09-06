@@ -57,6 +57,18 @@ class DBObjectTest {
 	}
 	
 	@Test
+	void testIsEnabled() {
+		final DBObject dbObject = new DBObjectMetadata();
+		assertFalse(dbObject.isEnabled());
+		((DBObjectMetadata) dbObject).setOrder(1);
+		assertTrue(dbObject.isEnabled());
+		((DBObjectMetadata) dbObject).setOrder(0);
+		assertFalse(dbObject.isEnabled());
+		((DBObjectMetadata) dbObject).setOrder(-1);
+		assertFalse(dbObject.isEnabled());
+	}
+	
+	@Test
 	void testIsOrderHigherThan() {
 		final DBObject dbObject1 = new DBObjectMetadata();
 		final DBObject dbObject2 = new DBObjectMetadata();

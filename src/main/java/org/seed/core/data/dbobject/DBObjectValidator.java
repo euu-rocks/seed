@@ -26,7 +26,6 @@ import org.hibernate.Transaction;
 
 import org.seed.C;
 import org.seed.core.config.SchemaManager;
-import org.seed.core.config.SessionProvider;
 import org.seed.core.data.AbstractSystemEntityValidator;
 import org.seed.core.data.DataException;
 import org.seed.core.data.ValidationError;
@@ -36,12 +35,10 @@ import org.seed.core.util.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 
 @Component
 public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
-	
-	@Autowired
-	private SessionProvider sessionProvider;
 	
 	@Autowired
 	private DBObjectRepository repository;
@@ -63,18 +60,9 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 	public void validateDelete(DBObject dbObject) throws ValidationException {
 		Assert.notNull(dbObject, C.DBOBJECT);
 		final var errors = createValidationErrors(dbObject);
-		final var service = getBean(DBObjectService.class); 
-		try (Session session = sessionProvider.getSession()) {
-			schemaManager.findDependencies(session, dbObject.getInternalName(), null)
-				.forEach(view -> errors.addError("val.inuse.dbobjectdelete", view, 
-		 				  						 getEnumLabel(DBObjectType.VIEW)));
-		}
-		if (errors.isEmpty()) {
-			filterAndForEach(service.findUsage(dbObject), 
-							 not(dbObject::equals), 
-							 object -> errors.addError("val.inuse.dbobjectdelete", object.getName(), 
-									 				   getEnumLabel(object.getType())));
-		}
+		final var currentVersionObject = repository.get(dbObject.getId());
+		
+		validateDependencies(currentVersionObject, "val.inuse.dbobjectdelete", errors);
 		validate(errors);
 	}
 	
@@ -98,17 +86,22 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 		else if (isBelowZero(dbObject.getOrder())) {
 			errors.addError("val.neg.field", "label.order");
 		}
-		if (isEmpty(dbObject.getContent())) {
-			errors.addEmptyField("label.sqlstatement");
+		else if (dbObject.isEnabled()) {
+			if (isEmpty(dbObject.getContent())) {
+				errors.addEmptyField("label.sqlstatement");
+			}
+			else if (!isEmpty(dbObject.getName()) &&
+					 !isEmpty(dbObject.getType()) && 
+					 dbObject.getType() != DBObjectType.VIEW && 
+					 !dbObject.contains(dbObject)) {
+				errors.addNotContains(dbObject.getObjectName());
+			}
 		}
-		else if (!isEmpty(dbObject.getName()) &&
-				 !isEmpty(dbObject.getType()) && 
-				 dbObject.getType() != DBObjectType.VIEW && 
-				 !dbObject.contains(dbObject)) {
-			errors.addNotContains(dbObject.getInternalName());
-		}
-		if (errors.isEmpty() && dbObject.isEnabled()) {
-			validateObjectType(dbObject, errors);
+		
+		if (errors.isEmpty()) {
+			if (dbObject.isEnabled()) {
+				validateObjectType(dbObject, errors);
+			}
 			validateSaveUsage(dbObject, errors);
 		}
 		if (errors.isEmpty() && dbObject.isEnabled() && 
@@ -121,19 +114,25 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 	private void validateSaveUsage(DBObject dbObject, ValidationErrors errors) {
 		final var service = getBean(DBObjectService.class); 
 		final var currentVersionObject = dbObject.isNew() 
-								? null 
-								: repository.get(dbObject.getId());
-		final var dependents = currentVersionObject != null 
-								? service.findUsage(currentVersionObject) 
-								: null;
-		// object renamed
-		if (currentVersionObject != null &&
-			!currentVersionObject.getName().equals(dbObject.getName())) {
-			filterAndForEach(dependents, 
-							 not(dbObject::equals),
-							 object -> errors.addError("val.inuse.dbobjectrename", object.getName(), 
-									 				   getEnumLabel(object.getType())));
+													? null 
+													: repository.get(dbObject.getId());
+		// disabled
+		if (currentVersionObject != null && 
+			currentVersionObject.isEnabled() && !dbObject.isEnabled()) {
+			
+			validateDependencies(currentVersionObject, "val.inuse.dbobjectdisable", errors);
 		}
+		
+		// content changed
+		else if (currentVersionObject != null && 
+				 !ObjectUtils.nullSafeEquals(currentVersionObject.getContent(), 
+						 					 dbObject.getContent())) {
+			validateDependencies(currentVersionObject, "val.inuse.dbobjectchanged", errors);
+		}
+		if (!errors.isEmpty() || !dbObject.isEnabled()) {
+			return;
+		}
+		
 		// check nesteds order
 		filterAndForEach(repository.find(), 
 						 object -> !dbObject.equals(object) &&
@@ -144,12 +143,28 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 								 				   String.valueOf(object.getOrder())));		
 		// check dependents order
 		if (!dbObject.isNew()) {
-			filterAndForEach(dependents, 
+			filterAndForEach(service.findUsage(currentVersionObject), 
 							 object -> !dbObject.equals(object) && 
 							 		   !object.isOrderHigherThan(dbObject), 
 							 object -> errors.addError("val.inuse.dbobjectdependentorder", 
 									 				   object.getName(), 
 									 				   String.valueOf(object.getOrder())));
+		}
+	}
+	
+	private void validateDependencies(DBObject dbObject, String errorKey, 
+									  ValidationErrors errors) {
+		final var service = getBean(DBObjectService.class); 
+		try (Session session = repository.getSession()) {
+			schemaManager.findDependencies(session, dbObject.getObjectName(), null)
+				.forEach(view -> errors.addError(errorKey, view, 
+		 				  						 getEnumLabel(DBObjectType.VIEW)));
+		}
+		if (errors.isEmpty()) {
+			filterAndForEach(service.findUsage(dbObject), 
+							 not(dbObject::equals), 
+							 object -> errors.addError(errorKey, object.getName(), 
+									 				   getEnumLabel(object.getType())));
 		}
 	}
 	
@@ -191,7 +206,7 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 	}
 	
 	private void testSQL(DBObject dbObject) throws ValidationException {
-		try (Session session = sessionProvider.getSession()) {
+		try (Session session = repository.getSession()) {
 			Transaction tx = null;
 			try {
 				tx = session.beginTransaction();
