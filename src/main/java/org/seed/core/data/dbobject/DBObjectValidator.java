@@ -97,18 +97,22 @@ public class DBObjectValidator extends AbstractSystemEntityValidator<DBObject> {
 				errors.addNotContains(dbObject.getObjectName());
 			}
 		}
-		
 		if (errors.isEmpty()) {
-			if (dbObject.isEnabled()) {
-				validateObjectType(dbObject, errors);
-			}
-			validateSaveUsage(dbObject, errors);
+			validateSaveExt(dbObject, errors);
+		}
+		validate(errors);
+	}
+	
+	private void validateSaveExt(DBObject dbObject, ValidationErrors errors) 
+		throws ValidationException {
+		if (dbObject.isEnabled()) {
+			validateObjectType(dbObject, errors);
 		}
 		if (errors.isEmpty() && dbObject.isEnabled() && 
 			(dbObject.isNew() || dbObject.getType().isEditable())) {
 			testSQL(dbObject);
 		}
-		validate(errors);
+		validateSaveUsage(dbObject, errors);
 	}
 	
 	private void validateSaveUsage(DBObject dbObject, ValidationErrors errors) {

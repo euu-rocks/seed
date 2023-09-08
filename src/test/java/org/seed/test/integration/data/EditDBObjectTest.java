@@ -59,22 +59,74 @@ public class EditDBObjectTest extends AbstractDBObjectTest {
 	
 	@Test
 	@Order(3)
+	void testFailEditView() {
+		WebElement tabpanel = showDBObject("testview");
+		assertEquals("Datenbankelemente: Testview", findTab("datenbankelemente").getText());
+		clearTextbox(tabpanel, "name");
+		findTextbox(tabpanel, "name").sendKeys("TestviewNew");
+		
+		WebElement codeMirror = findCodeMirror(tabpanel, "content", 1);
+		codeMirror.sendKeys(repeatKey(Keys.BACK_SPACE, 23));
+		codeMirror.sendKeys("name from transferabletestnew");
+		
+		clickButton(tabpanel, "save");
+		findValidationMessage(); // view is in use
+	}
+	
+	@Test
+	@Order(4)
+	void testDisableViewDependent() {
+		WebElement tabpanel = showDBObject("testviewinview");
+		assertEquals("Datenbankelemente: TestviewInView", findTab("datenbankelemente").getText());
+		clearIntbox(tabpanel, "order");
+		findIntbox(tabpanel, "order").sendKeys("-1");
+		
+		clickButton(tabpanel, "save");
+		findValidationMessage(); // illegal order
+		
+		clearIntbox(tabpanel, "order");
+		findIntbox(tabpanel, "order").sendKeys("0");
+		saveDBObject(tabpanel);
+	}
+	
+	@Test
+	@Order(5)
 	void testEditView() {
 		WebElement tabpanel = showDBObject("testview");
 		assertEquals("Datenbankelemente: Testview", findTab("datenbankelemente").getText());
 		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("TestviewNew");
-		clearIntbox(tabpanel, "order");
-		findIntbox(tabpanel, "order").sendKeys("4");
 		
 		WebElement codeMirror = findCodeMirror(tabpanel, "content", 1);
 		codeMirror.sendKeys(repeatKey(Keys.BACK_SPACE, 23));
 		codeMirror.sendKeys("name,testfunctionnew() from transferabletestnew");
+		clickButton(tabpanel, "save");
+		findValidationMessage(); // order too low
+		
+		clearIntbox(tabpanel, "order");
+		findIntbox(tabpanel, "order").sendKeys("4");
 		saveDBObject(tabpanel);
 	}
 	
 	@Test
-	@Order(4)
+	@Order(6)
+	void testEnableViewDependent() {
+		WebElement tabpanel = showDBObject("testviewinview");
+		assertEquals("Datenbankelemente: TestviewInView", findTab("datenbankelemente").getText());
+		
+		WebElement codeMirror = findCodeMirror(tabpanel, "content", 1);
+		codeMirror.sendKeys("new");
+		clearIntbox(tabpanel, "order");
+		findIntbox(tabpanel, "order").sendKeys("1");
+		clickButton(tabpanel, "save");
+		findValidationMessage(); // order too low
+		
+		findIntbox(tabpanel, "order").sendKeys("0"); // "1" + "0" = 10
+		saveDBObject(tabpanel);
+	}
+	
+	@Test
+	@Order(7)
 	void testFailRenameViewFunction() {
 		WebElement tabpanel = showDBObject("testfunctionnew");
 		assertEquals("Datenbankelemente: TestfunctionNew", findTab("datenbankelemente").getText());
@@ -89,7 +141,7 @@ public class EditDBObjectTest extends AbstractDBObjectTest {
 	}
 	
 	@Test
-	@Order(5)
+	@Order(8)
 	void testFailRenameTriggerFunction() {
 		WebElement tabpanel = showDBObject("triggerfunction");
 		assertEquals("Datenbankelemente: Triggerfunction", findTab("datenbankelemente").getText());

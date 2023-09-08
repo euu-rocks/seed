@@ -30,6 +30,31 @@ public class DeleteDBObjectTest extends AbstractDBObjectTest {
 	
 	@Test
 	@Order(1)
+	void testFailDeleteView() {
+		WebElement tabpanel = showDBObject("testviewnew");
+		assertEquals("Datenbankelemente: TestviewNew", findTab("datenbankelemente").getText());
+		clickButton(tabpanel, "delete");
+		
+		WebElement dialogConfirm = findConfirmDialog();
+		confirm(dialogConfirm);
+		waitConfirmDialogDisappear();
+		findValidationMessage(); // still in use
+	}
+	
+	@Test
+	@Order(2)
+	void testDeleteViewInView() {
+		WebElement tabpanel = showDBObject("testviewinview");
+		assertEquals("Datenbankelemente: TestviewInView", findTab("datenbankelemente").getText());
+		clickButton(tabpanel, "delete");
+		
+		WebElement dialogConfirm = findConfirmDialog();
+		confirm(dialogConfirm);
+		waitConfirmDialogDisappear();
+	}
+	
+	@Test
+	@Order(3)
 	void testDeleteView() {
 		WebElement tabpanel = showDBObject("testviewnew");
 		assertEquals("Datenbankelemente: TestviewNew", findTab("datenbankelemente").getText());
@@ -41,7 +66,7 @@ public class DeleteDBObjectTest extends AbstractDBObjectTest {
 	}
 	
 	@Test
-	@Order(2)
+	@Order(4)
 	void testDeleteSequence() {
 		WebElement tabpanel = showDBObject("testsequence");
 		assertEquals("Datenbankelemente: Testsequence", findTab("datenbankelemente").getText());
@@ -53,7 +78,7 @@ public class DeleteDBObjectTest extends AbstractDBObjectTest {
 	}
 	
 	@Test
-	@Order(3)
+	@Order(5)
 	void testDeleteProcedure() {
 		WebElement tabpanel = showDBObject("testprocedurenew");
 		assertEquals("Datenbankelemente: TestprocedureNew", findTab("datenbankelemente").getText());
@@ -65,7 +90,7 @@ public class DeleteDBObjectTest extends AbstractDBObjectTest {
 	}
 	
 	@Test
-	@Order(4)
+	@Order(6)
 	void testDeleteFunction() {
 		WebElement tabpanel = showDBObject("testfunctionnew");
 		assertEquals("Datenbankelemente: TestfunctionNew", findTab("datenbankelemente").getText());
@@ -77,7 +102,7 @@ public class DeleteDBObjectTest extends AbstractDBObjectTest {
 	}
 	
 	@Test
-	@Order(5)
+	@Order(7)
 	void testDeleteTrigger() {
 		WebElement tabpanel = showDBObject("testtrigger");
 		assertEquals("Datenbankelemente: Testtrigger", findTab("datenbankelemente").getText());
@@ -89,7 +114,7 @@ public class DeleteDBObjectTest extends AbstractDBObjectTest {
 	}
 	
 	@Test
-	@Order(6)
+	@Order(8)
 	void testDeleteTriggerFunction() {
 		WebElement tabpanel = showDBObject("triggerfunction");
 		assertEquals("Datenbankelemente: Triggerfunction", findTab("datenbankelemente").getText());

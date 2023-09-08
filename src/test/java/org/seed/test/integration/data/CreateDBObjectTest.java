@@ -170,4 +170,26 @@ public class CreateDBObjectTest extends AbstractDBObjectTest {
 		saveDBObject(tabpanel);
 	}
 	
+	@Test
+	@Order(7)
+	void testCreateViewInView() {
+		WebElement tabpanel = newDBObject();
+		assertEquals("Datenbankelemente", findTab("datenbankelemente").getText());
+		WebElement window = newDBObjectWindow();
+		
+		findCombobox(window, "type").sendKeys("View");
+		findCombobox(window, "module").sendKeys("Testmodule");
+		clickButton(window, "create");
+		
+		findTextbox(tabpanel, "name").sendKeys("TestviewInView");
+		findIntbox(tabpanel, "order").sendKeys("1");
+		findCodeMirror(tabpanel, "content", 1).sendKeys("* from testview");
+		
+		clickButton(tabpanel, "save");
+		findValidationMessage(); // order too low
+		
+		findIntbox(tabpanel, "order").sendKeys("0"); // "1" + "0" = 10
+		saveDBObject(tabpanel);
+	}
+	
 }
