@@ -138,7 +138,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 		final var criterion = new FilterCriterion();
 		criterion.setEntityField(entityField);
 		criterion.setOperator(CriterionOperator.EQUAL);
-		if (entityField.getType().isReference()) {
+		if (entityField.isReferenceField()) {
 			criterion.setValueObject((ValueObject) value);
 		}
 		else {
@@ -481,7 +481,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	private static void createEntityElements(Entity entity, List<FilterElement> elements) {
 		// entity fields
 		filterAndForEach(entity.getAllFields(), 
-						 field -> !field.getType().isReference() || // allow reference fields only for module entities
+						 field -> !field.isReferenceField() || // allow reference fields only for module entities
 								  field.getReferenceEntity().isTransferable(), 
 						 field -> elements.add(createElement(field, null)));
 		// system fields

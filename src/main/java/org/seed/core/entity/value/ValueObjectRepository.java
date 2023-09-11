@@ -497,7 +497,7 @@ public class ValueObjectRepository {
 		final String key = '{' + field.getName() + '}';
 		if (pattern.contains(key)) {
 			Object value = objectAccess.getValue(object, field);
-			if (value != null && field.getType().isReference()) {
+			if (value != null && field.isReferenceField()) {
 				value = getIdentifier((ValueObject) value);
 			}
 			// replace key -> value

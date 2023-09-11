@@ -712,8 +712,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(form, C.FORM);
 		
-		for (EntityField entityField : subList(entity.getAllFields(), 
-											   field -> field.getType().isReference())) {
+		for (EntityField entityField : subList(entity.getAllFields(), EntityField::isReferenceField)) {
 			final var forms = formService.findForms(entityField.getReferenceEntity());
 			if (notEmpty(forms)) {
 				FormFieldExtra fieldExtra = form.getFieldExtra(entityField);
@@ -858,7 +857,7 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 			}
 		}
 		// reference field
-		else if (field.getEntityField().getType().isReference()) {
+		else if (field.getEntityField().isReferenceField()) {
 			return createListCell(load("vm.getIdentifier(" + listPropertyName(field) + ')'), null, field.getStyle(), testClass);
 		}
 		// binary field

@@ -311,7 +311,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	public List<EntityField> getReferenceFields(Entity entity) {
 		Assert.notNull(entity, C.NESTED);
 		
-		return subList(getAllFields(), fld -> fld.getType().isReference() && 
+		return subList(getAllFields(), fld -> fld.isReferenceField() && 
 											  fld.getReferenceEntity().equals(entity));
 	}
 	

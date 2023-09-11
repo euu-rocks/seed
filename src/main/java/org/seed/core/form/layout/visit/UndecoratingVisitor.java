@@ -196,7 +196,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 	
 	private void visitCombobox(LayoutElement element) {
 		final EntityField entityField = getEntityField(element);
-		Assert.state(entityField.getType().isReference(), "field is not a reference field");
+		Assert.state(entityField.isReferenceField(), "field is not a reference field");
 		element.setAttribute(A_MODEL, load("vm.getReferenceValues('" + entityField.getUid() + "')"));
 		element.setAttribute(A_VALUE, load(identifier(propertyName(entityField))));
 		element.setAttribute(A_VISIBLE, load(isVisible(entityField)));
@@ -216,7 +216,7 @@ public class UndecoratingVisitor extends AbstractLayoutVisitor {
 	
 	private void visitBandbox(LayoutElement element) {
 		final EntityField entityField = getEntityField(element);
-		Assert.state(entityField.getType().isReference(), "field is not a reference field");
+		Assert.state(entityField.isReferenceField(), "field is not a reference field");
 		element.setAttribute(A_VALUE, load(identifier(propertyName(entityField))));
 		element.setAttribute(A_VISIBLE, load(isVisible(entityField)));
 		element.setAttribute(A_READONLY, load(isReadonly(entityField)));

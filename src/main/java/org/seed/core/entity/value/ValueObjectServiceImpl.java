@@ -893,7 +893,7 @@ public class ValueObjectServiceImpl
 			field.getEntity().checkFieldAccess(field, user, object.getEntityStatus(), FieldAccess.WRITE)) {
 			
 			Object value = valueMap.get(field.getInternalName());
-			if (value != null && field.getType().isReference()) {
+			if (value != null && field.isReferenceField()) {
 				final Long referenceId = RestHelper.parseReferenceId(value, field.getInternalName());
 				value = getObject(session, field.getReferenceEntity(), referenceId);
 			}

@@ -155,7 +155,7 @@
 						</combobox>
                 	</cell>
                 </row>
-                <row visible="@init(vm.entityField.type.isReference() and !empty vm.getDetailForms(vm.entityField.referenceEntity))">
+                <row visible="@init(vm.entityField.isReferenceField() and !empty vm.getDetailForms(vm.entityField.referenceEntity))">
                 	<cell align="right">
                 		<label value="${labels.label.detailform}:"/>
                 	</cell>

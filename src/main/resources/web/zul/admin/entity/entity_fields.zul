@@ -53,7 +53,7 @@
 	            		  attributes.item="@load(field)" 
 	            		  draggable="true" droppable="true" 
 	            		  onDrop="@command('swapFields',item=event.dragged.attributes.item,base=field)">
-	            	<listcell iconSclass="@load(empty field.type ? '' : field.type.isReference() ? 'z-icon-share alpha-icon-lg' : 'z-icon-font alpha-icon-lg')">
+	            	<listcell iconSclass="@load(empty field.type ? '' : field.isReferenceField() ? 'z-icon-share alpha-icon-lg' : 'z-icon-font alpha-icon-lg')">
 	            		<label value="@load(field.name)" 
 	            			   style="margin-left:3px"/>
 	            	</listcell>
@@ -117,7 +117,7 @@
             <div sclass="datatype-field"> 
 				<combobox model="@load(vm.fieldTypes)"
 						  mandatory="true"
-						  nullable="@load(vm.field.isNew() or !vm.field.type.isReference())"
+						  nullable="@load(vm.field.isNew() or !vm.field.isReferenceField())"
 						  selectedItem="@bind(vm.field.type)"
 						  value="@load(vm.getEnumLabel(vm.field.type))"
 						  onSelect="@command('selectFieldType')"
@@ -207,7 +207,7 @@
 	            		 	 placeholder="1"/>
 	            </div>
             </vlayout>
-            <vlayout visible="@load(vm.field.type.isReference())">
+            <vlayout visible="@load(vm.field.isReferenceField())">
             	<label value="${labels.label.refentity}:"/>
             	<div sclass="referenceentity-field"> 
 	            	<combobox model="@load(vm.referenceEntities) @template(empty each.name ? 'empty' : 'entity')"
@@ -270,7 +270,7 @@
 		       					   value="@bind(vm.field.defaultNumber)"
 		       					   onChange="@command('flagDirty')"
 		       					   mandatory="true" hflex="1"/>		 
-		       			<combobox visible="@load(vm.field.type.isReference())"
+		       			<combobox visible="@load(vm.field.isReferenceField())"
 		       					  model="@load(vm.getReferenceValues(vm.field))"
 		       					  selectedItem="@bind(vm.field.defaultObject)"
 		       					  onSelect="@command('flagDirty')"
@@ -295,13 +295,13 @@
 	        				  onCheck="@command('flagDirty')"/>
 		        	<label value="${labels.label.index}"/>
 	       		</hlayout>
-	       		<hlayout visible="@load(vm.fullTextSearchAvailable and (vm.field.isTextField() or vm.field.type.isAutonum() or vm.field.type.isReference()))">
+	       		<hlayout visible="@load(vm.fullTextSearchAvailable and (vm.field.isTextField() or vm.field.type.isAutonum() or vm.field.isReferenceField()))">
         			<checkbox sclass="fulltextsearch-field"
         					  checked="@bind(vm.field.fullTextSearch)" 
 	        				  onCheck="@command('flagDirty')"/>
 		        	<label value="${labels.label.fulltextsearch}"/>
 	       		</hlayout>
-	       		<hlayout visible="@load(!vm.object.isNew() and !(vm.field.type.isAutonum() or vm.field.type.isReference() or vm.field.type.isFile() or vm.field.mandatory or vm.field.unique or vm.field.indexed))">
+	       		<hlayout visible="@load(!vm.object.isNew() and !(vm.field.type.isAutonum() or vm.field.isReferenceField() or vm.field.type.isFile() or vm.field.mandatory or vm.field.unique or vm.field.indexed))">
         			<checkbox sclass="calculated-field"
         					  checked="@bind(vm.field.calculated)" 
 	        				  onCheck="@command('flagDirty')"/>

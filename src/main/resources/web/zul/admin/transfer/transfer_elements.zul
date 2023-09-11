@@ -40,7 +40,7 @@
 							  draggable="true" droppable="true" 
 	 						  onDrop="@command('insertToElementList',item=event.dragged.attributes.item,base=element,list=0)">
 						<listcell label="@init(element.entityField.name)"
-								  iconSclass="@load(element.entityField.type.isReference() ? 'z-icon-share-square-o alpha-icon-lg' : 'z-icon-edit alpha-icon-lg')"/>
+								  iconSclass="@load(element.entityField.isReferenceField() ? 'z-icon-share-square-o alpha-icon-lg' : 'z-icon-edit alpha-icon-lg')"/>
 					</listitem>
 				</template>
 			</listbox>
@@ -63,7 +63,7 @@
 							  onDrop="@command('insertToElementList',item=event.dragged.attributes.item,base=element,list=1)">
 						<listcell label="@init(element.entityField.name)"
 								  style="@load(element.identifier ? 'font-weight:bold' : null)"
-								  iconSclass="@load(element.entityField.type.isReference() ? 'z-icon-share-square-o alpha-icon-lg' : 'z-icon-edit alpha-icon-lg')"/>
+								  iconSclass="@load(element.entityField.isReferenceField() ? 'z-icon-share-square-o alpha-icon-lg' : 'z-icon-edit alpha-icon-lg')"/>
 					</listitem>
 				</template>
 			</listbox>

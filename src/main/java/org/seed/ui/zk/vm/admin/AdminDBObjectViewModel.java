@@ -144,7 +144,8 @@ public class AdminDBObjectViewModel extends AbstractAdminViewModel<DBObject> {
 			errorMessage = null;
 		}
 		catch (DataException dboex) {
-			errorMessage = ExceptionUtils.getRootCauseMessage(dboex.getCause());
+			final var errorMsg = ExceptionUtils.getRootCauseMessage(dboex.getCause());
+			errorMessage = errorMsg.substring(errorMsg.indexOf(':') + 2);
 		}
 	}
 	

@@ -260,7 +260,7 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 	private void buildFields(Entity entity, ValueObject object, StringBuilder buf) {
 		for (EntityField field : entity.getFullTextSearchFields()) {
 			Object value = objectAccess.getValue(object, field); 
-			if (field.getType().isReference()) {
+			if (field.isReferenceField()) {
 				value = repository.getIdentifier((ValueObject) value);
 			}
 			if (value != null) {
@@ -286,7 +286,7 @@ public class FullTextSearch implements EntityChangeAware, ValueObjectChangeAware
 			buf.append('\n');
 			for (EntityField entityField : nested.getNestedEntity().getFullTextSearchFields()) {
 				Object nestedFieldValue = objectAccess.getValue(nestedObject, entityField);
-				if (entityField.getType().isReference()) {
+				if (entityField.isReferenceField()) {
 					nestedFieldValue = repository.getIdentifier((ValueObject) nestedFieldValue);
 				}
 				if (nestedFieldValue != null) {

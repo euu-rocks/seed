@@ -34,7 +34,7 @@
                 		<label value="${labels.label.field}:"/>
                 	</cell>
                 	<cell>
-	                	<combobox model="@load(vm.availableEntityFields) @template(empty each.name ? 'empty' : each.type.isReference() ? 'reference' : 'field')"
+	                	<combobox model="@load(vm.availableEntityFields) @template(empty each.name ? 'empty' : each.isReferenceField() ? 'reference' : 'field')"
 	            				  mandatory="true"
 	            			  	  selectedItem="@bind(vm.entityField)"
 	            			  	  value="@load(vm.entityField.name)"

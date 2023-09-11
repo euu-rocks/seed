@@ -458,6 +458,11 @@ public class EntityField extends AbstractOrderedTransferableObject {
 	}
 	
 	@JsonIgnore
+	public boolean isReferenceField() {
+		return getType() != null && getType().isReference();
+	}
+	
+	@JsonIgnore
 	public boolean isTextField() {
 		return getType() != null && (getType().isText() || getType().isTextLong());
 	}

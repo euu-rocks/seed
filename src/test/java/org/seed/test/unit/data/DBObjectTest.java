@@ -32,9 +32,27 @@ class DBObjectTest {
 		final DBObject dbObject = new DBObjectMetadata();
 		assertFalse(dbObject.contains("test"));
 		
-		((DBObjectMetadata) dbObject).setContent("Das ist ein Test");
+		((DBObjectMetadata) dbObject).setContent("This is a test");
 		assertTrue(dbObject.contains("test"));
 		assertFalse(dbObject.contains("other"));
+	}
+	
+	@Test
+	void testContainsDBObject() {
+		final DBObject dbObject1 = new DBObjectMetadata();
+		final DBObject dbObject2 = new DBObjectMetadata();
+		dbObject2.setName("Test");
+		assertFalse(dbObject1.contains(dbObject2));
+		
+		((DBObjectMetadata) dbObject1).setContent("select * from test");
+		assertTrue(dbObject1.contains(dbObject2));
+		
+		((DBObjectMetadata) dbObject1).setContent("select * from testtable");
+		assertFalse(dbObject1.contains(dbObject2));
+		((DBObjectMetadata) dbObject1).setContent("select * from table.test");
+		assertFalse(dbObject1.contains(dbObject2));
+		((DBObjectMetadata) dbObject1).setContent("select * from test-table");
+		assertFalse(dbObject1.contains(dbObject2));
 	}
 	
 	@Test

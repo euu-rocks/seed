@@ -58,7 +58,7 @@
 	            		  attributes.item="@load(constraint)" 
 	            		  draggable="true" droppable="true" 
 	            		  onDrop="@command('swapConstraints',item=event.dragged.attributes.item,base=constraint)">
-	            	<listcell iconSclass="@load(empty constraint.field.type ? '' : constraint.field.type.isReference() ? 'z-icon-share alpha-icon-lg' : 'z-icon-font alpha-icon-lg')">
+	            	<listcell iconSclass="@load(empty constraint.field.type ? '' : constraint.field.isReferenceField() ? 'z-icon-share alpha-icon-lg' : 'z-icon-font alpha-icon-lg')">
 	            		<label value="@load(vm.getFieldName(constraint.field))" 
 	            			   style="margin-left:3px"/>
 	            	</listcell>
@@ -111,7 +111,7 @@
 			</vlayout>
 			<label value="${labels.label.field}:"/>
 			<div sclass="field-field">
-				<combobox model="@load(vm.getConstraintFields(vm.constraintNested)) @template(empty each.name ? 'empty' : each.type.isReference() ? 'reference' : 'field')"
+				<combobox model="@load(vm.getConstraintFields(vm.constraintNested)) @template(empty each.name ? 'empty' : each.isReferenceField() ? 'reference' : 'field')"
 	        		 	  selectedItem="@bind(vm.fieldConstraint.field)"
 	        		 	  onSelect="@command('selectConstraintField')"
 	        		 	  disabled="@load(!empty vm.fieldConstraint.fieldGroup)"

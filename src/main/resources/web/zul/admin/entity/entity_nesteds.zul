@@ -56,7 +56,7 @@
 	            	<listcell iconSclass="@load(empty nested.nestedEntity ? '' : 'z-icon-table alpha-icon-lg')">
 	            		<label value="@load(nested.nestedEntity.name)"/>
 	            	</listcell>
-	            	<listcell iconSclass="@load(empty nested.referenceField.type ? '' : nested.referenceField.type.isReference() ? 'z-icon-share alpha-icon-lg' : 'z-icon-font alpha-icon-lg')">
+	            	<listcell iconSclass="@load(empty nested.referenceField.type ? '' : nested.referenceField.isReferenceField() ? 'z-icon-share alpha-icon-lg' : 'z-icon-font alpha-icon-lg')">
 	            		<label value="@load(nested.referenceField.name)" />
 	            	</listcell>
 	            </listitem>
@@ -93,7 +93,7 @@
            	</combobox>
            	<vlayout visible="@load(!empty vm.nested.nestedEntity)">
            		<label value="${labels.label.reffield}:"/>
-           		<combobox model="@load(vm.nested.nestedEntity.getReferenceFields(vm.object)) @template(empty each.name ? 'empty' : each.type.isReference() ? 'reference' : 'field')"
+           		<combobox model="@load(vm.nested.nestedEntity.getReferenceFields(vm.object)) @template(empty each.name ? 'empty' : each.isReferenceField() ? 'reference' : 'field')"
            				  mandatory="true"
            			  	  selectedItem="@bind(vm.nested.referenceField)"
            			  	  value="@load(vm.nested.referenceField.name)"

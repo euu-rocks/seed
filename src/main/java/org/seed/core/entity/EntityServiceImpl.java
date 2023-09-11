@@ -66,7 +66,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class EntityServiceImpl extends AbstractApplicationEntityService<Entity> 
 	implements EntityService, EntityDependent<Entity>, UserGroupDependent<Entity>, 
-		CodeChangeAware { 
+			   CodeChangeAware { 
 	
 	@Autowired
 	private EntityValidator entityValidator;
@@ -266,8 +266,8 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		
 		return (anyMatch(entity.getFields(), field -> fieldGroup.equals(field.getFieldGroup())) ||
 				anyMatch(entity.getFieldConstraints(), constr -> fieldGroup.equals(constr.getFieldGroup())))
-				? Collections.singletonList(entity)
-				: Collections.emptyList();
+																	? Collections.singletonList(entity)
+																	: Collections.emptyList();
 	}
 	
 	@Override
@@ -278,8 +278,8 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		
 		return anyMatch(entity.getStatusTransitions(), trans -> 
 				   anyMatch(trans.getFunctions(), func -> entityFunction.equals(func.getFunction()))) 
-					? Collections.singletonList(entity)
-					: Collections.emptyList();
+															? Collections.singletonList(entity)
+															: Collections.emptyList();
 	}
 	
 	@Override
@@ -300,8 +300,8 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		final Entity entity = nestedEntity.getParentEntity();
 		
 		return anyMatch(entity.getFieldConstraints(), constr -> constr.isFieldEntity(nestedEntity.getNestedEntity()))
-				? Collections.singletonList(entity)
-				: Collections.emptyList();
+																		? Collections.singletonList(entity)
+																		: Collections.emptyList();
 	}
 	
 	@Override
@@ -322,7 +322,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(entityField, C.ENTITYFIELD);
 		Assert.notNull(session, C.SESSION);
 		
-		return entityField.getType().isReference()
+		return entityField.isReferenceField()
 				? subList(getObjects(session), entity -> anyMatch(entity.getNesteds(), 
 																  nested -> nested.getReferenceField().equals(entityField)))
 				: Collections.emptyList();
@@ -429,8 +429,9 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(user, C.USER);
 		
 		final var result = filterAndConvert(entity.getStatusTransitions(), 
-								 trans -> trans.getSourceStatus().equals(currentStatus) && trans.isAuthorized(user), 
-								 EntityStatusTransition::getTargetStatus);
+											trans -> trans.getSourceStatus().equals(currentStatus) && 
+													 trans.isAuthorized(user), 
+											EntityStatusTransition::getTargetStatus);
 		result.add(0, currentStatus);
 		return result;
 	}
@@ -594,8 +595,8 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 			// init references to other entities
 			for (Entity entity : entities) {
 				final Entity genericEntity = entity.getGenericEntityUid() != null
-						? findByUid(session, entity.getGenericEntityUid())
-						: null;
+												? findByUid(session, entity.getGenericEntityUid())
+												: null;
 				((EntityMetadata) entity).setGenericEntity(genericEntity);
 				initEntityReferences(entity, session);
 				initRelationEntities(session, entity);
@@ -635,21 +636,17 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		
 		final var referenceChangeLog = new ReferenceChangeLog();
 		final var changeLogs = new ArrayList<ChangeLog>();
-		for (Entity entity : context.getNewEntities()) {
-			if (!entity.isGeneric()) {
-				final ChangeLog changeLog = createChangeLog(null, entity, session, referenceChangeLog);
-				if (changeLog != null) {
-					changeLogs.add(changeLog);
-				}
+		for (Entity entity : subList(context.getNewEntities(), not(Entity::isGeneric))) {
+			final ChangeLog changeLog = createChangeLog(null, entity, session, referenceChangeLog);
+			if (changeLog != null) {
+				changeLogs.add(changeLog);
 			}
 		}
-		for (Entity entity : context.getExistingEntities()) {
-			if (!entity.isGeneric()) {
-				final Entity currentVersionEntity = context.getCurrentVersionEntity(entity.getUid());
-				final ChangeLog changeLog = createChangeLog(currentVersionEntity, entity, session, referenceChangeLog);
-				if (changeLog != null) {
-					changeLogs.add(changeLog);
-				}
+		for (Entity entity : subList(context.getExistingEntities(), not(Entity::isGeneric))) {
+			final Entity currentVersionEntity = context.getCurrentVersionEntity(entity.getUid());
+			final ChangeLog changeLog = createChangeLog(currentVersionEntity, entity, session, referenceChangeLog);
+			if (changeLog != null) {
+				changeLogs.add(changeLog);
 			}
 		}
 		changeLogs.sort(changeLogComparator);
@@ -676,9 +673,10 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(entity, C.ENTITY);
 		
 		cleanup(entity);
-		final boolean isInsert = entity.isNew();
-		final Entity currentVersionEntity = !isInsert ? getObject(entity.getId()) : null;
-		final boolean renamed = !isInsert && !currentVersionEntity.getInternalName().equals(entity.getInternalName());
+		final var isInsert = entity.isNew();
+		final var currentVersionEntity = !isInsert ? getObject(entity.getId()) : null;
+		final var renamed = !isInsert && 
+							!currentVersionEntity.getInternalName().equals(entity.getInternalName());
 		
 		try (Session session = entityRepository.getSession()) {
 			Transaction tx = null;
@@ -842,19 +840,17 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	
 	private boolean processCallbackFunctionChange(SourceCode sourceCode, Session session) {
 		final String entityName = sourceCode.getPackageName().substring(CodeManagerImpl.GENERATED_ENTITY_PACKAGE.length() + 1);
-		for (Entity entity : getObjects(session)) {
-			if (entity.getName().equalsIgnoreCase(entityName)) {
-				final EntityFunction function = firstMatch(entity.getFunctions(), 
-						func -> func.isCallback() && 
-								func.getName().equalsIgnoreCase(sourceCode.getClassName()) &&
-								!func.getContent().equals(sourceCode.getContent()));
-				if (function != null) {
-					function.setContent(sourceCode.getContent());
-					session.saveOrUpdate(function);
-					return true;
-				}
-				break;
+		for (Entity entity : subList(getObjects(session), ent -> ent.getName().equalsIgnoreCase(entityName))) {
+			final EntityFunction function = firstMatch(entity.getFunctions(), 
+					func -> func.isCallback() && 
+							func.getName().equalsIgnoreCase(sourceCode.getClassName()) &&
+							!func.getContent().equals(sourceCode.getContent()));
+			if (function != null) {
+				function.setContent(sourceCode.getContent());
+				session.saveOrUpdate(function);
+				return true;
 			}
+			break;
 		}
 		return false;
 	}
@@ -981,11 +977,9 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	private void initReferenceFields(Session session, Entity entity) {
-		for (EntityField field : entity.getAllFields()) {
-			if (field.getType().isReference()) {
-				final Entity reference = findByUid(session, field.getReferenceEntityUid());
-				field.setReferenceEntity(reference);
-			}
+		for (EntityField field : subList(entity.getAllFields(), EntityField::isReferenceField)) {
+			final Entity reference = findByUid(session, field.getReferenceEntityUid());
+			field.setReferenceEntity(reference);
 		}
 	}
 	
@@ -1191,11 +1185,11 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 			field.setLength(null);
 		}
 		// only some fields can be fulltext indexed
-		if (!(field.isTextField() || field.getType().isAutonum() || field.getType().isReference())) {
+		if (!(field.isTextField() || field.getType().isAutonum() || field.isReferenceField())) {
 			field.setFullTextSearch(false);
 		}
 		// only reference fields can have reference entity or field
-		if (!field.getType().isReference()) {
+		if (!field.isReferenceField()) {
 			field.setReferenceEntity(null);
 		}
 		// only autonum fields can have pattern and start
@@ -1262,7 +1256,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	private static EntityPermission createPermission(Entity entity, UserGroup group) {
-		final EntityPermission permission = new EntityPermission();
+		final var permission = new EntityPermission();
 		permission.setEntity(entity);
 		permission.setUserGroup(group);
 		permission.setAccess(EntityAccess.DELETE);
@@ -1270,14 +1264,14 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	private static EntityStatusTransitionFunction createTransitionFunction(EntityStatusTransition transition, EntityFunction function) {
-		final EntityStatusTransitionFunction transitionFunction = new EntityStatusTransitionFunction();
+		final var transitionFunction = new EntityStatusTransitionFunction();
 		transitionFunction.setStatusTransition(transition);
 		transitionFunction.setFunction(function);
 		return transitionFunction;
 	}
 	
 	private static EntityStatusTransitionPermission createTransitionPermission(EntityStatusTransition transition, UserGroup group) {
-		final EntityStatusTransitionPermission permission = new EntityStatusTransitionPermission();
+		final var permission = new EntityStatusTransitionPermission();
 		permission.setStatusTransition(transition);
 		permission.setUserGroup(group);
 		return permission;

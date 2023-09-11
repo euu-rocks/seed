@@ -107,6 +107,18 @@ class EntityFieldTest {
 	}
 	
 	@Test
+	void testIsReferenceField() {
+		final EntityField field = new EntityField();
+		assertFalse(field.isReferenceField());
+		
+		field.setType(FieldType.REFERENCE);
+		assertTrue(field.isReferenceField());
+		
+		field.setType(FieldType.TEXT);
+		assertFalse(field.isReferenceField());
+	}
+	
+	@Test
 	void testIsTextField() {
 		final EntityField field = new EntityField();
 		assertFalse(field.isTextField());
@@ -119,6 +131,18 @@ class EntityFieldTest {
 		
 		field.setType(FieldType.TEXTLONG);
 		assertTrue(field.isTextField());
+	}
+	
+	@Test
+	void testIsUidField() {
+		final EntityField field = new EntityField();
+		assertFalse(field.isUidField());
+		
+		field.setName("uid");
+		assertTrue(field.isUidField());
+		
+		field.setName("id");
+		assertFalse(field.isUidField());
 	}
 	
 	@Test

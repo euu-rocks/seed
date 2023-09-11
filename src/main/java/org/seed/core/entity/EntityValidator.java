@@ -297,7 +297,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 					errors.addError("val.ambiguous.autonum");
 				}
 			}
-			else if (field.getType().isReference() && 
+			else if (field.isReferenceField() && 
 				     isEmpty(field.getReferenceEntity())) {
 				errors.addEmptyField("label.refentity");
 			}

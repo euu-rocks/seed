@@ -517,7 +517,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		initColumn(columnConfig, entity, field, isAuditTable);
 		addChange(createAddColumnChange(entity, columnConfig, isAuditTable));
 		if (!isAuditTable && 
-			(field.getType().isReference() || field.getType().isFile() || field.isIndexed())) {
+			(field.isReferenceField() || field.getType().isFile() || field.isIndexed())) {
 			addFieldConstraintsAndIndex(entity, field);
 		}
 	}
@@ -693,7 +693,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	
 	private void buildFieldConstraintsAndIndexChanges(Entity entity) {
 		filterAndForEach(entity.getAllFields(), 
-						 field -> field.getType().isReference() || field.getType().isFile() || field.isIndexed(), 
+						 field -> field.isReferenceField() || field.getType().isFile() || field.isIndexed(), 
 						 field -> addFieldConstraintsAndIndex(entity, field));
 		if (entity.hasStatus()) {
 			buildStatusConstraintAndIndex(entity);
@@ -866,13 +866,13 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		Assert.notNull(field, C.FIELD);
 		
 		// reference / file field
-		if (field.getType().isReference() || field.getType().isFile()) {
+		if (field.isReferenceField() || field.getType().isFile()) {
 			final var addFKConstraintChange = new AddForeignKeyConstraintChange();
 			addFKConstraintChange.setConstraintName(getForeignKeyConstraintName(entity, field));
 			addFKConstraintChange.setBaseTableName(entity.getEffectiveTableName());
 			addFKConstraintChange.setBaseColumnNames(field.getEffectiveColumnName());
 			addFKConstraintChange.setReferencedColumnNames(SystemField.ID.columName);
-			if (field.getType().isReference()) {
+			if (field.isReferenceField()) {
 				addFKConstraintChange.setReferencedTableName(field.getReferenceEntity().getEffectiveTableName());
 			}
 			else if (field.getType().isFile()) {

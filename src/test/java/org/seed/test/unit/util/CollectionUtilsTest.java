@@ -129,6 +129,17 @@ class CollectionUtilsTest {
 	}
 	
 	@Test
+	void testFilterAndCount() {
+		final List<Integer> list = new ArrayList<>();
+		for (int i = 1; i < 6; i++) {
+			list.add(i);
+		}
+		assertEquals(0, CollectionUtils.filterAndCount(null, i -> ((Integer)i) > 2));
+		assertEquals(3, CollectionUtils.filterAndCount(list, i -> i > 2));
+		assertEquals(0, CollectionUtils.filterAndCount(list, i -> i > 5));
+	}
+	
+	@Test
 	void testForEach() {
 		final Integer ints[] = new Integer[] {1,2,3};
 		final List<Integer> result = new ArrayList<>();

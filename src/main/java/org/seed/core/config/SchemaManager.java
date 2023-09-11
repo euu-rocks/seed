@@ -35,6 +35,7 @@ import org.hibernate.Session;
 import org.hibernate.jdbc.ReturningWork;
 
 import org.seed.C;
+import org.seed.InternalException;
 import org.seed.core.config.changelog.ChangeLog;
 import org.seed.core.util.Assert;
 import org.seed.core.util.MiscUtils;
@@ -50,7 +51,6 @@ import org.springframework.stereotype.Component;
 
 import liquibase.Contexts;
 import liquibase.Liquibase;
-import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
@@ -155,6 +155,10 @@ public class SchemaManager {
 						}
 					}
 				}
+				catch (Exception ex) {
+					SystemLog.logError(ex);
+					throw new InternalException(ex);
+				}
 				return result;
 			}
 		});
@@ -177,6 +181,10 @@ public class SchemaManager {
 						}
 					}
 				}
+				catch (Exception ex) {
+					SystemLog.logError(ex);
+					throw new InternalException(ex);
+				}
 				return result;
 			}
 		});
@@ -190,8 +198,8 @@ public class SchemaManager {
 	synchronized void updateSchemaConfiguration(SchemaVersion baseVersion, Session session) {
 		// upgrade all versions from baseVersion + 1 to latest version
 		for (int v = baseVersion.ordinal() + 1; v <= SchemaVersion.lastVersion().ordinal(); v++) {
-			final SchemaVersion version = SchemaVersion.getVersion(v);
-			final ChangeLog changeLog = new ChangeLog();
+			final var version = SchemaVersion.getVersion(v);
+			final var changeLog = new ChangeLog();
 			changeLog.setChangeSet(loadSchemaUpdateChangeSet(version));
 			session.saveOrUpdate(changeLog);
 		}
@@ -257,7 +265,7 @@ public class SchemaManager {
 	}
 	
 	private String loadCustomChangeSets(Connection connection) throws SQLException {
-		final StringBuilder buf = new StringBuilder();
+		final var buf = new StringBuilder();
 		if (existTable(connection, CHANGELOG_TABLE)) {
 			try (Statement statement = connection.createStatement();
 				 ResultSet resultSet = statement.executeQuery("select changeset from " + CHANGELOG_TABLE + 
@@ -317,7 +325,7 @@ public class SchemaManager {
 	
 	private static Liquibase createLiquibase(Connection connection, String changeLogAsString) 
 			throws LiquibaseException {
-		final Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(
+		final var database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(
 																	new JdbcConnection(connection));
 		return new Liquibase(CHANGELOG_FILENAME, 
 							 new StringResourceAccessor(changeLogAsString), 

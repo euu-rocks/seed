@@ -33,7 +33,7 @@
 							  draggable="true" droppable="true" 
 	 						  onDrop="@command('insertToFieldList',item=event.dragged.attributes.item,base=field,list=0)">
 						<listcell label="@init(field.entityField.name)"
-								  iconSclass="@load(field.entityField.type.isReference() ? 'z-icon-share-square-o alpha-icon-lg' : 'z-icon-edit alpha-icon-lg')"/>
+								  iconSclass="@load(field.entityField.isReferenceField() ? 'z-icon-share-square-o alpha-icon-lg' : 'z-icon-edit alpha-icon-lg')"/>
 					</listitem>
 				</template>
 			</listbox>
@@ -54,7 +54,7 @@
 							  draggable="true" droppable="true" 
 							  onDrop="@command('insertToFieldList',item=event.dragged.attributes.item,base=field,list=1)">
 						<listcell label="@init(field.entityField.name)"
-								  iconSclass="@load(field.entityField.type.isReference() ? 'z-icon-share-square-o alpha-icon-lg' : 'z-icon-edit alpha-icon-lg')"/>
+								  iconSclass="@load(field.entityField.isReferenceField() ? 'z-icon-share-square-o alpha-icon-lg' : 'z-icon-edit alpha-icon-lg')"/>
 					</listitem>
 				</template>
 			</listbox>
@@ -115,7 +115,7 @@
 	                </template>
 				</combobox>
 	        </vlayout>
-	        <vlayout visible="@load(vm.subFormColumn.entityField.type.isReference() and !empty vm.getDetailForms(vm.subFormColumn.entityField.referenceEntity))">
+	        <vlayout visible="@load(vm.subFormColumn.entityField.isReferenceField() and !empty vm.getDetailForms(vm.subFormColumn.entityField.referenceEntity))">
 	        	<label value="${labels.label.detailform}:"/>
 	        	<combobox model="@load(vm.getDetailForms(vm.subFormColumn.entityField.referenceEntity))"
 			  	  		  selectedItem="@bind(vm.subFormColumn.detailForm)"
@@ -132,10 +132,6 @@
 	        	<checkbox checked="@bind(vm.subFormColumn.readonly)"/>
 	        	<label value="${labels.label.readonly}:"/>	
 	        </hlayout>
-	        <!-- <hlayout visible="@load(vm.subFormColumn.entityField.type.isReference())">
-	        	<checkbox checked="@bind(vm.subFormColumn.bandbox)"/>
-	        	<label value="${labels.label.bandbox}:"/>	
-	        </hlayout> -->
 		</vlayout>
 	</east>
 </borderlayout>	

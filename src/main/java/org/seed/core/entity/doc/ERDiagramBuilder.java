@@ -77,7 +77,7 @@ class ERDiagramBuilder extends AbstractPlantUMLBuilder {
 	private static void buildReferences(StringBuilder buf, Entity entity) {
 		if (entity.hasAllFields()) {
 			filterAndForEach(entity.getAllFields(), 
-							 field -> field.getType().isReference(), 
+							 field -> field.isReferenceField(), 
 							 field -> buildReference(buf, field));
 		}
 	}
@@ -110,7 +110,7 @@ class ERDiagramBuilder extends AbstractPlantUMLBuilder {
 		if (field.getType().isAutonum()) {
 			buf.append(" <<generated>>");
 		}
-		else if (field.getType().isReference() || field.getType().isFile()) {
+		else if (field.isReferenceField() || field.getType().isFile()) {
 			buf.append(" <<FK>>");
 		}
 		buf.append('\n');

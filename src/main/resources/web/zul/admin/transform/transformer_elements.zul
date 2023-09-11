@@ -47,11 +47,11 @@
 	        </listhead> 
 	        <template name="model" var="element">
 	            <listitem sclass="@init(vm.getListItemTestClass(element))" >
-	            	<listcell iconSclass="@load(empty element.sourceField.type ? '' : element.sourceField.type.isReference() ? 'z-icon-share alpha-icon-lg' : 'z-icon-font alpha-icon-lg')">
+	            	<listcell iconSclass="@load(empty element.sourceField.type ? '' : element.sourceField.isReferenceField() ? 'z-icon-share alpha-icon-lg' : 'z-icon-font alpha-icon-lg')">
 	            		<label value="@load(element.sourceField.name)" 
 	            			   style="margin-left:3px"/>
 	            	</listcell>
-	            	<listcell iconSclass="@load(empty element.targetField.type ? '' : element.targetField.type.isReference() ? 'z-icon-share alpha-icon-lg' : 'z-icon-font alpha-icon-lg')">
+	            	<listcell iconSclass="@load(empty element.targetField.type ? '' : element.targetField.isReferenceField() ? 'z-icon-share alpha-icon-lg' : 'z-icon-font alpha-icon-lg')">
 	            		<label value="@load(element.targetField.name)" />
 	            	</listcell>
 	            </listitem>
@@ -65,7 +65,7 @@
 		<vlayout class="alpha-properties-content">
 			<label value="${labels.label.sourcefield}:"/>
 			<div sclass="sourcefield-field">
-				<combobox model="@init(vm.object.sourceEntity.fields) @template(empty each.name ? 'empty' : each.type.isReference() ? 'reference' : 'field')" 
+				<combobox model="@init(vm.object.sourceEntity.fields) @template(empty each.name ? 'empty' : each.isReferenceField() ? 'reference' : 'field')" 
 	           			  selectedItem="@bind(vm.element.sourceField)"
 	           			  onSelect="@command('flagDirty',notify='availableTargetFields')"
 	           			  onBlur="@command('flagDirty',notify='availableTargetFields')"
@@ -86,7 +86,7 @@
 			</div>
 			<label value="${labels.label.targetfield}:"/>
 			<div sclass="targetfield-field">
-				<combobox model="@load(vm.availableTargetFields) @template(empty each.name ? 'empty' : each.type.isReference() ? 'reference' : 'field')" 
+				<combobox model="@load(vm.availableTargetFields) @template(empty each.name ? 'empty' : each.isReferenceField() ? 'reference' : 'field')" 
 	           			  selectedItem="@bind(vm.element.targetField)"
 	           			  value="@load(vm.element.targetField.name)"
 	           			  onSelect="@command('flagDirty')"

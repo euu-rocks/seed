@@ -162,7 +162,7 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 				// skip non-transferable types
 				if (entityField.getType().isBinary() || 
 					entityField.getType().isFile() ||
-					entityField.getType().isReference()) {
+					entityField.isReferenceField()) {
 					continue;
 				}
 				if (!anyMatch(elements, elem -> entityField.equals(elem.getEntityField()))) {
@@ -189,7 +189,7 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 			for (EntityField entityField : entity.getAllFields()) {
 				if (entityField.getType().isBinary() || 
 					entityField.getType().isFile() ||
-					entityField.getType().isReference()) {
+					entityField.isReferenceField()) {
 					continue;
 				}
 				if (!anyMatch(elements, elem -> entityField.equals(elem.getEntityField()))) {

@@ -111,7 +111,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 		// check referenced entities
 		if (entity.hasFields()) {
 			for (EntityField field : entity.getFields()) {
-				if (field.getType().isReference() && 
+				if (field.isReferenceField() && 
 					field.getReferenceEntity().getLastModified().after(timestamp)) {
 					timestamp = field.getReferenceEntity().getLastModified();
 				}
@@ -239,7 +239,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 	
 	private void buildFields() {
 		for (EntityField field : entity.getFields()) {
-			final TypeClass typeClass = field.getType().isReference()
+			final TypeClass typeClass = field.isReferenceField()
 											? newTypeClass(field.getReferenceEntity())
 											: newTypeClass(field.getType().typeClass);
 			final var annotations = getFieldAnnotations(field);
@@ -370,7 +370,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 			// check nested referenced entities
 			if (entityNested.hasFields()) {
 				for (EntityField field : entityNested.getFields()) {
-					if (field.getType().isReference() && 
+					if (field.isReferenceField() && 
 						field.getReferenceEntity().getLastModified().after(timestamp)) {
 						timestamp = field.getReferenceEntity().getLastModified();
 					}

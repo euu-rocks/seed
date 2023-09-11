@@ -25,7 +25,8 @@ public abstract class DBObjectUtils {
 	
 	private static final Pattern PATTERN_SQL_COMMENT = Pattern.compile("--.*|/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*+/");
 	
-	private static final Pattern PATTERN_TRIGGER_TABLE = Pattern.compile("\\s+on\\s+([^\\s]+)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern PATTERN_TRIGGER_TABLE = Pattern.compile("\\s++on\\s++([^\\s]++)", 
+																		 Pattern.CASE_INSENSITIVE);
 	
 	private static final String NAME_NEIGHBOR = "[^a-zA-Z0-9_.-]";
 	
