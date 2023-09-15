@@ -40,6 +40,77 @@ public class EditEntityTest extends AbstractEntityTest {
 	
 	@Test
 	@Order(2)
+	void testSetMinMaxValues() {
+		WebElement tabpanel = showEntity("integrationtestnew");
+		assertEquals("Felder", findTab(tabpanel, "fields").getText());
+		WebElement tabpanelFields = findTabpanel(tabpanel, "fields");
+		clickListItem(tabpanelFields, "numberfield");
+		findOptionIntbox(tabpanelFields, "minvalue").sendKeys("1");
+		findOptionIntbox(tabpanelFields, "maxvalue").sendKeys("100");
+		clickTab(tabpanel, "fields"); // lose focus
+		saveEntity(tabpanel);
+	}
+	
+	@Test
+	@Order(3)
+	void testDisableMandatory() {
+		WebElement tabpanel = showEntity("integrationtestnew");
+		assertEquals("Felder", findTab(tabpanel, "fields").getText());
+		WebElement tabpanelFields = findTabpanel(tabpanel, "fields");
+		clickListItem(tabpanelFields, "textfield");
+		clickCheckbox(tabpanelFields, "mandatory");
+		saveEntity(tabpanel);
+	}
+	
+	@Test
+	@Order(4)
+	void testDisableUnique() {
+		WebElement tabpanel = showEntity("integrationtestnew");
+		assertEquals("Felder", findTab(tabpanel, "fields").getText());
+		WebElement tabpanelFields = findTabpanel(tabpanel, "fields");
+		clickListItem(tabpanelFields, "textfield");
+		clickCheckbox(tabpanelFields, "unique");
+		saveEntity(tabpanel);
+	}
+	
+	@Test
+	@Order(5)
+	void testDisableIndexed() {
+		WebElement tabpanel = showEntity("integrationtestnew");
+		assertEquals("Felder", findTab(tabpanel, "fields").getText());
+		WebElement tabpanelFields = findTabpanel(tabpanel, "fields");
+		clickListItem(tabpanelFields, "textfield");
+		clickCheckbox(tabpanelFields, "indexed");
+		saveEntity(tabpanel);
+	}
+	
+	@Test
+	@Order(6)
+	void testEnableConstraints() {
+		WebElement tabpanel = showEntity("integrationtestnew");
+		assertEquals("Felder", findTab(tabpanel, "fields").getText());
+		WebElement tabpanelFields = findTabpanel(tabpanel, "fields");
+		clickListItem(tabpanelFields, "textfield");
+		clickCheckbox(tabpanelFields, "mandatory");
+		clickCheckbox(tabpanelFields, "unique");
+		clickCheckbox(tabpanelFields, "indexed");
+		saveEntity(tabpanel);
+	}
+	
+	@Test
+	@Order(7)
+	void testChangeColumnLength() {
+		WebElement tabpanel = showEntity("integrationtestnew");
+		assertEquals("Felder", findTab(tabpanel, "fields").getText());
+		WebElement tabpanelFields = findTabpanel(tabpanel, "fields");
+		clickListItem(tabpanelFields, "textfield");
+		findOptionIntbox(tabpanelFields, "length").sendKeys("512");
+		clickTab(tabpanel, "fields");
+		saveEntity(tabpanel);
+	}
+	
+	@Test
+	@Order(8)
 	void testRenameField() {
 		WebElement tabpanel = showEntity("integrationtestnew");
 		assertEquals("Felder", findTab(tabpanel, "fields").getText());
@@ -52,7 +123,7 @@ public class EditEntityTest extends AbstractEntityTest {
 	}
 	
 	@Test
-	@Order(3)
+	@Order(9)
 	void testChangeDataType() {
 		WebElement tabpanel = showEntity("integrationtestnew");
 		assertEquals("Felder", findTab(tabpanel, "fields").getText());
@@ -66,7 +137,7 @@ public class EditEntityTest extends AbstractEntityTest {
 	}
 	
 	@Test
-	@Order(4)
+	@Order(10)
 	void testRenameFieldGroup() {
 		WebElement tabpanel = showEntity("integrationtestnew");
 		assertEquals("Feldgruppen", findTab(tabpanel, "fieldgroups").getText());
@@ -80,7 +151,7 @@ public class EditEntityTest extends AbstractEntityTest {
 	}
 	
 	@Test
-	@Order(5)
+	@Order(11)
 	void testEditFunction() {
 		WebElement tabpanel = showEntity("integrationtestnew");
 		assertEquals("Funktionen", findTab(tabpanel, "functions").getText());
@@ -97,7 +168,7 @@ public class EditEntityTest extends AbstractEntityTest {
 	}
 	
 	@Test
-	@Order(6)
+	@Order(12)
 	void testRenameNested() {
 		WebElement tabpanel = showEntity("integrationtestnew");
 		assertEquals("Unterobjekte", findTab(tabpanel, "nesteds").getText());
@@ -111,7 +182,7 @@ public class EditEntityTest extends AbstractEntityTest {
 	}
 	
 	@Test
-	@Order(7)
+	@Order(13)
 	void testRenameRelation() {
 		WebElement tabpanel = showEntity("integrationtestnew");
 		assertEquals("Beziehungen", findTab(tabpanel, "relations").getText());
@@ -125,7 +196,7 @@ public class EditEntityTest extends AbstractEntityTest {
 	}
 	
 	@Test
-	@Order(8)
+	@Order(14)
 	void testEditFieldConstraint() {
 		WebElement tabpanel = showEntity("integrationtestnew");
 		assertEquals("Feldeinschränkungen", findTab(tabpanel, "constraints").getText());
@@ -140,7 +211,7 @@ public class EditEntityTest extends AbstractEntityTest {
 	}
 	
 	@Test
-	@Order(9)
+	@Order(15)
 	void testRenameStatus() {
 		WebElement tabpanel = showEntity("integrationtestnew");
 		assertEquals("Statusmodell", findTab(tabpanel, "statusmodel").getText());
@@ -156,7 +227,7 @@ public class EditEntityTest extends AbstractEntityTest {
 	}
 	
 	@Test
-	@Order(10)
+	@Order(16)
 	void testRenameRelatedEntity() {
 		WebElement tabpanel = showEntity("transferabletest");
 		assertEquals("Entitäten: TransferableTest", findTab("entitaeten").getText());
@@ -166,7 +237,7 @@ public class EditEntityTest extends AbstractEntityTest {
 	}
 	
 	@Test
-	@Order(11)
+	@Order(17)
 	void testRenameEntityBack() {
 		WebElement tabpanel = showEntity("integrationtestnew");
 		assertEquals("Entitäten: IntegrationTestNew", findTab("entitaeten").getText());
@@ -176,7 +247,7 @@ public class EditEntityTest extends AbstractEntityTest {
 	}
 	
 	@Test
-	@Order(12)
+	@Order(18)
 	void testEditCallbackFunction() {
 		WebElement tabpanel = showEntity("integrationtest");
 		assertEquals("Callback-Funktionen", findTab(tabpanel, "callbackfunctions").getText());
@@ -193,11 +264,21 @@ public class EditEntityTest extends AbstractEntityTest {
 	}
 	
 	@Test
-	@Order(13)
+	@Order(19)
 	void testDisableVersioning() {
 		WebElement tabpanel = showEntity("derivedtest");
 		assertEquals("Entitäten: DerivedTest", findTab("entitaeten").getText());
 		findCheckbox(tabpanel, "audited").click();
 		saveEntity(tabpanel);
 	}
+	
+	@Test
+	@Order(20)
+	void testEnableVersioning() {
+		WebElement tabpanel = showEntity("derivedtest");
+		assertEquals("Entitäten: DerivedTest", findTab("entitaeten").getText());
+		findCheckbox(tabpanel, "audited").click();
+		saveEntity(tabpanel);
+	}
+	
 }

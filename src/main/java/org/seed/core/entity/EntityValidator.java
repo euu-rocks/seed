@@ -139,6 +139,8 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 			errors.addError("val.delete.nestedexist");
 		}
 		else {
+			// reload entity
+			entity = repository.get(entity.getId());
 			try (Session session = repository.getSession()) {
 				for (var dependent : getEntityDependents()) {
 					validateDeleteEntityDependent(entity, dependent, errors, session);
@@ -151,6 +153,10 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 	public void validateRemoveField(EntityField field) throws ValidationException {
 		Assert.notNull(field, C.FIELD);
 		final var errors = createValidationErrors(field.getEntity());
+		
+		// reload field
+		final var entity = repository.get(field.getEntity().getId());
+		field = entity.getFieldById(field.getId());
 		
 		// check if field is used in field formula
 		for (EntityField entityField : field.getEntity().getFields()) {
@@ -693,7 +699,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		}
 	}
 	
-	private void validateRemoveFieldDependent(EntityField field,EntityDependent<? extends SystemEntity> dependent,
+	private void validateRemoveFieldDependent(EntityField field, EntityDependent<? extends SystemEntity> dependent,
 			  ValidationErrors errors, Session session) {
 		for (SystemEntity systemEntity : dependent.findUsage(field, session)) {
 			switch (getEntityType(systemEntity)) {

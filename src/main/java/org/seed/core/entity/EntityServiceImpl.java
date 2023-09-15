@@ -850,7 +850,6 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 				session.saveOrUpdate(function);
 				return true;
 			}
-			break;
 		}
 		return false;
 	}

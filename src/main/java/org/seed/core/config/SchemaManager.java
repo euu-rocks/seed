@@ -68,6 +68,9 @@ public class SchemaManager {
 	
 	private static final String CHANGELOG_FILENAME = "changelog.json";
 	
+	private static final String QUERY_CHANGESETS =
+			"select changeset from sys_changelog order by id";
+	
 	private static final String QUERY_DEPENDENCIES =
 			"select distinct dep_obj.relname from pg_depend" +
 			" join pg_rewrite on pg_depend.objid = pg_rewrite.oid" +
@@ -83,12 +86,21 @@ public class SchemaManager {
 	private static final String QUERY_DEPENDENCIES_FIELD = QUERY_DEPENDENCIES + 
 			"  and pg_attribute.attname = ?";
 	
+	private static final String QUERY_EXIST_LOCK =
+			"select count(*) from sys_changelog where locked = true";
+	
 	private static final String QUERY_REFERENCES =
 			"select distinct tc.table_name from information_schema.table_constraints tc" +
 			" join information_schema.constraint_column_usage ccu on ccu.constraint_name = tc.constraint_name" +
 			"  and ccu.table_schema = tc.table_schema" +
 			" where tc.table_schema = ccu.table_schema and tc.table_schema = 'public'" +
 			"  and tc.constraint_type = 'FOREIGN KEY' and ccu.table_name = ?";
+	
+	private static final String STATEMENT_DELETE_LAST_CHANGELOG = 
+			"delete from sys_changelog where id = (select max(id) from sys_changelog)";
+	
+	private static final String STATEMENT_DELETE_LOCK =
+			"delete from databasechangeloglock";
 	
 	@Autowired
 	private ResourceLoader resourceLoader;
@@ -268,8 +280,7 @@ public class SchemaManager {
 		final var buf = new StringBuilder();
 		if (existTable(connection, CHANGELOG_TABLE)) {
 			try (Statement statement = connection.createStatement();
-				 ResultSet resultSet = statement.executeQuery("select changeset from " + CHANGELOG_TABLE + 
-						 									  " order by id")) {
+				 ResultSet resultSet = statement.executeQuery(QUERY_CHANGESETS)) {
 				while (resultSet.next()) {
 					if (buf.length() > 0) {
 						buf.append(',');
@@ -293,21 +304,19 @@ public class SchemaManager {
 	
 	private static boolean existLock(Connection connection) throws SQLException {
 		try (Statement statement = connection.createStatement();
-			 ResultSet resultSet = statement.executeQuery("select count(*) from " + CHANGELOG_LOCKTABLE + 
-					 									  " where locked = true")) {
+			 ResultSet resultSet = statement.executeQuery(QUERY_EXIST_LOCK)) {
 			return resultSet.next() && resultSet.getInt(1) == 1;
 		}
 	}
 	private static void removeLock(Connection connection) throws SQLException {
 		try (Statement statement = connection.createStatement()) {
-			statement.executeUpdate("delete from " + CHANGELOG_LOCKTABLE);
+			statement.executeUpdate(STATEMENT_DELETE_LOCK);
 		}
 	}
 	
 	private static void removeLastChangeLog(Connection connection) throws SQLException {
 		try (Statement statement = connection.createStatement()) {
-			statement.executeUpdate("delete from " + CHANGELOG_TABLE + 
-									" where id = (select max(id) from " + CHANGELOG_TABLE + ')');
+			statement.executeUpdate(STATEMENT_DELETE_LAST_CHANGELOG);
 		}
 	}
 	
