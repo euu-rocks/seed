@@ -66,7 +66,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	private static final String PREFIX_INDEX       = "idx_";
 	private static final String SUFFIX_STATUS      = "_status";
 	private static final String SUFFIX_AUDIT       = "_aud";
-	private static final String SUFFIX_REV         = "_rev";
+	private static final String SUFFIX_REVISION    = "_rev";
 	
 	private final EntityUsage entityUsage;
 	
@@ -622,7 +622,6 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 			buildFieldDropChanges(entity, field);
 			return;
 		}
-
 		// rename column
 		if (!field.getEffectiveColumnName().equals(nextVersionField.getEffectiveColumnName())) {
 			buildFieldNameChanges(entity, field, nextVersionField);
@@ -637,16 +636,16 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 			addAddMandatoryConstraintChangeSet(entity, nextVersionField);
 		}
 		else if (field.isMandatory() && !nextVersionField.isMandatory()) {
-			addDropMandatoryConstraintChangeSet(entity, field);
+			addDropMandatoryConstraintChangeSet(entity, nextVersionField);
 		}
 		// unique state changed
 		if (!field.isUnique() && nextVersionField.isUnique()) {
 			addAddUniqueConstraintChangeSet(entity, nextVersionField);
 		}
 		else if (field.isUnique() && !nextVersionField.isUnique()) {
-			addDropUniqueConstraintChangeSet(entity, field);
+			addDropUniqueConstraintChangeSet(entity, nextVersionField);
 		}
-		
+		// index state changes
 		buildFieldIndex(entity, field, nextVersionField);
 	}
 	
@@ -672,7 +671,6 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	}
 	
 	private void buildFieldIndex(Entity entity, EntityField field, EntityField nextVersionField) {
-		// index state change
 		if (!field.isIndexed() && nextVersionField.isIndexed()) {
 			addCreateIndexChangeSet(entity, nextVersionField);
 		}
@@ -947,7 +945,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	}
 	
 	private static String getRevisionForeignKeyConstraintName(Entity entity) {
-		return PREFIX_FOREIGN_KEY + TinyId.get(entity.getId()) + SUFFIX_REV;
+		return PREFIX_FOREIGN_KEY + TinyId.get(entity.getId()) + SUFFIX_REVISION;
 	}
 	
 	private static String getJoinColumnForeignKeyConstraintName(EntityRelation relation) {
