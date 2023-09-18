@@ -132,14 +132,14 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 			dropEntityTables();
 		}
 		else {
+			// audit state change
+			if (currentVersionObject.isAudited() != nextVersionObject.isAudited()) {
+				buildAuditTableChange();
+			}
+			
 			// rename table
 			if (!currentVersionObject.getEffectiveTableName().equals(nextVersionObject.getEffectiveTableName())) {
 				renameEntity();
-			}
-			
-			// audit state changee
-			if (currentVersionObject.isAudited() != nextVersionObject.isAudited()) {
-				buildAuditTableChange();
 			}
 			
 			// status field change
@@ -234,7 +234,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	
 	private void renameRelation(Entity related, EntityRelation oldRelation, EntityRelation newRelation) {
 		addRenameRelationTableChanges(related, oldRelation, newRelation, false);
-		if (oldRelation.getEntity().isAudited()) {
+		if (newRelation.getEntity().isAudited()) {
 			addRenameRelationTableChanges(related, oldRelation, newRelation, true);
 		}
 	}
@@ -725,10 +725,14 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	
 	private void buildAuditTableChange() {
 		if (nextVersionObject.isAudited()) {
-			addCreateTableChangeSet(nextVersionObject, true);
+			addCreateTableChangeSet(currentVersionObject, true);
+			currentVersionObject.getAllRelations().forEach(
+				relation -> addCreateTableChangeSet(relation, true));
 		}
 		else {
 			addDropTableChangeSet(currentVersionObject, true);
+			currentVersionObject.getAllRelations().forEach(
+				relation -> addDropTableChangeSet(relation, true));
 		}
 	}
 	
