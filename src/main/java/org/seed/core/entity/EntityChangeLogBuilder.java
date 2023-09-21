@@ -83,7 +83,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	EntityChangeLogBuilder(DatabaseInfo databaseInfo, Limits limits) {
 		entityUsage = Seed.getBean(EntityUsage.class);
 		Assert.stateAvailable(entityUsage, "entity usage");
-		Assert.notNull(databaseInfo, "databaseInfo");
+		Assert.notNull(databaseInfo, "database info");
 		Assert.notNull(limits, "limits");
 		
 		this.databaseInfo = databaseInfo;
@@ -134,7 +134,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		else {
 			// audit state change
 			if (currentVersionObject.isAudited() != nextVersionObject.isAudited()) {
-				buildAuditTableChange();
+				buildAuditChanges();
 			}
 			
 			// rename table
@@ -162,37 +162,32 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	private void createEntityTables() {
 		// entity table
 		addCreateTableChangeSet(nextVersionObject, false);
-		
 		// audit table
 		if (nextVersionObject.isAudited()) {
 			addCreateTableChangeSet(nextVersionObject, true);
 		}
-		
 		// relation tables
-		if (nextVersionObject.hasAllRelations()) {
-			for (EntityRelation relation : nextVersionObject.getAllRelations()) {
-				addCreateTableChangeSet(relation, false);
-				// relation audit table
-				if (nextVersionObject.isAudited()) {
-					addCreateTableChangeSet(relation, true);
-				}
+		for (EntityRelation relation : nextVersionObject.getAllRelations()) {
+			addCreateTableChangeSet(relation, false);
+			// relation audit table
+			if (nextVersionObject.isAudited()) {
+				addCreateTableChangeSet(relation, true);
 			}
 		}
 	}
 	
 	private void dropEntityTables() {
 		// drop relation tables
-		if (currentVersionObject.hasAllRelations()) {
-			for (EntityRelation relation : currentVersionObject.getAllRelations()) {
-				addDropTableChangeSet(relation, false);
-				// drop relation audit table
-				if (currentVersionObject.isAudited()) {
-					addDropTableChangeSet(relation, true);
-				}
+		for (EntityRelation relation : currentVersionObject.getAllRelations()) {
+			addDropTableChangeSet(relation, false);
+			// drop relation audit table
+			if (currentVersionObject.isAudited()) {
+				addDropTableChangeSet(relation, true);
 			}
 		}
-		// drop audit table
+		// drop entity table
 		addDropTableChangeSet(currentVersionObject, false);
+		// drop audit table
 		if (currentVersionObject.isAudited()) {
 			addDropTableChangeSet(currentVersionObject, true);
 		}
@@ -210,18 +205,14 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		if (nextVersionObject.isAudited()) {
 			addRenameTableChange(currentVersionObject, nextVersionObject, true);
 		}
-		
 		// rename relation tables
-		if (nextVersionObject.hasAllRelations()) {
-			for (EntityRelation relation : nextVersionObject.getAllRelations()) {
-				final EntityRelation currentVersionRelation = 
-						currentVersionObject.getRelationByUid(relation.getUid());
-				if (currentVersionRelation != null) {
-					renameRelation(null, currentVersionRelation, relation);
-				}
+		for (EntityRelation relation : nextVersionObject.getAllRelations()) {
+			final EntityRelation currentVersionRelation = 
+					currentVersionObject.getRelationByUid(relation.getUid());
+			if (currentVersionRelation != null) {
+				renameRelation(null, currentVersionRelation, relation);
 			}
 		}
-		
 		// rename inverse relation tables
 		if (inverseRelateds != null) {
 			for (Entity inverseRelated : inverseRelateds) {
@@ -234,7 +225,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	
 	private void renameRelation(Entity related, EntityRelation oldRelation, EntityRelation newRelation) {
 		addRenameRelationTableChanges(related, oldRelation, newRelation, false);
-		if (newRelation.getEntity().isAudited()) {
+		if (newRelation.isEntityAudited()) {
 			addRenameRelationTableChanges(related, oldRelation, newRelation, true);
 		}
 	}
@@ -262,13 +253,10 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 			createTableChange.addColumn(columnStatus);
 		}
 		// fields
-		if (entity.hasAllFields()) {
-			entity.getAllFields().forEach(field -> 
-				createTableChange.addColumn(initColumn(new ColumnConfig(), entity, field, isAuditTable)));
-		}
+		entity.getAllFields().forEach(field -> 
+			createTableChange.addColumn(initColumn(new ColumnConfig(), entity, field, isAuditTable)));
 		
 		addChange(createTableChange);
-		
 		if (isAuditTable) {
 			buildRevisionFieldConstraint(entity);
 		}
@@ -537,7 +525,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 			if (descendants != null) { // build changes for all implementing entities
 				for (Entity descendant : descendants) {
 					addDropTableChangeSet(relation.createDescendantRelation(descendant), false);
-					if (relation.getEntity().isAudited()) {
+					if (descendant.isAudited()) {
 						addDropTableChangeSet(relation.createDescendantRelation(descendant), true);
 					}
 				}
@@ -556,7 +544,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 			if (descendants != null) { // build changes for all implementing entities
 				for (Entity descendant : descendants) {
 					addCreateTableChangeSet(relation.createDescendantRelation(descendant), false);
-					if (relation.getEntity().isAudited()) {
+					if (descendant.isAudited()) {
 						addCreateTableChangeSet(relation.createDescendantRelation(descendant), true);
 					}
 				}
@@ -571,9 +559,8 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	}
 	
 	private void buildFieldChanges() {
-		if (currentVersionObject.hasAllFields()) {
-			currentVersionObject.getAllFields().forEach(this::buildFieldChangesCurrentVersion);
-		}
+		currentVersionObject.getAllFields().forEach(this::buildFieldChangesCurrentVersion);
+		
 		if (nextVersionObject.hasAllFields()) {
 			if (isGeneric()) {
 				if (descendants != null) { // build changes for all implementing entities
@@ -592,7 +579,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 			return;
 		}
 		
-		final EntityField nextVersionField = nextVersionObject.getFieldById(field.getId());
+		final var nextVersionField = nextVersionObject.getFieldById(field.getId());
 		// generic
 		if (isGeneric()) {
 			if (descendants != null) { // build changes for all implementing entities
@@ -723,7 +710,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		}
 	}
 	
-	private void buildAuditTableChange() {
+	private void buildAuditChanges() {
 		if (nextVersionObject.isAudited()) {
 			addCreateTableChangeSet(currentVersionObject, true);
 			currentVersionObject.getAllRelations().forEach(

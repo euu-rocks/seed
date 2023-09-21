@@ -465,16 +465,17 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public boolean hasAllRelations() {
-		return (genericEntity != null && genericEntity.hasAllRelations()) || hasRelations();
+		return (genericEntity != null && genericEntity.hasRelations()) || hasRelations();
 	}
 	
 	// includes generic relations
 	@Override
 	@JsonIgnore
 	public List<EntityRelation> getAllRelations() {
-		final List<EntityRelation> list = new ArrayList<>();
-		if (genericEntity != null) {
-			list.addAll(genericEntity.getAllRelations());
+		final var list = new ArrayList<EntityRelation>();
+		if (genericEntity != null && genericEntity.hasRelations()) {
+			list.addAll(genericEntity.getRelations());
+			list.forEach(relation -> relation.setDerivedEntity(this));
 		}
 		if (hasRelations()) {
 			list.addAll(getRelations());
@@ -489,7 +490,7 @@ public class EntityMetadata extends AbstractApplicationEntity
 	
 	@Override
 	public boolean hasAllFields() {
-		return (genericEntity != null && genericEntity.hasAllFields()) || hasFields();
+		return (genericEntity != null && genericEntity.hasFields()) || hasFields();
 	}
 	
 	// includes nested fields
@@ -610,6 +611,9 @@ public class EntityMetadata extends AbstractApplicationEntity
 		EntityRelation relation = null;
 		if (genericEntity != null) {
 			relation = genericEntity.getRelationByUid(uid);
+			if (relation != null) {
+				relation.setDerivedEntity(this);
+			}
 		}
 		return relation != null ? relation : getObjectByUid(getRelations(), uid);
 	}

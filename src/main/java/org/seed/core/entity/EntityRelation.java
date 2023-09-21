@@ -57,6 +57,9 @@ public class EntityRelation extends AbstractOrderedTransferableObject {
 	private String name;
 	
 	@Transient
+	private Entity derivedEntity;
+	
+	@Transient
 	@JsonIgnore
 	private String relatedEntityUid;
 	
@@ -108,13 +111,12 @@ public class EntityRelation extends AbstractOrderedTransferableObject {
 	
 	@JsonIgnore
 	public String getJoinTableName(Entity related) {
-		return entity.getEffectiveTableName() + '_' + 
-			   related.getEffectiveTableName();
+		return getEntityTableName() + '_' + related.getEffectiveTableName();
 	}
 	
 	@JsonIgnore
 	public String getJoinColumnName() {
-		return entity.getEffectiveTableName().concat(SUFFIX_ID);
+		return getEntityTableName().concat(SUFFIX_ID);
 	}
 	
 	@JsonIgnore
@@ -144,7 +146,11 @@ public class EntityRelation extends AbstractOrderedTransferableObject {
 	
 	public EntityRelation createInverseRelation(Entity relatedEntity) {
 		Assert.notNull(relatedEntity, "related entity");
-		
+		if (entity.isGeneric()) {
+			Assert.stateAvailable(derivedEntity, "derived entity");
+			
+			return createRelation(derivedEntity, relatedEntity);
+		}
 		return createRelation(entity, relatedEntity);
 	}
 	
@@ -154,8 +160,30 @@ public class EntityRelation extends AbstractOrderedTransferableObject {
 		return createRelation(descendantEntity, relatedEntity);
 	}
 	
+	void setDerivedEntity(Entity realEntity) {
+		this.derivedEntity = realEntity;
+	}
+	
+	boolean isEntityAudited() {
+		if (entity.isGeneric()) {
+			Assert.stateAvailable(derivedEntity, "derived entity");
+			
+			return derivedEntity.isAudited();
+		}
+		return entity.isAudited();
+	}
+	
+	private String getEntityTableName() {
+		if (entity.isGeneric()) {
+			Assert.stateAvailable(derivedEntity, "derived entity");
+			
+			return derivedEntity.getEffectiveTableName();
+		}
+		return entity.getEffectiveTableName();
+	}
+	
 	private static EntityRelation createRelation(Entity entity, Entity relatedEntity) {
-		final EntityRelation relation = new EntityRelation();
+		final var relation = new EntityRelation();
 		relation.setEntity(entity);
 		relation.setRelatedEntity(relatedEntity);
 		return relation;
