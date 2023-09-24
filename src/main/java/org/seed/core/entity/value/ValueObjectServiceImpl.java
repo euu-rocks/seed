@@ -866,11 +866,9 @@ public class ValueObjectServiceImpl
 		
 		boolean isModified = false;
 		final var caseInsensitiveKeyMap = toCaseInsensitiveKeyMap(valueMap);
-		if (entity.hasAllFields()) {
-			for (EntityField field : entity.getAllFields()) {
-				if (setObjectFieldValue(session, field, object, user, caseInsensitiveKeyMap)) {
-					isModified = true;
-				}
+		for (EntityField field : entity.getAllFields()) {
+			if (setObjectFieldValue(session, field, object, user, caseInsensitiveKeyMap)) {
+				isModified = true;
 			}
 		}
 		if (entity.hasNesteds()) {

@@ -154,13 +154,9 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 			buildNesteds();
 		}
 		
-		// relations
-		if (!entity.isGeneric() && entity.hasAllRelations()) {
-			buildRelations();
-		}
-		
-		// entityId
+		// relations / entityId
 		if (!entity.isGeneric()) {
+			buildRelations();
 			buildEntityIdGetter();
 		}
 		
@@ -173,7 +169,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 		}
 		
 		// relation methods
-		if (!entity.isGeneric() && entity.hasAllRelations()) {
+		if (!entity.isGeneric()) {
 			buildRelationMethods();
 		}
 		
@@ -271,7 +267,7 @@ class EntitySourceCodeBuilder extends AbstractSourceCodeBuilder {
 				}
 			});
 		}
-		if (!entity.isGeneric() && entity.hasAllRelations()) {
+		if (!entity.isGeneric()) {
 			entity.getAllRelations().forEach(relation -> 
 				addGetterAndSetter(relation.getInternalName()));
 		}

@@ -480,10 +480,8 @@ public class ValueObjectRepository {
 	private String resolveIdentifierPattern(Entity entity, ValueObject object) {
 		String pattern = entity.getIdentifierPattern();
 		pattern = pattern.replace("{entity}", entity.getName());
-		if (entity.hasAllFields()) {
-			for (EntityField field : entity.getAllFields()) {
-				pattern = resolveFieldPattern(field, pattern, object);
-			}
+		for (EntityField field : entity.getAllFields()) {
+			pattern = resolveFieldPattern(field, pattern, object);
 		}
 		if (StringUtils.hasText(pattern)) {
 			return pattern;
@@ -576,12 +574,10 @@ public class ValueObjectRepository {
 	
 	private Map<String, Object> getValueMap(ValueObject object, Entity entity) {
 		final var valueMap = new HashMap<String, Object>();
-		if (entity.hasAllFields()) {
-			for (EntityField field : entity.getAllFields()) {
-				final Object value = objectAccess.getValue(object, field);
-				if (value != null) {
-					valueMap.put(field.getUid(), value);
-				}
+		for (EntityField field : entity.getAllFields()) {
+			final Object value = objectAccess.getValue(object, field);
+			if (value != null) {
+				valueMap.put(field.getUid(), value);
 			}
 		}
 		return valueMap;

@@ -50,9 +50,8 @@ class ERDiagramBuilder extends AbstractPlantUMLBuilder {
 		buf.append("entity ").append(entity.getEffectiveTableName()).append(" {\n")
 		   .append(SystemField.ID.columName).append(COLON).append("number <<generated>>\n")
 		   .append("--\n");
-		if (entity.hasAllFields()) {
-			entity.getAllFields().forEach(field -> buildField(buf, field));
-		}
+		entity.getAllFields().forEach(field -> buildField(buf, field));
+		
 		buildSystemField(buf, SystemField.CREATEDBY);
 		buildSystemField(buf, SystemField.CREATEDON);
 		buildSystemField(buf, SystemField.MODIFIEDBY);
@@ -62,9 +61,7 @@ class ERDiagramBuilder extends AbstractPlantUMLBuilder {
 	}
 	
 	private static void buildRelationEntities(StringBuilder buf, Entity entity) {
-		if (entity.hasAllRelations()) {
-			entity.getAllRelations().forEach(relation -> buildRelationEntity(buf, relation));
-		}
+		entity.getAllRelations().forEach(relation -> buildRelationEntity(buf, relation));
 	}
 	
 	private static void buildRelationEntity(StringBuilder buf, EntityRelation relation) {
@@ -75,23 +72,19 @@ class ERDiagramBuilder extends AbstractPlantUMLBuilder {
 	}
 	
 	private static void buildReferences(StringBuilder buf, Entity entity) {
-		if (entity.hasAllFields()) {
-			filterAndForEach(entity.getAllFields(), 
-							 EntityField::isReferenceField, 
-							 field -> buildReference(buf, field));
-		}
+		filterAndForEach(entity.getAllFields(), 
+						 EntityField::isReferenceField, 
+						 field -> buildReference(buf, field));
 	}
 	
 	private static void buildReference(StringBuilder buf, EntityField field) {
 		buf.append(field.getEntity().getEffectiveTableName()).append(" }o..")
-		.append(field.isMandatory() ? "||" : "o|")
-		.append(field.getReferenceEntity().getEffectiveTableName()).append("\n\n");
+		   .append(field.isMandatory() ? "||" : "o|")
+		   .append(field.getReferenceEntity().getEffectiveTableName()).append("\n\n");
 	}
 	
 	private static void buildRelations(StringBuilder buf, Entity entity) {
-		if (entity.hasAllRelations()) {
-			entity.getAllRelations().forEach(relation -> buildRelation(buf, relation));
-		}
+		entity.getAllRelations().forEach(relation -> buildRelation(buf, relation));
 	}
 	
 	private static void buildRelation(StringBuilder buf, EntityRelation relation) {

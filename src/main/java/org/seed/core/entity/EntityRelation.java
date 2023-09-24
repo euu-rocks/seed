@@ -92,7 +92,9 @@ public class EntityRelation extends AbstractOrderedTransferableObject {
 
 	@XmlAttribute
 	public String getRelatedEntityUid() {
-		return relatedEntity != null ? relatedEntity.getUid() : relatedEntityUid;
+		return relatedEntity != null 
+				? relatedEntity.getUid() 
+				: relatedEntityUid;
 	}
 
 	public void setRelatedEntityUid(String relatedEntityUid) {
@@ -101,7 +103,9 @@ public class EntityRelation extends AbstractOrderedTransferableObject {
 	
 	@JsonIgnore
 	public String getInternalName() {
-		return name != null ? NameUtils.getInternalName(name).toLowerCase() : null;
+		return name != null 
+				? NameUtils.getInternalName(name).toLowerCase() 
+				: null;
 	}
 	
 	@JsonIgnore
@@ -146,12 +150,10 @@ public class EntityRelation extends AbstractOrderedTransferableObject {
 	
 	public EntityRelation createInverseRelation(Entity relatedEntity) {
 		Assert.notNull(relatedEntity, "related entity");
-		if (entity.isGeneric()) {
-			Assert.stateAvailable(derivedEntity, "derived entity");
-			
-			return createRelation(derivedEntity, relatedEntity);
-		}
-		return createRelation(entity, relatedEntity);
+		
+		return entity.isGeneric()
+				? createRelation(getDerivedEntity(), relatedEntity)
+				: createRelation(entity, relatedEntity);
 	}
 	
 	public EntityRelation createDescendantRelation(Entity descendantEntity) {
@@ -160,26 +162,26 @@ public class EntityRelation extends AbstractOrderedTransferableObject {
 		return createRelation(descendantEntity, relatedEntity);
 	}
 	
-	void setDerivedEntity(Entity realEntity) {
-		this.derivedEntity = realEntity;
+	void setDerivedEntity(Entity derivedEntity) {
+		this.derivedEntity = derivedEntity;
+	}
+	
+	private Entity getDerivedEntity() {
+		Assert.stateAvailable(derivedEntity, "derived entity");
+		
+		return derivedEntity;
 	}
 	
 	boolean isEntityAudited() {
-		if (entity.isGeneric()) {
-			Assert.stateAvailable(derivedEntity, "derived entity");
-			
-			return derivedEntity.isAudited();
-		}
-		return entity.isAudited();
+		return entity.isGeneric()
+				? getDerivedEntity().isAudited()
+				: entity.isAudited();
 	}
 	
 	private String getEntityTableName() {
-		if (entity.isGeneric()) {
-			Assert.stateAvailable(derivedEntity, "derived entity");
-			
-			return derivedEntity.getEffectiveTableName();
-		}
-		return entity.getEffectiveTableName();
+		return entity.isGeneric()
+				? getDerivedEntity().getEffectiveTableName()
+				: entity.getEffectiveTableName();
 	}
 	
 	private static EntityRelation createRelation(Entity entity, Entity relatedEntity) {

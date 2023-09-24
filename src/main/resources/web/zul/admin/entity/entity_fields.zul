@@ -132,6 +132,7 @@
             	<div sclass="pattern-field"> 
 	            	<textbox hflex="1"
 	            		 	 value="@bind(vm.field.validationPattern) @converter(vm.stringConverter)"
+	            		 	 tooltiptext="${labels.info.regularexpression}"
 	            		 	 onChange="@command('flagDirty')"/>
 	            </div>	
             </vlayout>

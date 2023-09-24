@@ -221,7 +221,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		return entity.isGeneric()
 				? Collections.emptyList()
 				: formRepository.find(session, queryParam(C.ENTITY, entity), 
-											   queryParam("autoLayout", false)); // ignore auto layout forms
+											   queryParam(C.AUTOLAYOUT, false));
 	}
 	
 	@Override
@@ -229,20 +229,23 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		Assert.notNull(entityField, C.ENTITYFIELD);
 		Assert.notNull(session, C.SESSION);
 		
-		return subList(getObjects(session), form -> !form.isAutoLayout() && 
-						(form.containsEntityField(entityField) || 
-						 anyMatch(form.getFieldExtras(), extra -> entityField.equals(extra.getEntityField())) ||
-						 (form.getLayout() != null && getLayoutService().containsField(form.getLayout(), entityField)) ||
-						 anyMatch(form.getSubForms(), subForm -> subForm.containsEntityField(entityField))));
+		return subList(findNonAutoLayoutForms(session), 
+					   form -> (form.containsEntityField(entityField) || 
+							   	anyMatch(form.getFieldExtras(), extra -> entityField.equals(extra.getEntityField())) ||
+							   	(form.getLayout() != null && getLayoutService().containsField(form.getLayout(), entityField)) ||
+							   	anyMatch(form.getSubForms(), subForm -> subForm.containsEntityField(entityField))));
 	}
 	
+	
+
 	@Override
 	public List<Form> findUsage(EntityRelation entityRelation, Session session) {
 		Assert.notNull(entityRelation, C.RELATION);
 		Assert.notNull(session, C.SESSION);
 		
-		return subList(getObjects(session), form -> !form.isAutoLayout() && 
-													getLayoutService().containsRelation(form.getLayout(), entityRelation));
+		return subList(findNonAutoLayoutForms(session), 
+					   form -> form.getLayout() != null &&
+							   getLayoutService().containsRelation(form.getLayout(), entityRelation));
 	}
 	
 	@Override
@@ -260,9 +263,9 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		Assert.notNull(nestedEntity, C.NESTEDENTITY);
 		Assert.notNull(session, C.SESSION);
 		
-		return subList(getObjects(session), form -> !form.isAutoLayout() && 
-											 		anyMatch(form.getSubForms(), 
-											 				 subForm -> nestedEntity.equals(subForm.getNestedEntity())));
+		return subList(findNonAutoLayoutForms(session), 
+					   form -> anyMatch(form.getSubForms(), 
+										subForm -> nestedEntity.equals(subForm.getNestedEntity())));
 	}
 	
 	@Override
@@ -560,7 +563,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		
 		// delete auto layout forms
 		for (Form form : formRepository.find(queryParam(C.ENTITY, entity), 
-								   			 queryParam("autoLayout", true))) {
+								   			 queryParam(C.AUTOLAYOUT, true))) {
 			try {
 				deleteObject(form, session);
 			} 
@@ -625,6 +628,10 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		}
 	}
 	
+	private List<Form> findNonAutoLayoutForms(Session session) {
+		return formRepository.find(session, queryParam(C.AUTOLAYOUT, false));
+	}
+	
 	private void updateFormLayout(Form form, Entity entity, Session session) {
 		boolean layoutChanged = false;
 		if (form.isAutoLayout()) {
@@ -641,14 +648,10 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	private void updateAutoLayout(Entity entity, Form form) {
-		if (entity.hasAllFields()) {
-			for (EntityField entityField : entity.getAllFields()) {
-				if (!form.containsEntityField(entityField)) {
-					final FormField formField = createFormField(form, entityField); 
-					form.addField(formField);
-				}
-			}
-		}
+		filterAndForEach(entity.getAllFields(), 
+						 not(form::containsEntityField),
+						 field -> form.addField(createFormField(form, field)));
+		
 		final FormMetadata formMeta = (FormMetadata) form;
 		formMeta.setLayoutContent(getLayoutService().buildAutoLayout(entity, form));
 		formMeta.setOrderIndexes();
@@ -659,7 +662,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	private List<FormAction> getFormActions(Form form, boolean isList) {
 		Assert.notNull(form, C.FORM);
 		
-		final List<FormAction> result = new ArrayList<>();
+		final var result = new ArrayList<FormAction>();
 		// default actions that comes first
 		for (FormActionType actionType : FormActionType.defaultActionTypes(isList, true)) {
 			result.add(createAction(form, actionType));
@@ -973,7 +976,9 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	private void cleanupFieldExtras(Form form) {
-		final Set<String> fieldIds = getLayoutService().getIdSet(form.getLayout());
+		final Set<String> fieldIds = form.getLayout() != null
+										? getLayoutService().getIdSet(form.getLayout())
+										: Collections.emptySet();
 		form.getFieldExtras().removeIf(extra -> !fieldIds.contains(extra.getEntityField().getUid()));
 	}
 	

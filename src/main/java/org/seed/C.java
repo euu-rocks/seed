@@ -22,6 +22,7 @@ public final class C {
 	public static final String ACTION           = "action";
 	public static final String ANALYSIS         = "analysis";
 	public static final String ANNOTATION       = "annotation";
+	public static final String AUTOLAYOUT       = "autoLayout";
 	public static final String BASE             = "base";
 	public static final String CASCADE          = "cascade";
 	public static final String CHUNKSIZE		= "chunkSize";

@@ -457,20 +457,17 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		Assert.notNull(elements, "elements");
 		
 		boolean matched = false;
-		if (transformer.getSourceEntity().hasAllFields() &&
-			transformer.getTargetEntity().hasAllFields()) {
-			for (EntityField sourceField : transformer.getSourceEntity().getAllFields()) {
-				for (EntityField targetField : transformer.getTargetEntity().getAllFields()) {
-					if (sourceField.getType() == targetField.getType() &&
-						sourceField.getName().equalsIgnoreCase(targetField.getName()) &&
-						!containsElement(elements, sourceField, targetField)) {
-						
-						final var element = createElement(sourceField, targetField);
-						element.setTransformer(transformer);
-						elements.add(element);
-						matched = true;
-						break;
-					}
+		for (EntityField sourceField : transformer.getSourceEntity().getAllFields()) {
+			for (EntityField targetField : transformer.getTargetEntity().getAllFields()) {
+				if (sourceField.getType() == targetField.getType() &&
+					sourceField.getName().equalsIgnoreCase(targetField.getName()) &&
+					!containsElement(elements, sourceField, targetField)) {
+					
+					final var element = createElement(sourceField, targetField);
+					element.setTransformer(transformer);
+					elements.add(element);
+					matched = true;
+					break;
 				}
 			}
 		}
@@ -482,18 +479,15 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 		Assert.notNull(transformer, C.TRANSFORMER);
 		
 		boolean matched = false;
-		if (transformer.getSourceNested().getNestedEntity().hasAllFields() &&
-			transformer.getTargetNested().getNestedEntity().hasAllFields()) {
-			for (EntityField sourceField : transformer.getSourceNested().getFields(true)) {
-				for (EntityField targetField : transformer.getTargetNested().getFields(true)) {
-					if (sourceField.getType() == targetField.getType() &&
-						sourceField.getName().equalsIgnoreCase(targetField.getName()) &&
-						!transformer.containsElement(sourceField, targetField)) {
-						
-						transformer.addElement(createElement(sourceField, targetField));
-						matched = true;
-						break;
-					}
+		for (EntityField sourceField : transformer.getSourceNested().getFields(true)) {
+			for (EntityField targetField : transformer.getTargetNested().getFields(true)) {
+				if (sourceField.getType() == targetField.getType() &&
+					sourceField.getName().equalsIgnoreCase(targetField.getName()) &&
+					!transformer.containsElement(sourceField, targetField)) {
+					
+					transformer.addElement(createElement(sourceField, targetField));
+					matched = true;
+					break;
 				}
 			}
 		}

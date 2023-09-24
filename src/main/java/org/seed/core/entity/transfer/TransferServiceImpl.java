@@ -153,26 +153,24 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	public List<TransferElement> getAvailableElements(Transfer transfer, List<TransferElement> elements) {
 		Assert.notNull(transfer, C.TRANSFER);
 		Assert.notNull(elements, ELEMENTS);
-		
 		final var entity = transfer.getEntity();
 		final var result = new ArrayList<TransferElement>();
-		if (entity.hasAllFields()) {
-			boolean identifierFound = false;
-			for (EntityField entityField : entity.getAllFields()) {
-				// skip non-transferable types
-				if (entityField.getType().isBinary() || 
-					entityField.getType().isFile() ||
-					entityField.isReferenceField()) {
-					continue;
+		
+		boolean identifierFound = false;
+		for (EntityField entityField : entity.getAllFields()) {
+			// skip non-transferable types
+			if (entityField.getType().isBinary() || 
+				entityField.getType().isFile() ||
+				entityField.isReferenceField()) {
+				continue;
+			}
+			if (!anyMatch(elements, elem -> entityField.equals(elem.getEntityField()))) {
+				final var element = createElement(transfer, entityField);
+				if (entityField.isUnique() && !identifierFound) {
+					element.setIdentifier(true);
+					identifierFound = true;
 				}
-				if (!anyMatch(elements, elem -> entityField.equals(elem.getEntityField()))) {
-					final var element = createElement(transfer, entityField);
-					if (entityField.isUnique() && !identifierFound) {
-						element.setIdentifier(true);
-						identifierFound = true;
-					}
-					result.add(element);
-				}
+				result.add(element);
 			}
 		}
 		return result;
@@ -182,21 +180,19 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	public List<TransferElement> getAvailableNestedElements(NestedTransfer nestedTransfer, List<TransferElement> elements) {
 		Assert.notNull(nestedTransfer, "NestedTransfer");
 		Assert.notNull(elements, ELEMENTS);
-		
 		final var entity = nestedTransfer.getNested().getNestedEntity();
 		final var result = new ArrayList<TransferElement>();
-		if (entity.hasAllFields()) {
-			for (EntityField entityField : entity.getAllFields()) {
-				if (entityField.getType().isBinary() || 
-					entityField.getType().isFile() ||
-					entityField.isReferenceField()) {
-					continue;
-				}
-				if (!anyMatch(elements, elem -> entityField.equals(elem.getEntityField()))) {
-					final var element = new TransferElement();
-					element.setEntityField(entityField);
-					result.add(element);
-				}
+		
+		for (EntityField entityField : entity.getAllFields()) {
+			if (entityField.getType().isBinary() || 
+				entityField.getType().isFile() ||
+				entityField.isReferenceField()) {
+				continue;
+			}
+			if (!anyMatch(elements, elem -> entityField.equals(elem.getEntityField()))) {
+				final var element = new TransferElement();
+				element.setEntityField(entityField);
+				result.add(element);
 			}
 		}
 		return result;

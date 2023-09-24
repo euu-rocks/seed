@@ -789,7 +789,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 				}
 				break;
 				
-			case "autolayout":
+			case C.AUTOLAYOUT:
 				if (getOptions().isAutoLayout()) {
 					entityMeta.setGeneric(false);
 					entityMeta.setParentEntity(null);

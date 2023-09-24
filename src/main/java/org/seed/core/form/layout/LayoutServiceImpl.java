@@ -114,7 +114,10 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 		}
 		else if (path.startsWith(PATH_DETAIL)) {
 			final Long formId = Long.parseLong(path.substring(PATH_DETAIL.length()));
-			content = getForm(formId).getLayout().getContent();
+			final var layout = getForm(formId).getLayout();
+			if (layout != null) {
+				content = layout.getContent();
+			}
 		}
 		else if (path.startsWith(PATH_EDIT)) {
 			final String editLayoutUid = path.substring(PATH_EDIT.length(), path.lastIndexOf('/'));
@@ -776,13 +779,14 @@ public class LayoutServiceImpl implements LayoutService, LayoutProvider {
 	@Override
 	public void rebuildLayout(Form form) {
 		Assert.notNull(form, C.FORM);
-		Assert.stateAvailable(form.getLayout(), C.LAYOUT);
 		
 		final FormLayout formLayout = form.getLayout();
-		final var layoutRoot = parseLayout(formLayout);
-		decorateLayout(form, layoutRoot);
-		undecorateLayout(form, layoutRoot);
-		formLayout.setContent(buildLayout(layoutRoot));
+		if (formLayout != null) {
+			final var layoutRoot = parseLayout(formLayout);
+			decorateLayout(form, layoutRoot);
+			undecorateLayout(form, layoutRoot);
+			formLayout.setContent(buildLayout(layoutRoot));
+		}
 	}
 	
 	private void newColumn(Form form, LayoutElement layoutRoot, String contextId, boolean right) {

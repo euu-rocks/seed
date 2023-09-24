@@ -73,7 +73,6 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	private static final String LAYOUT_INCLUDE    = "layoutInclude";
 	private static final String CONTEXT_ID        = "contextid";
 	private static final String EDITFORM_UID      = "editFormUid";
-	private static final String OPTION_AUTOLAYOUT = "autolayout";
 	private static final String OPTION_EXPERTMODE = "expertmode";
 	
 	@Wire("#newFormWin")
@@ -158,7 +157,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 				existFilters = true;
 			}
 		}
-		getFilter(FILTERGROUP_LIST, "autoLayout").setBooleanFilter(true);
+		getFilter(FILTERGROUP_LIST, C.AUTOLAYOUT).setBooleanFilter(true);
 	}
 	
 	public FormField getField() {
@@ -745,7 +744,7 @@ public class AdminFormViewModel extends AbstractAdminViewModel<Form> {
 	@Command
 	public void selectOption(@BindingParam("option") String option) {
 		switch (option) {
-			case OPTION_AUTOLAYOUT:
+			case C.AUTOLAYOUT:
 				getOptions().setExpertMode(false);
 				break;
 				
