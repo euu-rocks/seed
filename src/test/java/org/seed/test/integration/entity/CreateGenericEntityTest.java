@@ -109,4 +109,18 @@ public class CreateGenericEntityTest extends AbstractEntityTest {
 		saveEntity(tabpanel);
 	}
 	
+	@Test
+	@Order(6)
+	void testAddRelation() {
+		WebElement tabpanel = showEntity("generictest");
+		assertEquals("Beziehungen", findTab(tabpanel, "relations").getText());
+		clickTab(tabpanel, "relations");
+		WebElement tabpanelRelations = findTabpanel(tabpanel, "relations");
+		clickButton(tabpanelRelations, "new");
+		
+		findOptionCombobox(tabpanelRelations, "relationentity").sendKeys("TransferableTest");
+		clickTab(tabpanel, "relations"); // lose focus
+		saveEntity(tabpanel);
+	}
+	
 }

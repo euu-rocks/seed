@@ -167,6 +167,18 @@ public class DeleteEntityTest extends AbstractEntityTest {
 	
 	@Test
 	@Order(12)
+	void testRemoveGenericRelation() {
+		WebElement tabpanel = showEntity("generictest");
+		assertEquals("Entitäten: GenericTest", findTab("entitaeten").getText());
+		clickTab(tabpanel, "relations");
+		WebElement tabpanelRelations = findTabpanel(tabpanel, "relations");
+		clickListItem(tabpanelRelations, "transferabletest");
+		clickButton(tabpanelRelations, "remove");
+		saveEntity(tabpanel);
+	}
+	
+	@Test
+	@Order(13)
 	void testDeleteDerivedEntity() {
 		WebElement tabpanel = showEntity("derivedtest");
 		assertEquals("Entitäten: DerivedTest", findTab("entitaeten").getText());
@@ -178,7 +190,7 @@ public class DeleteEntityTest extends AbstractEntityTest {
 	}
 	
 	@Test
-	@Order(13)
+	@Order(14)
 	void testDeleteGenericEntity() {
 		WebElement tabpanel = showEntity("generictest");
 		assertEquals("Entitäten: GenericTest", findTab("entitaeten").getText());
@@ -190,7 +202,7 @@ public class DeleteEntityTest extends AbstractEntityTest {
 	}
 	
 	@Test
-	@Order(14)
+	@Order(15)
 	void testDeleteTransferableEntity() {
 		WebElement tabpanel = showEntity("transferabletestnew");
 		assertEquals("Entitäten: TransferableTestNew", findTab("entitaeten").getText());
@@ -202,7 +214,7 @@ public class DeleteEntityTest extends AbstractEntityTest {
 	}
 	
 	@Test
-	@Order(15)
+	@Order(16)
 	void testDeleteNestedEntity() {
 		WebElement tabpanel = showEntity("nestedtest");
 		assertEquals("Entitäten: NestedTest", findTab("entitaeten").getText());
@@ -214,7 +226,7 @@ public class DeleteEntityTest extends AbstractEntityTest {
 	}
 	
 	@Test
-	@Order(16)
+	@Order(17)
 	void testDeleteEntity() {
 		WebElement tabpanel = showEntity("integrationtest");
 		assertEquals("Entitäten: IntegrationTest", findTab("entitaeten").getText());

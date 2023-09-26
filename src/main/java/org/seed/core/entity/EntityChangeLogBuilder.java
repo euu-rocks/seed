@@ -885,7 +885,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 		addJoinConstraintChange.setBaseTableName(getTableName(relation, false));
 		addJoinConstraintChange.setBaseColumnNames(relation.getJoinColumnName());
 		addJoinConstraintChange.setReferencedColumnNames(SystemField.ID.columName);
-		addJoinConstraintChange.setReferencedTableName(relation.getEntity().getEffectiveTableName());
+		addJoinConstraintChange.setReferencedTableName(relation.getEntityTableName());
 		addChange(addJoinConstraintChange);
 		
 		// inverse join column fk

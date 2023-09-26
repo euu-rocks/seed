@@ -162,6 +162,18 @@ public class EntityRelation extends AbstractOrderedTransferableObject {
 		return createRelation(descendantEntity, relatedEntity);
 	}
 	
+	boolean isEntityAudited() {
+		return entity.isGeneric()
+				? getDerivedEntity().isAudited()
+				: entity.isAudited();
+	}
+	
+	String getEntityTableName() {
+		return entity.isGeneric()
+				? getDerivedEntity().getEffectiveTableName()
+				: entity.getEffectiveTableName();
+	}
+	
 	void setDerivedEntity(Entity derivedEntity) {
 		this.derivedEntity = derivedEntity;
 	}
@@ -170,18 +182,6 @@ public class EntityRelation extends AbstractOrderedTransferableObject {
 		Assert.stateAvailable(derivedEntity, "derived entity");
 		
 		return derivedEntity;
-	}
-	
-	boolean isEntityAudited() {
-		return entity.isGeneric()
-				? getDerivedEntity().isAudited()
-				: entity.isAudited();
-	}
-	
-	private String getEntityTableName() {
-		return entity.isGeneric()
-				? getDerivedEntity().getEffectiveTableName()
-				: entity.getEffectiveTableName();
 	}
 	
 	private static EntityRelation createRelation(Entity entity, Entity relatedEntity) {
