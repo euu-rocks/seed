@@ -22,22 +22,26 @@ import static org.seed.core.util.CollectionUtils.subList;
 import java.util.List;
 
 public enum FormActionType {
-					 // first (if default is true)
-	// 			default defsel list   detail subfrm tmpl-list	 		tmpl-detail  		icon
-	CUSTOM		(false, false, false, true,  true,  Template.SELECT,	null,		  		"z-icon-exclamation"),
-	OVERVIEW	(true,  true,  false, true,  false, null,				null,		  		"z-icon-arrow-left"),
-	BACKSEARCH	(true,  true,  true,  false, false, Template.SEARCH,	null,		  		"z-icon-arrow-left"),
-	SAVE		(false, true,  false, true,  false, null,		 		Template.DIRTY,	  	"z-icon-save"),
-	REFRESH		(false, true,  true,  true,  false, null,		 		Template.NOTNEW, 	"z-icon-refresh"),
-	SEARCH		(false, true,  true,  true,  false, null,				null,     	  		"z-icon-search"),
-	NEWOBJECT	(false, true,  true,  true,  true, 	null,		 		null,     	  		"z-icon-file-o"),
-	DETAIL		(false, true,  true,  false, false, Template.SELECT,	null, 		  		"z-icon-edit"),
-	DELETE  	(false, true,  true,  true,  true,	Template.SELECT,	Template.NOTNEW,	"z-icon-remove"),
-	PRINT		(false, true,  true,  true,  false, Template.PRINT,		Template.PRINT,	    "z-icon-print"),
-	STATUS		(true,  false, true,  true,  false, Template.STATUS,	Template.STATUS,	null),
-	TRANSFORM	(true,  false, true,  true,  false, Template.TRANSFORM, Template.TRANSFORM, null),
-	SELECTCOLS	(true,	false, true,  false, false, null,		 		null,		  		"z-icon-columns"),
-	EXPORTLIST	(false, true,  true,  false, false, null,				null,				"z-icon-download");
+					 // comes first (if default is true)
+	// 			default defsel visibility    		  tmpl-list	 		 tmpl-detail  		 icon
+	CUSTOM		(false, false, detail()|sub(),		  Template.SELECT,	 null,		  		 "z-icon-exclamation"),
+	OVERVIEW	(true,  true,  detail(),			  null,				 null,		  		 "z-icon-arrow-left"),
+	BACKSEARCH	(true,  true,  list(),				  Template.SEARCH,	 null,		  		 "z-icon-arrow-left"),
+	SAVE		(false, true,  detail(), 			  null,				 Template.DIRTY,	 "z-icon-save"),
+	REFRESH		(false, true,  list()|detail(), 	  null,		 		 Template.NOTNEW, 	 "z-icon-refresh"),
+	SEARCH		(false, true,  list()|detail(), 	  null,				 null,     	  		 "z-icon-search"),
+	NEWOBJECT	(false, true,  list()|detail()|sub(), null,		 		 null,     	  		 "z-icon-file-o"),
+	DETAIL		(false, true,  list(), 				  Template.SELECT,	 null, 		  		 "z-icon-edit"),
+	DELETE  	(false, true,  list()|detail()|sub(), Template.SELECT,	 Template.NOTNEW,	 "z-icon-remove"),
+	PRINT		(false, true,  list()|detail(),		  Template.PRINT,	 Template.PRINT,	 "z-icon-print"),
+	STATUS		(true,  false, list()|detail(),		  Template.STATUS,	 Template.STATUS,    null),
+	TRANSFORM	(true,  false, list()|detail(),		  Template.TRANSFORM,Template.TRANSFORM, null),
+	SELECTCOLS	(true,	false, list(), 				  null,		 		 null,				 "z-icon-columns"),
+	EXPORTLIST	(false, true,  list(),				  null,				 null,				 "z-icon-download");
+	
+	private static final int VISIBILITY_LIST    = 0B001;
+	private static final int VISIBILITY_DETAIL  = 0B010;
+	private static final int VISIBILITY_SUBFORM = 0B100;
 	
 	// if true, action is always present and can't be deseleted 
 	public final boolean isDefault;
@@ -57,17 +61,13 @@ public enum FormActionType {
 	
 	private final String icon;
 	
-	private FormActionType(boolean isDefault, boolean isDefaultSelected,
-						   boolean isVisibleAtList, boolean isVisibleAtDetail, 
-						   boolean isVisibleAtSubform, 
-						   Template listTemplate, Template detailTemplate, 
-						   String icon) {
-		
+	private FormActionType(boolean isDefault, boolean isDefaultSelected, int visibility, 
+						   Template listTemplate, Template detailTemplate, String icon) {
 		this.isDefault = isDefault;
 		this.isDefaultSelected = isDefaultSelected;
-		this.isVisibleAtList = isVisibleAtList;
-		this.isVisibleAtDetail = isVisibleAtDetail;
-		this.isVisibleAtSubform = isVisibleAtSubform;
+		this.isVisibleAtList = (visibility & VISIBILITY_LIST) != 0;
+		this.isVisibleAtDetail = (visibility & VISIBILITY_DETAIL) != 0;
+		this.isVisibleAtSubform = (visibility & VISIBILITY_SUBFORM) != 0;
 		this.listTemplate = listTemplate;
 		this.detailTemplate = detailTemplate;
 		this.icon = icon;
@@ -85,9 +85,8 @@ public enum FormActionType {
 		return icon;
 	}
 	
-	// if isDefault is true
 	boolean comesFirst() {
-		return isDefaultSelected;
+		return isDefault && isDefaultSelected;
 	}
 	
 	static List<FormActionType> defaultActionTypes(boolean isList, boolean comesFirst) {
@@ -96,6 +95,18 @@ public enum FormActionType {
 										  (!comesFirst && !type.comesFirst())) &&
 										  ((isList && type.isVisibleAtList) ||
 										  (!isList && type.isVisibleAtDetail))));
+	}
+	
+	private static int list() {
+		return VISIBILITY_LIST;
+	}
+	
+	private static int detail() {
+		return VISIBILITY_DETAIL;
+	}
+	
+	private static int sub() {
+		return VISIBILITY_SUBFORM;
 	}
 	
 	private enum Template {

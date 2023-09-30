@@ -814,7 +814,7 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	private void beforeSaveObject(Entity entity, Session session, boolean isInsert) {
-		if (!isInsert && !entity.isGeneric()) {
+		if (!isInsert) {
 			getChangeAwareObjects().forEach(aware -> aware.notifyBeforeChange(entity, session));
 		}
 	}

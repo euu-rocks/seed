@@ -579,16 +579,35 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(session, C.SESSION);
 		
-		for (Form form : formRepository.find(session, queryParam(C.ENTITY, entity))) {
-			if (form.hasSubForms()) {
-				notifyBeforeChangeSubForms(form, entity, session);
-			}
-			if (form.hasFieldExtras()) {
-				notifyBeforeChangeFieldExtras(form, entity, session);
+		notifyBeforeFields(entity, session);
+		
+		if (!entity.isGeneric()) {
+			for (Form form : formRepository.find(session, queryParam(C.ENTITY, entity))) {
+				if (form.hasSubForms()) {
+					notifyBeforeChangeSubForms(form, entity, session);
+				}
+				if (form.hasFieldExtras()) {
+					notifyBeforeChangeFieldExtras(form, entity, session);
+				}
 			}
 		}
 	}
 	
+	private void notifyBeforeFields(Entity entity, Session session) {
+		final var currentVersionEntity = entityService.getObject(entity.getId());
+		final var query = session.createQuery("from FormField where entityField = :field");
+		// delete form field if entity field no longer exist
+		for (EntityField field : subList(currentVersionEntity.getFields(), 
+										 not(entity::containsField))) {
+			query.setParameter(C.FIELD, field);
+			final List<FormField> formFields = MiscUtils.castList(query.getResultList());
+			for (FormField formField : formFields) {
+				formField.getForm().removeField(formField);
+				session.saveOrUpdate(formField.getForm());
+			}
+		}
+	}
+			
 	private void notifyBeforeChangeSubForms(Form form, Entity entity, Session session) {
 		// delete sub form if nested no longer exist
 		for (SubForm subForm : new ArrayList<>(form.getSubForms())) {
@@ -616,9 +635,6 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		
 		if (!entity.isGeneric()) {
 			for (Form form : findNonExpertForms(entity, session)) {
-				// remove field if entity field no longer exist
-				form.getFields().removeIf(field -> field.getEntityField() != null && 
-												   !entity.containsAllField(field.getEntityField()));
 				updateFormLayout(form, entity, session);
 			}
 			// update parent entity forms (entity is used as nested entity)

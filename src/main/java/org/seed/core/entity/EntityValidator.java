@@ -719,6 +719,10 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 					errors.addError("val.inuse.fieldform", systemEntity.getName());
 					break;
 	
+				case C.TRANSFER:
+					errors.addError("val.inuse.fieldtransfer", systemEntity.getName());
+					break;
+					
 				case C.TRANSFORM:
 					errors.addError("val.inuse.fieldtransform", systemEntity.getName());
 					break;
