@@ -124,6 +124,18 @@ public interface CollectionUtils {
 		}
 	}
 	
+	static <T> List<T> combinedList(@Nullable Collection<T> col1, @Nullable Collection<T> col2) {
+		if (notEmpty(col1)) {
+			return notEmpty(col2)
+					? Stream.concat(col1.stream(), col2.stream()).collect(Collectors.toList())
+					: col1.stream().collect(Collectors.toList());
+		}
+		else if (notEmpty(col2)) {
+			return col2.stream().collect(Collectors.toList());
+		}
+		return Collections.emptyList();
+	}
+	
 	static <T,K,V> Collector<T,?, Map<K,V>> linkedMapCollector(Function<? super T,? extends K> keyFunction,
 															   Function<? super T,? extends V> valueFunction) {
         return Collectors.toMap(keyFunction, valueFunction, 

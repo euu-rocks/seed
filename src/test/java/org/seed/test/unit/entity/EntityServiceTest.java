@@ -136,16 +136,16 @@ class EntityServiceTest {
 		final EntityField field = service.createField(entity);
 		final EntityFieldConstraint constraint = service.createFieldConstraint(entity);
 		final EntityFieldGroup group = service.createFieldGroup(entity);
-		assertTrue(service.findUsage(group).isEmpty());
+		assertTrue(service.findUsage(entity, group).isEmpty());
 		
 		field.setFieldGroup(group);
-		assertFalse(service.findUsage(group).isEmpty());
-		assertSame(entity, service.findUsage(group).get(0));
+		assertFalse(service.findUsage(entity, group).isEmpty());
+		assertSame(entity, service.findUsage(entity, group).get(0));
 		
 		field.setFieldGroup(null);
 		constraint.setFieldGroup(group);
-		assertFalse(service.findUsage(group).isEmpty());
-		assertSame(entity, service.findUsage(group).get(0));
+		assertFalse(service.findUsage(entity, group).isEmpty());
+		assertSame(entity, service.findUsage(entity, group).get(0));
 	}
 	
 	@Test 

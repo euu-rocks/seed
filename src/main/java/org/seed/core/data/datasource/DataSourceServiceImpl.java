@@ -96,12 +96,12 @@ public class DataSourceServiceImpl extends AbstractApplicationEntityService<IDat
 	}
 
 	@Override
-	public List<IDataSource> findUsage(EntityField entityField, Session session) {
+	public List<IDataSource> findUsage(Entity entity, EntityField entityField, Session session) {
 		return Collections.emptyList();
 	}
 
 	@Override
-	public List<IDataSource> findUsage(EntityFieldGroup fieldGroup) {
+	public List<IDataSource> findUsage(Entity entity, EntityFieldGroup fieldGroup) {
 		return Collections.emptyList();
 	}
 	
@@ -121,7 +121,7 @@ public class DataSourceServiceImpl extends AbstractApplicationEntityService<IDat
 	}
 	
 	@Override
-	public List<IDataSource> findUsage(EntityRelation entityRelation, Session session) {
+	public List<IDataSource> findUsage(Entity entity, EntityRelation entityRelation, Session session) {
 		return Collections.emptyList();
 	}
 	

@@ -187,8 +187,6 @@ public class DeleteEntityTest extends AbstractEntityTest {
 		clickListItem(tabpanelFields, "generictext");
 		clickButton(tabpanelFields, "remove");
 		saveEntity(tabpanel);
-		
-		pause(5000);
 	}
 	
 	@Test

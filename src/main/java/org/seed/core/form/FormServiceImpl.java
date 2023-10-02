@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.collections.ListUtils;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -225,7 +224,8 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	@Override
-	public List<Form> findUsage(EntityField entityField, Session session) {
+	public List<Form> findUsage(Entity entity, EntityField entityField, Session session) {
+		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(entityField, C.ENTITYFIELD);
 		Assert.notNull(session, C.SESSION);
 		
@@ -239,7 +239,8 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	
 
 	@Override
-	public List<Form> findUsage(EntityRelation entityRelation, Session session) {
+	public List<Form> findUsage(Entity entity, EntityRelation entityRelation, Session session) {
+		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(entityRelation, C.RELATION);
 		Assert.notNull(session, C.SESSION);
 		
@@ -249,7 +250,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	@Override
-	public List<Form> findUsage(EntityFieldGroup fieldGroup) {
+	public List<Form> findUsage(Entity entity, EntityFieldGroup fieldGroup) {
 		return Collections.emptyList();
 	}
 	
@@ -579,7 +580,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(session, C.SESSION);
 		
-		notifyBeforeFields(entity, session);
+		notifyBeforeChangeFields(entity, session);
 		
 		if (!entity.isGeneric()) {
 			for (Form form : formRepository.find(session, queryParam(C.ENTITY, entity))) {
@@ -593,7 +594,7 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		}
 	}
 	
-	private void notifyBeforeFields(Entity entity, Session session) {
+	private void notifyBeforeChangeFields(Entity entity, Session session) {
 		final var currentVersionEntity = entityService.getObject(entity.getId());
 		final var query = session.createQuery("from FormField where entityField = :field");
 		// delete form field if entity field no longer exist
@@ -1013,9 +1014,8 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 	}
 	
 	private static List<FormField> createFormFields(Form form) {
-		return MiscUtils.castList(
-				ListUtils.union(createEntityFields(form), 
-								createSystemFields(form)));
+		return combinedList(createEntityFields(form), 
+							createSystemFields(form));
 	}
 	
 	private static List<FormField> createEntityFields(Form form) {

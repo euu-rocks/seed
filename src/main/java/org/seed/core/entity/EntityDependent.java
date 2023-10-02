@@ -27,16 +27,16 @@ public interface EntityDependent<T extends SystemEntity> {
 	
 	List<T> findUsage(Entity entity, Session session);
 	
-	List<T> findUsage(EntityField entityField, Session session);
+	List<T> findUsage(Entity entity, EntityField entityField, Session session);
 	
-	List<T> findUsage(EntityFieldGroup fieldGroup);
+	List<T> findUsage(Entity entity, EntityFieldGroup fieldGroup);
+	
+	List<T> findUsage(Entity entity, EntityRelation entityRelation, Session session);
 	
 	List<T> findUsage(EntityStatus entityStatus, Session session);
 	
 	List<T> findUsage(EntityFunction entityFunction, Session session);
 	
 	List<T> findUsage(NestedEntity nestedEntity, Session session);
-	
-	List<T> findUsage(EntityRelation entityRelation, Session session);
 	
 }

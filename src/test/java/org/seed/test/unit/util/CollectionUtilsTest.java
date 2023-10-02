@@ -151,6 +151,23 @@ class CollectionUtilsTest {
 	}
 	
 	@Test
+	void testCombinedList() {
+		final List<String> list1 = new ArrayList<>();
+		final List<String> list2 = new ArrayList<>();
+		assertTrue(CollectionUtils.combinedList(null, null).isEmpty());
+		assertTrue(CollectionUtils.combinedList(list1, null).isEmpty());
+		assertTrue(CollectionUtils.combinedList(null, list2).isEmpty());
+		assertTrue(CollectionUtils.combinedList(list1, list2).isEmpty());
+		
+		list1.add("test");
+		assertSame(1, CollectionUtils.combinedList(list1, null).size());
+		assertSame(1, CollectionUtils.combinedList(list1, list2).size());
+		
+		list2.add("test");
+		assertSame(2, CollectionUtils.combinedList(list1, list2).size());
+	}
+	
+	@Test
 	void testFilterAndForEach() {
 		final List<String> list = new ArrayList<>();
 		final List<String> result = new ArrayList<>();

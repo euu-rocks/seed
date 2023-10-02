@@ -23,7 +23,7 @@ import java.util.List;
 
 public enum FormActionType {
 					 // comes first (if default is true)
-	// 			default defsel visibility    		  tmpl-list	 		 tmpl-detail  		 icon
+	// 			default defsel visibility    		  template-list	 	 template-detail  	 icon
 	CUSTOM		(false, false, detail()|sub(),		  Template.SELECT,	 null,		  		 "z-icon-exclamation"),
 	OVERVIEW	(true,  true,  detail(),			  null,				 null,		  		 "z-icon-arrow-left"),
 	BACKSEARCH	(true,  true,  list(),				  Template.SEARCH,	 null,		  		 "z-icon-arrow-left"),

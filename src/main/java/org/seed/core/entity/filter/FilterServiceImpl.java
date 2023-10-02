@@ -324,15 +324,16 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	}
 
 	@Override
-	public List<Filter> findUsage(EntityField entityField, Session session) {
+	public List<Filter> findUsage(Entity entity, EntityField entityField, Session session) {
+		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(entityField, C.ENTITYFIELD);
 		Assert.notNull(session, C.SESSION);
 		
-		return entityField.getEntity().isGeneric()
+		return entity.isGeneric()
 				? Collections.emptyList()
-				: subList(findFilters(entityField.getEntity(), session), 
-						filter -> anyMatch(filter.getCriteria(), 
-								   			criterion -> entityField.equals(criterion.getEntityField())));
+				: subList(findFilters(entity, session), 
+						  filter -> anyMatch(filter.getCriteria(), 
+								   			 criterion -> entityField.equals(criterion.getEntityField())));
 	}
 	
 	@Override
@@ -366,7 +367,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	}
 	
 	@Override
-	public List<Filter> findUsage(EntityFieldGroup fieldGroup) {
+	public List<Filter> findUsage(Entity entity, EntityFieldGroup fieldGroup) {
 		return Collections.emptyList();
 	}
 	
@@ -381,7 +382,7 @@ public class FilterServiceImpl extends AbstractApplicationEntityService<Filter>
 	}
 	
 	@Override
-	public List<Filter> findUsage(EntityRelation entityRelation, Session session) {
+	public List<Filter> findUsage(Entity entity, EntityRelation entityRelation, Session session) {
 		return Collections.emptyList();
 	}
 	

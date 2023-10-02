@@ -260,9 +260,9 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	@Override
-	public List<Entity> findUsage(EntityFieldGroup fieldGroup) {
+	public List<Entity> findUsage(Entity entity, EntityFieldGroup fieldGroup) {
+		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(fieldGroup, C.FIELDGROUP);
-		final Entity entity = fieldGroup.getEntity();
 		
 		return (anyMatch(entity.getFields(), field -> fieldGroup.equals(field.getFieldGroup())) ||
 				anyMatch(entity.getFieldConstraints(), constr -> fieldGroup.equals(constr.getFieldGroup())))
@@ -318,18 +318,19 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 	}
 	
 	@Override
-	public List<Entity> findUsage(EntityField entityField, Session session) {
+	public List<Entity> findUsage(Entity entity, EntityField entityField, Session session) {
+		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(entityField, C.ENTITYFIELD);
 		Assert.notNull(session, C.SESSION);
 		
 		return entityField.isReferenceField()
-				? subList(getObjects(session), entity -> anyMatch(entity.getNesteds(), 
-																  nested -> nested.getReferenceField().equals(entityField)))
+				? subList(getObjects(session), entityObj -> anyMatch(entityObj.getNesteds(), 
+																	 nested -> nested.getReferenceField().equals(entityField)))
 				: Collections.emptyList();
 	}
 	
 	@Override
-	public List<Entity> findUsage(EntityRelation entityRelation, Session session) {
+	public List<Entity> findUsage(Entity entity, EntityRelation entityRelation, Session session) {
 		return Collections.emptyList();
 	}
 	
@@ -453,7 +454,16 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(field, C.FIELD);
 		
 		if (!field.isNew()) {
-			entityValidator.validateRemoveField(field);
+			if (entity.isGeneric()) {
+				try (Session session = entityRepository.getSession()) {
+					for (Entity descendant : findDescendants(entity, session)) {
+						entityValidator.validateRemoveField(descendant, field);
+					}
+				}
+			}
+			else {
+				entityValidator.validateRemoveField(entity, field);
+			}
 		}
 		entity.removeField(field);
 	}
@@ -465,12 +475,42 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 		Assert.notNull(fieldGroup, C.FIELDGROUP);
 		
 		if (!fieldGroup.isNew()) {
-			entityValidator.validateRemoveFieldGroup(fieldGroup);
+			if (entity.isGeneric()) {
+				try (Session session = entityRepository.getSession()) {
+					for (Entity descendant : findDescendants(entity, session)) {
+						entityValidator.validateRemoveFieldGroup(descendant, fieldGroup);
+					}
+				}
+			}
+			else {
+				entityValidator.validateRemoveFieldGroup(entity, fieldGroup);
+			}
 		}
 		filterAndForEach(entity.getFields(), 
 						 field -> fieldGroup.equals(field.getFieldGroup()), 
 						 field -> field.setFieldGroup(null));
 		entity.removeFieldGroup(fieldGroup);
+	}
+	
+	@Override
+	@Secured("ROLE_ADMIN_ENTITY")
+	public void removeRelation(Entity entity, EntityRelation relation) throws ValidationException {
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(relation, C.RELATION);
+		
+		if (!relation.isNew()) {
+			if (entity.isGeneric()) {
+				try (Session session = entityRepository.getSession()) {
+					for (Entity descendant : findDescendants(entity, session)) {
+						entityValidator.validateRemoveRelation(descendant, relation);
+					}
+				}
+			}
+			else {
+				entityValidator.validateRemoveRelation(entity, relation);
+			}
+		}
+		entity.removeRelation(relation);
 	}
 	
 	@Override
@@ -516,18 +556,6 @@ public class EntityServiceImpl extends AbstractApplicationEntityService<Entity>
 			entityValidator.validateRemoveNested(nested);
 		}
 		entity.removeNested(nested);
-	}
-	
-	@Override
-	@Secured("ROLE_ADMIN_ENTITY")
-	public void removeRelation(Entity entity, EntityRelation relation) throws ValidationException {
-		Assert.notNull(entity, C.ENTITY);
-		Assert.notNull(relation, C.RELATION);
-		
-		if (!relation.isNew()) {
-			entityValidator.validateRemoveRelation(relation);
-		}
-		entity.removeRelation(relation);
 	}
 	
 	@Override

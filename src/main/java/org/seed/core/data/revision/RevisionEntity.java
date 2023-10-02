@@ -38,6 +38,8 @@ import org.hibernate.envers.RevisionTimestamp;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class RevisionEntity implements Revision {
 	
+	public static final String SUFFIX_AUDIT = "_aud";
+	
 	@Id
 	@SequenceGenerator(name="seqGen", sequenceName="seed_id_seq", initialValue=1000, allocationSize=1)
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seqGen")

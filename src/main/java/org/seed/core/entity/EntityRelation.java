@@ -174,14 +174,14 @@ public class EntityRelation extends AbstractOrderedTransferableObject {
 				: entity.getEffectiveTableName();
 	}
 	
-	void setDerivedEntity(Entity derivedEntity) {
-		this.derivedEntity = derivedEntity;
-	}
-	
 	private Entity getDerivedEntity() {
 		Assert.stateAvailable(derivedEntity, "derived entity");
 		
 		return derivedEntity;
+	}
+	
+	public void setDerivedEntity(Entity derivedEntity) {
+		this.derivedEntity = derivedEntity;
 	}
 	
 	private static EntityRelation createRelation(Entity entity, Entity relatedEntity) {

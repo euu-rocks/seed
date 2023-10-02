@@ -676,12 +676,12 @@ public class ValueObjectServiceImpl
 	}
 
 	@Override
-	public List<SystemEntity> findUsage(EntityField entityField, Session session) {
+	public List<SystemEntity> findUsage(Entity entity, EntityField entityField, Session session) {
 		return Collections.emptyList();
 	}
 
 	@Override
-	public List<SystemEntity> findUsage(EntityFieldGroup fieldGroup) {
+	public List<SystemEntity> findUsage(Entity entity, EntityFieldGroup fieldGroup) {
 		return Collections.emptyList();
 	}
 
@@ -708,7 +708,7 @@ public class ValueObjectServiceImpl
 	}
 	
 	@Override
-	public List<SystemEntity> findUsage(EntityRelation entityRelation, Session session) {
+	public List<SystemEntity> findUsage(Entity entity, EntityRelation entityRelation, Session session) {
 		return Collections.emptyList();
 	}
 	

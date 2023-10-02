@@ -65,7 +65,6 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	private static final String PREFIX_UNIQUE_KEY  = "uni_";
 	private static final String PREFIX_INDEX       = "idx_";
 	private static final String SUFFIX_STATUS      = "_status";
-	private static final String SUFFIX_AUDIT       = "_aud";
 	private static final String SUFFIX_REVISION    = "_rev";
 	
 	private final EntityUsage entityUsage;
@@ -669,7 +668,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	private void buildRevisionFieldConstraint(Entity entity) {
 		final var addFKConstraintChange = new AddForeignKeyConstraintChange();
 		addFKConstraintChange.setConstraintName(getRevisionForeignKeyConstraintName(entity));
-		addFKConstraintChange.setBaseTableName(entity.getEffectiveTableName().concat(SUFFIX_AUDIT));
+		addFKConstraintChange.setBaseTableName(entity.getEffectiveTableName().concat(RevisionEntity.SUFFIX_AUDIT));
 		addFKConstraintChange.setBaseColumnNames(RevisionField.REV.columName);
 		addFKConstraintChange.setReferencedTableName(RevisionEntity.class.getAnnotation(Table.class).name());
 		addFKConstraintChange.setReferencedColumnNames(SystemField.ID.columName);
@@ -904,7 +903,7 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	
 	private static String getTableName(Entity entity, boolean isAudit) {
 		final String tableName = entity.getEffectiveTableName();
-		return isAudit ? tableName.concat(SUFFIX_AUDIT) : tableName;
+		return isAudit ? tableName.concat(RevisionEntity.SUFFIX_AUDIT) : tableName;
 	}
 	
 	private static String getTableName(EntityRelation relation, boolean isAudit) {
@@ -913,18 +912,18 @@ class EntityChangeLogBuilder extends AbstractChangeLogBuilder<Entity> {
 	
 	private static String getTableName(Entity related, EntityRelation relation, boolean isAudit) {
 		final String tableName = related != null ? relation.getJoinTableName(related) : relation.getJoinTableName();
-		return isAudit ? tableName.concat(SUFFIX_AUDIT) : tableName;
+		return isAudit ? tableName.concat(RevisionEntity.SUFFIX_AUDIT) : tableName;
 	}
 	
 	private static String getPrimaryKeyConstraintName(Entity entity, boolean isAudit) {
 		final String constraintName = PREFIX_PRIMARY_KEY.concat(TinyId.get(entity.getId()));
-		return isAudit ? constraintName.concat(SUFFIX_AUDIT) : constraintName;
+		return isAudit ? constraintName.concat(RevisionEntity.SUFFIX_AUDIT) : constraintName;
 	}
 	
 	private static String getPrimaryKeyConstraintName(EntityRelation relation, boolean isAudit) {
 		final String pkName = PREFIX_PRIMARY_KEY + TinyId.get(relation.getEntity().getId()) + '_' + 
 												   TinyId.get(relation.getRelatedEntity().getId());
-		return isAudit ? pkName.concat(SUFFIX_AUDIT) : pkName;
+		return isAudit ? pkName.concat(RevisionEntity.SUFFIX_AUDIT) : pkName;
 	}
 	
 	private static String getUniqueConstraintName(Entity entity, EntityField field) {

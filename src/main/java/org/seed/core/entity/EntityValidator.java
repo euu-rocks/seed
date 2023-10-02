@@ -150,16 +150,16 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		validate(errors);
 	}
 	
-	public void validateRemoveField(EntityField field) throws ValidationException {
+	public void validateRemoveField(Entity entity, EntityField field) throws ValidationException {
+		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(field, C.FIELD);
-		final var errors = createValidationErrors(field.getEntity());
+		final var errors = createValidationErrors(entity);
 		
 		// reload field
-		final var entity = repository.get(field.getEntity().getId());
-		field = entity.getFieldById(field.getId());
+		field = repository.get(field.getEntity().getId()).getFieldById(field.getId());
 		
 		// check if field is used in field formula
-		for (EntityField entityField : field.getEntity().getFields()) {
+		for (EntityField entityField : entity.getAllFields()) {
 			if (!entityField.equals(field) && 
 				entityField.getFormula() != null &&
 				entityField.getFormula().contains(field.getEffectiveColumnName())) {
@@ -168,19 +168,20 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		}
 		try (Session session = repository.getSession()) {
 			for (var dependent : getEntityDependents()) {
-				validateRemoveFieldDependent(field, dependent, errors, session);
+				validateRemoveFieldDependent(entity, field, dependent, errors, session);
 			}
 		}
 		validate(errors);
 	}
 	
-	public void validateRemoveFieldGroup(EntityFieldGroup fieldGroup) throws ValidationException {
+	public void validateRemoveFieldGroup(Entity entity, EntityFieldGroup fieldGroup) throws ValidationException {
+		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(fieldGroup, C.FIELDGROUP);
 		final var errors = createValidationErrors(fieldGroup.getEntity());
 		
 		for (var dependent : getEntityDependents()) {
 			if (dependent instanceof EntityService) {
-				for (SystemEntity systemEntity : dependent.findUsage(fieldGroup)) {
+				for (SystemEntity systemEntity : dependent.findUsage(entity, fieldGroup)) {
 					errors.addError("val.inuse.fieldgroupentity", systemEntity.getName());
 				}
 				break;
@@ -260,18 +261,25 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		validate(errors);
 	}
 	
-	public void validateRemoveRelation(EntityRelation relation) throws ValidationException {
+	public void validateRemoveRelation(Entity entity, EntityRelation relation) throws ValidationException {
+		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(relation, C.RELATION);
-		final var errors = createValidationErrors(relation.getEntity());
+		final var errors = createValidationErrors(entity);
 		
 		try (Session session = repository.getSession()) {
 			for (var dependent : getEntityDependents()) {
-				for (SystemEntity systemEntity : dependent.findUsage(relation, session)) {
-					if (C.FORM.equals(getEntityType(systemEntity))) {
-						errors.addError("val.inuse.relationform", systemEntity.getName());
-					}
-					else {
-						unhandledEntity(systemEntity);
+				for (SystemEntity systemEntity : dependent.findUsage(entity, relation, session)) {
+					switch (getEntityType(systemEntity)) {
+						case "dbobject":
+							errors.addError("val.inuse.relationdbobject", systemEntity.getName());
+							break;
+							
+						case C.FORM:
+							errors.addError("val.inuse.relationform", systemEntity.getName());
+							break;
+							
+						default:
+							unhandledEntity(systemEntity);
 					}
 				}
 			}
@@ -699,9 +707,10 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		}
 	}
 	
-	private void validateRemoveFieldDependent(EntityField field, EntityDependent<? extends SystemEntity> dependent,
+	private void validateRemoveFieldDependent(Entity entity, EntityField field, 
+											  EntityDependent<? extends SystemEntity> dependent,
 			  ValidationErrors errors, Session session) {
-		for (SystemEntity systemEntity : dependent.findUsage(field, session)) {
+		for (SystemEntity systemEntity : dependent.findUsage(entity, field, session)) {
 			switch (getEntityType(systemEntity)) {
 				case "dbobject":
 					errors.addError("val.inuse.fieldview", systemEntity.getName());

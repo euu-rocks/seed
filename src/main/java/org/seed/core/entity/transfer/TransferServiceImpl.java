@@ -343,7 +343,8 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	}
 
 	@Override
-	public List<Transfer> findUsage(EntityField entityField, Session session) {
+	public List<Transfer> findUsage(Entity entity, EntityField entityField, Session session) {
+		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(entityField, C.ENTITYFIELD);
 		Assert.notNull(session, C.SESSION);
 		
@@ -359,12 +360,12 @@ public class TransferServiceImpl extends AbstractApplicationEntityService<Transf
 	}
 	
 	@Override
-	public List<Transfer> findUsage(EntityFieldGroup fieldGroup) {
+	public List<Transfer> findUsage(Entity entity, EntityFieldGroup fieldGroup) {
 		return Collections.emptyList();
 	}
 	
 	@Override
-	public List<Transfer> findUsage(EntityRelation entityRelation, Session session) {
+	public List<Transfer> findUsage(Entity entity, EntityRelation entityRelation, Session session) {
 		return Collections.emptyList();
 	}
 	

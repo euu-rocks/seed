@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -37,6 +39,7 @@ import org.seed.core.config.SchemaManager;
 import org.seed.core.config.changelog.ChangeLog;
 import org.seed.core.data.AbstractSystemObject;
 import org.seed.core.data.ValidationException;
+import org.seed.core.data.revision.RevisionEntity;
 import org.seed.core.entity.Entity;
 import org.seed.core.entity.EntityDependent;
 import org.seed.core.entity.EntityField;
@@ -112,7 +115,8 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 	public List<DBObject> findUsage(DBObject dbObject) {
 		Assert.notNull(dbObject, C.DBOBJECT);
 		
-		return subList(repository.find(), object -> object.isEnabled() && object.contains(dbObject));
+		return subList(repository.find(), object -> object.isEnabled() && 
+													object.contains(dbObject));
 	}
 	
 	@Override
@@ -120,23 +124,45 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(session, C.SESSION);
 		
-		return convertedList(schemaManager.findDependencies(session, entity.getEffectiveTableName(), null), 
-							 DBObjectServiceImpl::createDummyObject);
+		final var result = findDependencies(session, entity.getEffectiveTableName(), null, false);
+		return entity.isAudited()
+				? combinedList(result, findDependencies(session, 
+														entity.getEffectiveTableName(), null, true))
+				: result;
 	}
 
 	@Override
-	public List<DBObject> findUsage(EntityField entityField, Session session) {
+	public List<DBObject> findUsage(Entity entity, EntityField entityField, Session session) {
+		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(entityField, C.ENTITYFIELD);
 		Assert.notNull(session, C.SESSION);
 		
-		return convertedList(schemaManager.findDependencies(session, 
-															entityField.getEntity().getEffectiveTableName(),
-															entityField.getEffectiveColumnName()), 
-							 DBObjectServiceImpl::createDummyObject);
+		final var result = findDependencies(session, entity.getEffectiveTableName(), 
+											entityField.getEffectiveColumnName(), false);
+		return entity.isAudited()
+				? combinedList(result, findDependencies(session, entity.getEffectiveTableName(), 
+														entityField.getEffectiveColumnName(), true))
+				: result;
 	}
 	
 	@Override
-	public List<DBObject> findUsage(EntityFieldGroup fieldGroup) {
+	public List<DBObject> findUsage(Entity entity, EntityRelation entityRelation, Session session) {
+		Assert.notNull(entity, C.ENTITY);
+		Assert.notNull(entityRelation, "entity relation");
+		Assert.notNull(session, C.SESSION);
+		
+		if (entityRelation.getEntity().isGeneric()) {
+			entityRelation.setDerivedEntity(entity);
+		}
+		final var result = findDependencies(session, entityRelation.getJoinTableName(), null, false);
+		return entity.isAudited()
+				? combinedList(result, findDependencies(session, 
+														entityRelation.getJoinTableName(), null, true))
+				: result;
+	}
+	
+	@Override
+	public List<DBObject> findUsage(Entity entity, EntityFieldGroup fieldGroup) {
 		return Collections.emptyList();
 	}
 
@@ -155,11 +181,6 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 		return Collections.emptyList();
 	}
 
-	@Override
-	public List<DBObject> findUsage(EntityRelation entityRelation, Session session) {
-		return Collections.emptyList();
-	}
-	
 	@Override
 	protected void analyzeNextVersionObjects(ImportAnalysis analysis, Module currentVersionModule) {
 		if (analysis.getModule().getDBObjects() != null) {
@@ -312,6 +333,16 @@ public class DBObjectServiceImpl extends AbstractApplicationEntityService<DBObje
 		}
 		
 		updateConfiguration();
+	}
+	
+	private List<DBObject> findDependencies(Session session, String objectName, 
+											@Nullable String fieldName, boolean isAuditTable) {
+		return convertedList(schemaManager.findDependencies(session, 
+															isAuditTable 
+																? objectName.concat(RevisionEntity.SUFFIX_AUDIT) 
+																: objectName, 
+															fieldName), 
+							 DBObjectServiceImpl::createDummyObject);
 	}
 	
 	private static ChangeLog createChangeLog(DBObject currentVersionObject, DBObject nextVersionObject) {

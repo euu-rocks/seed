@@ -250,7 +250,8 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	}
 
 	@Override
-	public List<Transformer> findUsage(EntityField entityField, Session session) {
+	public List<Transformer> findUsage(Entity entity, EntityField entityField, Session session) {
+		Assert.notNull(entity, C.ENTITY);
 		Assert.notNull(entityField, C.ENTITYFIELD);
 		Assert.notNull(session, C.SESSION);
 		
@@ -285,7 +286,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	}
 	
 	@Override
-	public List<Transformer> findUsage(EntityFieldGroup fieldGroup) {
+	public List<Transformer> findUsage(Entity entity, EntityFieldGroup fieldGroup) {
 		return Collections.emptyList();
 	}
 	
@@ -295,7 +296,7 @@ public class TransformerServiceImpl extends AbstractApplicationEntityService<Tra
 	}
 	
 	@Override
-	public List<Transformer> findUsage(EntityRelation entityRelation, Session session) {
+	public List<Transformer> findUsage(Entity entity, EntityRelation entityRelation, Session session) {
 		return Collections.emptyList();
 	}
 	
