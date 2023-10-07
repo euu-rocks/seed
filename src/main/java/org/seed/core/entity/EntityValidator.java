@@ -270,7 +270,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 			for (var dependent : getEntityDependents()) {
 				for (SystemEntity systemEntity : dependent.findUsage(entity, relation, session)) {
 					switch (getEntityType(systemEntity)) {
-						case "dbobject":
+						case DBOBJECT:
 							errors.addError("val.inuse.relationdbobject", systemEntity.getName());
 							break;
 							
@@ -673,7 +673,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 					errors.addError("val.inuse.entitydatasource", systemEntity.getName());
 					break;
 					
-				case "dbobject":
+				case DBOBJECT:
 					errors.addError("val.inuse.entitydbobject", systemEntity.getName());
 					break;
 	
@@ -712,7 +712,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 			  ValidationErrors errors, Session session) {
 		for (SystemEntity systemEntity : dependent.findUsage(entity, field, session)) {
 			switch (getEntityType(systemEntity)) {
-				case "dbobject":
+				case DBOBJECT:
 					errors.addError("val.inuse.fieldview", systemEntity.getName());
 					break;
 			
@@ -805,6 +805,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 		}
 	}
 	
+	private static final String DBOBJECT = "dbobject";
 	private static final String AMBIGUOUS_FIELD_OR_NESTED = "val.ambiguous.fieldornested";
 	
 }

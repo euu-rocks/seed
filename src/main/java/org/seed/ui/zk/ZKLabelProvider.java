@@ -47,23 +47,25 @@ public class ZKLabelProvider implements LabelProvider {
 	@Override
 	public String getLabel(String key, String ...params) {
 		Assert.notNull(key, C.KEY);
-		
-		return params != null 
-				? Labels.getLabel(key, params) 
-				: Labels.getLabel(key);
+		final var label = params != null 
+							? Labels.getLabel(key, params) 
+							: Labels.getLabel(key);
+		return label != null
+				? label
+				: '{' + key + '}';
 	}
 
 	@Override
 	public String getEnumLabel(Enum<?> enm) {
 		return enm != null 
-				? Labels.getLabel(getEnumLabelKey(enm)) 
-				: null;
+				? getLabel(getEnumLabelKey(enm)) 
+				: emptyString();
 	}
 	
 	@Override
 	public String formatBoolean(Boolean bool) {
 		return bool != null
-				? Labels.getLabel(getBooleanKey(bool))
+				? getLabel(getBooleanKey(bool))
 				: emptyString();
 	}
 	
