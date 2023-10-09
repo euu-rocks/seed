@@ -56,6 +56,8 @@ public abstract class NameUtils {
 		"1", "j", "ja", "on", "true", "y", "yes"
     };
 	
+	private static final String ILLEGAL_ENTITYNAME = "entity";
+	
 	private NameUtils() {}
 	
 	public static boolean isKeyword(String name) {
@@ -64,6 +66,11 @@ public abstract class NameUtils {
 	
 	public static boolean isSqlKeyword(String name) {
 		return name != null && find(SQL_KEYWORDS, name);
+	}
+	
+	public static boolean isIllegalEntityName(String name) {
+		return ILLEGAL_ENTITYNAME.equalsIgnoreCase(name) ||
+				(name != null && find(ILLEGAL_FIELDNAMES, name));
 	}
 	
 	public static boolean isIllegalFieldName(String name) {

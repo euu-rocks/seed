@@ -42,6 +42,11 @@ public class CreateEntityTest extends AbstractEntityTest {
 		clickButton(tabpanel, "save");
 		findValidationMessage(); // name is empty
 		
+		findTextbox(tabpanel, "name").sendKeys("Entity");
+		clickButton(tabpanel, "save");
+		findValidationMessage(); // name is illegal
+		
+		clearTextbox(tabpanel, "name");
 		findTextbox(tabpanel, "name").sendKeys("IntegrationTest");
 		saveEntity(tabpanel);
 	}

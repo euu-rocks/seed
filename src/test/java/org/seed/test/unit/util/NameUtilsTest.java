@@ -49,6 +49,19 @@ class NameUtilsTest {
 	}
 	
 	@Test
+	void testIsIllegalEntityName() {
+		assertFalse(NameUtils.isIllegalEntityName(null));
+		assertFalse(NameUtils.isIllegalEntityName(""));
+		assertFalse(NameUtils.isIllegalEntityName("test"));
+		assertFalse(NameUtils.isIllegalEntityName("entität"));
+		
+		assertTrue(NameUtils.isIllegalEntityName("entity"));
+		assertTrue(NameUtils.isIllegalEntityName("Entity"));
+		assertTrue(NameUtils.isIllegalEntityName("id"));
+		assertTrue(NameUtils.isIllegalEntityName("UID"));
+	}
+	
+	@Test
 	void testIsIllegalFieldName() {
 		assertFalse(NameUtils.isIllegalFieldName(null));
 		assertFalse(NameUtils.isIllegalFieldName(""));
