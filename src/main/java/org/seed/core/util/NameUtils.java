@@ -45,18 +45,24 @@ public abstract class NameUtils {
 		"union", "unique", "update", "values", "view", "where"
 	};
 	
+	private static final String[] ILLEGAL_ENTITYNAMES = {
+		
+		"abstractvalueobject", "arraylist", "bigdecimal", "bytearrayjsonserializer", 
+		"date", "fileobject", "fileobjectjsonserializer", "generatedcode", 
+		"hashset", "list", "referencejsonserializer", "set", "valueentity"
+	};
+	
 	private static final String[] ILLEGAL_FIELDNAMES = {
 
 		"createdby", "createdon", "entityid", "entitystatus", "id", "lastmodified", 
-		"modifiedby", "modifiedon", "revision_id", "revisiontype", "status_id", "uid", "version"
+		"modifiedby", "modifiedon", "revision_id", "revisiontype", "status_id", 
+		"uid", "version"
     };
 	
 	private static final String[] TRUE_VALUES = {
 
 		"1", "j", "ja", "on", "true", "y", "yes"
     };
-	
-	private static final String ILLEGAL_ENTITYNAME = "entity";
 	
 	private NameUtils() {}
 	
@@ -68,9 +74,21 @@ public abstract class NameUtils {
 		return name != null && find(SQL_KEYWORDS, name);
 	}
 	
+	public static boolean isJavaLangClassName(String name) {
+		try {
+			return name != null && 
+				   Class.forName("java.lang.".concat(name)) != null;
+		}
+    	catch (ClassNotFoundException cnfe) {
+    		return false;
+    	}
+	}
+	
 	public static boolean isIllegalEntityName(String name) {
-		return ILLEGAL_ENTITYNAME.equalsIgnoreCase(name) ||
-				(name != null && find(ILLEGAL_FIELDNAMES, name));
+		return name != null &&
+				(find(ILLEGAL_ENTITYNAMES, name) || 
+				 find(ILLEGAL_FIELDNAMES, name) ||
+				 isJavaLangClassName(name));
 	}
 	
 	public static boolean isIllegalFieldName(String name) {

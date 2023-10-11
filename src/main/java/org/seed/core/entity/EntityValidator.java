@@ -388,7 +388,7 @@ public class EntityValidator extends AbstractSystemEntityValidator<Entity> {
 			errors.addOverlongName(getMaxNameLength());
 		}
 		else if (!NameUtils.containsAlphabet(entity.getInternalName()) ||
-				 NameUtils.isIllegalEntityName(entity.getInternalName())) {
+				 NameUtils.isIllegalEntityName(entity.getGeneratedClass())) {
 			errors.addIllegalName(entity.getInternalName());
 		}
 		else if (NameUtils.startsWithNumber(entity.getInternalName())) {

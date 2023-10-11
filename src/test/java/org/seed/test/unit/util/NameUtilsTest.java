@@ -49,14 +49,27 @@ class NameUtilsTest {
 	}
 	
 	@Test
+	void testIsJavaLangClassName() {
+		assertFalse(NameUtils.isJavaLangClassName(null));
+		assertFalse(NameUtils.isJavaLangClassName(""));
+		assertFalse(NameUtils.isJavaLangClassName("Test"));
+		assertFalse(NameUtils.isJavaLangClassName("List"));
+		
+		assertTrue(NameUtils.isJavaLangClassName("String"));
+		assertTrue(NameUtils.isJavaLangClassName("Exception"));
+		assertTrue(NameUtils.isJavaLangClassName("WeakPairMap"));
+	}
+	
+	@Test
 	void testIsIllegalEntityName() {
 		assertFalse(NameUtils.isIllegalEntityName(null));
 		assertFalse(NameUtils.isIllegalEntityName(""));
 		assertFalse(NameUtils.isIllegalEntityName("test"));
-		assertFalse(NameUtils.isIllegalEntityName("entität"));
 		
-		assertTrue(NameUtils.isIllegalEntityName("entity"));
-		assertTrue(NameUtils.isIllegalEntityName("Entity"));
+		assertTrue(NameUtils.isIllegalEntityName("String"));
+		assertTrue(NameUtils.isIllegalEntityName("Exception"));
+		assertTrue(NameUtils.isIllegalEntityName("AbstractValueObject"));
+		assertTrue(NameUtils.isIllegalEntityName("List"));
 		assertTrue(NameUtils.isIllegalEntityName("id"));
 		assertTrue(NameUtils.isIllegalEntityName("UID"));
 	}

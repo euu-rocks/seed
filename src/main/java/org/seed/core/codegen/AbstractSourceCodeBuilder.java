@@ -88,7 +88,6 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		
 		// imports
 		addImport(GeneratedCode.class);
-		forEach(classMetadata.annotations, this::addImport);
 		forEach(classMetadata.interfaceClasses, this::addImport);
 		if (classMetadata.superClass != null) {
 			addImport(classMetadata.superClass);
@@ -131,22 +130,6 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		}
 	}
 	
-	protected void addImport(AnnotationMetadata annotation) {
-		Assert.notNull(annotation, C.ANNOTATION);
-		
-		addImport(annotation.annotationClass);
-		if (annotation.hasParameters()) {
-			for (Object value : annotation.parameterMap.values()) {
-				if (value instanceof AnnotationMetadata[]) {
-					forEach((AnnotationMetadata[]) value, this::addImport);
-				}
-				else {
-					addImport(value.getClass());
-				}
-			}
-		}
-	}
-	
 	protected void addImportPackage(String packageName) {
 		Assert.notNull(packageName, "package name");
 		
@@ -159,7 +142,6 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		Assert.state(!memberMap.containsKey(name), "duplicate member definition for: " + name);
 		
 		addImport(typeClass);
-		forEach(annotations, this::addImport);
 		final var member = new MemberMetadata(name, typeClass);
 		memberMap.put(name, member);
 		buildMember(codeBuffer, member, annotations);
@@ -171,7 +153,6 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 	}
 	
 	protected void addGetter(String memberName, AnnotationMetadata ...annotations) {
-		forEach(annotations, this::addImport);
 		buildGetter(codeBuffer, getMember(memberName), annotations);
 	}
 	
@@ -187,7 +168,6 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 		
 		// annotations
 		forEach(annotations, annotation -> {
-			addImport(annotation);
 			codeBuffer.append('\t');
 			buildAnnotation(codeBuffer, annotation);
 			codeBuffer.append(LF);
@@ -213,7 +193,6 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 					codeBuffer.append(SEPARATOR);
 				}
 				if (parameter.annotation != null) {
-					addImport(parameter.annotation);
 					buildAnnotation(codeBuffer, parameter.annotation);
 					codeBuffer.append(' ');
 				}
@@ -231,7 +210,6 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 	protected void addAnnotation(AnnotationMetadata annotation) {
 		Assert.notNull(annotation, C.ANNOTATION);
 		
-		addImport(annotation);
 		codeBuffer.append('\t');
 		buildAnnotation(codeBuffer, annotation);
 		codeBuffer.append(LF);
@@ -321,7 +299,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 	}
 	
 	private static void buildAnnotation(StringBuilder buf, AnnotationMetadata annotation) {
-		buf.append('@').append(annotation.annotationClass.getSimpleName());
+		buf.append('@').append(annotation.annotationClass.getName());
 		if (annotation.hasParameters()) {
 			buf.append('(');
 			boolean first = true;
@@ -338,7 +316,7 @@ public abstract class AbstractSourceCodeBuilder implements SourceCodeBuilder {
 					continue;
 				}
 				if (entry.getValue() instanceof Enum) {
-					buf.append(entry.getValue().getClass().getSimpleName()).append('.');
+					buf.append(entry.getValue().getClass().getName()).append('.');
 				}
 				buf.append(entry.getValue());
 			}
