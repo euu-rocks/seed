@@ -334,12 +334,15 @@ public class EntityMetadata extends AbstractApplicationEntity
 	public EntityField findDefaultIdentifierField() {
 		// search in all unique fields first
 		final EntityField identifierField = firstMatch(getAllFields(), 
-				field -> field.isUnique() && (field.getType().isText() || field.getType().isAutonum()));
+				field -> field.isUnique() && field.getType() != null && 
+						 (field.getType().isText() || field.getType().isAutonum()));
 		if (identifierField != null) {
 			return identifierField;
 		}
 		// fallback: search current fields
-		return firstMatch(getAllFields(), field -> field.getType().isText() || field.getType().isAutonum());
+		return firstMatch(getAllFields(), 
+						  field -> field.getType() != null &&  
+						  		   (field.getType().isText() || field.getType().isAutonum()));
 	}
 	
 	// includes generic fieldgroups

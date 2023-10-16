@@ -222,7 +222,8 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 		final List<EntityField> fields = nested != null 
 											? nested.getFields(true) 
 											: getObject().getAllFields();
-		return subList(fields, entityField -> !entityField.getType().isAutonum());
+		return subList(fields, entityField -> entityField.getType() != null &&
+											  !entityField.getType().isAutonum());
 	}
 	
 	public boolean isAlreadyMandatory(EntityField field) {
@@ -1153,6 +1154,7 @@ public class AdminEntityViewModel extends AbstractAdminViewModel<Entity> {
 			final ValidationErrors errors = new ValidationErrors(getObject());
 			for (EntityField entityField : getObject().getFields()) {
 				if (entityField.isMandatory() && !isAlreadyMandatory(entityField) &&
+					entityField.getType() != null &&
 					!entityField.getType().isAutonum() && !entityField.getType().isBinary() &&
 					!entityField.getType().isBoolean() && !entityField.getType().isFile() &&
 					!entityField.hasDefaultValue()) {
