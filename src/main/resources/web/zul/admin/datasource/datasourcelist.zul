@@ -38,7 +38,7 @@
 						   visible="@load(!empty vm.object)"/>
 			<toolbarbutton iconSclass="delete-button z-icon-remove alpha-icon-lg" 
 						   label="${labels.admin.datasource.delete}" 
-						   onClick="@command('deleteDatasourceObject', elem=self)"
+						   onClick="@command('deleteDataSource', elem=self)"
 						   visible="@load(!empty vm.object)"/>
 			<toolbarbutton iconSclass="run-button z-icon-play alpha-icon-lg" 
 						   label="${labels.button.start}" 

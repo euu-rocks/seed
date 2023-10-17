@@ -210,7 +210,7 @@ public class ModuleValidator extends AbstractSystemEntityValidator<Module> {
 					errors.addError("val.inuse.moduletransfer", systemEntity.getName());
 					break;
 					
-				case C.TRANSFORMER:
+				case C.TRANSFORM:
 					errors.addError("val.inuse.moduletransformer", systemEntity.getName());
 					break;
 				

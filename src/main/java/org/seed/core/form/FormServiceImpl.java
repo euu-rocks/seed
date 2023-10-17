@@ -447,9 +447,6 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 				handleException(tx, ex);
 			}
 		}
-		if (form.hasFunctions()) {
-			form.getFunctions().forEach(this::removeFormFunctionClass);
-		}
 	}
 	
 	@Override
@@ -465,6 +462,9 @@ public class FormServiceImpl extends AbstractApplicationEntityService<Form>
 		
 		if (form.getLayout() != null) {
 			session.delete(form.getLayout());
+		}
+		if (form.hasFunctions()) {
+			form.getFunctions().forEach(this::removeFormFunctionClass);
 		}
 	}
 	
